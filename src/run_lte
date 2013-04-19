@@ -1,0 +1,11 @@
+#! /bin/sh
+DIR=`dirname $0`
+DIR=`(cd $DIR ; pwd)`
+INET_DIR=`(cd $DIR/../../inet/src ; pwd)`
+COMMAND_LINE_OPTIONS="-l $INET_DIR/inet -n $DIR/../simulations:$DIR:$INET_DIR"
+
+if [ -x $DIR/simulte -o -x $DIR/simulte.exe ]; then
+  $DIR/simulte $COMMAND_LINE_OPTIONS $*
+else
+  opp_run -l $DIR/simulte $COMMAND_LINE_OPTIONS $*
+fi

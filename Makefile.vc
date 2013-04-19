@@ -1,0 +1,22 @@
+all: checkmakefiles
+	cd src && $(MAKE) -f Makefile.vc
+
+clean: checkmakefiles
+	cd src && $(MAKE) -f Makefile.vc clean
+
+cleanall: checkmakefiles
+	cd src && $(MAKE) -f Makefile.vc MODE=release clean
+	cd src && $(MAKE) -f Makefile.vc MODE=debug clean
+
+makefiles:
+	cd src && call opp_nmakemake -f --deep --make-so -o simulte -O out -I$$\(INET_PROJ\)/src/networklayer/rsvp_te -I$$\(INET_PROJ\)/src/networklayer/common -I$$\(INET_PROJ\)/src/networklayer/icmpv6 -I$$\(INET_PROJ\)/src/transport/tcp -I$$\(INET_PROJ\)/src/networklayer/mpls -I$$\(INET_PROJ\)/src/networklayer/ted -I$$\(INET_PROJ\)/src/networklayer/contract -I$$\(INET_PROJ\)/src/mobility -I$$\(INET_PROJ\)/obsolete/rsvp_te -I$$\(INET_PROJ\)/src/util -I$$\(INET_PROJ\)/src/transport/contract -I$$\(INET_PROJ\)/src/linklayer/mfcore -I$$\(INET_PROJ\)/src/networklayer/ldp -I$$\(INET_PROJ\)/src/networklayer/ipv4 -I$$\(INET_PROJ\)/src/base -I$$\(INET_PROJ\)/src/util/headerserializers -I$$\(INET_PROJ\)/src/transport/sctp -I$$\(INET_PROJ\)/src/networklayer/ipv6 -I$$\(INET_PROJ\)/src/world -I$$\(INET_PROJ\)/src/applications/pingapp -I$$\(INET_PROJ\)/src/linklayer/contract -I$$\(INET_PROJ\)/src/networklayer/arp -I$$\(INET_PROJ\)/src/transport/udp -I../../lte-apps/src/vod -I$$\(INET_PROJ\)/src/applications/udpapp -L../../lte-apps/out/$$\(CONFIGNAME\)/src -L$$\(INET_PROJ\)/out/$$\(CONFIGNAME\)/src -llte-apps -linet -KLTE_APPS_PROJ=../../lte-apps -KINET_PROJ=../../inet
+
+checkmakefiles:
+	@if not exist src\Makefile.vc ( \
+	echo. && \
+	echo ============================================================================ && \
+	echo src/Makefile.vc does not exist. Please use the following command to generate it: && \
+	echo nmake -f Makefile.vc makefiles && \
+	echo ============================================================================ && \
+	echo. && \
+	exit 1 )

@@ -1,0 +1,30 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<root>
+        <AnalogueModels>
+            <AnalogueModel type="itu">
+            <parameter name="shadowing" type="bool" value="true"/>
+            <parameter name="scenario" type="string" value="URBAN_MACROCELL"/>
+             <parameter name="nodeb-height" type="double" value="25"/>
+             <parameter name="building-height" type="double" value="20"/>      
+            </AnalogueModel>
+        </AnalogueModels>
+        <LteDecider type="LtePisaDecider">
+        	<parameter name="targetBler" type="double" value="0.001"/>
+             <parameter name="harqReduction" type="double" value="0.5"/>
+             <parameter name="lambdaMinTh" type="double" value="0.02"/>
+             <parameter name="lambdaMaxTh" type="double" value="0.2"/>
+             <parameter name="lambdaRatioTh" type="double" value="20"/>
+             <parameter name="antennaGainUe" type="double" value="0"/>
+             <parameter name="antennGainEnB" type="double" value="18"/>
+             <parameter name="thermalNoise" type="double" value="-104.5"/>
+             <parameter name="ue-noise-figure" type="double" value="7"/>
+              <parameter name="bs-noise-figure" type="double" value="5"/>
+             <parameter name="cable-loss" type="double" value="2"/>
+        </LteDecider>
+        <LteFeedbackComputation type="LteFeedbackComputationPisa">
+        	 <parameter name="targetBler" type="double" value="0.001"/>
+             <parameter name="lambdaMinTh" type="double" value="0.02"/>
+             <parameter name="lambdaMaxTh" type="double" value="0.2"/>
+             <parameter name="lambdaRatioTh" type="double" value="20"/>
+        </LteFeedbackComputation>
+</root>

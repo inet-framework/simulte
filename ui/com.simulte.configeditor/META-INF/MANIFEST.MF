@@ -1,0 +1,19 @@
+Manifest-Version: 1.0
+Bundle-ManifestVersion: 2
+Bundle-Name: SimuLTE Configuration Editor
+Bundle-SymbolicName: com.simulte.configeditor;singleton:=true
+Bundle-Version: 1.0.0
+Bundle-Activator: com.simulte.configeditor.SimuLTEPlugin
+Require-Bundle: org.eclipse.ui,
+ org.eclipse.core.runtime,
+ org.eclipse.core.resources,
+ org.eclipse.jface.text,
+ org.eclipse.ui.editors,
+ org.eclipse.ui.ide,
+ org.eclipse.ui.forms,
+ org.omnetpp.common,
+ org.omnetpp.inifile.editor,
+ org.omnetpp.ned.core,
+ org.omnetpp.ned.model
+Bundle-ActivationPolicy: lazy
+Bundle-RequiredExecutionEnvironment: JavaSE-1.6

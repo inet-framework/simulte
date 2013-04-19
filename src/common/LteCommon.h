@@ -1,0 +1,715 @@
+// 
+//                           SimuLTE
+// Copyright (C) 2012 Antonio Virdis, Daniele Migliorini, Giovanni
+// Accongiagioco, Generoso Pagano, Vincenzo Pii.
+// 
+// This file is part of a software released under the license included in file
+// "license.pdf". This license can be also found at http://www.ltesimulator.com/
+// The above file and the present reference are part of the software itself, 
+// and cannot be removed from it.
+// 
+
+//
+//  Description:
+//  This file contains LTE typedefs and constants.
+//  At the end of the file there are some utility functions.
+//
+
+#ifndef LTECOMMON_H_
+#define LTECOMMON_H_
+
+#define _NO_W32_PSEUDO_MODIFIERS
+
+#include <iostream>
+#include <omnetpp.h>
+#include <string>
+#include <fstream>
+#include <vector>
+#include <bitset>
+#include <set>
+#include <queue>
+#include <map>
+#include <list>
+#include "Coord.h"
+#include <algorithm>
+
+
+class LteBinder;
+class LteDeployer;
+class LteMacEnb;
+class LteMacBase;
+class cXMLElement;
+class LteRealisticChannelModel;
+class LteControlInfo;
+
+/**
+ * TODO
+ */
+#define ELEM(x) {x,#x}
+
+/// Transmission time interval
+#define TTI 0.001
+
+/// Current simulation time
+#define NOW simTime()
+
+/// Node Id bounds
+#define ENB_MIN_ID 1
+#define ENB_MAX_ID 255
+#define RELAY_MIN_ID 257
+#define RELAY_MAX_ID 1023
+#define UE_MIN_ID 1025
+#define UE_MAX_ID 65535
+
+/// Max Number of Codewords
+#define MAX_CODEWORDS 2
+
+// Number of QCI classes
+#define LTE_QCI_CLASSES 9
+
+/// MAC node ID
+typedef unsigned short MacNodeId;
+
+/// Cell node ID. It is numerically equal to eNodeB MAC node ID.
+typedef unsigned short MacCellId;
+
+/// Omnet Node Id
+typedef unsigned int OmnetId;
+
+/// Logical Connection Identifier
+typedef unsigned short LogicalCid;
+
+/// Connection Identifier: <MacNodeId,LogicalCid>
+typedef unsigned int MacCid;
+
+/// Rank Indicator
+typedef unsigned short Rank;
+
+/// Channel Quality Indicator
+typedef unsigned short Cqi;
+
+/// Precoding Matrix Index
+typedef unsigned short Pmi;
+
+/// Transport Block Size
+typedef unsigned short Tbs;
+
+/// Logical band
+typedef unsigned short Band;
+
+/// Codeword
+typedef unsigned short Codeword;
+
+/// Link Directions
+typedef enum {
+	DL, UL, UNKNOWN_DIRECTION
+} Direction;
+
+/// Modulations
+typedef enum {
+	_QPSK = 0, _16QAM, _64QAM
+} LteMod;
+
+/// Feedback reporting type
+typedef enum {
+	ALLBANDS = 0, PREFERRED, WIDEBAND
+} FeedbackType;
+
+/// Feedback periodicity
+typedef enum {
+	PERIODIC, APERIODIC
+} FbPeriodicity;
+
+/// Resource allocation type
+typedef enum {
+	TYPE2_DISTRIBUTED, TYPE2_LOCALIZED
+} RbAllocationType;
+
+/* workaround: <windows.h> defines IN and OUT */
+#undef IN
+#undef OUT
+
+/// Gate Direction
+typedef enum {
+	IN = 0, OUT = 1
+} GateDirection;
+
+/// Lte Traffic Classes
+typedef enum {
+	CONVERSATIONAL, STREAMING, INTERACTIVE, BACKGROUND, UNKNOWN_TRAFFIC_TYPE
+} LteTrafficClass;
+
+/// Scheduler grant type
+typedef enum {
+    FITALL = 0, FIXED_, URGENT, UNKNOWN_GRANT_TYPE  /* Note: FIXED would clash with <windows.h> */
+} GrantType;
+
+// QCI traffic descriptor
+typedef struct {
+	int priority;
+	double packetDelayBudget;
+	double packetErrorLossRate;
+} QCIParameters;
+
+/// Lte RLC Types
+typedef enum {
+	TM, UM, AM, UNKNOWN_RLC_TYPE
+} LteRlcType;
+
+// Attenuation vector for analogue models
+typedef std::vector<double> AttenuationVector;
+
+/*************************
+ *     Applications      *
+ *************************/
+
+typedef enum {
+	VOIP = 0, VOD, WEB, CBR, FTP, GAMING, FULLBUFFER, UNKNOWN_APP
+} ApplicationType;
+
+struct ApplicationTable {
+	ApplicationType app;
+	std::string appName;
+};
+
+const ApplicationTable applications[] = { ELEM(VOIP), ELEM(VOD), ELEM(WEB),
+		ELEM(CBR), ELEM(FTP), ELEM(FULLBUFFER), ELEM(UNKNOWN_APP) };
+
+/**************************
+ * Scheduling discipline  *
+ **************************/
+
+typedef enum {
+	DRR, PF, MAXCI, UNKNOWN_DISCIPLINE
+} SchedDiscipline;
+
+struct SchedDisciplineTable {
+	SchedDiscipline discipline;
+	std::string disciplineName;
+};
+
+const SchedDisciplineTable disciplines[] = { ELEM(DRR), ELEM(PF), ELEM(MAXCI),ELEM(UNKNOWN_DISCIPLINE) };
+
+
+
+/*************************
+ *   Transmission Modes  *
+ *************************/
+
+typedef enum {
+	// Note: If you add more tx modes, update DL_NUM_TXMODE and UL_NUM_TXMODE
+	SINGLE_ANTENNA_PORT0 = 0,
+	SINGLE_ANTENNA_PORT5,
+	TRANSMIT_DIVERSITY,
+	OL_SPATIAL_MULTIPLEXING,
+	CL_SPATIAL_MULTIPLEXING,
+	MULTI_USER,
+	UNKNOWN_TX_MODE
+} TxMode;
+
+struct TxTable {
+	TxMode tx;
+	std::string txName;
+};
+
+const TxTable txmodes[] = { ELEM(SINGLE_ANTENNA_PORT0),
+		ELEM(SINGLE_ANTENNA_PORT5), ELEM(TRANSMIT_DIVERSITY),
+		ELEM(OL_SPATIAL_MULTIPLEXING), ELEM(CL_SPATIAL_MULTIPLEXING),
+		ELEM(MULTI_USER), ELEM(UNKNOWN_TX_MODE) };
+// Lte feedback type
+typedef enum {
+	IDEAL = 0, REAL, DAS_AWARE, UNKNOW_FB_GEN_TYPE
+} FeedbackGeneratorType;
+
+struct FeedbackRequest {
+	bool request;
+	FeedbackGeneratorType genType;
+	FeedbackType type;
+	//used if genType==real
+	TxMode txMode;
+	bool dasAware;
+	RbAllocationType rbAllocationType;
+};
+
+struct FeedbackGeneratorTypeTable {
+	FeedbackGeneratorType ty;
+	std::string tyname;
+};
+
+const FeedbackGeneratorTypeTable feedbackGeneratorTypeTable[] = { ELEM(IDEAL),
+		ELEM(REAL), ELEM(DAS_AWARE), ELEM(UNKNOW_FB_GEN_TYPE) };
+
+
+/// Number of transmission modes in DL direction.
+const unsigned char DL_NUM_TXMODE = MULTI_USER + 1;
+
+/// Number of transmission modes in UL direction.
+const unsigned char UL_NUM_TXMODE = MULTI_USER + 1;
+
+/// OFDMA layers (see FIXME lteAllocationModuble.h for "layers" meaning)
+typedef enum {
+	MAIN_PLANE = 0, MU_MIMO_PLANE
+} Plane;
+
+typedef enum {
+	INDOOR_HOTSPOT = 0,
+	URBAN_MICROCELL,
+	URBAN_MACROCELL,
+	RURAL_MACROCELL,
+	SUBURBAN_MACROCELL,
+	UNKNOW_SCENARIO
+} DeploymentScenario;
+
+struct DeploymentScenarioMapping {
+	DeploymentScenario scenario;
+	std::string scenarioName;
+};
+
+const DeploymentScenarioMapping DeploymentScenarioTable[] = {
+		ELEM(INDOOR_HOTSPOT), ELEM(URBAN_MICROCELL), ELEM(URBAN_MACROCELL),
+		ELEM(RURAL_MACROCELL), ELEM(SUBURBAN_MACROCELL),
+		ELEM(UNKNOW_SCENARIO) };
+
+const unsigned int txModeToIndex[6] = { 0, 0, 1, 2, 2, 0 };
+const TxMode indexToTxMode[3] = { SINGLE_ANTENNA_PORT0, TRANSMIT_DIVERSITY,
+		OL_SPATIAL_MULTIPLEXING };
+typedef std::map<MacNodeId, TxMode> TxModeMap;
+
+const double cqiToByteTms[16] = { 0, 2, 3, 5, 11, 15, 20, 25, 36, 38, 49, 63,
+		72, 79, 89, 92 };
+
+struct Lambda {
+	unsigned int index;
+	unsigned int lambdaStart;
+	unsigned int channelIndex;
+	double lambdaMin;
+	double lambdaMax;
+	double lambdaRatio;
+};
+
+double dBmToLinear(double dbm);
+double dBToLinear(double db);
+double linearToDBm(double lin);
+double linearToDb(double lin);
+
+/*************************
+ *      DAS Support      *
+ *************************/
+
+/// OFDMA Remotes (see FIXME LteAllocationModule.h for "antenna" meaning)
+typedef enum {
+	MACRO = 0, RU1, RU2, RU3, RU4, RU5, RU6, UNKNOWN_RU
+} Remote;
+
+struct RemoteTable {
+	Remote remote;
+	std::string remoteName;
+};
+
+const RemoteTable remotes[] = { ELEM(MACRO), ELEM(RU1), ELEM(RU2), ELEM(RU3),
+		ELEM(RU4), ELEM(RU5), ELEM(RU6), ELEM(UNKNOWN_RU) };
+
+/**
+ * Maximum number of available DAS RU per cell.
+ * To increase this number, change former enumerate accordingly.
+ * MACRO antenna excluded.
+ */
+const unsigned char NUM_RUS = RU6;
+
+/**
+ * Maximum number of available ANTENNAS per cell.
+ * To increase this number, change former enumerate accordingly.
+ * MACRO antenna included.
+ */
+const unsigned char NUM_ANTENNAS = NUM_RUS + 1;
+
+/*
+ *  Block allocation Map: # of Rbs per Band, per Remote.
+ */
+typedef std::map<Remote, std::map<Band, unsigned int> > RbMap;
+
+/*************************
+ *  Lte PHY Frame Types  *
+ *************************/
+
+typedef enum {
+	DATAPKT,
+	BROADCASTPKT,
+	FEEDBACKPKT,
+	HANDOVERPKT,
+	HARQPKT,
+	GRANTPKT,
+	RACPKT,
+	UNKNOWN_TYPE
+} LtePhyFrameType;
+
+struct LtePhyFrameTable {
+	LtePhyFrameType phyType;
+	std::string phyName;
+};
+
+const LtePhyFrameTable phytypes[] = { ELEM(DATAPKT), ELEM(BROADCASTPKT),
+		ELEM(FEEDBACKPKT), ELEM(HANDOVERPKT), ELEM(GRANTPKT),
+		ELEM(UNKNOWN_TYPE) };
+
+/*************************
+ *    Lte Node Types     *
+ *************************/
+
+typedef enum {
+	INTERNET, /// Internet side of the Lte network
+	ENODEB, /// eNodeB
+	RELAY, /// Relay
+	UE, /// UE
+	UNKNOWN_NODE_TYPE
+/// unknown
+} LteNodeType;
+
+struct LteNodeTable {
+	LteNodeType node;
+	std::string nodeName;
+};
+
+const LteNodeTable nodetypes[] = { ELEM(INTERNET), ELEM(ENODEB), ELEM(RELAY),
+		ELEM(UE), ELEM(UNKNOWN_NODE_TYPE) };
+/**
+ * Subframe type
+ */
+typedef enum {
+	NORMAL_FRAME_TYPE, MBSFN, PAGING, BROADCAST, SYNCRO, ABS, UNKNOWN_FRAME_TYPE
+} LteSubFrameType;
+
+struct LteSubFrameTypeTable {
+	LteSubFrameType type;
+	std::string typeName;
+};
+
+const LteSubFrameTypeTable subFrametypes[] = { ELEM(NORMAL_FRAME_TYPE),
+		ELEM(MBSFN), ELEM(PAGING), ELEM(BROADCAST), ELEM(SYNCRO), ELEM(ABS),
+		ELEM(UNKNOWN_FRAME_TYPE) };
+
+//|--------------------------------------------------|
+//|----------------- ABS Management -----------------|
+//|--------------------------------------------------|
+//********* See 3GPP TS 36.423 for more info *********
+const int ABS_WIN = 40;
+typedef std::bitset<ABS_WIN> AbsBitset;
+
+/*
+ * ABS_INFO 		macro->micro
+ * ABS_STATUS_INFO	micro->macro
+ *
+ * these are the names from standard, so it's not my fault if they are stupid.
+ */
+enum X2MsgType
+{
+	ABS_INFO,
+	ABS_STATUS_INFO
+};
+
+// Abs Status Information structure
+typedef struct
+{
+	double absStatus;
+	AbsBitset usableAbsInfo;
+}AbsStatusInfoMsg;
+
+//|--------------------------------------------------|
+
+
+/**
+ * This is a sample used to gather statistics.
+ * It contains a sample plus an id for the metric
+ */
+class TaggedSample: public cObject {
+public:
+	double sample;
+	unsigned int id;
+	// the emitting cComponent (module)
+	cComponent* module;
+};
+
+/**
+ * The following structure specifies a band and a byte amount which limits the schedulable data
+ * on it.
+ * If this limit is -1, it is considered an unlimited capping.
+ * If this limit is -2, the band cannot be used.
+ * Among other modules, the rtxAcid and grant methods of LteSchedulerEnb use this structure.
+ */
+struct BandLimit {
+	/// Band which the element refers to
+	Band band_;
+	/// Limit of bytes (per codeword) which can be requested for the current band
+	std::vector<int> limit_;
+
+	BandLimit() {
+		band_ = 0;
+		limit_.resize(MAX_CODEWORDS, -1);
+	}
+
+	// default "from Band" constructor
+	BandLimit(Band b) {
+		band_ = b;
+		limit_.resize(MAX_CODEWORDS, -1);
+	}
+	bool operator<(const BandLimit rhs) const {
+		return (limit_[0] > rhs.limit_[0]);
+	}
+
+};
+
+/*****************
+ * LTE Constants
+ *****************/
+
+const unsigned char MAXCW = 2;
+const Cqi MAXCQI = 15;
+const Cqi NOSIGNALCQI = 0;
+const Pmi NOPMI = 0;
+const Rank NORANK = 1;
+const Tbs CQI2ITBSSIZE = 29;
+const unsigned int PDCP_HEADER_UM = 1;
+const unsigned int PDCP_HEADER_AM = 2;
+const unsigned int RLC_HEADER_UM = 2; // TODO
+const unsigned int RLC_HEADER_AM = 2; // TODO
+const unsigned int MAC_HEADER = 2;
+const unsigned int MAXGRANT = 4294967295U;
+
+/*****************
+ * MAC Support
+ *****************/
+
+class LteMacBuffer;
+class LteMacQueue;
+class MacControlElement;
+class LteMacPdu;
+
+/**
+ * This is a map that associates each Connection Id with
+ * a Mac Queue, storing  MAC SDUs (or RLC PDUs)
+ */
+typedef std::map<MacCid, LteMacQueue*> LteMacBuffers;
+
+/**
+ * This is a map that associates each Connection Id with
+ *  a buffer storing the  MAC SDUs info (or RLC PDUs).
+ */
+typedef std::map<MacCid, LteMacBuffer*> LteMacBufferMap;
+
+/**
+ * This is the Schedule list, a list of schedule elements.
+ * For each CID on each codeword there is a number of SDUs
+ */
+typedef std::map<std::pair<MacCid, Codeword>, unsigned int> LteMacScheduleList;
+
+/**
+ * This is the Pdu list, a list of scheduled Pdus for
+ * each user on each codeword.
+ */
+typedef std::map<std::pair<MacNodeId, Codeword>, LteMacPdu*> MacPduList;
+
+/*
+ * Codeword list : for each node, it keeps track of allocated codewords (number)
+ */
+typedef std::map<MacNodeId, unsigned int> LteMacAllocatedCws;
+
+/**
+ * The Mac Sdu List, a list of MAC SDUs
+ * contained inside a MAC PDU
+ */
+typedef std::list<cPacket*> MacSduList;
+
+/**
+ * The Mac Control Elements List, a list
+ * of CEs contained inside a MAC PDU
+ */
+typedef std::list<MacControlElement*> MacControlElementsList;
+
+/*****************
+ * HARQ Support
+ *****************/
+
+/// Unknown acid code
+#define HARQ_NONE 255
+
+/// Number of harq tx processes
+#define ENB_TX_HARQ_PROCESSES 8
+#define UE_TX_HARQ_PROCESSES 8
+#define ENB_RX_HARQ_PROCESSES 8
+#define UE_RX_HARQ_PROCESSES 8
+
+/// time interval between two transmissions of the same pdu
+#define HARQ_TX_INTERVAL 7*TTI
+
+/// time it takes to generate feedback for a pdu
+#define HARQ_FB_EVALUATION_INTERVAL 3*TTI
+
+/// H-ARQ feedback (ACK, NACK)
+typedef enum {
+	HARQNACK = 0, HARQACK = 1
+} HarqAcknowledgment;
+
+/// TX H-ARQ pdu status
+typedef enum {
+	/// pdu is ready for retransmission (nack received)
+	TXHARQ_PDU_BUFFERED = 0,
+	/// pdu is waiting for feedback
+	TXHARQ_PDU_WAITING,
+	/// no pdu inside this process (empty process)
+	TXHARQ_PDU_EMPTY,
+	/// pdu selected for transmission
+	TXHARQ_PDU_SELECTED
+} TxHarqPduStatus;
+
+/// RX H-ARQ pdu status
+typedef enum {
+	/// no pdu, process is empty
+	RXHARQ_PDU_EMPTY = 0,
+	/// pdu is in evaluating state
+	RXHARQ_PDU_EVALUATING,
+	/// pdu has been evaluated and it is correct
+	RXHARQ_PDU_CORRECT,
+	/// pdu has been evaluated and it is not correct
+	RXHARQ_PDU_CORRUPTED
+} RxHarqPduStatus;
+
+struct RemoteUnitPhyData {
+	int txPower;
+	Coord m;
+};
+
+// Codeword List - returned by Harq functions
+typedef std::list<Codeword> CwList;
+
+/// Pair of acid, list of unit ids
+typedef std::pair<unsigned char, CwList> UnitList;
+
+/*********************
+ * Incell Interference Support
+ *********************/
+typedef enum {
+	// macro eNb
+	MACRO_ENB,
+	// micro eNb
+	MICRO_ENB
+} EnbType;
+
+struct EnbInfo
+{
+	bool init; 		// initialization flag
+	EnbType type; 	// MICRO_ENB or MACRO_ENB
+	double txPwr;
+	MacNodeId id;
+	LteMacEnb * mac;
+	LteRealisticChannelModel * realChan ;
+	cModule * eNodeB;
+	int x2;
+};
+/*****************
+ *  PHY Support  *
+ *****************/
+
+typedef std::vector<std::vector<std::vector<double> > > BlerCurves;
+
+/*************************************
+ * Shortcut for structures using STL
+ *************************************/
+
+typedef std::vector<Cqi> CqiVector;
+typedef std::vector<Pmi> PmiVector;
+typedef std::set<Band> BandSet;
+typedef std::set<Remote> RemoteSet;
+typedef std::map<MacNodeId, bool> ConnectedUesMap;
+typedef std::pair<int, simtime_t> PacketInfo;
+typedef std::vector<RemoteUnitPhyData> RemoteUnitPhyDataVector;
+typedef std::set<MacNodeId> ActiveUser;
+typedef std::set<MacCid> ActiveSet;
+/**
+ * Used at initialization to pass the parameters
+ * to the AnalogueModels and Decider.
+ *
+ * Parameters read from xml file are stored in this map.
+ */
+typedef std::map<std::string, cMsgPar> ParameterMap;
+
+/*********************
+ * Utility functions
+ *********************/
+
+const std::string dirToA(Direction dir);
+const std::string allocationTypeToA(RbAllocationType type);
+const std::string modToA(LteMod mod);
+const std::string periodicityToA(FbPeriodicity per);
+const std::string txModeToA(TxMode tx);
+TxMode aToTxMode(std::string s);
+const std::string schedDisciplineToA(SchedDiscipline discipline);
+SchedDiscipline aToSchedDiscipline(std::string s);
+Remote aToDas(std::string s);
+const std::string dasToA(const Remote r);
+const std::string nodeTypeToA(const LteNodeType t);
+LteNodeType aToNodeType(std::string name);
+LteNodeType getNodeTypeById(MacNodeId id);
+FeedbackType getFeedbackType(std::string s);
+RbAllocationType getRbAllocationType(std::string s);
+ApplicationType aToApplicationType(std::string s);
+const std::string applicationTypeToA(std::string s);
+const std::string lteTrafficClassToA(LteTrafficClass type);
+LteTrafficClass aToLteTrafficClass(std::string s);
+const std::string phyFrameTypeToA(const LtePhyFrameType r);
+LtePhyFrameType aToPhyFrameType(std::string s);
+const std::string rlcTypeToA(LteRlcType type);
+char* cStringToLower(char* str);
+LteRlcType aToRlcType(std::string s);
+const std::string planeToA(Plane p);
+MacNodeId ctrlInfoToUeId(LteControlInfo * info);
+MacCid idToMacCid(MacNodeId nodeId, LogicalCid lcid);
+MacCid ctrlInfoToMacCid(LteControlInfo * info);		// get the CID from the packet control info
+MacNodeId MacCidToNodeId(MacCid cid);
+LogicalCid MacCidToLcid(MacCid cid);
+GrantType aToGrantType(std::string a);
+const std::string grantTypeToA(GrantType gType);
+LteBinder* getBinder();
+LteDeployer* getDeployer(MacNodeId nodeId);
+cModule* getMacByMacNodeId(MacNodeId nodeId);
+cModule* getRlcByMacNodeId(MacNodeId nodeId,LteRlcType rlcType);
+LteMacBase* getMacUe(MacNodeId nodeId);
+FeedbackGeneratorType getFeedbackGeneratorType(std::string s);
+const std::string fbGeneratorTypeToA(FeedbackGeneratorType type);
+LteSubFrameType aToSubFrameType(std::string s);
+const std::string SubFrameTypeToA(const LteSubFrameType r);
+const std::string DeploymentScenarioToA(DeploymentScenario type);
+DeploymentScenario aToDeploymentScenario(std::string s);
+/**
+ * Utility function that reads the parameters of an XML element
+ * and stores them in the passed ParameterMap reference.
+ *
+ * @param xmlData XML parameters config element related to a specific section
+ * @param[output] outputMap map to store read parameters
+ */
+void getParametersFromXML(cXMLElement* xmlData, ParameterMap& outputMap);
+/**
+ * Parses a CSV string parameter into an int array.
+ *
+ * The string must be in the format "v1,v2,..,vi,...,vN;" and if dim > N,
+ * the values[i] are filled with zeros from when i = N + 1.
+ * Warning messages are issued if the string has less or more values than dim.
+ *
+ * @param str string to be parsed
+ * @param values pointer to the int array
+ * @param dim dimension of the values array
+ * @param pad default value to be used when the string has less than dim values
+ */
+void parseStringToIntArray(std::string str, int* values, int dim, int pad);
+
+/**
+ * Initializes module's channels
+ *
+ * A dinamically created node needs its channels to be initialized, this method
+ * runs through all a module's and its submodules' channels recursively and
+ * initializes all channels.
+ *
+ * @param mod module whose channels needs initialization
+ */
+void initializeAllChannels(cModule *mod);
+
+#endif /* LTECOMMON_H_ */

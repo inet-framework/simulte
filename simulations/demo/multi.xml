@@ -1,0 +1,5 @@
+<config>
+    <interface hosts="*" address="10.x.x.x" netmask="255.x.x.x"/>
+    <wireless hosts="eNodeB1 ue11 ue12"/>
+    <wireless hosts="eNodeB2 ue21 ue22"/>
+</config>

@@ -1,0 +1,10 @@
+- remove the dependence of the LTE model from the lte-apps project. code dependence is in LtePdcpRrcBase
+
+- use signal based statistics. In some places forwarded/dropped packets are counted inside a module.
+  These can be replaced by simply emitting the given packet.
+
+- In LteBinder parameters for QCI 3 4 and 6 7 seems to be swapped ???
+
+- LteBinder: lteInternet is not checked for NULLness. Will crash if no lteInternet module present
+
+- FeedbackTester should be moved to a separate directory.
