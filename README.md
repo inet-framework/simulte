@@ -3,11 +3,14 @@ SimuLTE
 
 LTE user plane simulation model, compatible with the INET Framework.
 
+
 Features
 --------
 
 - eNodeB and UE models
+- Form-based configuration editor
 - ...
+
 
 Limitations
 -----------
@@ -29,3 +32,12 @@ Limitations
 You might also have a look at the 4GSim project (http://github.com/4gsim/4Gsim)
 which concentrates on simulating other aspects of LTE, namely,
 control plane and backhaul.
+
+
+Using the configuration editor
+------------------------------
+
+SimuLTE also contains a form-based configuration editor to edit the most 
+often used simulation parameters. To use it, right-click an Ini file, and choose
+'Open With | SimuLTE Configuration Editor' from the context menu. Try it on 
+'simulations/demo/gui.ini'.
