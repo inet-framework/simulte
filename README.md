@@ -7,9 +7,52 @@ LTE user plane simulation model, compatible with the INET Framework.
 Features
 --------
 
+General
+
 - eNodeB and UE models
 - Form-based configuration editor
-- ...
+
+PDCP-RRC
+
+- Header compression/decompression
+- Logical connection establishment  and maintenance 
+
+RLC
+
+- Multiplexing/Demultiplexing of MAC SDUs
+- UM, (AM and TM testing) modes
+
+MAC
+
+- RLC PDUs buffering
+- HARQ functionalities (with multi-codeword support)
+- Allocation management
+- AMC
+- Scheduling Policies (MAX C/I, Proportional Fair, DRR)
+
+PHY
+
+- Heterogeneous Net (HetNets) support: Macro, micro, pico eNbs
+- Channel Feedback management
+- Dummy channel model
+- Realistic channel model with
+  - cell interference
+  - path-loss
+  - fast fading
+  - shadowing 
+  - (an-isotropic antennas - work in progress)
+
+Other
+
+- X2 communication support
+- (Relay support - work in progress)
+- Distributed Antenna System - DAS (Testing)
+
+Applications
+
+- VoIP
+- Gaming
+- Trace Based traffic
 
 
 Limitations
