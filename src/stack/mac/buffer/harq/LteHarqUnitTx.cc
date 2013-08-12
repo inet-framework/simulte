@@ -39,11 +39,11 @@ LteHarqUnitTx::LteHarqUnitTx(unsigned char acid, Codeword cw,
         tSampleCell_->module = check_and_cast<cComponent*>(macOwner_);
 
         macPacketLoss_ = dstMac_->registerSignal("macPacketLossDl");
-        HarqErrorRate_ = dstMac_->registerSignal("HarqErrorRateDl");
-        HarqErrorRate_1_ = dstMac_->registerSignal("HarqErrorRate_1st_Dl");
-        HarqErrorRate_2_ = dstMac_->registerSignal("HarqErrorRate_2nd_Dl");
-        HarqErrorRate_3_ = dstMac_->registerSignal("HarqErrorRate_3rd_Dl");
-        HarqErrorRate_4_ = dstMac_->registerSignal("HarqErrorRate_4th_Dl");
+        harqErrorRate_ = dstMac_->registerSignal("harqErrorRateDl");
+        harqErrorRate_1_ = dstMac_->registerSignal("harqErrorRate_1st_Dl");
+        harqErrorRate_2_ = dstMac_->registerSignal("harqErrorRate_2nd_Dl");
+        harqErrorRate_3_ = dstMac_->registerSignal("harqErrorRate_3rd_Dl");
+        harqErrorRate_4_ = dstMac_->registerSignal("harqErrorRate_4th_Dl");
     } else {
         cModule* nodeB = getMacByMacNodeId(macOwner_->getMacCellId());
         tSample_->module = check_and_cast<cComponent*>(macOwner_);
@@ -52,11 +52,11 @@ LteHarqUnitTx::LteHarqUnitTx(unsigned char acid, Codeword cw,
         tSampleCell_->module = check_and_cast<cComponent*>(nodeB);
 
         macPacketLoss_ = macOwner_->registerSignal("macPacketLossUl");
-        HarqErrorRate_ = macOwner_->registerSignal("HarqErrorRateUl");
-        HarqErrorRate_1_ = macOwner_->registerSignal("HarqErrorRate_1st_Ul");
-        HarqErrorRate_2_ = macOwner_->registerSignal("HarqErrorRate_2nd_Ul");
-        HarqErrorRate_3_ = macOwner_->registerSignal("HarqErrorRate_3rd_Ul");
-        HarqErrorRate_4_ = macOwner_->registerSignal("HarqErrorRate_4th_Ul");
+        harqErrorRate_ = macOwner_->registerSignal("harqErrorRateUl");
+        harqErrorRate_1_ = macOwner_->registerSignal("harqErrorRate_1st_Ul");
+        harqErrorRate_2_ = macOwner_->registerSignal("harqErrorRate_2nd_Ul");
+        harqErrorRate_3_ = macOwner_->registerSignal("harqErrorRate_3rd_Ul");
+        harqErrorRate_4_ = macOwner_->registerSignal("harqErrorRate_4th_Ul");
     }
 
 }
@@ -166,22 +166,22 @@ bool LteHarqUnitTx::pduFeedback(HarqAcknowledgment a) {
 
     switch (ntx) {
     case 1:
-        emitter->emit(HarqErrorRate_1_, tSample_);
+        emitter->emit(harqErrorRate_1_, tSample_);
         break;
     case 2:
-        emitter->emit(HarqErrorRate_2_, tSample_);
+        emitter->emit(harqErrorRate_2_, tSample_);
         break;
     case 3:
-        emitter->emit(HarqErrorRate_3_, tSample_);
+        emitter->emit(harqErrorRate_3_, tSample_);
         break;
     case 4:
-        emitter->emit(HarqErrorRate_4_, tSample_);
+        emitter->emit(harqErrorRate_4_, tSample_);
         break;
     default:
         break;
     }
 
-    emitter->emit(HarqErrorRate_, tSample_);
+    emitter->emit(harqErrorRate_, tSample_);
 
     if (reset)
     {

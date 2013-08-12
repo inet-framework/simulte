@@ -71,11 +71,11 @@ class LteHarqUnitTx {
 
         simsignal_t macCellPacketLoss_;
         simsignal_t macPacketLoss_;
-        simsignal_t HarqErrorRate_;
-        simsignal_t HarqErrorRate_1_;
-        simsignal_t HarqErrorRate_2_;
-        simsignal_t HarqErrorRate_3_;
-        simsignal_t HarqErrorRate_4_;
+        simsignal_t harqErrorRate_;
+        simsignal_t harqErrorRate_1_;
+        simsignal_t harqErrorRate_2_;
+        simsignal_t harqErrorRate_3_;
+        simsignal_t harqErrorRate_4_;
 
         TaggedSample *tSample_;
         TaggedSample *tSampleCell_;
