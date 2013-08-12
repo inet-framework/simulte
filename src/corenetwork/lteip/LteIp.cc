@@ -89,7 +89,7 @@ void LteIp::endService(cPacket *msg)
 
 
 	    	IPv4Datagram *ipDatagram = check_and_cast<IPv4Datagram *>(msg);
-	    	cPacket *transportPacket = ipDatagram->getEncapsulatedMsg();
+	        cPacket *transportPacket = ipDatagram->getEncapsulatedPacket();
 
 	    	// TODO: KLUDGE: copied over from function fromTransport
 	        unsigned short srcPort = 0;
