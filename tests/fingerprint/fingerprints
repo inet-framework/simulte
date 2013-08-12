@@ -1,6 +1,7 @@
 #!/usr/bin/env python
 #
-# Fingerprint-based regression tested for the INET Framework.
+# Fingerprint-based regression tests for SimuLTE; script is based
+# the similar test from the INET Framework.
 #
 # Accepts one or more CSV files with 4 columns: working directory,
 # options to opp_run, simulation time limit, expected fingerprint.
@@ -30,10 +31,11 @@ import unittest
 from StringIO import StringIO
 
 
-inetRoot = os.path.abspath("../..")
+simulteRoot = os.path.abspath("../..")
+inetRoot = os.path.abspath(simulteRoot + "/../inet")
 sep = ";" if sys.platform == 'win32' else ':'
-nedPath = inetRoot + "/src" + sep + inetRoot + "/examples" + sep + inetRoot + "/tests/networks"
-inetLib = inetRoot + "/src/inet"
+nedPath = inetRoot + "/src" + sep + simulteRoot + "/src" + sep + simulteRoot + "/simulations"
+simulteLib = simulteRoot + "/src/simulte"
 opp_run = "opp_run"
 cpuTimeLimit = "300s"
 logFile = "test.out"
@@ -252,14 +254,15 @@ class FingerprintTestCase(SimulationTestCase):
 
     def runTest(self):
         # CPU time limit is a safety guard: fingerprint checks shouldn't take forever
-        global inetRoot, opp_run, nedPath, cpuTimeLimit
+        global simulteRoot, opp_run, nedPath, cpuTimeLimit
 
         # run the simulation
-        workingdir = _iif(self.wd.startswith('/'), inetRoot + "/" + self.wd, self.wd)
-        command = opp_run + " -n " + nedPath + " -l " + inetLib + " -u Cmdenv " + self.args + \
+        workingdir = _iif(self.wd.startswith('/'), simulteRoot + "/" + self.wd, self.wd)
+        command = opp_run + " -n " + nedPath + " -l " + simulteLib + " -u Cmdenv " + self.args + \
             _iif(self.simtimelimit!="", " --sim-time-limit=" + self.simtimelimit, "") + \
             " --fingerprint=" + self.fingerprint + " --cpu-time-limit=" + cpuTimeLimit + \
-            " --vector-recording=false --scalar-recording=false"
+            ""
+            #" --vector-recording=false --scalar-recording=false"
 
         anyFingerpintBad = False;
         computedFingerprints = set()
