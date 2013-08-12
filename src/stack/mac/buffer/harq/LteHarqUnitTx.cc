@@ -63,12 +63,12 @@ LteHarqUnitTx::LteHarqUnitTx(unsigned char acid, Codeword cw,
 
 void LteHarqUnitTx::insertPdu(LteMacPdu *pdu) {
 	if (!pdu) {
-		opp_error("Trying to insert NULL macPdu pointer in harq unit");
+		throw cRuntimeError("Trying to insert NULL macPdu pointer in harq unit");
 	}
 
 	// cannot insert if the unit is not idle
 	if (!this->isEmpty()) {
-		opp_error("Trying to insert macPdu in already busy harq unit");
+		throw cRuntimeError("Trying to insert macPdu in already busy harq unit");
 		;
 	}
 
@@ -82,7 +82,7 @@ void LteHarqUnitTx::insertPdu(LteMacPdu *pdu) {
 	lteInfo->setAcid(acid_);
 	Codeword cw_old = lteInfo->getCw();
 	if (cw_ != cw_old) {
-		opp_error("mismatch in cw settings");
+		throw cRuntimeError("mismatch in cw settings");
 	}
 	lteInfo->setCw(cw_);
 
@@ -93,7 +93,7 @@ void LteHarqUnitTx::markSelected() {
 			<< acid_ << " codeword " << cw_ << " for transmission " << endl;
 
 	if (!(this->isReady())) {
-		opp_error(
+		throw cRuntimeError(
 				" ERROR acid %d codeword %d trying to select for transmission an empty buffer, aborting simulation.",
 				acid_, cw_);
 	}
@@ -103,7 +103,7 @@ void LteHarqUnitTx::markSelected() {
 
 LteMacPdu *LteHarqUnitTx::extractPdu() {
 	if (!(status_ == TXHARQ_PDU_SELECTED)) {
-		opp_error("Trying to extract macPdu from not selected H-ARQ unit");
+		throw cRuntimeError("Trying to extract macPdu from not selected H-ARQ unit");
 	}
 
 	txTime_ = NOW;
@@ -127,7 +127,7 @@ bool LteHarqUnitTx::pduFeedback(HarqAcknowledgment a) {
 	short unsigned int dir = lteInfo->getDirection();
 	unsigned int ntx = transmissions_;
 	if (!(status_ == TXHARQ_PDU_WAITING)) {
-		opp_error("Feedback sent to an H-ARQ unit not waiting for it");
+		throw cRuntimeError("Feedback sent to an H-ARQ unit not waiting for it");
 	}
 
 	if (a == HARQACK) {
@@ -159,7 +159,7 @@ bool LteHarqUnitTx::pduFeedback(HarqAcknowledgment a) {
 
 		}
 	} else {
-		opp_error("LteHarqUnitTx::pduFeedback unknown feedback received from process  %d , Codeword %d",
+		throw cRuntimeError("LteHarqUnitTx::pduFeedback unknown feedback received from process  %d , Codeword %d",
 				acid_, cw_);
 	}
 
@@ -171,7 +171,7 @@ bool LteHarqUnitTx::pduFeedback(HarqAcknowledgment a) {
 		tSample_->id = srcId;
 		emitter = macOwner_;
 	} else {
-		opp_error("LteHarqUnitTx::pduFeedback: unknown direction");
+		throw cRuntimeError("LteHarqUnitTx::pduFeedback: unknown direction");
 	}
 
 	switch (ntx) {
@@ -213,11 +213,11 @@ bool LteHarqUnitTx::isReady() {
 bool LteHarqUnitTx::selfNack() {
 	if (status_ == TXHARQ_PDU_WAITING) {
 		// wrong usage, manual nack now is dangerous (a real one may arrive too)
-		opp_error("LteHarqUnitTx::selfNack Trying to send self NACK to a unit waiting for feedback");
+		throw cRuntimeError("LteHarqUnitTx::selfNack Trying to send self NACK to a unit waiting for feedback");
 	}
 
 	if (status_ != TXHARQ_PDU_BUFFERED) {
-		opp_error("LteHarqUnitTx::selfNack Trying to send self NACK to an idle or selected unit");
+		throw cRuntimeError("LteHarqUnitTx::selfNack Trying to send self NACK to an idle or selected unit");
 	}
 
 	transmissions_++;
@@ -228,7 +228,7 @@ bool LteHarqUnitTx::selfNack() {
 
 void LteHarqUnitTx::dropPdu() {
 	if (status_ != TXHARQ_PDU_BUFFERED) {
-		opp_error("LteHarqUnitTx::dropPdu H-ARQ TX unit: cannot drop pdu if state is not BUFFERED");
+		throw cRuntimeError("LteHarqUnitTx::dropPdu H-ARQ TX unit: cannot drop pdu if state is not BUFFERED");
 	}
 	resetUnit();
 }

@@ -308,7 +308,7 @@ void LteBinder::registerDeployer(LteDeployer* pDeployer, MacCellId macCellId) {
 //					{
 //						num = application->getAttribute("num");
 //						if(num==NULL)
-//							opp_error("Unspecified number of application for the eNodeB. (add the num field in xml)");
+//							throw cRuntimeError("Unspecified number of application for the eNodeB. (add the num field in xml)");
 //						nAppsSameType = atoi(num);
 //					}
 //					else if (strcasecmp(nodeName, "Ue") == 0)
@@ -317,7 +317,7 @@ void LteBinder::registerDeployer(LteDeployer* pDeployer, MacCellId macCellId) {
 //					}
 //					else
 //					{
-//						opp_error("unsupported node found in LteBinder::nodesConfiguration");
+//						throw cRuntimeError("unsupported node found in LteBinder::nodesConfiguration");
 //					}
 //					cXMLAttributeMap attr = application->getAttributes();
 //
@@ -391,7 +391,7 @@ void LteBinder::parseParam(cModule* module, cXMLAttributeMap attr) {
 			continue;
 		// FIXME numbers could start with negative sign - or even space !!!
 		if (isdigit((it->second)[0])) {
-			if (it->second.find(".") != -1)
+			if (it->second.find(".") != string::npos)
 				module->par((it->first).c_str()) = atof((it->second).c_str());
 			else
 				module->par((it->first).c_str()) = atoi((it->second).c_str());
@@ -496,7 +496,7 @@ void LteBinder::transportAppAttach(cModule* parentModule, cModule* appModule,
 		appTgateOut = transport + "Out";
 		appTgateIn = transport + "In";
 	} else
-		opp_error(
+		throw cRuntimeError(
 				"LteBinder::transportAppAttach urecognized transport layer %s",
 				transport.c_str());
 
@@ -588,7 +588,7 @@ void LteBinder::attachAppModule(cModule *parentModule, std::string IPAddr,
 	}
 
 	else {
-		opp_error(
+		throw cRuntimeError(
 				std::string("LteBinder::attachAppModule : unrecognized application type " + appType).c_str());
 	}
 
@@ -713,7 +713,7 @@ void LteBinder::unregisterNextHop(MacNodeId masterId, MacNodeId slaveId) {
 OmnetId LteBinder::getOmnetId(MacNodeId nodeId) {
 	Enter_Method("getOmnetId");
 	if (nodeId >= nodeIds_.size()) {
-		opp_error("LteBinder::getOmnetId - Aborting Requested bad node %d",
+		throw cRuntimeError("LteBinder::getOmnetId - Aborting Requested bad node %d",
 				nodeId);
 	}
 	return nodeIds_[nodeId];
@@ -722,7 +722,7 @@ OmnetId LteBinder::getOmnetId(MacNodeId nodeId) {
 MacNodeId LteBinder::getNextHop(MacNodeId slaveId) {
 	Enter_Method("getNextHop");
 	if (slaveId >= nextHop_.size()) {
-		opp_error("LteBinder::getNextHop - Aborting Requested bad slave id %d",
+		throw cRuntimeError("LteBinder::getNextHop - Aborting Requested bad slave id %d",
 				slaveId);
 	}
 	return nextHop_[slaveId];

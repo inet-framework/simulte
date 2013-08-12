@@ -77,7 +77,7 @@ void AmRxQueue::handleMessage(cMessage* msg)
 {
 
 
-	if (!(msg->isSelfMessage())) opp_error("Unexpected message received from AmRxQueue");
+	if (!(msg->isSelfMessage())) throw cRuntimeError("Unexpected message received from AmRxQueue");
 
 	EV << NOW << "AmRxQueue::handleMessage timer event received, sending status report " << endl;
 
@@ -89,7 +89,7 @@ void AmRxQueue::handleMessage(cMessage* msg)
 
 	// Reschedule the timer if there are PDUs in the buffer
 
-	for ( int i = 0; i < rxWindowDesc_.windowSize_; i++)
+	for (unsigned int i = 0; i < rxWindowDesc_.windowSize_; i++)
 	{
 		if (pduBuffer_.get(i) != 0)
 		{
@@ -106,7 +106,7 @@ void AmRxQueue::discard(const int sn) {
 
 	if ((index < 0) || (index >= rxWindowDesc_.windowSize_) )
 	{
-		opp_error("AmRxQueue::discard PDU %d out of rx window ",sn);
+		throw cRuntimeError("AmRxQueue::discard PDU %d out of rx window ",sn);
 	}
 
 	int discarded = 0;
@@ -128,7 +128,7 @@ void AmRxQueue::discard(const int sn) {
 			srcId = ci->getSourceId();
 			delete pdu;
 			++discarded;
-		} else opp_error("AmRxQueue::discard PDU at position %d already discarded",i);
+		} else throw cRuntimeError("AmRxQueue::discard PDU at position %d already discarded",i);
 	}
 
 	EV << NOW << " AmRxQueue::discard , discarded " << discarded << " PDUs "<< endl;
@@ -204,7 +204,7 @@ void AmRxQueue::enque(LteRlcAmPdu* pdu) {
 			lteRlc->routeControlMessage(pdu);
 			return;
 		} else {
-			opp_error("RLC AM - Unknown status PDU");
+			throw cRuntimeError("RLC AM - Unknown status PDU");
 		}
 		return;
 	}
@@ -251,7 +251,7 @@ void AmRxQueue::enque(LteRlcAmPdu* pdu) {
 	{
 		// The received PDU is out of the window
 
-		opp_error(" AmRxQueue::enque received PDU with position %d out of the window of size %d",index,rxWindowDesc_.windowSize_);
+		throw cRuntimeError(" AmRxQueue::enque received PDU with position %d out of the window of size %d",index,rxWindowDesc_.windowSize_);
 
 	} else {
 
@@ -289,7 +289,7 @@ void AmRxQueue::enque(LteRlcAmPdu* pdu) {
 				delete pdu;
 			} else {
 
-				opp_error(" AmRxQueue::enque the received PDU at position  %d"
+				throw cRuntimeError(" AmRxQueue::enque the received PDU at position  %d"
 						 "main SDU %d overlaps with an old one , main SDU %d",index,pdu->getSnoMainPacket(),
 						bufferedpdu->getSnoMainPacket());
 			}
@@ -409,7 +409,7 @@ void AmRxQueue::checkCompleteSdu(const int index)
 				if (firstSdu_ ==  incomingSdu) {
 					firstIndex = index;
 					bComplete = true;
-				} else opp_error(" AmRxQueue::checkCompleteSdu first SDU error : %d",firstSdu_);
+				} else throw cRuntimeError(" AmRxQueue::checkCompleteSdu first SDU error : %d",firstSdu_);
 			} else {
 				// check for previous PDUs
 				for (int i = index - 1; i >= 0; i--)
@@ -426,7 +426,7 @@ void AmRxQueue::checkCompleteSdu(const int index)
 
 						if (tempSdu != incomingSdu)
 						{
-							opp_error("AmRxQueue::checkCompleteSdu - backward search: fragmentation error : the receiver buffer contains parts of different SDUs, PDU seqnum %d",pdu->getSnoFragment());
+							throw cRuntimeError("AmRxQueue::checkCompleteSdu - backward search: fragmentation error : the receiver buffer contains parts of different SDUs, PDU seqnum %d",pdu->getSnoFragment());
 
 						}
 
@@ -438,7 +438,7 @@ void AmRxQueue::checkCompleteSdu(const int index)
 							break;
 						} else if (tempPdu->isLast()
 								|| tempPdu->isWhole()) {
-							opp_error(
+							throw cRuntimeError(
 									"AmRxQueue::checkCompleteSdu - backward search: sequence error, found last or whole PDU [%d] preceding a middle one [%d], belonging to  SDU [%d], current SDU is [%d]",tempPdu->getSnoFragment(),(check_and_cast<LteRlcAmPdu*>(
 											pduBuffer_.get(i+1)))->getSnoFragment(),(check_and_cast<LteRlcAmPdu*>(
 													pduBuffer_.get(i+1)))->getSnoMainPacket(),tempSdu);
@@ -484,7 +484,7 @@ void AmRxQueue::checkCompleteSdu(const int index)
 			tempPdu = check_and_cast<LteRlcAmPdu*>(pduBuffer_.get(i));
 			tempSdu = tempPdu->getSnoMainPacket();
 			if (tempSdu != incomingSdu) {
-				opp_error("AmRxQueue::checkCompleteSdu - SDU number differ from position %d to %d : former SDU %d second %d",i,i-1,incomingSdu,tempSdu);
+				throw cRuntimeError("AmRxQueue::checkCompleteSdu - SDU number differ from position %d to %d : former SDU %d second %d",i,i-1,incomingSdu,tempSdu);
 			}
 		}
 		if (tempPdu->isLast()) {
@@ -494,7 +494,7 @@ void AmRxQueue::checkCompleteSdu(const int index)
 
 			break;
 		} else if (tempPdu->isFirst() || tempPdu->isWhole()) {
-			opp_error(
+			throw cRuntimeError(
 					"AmRxQueue::checkCompleteSdu  - forward search: PDU sequencer error ");
 			break;
 		}
@@ -616,7 +616,7 @@ void AmRxQueue::moveRxWindow(const  int seqNum) {
 	}
 	if (pos>rxWindowDesc_.windowSize_)
 	{
-		opp_error("AmRxQueue::moveRxWindow  positions %d win size %d , seq num %d",pos,rxWindowDesc_.windowSize_,seqNum);
+		throw cRuntimeError("AmRxQueue::moveRxWindow  positions %d win size %d , seq num %d",pos,rxWindowDesc_.windowSize_,seqNum);
 	}
 
 	LteRlcAmPdu * pdu = NULL;

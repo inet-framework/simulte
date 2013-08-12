@@ -52,7 +52,7 @@ void LteHarqProcessTx::insertPdu(LteMacPdu *pdu, Codeword cw)
 void LteHarqProcessTx::markSelected(Codeword cw)
 {
 	if (numSelected_ == numHarqUnits_) {
-		opp_error("H-ARQ TX process: cannot select another unit because they are all already selected");
+		throw cRuntimeError("H-ARQ TX process: cannot select another unit because they are all already selected");
 	}
 
 	numSelected_++;
@@ -62,7 +62,7 @@ void LteHarqProcessTx::markSelected(Codeword cw)
 LteMacPdu *LteHarqProcessTx::extractPdu(Codeword cw)
 {
 	if (numSelected_ == 0) {
-		opp_error("H-ARQ TX process: cannot extract pdu: numSelected = 0 ");
+		throw cRuntimeError("H-ARQ TX process: cannot extract pdu: numSelected = 0 ");
 	}
 
 	numSelected_--;

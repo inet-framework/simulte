@@ -150,7 +150,7 @@ void LtePhyBase::handleUpperMessage(cMessage* msg) {
 
 void LtePhyBase::initializeChannelModel(cXMLElement* xmlConfig) {
 	if (xmlConfig == 0) {
-		opp_error("No channel models configuration file specified");
+		throw cRuntimeError("No channel models configuration file specified");
 	}
 
 	// Get channel Model field which contains parameters fields
@@ -158,11 +158,11 @@ void LtePhyBase::initializeChannelModel(cXMLElement* xmlConfig) {
 			"ChannelModel");
 
 	if (channelModelList.empty()) {
-		opp_error(
+		throw cRuntimeError(
 				"No channel models configuration found in configuration file");
 	}
 	if (channelModelList.size() > 1) {
-		opp_error(
+		throw cRuntimeError(
 				"More than one channel configuration found in configuration file.");
 	}
 
@@ -171,7 +171,7 @@ void LtePhyBase::initializeChannelModel(cXMLElement* xmlConfig) {
 	const char* name = channelModelData->getAttribute("type");
 
 	if (name == 0) {
-		opp_error("Could not read name of channel model");
+		throw cRuntimeError("Could not read name of channel model");
 	}
 	ParameterMap params;
 	getParametersFromXML(channelModelData, params);
@@ -179,7 +179,7 @@ void LtePhyBase::initializeChannelModel(cXMLElement* xmlConfig) {
 	LteChannelModel* newChannelModel = getChannelModelFromName(name, params);
 
 	if (newChannelModel == 0) {
-		opp_error("Could not find an channel model with the name \"%s\" ",
+		throw cRuntimeError("Could not find an channel model with the name \"%s\" ",
 				name);
 	}
 
@@ -277,7 +277,7 @@ void LtePhyBase::sendUnicast(LteAirFrame *frame) {
 	// destination node (UE, RELAY or ENODEB) omnet id
 	OmnetId destOmnetId = binder_->getOmnetId(dest);
 	if (destOmnetId == 0) {
-		opp_error(
+		throw cRuntimeError(
 				"dest module may not exist if the module with that IP address has not been deployed");
 		delete frame;
 		return;

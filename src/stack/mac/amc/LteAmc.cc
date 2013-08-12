@@ -27,7 +27,7 @@ AmcPilot* LteAmc::getAmcPilot(cPar p)
 	if(strcmp(s,"AUTO")==0)
 		return new AmcPilotAuto(this);
 
-	opp_error("Fatal! Amc Pilot not recognized. Ending simulation.");
+	throw cRuntimeError("Fatal! Amc Pilot not recognized. Ending simulation.");
     return NULL;
 }
 
@@ -90,7 +90,7 @@ void LteAmc::printFbhb(Direction dir)
 		revIndex = &ulRevNodeIndex_;
 	}
 	else {
-		opp_error("FATAL! Unrecognized direction in LteAmc::printFbhb.");
+		throw cRuntimeError("FATAL! Unrecognized direction in LteAmc::printFbhb.");
 	}
 
 	// preparing iterators
@@ -147,7 +147,7 @@ void LteAmc::printTxParams(Direction dir)
 		revIndex = &ulRevNodeIndex_;
 	}
 	else {
-		opp_error("FATAL! Unrecognized direction in LteAmc::printTxParams.");
+		throw cRuntimeError("FATAL! Unrecognized direction in LteAmc::printTxParams.");
 	}
 
 	it = userInfo->begin();
@@ -327,7 +327,7 @@ void LteAmc::pushFeedback(MacNodeId id, Direction dir, LteFeedback fb)
 		nodeIndex = &ulNodeIndex_;
 	}
 	else {
-		opp_error("FATAL! Unrecognized direction in LteAmc::pushFeedback.");
+		throw cRuntimeError("FATAL! Unrecognized direction in LteAmc::pushFeedback.");
 	}
 
 	// Put the feedback in the FBHB
@@ -360,7 +360,7 @@ LteSummaryFeedback LteAmc::getFeedback(MacNodeId id,Remote antenna, TxMode txMod
 	else if(dir == UL)
 		return ulFeedbackHistory_.at(antenna).at(ulNodeIndex_.at(id)).at(txMode).get();
 	else {
-		opp_error("FATAL! Unrecognized direction in LteAmc::getFeedback.");
+	    throw cRuntimeError("FATAL! Unrecognized direction in LteAmc::getFeedback.");
 	}
 }
 
@@ -393,7 +393,7 @@ bool LteAmc::existTxParams(MacNodeId id, const Direction dir)
     if(dir == DL) return dlTxParams_.at(dlNodeIndex_.at(id)).isSet();
     else if(dir == UL) return ulTxParams_.at(ulNodeIndex_.at(id)).isSet();
     else {
-        opp_error("FATAL! Unrecognized direction in LteAmc::existTxparams.");
+        throw cRuntimeError("FATAL! Unrecognized direction in LteAmc::existTxparams.");
     }
 }
 
@@ -425,7 +425,7 @@ const UserTxParams& LteAmc::setTxParams(MacNodeId id, const Direction dir, UserT
     if(dir == DL) return (dlTxParams_.at(dlNodeIndex_.at(id)) = info);
     else if(dir == UL) return (ulTxParams_.at(ulNodeIndex_.at(id)) = info);
     else {
-        opp_error("FATAL! Unrecognized direction in LteAmc::setTxParams.");
+        throw cRuntimeError("FATAL! Unrecognized direction in LteAmc::setTxParams.");
     }
 }
 
@@ -473,7 +473,7 @@ void LteAmc::cleanAmcStructures(Direction dir, ActiveSet aUser)
 			it->restoreDefaultValues();
 
 	} else {
-		opp_error("FATAL! Unrecognized direction in LteAmc::cleanAmcStructures.");
+		throw cRuntimeError("FATAL! Unrecognized direction in LteAmc::cleanAmcStructures.");
 	}
 }
 
@@ -520,7 +520,7 @@ unsigned int LteAmc::computeReqRbs(MacNodeId id, Band b, Codeword cw, unsigned i
 unsigned int LteAmc::computeBitsOnNRbs(MacNodeId id, Band b, unsigned int blocks, const Direction dir)
 {
     if(blocks > 110) {	// Safety check to avoid segmentation fault
-        opp_error("FATAL! Too much blocks in LteAmc::blocks2bits.");
+        throw cRuntimeError("FATAL! Too much blocks in LteAmc::blocks2bits.");
     }
     if(blocks == 0) return 0;
 
@@ -571,7 +571,7 @@ unsigned int LteAmc::computeBitsOnNRbs(MacNodeId id, Band b, unsigned int blocks
 unsigned int LteAmc::computeBitsOnNRbs(MacNodeId id, Band b, Codeword cw, unsigned int blocks, const Direction dir)
 {
     if(blocks > 110) {	// Safety check to avoid segmentation fault
-        opp_error("FATAL! Too much blocks in LteAmc::blocks2bits.");
+        throw cRuntimeError("FATAL! Too much blocks in LteAmc::blocks2bits.");
     }
     if(blocks == 0 ) return 0;
 
@@ -649,7 +649,7 @@ unsigned int LteAmc::getItbsPerCqi(Cqi cqi, const Direction dir)
     else if(dir==UL)
         mcsTable = &ulMcsTable_;
     else {
-        opp_error("FATAL! Unrecognized direction in LteAmc::cleanAmcStructures.");
+        throw cRuntimeError("FATAL! Unrecognized direction in LteAmc::cleanAmcStructures.");
     }
     CQIelem entry = cqiTable[cqi];
     LteMod mod = entry.mod_;
@@ -692,7 +692,7 @@ const UserTxParams& LteAmc::getTxParams(MacNodeId id, const Direction dir)
     else if(dir == UL)
         return ulTxParams_.at(ulNodeIndex_.at(id));
     else
-        opp_error("FATAL! Unrecognized direction in LteAmc::getTxParams.");
+        throw cRuntimeError("FATAL! Unrecognized direction in LteAmc::getTxParams.");
 }
 
 double LteAmc::readCoderate(MacNodeId id, Codeword cw, unsigned int bytes, const Direction dir)
@@ -706,7 +706,7 @@ double LteAmc::readCoderate(MacNodeId id, Codeword cw, unsigned int bytes, const
     } else if(dir == UL) {
         availRe = 2 * (deployer_->getRbyUl()*deployer_->getRbxUl() - deployer_->getSignalUl()*deployer_->getRbyUl() - deployer_->getRbPilotUl());
     } else {
-        opp_error("FATAL! Unrecognized direction in LteAmc::getCoderate. Aborting.");
+        throw cRuntimeError("FATAL! Unrecognized direction in LteAmc::getCoderate. Aborting.");
     }
 
     // Loading the user transmission parameters
@@ -750,11 +750,11 @@ LteAmc::blockGain(Cqi cqi,unsigned int layers,unsigned int blocks,Direction dir)
 {
     if(blocks > 110)
     {	// Safety check to avoid segmentation fault
-            opp_error ("FATAL! Too much blocks in LteAmc::blocksGain.");
+            throw cRuntimeError ("FATAL! Too much blocks in LteAmc::blocksGain.");
     }
     if (cqi>15)
         // Safety check to avoid segmentation fault
-        opp_error ("FATAL! CQI greater than 15 in LteAmc::blocksGain.");
+        throw cRuntimeError ("FATAL! CQI greater than 15 in LteAmc::blocksGain.");
     if(blocks == 0) return 0;
     const unsigned int* tbsVect = readTbsVect(cqi,layers,dir);
 
@@ -902,7 +902,7 @@ Cqi LteAmc::readWbCqi(const CqiVector& cqi)
 		cqiRet += ret - ((unsigned int) ret) > 0.5 ? (unsigned int) ret +1 : (unsigned int) ret;
 	}
 	else{
-		opp_error("Unknown weight %d in LteAmc::getWbCqi - ABORTING",cqiComputationWeight_);
+		throw cRuntimeError("Unknown weight %d in LteAmc::getWbCqi - ABORTING",cqiComputationWeight_);
 	}
 
 	EV<<"LteAmc::getWbCqi - Cqi "<<cqiRet<<" evaluated\n";
@@ -968,7 +968,7 @@ Pmi LteAmc::readWbPmi(const PmiVector& pmi)
 		pmiRet += ret - ((unsigned int) ret) > 0.5 ? (unsigned int) ret +1 : (unsigned int) ret;
 	}
 	else{
-		opp_error("Unknown weight %d in LteAmc::getWbPmi - ABORTING",pmiComputationWeight_);
+		throw cRuntimeError("Unknown weight %d in LteAmc::getWbPmi - ABORTING",pmiComputationWeight_);
 	}
 
 	EV << "LteAmc::getWbPmi - Pmi "<<pmiRet<<" evaluated\n";
@@ -1005,7 +1005,7 @@ void LteAmc::detachUser(MacNodeId nodeId, Direction dir)
 			nodeIndex = ulNodeIndex_.at(nodeId);
 		}
 		else {
-			opp_error("FATAL! Unrecognized direction in LteAmc::detachUser.");
+			throw cRuntimeError("FATAL! Unrecognized direction in LteAmc::detachUser.");
 		}
 		// UE is no more connected
 		(*connectedUe).at(nodeId) = false;
@@ -1022,7 +1022,7 @@ void LteAmc::detachUser(MacNodeId nodeId, Direction dir)
 
 	}
 	catch( ... ){
-		opp_error("Exception occurred in LteAmc::detachUser.");
+		throw cRuntimeError("Exception occurred in LteAmc::detachUser.");
 	}
 
 }
@@ -1061,7 +1061,7 @@ void LteAmc::attachUser(MacNodeId nodeId, Direction dir)
         numTxModes = UL_NUM_TXMODE;
     }
     else {
-        opp_error("FATAL! Unrecognized direction in LteAmc::attachUser.");
+        throw cRuntimeError("FATAL! Unrecognized direction in LteAmc::attachUser.");
     }
 
     // Prepare iterators and empty feedback data
@@ -1136,7 +1136,7 @@ void LteAmc::testUe(MacNodeId nodeId, Direction dir )
 		numTxModes = UL_NUM_TXMODE;
 	}
 	else {
-		opp_error("FATAL! Unrecognized direction in LteAmc::attachUser.");
+		throw cRuntimeError("FATAL! Unrecognized direction in LteAmc::attachUser.");
 	}
 
 	unsigned int nodeIndex = (*nodeIndexMap).at(nodeId);

@@ -334,7 +334,7 @@ void LteDlFeedbackGenerator::initializeFeedbackComputation(
 	lteFeedbackComputation_ = 0;
 
 	if (xmlConfig == 0) {
-		opp_error("No feedback computation configuration file specified.");
+		throw cRuntimeError("No feedback computation configuration file specified.");
 		return;
 	}
 
@@ -342,13 +342,13 @@ void LteDlFeedbackGenerator::initializeFeedbackComputation(
 			"FeedbackComputation");
 
 	if (fbComputationList.empty()) {
-		opp_error(
+		throw cRuntimeError(
 				"No feedback computation configuration found in configuration file.");
 		return;
 	}
 
 	if (fbComputationList.size() > 1) {
-		opp_error(
+		throw cRuntimeError(
 				"More than one feedback computation configuration found in configuration file.");
 		return;
 	}
@@ -358,7 +358,7 @@ void LteDlFeedbackGenerator::initializeFeedbackComputation(
 	const char* name = fbComputationData->getAttribute("type");
 
 	if (name == 0) {
-		opp_error(
+		throw cRuntimeError(
 				"Could not read type of feedback computation from configuration file.");
 		return;
 	}
@@ -369,7 +369,7 @@ void LteDlFeedbackGenerator::initializeFeedbackComputation(
 	lteFeedbackComputation_ = getFeedbackComputationFromName(name, params);
 
 	if (lteFeedbackComputation_ == 0 && !feedbackComputationPisa_) {
-		opp_error("Could not find a feedback computation with the name \"%s\".",
+		throw cRuntimeError("Could not find a feedback computation with the name \"%s\".",
 				name);
 		return;
 	}

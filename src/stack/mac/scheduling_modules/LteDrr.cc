@@ -45,7 +45,7 @@ void LteDrr::prepareSchedule (){
 
 		if(desc.deficit_ - scheduled < 0)
 		{
-			opp_error("LteDrr::execSchedule CID:%d unexpected deficit value of %d",cid,desc.deficit_);
+			throw cRuntimeError("LteDrr::execSchedule CID:%d unexpected deficit value of %d",cid,desc.deficit_);
 		}
 		// Update the deficit counter.
 		desc.deficit_ -= scheduled;

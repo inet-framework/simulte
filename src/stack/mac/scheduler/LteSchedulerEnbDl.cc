@@ -42,7 +42,7 @@ LteSchedulerEnbDl::checkEligibility(MacNodeId id, Codeword& cw)
 	}
 	catch (Codeword)
 	{
-		opp_error("EXCEPTION! Exception in LteSchedulerEnbDl::checkEligibility, abnormal codeword id.");
+		throw cRuntimeError("EXCEPTION! Exception in LteSchedulerEnbDl::checkEligibility, abnormal codeword id.");
 	}
 	return false;
 }
@@ -235,7 +235,7 @@ LteSchedulerEnbDl::schedulePerAcidRtx(MacNodeId nodeId, Codeword cw, unsigned ch
 		--codewords;
 		if (codewords<=0)
 		{
-			opp_error(  "FATAL!  LteSchedulerEnbDl::rtxAcid , erroneus codeword count %d ABORTING ! ",codewords ) ;
+			throw cRuntimeError(  "FATAL!  LteSchedulerEnbDl::rtxAcid , erroneus codeword count %d ABORTING ! ",codewords ) ;
 
 		}
 	}

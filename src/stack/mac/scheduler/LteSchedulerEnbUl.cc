@@ -41,7 +41,7 @@ LteSchedulerEnbUl::checkEligibility(MacNodeId id, Codeword& cw)
 	}
 	catch (Codeword)
 	{
-		opp_error("EXCEPTION! Exception in LteSchedulerEnbUl::checkEligibility, abnormal codeword id.");
+		throw cRuntimeError("EXCEPTION! Exception in LteSchedulerEnbUl::checkEligibility, abnormal codeword id.");
 	}
 	return false;
 }
@@ -190,7 +190,7 @@ LteSchedulerEnbUl::rtxschedule() {
 		return (availableBlocks == 0);
 
  	} catch(...) {
- 		opp_error("EXCEPTION! Exception in LteSchedulerEnbUl::rtxschedule, Aborting.");
+        throw cRuntimeError("EXCEPTION! Exception in LteSchedulerEnbUl::rtxschedule, Aborting.");
  	}
  	return 0;
 }
@@ -359,7 +359,7 @@ LteSchedulerEnbUl::schedulePerAcidRtx(MacNodeId nodeId, Codeword cw, unsigned ch
 		}
 	} catch(...)
 	{
-		opp_error("EXCEPTION! Exception in LteSchedulerEnbUl::rtxAcid, Aborting.");
+		throw cRuntimeError("EXCEPTION! Exception in LteSchedulerEnbUl::rtxAcid, Aborting.");
 	}
 	delete(bandLim);
 	return 0;

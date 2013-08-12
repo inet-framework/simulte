@@ -37,7 +37,7 @@ bool UmFragbuf::insert(unsigned int pktId, unsigned int totFrag,
 	} else {		// FIXME In this case, we receive a duplicate fragment, is it ok to abort??
 //		EV << "FATAL! UmFragbuf::insert , inconsistency detected with packet " << "[" << pktId << "] "<<endl;
 //		abort();
-		opp_error("FATAL! UmFragbuf::insert , inconsistency detected with packet %d" , pktId);
+	    throw cRuntimeError("FATAL! UmFragbuf::insert , inconsistency detected with packet %d" , pktId);
 	}
 }
 

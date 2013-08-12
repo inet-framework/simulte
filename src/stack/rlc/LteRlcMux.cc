@@ -45,7 +45,7 @@ void LteRlcMux::mac2rlc(cPacket *pkt) {
 			send(pkt,amSap_[OUT]);
 			break;
 		default:
-			opp_error("LteRlcMux : error, wrong traffic type");
+			throw cRuntimeError("LteRlcMux : error, wrong traffic type");
 	}
 }
 

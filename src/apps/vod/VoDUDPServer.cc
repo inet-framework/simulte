@@ -42,7 +42,7 @@ void VoDUDPServer::initialize(int stage)
         	   infile.open(inputFileName.c_str(),ios::in);
         	   if (infile.bad()) /* Or file is bad */
 				  {
-					  opp_error("Error while opening input file (File not found or incorrect type)\n");
+					  throw cRuntimeError("Error while opening input file (File not found or incorrect type)\n");
 				  }
 
         	   infile.seekg(0, ios::beg);
@@ -71,7 +71,7 @@ void VoDUDPServer::initialize(int stage)
             */
 
             if (stat(inputFileName.c_str(), (struct stat *)&buf)) {
-            	opp_error("Error while opening input file (File not found or incorrect type)\n");
+                throw cRuntimeError("Error while opening input file (File not found or incorrect type)\n");
              }
 
              nrec_ = buf.st_size/sizeof(tracerec);
@@ -79,20 +79,20 @@ void VoDUDPServer::initialize(int stage)
              unsigned bufst = buf.st_size;
 			   //      if ((unsigned)(nrec_ * sizeof(tracerec)) != buf.st_size) {
 			   if (nrecplus != bufst) {
-				   opp_error("bad file size in %s\n", inputFileName.c_str());
+				   throw cRuntimeError("bad file size in %s\n", inputFileName.c_str());
 
 			   }
 
                trace_ = new tracerec[nrec_];
 
                if ((fp = fopen(inputFileName.c_str(), "rb")) == NULL) {
-                        opp_error("can't open file %s\n", inputFileName.c_str());
+                        throw cRuntimeError("can't open file %s\n", inputFileName.c_str());
 
                    }
 
 			   for (unsigned int i= 0; i < nrec_; i++){
 					   if (fread((char *)&t, sizeof(tracerec), 1, fp) != 1) {
-							   opp_error("read failed\n");
+							   throw cRuntimeError("read failed\n");
 					   }
 					   else {
 						   trace_[i].trec_time=ntohl(t.trec_time);

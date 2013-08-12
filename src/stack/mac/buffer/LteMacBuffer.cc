@@ -59,7 +59,7 @@ PacketInfo LteMacBuffer::popFront () {
 		queueOccupancy_ -= pkt.first;
 		return pkt;
 	} else {	// Packet queue empty
-		opp_error("Packet queue empty");
+	    throw cRuntimeError("Packet queue empty");
 	}
 }
 
@@ -71,7 +71,7 @@ PacketInfo LteMacBuffer::popBack () {
 		queueOccupancy_ -= pkt.first;
 		return pkt;
 	} else {	// Packet queue empty
-		opp_error("Packet queue empty");
+	    throw cRuntimeError("Packet queue empty");
 	}
 }
 
@@ -80,7 +80,7 @@ PacketInfo& LteMacBuffer::front ()
 	if (queueLength_ > 0) {
 		return Queue_.front();
 	} else {	// Packet queue empty
-		opp_error("Packet queue empty");
+	    throw cRuntimeError("Packet queue empty");
 	}
 }
 
@@ -88,7 +88,7 @@ PacketInfo LteMacBuffer::back () const {
 	if (queueLength_ > 0) {
 		return Queue_.back();
 	} else {	// Packet queue empty
-		opp_error("Packet queue empty");
+	    throw cRuntimeError("Packet queue empty");
 	}
 }
 
@@ -100,7 +100,7 @@ simtime_t LteMacBuffer::getHolTimestamp() const {
 	if (queueLength_ > 0) {
 		return Queue_.front().second;
 	} else {	// Packet queue empty
-		opp_error("Packet queue empty");
+	    throw cRuntimeError("Packet queue empty");
 	}
 }
 

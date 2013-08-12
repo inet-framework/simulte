@@ -82,7 +82,7 @@ SchedDiscipline LteMacEnb::getSchedDiscipline(Direction dir) {
 		return aToSchedDiscipline(
 				par("schedulingDisciplineUl").stdstringValue());
 	else {
-		opp_error(
+		throw cRuntimeError(
 				"FATAL! Unrecognized direction in LteMacEnb::getSchedDiscipline.");
 		return UNKNOWN_DISCIPLINE;
 	}
@@ -420,7 +420,7 @@ void LteMacEnb::macPduMake(LteMacScheduleList* scheduleList) {
 		while (sduPerCid > 0) {
 
 			if ((mbuf_[destCid]->getQueueLength()) < (int) sduPerCid) {
-				opp_error(
+				throw cRuntimeError(
 						"FATAL! abnormal queue length detected while building MAC PDU for cid %d "
 							"Queue real SDU length is %d  while scheduled SDUs are %d Aborting",
 						destCid, mbuf_[destCid]->getQueueLength(), sduPerCid);
@@ -460,7 +460,7 @@ void LteMacEnb::macPduMake(LteMacScheduleList* scheduleList) {
 				macPkt = pit->second;
 			}
 			if (mbuf_[destCid]->getQueueLength() == 0) {
-				opp_error(
+				throw cRuntimeError(
 						"FATAL! abnormal queue length detected while building MAC PDU for cid %d "
 							"Queue real SDU length is %d  while scheduled SDUs are %d Aborting",
 						destCid, mbuf_[destCid]->getQueueLength(), sduPerCid);
@@ -507,7 +507,7 @@ void LteMacEnb::macPduMake(LteMacScheduleList* scheduleList) {
 			delete macPkt;
 		} else {
 			if (txList.first == HARQ_NONE) {
-				opp_error(
+				throw cRuntimeError(
 						"LteMacBase: pduMaker sending to uncorrect void H-ARQ process. Aborting");
 			}
 
@@ -700,7 +700,7 @@ void LteMacEnb::cqiStatistics(MacNodeId id,Direction dir,LteFeedback fb){
 	if (dir==DL){
 		tSample_->id=id;
 		if(fb.getTxMode()==SINGLE_ANTENNA_PORT0){
-			for(int i=0;i<fb.getBandCqi(0).size();i++){
+			for(unsigned int i=0;i<fb.getBandCqi(0).size();i++){
 				switch(i){
 					case 0:
 						tSample_->sample=fb.getBandCqi(0)[i];
@@ -726,7 +726,7 @@ void LteMacEnb::cqiStatistics(MacNodeId id,Direction dir,LteFeedback fb){
 			}
 
 		} else if(fb.getTxMode()==TRANSMIT_DIVERSITY){
-			for(int i=0;i<fb.getBandCqi(0).size();i++){
+			for(unsigned int i=0;i<fb.getBandCqi(0).size();i++){
 				switch(i){
 					case 0:
 						tSample_->sample=fb.getBandCqi(0)[i];
@@ -752,7 +752,7 @@ void LteMacEnb::cqiStatistics(MacNodeId id,Direction dir,LteFeedback fb){
 			}
 
 		}else if(fb.getTxMode()==OL_SPATIAL_MULTIPLEXING){
-			for(int i=0;i<fb.getBandCqi(0).size();i++){
+			for(unsigned int i=0;i<fb.getBandCqi(0).size();i++){
 				switch(i){
 					case 0:
 						tSample_->sample=fb.getBandCqi(0)[i];
@@ -778,7 +778,7 @@ void LteMacEnb::cqiStatistics(MacNodeId id,Direction dir,LteFeedback fb){
 			}
 
 		}else if(fb.getTxMode()==MULTI_USER){
-			for(int i=0;i<fb.getBandCqi(0).size();i++){
+			for(unsigned int i=0;i<fb.getBandCqi(0).size();i++){
 				switch(i){
 					case 0:
 						tSample_->sample=fb.getBandCqi(0)[i];

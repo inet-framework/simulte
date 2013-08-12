@@ -419,7 +419,7 @@ MacCid ctrlInfoToMacCid(LteControlInfo * info)
 		ueId = info->getSourceId();
 		break;
 	default:
-		opp_error("ctrlInfoToMacCid - unknown direction\n");
+		throw cRuntimeError("ctrlInfoToMacCid - unknown direction\n");
 		break;
 	}
 	EV << "ctrlInfoToMacCid - dir[" << dir << "] - ueId[" << ueId << "] - lcid[" << lcid << "]" << endl;
@@ -450,7 +450,7 @@ MacNodeId ctrlInfoToUeId(LteControlInfo * info)
 		ueId = info->getSourceId();
 		break;
 	default:
-		opp_error("ctrlInfoToMacCid - unknown direction\n");
+		throw cRuntimeError("ctrlInfoToMacCid - unknown direction\n");
 		break;
 	}
 	return ueId;
@@ -571,7 +571,7 @@ parseStringToIntArray(std::string str, int* values, int dim, int pad) {
 	}
 	if (!str.empty())
 	{
-		opp_error( "parseStringToIntArray: Error: more values in string than nodes");
+		throw cRuntimeError( "parseStringToIntArray: Error: more values in string than nodes");
 	}
 	return;
 }

@@ -125,7 +125,7 @@ std::list<LteMacPdu *> LteHarqBufferRx::extractCorrectPdus() {
 					tSample_->id = info->getSourceId();
 
 				} else {
-					opp_error(
+					throw cRuntimeError(
 							"LteHarqBufferRx::extractCorrectPdus unknown direction");
 				}
 				macOwner_->emit(macDelay_, tSample_);
@@ -144,7 +144,7 @@ std::list<LteMacPdu *> LteHarqBufferRx::extractCorrectPdus() {
 					tSample_->id = info->getSourceId();
 					tSampleCell_->id = info->getDestId();
 				} else {
-					opp_error("Unknow direction");
+					throw cRuntimeError("Unknow direction");
 				}
 				nodeb->emit(macCellThroughput_, tSampleCell_);
 				macOwner_->emit(macThroughput_, tSample_);
