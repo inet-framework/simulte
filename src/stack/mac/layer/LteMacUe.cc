@@ -109,11 +109,11 @@ void LteMacUe::macPduMake(LteMacScheduleList* scheduleList)
 
 			if (mbuf_.find(destCid)==mbuf_.end())
 			{
-				opp_error("unable to find mac buffer for cid %d",destCid);
+				throw cRuntimeError("unable to find mac buffer for cid %d",destCid);
 			}
 			if (mbuf_[destCid]->empty())
 			{
-				opp_error("empty buffer for cid %d, while expected SDUs were %d",destCid,sduPerCid);
+				throw cRuntimeError("empty buffer for cid %d, while expected SDUs were %d",destCid,sduPerCid);
 			}
 
 

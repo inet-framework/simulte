@@ -134,12 +134,12 @@ void AmTxQueue::addPdus() {
 
 			if (received_.at(txWindowIndex) || discarded_.at(txWindowIndex))
 			{
-				opp_error("AmTxQueue::addPdus trying to add a PDU to a  position marked received [%d] discarded [%d]",
+				throw cRuntimeError("AmTxQueue::addPdus trying to add a PDU to a  position marked received [%d] discarded [%d]",
 						(int)(received_.at(txWindowIndex)) ,(int)(discarded_.at(txWindowIndex)));
 			}
 
 		} else {
-			opp_error(
+			throw cRuntimeError(
 					"AmTxQueue::addPdus trying to add a PDU to a busy position [%d]",
 					txWindowIndex);
 		}
@@ -177,7 +177,7 @@ void AmTxQueue::discard(const int seqNum) {
 			<< "] window index [" << txWindowIndex << "]" << endl;
 
 	if ((txWindowIndex < 0) || (txWindowIndex >= txWindowDesc_.windowSize_)) {
-		opp_error(
+		throw cRuntimeError(
 				" AmTxQueue::discard requested to discard an out of window PDU :"
 						" sequence number %d , window first sequence is %d",
 				seqNum, txWindowDesc_.firstSeqNum_);
@@ -228,7 +228,7 @@ void AmTxQueue::discard(const int seqNum) {
 	{
 
 		if (pduRtxQueue_.get(i) == NULL) {
-			opp_error(
+			throw cRuntimeError(
 					" AmTxBuffer::discard trying to get access to missing PDU %d",
 					i);
 		}
@@ -314,7 +314,7 @@ void AmTxQueue::moveTxWindow(const int seqNum) {
 			discarded_.at(i)=false;
 
 		} else
-			opp_error(
+			throw cRuntimeError(
 					" AmTxQueue::moveTxWindow encountered empty PDU at location %d, shift position %d",
 					i, pos);
 	}
@@ -331,7 +331,7 @@ void AmTxQueue::moveTxWindow(const int seqNum) {
 					<< " being moved at position " << i - pos << endl;
 
 		} else {
-			opp_error(
+			throw cRuntimeError(
 					" AmTxQueue::moveTxWindow encountered empty PDU at location %d, shift position %d",
 					i, pos);
 		}
@@ -360,7 +360,7 @@ void AmTxQueue::moveTxWindow(const int seqNum) {
 	for (int i = (txWindowDesc_.seqNum_ - txWindowDesc_.firstSeqNum_);
 			i < txWindowDesc_.windowSize_; ++i) {
 		if (pduRtxQueue_.get(i) != NULL) {
-			opp_error(
+			throw cRuntimeError(
 					" AmTxQueue::moveTxWindow encountered busy PDU at location %d, shift position %d",
 					i, pos);
 		}
@@ -493,7 +493,7 @@ void AmTxQueue::recvAck(const int seqNum) {
 	}
 
 	if (index >= txWindowDesc_.windowSize_) {
-		opp_error("AmTxBuffer::recvAck ACK greater than window size %d",
+		throw cRuntimeError("AmTxBuffer::recvAck ACK greater than window size %d",
 				txWindowDesc_.windowSize_);
 	}
 
@@ -518,7 +518,7 @@ void AmTxQueue::recvCumulativeAck(const int seqNum) {
 		return;
 	} else if ((unsigned int) seqNum
 			> (txWindowDesc_.firstSeqNum_ + txWindowDesc_.windowSize_)) {
-		opp_error(
+		throw cRuntimeError(
 				"AmTxQueue::recvCumulativeAck SN %d exceeds window size %d. Aborting",
 				seqNum, txWindowDesc_.windowSize_);
 	} else {
@@ -590,19 +590,19 @@ void AmTxQueue::pduTimerHandle(const int sn) {
 
 	// Some debug checks
 	if ((index < 0) || (index >= txWindowDesc_.windowSize_)) {
-		opp_error(
+		throw cRuntimeError(
 				" AmTxQueue::pduTimerHandle The PDU [%d] for which timer elapsed is out of the window : index [%d]",
 				sn, index);
 	}
 
 	if (pduRtxQueue_.get(index) == NULL) {
-		opp_error("AmTxQueue::pduTimerHandle PDU %d not found", index);
+		throw cRuntimeError("AmTxQueue::pduTimerHandle PDU %d not found", index);
 	}
 	// Check if the PDU has been correctly received, if so the
 	// timer should have been previously stopped.
 	if (received_.at(index) == true)
 	{
-		opp_error(" AmTxQueue::pduTimerHandle The PDU %d [index %d] has been already received",sn,index);
+		throw cRuntimeError(" AmTxQueue::pduTimerHandle The PDU %d [index %d] has been already received",sn,index);
 	}
 
 	// Get the PDU information
@@ -645,7 +645,7 @@ void AmTxQueue::mrwTimerHandle(const int sn) {
 	mrwTimer_.handle(sn);
 
 	if (mrwRtxQueue_.get(sn) == NULL) {
-		opp_error(" MRW handler : MRW of SN %d not found in MRW message queue",
+		throw cRuntimeError(" MRW handler : MRW of SN %d not found in MRW message queue",
 				sn);
 	}
 
@@ -701,7 +701,7 @@ void AmTxQueue::handleMessage(cMessage* msg) {
 
 				mrwTimerHandle(tmtmsg->getEvent());
 			} else
-				opp_error(
+				throw cRuntimeError(
 						"AmTxQueue::handleMessage unexpected timer event received");
 			break;
 		}

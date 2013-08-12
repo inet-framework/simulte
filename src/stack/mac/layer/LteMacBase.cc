@@ -90,7 +90,7 @@ void LteMacBase::fromPhy(cPacket *pkt)
 			// if a feeback arrives, a tx buffer must exists (unless it is an handover scenario
 			// where the harq buffer was deleted but a feedback was in transit)
 			// this case must be taken care of
-			opp_error("Mac::fromPhy: Received feedback for an unexisting H-ARQ tx buffer");
+			throw cRuntimeError("Mac::fromPhy: Received feedback for an unexisting H-ARQ tx buffer");
 		}
 		LteHarqFeedback *hfbpkt = check_and_cast<LteHarqFeedback *>(pkt);
 		htit->second->receiveHarqFeedback(hfbpkt);
@@ -129,7 +129,7 @@ void LteMacBase::fromPhy(cPacket *pkt)
 		macHandleRac(pkt);
 	}
 	else {
-		opp_error("Unknown packet type , aborting");
+		throw cRuntimeError("Unknown packet type , aborting");
 	}
 }
 

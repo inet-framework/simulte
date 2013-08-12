@@ -176,7 +176,7 @@ unsigned int LteAllocationModule::computeTotalRbs()
 
 	// available blocks MUST be a non negative amount
 	if(availableBlocks < 0) {
-		opp_error( "FATAL! Negative OFDM Space in LteAllocator::checkOFDMspace." );
+		throw cRuntimeError( "FATAL! Negative OFDM Space in LteAllocator::checkOFDMspace." );
 	}
 
 	// DEBUG
@@ -256,7 +256,7 @@ bool LteAllocationModule::addBlocks(const Remote antenna, const Band band, const
 	// Check if the band exists
 	if(band >= bands_) {
 		// Band does not exists
-		opp_error("FATAL! LteAllocator::addBlocks - Invalid band. ");
+		throw cRuntimeError("FATAL! LteAllocator::addBlocks - Invalid band. ");
 	}
 
 	// Check if there's enough OFDM space

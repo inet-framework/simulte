@@ -37,12 +37,12 @@ void LteHarqProcessRx::insertPdu(Codeword cw,LteMacPdu *pdu)
 	EV << "LteHarqProcessRx::insertPdu - ndi is " << ndi << endl;
 	if (ndi && !(status_.at(cw) == RXHARQ_PDU_EMPTY) )
 	{
-		opp_error("ERROR! Unhandled exception:  new data arriving in busy harq process ");
+		throw cRuntimeError("ERROR! Unhandled exception:  new data arriving in busy harq process ");
 	}
 
 	if (!ndi && !(status_.at(cw) == RXHARQ_PDU_EMPTY) && !(status_.at(cw) == RXHARQ_PDU_CORRUPTED))
 	{
-		opp_error("Trying to insert macPdu in not empty rx harq process : Node %d acid %d, codeword %d, ndi %d, status %d",
+		throw cRuntimeError("Trying to insert macPdu in not empty rx harq process : Node %d acid %d, codeword %d, ndi %d, status %d",
 				macOwner_->getMacNodeId() , acid_ , cw , ndi , status_.at(cw));
 	}
 
@@ -66,7 +66,7 @@ LteHarqFeedback *LteHarqProcessRx::createFeedback(Codeword cw)
 {
 	if (!isEvaluated(cw))
 	{
-		opp_error("Cannot send feedback for a pdu not in EVALUATING state");
+		throw cRuntimeError("Cannot send feedback for a pdu not in EVALUATING state");
 	}
 
 	UserControlInfo *pduInfo = check_and_cast<UserControlInfo *>(pdu_.at(cw)->getControlInfo());
@@ -110,7 +110,7 @@ bool LteHarqProcessRx::isCorrect(Codeword cw)
 LteMacPdu* LteHarqProcessRx::extractPdu(Codeword cw)
 {
 	if (!isCorrect(cw)) {
-		opp_error("Cannot extract pdu if the state is not CORRECT");
+		throw cRuntimeError("Cannot extract pdu if the state is not CORRECT");
 	}
 
 	// temporary copy of pdu pointer because reset NULLs it, and I need to return it

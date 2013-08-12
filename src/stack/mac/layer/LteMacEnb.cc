@@ -82,7 +82,7 @@ SchedDiscipline LteMacEnb::getSchedDiscipline(Direction dir) {
 		return aToSchedDiscipline(
 				par("schedulingDisciplineUl").stdstringValue());
 	else {
-		opp_error(
+		throw cRuntimeError(
 				"FATAL! Unrecognized direction in LteMacEnb::getSchedDiscipline.");
 		return UNKNOWN_DISCIPLINE;
 	}
@@ -420,7 +420,7 @@ void LteMacEnb::macPduMake(LteMacScheduleList* scheduleList) {
 		while (sduPerCid > 0) {
 
 			if ((mbuf_[destCid]->getQueueLength()) < (int) sduPerCid) {
-				opp_error(
+				throw cRuntimeError(
 						"FATAL! abnormal queue length detected while building MAC PDU for cid %d "
 							"Queue real SDU length is %d  while scheduled SDUs are %d Aborting",
 						destCid, mbuf_[destCid]->getQueueLength(), sduPerCid);
@@ -460,7 +460,7 @@ void LteMacEnb::macPduMake(LteMacScheduleList* scheduleList) {
 				macPkt = pit->second;
 			}
 			if (mbuf_[destCid]->getQueueLength() == 0) {
-				opp_error(
+				throw cRuntimeError(
 						"FATAL! abnormal queue length detected while building MAC PDU for cid %d "
 							"Queue real SDU length is %d  while scheduled SDUs are %d Aborting",
 						destCid, mbuf_[destCid]->getQueueLength(), sduPerCid);
@@ -507,7 +507,7 @@ void LteMacEnb::macPduMake(LteMacScheduleList* scheduleList) {
 			delete macPkt;
 		} else {
 			if (txList.first == HARQ_NONE) {
-				opp_error(
+				throw cRuntimeError(
 						"LteMacBase: pduMaker sending to uncorrect void H-ARQ process. Aborting");
 			}
 

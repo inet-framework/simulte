@@ -308,7 +308,7 @@ double LteRealisticChannelModel::getAttenuation(MacNodeId nodeId, Direction dir,
 		attenuation = computeSubUrbanMacro(sqrDistance, dbp, nodeId);
 		break;
 	default:
-		opp_error("Error wrong path-loss scenario");
+		throw cRuntimeError("Error wrong path-loss scenario");
 		break;
 	}
 	//	Applying shadowing only if it is enabled by configuration
@@ -424,7 +424,7 @@ double LteRealisticChannelModel::computeSpeed(const MacNodeId nodeId,
 			if (time <= 0.0) // time not updated since last speed call
 			{
 				// abnormal situation - abort
-				opp_error("multiple entries detected in position history referring to same time");
+				throw cRuntimeError("multiple entries detected in position history referring to same time");
 				return speed;
 			} else {
 				// compute speed
@@ -890,7 +890,7 @@ bool LteRealisticChannelModel::error(LteAirFrame *frame,
 
 	//consistency check
 	if (nTx == 0) {
-		opp_error("transmissions counter should not be 0");
+		throw cRuntimeError("transmissions counter should not be 0");
 	}
 
 	//Get txmode
@@ -939,7 +939,7 @@ bool LteRealisticChannelModel::error(LteAirFrame *frame,
 
 			//Get the Bler
 			if (cqi == 0 || cqi > 15)
-				opp_error(
+				throw cRuntimeError(
 						"Error: a packet has been transmitted with a cqi equal to 0 or greater than 15 cqi:%d txmode:%d dir:%d rb:%d cw:%d rtx:%d", cqi,lteInfo->getTxMode(),dir,jt->second,cw,nTx);
 			int snr = snrV[jt->first];  //XXX because jt->first is a Band (=unsigned short)
 			if (snr < 0)
@@ -1027,7 +1027,7 @@ void LteRealisticChannelModel::computeLosProbability(double d,
 			p = exp(-1 * (d - 10) / 1000);
 		break;
 	default:
-		opp_error("Error wrong path-loss scenario");
+		throw cRuntimeError("Error wrong path-loss scenario");
 		break;
 	}
 	double random = uniform(0.0, 1.0);
@@ -1041,12 +1041,12 @@ double LteRealisticChannelModel::computeIndoor(double d, MacNodeId nodeId) {
 	double a, b;
 	if (losMap_[nodeId]) {
 		if (d > 150 || d < 3)
-			opp_error("Error LOS indoor path loss model is valid for 3<d<150");
+			throw cRuntimeError("Error LOS indoor path loss model is valid for 3<d<150");
 		a = 16.9;
 		b = 32.8;
 	} else {
 		if (d > 250 || d < 6)
-			opp_error("Error NLOS indoor path loss model is valid for 6<d<250");
+			throw cRuntimeError("Error NLOS indoor path loss model is valid for 6<d<250");
 		a = 43.3;
 		b = 11.5;
 	}
@@ -1061,7 +1061,7 @@ double LteRealisticChannelModel::computeUrbanMicro(double d, MacNodeId nodeId) {
 			* ((carrierFrequency_ * 1000000000) / SPEED_OF_LIGHT);
 	if (losMap_[nodeId]) {
 		if (d > 5000)
-			opp_error(
+			throw cRuntimeError(
 					"Error LOS urban microcell path loss model is valid for d<5000 m");
 		if (d < dbp)
 			return 22 * log10(d) + 28 + 20 * log10(carrierFrequency_);
@@ -1070,7 +1070,7 @@ double LteRealisticChannelModel::computeUrbanMicro(double d, MacNodeId nodeId) {
 					- 18 * log10(hUe_ - 1) + 2 * log10(carrierFrequency_);
 	}
 	if (d > 2000 || d < 10)
-		opp_error(
+		throw cRuntimeError(
 				"Error NLOS urban microcell path loss model is valid for 10d<2000 m");
 	return 36.7 * log10(d) + 22.7 + 26 * log10(carrierFrequency_);
 }
@@ -1083,7 +1083,7 @@ double LteRealisticChannelModel::computeUrbanMacro(double d, MacNodeId nodeId) {
 			* ((carrierFrequency_ * 1000000000) / SPEED_OF_LIGHT);
 	if (losMap_[nodeId]) {
 		if (d > 5000)
-			opp_error(
+			throw cRuntimeError(
 					"Error LOS urban microcell path loss model is valid for d<5000 m");
 		if (d < dbp)
 			return 22 * log10(d) + 28 + 20 * log10(carrierFrequency_);
@@ -1092,7 +1092,7 @@ double LteRealisticChannelModel::computeUrbanMacro(double d, MacNodeId nodeId) {
 					- 18 * log10(hUe_ - 1) + 2 * log10(carrierFrequency_);
 	}
 	if (d > 5000)
-		opp_error(
+		throw cRuntimeError(
 				"Error NLOS urban microcell path loss model is valid for 10d<2000 m");
 	double att = 161.04 - 7.1 * log10(wStreet_) + 7.5 * log10(hBuilding_)
 			- (24.37 - 3.7 * pow(hBuilding_ / hNodeB_, 2)) * log10(hNodeB_)
@@ -1111,7 +1111,7 @@ double LteRealisticChannelModel::computeSubUrbanMacro(double d, double& dbp,
 			* ((carrierFrequency_ * 1000000000) / SPEED_OF_LIGHT);
 	if (losMap_[nodeId]) {
 		if (d > 5000)
-			opp_error(
+			throw cRuntimeError(
 					"Error LOS urban microcell path loss model is valid for d<5000 m");
 		double a1 = (0.03 * pow(hBuilding_, 1.72));
 		double b1 = 0.044 * pow(hBuilding_, 1.72);
@@ -1128,7 +1128,7 @@ double LteRealisticChannelModel::computeSubUrbanMacro(double d, double& dbp,
 					+ 40 * log10(d / dbp);
 	}
 	if (d > 5000)
-		opp_error(
+		throw cRuntimeError(
 				"Error NLOS urban microcell path loss model is valid for 10d<2000 m");
 	double att = 161.04 - 7.1 * log10(wStreet_) + 7.5 * log10(hBuilding_)
 			- (24.37 - 3.7 * pow(hBuilding_ / hNodeB_, 2)) * log10(hNodeB_)
@@ -1147,7 +1147,7 @@ double LteRealisticChannelModel::computeRuralMacro(double d, double& dbp,
 			* ((carrierFrequency_ * 1000000000) / SPEED_OF_LIGHT);
 	if (losMap_[nodeId]) {
 		if (d > 5000)
-			opp_error(
+			throw cRuntimeError(
 					"Error LOS urban microcell path loss model is valid for d<5000 m");
 		double a1 = (0.03 * pow(hBuilding_, 1.72));
 		double b1 = 0.044 * pow(hBuilding_, 1.72);
@@ -1162,7 +1162,7 @@ double LteRealisticChannelModel::computeRuralMacro(double d, double& dbp,
 					+ 40 * log10(d / dbp);
 	}
 	if (d > 10000)
-		opp_error(
+		throw cRuntimeError(
 				"Error NLOS urban microcell path loss model is valid for 10d<2000 m");
 	double att = 161.04 - 7.1 * log10(wStreet_) + 7.5 * log10(hBuilding_)
 			- (24.37 - 3.7 * pow(hBuilding_ / hNodeB_, 2)) * log10(hNodeB_)
@@ -1198,7 +1198,7 @@ double LteRealisticChannelModel::getStdDev(bool dist, MacNodeId nodeId) {
 			return 8.;
 		break;
 	default:
-		opp_error("Error wrong path-loss scenario");
+		throw cRuntimeError("Error wrong path-loss scenario");
 		break;
 		return 0.;
 	}
@@ -1285,7 +1285,7 @@ double LteRealisticChannelModel::computeExtCellPathLoss(double dist , MacNodeId 
 		attenuation = computeSubUrbanMacro(dist, dbp, nodeId);
 		break;
 	default:
-		opp_error("Error wrong path-loss scenario");
+		throw cRuntimeError("Error wrong path-loss scenario");
 		break;
 	}
 

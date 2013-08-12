@@ -135,7 +135,7 @@ void TMultiTimer::remove(const unsigned int event) {
 
 	if (rIt == reverseList_.end()) {
 		// not possible, error.
-		opp_error("FATAL! TMultiTimer::remove - Element %d not found.", event);
+		throw cRuntimeError("FATAL! TMultiTimer::remove - Element %d not found.", event);
 	}
 	// Iterator to Direct List
 	iterator_d dIt;

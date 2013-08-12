@@ -40,7 +40,7 @@ void VoDUDPClient::initialize(int stage)
 
               if (outfile.bad()) /* File is bad */
               {
-                  opp_error("Error while opening output file (File not found or incorrect type)\n");
+                  throw cRuntimeError("Error while opening output file (File not found or incorrect type)\n");
               }
 
 
