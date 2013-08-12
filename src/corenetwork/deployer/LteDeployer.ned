@@ -58,14 +58,14 @@ simple LteDeployer {
 
         //#
         //# Physical layer properties
-		//#
+        //#
         
-		/// number of RB, DL
-		int numRbDl=default(100);
-		
-		/// number of RB, UL
-		int numRbUl=default(100);
-		        
+        /// number of RB, DL
+        int numRbDl=default(100);
+        
+        /// number of RB, UL
+        int numRbUl=default(100);
+                
         // number of sub-carriers per RB, DL
         int rbyDl = default(12);
         

@@ -13,326 +13,326 @@
 
 LteHarqBufferTx::LteHarqBufferTx(unsigned int numProc, LteMacBase *owner,LteMacBase *dstMac)
 {
-	numProc_ = numProc;
-	macOwner_ = owner;
-	nodeId_=dstMac->getMacNodeId();
-	selectedAcid_ = HARQ_NONE;
-	processes_ = new std::vector<LteHarqProcessTx *>(numProc);
-	numEmptyProc_ = numProc;
-	for (unsigned int i = 0; i < numProc_; i++) {
-		(*processes_)[i] = new LteHarqProcessTx(i, MAX_CODEWORDS, numProc_, macOwner_,dstMac);
-	}
+    numProc_ = numProc;
+    macOwner_ = owner;
+    nodeId_=dstMac->getMacNodeId();
+    selectedAcid_ = HARQ_NONE;
+    processes_ = new std::vector<LteHarqProcessTx *>(numProc);
+    numEmptyProc_ = numProc;
+    for (unsigned int i = 0; i < numProc_; i++) {
+        (*processes_)[i] = new LteHarqProcessTx(i, MAX_CODEWORDS, numProc_, macOwner_,dstMac);
+    }
 }
 
 UnitList LteHarqBufferTx::firstReadyForRtx()
 {
-	unsigned char oldestProcessAcid = HARQ_NONE;
-	simtime_t oldestTxTime = NOW + 1;
-	simtime_t currentTxTime = 0;
+    unsigned char oldestProcessAcid = HARQ_NONE;
+    simtime_t oldestTxTime = NOW + 1;
+    simtime_t currentTxTime = 0;
 
 
-	for (unsigned int i = 0; i < numProc_; i++) {
-		if ((*processes_)[i]->hasReadyUnits()) {
-			currentTxTime = (*processes_)[i]->getOldestUnitTxTime();
-			if (currentTxTime < oldestTxTime) {
-				oldestTxTime = currentTxTime;
-				oldestProcessAcid = i;
-			}
-		}
-	}
-	UnitList ret;
-	ret.first=oldestProcessAcid;
-	if (oldestProcessAcid!=HARQ_NONE)
-	{
-		ret.second=(*processes_)[oldestProcessAcid]->readyUnitsIds();
-	}
-	return ret;
+    for (unsigned int i = 0; i < numProc_; i++) {
+        if ((*processes_)[i]->hasReadyUnits()) {
+            currentTxTime = (*processes_)[i]->getOldestUnitTxTime();
+            if (currentTxTime < oldestTxTime) {
+                oldestTxTime = currentTxTime;
+                oldestProcessAcid = i;
+            }
+        }
+    }
+    UnitList ret;
+    ret.first=oldestProcessAcid;
+    if (oldestProcessAcid!=HARQ_NONE)
+    {
+        ret.second=(*processes_)[oldestProcessAcid]->readyUnitsIds();
+    }
+    return ret;
 }
 
 int64 LteHarqBufferTx::pduLength(unsigned char acid,Codeword cw)
 {
-	return (*processes_)[acid]->getPduLength(cw);
+    return (*processes_)[acid]->getPduLength(cw);
 }
 
 void LteHarqBufferTx::markSelected(UnitList unitIds, unsigned char availableTbs)
 {
 
-	if (unitIds.second.size() == 0) {
-		EV << "H-ARQ TX buffer: markSelected(): empty unitIds list" << endl;
-		return;
-	}
+    if (unitIds.second.size() == 0) {
+        EV << "H-ARQ TX buffer: markSelected(): empty unitIds list" << endl;
+        return;
+    }
 
-	if (availableTbs == 0) {
-		EV << "H-ARQ TX buffer: markSelected(): no available TBs" << endl;
-		return;
-	}
+    if (availableTbs == 0) {
+        EV << "H-ARQ TX buffer: markSelected(): no available TBs" << endl;
+        return;
+    }
 
-	unsigned char acid = unitIds.first;
-	CwList cwList = unitIds.second;
+    unsigned char acid = unitIds.first;
+    CwList cwList = unitIds.second;
 
-	if (cwList.size() > availableTbs)
-	{ //eg: tx mode siso trying to rtx 2 TBs
-		// this is the codeword which will contain the jumbo TB
-		Codeword cw  = cwList.front();
-		cwList.pop_front();
-		LteMacPdu *basePdu = (*processes_)[acid]->getPdu(cw);
-		while (cwList.size() > 0) {
-			Codeword cw = cwList.front();
-			cwList.pop_front();
-			LteMacPdu *guestPdu = (*processes_)[acid]->getPdu(cw);
-			while(guestPdu->hasSdu())
-				basePdu->pushSdu(guestPdu->popSdu());
-			while(guestPdu->hasCe())
-				basePdu->pushCe(guestPdu->popCe());
-			(*processes_)[acid]->dropPdu(cw);
-		}
-		(*processes_)[acid]->markSelected(cw);
-	}
-	else {
-		CwList::iterator it;
-		// all units are marked
-		for (it = cwList.begin(); it != cwList.end(); it++) {
-			(*processes_)[acid]->markSelected(*it);
-		}
-	}
+    if (cwList.size() > availableTbs)
+    { //eg: tx mode siso trying to rtx 2 TBs
+        // this is the codeword which will contain the jumbo TB
+        Codeword cw  = cwList.front();
+        cwList.pop_front();
+        LteMacPdu *basePdu = (*processes_)[acid]->getPdu(cw);
+        while (cwList.size() > 0) {
+            Codeword cw = cwList.front();
+            cwList.pop_front();
+            LteMacPdu *guestPdu = (*processes_)[acid]->getPdu(cw);
+            while(guestPdu->hasSdu())
+                basePdu->pushSdu(guestPdu->popSdu());
+            while(guestPdu->hasCe())
+                basePdu->pushCe(guestPdu->popCe());
+            (*processes_)[acid]->dropPdu(cw);
+        }
+        (*processes_)[acid]->markSelected(cw);
+    }
+    else {
+        CwList::iterator it;
+        // all units are marked
+        for (it = cwList.begin(); it != cwList.end(); it++) {
+            (*processes_)[acid]->markSelected(*it);
+        }
+    }
 
-	selectedAcid_ = acid;
+    selectedAcid_ = acid;
 
-	// user tx params could have changed, modify them
-	//	UserControlInfo *uInfo = check_and_cast<UserControlInfo *>(basePdu->getControlInfo());
-	// TODO: get amc and modify user tx params
-	//uInfo->setTxMode(???)
+    // user tx params could have changed, modify them
+    //    UserControlInfo *uInfo = check_and_cast<UserControlInfo *>(basePdu->getControlInfo());
+    // TODO: get amc and modify user tx params
+    //uInfo->setTxMode(???)
 
 
-	// debug output
-	EV << "H-ARQ TX: process " << (int)selectedAcid_ << " has been selected for retransmission" << endl;
+    // debug output
+    EV << "H-ARQ TX: process " << (int)selectedAcid_ << " has been selected for retransmission" << endl;
 }
 
 void LteHarqBufferTx::insertPdu(unsigned char acid,Codeword cw, LteMacPdu *pdu)
 {
-	if (selectedAcid_ == HARQ_NONE)
-	{
-		// the process has not been used for rtx, or it is the first TB inserted, it must be completely empty
-		if (!(*processes_)[acid]->isEmpty())
-		{
-			throw cRuntimeError("H-ARQ TX buffer: new process selected for tx is not completely empty");
-		}
-	}
+    if (selectedAcid_ == HARQ_NONE)
+    {
+        // the process has not been used for rtx, or it is the first TB inserted, it must be completely empty
+        if (!(*processes_)[acid]->isEmpty())
+        {
+            throw cRuntimeError("H-ARQ TX buffer: new process selected for tx is not completely empty");
+        }
+    }
 
-	if (!(*processes_)[acid]->isUnitEmpty(cw))
-	{
-		throw cRuntimeError("H-ARQ TX buffer: insertPdu, unit is not empty");
-	}
+    if (!(*processes_)[acid]->isUnitEmpty(cw))
+    {
+        throw cRuntimeError("H-ARQ TX buffer: insertPdu, unit is not empty");
+    }
 
-	selectedAcid_ = acid;
-	numEmptyProc_--;
-	(*processes_)[acid]->insertPdu(pdu, cw);
+    selectedAcid_ = acid;
+    numEmptyProc_--;
+    (*processes_)[acid]->insertPdu(pdu, cw);
 
-	// debug output
-	EV << "H-ARQ TX: new pdu (id " << pdu->getId() << " ) inserted into process " << (int)acid << " "
-			"codeword id: " << (int)cw << " "
-			"for node with id " << check_and_cast<UserControlInfo *>(pdu->getControlInfo())->getDestId() << endl;
+    // debug output
+    EV << "H-ARQ TX: new pdu (id " << pdu->getId() << " ) inserted into process " << (int)acid << " "
+            "codeword id: " << (int)cw << " "
+            "for node with id " << check_and_cast<UserControlInfo *>(pdu->getControlInfo())->getDestId() << endl;
 }
 
 UnitList
 LteHarqBufferTx::firstAvailable()
 {
-	UnitList ret;
+    UnitList ret;
 
-	unsigned char acid = HARQ_NONE;
+    unsigned char acid = HARQ_NONE;
 
-	if (selectedAcid_ == HARQ_NONE)
-	{
-		for (unsigned int i = 0; i < numProc_; i++)
-		{
-			if ((*processes_)[i]->isEmpty())
-			{
-				acid = i;
-				break;
-			}
-		}
-	}
-	else {
-		acid = selectedAcid_;
-	}
-		ret.first=acid;
+    if (selectedAcid_ == HARQ_NONE)
+    {
+        for (unsigned int i = 0; i < numProc_; i++)
+        {
+            if ((*processes_)[i]->isEmpty())
+            {
+                acid = i;
+                break;
+            }
+        }
+    }
+    else {
+        acid = selectedAcid_;
+    }
+        ret.first=acid;
 
-	if (acid != HARQ_NONE)
-	{
-		// if there is any free process, return empty list
-		ret.second = (*processes_)[acid]->emptyUnitsIds();
-	}
+    if (acid != HARQ_NONE)
+    {
+        // if there is any free process, return empty list
+        ret.second = (*processes_)[acid]->emptyUnitsIds();
+    }
 
-	return ret;
+    return ret;
 }
 
 UnitList LteHarqBufferTx::getEmptyUnits(unsigned char acid)
 {
-	// TODO add multi CW check and retx checks
-	UnitList ret;
-	ret.first = acid;
-	ret.second = (*processes_)[acid]->emptyUnitsIds();
-	return ret;
+    // TODO add multi CW check and retx checks
+    UnitList ret;
+    ret.first = acid;
+    ret.second = (*processes_)[acid]->emptyUnitsIds();
+    return ret;
 }
 
 void LteHarqBufferTx::receiveHarqFeedback(LteHarqFeedback *fbpkt)
 {
-	EV << "LteHarqBufferTx::receiveHarqFeedback - start" << endl;
-	bool result = fbpkt->getResult();
-	HarqAcknowledgment harqResult = result ? HARQACK : HARQNACK;
-	Codeword cw = fbpkt->getCw();
-	unsigned char acid = fbpkt->getAcid();
-	long fbPduId = fbpkt->getPduId(); // id of the pdu that should receive this fb
-	long unitPduId = (*processes_)[acid]->getPduId(cw);
+    EV << "LteHarqBufferTx::receiveHarqFeedback - start" << endl;
+    bool result = fbpkt->getResult();
+    HarqAcknowledgment harqResult = result ? HARQACK : HARQNACK;
+    Codeword cw = fbpkt->getCw();
+    unsigned char acid = fbpkt->getAcid();
+    long fbPduId = fbpkt->getPduId(); // id of the pdu that should receive this fb
+    long unitPduId = (*processes_)[acid]->getPduId(cw);
 
-	if (fbPduId != unitPduId)
-	{
-		// fb is not for the pdu in this unit, maybe the addressed one was dropped
-		EV << "H-ARQ TX buffer: received pdu for acid " << (int)acid << "Codeword " << cw <<" not addressed"
-				" to the actually contained pdu (maybe it was dropped)" << endl;
-		EV << "Received id: " << fbPduId << endl;
-		EV << "PDU id: " << unitPduId << endl;
-		// todo: comment endsim after tests
-		throw cRuntimeError("H-ARQ TX: fb is not for the pdu in this unit, maybe the addressed one was dropped");
-		delete fbpkt;
-		return;
-	}
-	bool reset = (*processes_)[acid]->pduFeedback(harqResult, cw);
-	if (reset)
-		numEmptyProc_++;
+    if (fbPduId != unitPduId)
+    {
+        // fb is not for the pdu in this unit, maybe the addressed one was dropped
+        EV << "H-ARQ TX buffer: received pdu for acid " << (int)acid << "Codeword " << cw <<" not addressed"
+                " to the actually contained pdu (maybe it was dropped)" << endl;
+        EV << "Received id: " << fbPduId << endl;
+        EV << "PDU id: " << unitPduId << endl;
+        // todo: comment endsim after tests
+        throw cRuntimeError("H-ARQ TX: fb is not for the pdu in this unit, maybe the addressed one was dropped");
+        delete fbpkt;
+        return;
+    }
+    bool reset = (*processes_)[acid]->pduFeedback(harqResult, cw);
+    if (reset)
+        numEmptyProc_++;
 
-	// debug output
-	const char *ack = result ? "ACK" : "NACK";
-	EV << "H-ARQ TX: feedback received for process " << (int)acid << " codeword " << (int)cw << ""
-			" result is " << ack << endl;
+    // debug output
+    const char *ack = result ? "ACK" : "NACK";
+    EV << "H-ARQ TX: feedback received for process " << (int)acid << " codeword " << (int)cw << ""
+            " result is " << ack << endl;
 
-	delete fbpkt;
+    delete fbpkt;
 }
 
 void LteHarqBufferTx::sendSelectedDown()
 {
-	if (selectedAcid_ == HARQ_NONE)
-	{
-		EV << "LteHarqBufferTx::sendSelectedDown - no process selected in H-ARQ buffer, nothing to do" << endl;
-		return;
-	}
+    if (selectedAcid_ == HARQ_NONE)
+    {
+        EV << "LteHarqBufferTx::sendSelectedDown - no process selected in H-ARQ buffer, nothing to do" << endl;
+        return;
+    }
 
-	CwList ul = (*processes_)[selectedAcid_]->selectedUnitsIds();
-	CwList::iterator it;
-	for (it = ul.begin(); it != ul.end(); it++)
-	{
-		LteMacPdu *pduToSend = (*processes_)[selectedAcid_]->extractPdu(*it);
-		macOwner_->sendLowerPackets(pduToSend);
+    CwList ul = (*processes_)[selectedAcid_]->selectedUnitsIds();
+    CwList::iterator it;
+    for (it = ul.begin(); it != ul.end(); it++)
+    {
+        LteMacPdu *pduToSend = (*processes_)[selectedAcid_]->extractPdu(*it);
+        macOwner_->sendLowerPackets(pduToSend);
 
-		// debug output
-		EV << "\t H-ARQ TX: pdu (id " << pduToSend->getId() << " ) extracted from process " << (int)selectedAcid_ << " "
-				"codeword " << (int)*it << " for node with id " <<
-				check_and_cast<UserControlInfo *>(pduToSend->getControlInfo())->getDestId() << endl;
-	}
-	selectedAcid_ = HARQ_NONE;
+        // debug output
+        EV << "\t H-ARQ TX: pdu (id " << pduToSend->getId() << " ) extracted from process " << (int)selectedAcid_ << " "
+                "codeword " << (int)*it << " for node with id " <<
+                check_and_cast<UserControlInfo *>(pduToSend->getControlInfo())->getDestId() << endl;
+    }
+    selectedAcid_ = HARQ_NONE;
 }
 
 void LteHarqBufferTx::dropProcess(unsigned char acid)
 {
-	// pdus can be dropped only if the unit is in BUFFERED state.
-	CwList ul = (*processes_)[acid]->readyUnitsIds();
-	CwList::iterator it;
+    // pdus can be dropped only if the unit is in BUFFERED state.
+    CwList ul = (*processes_)[acid]->readyUnitsIds();
+    CwList::iterator it;
 
-	for (it = ul.begin(); it != ul.end(); it++)
-	{
-		(*processes_)[acid]->dropPdu(*it);
-	}
-	// if a process contains units in BUFFERED state, then all units of this
-	// process are either empty or in BUFFERED state (ready).
-	numEmptyProc_++;
+    for (it = ul.begin(); it != ul.end(); it++)
+    {
+        (*processes_)[acid]->dropPdu(*it);
+    }
+    // if a process contains units in BUFFERED state, then all units of this
+    // process are either empty or in BUFFERED state (ready).
+    numEmptyProc_++;
 }
 
 void LteHarqBufferTx::selfNack(unsigned char acid, Codeword cw)
 {
-	bool reset = false;
-	CwList ul = (*processes_)[acid]->readyUnitsIds();
-	CwList::iterator it;
+    bool reset = false;
+    CwList ul = (*processes_)[acid]->readyUnitsIds();
+    CwList::iterator it;
 
-	for (it = ul.begin(); it != ul.end(); it++)
-	{
-		reset = (*processes_)[acid]->selfNack(*it);
-	}
-	if (reset)
-		numEmptyProc_++;
+    for (it = ul.begin(); it != ul.end(); it++)
+    {
+        reset = (*processes_)[acid]->selfNack(*it);
+    }
+    if (reset)
+        numEmptyProc_++;
 }
 
 void LteHarqBufferTx::forceDropProcess(unsigned char acid)
 {
-	(*processes_)[acid]->forceDropProcess();
-	if (acid == selectedAcid_)
-		selectedAcid_ = HARQ_NONE;
-	numEmptyProc_++;
+    (*processes_)[acid]->forceDropProcess();
+    if (acid == selectedAcid_)
+        selectedAcid_ = HARQ_NONE;
+    numEmptyProc_++;
 }
 
 void LteHarqBufferTx::forceDropUnit(unsigned char acid, Codeword cw)
 {
-	bool reset = (*processes_)[acid]->forceDropUnit(cw);
-	if (reset) {
-		if (acid == selectedAcid_)
-			selectedAcid_ = HARQ_NONE;
-		numEmptyProc_++;
-	}
+    bool reset = (*processes_)[acid]->forceDropUnit(cw);
+    if (reset) {
+        if (acid == selectedAcid_)
+            selectedAcid_ = HARQ_NONE;
+        numEmptyProc_++;
+    }
 }
 
 BufferStatus LteHarqBufferTx::getBufferStatus()
 {
-	BufferStatus bs(numProc_);
-	unsigned int numHarqUnits = 0;
-	for (unsigned int i = 0; i < numProc_; i++)
-	{
-		numHarqUnits = (*processes_)[i]->getNumHarqUnits();
-		std::vector<UnitStatus> vus(numHarqUnits);
-		vus=(*processes_)[i]->getProcessStatus();
-		bs[i] = vus;
-	}
-	return bs;
+    BufferStatus bs(numProc_);
+    unsigned int numHarqUnits = 0;
+    for (unsigned int i = 0; i < numProc_; i++)
+    {
+        numHarqUnits = (*processes_)[i]->getNumHarqUnits();
+        std::vector<UnitStatus> vus(numHarqUnits);
+        vus=(*processes_)[i]->getProcessStatus();
+        bs[i] = vus;
+    }
+    return bs;
 }
 
 LteHarqProcessTx *
 LteHarqBufferTx::getProcess(unsigned char acid)
 {
 
-	try
-	{
-		return (*processes_).at(acid);
+    try
+    {
+        return (*processes_).at(acid);
 
-	}
-	catch(...)
-	{
-		EV << NOW << "FATAL! acid "<<acid<<" out of bounds . Aborting. " << endl;
-	}
+    }
+    catch(...)
+    {
+        EV << NOW << "FATAL! acid "<<acid<<" out of bounds . Aborting. " << endl;
+    }
 }
 
 LteHarqProcessTx *
 LteHarqBufferTx::getSelectedProcess()
 {
-	return getProcess(selectedAcid_);
+    return getProcess(selectedAcid_);
 }
 
 
 LteHarqBufferTx::~LteHarqBufferTx()
 {
-	processes_->clear();
-	processes_ = NULL;
-	macOwner_ = NULL;
+    processes_->clear();
+    processes_ = NULL;
+    macOwner_ = NULL;
 }
 
 bool LteHarqBufferTx::isInUnitList(unsigned char acid, Codeword cw, UnitList unitIds)
 {
-	if (acid != unitIds.first) return false;
+    if (acid != unitIds.first) return false;
 
-	CwList::iterator it;
-	for (it = unitIds.second.begin(); it != unitIds.second.end(); it++)
-	{
-		if (cw == *it)
-		{
-			return true;
-		}
-	}
-	return false;
+    CwList::iterator it;
+    for (it = unitIds.second.begin(); it != unitIds.second.end(); it++)
+    {
+        if (cw == *it)
+        {
+            return true;
+        }
+    }
+    return false;
 }

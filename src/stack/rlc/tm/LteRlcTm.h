@@ -36,52 +36,52 @@
 class LteRlcTm : public cSimpleModule
 {
 
-	public:
-		LteRlcTm() {;}
-		virtual ~LteRlcTm() {;}
+    public:
+        LteRlcTm() {;}
+        virtual ~LteRlcTm() {;}
 
-	protected:
-		/**
-		 * Analyze gate of incoming packet
-		 * and call proper handler
-		 */
-		virtual void handleMessage(cMessage *msg);
+    protected:
+        /**
+         * Analyze gate of incoming packet
+         * and call proper handler
+         */
+        virtual void handleMessage(cMessage *msg);
 
-		virtual void initialize();
-		virtual void finish() {;}
+        virtual void initialize();
+        virtual void finish() {;}
 
-	private:
-		/**
-		 * handler for traffic coming
-		 * from the upper layer (RRC)
-		 *
-		 * handleUpperMessage() simply forwards packet to lower layers.
-		 * An empty header is added so that the encapsulation
-		 * level is the same for all packets transversing the stack
-		 *
-		 * @param pkt packet to process
-		 */
-		void handleUpperMessage(cPacket *pkt);
+    private:
+        /**
+         * handler for traffic coming
+         * from the upper layer (RRC)
+         *
+         * handleUpperMessage() simply forwards packet to lower layers.
+         * An empty header is added so that the encapsulation
+         * level is the same for all packets transversing the stack
+         *
+         * @param pkt packet to process
+         */
+        void handleUpperMessage(cPacket *pkt);
 
-		/**
-		 * handler for traffic coming from
-		 * lower layer
-		 *
-		 * handleLowerMessage() is the function that takes care
-		 * of TM traffic coming from lower layer.
-		 * After decapsulating the fictitious
-		 * header, packet is simply forwarded to the upper layer
-		 *
-		 * @param pkt packet to process
-		 */
-		void handleLowerMessage(cPacket *pkt);
+        /**
+         * handler for traffic coming from
+         * lower layer
+         *
+         * handleLowerMessage() is the function that takes care
+         * of TM traffic coming from lower layer.
+         * After decapsulating the fictitious
+         * header, packet is simply forwarded to the upper layer
+         *
+         * @param pkt packet to process
+         */
+        void handleLowerMessage(cPacket *pkt);
 
-		/**
-		 * Data structures
-		 */
+        /**
+         * Data structures
+         */
 
-		cGate* up_[2];
-		cGate* down_[2];
+        cGate* up_[2];
+        cGate* down_[2];
 };
 
 #endif /* LTERLCTM_H_ */

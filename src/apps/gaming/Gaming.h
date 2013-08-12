@@ -19,9 +19,9 @@
 
 class Gaming : public UDPBasicApp {
 public:
-	Gaming();
-	virtual ~Gaming();
-	virtual cPacket *createPacket();
+    Gaming();
+    virtual ~Gaming();
+    virtual cPacket *createPacket();
 };
 
 #endif /* GAMING_H_ */

@@ -21,47 +21,47 @@ class LteFeedbackPkt;
 
 class LtePhyEnb : public LtePhyBase
 {
-	friend class DasFilter;
+    friend class DasFilter;
 
-	private:
-		/** Broadcast messages interval (equal to updatePos interval for mobility) */
-		double bdcUpdateInterval_;
+    private:
+        /** Broadcast messages interval (equal to updatePos interval for mobility) */
+        double bdcUpdateInterval_;
 
-		/** Self message to trigger broadcast message sending for handover purposes */
-		cMessage *bdcStarter_;
+        /** Self message to trigger broadcast message sending for handover purposes */
+        cMessage *bdcStarter_;
 
-		/**
-		 * Pointer to the DAS Filter: used to call das function
-		 * when receiving broadcasts and to retrieve physical
-		 * antenna properties on packet reception
-		 */
-		DasFilter* das_;
-		//Used for PisaPhy feedback generator
-		LteFeedbackDoubleVector fb_;
+        /**
+         * Pointer to the DAS Filter: used to call das function
+         * when receiving broadcasts and to retrieve physical
+         * antenna properties on packet reception
+         */
+        DasFilter* das_;
+        //Used for PisaPhy feedback generator
+        LteFeedbackDoubleVector fb_;
 
 
-	protected:
+    protected:
 
-		virtual void initialize(int stage);
+        virtual void initialize(int stage);
 
-		void handleSelfMessage(cMessage *msg);
-		void handleAirFrame(cMessage* msg);
-		bool handleControlPkt(UserControlInfo* lteinfo,LteAirFrame* frame);
-		void handleFeedbackPkt(UserControlInfo* lteinfo,LteAirFrame* frame);
-		void requestFeedback(UserControlInfo* lteinfo,LteAirFrame* frame,LteFeedbackPkt* pkt);
-		/**
-		 * Getter for the Das Filter
-		 */
-		DasFilter* getDasFilter();
-		// Feedback computation for PisaPhy
-		LteFeedbackComputation* getFeedbackComputationFromName(std::string name, ParameterMap& params);
-		void initializeFeedbackComputation(cXMLElement* xmlConfig);
+        void handleSelfMessage(cMessage *msg);
+        void handleAirFrame(cMessage* msg);
+        bool handleControlPkt(UserControlInfo* lteinfo,LteAirFrame* frame);
+        void handleFeedbackPkt(UserControlInfo* lteinfo,LteAirFrame* frame);
+        void requestFeedback(UserControlInfo* lteinfo,LteAirFrame* frame,LteFeedbackPkt* pkt);
+        /**
+         * Getter for the Das Filter
+         */
+        DasFilter* getDasFilter();
+        // Feedback computation for PisaPhy
+        LteFeedbackComputation* getFeedbackComputationFromName(std::string name, ParameterMap& params);
+        void initializeFeedbackComputation(cXMLElement* xmlConfig);
 
-	public:
-		LtePhyEnb();
-		virtual ~LtePhyEnb();
+    public:
+        LtePhyEnb();
+        virtual ~LtePhyEnb();
 
-//		void setMicroTxPower();
+//        void setMicroTxPower();
 };
 
 #endif  /* AIRPHYENB_H_ */

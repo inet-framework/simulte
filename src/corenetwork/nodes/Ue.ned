@@ -120,11 +120,11 @@ module Ue
 
         icmp.errorOut --> errorHandling.in;  // log ICMP messages
 
-		//#
-		//# Internal LTE stack to PHY connections
-		//#
+        //#
+        //# Internal LTE stack to PHY connections
+        //#
 
-        lteIp.stackLte$i <-- nic.upperLayerOut;	// LTE Stack data port
+        lteIp.stackLte$i <-- nic.upperLayerOut;    // LTE Stack data port
         lteIp.stackLte$o --> nic.upperLayerIn; // LTE Stack data port
 
         //# 

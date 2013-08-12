@@ -12,7 +12,7 @@ cplusplus {{
 //
 packet LteRlcPdu
 {
-    unsigned int totalFragments;	// Total number of fragments
-    unsigned int snoFragment;		// Sequence number of this fragment
-    unsigned int snoMainPacket;		// ID of packet (sequence number)
+    unsigned int totalFragments;    // Total number of fragments
+    unsigned int snoFragment;        // Sequence number of this fragment
+    unsigned int snoMainPacket;        // ID of packet (sequence number)
 }

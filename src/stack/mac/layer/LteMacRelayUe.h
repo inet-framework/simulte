@@ -17,8 +17,8 @@
 
 class LteMacRelayUe: public LteMacUe {
 public:
-	LteMacRelayUe();
-	virtual ~LteMacRelayUe();
+    LteMacRelayUe();
+    virtual ~LteMacRelayUe();
 };
 
 #endif /* LTEMACRELAYUE_H_ */

@@ -14,24 +14,24 @@
 
 ExtCell::ExtCell(double pwr , int i , int num , int distance)
 {
-	double angle = (360/num)*i;
+    double angle = (360/num)*i;
 
-	double c = cos(angle*PI/180);
-	double s = sin(angle*PI/180);
+    double c = cos(angle*PI/180);
+    double s = sin(angle*PI/180);
 
-	position_.x = (c*distance)+distance;
-	position_.y = (s*distance)+distance;
+    position_.x = (c*distance)+distance;
+    position_.y = (s*distance)+distance;
 
-	EV << "ExtCell::ExtCell - Creating an External Cell with \n\t[x="<< position_.x << ",y=" << position_.y << "]\n\t" <<
-																"[angle=" << angle << "]\n\t" <<
-																"[distance=" << distance << "]\n\t" <<
-																"[index=" << i << "/" << num-1 << "]\n\t" <<
-																"[pwr="<< pwr <<"]" << endl;
-	txPower_ = 	pwr;
-	//position_ = pos;
+    EV << "ExtCell::ExtCell - Creating an External Cell with \n\t[x="<< position_.x << ",y=" << position_.y << "]\n\t" <<
+                                                                "[angle=" << angle << "]\n\t" <<
+                                                                "[distance=" << distance << "]\n\t" <<
+                                                                "[index=" << i << "/" << num-1 << "]\n\t" <<
+                                                                "[pwr="<< pwr <<"]" << endl;
+    txPower_ =     pwr;
+    //position_ = pos;
 }
 
 ExtCell::~ExtCell() {
-	// TODO Auto-generated destructor stub
+    // TODO Auto-generated destructor stub
 }
 

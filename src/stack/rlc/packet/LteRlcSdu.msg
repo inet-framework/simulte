@@ -4,5 +4,5 @@
 //
 packet LteRlcSdu
 {
-    unsigned int snoMainPacket;						// ID of packet (sequence number)
+    unsigned int snoMainPacket;                        // ID of packet (sequence number)
 }

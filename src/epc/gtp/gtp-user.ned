@@ -20,15 +20,15 @@ package lte.epc.gtp;
 //
 simple GtpUser
 {
-	parameters:
-	    int localPort = default(31);  
-	    
-	    int tunnelPeerPort = default(31);
-	    string teidFileName;
-	    string tftFileName;
-	    
-	    bool filter = default(true);
-	    
+    parameters:
+        int localPort = default(31);  
+        
+        int tunnelPeerPort = default(31);
+        string teidFileName;
+        string tftFileName;
+        
+        bool filter = default(true);
+        
     @display("i=old/bwxconn");
     
     gates:

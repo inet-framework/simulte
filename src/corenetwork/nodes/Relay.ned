@@ -27,7 +27,7 @@ module Relay
         @display("i=device/receiverdish;bgb=250,200");
 
         //# Node specs
-        string nodeType = "RELAY";		// DO NOT CHANGE
+        string nodeType = "RELAY";        // DO NOT CHANGE
         int masterId = default(0);
         int macNodeId = default(0);
         int macCellId = default(0);
@@ -55,8 +55,8 @@ module Relay
 
     connections allowunconnected:
         //#
-		//# Internal Lte connections
-		//#
+        //# Internal Lte connections
+        //#
         nicUe.upperLayerIn <-- nicEnb.upperLayerOut;
         nicUe.upperLayerOut --> nicEnb.upperLayerIn;
 
@@ -79,8 +79,8 @@ simple UnUuMux
         @display("i=block/dispatch");
 
     gates:
-        inout Un;	        // to/from ueStack
-        inout Uu;			// to/from enbStack
+        inout Un;            // to/from ueStack
+        inout Uu;            // to/from enbStack
         inout lowerGate;    // to/from NIC
 }
 

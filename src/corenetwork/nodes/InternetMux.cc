@@ -18,13 +18,13 @@ Define_Module(InternetMux);
 
 InternetMux::InternetMux()
 {
-	// TODO Auto-generated constructor stub
+    // TODO Auto-generated constructor stub
 
 }
 
 InternetMux::~InternetMux()
 {
-	// TODO Auto-generated destructor stub
+    // TODO Auto-generated destructor stub
 }
 
 void
@@ -37,21 +37,21 @@ void
 InternetMux::handleMessage(cMessage *msg)
 {
 
-	cGate* incoming = msg->getArrivalGate();
-		if (incoming==gate("inMux")){ // message coming from LteIP
+    cGate* incoming = msg->getArrivalGate();
+        if (incoming==gate("inMux")){ // message coming from LteIP
 
-			// finding next hop for destination node
-			FlowControlInfo* controlInfo = check_and_cast<FlowControlInfo*>(msg->getControlInfo());
+            // finding next hop for destination node
+            FlowControlInfo* controlInfo = check_and_cast<FlowControlInfo*>(msg->getControlInfo());
 
-			MacNodeId dest = getBinder()->getMacNodeId(IPv4Address(controlInfo->getDstAddr()));
+            MacNodeId dest = getBinder()->getMacNodeId(IPv4Address(controlInfo->getDstAddr()));
 
-			MacNodeId nextHop = getBinder()->getNextHop(dest);
+            MacNodeId nextHop = getBinder()->getNextHop(dest);
 
-			send(msg,routingTable_.at(nextHop)); // send either to nodeB or relay node.
+            send(msg,routingTable_.at(nextHop)); // send either to nodeB or relay node.
 
-		} else { // message coming from any connected nodeB
-			send(msg,gate("outMux")); // send to LteIP
-		}
-		return;
+        } else { // message coming from any connected nodeB
+            send(msg,gate("outMux")); // send to LteIP
+        }
+        return;
 
 }

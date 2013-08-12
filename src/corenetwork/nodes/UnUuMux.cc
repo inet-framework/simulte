@@ -15,33 +15,33 @@
 Define_Module(UnUuMux);
 
 void UnUuMux::handleUpperMessage(cMessage *msg) {
-	send(msg, down_[OUT]);
+    send(msg, down_[OUT]);
 }
 
 void UnUuMux::handleLowerMessage(cMessage *msg) {
-	UserControlInfo *ci = check_and_cast<UserControlInfo *>(msg->getControlInfo());
-	MacNodeId src = ci->getSourceId();
-	if (getNodeTypeById(src) == ENODEB) { // message from DeNB --> send to Un interface
-		send(msg, upUn_[OUT]);
-	}
-	else {
-		send(msg, upUu_[OUT]);
-	}
+    UserControlInfo *ci = check_and_cast<UserControlInfo *>(msg->getControlInfo());
+    MacNodeId src = ci->getSourceId();
+    if (getNodeTypeById(src) == ENODEB) { // message from DeNB --> send to Un interface
+        send(msg, upUn_[OUT]);
+    }
+    else {
+        send(msg, upUu_[OUT]);
+    }
 }
 
 void UnUuMux::initialize() {
-	upUn_[IN] = gate("Un$i"); upUn_[OUT] = gate("Un$o");
-	upUu_[IN] = gate("Uu$o"); upUu_[OUT] = gate("Uu$o");
-	down_[IN] = gate("lowerGate$i"); down_[OUT] = gate("lowerGate$o");
+    upUn_[IN] = gate("Un$i"); upUn_[OUT] = gate("Un$o");
+    upUu_[IN] = gate("Uu$o"); upUu_[OUT] = gate("Uu$o");
+    down_[IN] = gate("lowerGate$i"); down_[OUT] = gate("lowerGate$o");
 }
 
 void UnUuMux::handleMessage(cMessage *msg)
 {
-	cGate* incoming = msg->getArrivalGate();
-	if (incoming == down_[IN]) {
-		handleLowerMessage(msg);
-	} else {
-		handleUpperMessage(msg);
-	}
-	return;
+    cGate* incoming = msg->getArrivalGate();
+    if (incoming == down_[IN]) {
+        handleLowerMessage(msg);
+    } else {
+        handleUpperMessage(msg);
+    }
+    return;
 }

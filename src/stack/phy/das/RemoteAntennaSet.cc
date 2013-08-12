@@ -13,35 +13,35 @@
 #include "RemoteAntennaSet.h"
 
 void RemoteAntennaSet::addRemoteAntenna(double ruX, double ruY, double ruPow) {
-	RemoteAntenna ru;
-	Coord ruPos = Coord(ruX,ruY);
-	ru.ruPosition_ = ruPos;
-	ru.txPower_ = ruPow;
-	remoteAntennaSet_.push_back(ru);
+    RemoteAntenna ru;
+    Coord ruPos = Coord(ruX,ruY);
+    ru.ruPosition_ = ruPos;
+    ru.txPower_ = ruPow;
+    remoteAntennaSet_.push_back(ru);
 }
 
 Coord RemoteAntennaSet::getAntennaCoord(unsigned int remote) {
-	if (remote >= remoteAntennaSet_.size()) return Coord(0,0);
-	return remoteAntennaSet_[remote].ruPosition_;
+    if (remote >= remoteAntennaSet_.size()) return Coord(0,0);
+    return remoteAntennaSet_[remote].ruPosition_;
 }
 
 double RemoteAntennaSet::getAntennaTxPower(unsigned int remote) {
-	if (remote >= remoteAntennaSet_.size()) return 0.0;
-	return remoteAntennaSet_[remote].txPower_;
+    if (remote >= remoteAntennaSet_.size()) return 0.0;
+    return remoteAntennaSet_[remote].txPower_;
 
 }
 
 unsigned int RemoteAntennaSet::getAntennaSetSize() {
-	return remoteAntennaSet_.size();
+    return remoteAntennaSet_.size();
 }
 
 std::ostream &operator<<(std::ostream &stream, const RemoteAntennaSet* ruSet) {
-	if (ruSet == NULL) return (stream << "Empty set");
-	for(unsigned int i=0; i<ruSet->remoteAntennaSet_.size(); i++) {
-		stream << "RU" << i << " : " << "Pos = (" <<
-				ruSet->remoteAntennaSet_[i].ruPosition_.x << "," <<
-				ruSet->remoteAntennaSet_[i].ruPosition_.y << ") ; txPow = " <<
-				ruSet->remoteAntennaSet_[i].txPower_ << " :: ";
-	}
-	return stream;
+    if (ruSet == NULL) return (stream << "Empty set");
+    for(unsigned int i=0; i<ruSet->remoteAntennaSet_.size(); i++) {
+        stream << "RU" << i << " : " << "Pos = (" <<
+                ruSet->remoteAntennaSet_[i].ruPosition_.x << "," <<
+                ruSet->remoteAntennaSet_[i].ruPosition_.y << ") ; txPow = " <<
+                ruSet->remoteAntennaSet_[i].txPower_ << " :: ";
+    }
+    return stream;
 }

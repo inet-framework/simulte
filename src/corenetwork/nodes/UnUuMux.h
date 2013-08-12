@@ -23,21 +23,21 @@
  */
 class UnUuMux : public cSimpleModule
 {
-	protected:
-		virtual void initialize();
-		virtual void handleMessage(cMessage *msg);
+    protected:
+        virtual void initialize();
+        virtual void handleMessage(cMessage *msg);
 
-	private:
-		void handleUpperMessage(cMessage *msg);
-		void handleLowerMessage(cMessage *msg);
+    private:
+        void handleUpperMessage(cMessage *msg);
+        void handleLowerMessage(cMessage *msg);
 
-		/**
-		 * Data structures
-		 */
+        /**
+         * Data structures
+         */
 
-		cGate* upUn_[2];
-		cGate* upUu_[2];
-		cGate* down_[2];
+        cGate* upUn_[2];
+        cGate* upUu_[2];
+        cGate* down_[2];
 };
 
 #endif

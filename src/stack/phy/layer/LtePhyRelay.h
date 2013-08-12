@@ -17,23 +17,23 @@
 
 class LtePhyRelay : public LtePhyBase
 {
-	private:
-		/** Broadcast messages interval (equal to updatePos interval for mobility) */
-		double bdcUpdateInterval_;
+    private:
+        /** Broadcast messages interval (equal to updatePos interval for mobility) */
+        double bdcUpdateInterval_;
 
-		/** Self message to trigger broadcast message sending for handover purposes */
-		cMessage *bdcStarter_;
+        /** Self message to trigger broadcast message sending for handover purposes */
+        cMessage *bdcStarter_;
 
-		/** Master MacNodeId */
-		MacNodeId masterId_;
+        /** Master MacNodeId */
+        MacNodeId masterId_;
 
-	protected:
-		virtual void initialize(int stage);
+    protected:
+        virtual void initialize(int stage);
 
-		void handleSelfMessage(cMessage *msg);
-		void handleAirFrame(cMessage* msg);
-	public:
-		virtual ~LtePhyRelay();
+        void handleSelfMessage(cMessage *msg);
+        void handleAirFrame(cMessage* msg);
+    public:
+        virtual ~LtePhyRelay();
 };
 
 #endif  /* AIRPHYRELAY_H_ */

@@ -32,21 +32,21 @@ class AmcPilotAuto: public AmcPilot {
 
 public:
 
-	/**
-	 * Constructor
-	 * @param amc LteAmc owner module
-	 */
-	AmcPilotAuto(LteAmc *amc): AmcPilot(amc) { name_ = "Auto"; };
+    /**
+     * Constructor
+     * @param amc LteAmc owner module
+     */
+    AmcPilotAuto(LteAmc *amc): AmcPilot(amc) { name_ = "Auto"; };
 
-	/**
-	 * Assign logical bands for given nodeId and direction
-	 * @param id The mobile node ID.
-	 * @param dir The link direction.
-	 * @return The user transmission parameters computed.
-	 */
-	const UserTxParams& computeTxParams(MacNodeId id, const Direction dir);
-	//Used with TMS pilot
-	void updateActiveUsers(ActiveSet aUser, Direction dir){return;}
+    /**
+     * Assign logical bands for given nodeId and direction
+     * @param id The mobile node ID.
+     * @param dir The link direction.
+     * @return The user transmission parameters computed.
+     */
+    const UserTxParams& computeTxParams(MacNodeId id, const Direction dir);
+    //Used with TMS pilot
+    void updateActiveUsers(ActiveSet aUser, Direction dir){return;}
 
 };
 

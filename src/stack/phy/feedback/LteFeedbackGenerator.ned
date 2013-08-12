@@ -37,8 +37,8 @@ simple LteDlFeedbackGenerator {
         bool usePeriodic = default(true);  
         
         // initial txMode (see LteCommon.h)
-        // 	SINGLE_ANTENNA_PORT0,SINGLE_ANTENNA_PORT5,TRANSMIT_DIVERSITY,OL_SPATIAL_MULTIPLEXING,
-	    // CL_SPATIAL_MULTIPLEXING,MULTI_USER,
+        //     SINGLE_ANTENNA_PORT0,SINGLE_ANTENNA_PORT5,TRANSMIT_DIVERSITY,OL_SPATIAL_MULTIPLEXING,
+        // CL_SPATIAL_MULTIPLEXING,MULTI_USER,
         string initialTxMode = default("SINGLE_ANTENNA_PORT0");  
         
         //Feedback Computation (warning, this should be compatible with
@@ -57,7 +57,7 @@ simple LteDlFeedbackGenerator {
 //
 simple LteUlFeedbackGenerator {
     parameters:
-    	@display("i=block/cogwheel");
-    	// TODO
+        @display("i=block/cogwheel");
+        // TODO
 }   
     

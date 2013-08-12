@@ -20,7 +20,7 @@
  * Timer type
  */
 typedef enum {
-	TTSIMPLE, TTMULTI
+    TTSIMPLE, TTMULTI
 } TTimerType;
 
 
@@ -34,7 +34,7 @@ public:
          */
         TTimer (cSimpleModule* module)
         {
-        	module_ = module;
+            module_ = module;
             busy_ = false;
             start_ = 0;
             expire_ = 0;
@@ -102,8 +102,8 @@ public:
         simtime_t remaining () { return expire_ - NOW; }
 
 protected:
-		//!Timer identifier - will be inserted in each timer-generated message
-		unsigned int timerId_;
+        //!Timer identifier - will be inserted in each timer-generated message
+        unsigned int timerId_;
 
         //! Object for handling the event.
         cSimpleModule* module_;
@@ -153,17 +153,17 @@ class TMultiTimer : public cObject
                 virtual void add ( simtime_t t, unsigned int event );
 
                 /*!
-				 * Gets the timer identifier which is inserted into each timer message
-				 * @return The timer identifier
-				 */
-				unsigned int getTimerId() const {return timerId_;}
+                 * Gets the timer identifier which is inserted into each timer message
+                 * @return The timer identifier
+                 */
+                unsigned int getTimerId() const {return timerId_;}
 
-				/*!
-				 * Sets the timer identifier which is inserted into each timer message
-				 *
-				 * @param timerId_ The timer identifier
-				 */
-				void setTimerId(unsigned int timerId_) { this->timerId_ = timerId_; }
+                /*!
+                 * Sets the timer identifier which is inserted into each timer message
+                 *
+                 * @param timerId_ The timer identifier
+                 */
+                void setTimerId(unsigned int timerId_) { this->timerId_ = timerId_; }
 
                 /*! Remove an event. Note that event id are assumed to be unique
                  *
@@ -178,9 +178,9 @@ class TMultiTimer : public cObject
                 void handle ( unsigned int event );
 
                 /*! Return true if there is at least one scheduled event.
-				 *
-				 * @return whether there is at least one scheduled event
-				 */
+                 *
+                 * @return whether there is at least one scheduled event
+                 */
                 virtual bool busy () const { return busy_; }
 
                 /*! Return true if the event id exists

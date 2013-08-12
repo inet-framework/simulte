@@ -26,26 +26,26 @@
 using namespace std;
 class TaggedSample: public cObject {
 public:
-	double sample;
-	unsigned int id;
-	// the emitting cComponent (module)
-	cComponent* module;
+    double sample;
+    unsigned int id;
+    // the emitting cComponent (module)
+    cComponent* module;
 };
 class VoDUDPClient : public cSimpleModule
 {
     UDPSocket socket;
-	fstream outfile;
+    fstream outfile;
 
 public:
-	simsignal_t tptLayer0_;
-	simsignal_t tptLayer1_;
-	simsignal_t tptLayer2_;
-	simsignal_t tptLayer3_;
-	TaggedSample* tSample_;
-	simsignal_t delayLayer0_;
-	simsignal_t delayLayer1_;
-	simsignal_t delayLayer2_;
-	simsignal_t delayLayer3_;
+    simsignal_t tptLayer0_;
+    simsignal_t tptLayer1_;
+    simsignal_t tptLayer2_;
+    simsignal_t tptLayer3_;
+    TaggedSample* tSample_;
+    simsignal_t delayLayer0_;
+    simsignal_t delayLayer1_;
+    simsignal_t delayLayer2_;
+    simsignal_t delayLayer3_;
 
   protected:
 

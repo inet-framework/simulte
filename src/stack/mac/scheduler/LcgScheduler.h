@@ -30,99 +30,99 @@ typedef std::map<MacCid,unsigned int> ScheduleList;
 
 class LcgScheduler
 {
-	/**
-	 * Score-based schedulers descriptor.
-	 */
-	template<typename T, typename S>
-	struct SortedDesc
-	{
+    /**
+     * Score-based schedulers descriptor.
+     */
+    template<typename T, typename S>
+    struct SortedDesc
+    {
 
-		/// Connection identifier.
-		T x_;
-		/// Score value.
-		S score_;
+        /// Connection identifier.
+        T x_;
+        /// Score value.
+        S score_;
 
-		/// Comparison operator to enable sorting.
-		bool operator< (const SortedDesc& y) const
-		{
-			return score_ < y.score_;
-		}
+        /// Comparison operator to enable sorting.
+        bool operator< (const SortedDesc& y) const
+        {
+            return score_ < y.score_;
+        }
 
-		public:
-	    SortedDesc (const T x,const S score)
-	    {
-	      x_=x;
-	      score_=score;
-	    }
-	};
+        public:
+        SortedDesc (const T x,const S score)
+        {
+          x_=x;
+          score_=score;
+        }
+    };
 
-	struct StatusElem
-	{
-		unsigned int occupancy_;
-		unsigned int bucket_;
-		unsigned int sentData_;
-		unsigned int sentSdus_;
-	};
+    struct StatusElem
+    {
+        unsigned int occupancy_;
+        unsigned int bucket_;
+        unsigned int sentData_;
+        unsigned int sentSdus_;
+    };
 
 
 
-	protected:
+    protected:
 
-		// last execution time
-		simtime_t lastExecutionTime_;
+        // last execution time
+        simtime_t lastExecutionTime_;
 
-		/// MAC module, used to get parameters from NED
-		LteMacUe *mac_;
+        /// MAC module, used to get parameters from NED
+        LteMacUe *mac_;
 
-		/// Associated LteSchedulerUeUl (it is the one who creates the LteScheduler)
-		LteSchedulerUeUl* ueScheduler_;
+        /// Associated LteSchedulerUeUl (it is the one who creates the LteScheduler)
+        LteSchedulerUeUl* ueScheduler_;
 
-		// schedule List - returned by reference on scheduler invocation
-		ScheduleList scheduleList_;
+        // schedule List - returned by reference on scheduler invocation
+        ScheduleList scheduleList_;
 
-		/// Cid List
-		typedef std::list<MacCid> CidList;
+        /// Cid List
+        typedef std::list<MacCid> CidList;
 
-		// scheduling status map
-		std::map<MacCid,StatusElem> statusMap_;
+        // scheduling status map
+        std::map<MacCid,StatusElem> statusMap_;
 
-	public:
+    public:
 
-		/**
-		 * Default constructor.
-		 */
-		LcgScheduler(LteMacUe * mac);
+        /**
+         * Default constructor.
+         */
+        LcgScheduler(LteMacUe * mac);
 
-		/**
-		 * Destructor.
-		 */
-		virtual ~LcgScheduler();
+        /**
+         * Destructor.
+         */
+        virtual ~LcgScheduler();
 
-		/**
-		 * Initializes the LteScheduler.
-		 * @param ueScheduler UE scheduler
-		 */
-		inline virtual void setUeUlScheduler(LteSchedulerUeUl* ueScheduler) {ueScheduler_=ueScheduler; }
+        /**
+         * Initializes the LteScheduler.
+         * @param ueScheduler UE scheduler
+         */
+        inline virtual void setUeUlScheduler(LteSchedulerUeUl* ueScheduler) {ueScheduler_=ueScheduler; }
 
-		/* Executes the LCG scheduling algorithm
-		 * @param availableBytes
-		 * @return # of scheduled sdus per cid
-		 */
-		virtual ScheduleList& schedule (unsigned int availableBytes);
+        /* Executes the LCG scheduling algorithm
+         * @param availableBytes
+         * @return # of scheduled sdus per cid
+         */
+        virtual ScheduleList& schedule (unsigned int availableBytes);
 
-		// *****************************************************************************************
+        // *****************************************************************************************
 
-//		/// performs request of grant to the eNbScheduler
-//		virtual unsigned int grant(MacCid cid,unsigned int bytes, bool& terminate,bool& active,bool& eligible);
+//        /// performs request of grant to the eNbScheduler
+//        virtual unsigned int grant(MacCid cid,unsigned int bytes, bool& terminate,bool& active,bool& eligible);
 //
-//		/// calls eNbScheduler rtxschedule()
-//		virtual bool rtxschedule();
+//        /// calls eNbScheduler rtxschedule()
+//        virtual bool rtxschedule();
 //
-//		virtual void notify( MacCid activeCid ) {;}
+//        virtual void notify( MacCid activeCid ) {;}
 //
-//		virtual void remove( MacCid cid ) {;}
+//        virtual void remove( MacCid cid ) {;}
 //
-//		virtual void update() {;}
+//        virtual void update() {;}
 
 };
 #endif /* LCGSCHEDULER_H_ */

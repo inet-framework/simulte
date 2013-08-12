@@ -43,22 +43,22 @@ class LteControlInfo {
 
     //# Information shared between FlowControlInfo and UserControlInfo
     
-    uint16 sourceId;					                // Source MacNodeId
-    uint16 destId;						                // Destination MacNodeId
-    unsigned short direction enum(Direction);			// Traffic Direction (UL, DL)  
+    uint16 sourceId;                                    // Source MacNodeId
+    uint16 destId;                                        // Destination MacNodeId
+    unsigned short direction enum(Direction);            // Traffic Direction (UL, DL)  
     
     //# Traffic Control Information
-	
-    unsigned short application enum(ApplicationType);	// Application Type
-	unsigned short traffic enum(LteTrafficClass);		// Lte Traffic Type
+    
+    unsigned short application enum(ApplicationType);    // Application Type
+    unsigned short traffic enum(LteTrafficClass);        // Lte Traffic Type
     
     //# RLC Control Information
     
-    unsigned short rlcType enum(LteRlcType);			// RLC Traffic Type
+    unsigned short rlcType enum(LteRlcType);            // RLC Traffic Type
     
     //# Connection Information
     
-    uint16 lcid;						                // Logical Connection Identifier  
+    uint16 lcid;                                        // Logical Connection Identifier  
 
 }
 
@@ -77,12 +77,12 @@ class FlowControlInfo extends LteControlInfo {
     
     //# IP Control Information
 
-    uint32 srcAddr;               						// source IP
-    uint32 dstAddr;               						// destination IP
-    uint16 srcPort;	     		 						// source port 
-    uint16 dstPort;       								// destination port
-    unsigned int sequenceNumber;  						// packet sequence number
-    int headerSize;               						// IP + Transport header size (used by pdcp ROHC)   
+    uint32 srcAddr;                                       // source IP
+    uint32 dstAddr;                                       // destination IP
+    uint16 srcPort;                                          // source port 
+    uint16 dstPort;                                       // destination port
+    unsigned int sequenceNumber;                          // packet sequence number
+    int headerSize;                                       // IP + Transport header size (used by pdcp ROHC)   
 }
 
 // 
@@ -96,25 +96,25 @@ class FlowControlInfo extends LteControlInfo {
 //
 class UserControlInfo extends LteControlInfo {
     
-	@customize(true);
+    @customize(true);
     
     //# H-ARQ Control Information
     
-    unsigned char acid;				// H-ARQ process identifier
-    unsigned char cw;				// H-ARQ codeword identifier
-    unsigned char txNumber = 0;			// number of (re)transmissions for the same pdu (1, 2, 3, 4)
-    bool ndi = true;					// new data indicator (new data overwrites a process content if present)
+    unsigned char acid;                // H-ARQ process identifier
+    unsigned char cw;                // H-ARQ codeword identifier
+    unsigned char txNumber = 0;            // number of (re)transmissions for the same pdu (1, 2, 3, 4)
+    bool ndi = true;                    // new data indicator (new data overwrites a process content if present)
     
     //# PHY Control Informations
     
-    bool isCorruptible;								// Frame is corruptible
-    bool isBroadcast = false;						// Broadcast packet
-    bool deciderResult;								// Decider result
-    double blerTh;						            // Calculated BLER threshold for this transmission
-    double blerValue;					            // Extracted BLER for this transmission (blerValue > blerTh ==> corrupted)
-    unsigned short txMode enum(TxMode);				// Traffic Type
-    unsigned int frameType enum(LtePhyFrameType);	// Frame Type
-    double txPower;									//Transmission Power
+    bool isCorruptible;                                // Frame is corruptible
+    bool isBroadcast = false;                        // Broadcast packet
+    bool deciderResult;                                // Decider result
+    double blerTh;                                    // Calculated BLER threshold for this transmission
+    double blerValue;                                // Extracted BLER for this transmission (blerValue > blerTh ==> corrupted)
+    unsigned short txMode enum(TxMode);                // Traffic Type
+    unsigned int frameType enum(LtePhyFrameType);    // Frame Type
+    double txPower;                                    //Transmission Power
     // blocks granted on all Remotes, all Bands
     unsigned int totalGrantedBlocks;
     
@@ -122,8 +122,8 @@ class UserControlInfo extends LteControlInfo {
     //# Follows a list of elements only present in
     //# the customized class (see LteControlInfo.h):
     //#
-    //# RemoteSet ru;								// Remote Antenna Set
-    //# RbMap grantedBlocks;						// Blocks allocated per Remote, per Band. 
+    //# RemoteSet ru;                                // Remote Antenna Set
+    //# RbMap grantedBlocks;                        // Blocks allocated per Remote, per Band. 
 }
 
 

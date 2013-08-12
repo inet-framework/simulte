@@ -34,36 +34,36 @@ class AmcPilot {
 
 protected:
 
-	//! LteAmc owner module
-	LteAmc *amc_;
+    //! LteAmc owner module
+    LteAmc *amc_;
 
-	//! Pilot Name
-	std::string name_;
+    //! Pilot Name
+    std::string name_;
 
 public:
 
-	/**
-	 * Constructor
-	 * @param amc LteAmc owner module
-	 */
-	AmcPilot(LteAmc *amc) { amc_ = amc; name_ = "NONE"; }
+    /**
+     * Constructor
+     * @param amc LteAmc owner module
+     */
+    AmcPilot(LteAmc *amc) { amc_ = amc; name_ = "NONE"; }
 
-	/**
-	 * Assign logical bands for given nodeId and direction.
-	 * @param id The mobile node ID.
-	 * @param dir The link direction.
-	 * @return The user transmission parameters computed.
-	 */
-	virtual const UserTxParams& computeTxParams(MacNodeId id, const Direction dir) = 0;
+    /**
+     * Assign logical bands for given nodeId and direction.
+     * @param id The mobile node ID.
+     * @param dir The link direction.
+     * @return The user transmission parameters computed.
+     */
+    virtual const UserTxParams& computeTxParams(MacNodeId id, const Direction dir) = 0;
 
-	/**
-	 * Function to get the AMC Pilot name.
-	 * Useful for debug print.
-	 */
-	std::string getName() { return name_; }
+    /**
+     * Function to get the AMC Pilot name.
+     * Useful for debug print.
+     */
+    std::string getName() { return name_; }
 
 
-	virtual void updateActiveUsers(ActiveSet aUser, Direction dir)=0;
+    virtual void updateActiveUsers(ActiveSet aUser, Direction dir)=0;
 
 };
 

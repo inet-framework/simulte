@@ -32,7 +32,7 @@ module eNodeB
         @display("i=device/antennatower;bgb=300,300");
 
         //# Node specs
-        string nodeType = "ENODEB";		// DO NOT CHANGE
+        string nodeType = "ENODEB";        // DO NOT CHANGE
         int macNodeId = default(0); // TODO: this is not a real parameter
         int macCellId = default(0);  // TODO: this is not a real parameter
         double txPower @unit(mw) = default(100mw);
@@ -74,14 +74,14 @@ module eNodeB
         }
     connections allowunconnected:
         //#
-		//# Internal LTE stack to PHY and
-		//# Lte IP connections
-		//#
+        //# Internal LTE stack to PHY and
+        //# Lte IP connections
+        //#
 
-        lteIp.stackLte$i <-- nic.upperLayerOut;			// LTE stack data port
+        lteIp.stackLte$i <-- nic.upperLayerOut;            // LTE stack data port
         lteIp.stackLte$o --> nic.upperLayerIn;         // LTE stack data port
 
-		//# 
+        //# 
         //# External connection to peer Lte Ip and air interface
         //#
 

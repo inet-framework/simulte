@@ -44,51 +44,51 @@
 class UmTxQueue : public cSimpleModule
 {
 
-	public:
-		UmTxQueue() {;}
-		virtual ~UmTxQueue() {;}
+    public:
+        UmTxQueue() {;}
+        virtual ~UmTxQueue() {;}
 
-		/**
-		 * fragment() is called by the sender via direct method call.
-		 * It performs the following tasks:
-		 * - takes ownership of the packet
-		 * - creates the main fragments and encapsulates
-		 *   original packet inside it.
-		 * - creates other fragments using dup()
-		 * - Sends fragments to the caller, using another
-		 *   direct method call.
-		 *
-		 * @param pkt Packet to fragment
-		 */
-		void fragment(cPacket* pkt);
+        /**
+         * fragment() is called by the sender via direct method call.
+         * It performs the following tasks:
+         * - takes ownership of the packet
+         * - creates the main fragments and encapsulates
+         *   original packet inside it.
+         * - creates other fragments using dup()
+         * - Sends fragments to the caller, using another
+         *   direct method call.
+         *
+         * @param pkt Packet to fragment
+         */
+        void fragment(cPacket* pkt);
 
-		/**
-		 * getFragmentSize() returns the size of a fragment.
-		 * This is needed since size can be changed dynamically
-		 *
-		 * @return size of a fragment
-		 */
-		int getFragmentSize();
+        /**
+         * getFragmentSize() returns the size of a fragment.
+         * This is needed since size can be changed dynamically
+         *
+         * @return size of a fragment
+         */
+        int getFragmentSize();
 
-		/**
-		 * setFragmentSize() sets the size of a fragment.
-		 * This is needed since size can be changed dynamically
-		 *
-		 * @param size of a fragment
-		 */
-		void setFragmentSize(int fragmentSize);
+        /**
+         * setFragmentSize() sets the size of a fragment.
+         * This is needed since size can be changed dynamically
+         *
+         * @param size of a fragment
+         */
+        void setFragmentSize(int fragmentSize);
 
-	protected:
+    protected:
 
-		/**
-		 * Initialize fragmentSize and
-		 * watches
-		 */
-		virtual void initialize();
+        /**
+         * Initialize fragmentSize and
+         * watches
+         */
+        virtual void initialize();
 
-	private:
-		/// Size of the fragments
-		int fragmentSize_;
+    private:
+        /// Size of the fragments
+        int fragmentSize_;
 
 };
 

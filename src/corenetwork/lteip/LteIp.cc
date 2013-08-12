@@ -55,31 +55,31 @@ void LteIp::updateDisplayString()
 
 void LteIp::endService(cPacket *msg)
 {
-	if( nodeType_ == INTERNET ) {
-	    if (msg->getArrivalGate()->isName("transportIn")) {
-	    	// message from transport: send to peer
-	    	numForwarded_++;
-	    	EV <<"LteIp: message from transport: send to peer"<<endl;
-	    	fromTransport(msg,peerGateOut_);
-	    }
-	    else if(msg->getArrivalGate()->isName("ifIn")){
-	    	// message from peer: send to transport
-	    	numForwarded_++;
-	    	EV <<"LteIp: message from peer: send to transport"<<endl;
-	    	toTransport(msg);
-	    }
-	    else {
-	    	// error: drop message
-	    	numDropped_++;
-	    	delete msg;
-	    	EV <<"LteIp (INTERNET): Wrong gate "<< msg->getArrivalGate()->getName() << endl;
-	    }
-	}
-	else if( nodeType_ == ENODEB ) {
-	    if (msg->getArrivalGate()->isName("ifIn")) {
-	    	// message from peer: send to stack
-	    	numForwarded_++;
-	    	EV <<"LteIp: message from peer: send to stack"<<endl;
+    if( nodeType_ == INTERNET ) {
+        if (msg->getArrivalGate()->isName("transportIn")) {
+            // message from transport: send to peer
+            numForwarded_++;
+            EV <<"LteIp: message from transport: send to peer"<<endl;
+            fromTransport(msg,peerGateOut_);
+        }
+        else if(msg->getArrivalGate()->isName("ifIn")){
+            // message from peer: send to transport
+            numForwarded_++;
+            EV <<"LteIp: message from peer: send to transport"<<endl;
+            toTransport(msg);
+        }
+        else {
+            // error: drop message
+            numDropped_++;
+            delete msg;
+            EV <<"LteIp (INTERNET): Wrong gate "<< msg->getArrivalGate()->getName() << endl;
+        }
+    }
+    else if( nodeType_ == ENODEB ) {
+        if (msg->getArrivalGate()->isName("ifIn")) {
+            // message from peer: send to stack
+            numForwarded_++;
+            EV <<"LteIp: message from peer: send to stack"<<endl;
 
 
 
@@ -88,39 +88,39 @@ void LteIp::endService(cPacket *msg)
 
 
 
-	    	IPv4Datagram *ipDatagram = check_and_cast<IPv4Datagram *>(msg);
-	        cPacket *transportPacket = ipDatagram->getEncapsulatedPacket();
+            IPv4Datagram *ipDatagram = check_and_cast<IPv4Datagram *>(msg);
+            cPacket *transportPacket = ipDatagram->getEncapsulatedPacket();
 
-	    	// TODO: KLUDGE: copied over from function fromTransport
-	        unsigned short srcPort = 0;
-	        unsigned short dstPort = 0;
-	        int headerSize = IP_HEADER_BYTES;
+            // TODO: KLUDGE: copied over from function fromTransport
+            unsigned short srcPort = 0;
+            unsigned short dstPort = 0;
+            int headerSize = IP_HEADER_BYTES;
 
-	        switch(ipDatagram->getTransportProtocol()) {
-	            case IP_PROT_TCP:
-	                TCPSegment* tcpseg;
-	                tcpseg = check_and_cast<TCPSegment*>(transportPacket);
-	                srcPort = tcpseg->getSrcPort();
-	                dstPort = tcpseg->getDestPort();
-	                headerSize += tcpseg->getHeaderLength();
-	                break;
-	            case IP_PROT_UDP:
-	                UDPPacket* udppacket;
-	                udppacket = check_and_cast<UDPPacket*>(transportPacket);
-	                srcPort = (unsigned short)udppacket->getSourcePort();
-	                dstPort = (unsigned short)udppacket->getDestinationPort();
-	                headerSize += UDP_HEADER_BYTES;
-	                break;
-	        }
+            switch(ipDatagram->getTransportProtocol()) {
+                case IP_PROT_TCP:
+                    TCPSegment* tcpseg;
+                    tcpseg = check_and_cast<TCPSegment*>(transportPacket);
+                    srcPort = tcpseg->getSrcPort();
+                    dstPort = tcpseg->getDestPort();
+                    headerSize += tcpseg->getHeaderLength();
+                    break;
+                case IP_PROT_UDP:
+                    UDPPacket* udppacket;
+                    udppacket = check_and_cast<UDPPacket*>(transportPacket);
+                    srcPort = (unsigned short)udppacket->getSourcePort();
+                    dstPort = (unsigned short)udppacket->getDestinationPort();
+                    headerSize += UDP_HEADER_BYTES;
+                    break;
+            }
 
 
-	    	FlowControlInfo *controlInfo = new FlowControlInfo();
-	        controlInfo->setSrcAddr(ipDatagram->getSrcAddress().getInt());
-	        controlInfo->setDstAddr(ipDatagram->getDestAddress().getInt());
-	        controlInfo->setSrcPort(srcPort);
-	        controlInfo->setDstPort(dstPort);
-	        controlInfo->setSequenceNumber(seqNum_++);
-	        controlInfo->setHeaderSize(headerSize);
+            FlowControlInfo *controlInfo = new FlowControlInfo();
+            controlInfo->setSrcAddr(ipDatagram->getSrcAddress().getInt());
+            controlInfo->setDstAddr(ipDatagram->getDestAddress().getInt());
+            controlInfo->setSrcPort(srcPort);
+            controlInfo->setDstPort(dstPort);
+            controlInfo->setSequenceNumber(seqNum_++);
+            controlInfo->setHeaderSize(headerSize);
             MacNodeId destId = getBinder()->getMacNodeId(IPv4Address(controlInfo->getDstAddr()));
             // master of this ue (myself or a relay)
             // TODO: KLUDGE:
@@ -130,46 +130,46 @@ void LteIp::endService(cPacket *msg)
 //            } // else ue is directly attached
             controlInfo->setDestId(destId);
             printControlInfo(controlInfo);
-	        msg->setControlInfo(controlInfo);
+            msg->setControlInfo(controlInfo);
 
 
 
 
-	    	send(msg,stackGateOut_);
-	    }
-	    else if(msg->getArrivalGate()->isName("stackLte$i")){
-	    	// message from stack: send to peer
-	    	numForwarded_++;
-	    	EV <<"LteIp: message from stack: send to peer"<<endl;
-	    	send(msg,peerGateOut_);
-	    }
-	    else {
-	    	// error: drop message
-	    	numDropped_++;
-	    	delete msg;
-	    	EV <<"LteIp (ENODEB): Wrong gate "<< msg->getArrivalGate()->getName() << endl;
-	    }
-	}
-	else if( nodeType_ == UE ) {
-	    if (msg->getArrivalGate()->isName("transportIn")) {
-	    	// message from transport: send to stack
-	    	numForwarded_++;
-	    	EV <<"LteIp: message from transport: send to stack"<<endl;
-	    	fromTransport(msg,stackGateOut_);
-	    }
-	    else if(msg->getArrivalGate()->isName("stackLte$i")){
-	    	// message from stack: send to transport
-	    	numForwarded_++;
-	    	EV <<"LteIp: message from stack: send to transport"<<endl;
-	    	toTransport(msg);
-	    }
-	    else {
-	    	// error: drop message
-	    	numDropped_++;
-	    	delete msg;
-	    	EV <<"LteIp (UE): Wrong gate "<< msg->getArrivalGate()->getName() << endl;
-	    }
-	}
+            send(msg,stackGateOut_);
+        }
+        else if(msg->getArrivalGate()->isName("stackLte$i")){
+            // message from stack: send to peer
+            numForwarded_++;
+            EV <<"LteIp: message from stack: send to peer"<<endl;
+            send(msg,peerGateOut_);
+        }
+        else {
+            // error: drop message
+            numDropped_++;
+            delete msg;
+            EV <<"LteIp (ENODEB): Wrong gate "<< msg->getArrivalGate()->getName() << endl;
+        }
+    }
+    else if( nodeType_ == UE ) {
+        if (msg->getArrivalGate()->isName("transportIn")) {
+            // message from transport: send to stack
+            numForwarded_++;
+            EV <<"LteIp: message from transport: send to stack"<<endl;
+            fromTransport(msg,stackGateOut_);
+        }
+        else if(msg->getArrivalGate()->isName("stackLte$i")){
+            // message from stack: send to transport
+            numForwarded_++;
+            EV <<"LteIp: message from stack: send to transport"<<endl;
+            toTransport(msg);
+        }
+        else {
+            // error: drop message
+            numDropped_++;
+            delete msg;
+            EV <<"LteIp (UE): Wrong gate "<< msg->getArrivalGate()->getName() << endl;
+        }
+    }
 
     if (ev.isGUI())
         updateDisplayString();
@@ -177,7 +177,7 @@ void LteIp::endService(cPacket *msg)
 
 void LteIp::fromTransport(cPacket * transportPacket, cGate *outputgate)
 {
-	// Remove control info from transport packet
+    // Remove control info from transport packet
     IPv4ControlInfo *ipControlInfo = check_and_cast<IPv4ControlInfo*>(transportPacket->removeControlInfo());
 
     //** Create IP datagram and fill its fields **
@@ -198,7 +198,7 @@ void LteIp::fromTransport(cPacket * transportPacket, cGate *outputgate)
         // find interface entry and use its address
         IInterfaceTable *interfaceTable = InterfaceTableAccess().get();
         // TODO: how do we find the LTE interface?
-    	src = interfaceTable->getInterfaceByName("wlan")->ipv4Data()->getIPAddress();
+        src = interfaceTable->getInterfaceByName("wlan")->ipv4Data()->getIPAddress();
         EV << "Local address used: " << src <<endl;
     } else {
         EV << "Source address in control info from transport layer " << src << endl;
@@ -225,20 +225,20 @@ void LteIp::fromTransport(cPacket * transportPacket, cGate *outputgate)
     int headerSize = IP_HEADER_BYTES;
 
     switch(ipControlInfo->getProtocol()) {
-		case IP_PROT_TCP:
-			TCPSegment* tcpseg;
-			tcpseg = check_and_cast<TCPSegment*>(transportPacket);
-			srcPort = tcpseg->getSrcPort();
-			dstPort = tcpseg->getDestPort();
-			headerSize += tcpseg->getHeaderLength();
-			break;
-		case IP_PROT_UDP:
-			UDPPacket* udppacket;
-			udppacket = check_and_cast<UDPPacket*>(transportPacket);
-			srcPort = (unsigned short)udppacket->getSourcePort();
-			dstPort = (unsigned short)udppacket->getDestinationPort();
-			headerSize += UDP_HEADER_BYTES;
-			break;
+        case IP_PROT_TCP:
+            TCPSegment* tcpseg;
+            tcpseg = check_and_cast<TCPSegment*>(transportPacket);
+            srcPort = tcpseg->getSrcPort();
+            dstPort = tcpseg->getDestPort();
+            headerSize += tcpseg->getHeaderLength();
+            break;
+        case IP_PROT_UDP:
+            UDPPacket* udppacket;
+            udppacket = check_and_cast<UDPPacket*>(transportPacket);
+            srcPort = (unsigned short)udppacket->getSourcePort();
+            dstPort = (unsigned short)udppacket->getDestinationPort();
+            headerSize += UDP_HEADER_BYTES;
+            break;
     }
 
     FlowControlInfo *controlInfo = new FlowControlInfo();
@@ -253,27 +253,27 @@ void LteIp::fromTransport(cPacket * transportPacket, cGate *outputgate)
     datagram->setControlInfo(controlInfo);
 
     //** Send datagram to lte stack or LteIp peer **
-	send(datagram,outputgate);
-	delete ipControlInfo;
+    send(datagram,outputgate);
+    delete ipControlInfo;
 }
 
 void LteIp::toTransport(cPacket * msg)
 {
-	// msg is an IP Datagram (from Lte stack or IP peer)
+    // msg is an IP Datagram (from Lte stack or IP peer)
     IPv4Datagram *datagram = check_and_cast<IPv4Datagram *>(msg);
     int protocol = datagram->getTransportProtocol();
 
     int gateindex = 0;
     try {
-    	gateindex = mapping_.getOutputGateForProtocol(protocol);
+        gateindex = mapping_.getOutputGateForProtocol(protocol);
     }
     catch(...) {
-    	EV <<"Protocol mapping failed with protocol number : " << protocol << endl;
-    	EV <<"Packet dropped" << endl;
-    	delete msg;
-    	numForwarded_--;
-    	numDropped_++;
-    	return;
+        EV <<"Protocol mapping failed with protocol number : " << protocol << endl;
+        EV <<"Packet dropped" << endl;
+        delete msg;
+        numForwarded_--;
+        numDropped_++;
+        return;
     }
 
     // transport packet
@@ -302,16 +302,16 @@ void LteIp::toTransport(cPacket * msg)
 
 void LteIp::setNodeType(std::string s)
 {
-	nodeType_ = aToNodeType(s);
-	EV <<"Node type: " << s << " -> " << nodeType_ << endl;
+    nodeType_ = aToNodeType(s);
+    EV <<"Node type: " << s << " -> " << nodeType_ << endl;
 }
 
 void LteIp::printControlInfo(FlowControlInfo* ci)
 {
-	EV <<"Src IP : "<< IPv4Address(ci->getSrcAddr()) << endl;
-	EV <<"Dst IP : "<< IPv4Address(ci->getDstAddr()) << endl;
-	EV <<"Src Port : "<< ci->getSrcPort() << endl;
-	EV <<"Dst Port : "<< ci->getDstPort() << endl;
-	EV <<"Seq Num  : "<< ci->getSequenceNumber() << endl;
-	EV <<"Header Size : "<< ci->getHeaderSize() << endl;
+    EV <<"Src IP : "<< IPv4Address(ci->getSrcAddr()) << endl;
+    EV <<"Dst IP : "<< IPv4Address(ci->getDstAddr()) << endl;
+    EV <<"Src Port : "<< ci->getSrcPort() << endl;
+    EV <<"Dst Port : "<< ci->getDstPort() << endl;
+    EV <<"Seq Num  : "<< ci->getSequenceNumber() << endl;
+    EV <<"Header Size : "<< ci->getHeaderSize() << endl;
 }

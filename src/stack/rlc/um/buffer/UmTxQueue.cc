@@ -15,58 +15,58 @@
 Define_Module(UmTxQueue);
 
 void UmTxQueue::fragment(cPacket* pkt) {
-	Enter_Method("fragment()");		// Direct Method Call
-	take(pkt);						// Take ownership
+    Enter_Method("fragment()");        // Direct Method Call
+    take(pkt);                        // Take ownership
 
-	int packetSize = pkt->getByteLength();
-	LteRlcUm* lteRlc = check_and_cast<LteRlcUm *>(getParentModule()->getSubmodule("um"));
-	FlowControlInfo* lteInfo = check_and_cast<FlowControlInfo*>(pkt->removeControlInfo());
-	LteRlcSdu* rlcPkt = check_and_cast<LteRlcSdu *>(pkt);
+    int packetSize = pkt->getByteLength();
+    LteRlcUm* lteRlc = check_and_cast<LteRlcUm *>(getParentModule()->getSubmodule("um"));
+    FlowControlInfo* lteInfo = check_and_cast<FlowControlInfo*>(pkt->removeControlInfo());
+    LteRlcSdu* rlcPkt = check_and_cast<LteRlcSdu *>(pkt);
 
-	EV << "UmTxBuffer : Processing packet " <<
-			rlcPkt->getSnoMainPacket() << " with LCID: " <<
-			lteInfo->getLcid() << "\n";
+    EV << "UmTxBuffer : Processing packet " <<
+            rlcPkt->getSnoMainPacket() << " with LCID: " <<
+            lteInfo->getLcid() << "\n";
 
-	// Calculate total number of fragments for this packet
-	int totalFragments = packetSize/fragmentSize_ +
-			((packetSize%fragmentSize_)?1:0);
+    // Calculate total number of fragments for this packet
+    int totalFragments = packetSize/fragmentSize_ +
+            ((packetSize%fragmentSize_)?1:0);
 
-	// Create main fragment
-	int fragmentSeqNum=0;
-	LteRlcPdu* fragment = new LteRlcPdu("lteRlcFragment");
-	fragment->setTotalFragments(totalFragments);
-	fragment->setSnoMainPacket(rlcPkt->getSnoMainPacket());
+    // Create main fragment
+    int fragmentSeqNum=0;
+    LteRlcPdu* fragment = new LteRlcPdu("lteRlcFragment");
+    fragment->setTotalFragments(totalFragments);
+    fragment->setSnoMainPacket(rlcPkt->getSnoMainPacket());
 
-	// Original packet is encapsulated and size is changed to fragmentSize_
-	fragment->encapsulate(rlcPkt);
-	fragment->setByteLength(fragmentSize_);
+    // Original packet is encapsulated and size is changed to fragmentSize_
+    fragment->encapsulate(rlcPkt);
+    fragment->setByteLength(fragmentSize_);
 
-	EV << "UmTxBuffer : " << totalFragments << " fragments created\n";
+    EV << "UmTxBuffer : " << totalFragments << " fragments created\n";
 
-	// Send all fragments except the last one
-	for(fragmentSeqNum=0; fragmentSeqNum<totalFragments-1; fragmentSeqNum++) {
-	    // FIXME: possible memory leak
-		LteRlcPdu* newFrag = fragment->dup();
-		newFrag->setSnoFragment(fragmentSeqNum);
-		newFrag->setControlInfo(lteInfo->dup());	// FIXME REFERENCE COPIED!!
-		drop(newFrag);		// Drop ownership before sending through direct method call
-		lteRlc->sendFragmented(newFrag);
-	}
-	// Send last fragment with different packet size
-	fragment->setSnoFragment(fragmentSeqNum);
-	fragment->setByteLength((packetSize%fragmentSize_)?(packetSize%fragmentSize_):fragmentSize_);
-	fragment->setControlInfo(lteInfo);
-	drop(fragment);		// Drop ownership before sending through direct method call
-	lteRlc->sendFragmented(fragment);
-	return;
+    // Send all fragments except the last one
+    for(fragmentSeqNum=0; fragmentSeqNum<totalFragments-1; fragmentSeqNum++) {
+        // FIXME: possible memory leak
+        LteRlcPdu* newFrag = fragment->dup();
+        newFrag->setSnoFragment(fragmentSeqNum);
+        newFrag->setControlInfo(lteInfo->dup());    // FIXME REFERENCE COPIED!!
+        drop(newFrag);        // Drop ownership before sending through direct method call
+        lteRlc->sendFragmented(newFrag);
+    }
+    // Send last fragment with different packet size
+    fragment->setSnoFragment(fragmentSeqNum);
+    fragment->setByteLength((packetSize%fragmentSize_)?(packetSize%fragmentSize_):fragmentSize_);
+    fragment->setControlInfo(lteInfo);
+    drop(fragment);        // Drop ownership before sending through direct method call
+    lteRlc->sendFragmented(fragment);
+    return;
 }
 
 int UmTxQueue::getFragmentSize() {
-	return fragmentSize_;
+    return fragmentSize_;
 }
 
 void UmTxQueue::setFragmentSize(int fragmentSize) {
-	fragmentSize_ = fragmentSize;
+    fragmentSize_ = fragmentSize;
 }
 
 /*
@@ -74,6 +74,6 @@ void UmTxQueue::setFragmentSize(int fragmentSize) {
  */
 
 void UmTxQueue::initialize() {
-	fragmentSize_ = par("fragmentSize");
-	WATCH(fragmentSize_);
+    fragmentSize_ = par("fragmentSize");
+    WATCH(fragmentSize_);
 }

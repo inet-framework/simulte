@@ -14,248 +14,248 @@
 
 LteHarqProcessTx::LteHarqProcessTx(unsigned char acid, unsigned int numUnits, unsigned int numProcesses, LteMacBase *macOwner,LteMacBase *dstMac)
 {
-	macOwner_ = macOwner;
-	acid_ = acid;
-	numHarqUnits_ = numUnits;
-	units_ = new UnitVector(numUnits);
-	numProcesses_ = numProcesses;
-	numEmptyUnits_ = numUnits; //++ @ insert, -- @ unit reset (ack or fourth nack)
-	numSelected_ = 0; //++ @ markSelected and insert, -- @ extract/sendDown
+    macOwner_ = macOwner;
+    acid_ = acid;
+    numHarqUnits_ = numUnits;
+    units_ = new UnitVector(numUnits);
+    numProcesses_ = numProcesses;
+    numEmptyUnits_ = numUnits; //++ @ insert, -- @ unit reset (ack or fourth nack)
+    numSelected_ = 0; //++ @ markSelected and insert, -- @ extract/sendDown
 
-	// H-ARQ unit istances
-	for (unsigned int i = 0; i < numHarqUnits_; i++)
-	{
-		(*units_)[i] = new LteHarqUnitTx(acid,i, macOwner_,dstMac);
-	}
+    // H-ARQ unit istances
+    for (unsigned int i = 0; i < numHarqUnits_; i++)
+    {
+        (*units_)[i] = new LteHarqUnitTx(acid,i, macOwner_,dstMac);
+    }
 }
 
 std::vector<UnitStatus>
 LteHarqProcessTx::getProcessStatus()
 {
-	std::vector<UnitStatus> ret (numHarqUnits_);
+    std::vector<UnitStatus> ret (numHarqUnits_);
 
-	for (unsigned int j = 0; j < numHarqUnits_; j++)
-	{
-		ret[j].first = j;
-		ret[j].second = getUnitStatus(j);
-	}
-	return ret;
+    for (unsigned int j = 0; j < numHarqUnits_; j++)
+    {
+        ret[j].first = j;
+        ret[j].second = getUnitStatus(j);
+    }
+    return ret;
 }
 
 void LteHarqProcessTx::insertPdu(LteMacPdu *pdu, Codeword cw)
 {
-	numEmptyUnits_--;
-	numSelected_++;
-	(*units_)[cw]->insertPdu(pdu);
+    numEmptyUnits_--;
+    numSelected_++;
+    (*units_)[cw]->insertPdu(pdu);
 }
 
 void LteHarqProcessTx::markSelected(Codeword cw)
 {
-	if (numSelected_ == numHarqUnits_) {
-		throw cRuntimeError("H-ARQ TX process: cannot select another unit because they are all already selected");
-	}
+    if (numSelected_ == numHarqUnits_) {
+        throw cRuntimeError("H-ARQ TX process: cannot select another unit because they are all already selected");
+    }
 
-	numSelected_++;
-	(*units_)[cw]->markSelected();
+    numSelected_++;
+    (*units_)[cw]->markSelected();
 }
 
 LteMacPdu *LteHarqProcessTx::extractPdu(Codeword cw)
 {
-	if (numSelected_ == 0) {
-		throw cRuntimeError("H-ARQ TX process: cannot extract pdu: numSelected = 0 ");
-	}
+    if (numSelected_ == 0) {
+        throw cRuntimeError("H-ARQ TX process: cannot extract pdu: numSelected = 0 ");
+    }
 
-	numSelected_--;
-	LteMacPdu *pdu = (*units_)[cw]->extractPdu();
-	return pdu;
+    numSelected_--;
+    LteMacPdu *pdu = (*units_)[cw]->extractPdu();
+    return pdu;
 }
 
 bool LteHarqProcessTx::pduFeedback(HarqAcknowledgment fb, Codeword cw)
 {
-	// controllare se numempty == numunits e restituire true/false
-	bool reset = (*units_)[cw]->pduFeedback(fb);
+    // controllare se numempty == numunits e restituire true/false
+    bool reset = (*units_)[cw]->pduFeedback(fb);
 
-	if (reset)
-	{
-		numEmptyUnits_++;
-	}
+    if (reset)
+    {
+        numEmptyUnits_++;
+    }
 
-	// return true if the process has become empty
-	if (numEmptyUnits_ == numHarqUnits_)
-		reset = true;
-	else
-		reset = false;
+    // return true if the process has become empty
+    if (numEmptyUnits_ == numHarqUnits_)
+        reset = true;
+    else
+        reset = false;
 
-	return reset;
+    return reset;
 }
 
 bool LteHarqProcessTx::selfNack(Codeword cw)
 {
-	bool reset = (*units_)[cw]->selfNack();
+    bool reset = (*units_)[cw]->selfNack();
 
-	if (reset)
-	{
-		numEmptyUnits_++;
-	}
+    if (reset)
+    {
+        numEmptyUnits_++;
+    }
 
-	// return true if the process has become empty
-	if (numEmptyUnits_ == numHarqUnits_)
-		reset = true;
-	else
-		reset = false;
+    // return true if the process has become empty
+    if (numEmptyUnits_ == numHarqUnits_)
+        reset = true;
+    else
+        reset = false;
 
-	return reset;
+    return reset;
 }
 
 bool LteHarqProcessTx::hasReadyUnits()
 {
-	for (unsigned int i = 0; i < numHarqUnits_; i++)
-	{
-		if ((*units_)[i]->isReady())
-			return true;
-	}
-	return false;
+    for (unsigned int i = 0; i < numHarqUnits_; i++)
+    {
+        if ((*units_)[i]->isReady())
+            return true;
+    }
+    return false;
 }
 
 simtime_t LteHarqProcessTx::getOldestUnitTxTime()
 {
-	simtime_t oldestTxTime = NOW + 1;
-	simtime_t curTxTime = 0;
-	for (unsigned int i = 0; i < numHarqUnits_; i++)
-	{
-		if ((*units_)[i]->isReady())
-		{
-			curTxTime = (*units_)[i]->getTxTime();
-			if (curTxTime < oldestTxTime)
-			{
-				oldestTxTime = curTxTime;
-			}
-		}
-	}
-	return oldestTxTime;
+    simtime_t oldestTxTime = NOW + 1;
+    simtime_t curTxTime = 0;
+    for (unsigned int i = 0; i < numHarqUnits_; i++)
+    {
+        if ((*units_)[i]->isReady())
+        {
+            curTxTime = (*units_)[i]->getTxTime();
+            if (curTxTime < oldestTxTime)
+            {
+                oldestTxTime = curTxTime;
+            }
+        }
+    }
+    return oldestTxTime;
 }
 
 CwList LteHarqProcessTx::readyUnitsIds()
 {
-	CwList ul;
+    CwList ul;
 
-	for (Codeword i = 0; i < numHarqUnits_; i++)
-	{
-		if ((*units_)[i]->isReady())
-		{
-			ul.push_back(i);
-		}
-	}
-	return ul;
+    for (Codeword i = 0; i < numHarqUnits_; i++)
+    {
+        if ((*units_)[i]->isReady())
+        {
+            ul.push_back(i);
+        }
+    }
+    return ul;
 }
 
 CwList LteHarqProcessTx::emptyUnitsIds()
 {
-	CwList ul;
-	for (Codeword i = 0; i < numHarqUnits_; i++)
-	{
-		if ((*units_)[i]->isEmpty())
-		{
-			ul.push_back(i);
-		}
-	}
-	return ul;
+    CwList ul;
+    for (Codeword i = 0; i < numHarqUnits_; i++)
+    {
+        if ((*units_)[i]->isEmpty())
+        {
+            ul.push_back(i);
+        }
+    }
+    return ul;
 }
 
 CwList LteHarqProcessTx::selectedUnitsIds()
 {
-	CwList ul;
-	for (Codeword i = 0; i < numHarqUnits_; i++)
-	{
-		if ((*units_)[i]->isMarked())
-		{
-			ul.push_back(i);
-		}
-	}
-	return ul;
+    CwList ul;
+    for (Codeword i = 0; i < numHarqUnits_; i++)
+    {
+        if ((*units_)[i]->isMarked())
+        {
+            ul.push_back(i);
+        }
+    }
+    return ul;
 }
 
 bool LteHarqProcessTx::isEmpty()
 {
-	return (numEmptyUnits_ == numHarqUnits_);
+    return (numEmptyUnits_ == numHarqUnits_);
 }
 
 LteMacPdu *LteHarqProcessTx::getPdu(Codeword cw)
 {
-	return (*units_)[cw]->getPdu();
+    return (*units_)[cw]->getPdu();
 }
 
 long LteHarqProcessTx::getPduId(Codeword cw)
 {
-	return (*units_)[cw]->getPduId();
+    return (*units_)[cw]->getPduId();
 }
 
 void LteHarqProcessTx::forceDropProcess()
 {
-	for (unsigned int i = 0; i < numHarqUnits_; i++)
-	{
-		(*units_)[i]->forceDropUnit();
-	}
-	numEmptyUnits_ = numHarqUnits_;
-	numSelected_ = 0;
+    for (unsigned int i = 0; i < numHarqUnits_; i++)
+    {
+        (*units_)[i]->forceDropUnit();
+    }
+    numEmptyUnits_ = numHarqUnits_;
+    numSelected_ = 0;
 }
 
 bool LteHarqProcessTx::forceDropUnit(Codeword cw)
 {
-	if ((*units_)[cw]->isMarked())
-		numSelected_--;
+    if ((*units_)[cw]->isMarked())
+        numSelected_--;
 
-	(*units_)[cw]->forceDropUnit();
-	numEmptyUnits_++;
+    (*units_)[cw]->forceDropUnit();
+    numEmptyUnits_++;
 
-	// empty process?
-	return numEmptyUnits_ == numHarqUnits_;
+    // empty process?
+    return numEmptyUnits_ == numHarqUnits_;
 }
 
 TxHarqPduStatus LteHarqProcessTx::getUnitStatus(Codeword cw)
 {
-	return (*units_)[cw]->getStatus();
+    return (*units_)[cw]->getStatus();
 }
 
 void LteHarqProcessTx::dropPdu(Codeword cw)
 {
-	(*units_)[cw]->dropPdu();
-	numEmptyUnits_++;
+    (*units_)[cw]->dropPdu();
+    numEmptyUnits_++;
 }
 
 bool LteHarqProcessTx::isUnitEmpty(Codeword cw)
 {
-	return (*units_)[cw]->isEmpty();
+    return (*units_)[cw]->isEmpty();
 }
 
 bool LteHarqProcessTx::isUnitReady(Codeword cw)
 {
-	return (*units_)[cw]->isReady();
+    return (*units_)[cw]->isReady();
 }
 
 unsigned char LteHarqProcessTx::getTransmissions(Codeword cw)
 {
-	return (*units_)[cw]->getTransmissions();
+    return (*units_)[cw]->getTransmissions();
 }
 
 int64 LteHarqProcessTx::getPduLength(Codeword cw)
 {
-	return (*units_)[cw]->getPduLength();
+    return (*units_)[cw]->getPduLength();
 }
 
 simtime_t LteHarqProcessTx::getTxTime(Codeword cw)
 {
-	return (*units_)[cw]->getTxTime();
+    return (*units_)[cw]->getTxTime();
 }
 
 bool LteHarqProcessTx::isUnitMarked(Codeword cw)
 {
-	return (*units_)[cw]->isMarked();
+    return (*units_)[cw]->isMarked();
 }
 
 LteHarqProcessTx::~LteHarqProcessTx()
 {
-	units_->clear();
-	units_ = NULL;
-	macOwner_ = NULL;
+    units_->clear();
+    units_ = NULL;
+    macOwner_ = NULL;
 }

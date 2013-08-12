@@ -18,13 +18,13 @@
 class LteAmc;
 
 class LteMacRelayEnb: public LteMacEnb {
-	protected:
-		virtual LteDeployer* getDeployer();
-		virtual int getNumAntennas();
+    protected:
+        virtual LteDeployer* getDeployer();
+        virtual int getNumAntennas();
 
-	public:
-		LteMacRelayEnb();
-		virtual ~LteMacRelayEnb();
+    public:
+        LteMacRelayEnb();
+        virtual ~LteMacRelayEnb();
 
 };
 

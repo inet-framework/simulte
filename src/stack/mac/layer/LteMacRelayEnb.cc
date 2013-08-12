@@ -13,19 +13,19 @@
 Define_Module(LteMacRelayEnb);
 
 LteMacRelayEnb::LteMacRelayEnb() {
-	// TODO Auto-generated constructor stub
-	nodeType_=RELAY;
+    // TODO Auto-generated constructor stub
+    nodeType_=RELAY;
 }
 LteMacRelayEnb::~LteMacRelayEnb() {
-	// TODO Auto-generated destructor stub
+    // TODO Auto-generated destructor stub
 }
 
 LteDeployer* LteMacRelayEnb::getDeployer() {
-	MacNodeId masterId = getAncestorPar("masterId");
-	OmnetId masterOmnetId = binder_->getOmnetId(masterId);
-	return check_and_cast<LteDeployer *>(simulation.getModule(masterOmnetId)->getSubmodule("deployer"));
+    MacNodeId masterId = getAncestorPar("masterId");
+    OmnetId masterOmnetId = binder_->getOmnetId(masterId);
+    return check_and_cast<LteDeployer *>(simulation.getModule(masterOmnetId)->getSubmodule("deployer"));
 }
 
 int LteMacRelayEnb::getNumAntennas() {
-	return 1;
+    return 1;
 }

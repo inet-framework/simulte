@@ -42,20 +42,20 @@ Register_ResultRecorder("lteRate", LteRateRecorder);
  */
 
 LteStatisticsRecorder::~LteStatisticsRecorder() {
-	// Delete all stored cStatistic objects
-	std::map<unsigned int, cStatistic*>::iterator it;
-	for(it=stats_.begin(); it != stats_.end(); it++)
-		delete it->second;
-	stats_.clear();
+    // Delete all stored cStatistic objects
+    std::map<unsigned int, cStatistic*>::iterator it;
+    for(it=stats_.begin(); it != stats_.end(); it++)
+        delete it->second;
+    stats_.clear();
 }
 
 void LteStatisticsRecorder::finish(cResultFilter *prev) {
-	opp_string_map attributes = getStatisticAttributes();
-	//char metricName[50];
-	std::map<unsigned int, cStatistic*>::iterator it;
-	for(it=stats_.begin(); it != stats_.end(); it++) {	// Record metrics for all IDs
-		ev.recordStatistic(moduleMap_[it->first], /*metricName*/getResultName().c_str(), it->second, &attributes);
-	}
+    opp_string_map attributes = getStatisticAttributes();
+    //char metricName[50];
+    std::map<unsigned int, cStatistic*>::iterator it;
+    for(it=stats_.begin(); it != stats_.end(); it++) {    // Record metrics for all IDs
+        ev.recordStatistic(moduleMap_[it->first], /*metricName*/getResultName().c_str(), it->second, &attributes);
+    }
 }
 
 /*
@@ -68,12 +68,12 @@ void LteStatsRecorder::subscribedTo(cResultFilter *prev)
 }
 
 void LteStatsRecorder::collect(simtime_t t, double value, unsigned int id,cComponent* module) {
-	if (!stats_[id])
-	    stats_[id] = new cStdDev();
-	stats_[id]->collect(value);	// Local Recording
-	
+    if (!stats_[id])
+        stats_[id] = new cStdDev();
+    stats_[id]->collect(value);    // Local Recording
+    
 
-	moduleMap_[id]=module;
+    moduleMap_[id]=module;
 }
 
 /*
@@ -81,14 +81,14 @@ void LteStatsRecorder::collect(simtime_t t, double value, unsigned int id,cCompo
  */
 
 void LteHistogramRecorder::subscribedTo(cResultFilter *prev) {
-	stats_[0] = new cHistogram();
+    stats_[0] = new cHistogram();
 }
 
 void LteHistogramRecorder::collect(simtime_t t, double value, unsigned int id,cComponent* module) {
-	if (!stats_[id])
-	    stats_[id] = new cHistogram();
-	stats_[id]->collect(value);	// Local Recording
-	moduleMap_[id]=module;
+    if (!stats_[id])
+        stats_[id] = new cHistogram();
+    stats_[id]->collect(value);    // Local Recording
+    moduleMap_[id]=module;
 }
 
 /*
@@ -97,41 +97,41 @@ void LteHistogramRecorder::collect(simtime_t t, double value, unsigned int id,cC
 
 void LteVectorRecorder::subscribedTo(cResultFilter *prev)
 {
-	cNumericResultRecorder::subscribedTo(prev);
+    cNumericResultRecorder::subscribedTo(prev);
 
-	// we can register the vector here, because base class ensures we are subscribed only at once place
-	opp_string_map attributes = getStatisticAttributes();
+    // we can register the vector here, because base class ensures we are subscribed only at once place
+    opp_string_map attributes = getStatisticAttributes();
 
-	// register global vector handle
-	handle_[0] = ev.registerOutputVector(getComponent()->getFullPath().c_str(), getResultName().c_str());
-	ASSERT(handle_[0] != NULL);
-	for (opp_string_map::iterator it = attributes.begin(); it != attributes.end(); ++it)
-		ev.setVectorAttribute(handle_[0], it->first.c_str(), it->second.c_str());
+    // register global vector handle
+    handle_[0] = ev.registerOutputVector(getComponent()->getFullPath().c_str(), getResultName().c_str());
+    ASSERT(handle_[0] != NULL);
+    for (opp_string_map::iterator it = attributes.begin(); it != attributes.end(); ++it)
+        ev.setVectorAttribute(handle_[0], it->first.c_str(), it->second.c_str());
 }
 
 void LteVectorRecorder::collect(simtime_t t, double value, unsigned int id,cComponent* module)
 {
-	if (t < lastTime_) {
-		throw cRuntimeError("%s: Cannot record data with an earlier timestamp (t=%s) "
-		            "than the previously recorded value (t=%s)",
-		            cResultListener::getClassName(), SIMTIME_STR(t), SIMTIME_STR(lastTime_));
-	}
+    if (t < lastTime_) {
+        throw cRuntimeError("%s: Cannot record data with an earlier timestamp (t=%s) "
+                    "than the previously recorded value (t=%s)",
+                    cResultListener::getClassName(), SIMTIME_STR(t), SIMTIME_STR(lastTime_));
+    }
 
-	moduleMap_[id]=module;
+    moduleMap_[id]=module;
 
-	lastTime_ = t;
-	if (!handle_[id]) {	// register vector handle for new id
-	opp_string_map attributes = getStatisticAttributes();
-		char metricName[50];
-		sprintf(metricName,"%s:id=%d",getResultName().c_str(),id);
+    lastTime_ = t;
+    if (!handle_[id]) {    // register vector handle for new id
+    opp_string_map attributes = getStatisticAttributes();
+        char metricName[50];
+        sprintf(metricName,"%s:id=%d",getResultName().c_str(),id);
 
-		handle_[id] = ev.registerOutputVector(moduleMap_[id]->getFullPath().c_str(), metricName);
-		ASSERT(handle_[id] != NULL);
-		for (opp_string_map::iterator it = attributes.begin(); it != attributes.end(); ++it)
-			ev.setVectorAttribute(handle_[id], it->first.c_str(), it->second.c_str());
-	}
+        handle_[id] = ev.registerOutputVector(moduleMap_[id]->getFullPath().c_str(), metricName);
+        ASSERT(handle_[id] != NULL);
+        for (opp_string_map::iterator it = attributes.begin(); it != attributes.end(); ++it)
+            ev.setVectorAttribute(handle_[id], it->first.c_str(), it->second.c_str());
+    }
 
-	ev.recordInOutputVector(handle_[id], t, value);		// Local Recording
+    ev.recordInOutputVector(handle_[id], t, value);        // Local Recording
 }
 
 /*
@@ -139,22 +139,22 @@ void LteVectorRecorder::collect(simtime_t t, double value, unsigned int id,cComp
  */
 
 void LteAvgRecorder::collect(simtime_t t, double value, unsigned int id,cComponent* module) {
-	vals_[id].count_++;
-	vals_[id].sum_ += value;
-	moduleMap_[id]=module;
+    vals_[id].count_++;
+    vals_[id].sum_ += value;
+    moduleMap_[id]=module;
 }
 
 void LteAvgRecorder::finish(cResultFilter *prev) {                                                
-	opp_string_map attributes = getStatisticAttributes();
-	//char metricName[50];
-	double totalSum = 0;		// Global numbers
-	std::map<unsigned int, recordedValues_>::iterator it;
-	for(it=vals_.begin(); it != vals_.end(); it++)
-	{	// Record metrics for all IDs
-		totalSum += (it->second.sum_/it->second.count_);
-		ev.recordScalar(moduleMap_[it->first], getResultName().c_str(),
-				it->second.sum_/it->second.count_, &attributes);
-	}
+    opp_string_map attributes = getStatisticAttributes();
+    //char metricName[50];
+    double totalSum = 0;        // Global numbers
+    std::map<unsigned int, recordedValues_>::iterator it;
+    for(it=vals_.begin(); it != vals_.end(); it++)
+    {    // Record metrics for all IDs
+        totalSum += (it->second.sum_/it->second.count_);
+        ev.recordScalar(moduleMap_[it->first], getResultName().c_str(),
+                it->second.sum_/it->second.count_, &attributes);
+    }
 }
 
 /*
@@ -162,27 +162,27 @@ void LteAvgRecorder::finish(cResultFilter *prev) {
  */
 
 void LteRateRecorder::collect(simtime_t t, double value, unsigned int id,cComponent* module) {
-	if(vals_[id].startTime_ == 0) {
-		vals_[id].startTime_ = t;
-	}
-	vals_[id].sum_ += value;
+    if(vals_[id].startTime_ == 0) {
+        vals_[id].startTime_ = t;
+    }
+    vals_[id].sum_ += value;
 
-	moduleMap_[id]=module;
+    moduleMap_[id]=module;
 }
 
 void LteRateRecorder::finish(cResultFilter *prev) {
-	opp_string_map attributes = getStatisticAttributes();
-	double interval, totalSum = 0;		// Global numbers
-	
-	std::map<unsigned int, recordedValues_>::iterator it;
-	for(it=vals_.begin(); it != vals_.end(); it++) {
-		
-		interval = (simTime() - it->second.startTime_).dbl();
-		totalSum += it->second.sum_/interval;
-	
-		ev.recordScalar(moduleMap_[it->first], getResultName().c_str(),
-				it->second.sum_/interval, &attributes);
-	}
+    opp_string_map attributes = getStatisticAttributes();
+    double interval, totalSum = 0;        // Global numbers
+    
+    std::map<unsigned int, recordedValues_>::iterator it;
+    for(it=vals_.begin(); it != vals_.end(); it++) {
+        
+        interval = (simTime() - it->second.startTime_).dbl();
+        totalSum += it->second.sum_/interval;
+    
+        ev.recordScalar(moduleMap_[it->first], getResultName().c_str(),
+                it->second.sum_/interval, &attributes);
+    }
 }
 
 

@@ -63,19 +63,19 @@ class VoDUDPServer : public cSimpleModule
         uint32_t trec_size;
     };
     struct svcPacket{
-    	int tid;
-    	int lid;
-    	int qid;
-    	int length;
-    	int frameNumber;
-    	int timestamp;
-    	int currentFrame;
-    	string memoryAdd;
-    	string isDiscardable;
-    	string isTruncatable;
-    	string isControl;
-    	string frameType;
-    	long int index;
+        int tid;
+        int lid;
+        int qid;
+        int length;
+        int frameNumber;
+        int timestamp;
+        int currentFrame;
+        string memoryAdd;
+        string isDiscardable;
+        string isTruncatable;
+        string isControl;
+        string frameType;
+        long int index;
     };
     unsigned int nrec_;
 

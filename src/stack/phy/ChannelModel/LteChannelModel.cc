@@ -13,10 +13,10 @@
 #include "LteChannelModel.h"
 
 LteChannelModel::LteChannelModel(unsigned int band) {
-		band_=band;
+        band_=band;
 }
 
 LteChannelModel::~LteChannelModel() {
-	// TODO Auto-generated destructor stub
+    // TODO Auto-generated destructor stub
 }
 

@@ -14,12 +14,12 @@
 Define_Module(Gaming);
 
 Gaming::Gaming():UDPBasicApp() {
-	// TODO Auto-generated constructor stub
+    // TODO Auto-generated constructor stub
 
 }
 
 Gaming::~Gaming() {
-	// TODO Auto-generated destructor stub
+    // TODO Auto-generated destructor stub
 }
 cPacket *Gaming::createPacket()
 {

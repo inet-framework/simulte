@@ -102,27 +102,27 @@ typedef unsigned short Codeword;
 
 /// Link Directions
 typedef enum {
-	DL, UL, UNKNOWN_DIRECTION
+    DL, UL, UNKNOWN_DIRECTION
 } Direction;
 
 /// Modulations
 typedef enum {
-	_QPSK = 0, _16QAM, _64QAM
+    _QPSK = 0, _16QAM, _64QAM
 } LteMod;
 
 /// Feedback reporting type
 typedef enum {
-	ALLBANDS = 0, PREFERRED, WIDEBAND
+    ALLBANDS = 0, PREFERRED, WIDEBAND
 } FeedbackType;
 
 /// Feedback periodicity
 typedef enum {
-	PERIODIC, APERIODIC
+    PERIODIC, APERIODIC
 } FbPeriodicity;
 
 /// Resource allocation type
 typedef enum {
-	TYPE2_DISTRIBUTED, TYPE2_LOCALIZED
+    TYPE2_DISTRIBUTED, TYPE2_LOCALIZED
 } RbAllocationType;
 
 /* workaround: <windows.h> defines IN and OUT */
@@ -131,12 +131,12 @@ typedef enum {
 
 /// Gate Direction
 typedef enum {
-	IN = 0, OUT = 1
+    IN = 0, OUT = 1
 } GateDirection;
 
 /// Lte Traffic Classes
 typedef enum {
-	CONVERSATIONAL, STREAMING, INTERACTIVE, BACKGROUND, UNKNOWN_TRAFFIC_TYPE
+    CONVERSATIONAL, STREAMING, INTERACTIVE, BACKGROUND, UNKNOWN_TRAFFIC_TYPE
 } LteTrafficClass;
 
 /// Scheduler grant type
@@ -146,14 +146,14 @@ typedef enum {
 
 // QCI traffic descriptor
 typedef struct {
-	int priority;
-	double packetDelayBudget;
-	double packetErrorLossRate;
+    int priority;
+    double packetDelayBudget;
+    double packetErrorLossRate;
 } QCIParameters;
 
 /// Lte RLC Types
 typedef enum {
-	TM, UM, AM, UNKNOWN_RLC_TYPE
+    TM, UM, AM, UNKNOWN_RLC_TYPE
 } LteRlcType;
 
 // Attenuation vector for analogue models
@@ -164,28 +164,28 @@ typedef std::vector<double> AttenuationVector;
  *************************/
 
 typedef enum {
-	VOIP = 0, VOD, WEB, CBR, FTP, GAMING, FULLBUFFER, UNKNOWN_APP
+    VOIP = 0, VOD, WEB, CBR, FTP, GAMING, FULLBUFFER, UNKNOWN_APP
 } ApplicationType;
 
 struct ApplicationTable {
-	ApplicationType app;
-	std::string appName;
+    ApplicationType app;
+    std::string appName;
 };
 
 const ApplicationTable applications[] = { ELEM(VOIP), ELEM(VOD), ELEM(WEB),
-		ELEM(CBR), ELEM(FTP), ELEM(FULLBUFFER), ELEM(UNKNOWN_APP) };
+        ELEM(CBR), ELEM(FTP), ELEM(FULLBUFFER), ELEM(UNKNOWN_APP) };
 
 /**************************
  * Scheduling discipline  *
  **************************/
 
 typedef enum {
-	DRR, PF, MAXCI, UNKNOWN_DISCIPLINE
+    DRR, PF, MAXCI, UNKNOWN_DISCIPLINE
 } SchedDiscipline;
 
 struct SchedDisciplineTable {
-	SchedDiscipline discipline;
-	std::string disciplineName;
+    SchedDiscipline discipline;
+    std::string disciplineName;
 };
 
 const SchedDisciplineTable disciplines[] = { ELEM(DRR), ELEM(PF), ELEM(MAXCI),ELEM(UNKNOWN_DISCIPLINE) };
@@ -197,47 +197,47 @@ const SchedDisciplineTable disciplines[] = { ELEM(DRR), ELEM(PF), ELEM(MAXCI),EL
  *************************/
 
 typedef enum {
-	// Note: If you add more tx modes, update DL_NUM_TXMODE and UL_NUM_TXMODE
-	SINGLE_ANTENNA_PORT0 = 0,
-	SINGLE_ANTENNA_PORT5,
-	TRANSMIT_DIVERSITY,
-	OL_SPATIAL_MULTIPLEXING,
-	CL_SPATIAL_MULTIPLEXING,
-	MULTI_USER,
-	UNKNOWN_TX_MODE
+    // Note: If you add more tx modes, update DL_NUM_TXMODE and UL_NUM_TXMODE
+    SINGLE_ANTENNA_PORT0 = 0,
+    SINGLE_ANTENNA_PORT5,
+    TRANSMIT_DIVERSITY,
+    OL_SPATIAL_MULTIPLEXING,
+    CL_SPATIAL_MULTIPLEXING,
+    MULTI_USER,
+    UNKNOWN_TX_MODE
 } TxMode;
 
 struct TxTable {
-	TxMode tx;
-	std::string txName;
+    TxMode tx;
+    std::string txName;
 };
 
 const TxTable txmodes[] = { ELEM(SINGLE_ANTENNA_PORT0),
-		ELEM(SINGLE_ANTENNA_PORT5), ELEM(TRANSMIT_DIVERSITY),
-		ELEM(OL_SPATIAL_MULTIPLEXING), ELEM(CL_SPATIAL_MULTIPLEXING),
-		ELEM(MULTI_USER), ELEM(UNKNOWN_TX_MODE) };
+        ELEM(SINGLE_ANTENNA_PORT5), ELEM(TRANSMIT_DIVERSITY),
+        ELEM(OL_SPATIAL_MULTIPLEXING), ELEM(CL_SPATIAL_MULTIPLEXING),
+        ELEM(MULTI_USER), ELEM(UNKNOWN_TX_MODE) };
 // Lte feedback type
 typedef enum {
-	IDEAL = 0, REAL, DAS_AWARE, UNKNOW_FB_GEN_TYPE
+    IDEAL = 0, REAL, DAS_AWARE, UNKNOW_FB_GEN_TYPE
 } FeedbackGeneratorType;
 
 struct FeedbackRequest {
-	bool request;
-	FeedbackGeneratorType genType;
-	FeedbackType type;
-	//used if genType==real
-	TxMode txMode;
-	bool dasAware;
-	RbAllocationType rbAllocationType;
+    bool request;
+    FeedbackGeneratorType genType;
+    FeedbackType type;
+    //used if genType==real
+    TxMode txMode;
+    bool dasAware;
+    RbAllocationType rbAllocationType;
 };
 
 struct FeedbackGeneratorTypeTable {
-	FeedbackGeneratorType ty;
-	std::string tyname;
+    FeedbackGeneratorType ty;
+    std::string tyname;
 };
 
 const FeedbackGeneratorTypeTable feedbackGeneratorTypeTable[] = { ELEM(IDEAL),
-		ELEM(REAL), ELEM(DAS_AWARE), ELEM(UNKNOW_FB_GEN_TYPE) };
+        ELEM(REAL), ELEM(DAS_AWARE), ELEM(UNKNOW_FB_GEN_TYPE) };
 
 
 /// Number of transmission modes in DL direction.
@@ -248,43 +248,43 @@ const unsigned char UL_NUM_TXMODE = MULTI_USER + 1;
 
 /// OFDMA layers (see FIXME lteAllocationModuble.h for "layers" meaning)
 typedef enum {
-	MAIN_PLANE = 0, MU_MIMO_PLANE
+    MAIN_PLANE = 0, MU_MIMO_PLANE
 } Plane;
 
 typedef enum {
-	INDOOR_HOTSPOT = 0,
-	URBAN_MICROCELL,
-	URBAN_MACROCELL,
-	RURAL_MACROCELL,
-	SUBURBAN_MACROCELL,
-	UNKNOW_SCENARIO
+    INDOOR_HOTSPOT = 0,
+    URBAN_MICROCELL,
+    URBAN_MACROCELL,
+    RURAL_MACROCELL,
+    SUBURBAN_MACROCELL,
+    UNKNOW_SCENARIO
 } DeploymentScenario;
 
 struct DeploymentScenarioMapping {
-	DeploymentScenario scenario;
-	std::string scenarioName;
+    DeploymentScenario scenario;
+    std::string scenarioName;
 };
 
 const DeploymentScenarioMapping DeploymentScenarioTable[] = {
-		ELEM(INDOOR_HOTSPOT), ELEM(URBAN_MICROCELL), ELEM(URBAN_MACROCELL),
-		ELEM(RURAL_MACROCELL), ELEM(SUBURBAN_MACROCELL),
-		ELEM(UNKNOW_SCENARIO) };
+        ELEM(INDOOR_HOTSPOT), ELEM(URBAN_MICROCELL), ELEM(URBAN_MACROCELL),
+        ELEM(RURAL_MACROCELL), ELEM(SUBURBAN_MACROCELL),
+        ELEM(UNKNOW_SCENARIO) };
 
 const unsigned int txModeToIndex[6] = { 0, 0, 1, 2, 2, 0 };
 const TxMode indexToTxMode[3] = { SINGLE_ANTENNA_PORT0, TRANSMIT_DIVERSITY,
-		OL_SPATIAL_MULTIPLEXING };
+        OL_SPATIAL_MULTIPLEXING };
 typedef std::map<MacNodeId, TxMode> TxModeMap;
 
 const double cqiToByteTms[16] = { 0, 2, 3, 5, 11, 15, 20, 25, 36, 38, 49, 63,
-		72, 79, 89, 92 };
+        72, 79, 89, 92 };
 
 struct Lambda {
-	unsigned int index;
-	unsigned int lambdaStart;
-	unsigned int channelIndex;
-	double lambdaMin;
-	double lambdaMax;
-	double lambdaRatio;
+    unsigned int index;
+    unsigned int lambdaStart;
+    unsigned int channelIndex;
+    double lambdaMin;
+    double lambdaMax;
+    double lambdaRatio;
 };
 
 double dBmToLinear(double dbm);
@@ -298,16 +298,16 @@ double linearToDb(double lin);
 
 /// OFDMA Remotes (see FIXME LteAllocationModule.h for "antenna" meaning)
 typedef enum {
-	MACRO = 0, RU1, RU2, RU3, RU4, RU5, RU6, UNKNOWN_RU
+    MACRO = 0, RU1, RU2, RU3, RU4, RU5, RU6, UNKNOWN_RU
 } Remote;
 
 struct RemoteTable {
-	Remote remote;
-	std::string remoteName;
+    Remote remote;
+    std::string remoteName;
 };
 
 const RemoteTable remotes[] = { ELEM(MACRO), ELEM(RU1), ELEM(RU2), ELEM(RU3),
-		ELEM(RU4), ELEM(RU5), ELEM(RU6), ELEM(UNKNOWN_RU) };
+        ELEM(RU4), ELEM(RU5), ELEM(RU6), ELEM(UNKNOWN_RU) };
 
 /**
  * Maximum number of available DAS RU per cell.
@@ -333,60 +333,60 @@ typedef std::map<Remote, std::map<Band, unsigned int> > RbMap;
  *************************/
 
 typedef enum {
-	DATAPKT,
-	BROADCASTPKT,
-	FEEDBACKPKT,
-	HANDOVERPKT,
-	HARQPKT,
-	GRANTPKT,
-	RACPKT,
-	UNKNOWN_TYPE
+    DATAPKT,
+    BROADCASTPKT,
+    FEEDBACKPKT,
+    HANDOVERPKT,
+    HARQPKT,
+    GRANTPKT,
+    RACPKT,
+    UNKNOWN_TYPE
 } LtePhyFrameType;
 
 struct LtePhyFrameTable {
-	LtePhyFrameType phyType;
-	std::string phyName;
+    LtePhyFrameType phyType;
+    std::string phyName;
 };
 
 const LtePhyFrameTable phytypes[] = { ELEM(DATAPKT), ELEM(BROADCASTPKT),
-		ELEM(FEEDBACKPKT), ELEM(HANDOVERPKT), ELEM(GRANTPKT),
-		ELEM(UNKNOWN_TYPE) };
+        ELEM(FEEDBACKPKT), ELEM(HANDOVERPKT), ELEM(GRANTPKT),
+        ELEM(UNKNOWN_TYPE) };
 
 /*************************
  *    Lte Node Types     *
  *************************/
 
 typedef enum {
-	INTERNET, /// Internet side of the Lte network
-	ENODEB, /// eNodeB
-	RELAY, /// Relay
-	UE, /// UE
-	UNKNOWN_NODE_TYPE
+    INTERNET, /// Internet side of the Lte network
+    ENODEB, /// eNodeB
+    RELAY, /// Relay
+    UE, /// UE
+    UNKNOWN_NODE_TYPE
 /// unknown
 } LteNodeType;
 
 struct LteNodeTable {
-	LteNodeType node;
-	std::string nodeName;
+    LteNodeType node;
+    std::string nodeName;
 };
 
 const LteNodeTable nodetypes[] = { ELEM(INTERNET), ELEM(ENODEB), ELEM(RELAY),
-		ELEM(UE), ELEM(UNKNOWN_NODE_TYPE) };
+        ELEM(UE), ELEM(UNKNOWN_NODE_TYPE) };
 /**
  * Subframe type
  */
 typedef enum {
-	NORMAL_FRAME_TYPE, MBSFN, PAGING, BROADCAST, SYNCRO, ABS, UNKNOWN_FRAME_TYPE
+    NORMAL_FRAME_TYPE, MBSFN, PAGING, BROADCAST, SYNCRO, ABS, UNKNOWN_FRAME_TYPE
 } LteSubFrameType;
 
 struct LteSubFrameTypeTable {
-	LteSubFrameType type;
-	std::string typeName;
+    LteSubFrameType type;
+    std::string typeName;
 };
 
 const LteSubFrameTypeTable subFrametypes[] = { ELEM(NORMAL_FRAME_TYPE),
-		ELEM(MBSFN), ELEM(PAGING), ELEM(BROADCAST), ELEM(SYNCRO), ELEM(ABS),
-		ELEM(UNKNOWN_FRAME_TYPE) };
+        ELEM(MBSFN), ELEM(PAGING), ELEM(BROADCAST), ELEM(SYNCRO), ELEM(ABS),
+        ELEM(UNKNOWN_FRAME_TYPE) };
 
 //|--------------------------------------------------|
 //|----------------- ABS Management -----------------|
@@ -396,22 +396,22 @@ const int ABS_WIN = 40;
 typedef std::bitset<ABS_WIN> AbsBitset;
 
 /*
- * ABS_INFO 		macro->micro
- * ABS_STATUS_INFO	micro->macro
+ * ABS_INFO         macro->micro
+ * ABS_STATUS_INFO    micro->macro
  *
  * these are the names from standard, so it's not my fault if they are stupid.
  */
 enum X2MsgType
 {
-	ABS_INFO,
-	ABS_STATUS_INFO
+    ABS_INFO,
+    ABS_STATUS_INFO
 };
 
 // Abs Status Information structure
 typedef struct
 {
-	double absStatus;
-	AbsBitset usableAbsInfo;
+    double absStatus;
+    AbsBitset usableAbsInfo;
 }AbsStatusInfoMsg;
 
 //|--------------------------------------------------|
@@ -423,10 +423,10 @@ typedef struct
  */
 class TaggedSample: public cObject {
 public:
-	double sample;
-	unsigned int id;
-	// the emitting cComponent (module)
-	cComponent* module;
+    double sample;
+    unsigned int id;
+    // the emitting cComponent (module)
+    cComponent* module;
 };
 
 /**
@@ -437,24 +437,24 @@ public:
  * Among other modules, the rtxAcid and grant methods of LteSchedulerEnb use this structure.
  */
 struct BandLimit {
-	/// Band which the element refers to
-	Band band_;
-	/// Limit of bytes (per codeword) which can be requested for the current band
-	std::vector<int> limit_;
+    /// Band which the element refers to
+    Band band_;
+    /// Limit of bytes (per codeword) which can be requested for the current band
+    std::vector<int> limit_;
 
-	BandLimit() {
-		band_ = 0;
-		limit_.resize(MAX_CODEWORDS, -1);
-	}
+    BandLimit() {
+        band_ = 0;
+        limit_.resize(MAX_CODEWORDS, -1);
+    }
 
-	// default "from Band" constructor
-	BandLimit(Band b) {
-		band_ = b;
-		limit_.resize(MAX_CODEWORDS, -1);
-	}
-	bool operator<(const BandLimit rhs) const {
-		return (limit_[0] > rhs.limit_[0]);
-	}
+    // default "from Band" constructor
+    BandLimit(Band b) {
+        band_ = b;
+        limit_.resize(MAX_CODEWORDS, -1);
+    }
+    bool operator<(const BandLimit rhs) const {
+        return (limit_[0] > rhs.limit_[0]);
+    }
 
 };
 
@@ -546,36 +546,36 @@ typedef std::list<MacControlElement*> MacControlElementsList;
 
 /// H-ARQ feedback (ACK, NACK)
 typedef enum {
-	HARQNACK = 0, HARQACK = 1
+    HARQNACK = 0, HARQACK = 1
 } HarqAcknowledgment;
 
 /// TX H-ARQ pdu status
 typedef enum {
-	/// pdu is ready for retransmission (nack received)
-	TXHARQ_PDU_BUFFERED = 0,
-	/// pdu is waiting for feedback
-	TXHARQ_PDU_WAITING,
-	/// no pdu inside this process (empty process)
-	TXHARQ_PDU_EMPTY,
-	/// pdu selected for transmission
-	TXHARQ_PDU_SELECTED
+    /// pdu is ready for retransmission (nack received)
+    TXHARQ_PDU_BUFFERED = 0,
+    /// pdu is waiting for feedback
+    TXHARQ_PDU_WAITING,
+    /// no pdu inside this process (empty process)
+    TXHARQ_PDU_EMPTY,
+    /// pdu selected for transmission
+    TXHARQ_PDU_SELECTED
 } TxHarqPduStatus;
 
 /// RX H-ARQ pdu status
 typedef enum {
-	/// no pdu, process is empty
-	RXHARQ_PDU_EMPTY = 0,
-	/// pdu is in evaluating state
-	RXHARQ_PDU_EVALUATING,
-	/// pdu has been evaluated and it is correct
-	RXHARQ_PDU_CORRECT,
-	/// pdu has been evaluated and it is not correct
-	RXHARQ_PDU_CORRUPTED
+    /// no pdu, process is empty
+    RXHARQ_PDU_EMPTY = 0,
+    /// pdu is in evaluating state
+    RXHARQ_PDU_EVALUATING,
+    /// pdu has been evaluated and it is correct
+    RXHARQ_PDU_CORRECT,
+    /// pdu has been evaluated and it is not correct
+    RXHARQ_PDU_CORRUPTED
 } RxHarqPduStatus;
 
 struct RemoteUnitPhyData {
-	int txPower;
-	Coord m;
+    int txPower;
+    Coord m;
 };
 
 // Codeword List - returned by Harq functions
@@ -588,22 +588,22 @@ typedef std::pair<unsigned char, CwList> UnitList;
  * Incell Interference Support
  *********************/
 typedef enum {
-	// macro eNb
-	MACRO_ENB,
-	// micro eNb
-	MICRO_ENB
+    // macro eNb
+    MACRO_ENB,
+    // micro eNb
+    MICRO_ENB
 } EnbType;
 
 struct EnbInfo
 {
-	bool init; 		// initialization flag
-	EnbType type; 	// MICRO_ENB or MACRO_ENB
-	double txPwr;
-	MacNodeId id;
-	LteMacEnb * mac;
-	LteRealisticChannelModel * realChan ;
-	cModule * eNodeB;
-	int x2;
+    bool init;         // initialization flag
+    EnbType type;     // MICRO_ENB or MACRO_ENB
+    double txPwr;
+    MacNodeId id;
+    LteMacEnb * mac;
+    LteRealisticChannelModel * realChan ;
+    cModule * eNodeB;
+    int x2;
 };
 /*****************
  *  PHY Support  *
@@ -663,7 +663,7 @@ LteRlcType aToRlcType(std::string s);
 const std::string planeToA(Plane p);
 MacNodeId ctrlInfoToUeId(LteControlInfo * info);
 MacCid idToMacCid(MacNodeId nodeId, LogicalCid lcid);
-MacCid ctrlInfoToMacCid(LteControlInfo * info);		// get the CID from the packet control info
+MacCid ctrlInfoToMacCid(LteControlInfo * info);        // get the CID from the packet control info
 MacNodeId MacCidToNodeId(MacCid cid);
 LogicalCid MacCidToLcid(MacCid cid);
 GrantType aToGrantType(std::string a);

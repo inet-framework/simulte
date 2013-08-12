@@ -47,82 +47,82 @@
  */
 class LteIp : public QueueBase
 {
-	protected:
-		cGate *stackGateOut_;           /// gate connecting LteIp module to LTE stack
-		cGate *peerGateOut_;            /// gate connecting LteIp module to another LteIp
-		int defaultTimeToLive_;         /// default ttl value
-		LteNodeType nodeType_;     /// node type: can be INTERNET, ENODEB, UE
+    protected:
+        cGate *stackGateOut_;           /// gate connecting LteIp module to LTE stack
+        cGate *peerGateOut_;            /// gate connecting LteIp module to another LteIp
+        int defaultTimeToLive_;         /// default ttl value
+        LteNodeType nodeType_;     /// node type: can be INTERNET, ENODEB, UE
 
-		// working vars
-		long curFragmentId_;      /// counter, used to assign unique fragmentIds to datagrams (actually unused)
-		unsigned int seqNum_;     /// datagram sequence number (RLC fragmentation needs it)
-		ProtocolMapping mapping_; /// where to send transport packets after decapsulation
+        // working vars
+        long curFragmentId_;      /// counter, used to assign unique fragmentIds to datagrams (actually unused)
+        unsigned int seqNum_;     /// datagram sequence number (RLC fragmentation needs it)
+        ProtocolMapping mapping_; /// where to send transport packets after decapsulation
 
-		// statistics
-		int numForwarded_;  /// number of forwarded packets
-		int numDropped_;    /// number of dropped packets
+        // statistics
+        int numForwarded_;  /// number of forwarded packets
+        int numDropped_;    /// number of dropped packets
 
-	public:
+    public:
 
-		/**
-		 * LteIp constructor.
-		 */
-		LteIp() { }
+        /**
+         * LteIp constructor.
+         */
+        LteIp() { }
 
-	protected:
+    protected:
 
-		/**
-		 * utility: show current statistics above the icon
-		 */
-		virtual void updateDisplayString();
+        /**
+         * utility: show current statistics above the icon
+         */
+        virtual void updateDisplayString();
 
-		/**
-		 * Initialization
-		 */
-		virtual void initialize();
+        /**
+         * Initialization
+         */
+        virtual void initialize();
 
-		/**
-		 * Processing of IP datagrams.
-		 * Called when a datagram reaches the front of the queue.
-		 *
-		 * @param msg packet received
-		 */
-		virtual void endService(cPacket *msg);
+        /**
+         * Processing of IP datagrams.
+         * Called when a datagram reaches the front of the queue.
+         *
+         * @param msg packet received
+         */
+        virtual void endService(cPacket *msg);
 
-	private:
+    private:
 
-		/**
-		 * Handle packets from transport layer and forward them
-		 * to the specified output gate, after encapsulation in
-		 * IP Datagram.
-		 * This method adds to the datagram the LteStackControlInfo.
-		 *
-		 * @param transportPacket transport packet received from transport layer
-		 * @param outputgate output gate where the datagram will be sent
-		 */
-		void fromTransport(cPacket * transportPacket, cGate *outputgate);
+        /**
+         * Handle packets from transport layer and forward them
+         * to the specified output gate, after encapsulation in
+         * IP Datagram.
+         * This method adds to the datagram the LteStackControlInfo.
+         *
+         * @param transportPacket transport packet received from transport layer
+         * @param outputgate output gate where the datagram will be sent
+         */
+        void fromTransport(cPacket * transportPacket, cGate *outputgate);
 
-		/**
-		 * Manage packets received from Lte Stack or LteIp peer
-		 * and forward them to transport layer.
-		 *
-		 * @param msg  IP Datagram received from Lte Stack or LteIp peer
-		 */
-		void toTransport(cPacket * msg);
+        /**
+         * Manage packets received from Lte Stack or LteIp peer
+         * and forward them to transport layer.
+         *
+         * @param msg  IP Datagram received from Lte Stack or LteIp peer
+         */
+        void toTransport(cPacket * msg);
 
-		/**
-		 * utility: set nodeType_ field
-		 *
-		 * @param s string containing the node type ("internet", "enodeb", "ue")
-		 */
-		void setNodeType(std::string s);
+        /**
+         * utility: set nodeType_ field
+         *
+         * @param s string containing the node type ("internet", "enodeb", "ue")
+         */
+        void setNodeType(std::string s);
 
-		/**
-		 * utility: print LteStackControlInfo fields
-		 *
-		 * @param ci LteStackControlInfo object
-		 */
-		void printControlInfo(FlowControlInfo* ci);
+        /**
+         * utility: print LteStackControlInfo fields
+         *
+         * @param ci LteStackControlInfo object
+         */
+        void printControlInfo(FlowControlInfo* ci);
 
 };
 

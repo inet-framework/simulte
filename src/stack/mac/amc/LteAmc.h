@@ -164,17 +164,17 @@ public:
     }
 
     void muMimoMatrixInit(Direction dir,MacNodeId nodeId){
-		if (dir==DL)
-			muMimoDlMatrix_.initialize(nodeId);
-		else
-			muMimoUlMatrix_.initialize(nodeId);
-	}
-	void addMuMimoPair(Direction dir,MacNodeId id1, MacNodeId id2){
-		if (dir==DL)
-			muMimoDlMatrix_.addPair(id1,id2);
-		else
-			muMimoUlMatrix_.addPair(id1,id2);
-	}
+        if (dir==DL)
+            muMimoDlMatrix_.initialize(nodeId);
+        else
+            muMimoUlMatrix_.initialize(nodeId);
+    }
+    void addMuMimoPair(Direction dir,MacNodeId id1, MacNodeId id2){
+        if (dir==DL)
+            muMimoDlMatrix_.addPair(id1,id2);
+        else
+            muMimoUlMatrix_.addPair(id1,id2);
+    }
 };
 
 #endif

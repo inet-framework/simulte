@@ -19,65 +19,65 @@
 
 void LteScheduler::setEnbScheduler(LteSchedulerEnb* eNbScheduler)
 {
-	eNbScheduler_=eNbScheduler;
-	direction_=eNbScheduler_->direction_;
-	mac_=eNbScheduler_->mac_;
-	initializeGrants();
+    eNbScheduler_=eNbScheduler;
+    direction_=eNbScheduler_->direction_;
+    mac_=eNbScheduler_->mac_;
+    initializeGrants();
 }
 
 unsigned int LteScheduler::requestGrant(MacCid cid,unsigned int bytes,bool& terminate,bool& active,bool& eligible)
 {
-	return eNbScheduler_->scheduleGrant(cid,bytes,terminate,active,eligible);
+    return eNbScheduler_->scheduleGrant(cid,bytes,terminate,active,eligible);
 }
 
 bool LteScheduler::scheduleRetransmissions()
 {
-	return eNbScheduler_->rtxschedule();
+    return eNbScheduler_->rtxschedule();
 }
 
 void LteScheduler::scheduleRacRequests()
 {
-	//return (dynamic_cast<LteSchedulerEnbUl*>(eNbScheduler_))->serveRacs();
+    //return (dynamic_cast<LteSchedulerEnbUl*>(eNbScheduler_))->serveRacs();
 }
 
 void LteScheduler::requestRacGrant(MacNodeId nodeId)
 {
-	//return (dynamic_cast<LteSchedulerEnbUl*>(eNbScheduler_))->racGrantEnb(nodeId);
+    //return (dynamic_cast<LteSchedulerEnbUl*>(eNbScheduler_))->racGrantEnb(nodeId);
 }
 
 void LteScheduler::schedule()
 {
-	prepareSchedule();
-	commitSchedule();
+    prepareSchedule();
+    commitSchedule();
 }
 
 void LteScheduler::initializeGrants()
 {
-	if (direction_ == DL) {
+    if (direction_ == DL) {
 
-		grantTypeMap_[CONVERSATIONAL] = aToGrantType(mac_->par("grantTypeConversationalDl"));
-		grantTypeMap_[STREAMING]      = aToGrantType(mac_->par("grantTypeStreamingDl"));
-		grantTypeMap_[INTERACTIVE]    = aToGrantType(mac_->par("grantTypeInteractiveDl"));
-		grantTypeMap_[BACKGROUND]     = aToGrantType(mac_->par("grantTypeBackgroundDl"));
+        grantTypeMap_[CONVERSATIONAL] = aToGrantType(mac_->par("grantTypeConversationalDl"));
+        grantTypeMap_[STREAMING]      = aToGrantType(mac_->par("grantTypeStreamingDl"));
+        grantTypeMap_[INTERACTIVE]    = aToGrantType(mac_->par("grantTypeInteractiveDl"));
+        grantTypeMap_[BACKGROUND]     = aToGrantType(mac_->par("grantTypeBackgroundDl"));
 
-		grantSizeMap_[CONVERSATIONAL] = mac_->par("grantSizeConversationalDl");
-		grantSizeMap_[STREAMING]      = mac_->par("grantSizeStreamingDl");
-		grantSizeMap_[INTERACTIVE]    = mac_->par("grantSizeInteractiveDl");
-		grantSizeMap_[BACKGROUND]     = mac_->par("grantSizeBackgroundDl");
-	}
-	else if (direction_ == UL) {
+        grantSizeMap_[CONVERSATIONAL] = mac_->par("grantSizeConversationalDl");
+        grantSizeMap_[STREAMING]      = mac_->par("grantSizeStreamingDl");
+        grantSizeMap_[INTERACTIVE]    = mac_->par("grantSizeInteractiveDl");
+        grantSizeMap_[BACKGROUND]     = mac_->par("grantSizeBackgroundDl");
+    }
+    else if (direction_ == UL) {
 
-		grantTypeMap_[CONVERSATIONAL] = aToGrantType(mac_->par("grantTypeConversationalUl"));
-		grantTypeMap_[STREAMING]      = aToGrantType(mac_->par("grantTypeStreamingUl"));
-		grantTypeMap_[INTERACTIVE]    = aToGrantType(mac_->par("grantTypeInteractiveUl"));
-		grantTypeMap_[BACKGROUND]     = aToGrantType(mac_->par("grantTypeBackgroundUl"));
+        grantTypeMap_[CONVERSATIONAL] = aToGrantType(mac_->par("grantTypeConversationalUl"));
+        grantTypeMap_[STREAMING]      = aToGrantType(mac_->par("grantTypeStreamingUl"));
+        grantTypeMap_[INTERACTIVE]    = aToGrantType(mac_->par("grantTypeInteractiveUl"));
+        grantTypeMap_[BACKGROUND]     = aToGrantType(mac_->par("grantTypeBackgroundUl"));
 
-		grantSizeMap_[CONVERSATIONAL] = mac_->par("grantSizeConversationalUl");
-		grantSizeMap_[STREAMING]      = mac_->par("grantSizeStreamingUl");
-		grantSizeMap_[INTERACTIVE]    = mac_->par("grantSizeInteractiveUl");
-		grantSizeMap_[BACKGROUND]     = mac_->par("grantSizeBackgroundUl");
-	}
-	else {
-		throw cRuntimeError("Fatal! Unknown direction.");
-	}
+        grantSizeMap_[CONVERSATIONAL] = mac_->par("grantSizeConversationalUl");
+        grantSizeMap_[STREAMING]      = mac_->par("grantSizeStreamingUl");
+        grantSizeMap_[INTERACTIVE]    = mac_->par("grantSizeInteractiveUl");
+        grantSizeMap_[BACKGROUND]     = mac_->par("grantSizeBackgroundUl");
+    }
+    else {
+        throw cRuntimeError("Fatal! Unknown direction.");
+    }
 }

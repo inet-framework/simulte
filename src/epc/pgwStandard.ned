@@ -26,13 +26,13 @@ module pgwStandard extends NodeBase
 {
     parameters:
         string nodeType; // must be one between ENB and PGW
-    	@display("bgb=920,462;i=device/mainframe");
+        @display("bgb=920,462;i=device/mainframe");
     gates:
         inout filterGate @labels(PPPFrame-conn);
 
     submodules:
         trafficFlowFilter: TrafficFlowFilter {
-			ownerType = nodeType;
+            ownerType = nodeType;
             @display("p=813,206");
         }
         pppInterface: PPPInterface {

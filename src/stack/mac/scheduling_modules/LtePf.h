@@ -15,50 +15,50 @@
 
 class LtePf : public LteScheduler
 {
-	protected:
+    protected:
 
-	typedef std::map<MacCid, double> PfRate;
-	typedef SortedDesc<MacCid,double> ScoreDesc;
-	typedef std::priority_queue<ScoreDesc> ScoreList;
-	
-	//! Long-term rates, used by PF scheduling.
-	PfRate pfRate_;
+    typedef std::map<MacCid, double> PfRate;
+    typedef SortedDesc<MacCid,double> ScoreDesc;
+    typedef std::priority_queue<ScoreDesc> ScoreList;
+    
+    //! Long-term rates, used by PF scheduling.
+    PfRate pfRate_;
 
-	//! Granted bytes
-	std::map<MacCid, unsigned int> grantedBytes_;
+    //! Granted bytes
+    std::map<MacCid, unsigned int> grantedBytes_;
 
-	//! Smoothing factor for proportional fair scheduler.
-	double pfAlpha_;
+    //! Smoothing factor for proportional fair scheduler.
+    double pfAlpha_;
 
-	//! Small number to slightly blur away scores.
-	const double scoreEpsilon_;
+    //! Small number to slightly blur away scores.
+    const double scoreEpsilon_;
 
-	public:
+    public:
 
-	double & pfAlpha() { return pfAlpha_; }
-	
-	// Scheduling functions ********************************************************************
+    double & pfAlpha() { return pfAlpha_; }
+    
+    // Scheduling functions ********************************************************************
 
-	//virtual void schedule ();
-	
-	virtual void prepareSchedule();
-	
-	virtual void commitSchedule();
+    //virtual void schedule ();
+    
+    virtual void prepareSchedule();
+    
+    virtual void commitSchedule();
 
-	// *****************************************************************************************
+    // *****************************************************************************************
 
-	void notifyActiveConnection ( MacCid cid );
+    void notifyActiveConnection ( MacCid cid );
 
-	void removeActiveConnection ( MacCid cid );
+    void removeActiveConnection ( MacCid cid );
 
-	void updateSchedulingInfo();
+    void updateSchedulingInfo();
 
-	LtePf (double pfAlpha): scoreEpsilon_ (0.000001)
-	{
-		
-		pfAlpha_=pfAlpha;
-		pfRate_.clear();
-	}
+    LtePf (double pfAlpha): scoreEpsilon_ (0.000001)
+    {
+        
+        pfAlpha_=pfAlpha;
+        pfRate_.clear();
+    }
 
 };
 

@@ -20,23 +20,23 @@ class InternetMux: public cSimpleModule
 {
 protected:
 
-	//* maps destination id to output gate.
-	std::map<MacNodeId,cGate*> routingTable_;
+    //* maps destination id to output gate.
+    std::map<MacNodeId,cGate*> routingTable_;
 
-	cGate* muxGate_[2];
+    cGate* muxGate_[2];
 
-	virtual void initialize();
-	virtual void handleMessage(cMessage *msg);
+    virtual void initialize();
+    virtual void handleMessage(cMessage *msg);
 
 
 
 public:
 
-	InternetMux();
+    InternetMux();
 
-	void setRoutingEntry(const MacNodeId id, cGate* gate) { routingTable_[id]=gate;}
+    void setRoutingEntry(const MacNodeId id, cGate* gate) { routingTable_[id]=gate;}
 
-	virtual ~InternetMux();
+    virtual ~InternetMux();
 };
 
 #endif /* INTERNETMUX_H_ */

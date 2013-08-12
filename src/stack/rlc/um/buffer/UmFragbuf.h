@@ -33,93 +33,93 @@
  */
 class UmFragbuf {
 
-	public:
-		UmFragbuf() {debugCounter_ = 0;}
-		virtual ~UmFragbuf() {;}
+    public:
+        UmFragbuf() {debugCounter_ = 0;}
+        virtual ~UmFragbuf() {;}
 
-		/**
-		 * insert() is called by the RXBuffer when a new fragment
-		 * has been received. It adds the received packet to the receiver Buffer
-		 * through the following procedure:
-		 *
-		 * - If in the receiver buffer there isn't a vector for the
-		 *   Main Packet with this ID, insert a new pair <pktID,vector> where
-		 *   the vector is set to false for all entries of this Main Packet.
-		 * - Else just set the bit in the vector for the corresponding fragment
-		 *   Sequence number
-		 *
-		 * @param pktID Sequence number of Main Packet
-		 * @param totFrag Total number of fragments
-		 * @param fragSno Sequence number of the fragment
-		 * @param fragSize Size of the fragment
-		 * @return true if this was the first insertion, false otherwise
-		 */
-		bool insert(unsigned int pktId, unsigned int totFrag,
-				unsigned int fragSno, unsigned int fragSize,FlowControlInfo* info);
+        /**
+         * insert() is called by the RXBuffer when a new fragment
+         * has been received. It adds the received packet to the receiver Buffer
+         * through the following procedure:
+         *
+         * - If in the receiver buffer there isn't a vector for the
+         *   Main Packet with this ID, insert a new pair <pktID,vector> where
+         *   the vector is set to false for all entries of this Main Packet.
+         * - Else just set the bit in the vector for the corresponding fragment
+         *   Sequence number
+         *
+         * @param pktID Sequence number of Main Packet
+         * @param totFrag Total number of fragments
+         * @param fragSno Sequence number of the fragment
+         * @param fragSize Size of the fragment
+         * @return true if this was the first insertion, false otherwise
+         */
+        bool insert(unsigned int pktId, unsigned int totFrag,
+                unsigned int fragSno, unsigned int fragSize,FlowControlInfo* info);
 
-		/**
-		 * check() is called by the RXBuffer to check if all
-		 * fragments have been received.
-		 *
-		 * @param pktID Sequence number of Main Packet
-		 * @return true if all fragments have been received, false otherwise.
-		 */
-		bool check(unsigned int pktId);
+        /**
+         * check() is called by the RXBuffer to check if all
+         * fragments have been received.
+         *
+         * @param pktID Sequence number of Main Packet
+         * @return true if all fragments have been received, false otherwise.
+         */
+        bool check(unsigned int pktId);
 
-		/**
-		 * remove() is called by the RXBuffer only when all
-		 * fragments have been received. It removes the fragments
-		 * from the buffer and returns the original packet size.
-		 *
-		 * @param pktID Sequence number of Main Packet
-		 * @return Main Packet Size
-		 */
-		int remove(unsigned int pktId);
+        /**
+         * remove() is called by the RXBuffer only when all
+         * fragments have been received. It removes the fragments
+         * from the buffer and returns the original packet size.
+         *
+         * @param pktID Sequence number of Main Packet
+         * @return Main Packet Size
+         */
+        int remove(unsigned int pktId);
 
-		/**
-		 * operator<< prints the content of the fragments
-		 * buffer using the following format:
-		 * Packet: <SequenceNumber> has <totalFragments> fragments
-		 *
-		 * @param stream output stream
-		 * @param rxBuffer pointer to the buffer
-		 * @return output stream
-		 */
-		friend std::ostream &operator<<(std::ostream &stream, const UmFragbuf* rxBuffer);
-		/**
-		 * Get LteInfo for statistics purpose
-		 */
-		FlowControlInfo* getLteInfo(unsigned int pktId);
+        /**
+         * operator<< prints the content of the fragments
+         * buffer using the following format:
+         * Packet: <SequenceNumber> has <totalFragments> fragments
+         *
+         * @param stream output stream
+         * @param rxBuffer pointer to the buffer
+         * @return output stream
+         */
+        friend std::ostream &operator<<(std::ostream &stream, const UmFragbuf* rxBuffer);
+        /**
+         * Get LteInfo for statistics purpose
+         */
+        FlowControlInfo* getLteInfo(unsigned int pktId);
 
-	private:
+    private:
 
-		/**
-		 * \struct MainPktInfo
-		 * \brief Original Packet infos gathered from fragments
-		 *
-		 * This structure is updated for each fragment received
-		 * for a given main packet and contains:
-		 * - The size of the original packet
-		 *   (updated for every received fragment)
-		 * - The number of fragments left to gather
-		 * - a vector of booleans that tells us what
-		 *   fragments have been received
-		 */
-		struct MainPktInfo_ {
-			std::vector<bool> bitmap_;
-			int fragsleft_;
-			unsigned int size_;
-			FlowControlInfo* lteInfo_;
-		};
+        /**
+         * \struct MainPktInfo
+         * \brief Original Packet infos gathered from fragments
+         *
+         * This structure is updated for each fragment received
+         * for a given main packet and contains:
+         * - The size of the original packet
+         *   (updated for every received fragment)
+         * - The number of fragments left to gather
+         * - a vector of booleans that tells us what
+         *   fragments have been received
+         */
+        struct MainPktInfo_ {
+            std::vector<bool> bitmap_;
+            int fragsleft_;
+            unsigned int size_;
+            FlowControlInfo* lteInfo_;
+        };
 
-		/**
-		 * frags is a map associating each Main Packet
-		 * (identified by its ID) with the informations
-		 * gathered about it
-		 */
-		std::map<unsigned int, MainPktInfo_> frags_;
+        /**
+         * frags is a map associating each Main Packet
+         * (identified by its ID) with the informations
+         * gathered about it
+         */
+        std::map<unsigned int, MainPktInfo_> frags_;
 
-		unsigned int debugCounter_;
+        unsigned int debugCounter_;
 
 };
 

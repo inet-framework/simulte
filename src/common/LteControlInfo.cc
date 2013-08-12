@@ -12,18 +12,18 @@
 #include "UserTxParams.h"
 
 UserControlInfo::~UserControlInfo(){
-			if (userTxParams!=0)
-				delete userTxParams;
-		}
-		
+            if (userTxParams!=0)
+                delete userTxParams;
+        }
+        
 UserControlInfo::UserControlInfo() : UserControlInfo_Base() {
-			userTxParams=0;
-			grantedBlocks.clear();
-		}
+            userTxParams=0;
+            grantedBlocks.clear();
+        }
 void UserControlInfo::setCoord(const Coord& coord) {
-	senderCoord = coord;
+    senderCoord = coord;
 }
 
 Coord UserControlInfo::getCoord() const{
-	return senderCoord;
+    return senderCoord;
 }

@@ -32,60 +32,60 @@
 class LteRlcMux : public cSimpleModule
 {
 
-	public:
-		LteRlcMux() {;}
-		virtual ~LteRlcMux() {;}
+    public:
+        LteRlcMux() {;}
+        virtual ~LteRlcMux() {;}
 
-	protected:
+    protected:
 
-		/**
-		 * Initialize class structures
-		 * gatemap and delay
-		 */
-		virtual void initialize();
+        /**
+         * Initialize class structures
+         * gatemap and delay
+         */
+        virtual void initialize();
 
-		/**
-		 * Analyze gate of incoming packet
-		 * and call proper handler
-		 */
-		virtual void handleMessage(cMessage *msg);
+        /**
+         * Analyze gate of incoming packet
+         * and call proper handler
+         */
+        virtual void handleMessage(cMessage *msg);
 
-		/**
-		 * Statistics recording
-		 */
-		virtual void finish();
+        /**
+         * Statistics recording
+         */
+        virtual void finish();
 
-	private:
-		/*
-		 * Upper Layer Handler
-		 */
+    private:
+        /*
+         * Upper Layer Handler
+         */
 
-		/**
-		 * handler for rlc2mac packets
-		 *
-		 * @param pkt packet to process
-		 */
-		void rlc2mac(cPacket *pkt);
+        /**
+         * handler for rlc2mac packets
+         *
+         * @param pkt packet to process
+         */
+        void rlc2mac(cPacket *pkt);
 
-		/*
-		 * Lower Layer Handler
-		 */
+        /*
+         * Lower Layer Handler
+         */
 
-		/**
-		 * handler for mac2rlc packets
-		 *
-		 * @param pkt packet to process
-		 */
-		void mac2rlc(cPacket *pkt);
+        /**
+         * handler for mac2rlc packets
+         *
+         * @param pkt packet to process
+         */
+        void mac2rlc(cPacket *pkt);
 
-		/*
-		 * Data structures
-		 */
+        /*
+         * Data structures
+         */
 
-		cGate* macSap_[2];
-		cGate* tmSap_[2];
-		cGate* umSap_[2];
-		cGate* amSap_[2];
+        cGate* macSap_[2];
+        cGate* tmSap_[2];
+        cGate* umSap_[2];
+        cGate* amSap_[2];
 
 };
 

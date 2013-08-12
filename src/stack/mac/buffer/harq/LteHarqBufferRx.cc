@@ -18,164 +18,164 @@
 #include "LteMacEnb.h"
 
 LteHarqBufferRx::LteHarqBufferRx(unsigned int num, LteMacBase *owner,
-		MacNodeId nodeId) {
-	macOwner_ = owner;
-	nodeId_ = nodeId;
-	numHarqProcesses_ = num;
-	processes_.resize(numHarqProcesses_);
+        MacNodeId nodeId) {
+    macOwner_ = owner;
+    nodeId_ = nodeId;
+    numHarqProcesses_ = num;
+    processes_.resize(numHarqProcesses_);
 
-	for (unsigned int i = 0; i < numHarqProcesses_; i++) {
-		processes_[i] = new LteHarqProcessRx(i, macOwner_);
-	}
-	tSampleCell_ = new TaggedSample();
-	tSample_ = new TaggedSample();
-	/* Signals initialization: those are used to gather statistics */
+    for (unsigned int i = 0; i < numHarqProcesses_; i++) {
+        processes_[i] = new LteHarqProcessRx(i, macOwner_);
+    }
+    tSampleCell_ = new TaggedSample();
+    tSample_ = new TaggedSample();
+    /* Signals initialization: those are used to gather statistics */
 
-	if (macOwner_->getNodeType() == ENODEB) {
+    if (macOwner_->getNodeType() == ENODEB) {
 
-		macDelay_ = macOwner_->registerSignal("macDelayUl");
-		macThroughput_ = getMacByMacNodeId(nodeId_)->registerSignal(
-				"macThroughputUl");
-		macCellThroughput_ = macOwner_->registerSignal("macCellThroughputUl");
+        macDelay_ = macOwner_->registerSignal("macDelayUl");
+        macThroughput_ = getMacByMacNodeId(nodeId_)->registerSignal(
+                "macThroughputUl");
+        macCellThroughput_ = macOwner_->registerSignal("macCellThroughputUl");
 
-		tSampleCell_->module = check_and_cast<cComponent*>(macOwner_);
-		tSample_->module = check_and_cast<cComponent*>(
-				getMacByMacNodeId(nodeId_));
+        tSampleCell_->module = check_and_cast<cComponent*>(macOwner_);
+        tSample_->module = check_and_cast<cComponent*>(
+                getMacByMacNodeId(nodeId_));
 
-	} else if (macOwner_->getNodeType() == UE) {
-		cModule* nodeB = getMacByMacNodeId(macOwner_->getMacCellId());
-		macThroughput_ = macOwner_->registerSignal("macThroughputDl");
-		macCellThroughput_ = nodeB->registerSignal("macCellThroughputDl");
-		macDelay_ = macOwner_->registerSignal("macDelayDl");
+    } else if (macOwner_->getNodeType() == UE) {
+        cModule* nodeB = getMacByMacNodeId(macOwner_->getMacCellId());
+        macThroughput_ = macOwner_->registerSignal("macThroughputDl");
+        macCellThroughput_ = nodeB->registerSignal("macCellThroughputDl");
+        macDelay_ = macOwner_->registerSignal("macDelayDl");
 
-		tSampleCell_->module = nodeB;
-		tSample_->module = macOwner_;
-	}
+        tSampleCell_->module = nodeB;
+        tSample_->module = macOwner_;
+    }
 
 }
 
 void LteHarqBufferRx::insertPdu(Codeword cw, LteMacPdu *pdu) {
-	UserControlInfo *uInfo = check_and_cast<UserControlInfo *>(
-			pdu->getControlInfo());
-	unsigned char acid = uInfo->getAcid();
-	// TODO add codeword to inserPdu
-	processes_[acid]->insertPdu(cw, pdu);
-	// debug output
-	EV << "H-ARQ RX: new pdu (id " << pdu->getId()
-			<< " ) inserted into process " << (int) acid << endl;
+    UserControlInfo *uInfo = check_and_cast<UserControlInfo *>(
+            pdu->getControlInfo());
+    unsigned char acid = uInfo->getAcid();
+    // TODO add codeword to inserPdu
+    processes_[acid]->insertPdu(cw, pdu);
+    // debug output
+    EV << "H-ARQ RX: new pdu (id " << pdu->getId()
+            << " ) inserted into process " << (int) acid << endl;
 }
 
 void LteHarqBufferRx::sendFeedback() {
-	for (unsigned int i = 0; i < numHarqProcesses_; i++) {
-		for (Codeword cw = 0; cw < MAX_CODEWORDS; ++cw) {
-			if (processes_[i]->isEvaluated(cw)) {
-				LteHarqFeedback *hfb = processes_[i]->createFeedback(cw);
+    for (unsigned int i = 0; i < numHarqProcesses_; i++) {
+        for (Codeword cw = 0; cw < MAX_CODEWORDS; ++cw) {
+            if (processes_[i]->isEvaluated(cw)) {
+                LteHarqFeedback *hfb = processes_[i]->createFeedback(cw);
 
-				// debug output:
-				const char *r = hfb->getResult() ? "ACK" : "NACK";
-				EV << "H-ARQ RX: feedback sent to TX process "
-						<< (int) hfb->getAcid() << " Codeword  " << (int) cw
-						<< "of node with id "
-						<< check_and_cast<UserControlInfo *>(
-								hfb->getControlInfo())->getDestId()
-						<< " result: " << r << endl;
+                // debug output:
+                const char *r = hfb->getResult() ? "ACK" : "NACK";
+                EV << "H-ARQ RX: feedback sent to TX process "
+                        << (int) hfb->getAcid() << " Codeword  " << (int) cw
+                        << "of node with id "
+                        << check_and_cast<UserControlInfo *>(
+                                hfb->getControlInfo())->getDestId()
+                        << " result: " << r << endl;
 
-				macOwner_->sendLowerPackets(hfb);
-			}
-		}
-	}
+                macOwner_->sendLowerPackets(hfb);
+            }
+        }
+    }
 }
 
 unsigned int LteHarqBufferRx::purgeCorruptedPdus() {
-	unsigned int purged = 0;
+    unsigned int purged = 0;
 
-	for (unsigned int i = 0; i < numHarqProcesses_; i++) {
-		for (Codeword cw = 0; cw < MAX_CODEWORDS; ++cw) {
-			if (processes_[i]->getUnitStatus(cw) == RXHARQ_PDU_CORRUPTED) {
-				EV << "LteHarqBufferRx::purgeCorruptedPdus - purged pdu with acid " << i << endl;
-				// purge PDU
-				processes_[i]->resetCodeword(cw);
-				//increment purged PDUs counter
-				++purged;
-			}
-		}
-	}
-	return purged;
+    for (unsigned int i = 0; i < numHarqProcesses_; i++) {
+        for (Codeword cw = 0; cw < MAX_CODEWORDS; ++cw) {
+            if (processes_[i]->getUnitStatus(cw) == RXHARQ_PDU_CORRUPTED) {
+                EV << "LteHarqBufferRx::purgeCorruptedPdus - purged pdu with acid " << i << endl;
+                // purge PDU
+                processes_[i]->resetCodeword(cw);
+                //increment purged PDUs counter
+                ++purged;
+            }
+        }
+    }
+    return purged;
 }
 
 std::list<LteMacPdu *> LteHarqBufferRx::extractCorrectPdus() {
-	this->sendFeedback();
-	std::list<LteMacPdu*> ret;
-	unsigned char acid = 0;
-	for (unsigned int i = 0; i < numHarqProcesses_; i++) {
-		for (Codeword cw = 0; cw < MAX_CODEWORDS; ++cw) {
-			if (processes_[i]->isCorrect(cw)) {
-				LteMacPdu* temp = processes_[i]->extractPdu(cw);
-				unsigned int size = temp->getByteLength();
-				UserControlInfo* info = check_and_cast<UserControlInfo*>(
-						temp->getControlInfo());
+    this->sendFeedback();
+    std::list<LteMacPdu*> ret;
+    unsigned char acid = 0;
+    for (unsigned int i = 0; i < numHarqProcesses_; i++) {
+        for (Codeword cw = 0; cw < MAX_CODEWORDS; ++cw) {
+            if (processes_[i]->isCorrect(cw)) {
+                LteMacPdu* temp = processes_[i]->extractPdu(cw);
+                unsigned int size = temp->getByteLength();
+                UserControlInfo* info = check_and_cast<UserControlInfo*>(
+                        temp->getControlInfo());
 
-				// Calculate delay by subtracting the arrival time
-				// to the MAC packet creation time
-				tSample_->sample = (NOW - temp->getCreationTime()).dbl();
-				if (info->getDirection() == DL) {
-					tSample_->id = info->getDestId();
+                // Calculate delay by subtracting the arrival time
+                // to the MAC packet creation time
+                tSample_->sample = (NOW - temp->getCreationTime()).dbl();
+                if (info->getDirection() == DL) {
+                    tSample_->id = info->getDestId();
 
-				} else if (info->getDirection() == UL) {
-					tSample_->id = info->getSourceId();
+                } else if (info->getDirection() == UL) {
+                    tSample_->id = info->getSourceId();
 
-				} else {
-					throw cRuntimeError(
-							"LteHarqBufferRx::extractCorrectPdus unknown direction");
-				}
-				macOwner_->emit(macDelay_, tSample_);
+                } else {
+                    throw cRuntimeError(
+                            "LteHarqBufferRx::extractCorrectPdus unknown direction");
+                }
+                macOwner_->emit(macDelay_, tSample_);
 
-				// Calculate Throughput by sending the number of bits for this packet
-				tSample_->sample = size;
-				tSampleCell_->sample = size;
-				cModule* nodeb = NULL;
-				if (macOwner_->getNodeType() == UE) {
-					nodeb = getMacByMacNodeId(macOwner_->getMacCellId());
-					tSample_->id = info->getDestId();
-					tSampleCell_->id = info->getSourceId();
+                // Calculate Throughput by sending the number of bits for this packet
+                tSample_->sample = size;
+                tSampleCell_->sample = size;
+                cModule* nodeb = NULL;
+                if (macOwner_->getNodeType() == UE) {
+                    nodeb = getMacByMacNodeId(macOwner_->getMacCellId());
+                    tSample_->id = info->getDestId();
+                    tSampleCell_->id = info->getSourceId();
 
-				} else if (macOwner_->getNodeType() == ENODEB) {
-					nodeb = macOwner_;
-					tSample_->id = info->getSourceId();
-					tSampleCell_->id = info->getDestId();
-				} else {
-					throw cRuntimeError("Unknow direction");
-				}
-				nodeb->emit(macCellThroughput_, tSampleCell_);
-				macOwner_->emit(macThroughput_, tSample_);
+                } else if (macOwner_->getNodeType() == ENODEB) {
+                    nodeb = macOwner_;
+                    tSample_->id = info->getSourceId();
+                    tSampleCell_->id = info->getDestId();
+                } else {
+                    throw cRuntimeError("Unknow direction");
+                }
+                nodeb->emit(macCellThroughput_, tSampleCell_);
+                macOwner_->emit(macThroughput_, tSample_);
 
-				ret.push_back(temp);
-				acid = i;
+                ret.push_back(temp);
+                acid = i;
 
-				EV << "LteHarqBufferRx::extractCorrectPdus H-ARQ RX: pdu (id " << ret.back()->getId()
-						<< " ) extracted from process " << (int) acid
-						<< "to be sent upper" << endl;
+                EV << "LteHarqBufferRx::extractCorrectPdus H-ARQ RX: pdu (id " << ret.back()->getId()
+                        << " ) extracted from process " << (int) acid
+                        << "to be sent upper" << endl;
 
-			}
-		}
-	}
+            }
+        }
+    }
 
-	return ret;
+    return ret;
 }
 
 RxBufferStatus LteHarqBufferRx::getBufferStatus() {
-	RxBufferStatus bs(numHarqProcesses_);
-	unsigned int numHarqUnits = 0;
-	for (unsigned int i = 0; i < numHarqProcesses_; i++) {
-		numHarqUnits = (processes_)[i]->getNumHarqUnits();
-		std::vector<RxUnitStatus> vus(numHarqUnits);
-		vus = (processes_)[i]->getProcessStatus();
-		bs[i] = vus;
-	}
-	return bs;
+    RxBufferStatus bs(numHarqProcesses_);
+    unsigned int numHarqUnits = 0;
+    for (unsigned int i = 0; i < numHarqProcesses_; i++) {
+        numHarqUnits = (processes_)[i]->getNumHarqUnits();
+        std::vector<RxUnitStatus> vus(numHarqUnits);
+        vus = (processes_)[i]->getProcessStatus();
+        bs[i] = vus;
+    }
+    return bs;
 }
 
 LteHarqBufferRx::~LteHarqBufferRx() {
-	processes_.clear();
-	macOwner_ = NULL;
+    processes_.clear();
+    macOwner_ = NULL;
 }

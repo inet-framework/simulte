@@ -30,54 +30,54 @@
 
 class VoIPReceiver : public cSimpleModule
 {
-	class TaggedSample : public cObject
-	{
-		public:
-			double sample;
-			unsigned int id;
-			// the emitting cComponent (module)
-			cComponent* module;
-	};
-	UDPSocket socket;
+    class TaggedSample : public cObject
+    {
+        public:
+            double sample;
+            unsigned int id;
+            // the emitting cComponent (module)
+            cComponent* module;
+    };
+    UDPSocket socket;
 
-	~VoIPReceiver();
+    ~VoIPReceiver();
 
-	int 	 	emodel_Ie_;
-	int 	    emodel_Bpl_;
-	int 		emodel_A_;
-	double 		emodel_Ro_;
+    int          emodel_Ie_;
+    int         emodel_Bpl_;
+    int         emodel_A_;
+    double         emodel_Ro_;
 
-	typedef std::list<VoipPacket*> PacketsList;
-	PacketsList  mPacketsList;
-	PacketsList  mPlayoutQueue;
-	unsigned int mCurrentTalkspurt;
-	unsigned int mBufferSpace;
-	double 	     mSamplingDelta;
-	double 	     mPlayoutDelay;
+    typedef std::list<VoipPacket*> PacketsList;
+    PacketsList  mPacketsList;
+    PacketsList  mPlayoutQueue;
+    unsigned int mCurrentTalkspurt;
+    unsigned int mBufferSpace;
+    double          mSamplingDelta;
+    double          mPlayoutDelay;
 
-	bool 		mInit;
+    bool         mInit;
 
-	simsignal_t mFrameLossSignal;
-	simsignal_t mFrameDelaySignal;
-	simsignal_t mPlayoutDelaySignal;
-	simsignal_t mPlayoutLossSignal;
-	simsignal_t mMosSignal;
-	simsignal_t mTaildropLossSignal;
+    simsignal_t mFrameLossSignal;
+    simsignal_t mFrameDelaySignal;
+    simsignal_t mPlayoutDelaySignal;
+    simsignal_t mPlayoutLossSignal;
+    simsignal_t mMosSignal;
+    simsignal_t mTaildropLossSignal;
 
-	simsignal_t voIPPlayoutLossSignal;
-	simsignal_t voIPJitterSignal;
+    simsignal_t voIPPlayoutLossSignal;
+    simsignal_t voIPJitterSignal;
 
-	TaggedSample* mTaggedSample;
+    TaggedSample* mTaggedSample;
 
-	virtual void finish();
+    virtual void finish();
 
 protected:
 
-	virtual int numInitStages() const {return 4;}
-	void initialize(int stage);
-	void handleMessage(cMessage *msg);
-	double eModel (double delay, double loss);
-	void playout(bool finish);
+    virtual int numInitStages() const {return 4;}
+    void initialize(int stage);
+    void handleMessage(cMessage *msg);
+    double eModel (double delay, double loss);
+    void playout(bool finish);
 
 
 };

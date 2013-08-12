@@ -23,54 +23,54 @@
  */
 class LteSchedulerEnbDl : public LteSchedulerEnb {
 
-	// XXX debug: to call grant from mac
-	friend class LteMacEnb;
+    // XXX debug: to call grant from mac
+    friend class LteMacEnb;
 
-	/**
-	 * TODO
-	 * Implementare funzioni ancora non implementate : {}
-	 */
+    /**
+     * TODO
+     * Implementare funzioni ancora non implementate : {}
+     */
 
-	protected:
+    protected:
 
-		//---------------------------------------------
+        //---------------------------------------------
 
 
-		/**
-		 * Checks Harq Descriptors and return the first free codeword.
-		 *
-		 * @param id
-		 * @param cw
-		 * @return
-		 */
-		bool checkEligibility(MacNodeId id, Codeword& cw);
+        /**
+         * Checks Harq Descriptors and return the first free codeword.
+         *
+         * @param id
+         * @param cw
+         * @return
+         */
+        bool checkEligibility(MacNodeId id, Codeword& cw);
 
-	public:
+    public:
 
-		/**
-		 * Default Constructor.
-		 */
-		LteSchedulerEnbDl() { };
+        /**
+         * Default Constructor.
+         */
+        LteSchedulerEnbDl() { };
 
-	protected:
-		/**
-		 * Updates current schedule list with HARQ retransmissions.
-		 * @return TRUE if OFDM space is exhausted.
-		 */
-		virtual bool rtxschedule();
+    protected:
+        /**
+         * Updates current schedule list with HARQ retransmissions.
+         * @return TRUE if OFDM space is exhausted.
+         */
+        virtual bool rtxschedule();
 
-		/**
-		 * Schedules retransmission for the Harq Process of the given UE on a set of logical bands.
-		 * Each band has also assigned a band limit amount of bytes: no more than the specified
-		 * amount will be served on the given band for the acid.
-		 *
-		 * @param nodeId The node ID
-		 * @param cw The codeword used to serve the acid process
-		 * @param bands A vector of logical bands
-		 * @param acid The ACID
-		 * @return The allocated bytes. 0 if retransmission was not possible
-		 */
-		virtual unsigned int schedulePerAcidRtx(MacNodeId nodeId, Codeword cw, unsigned char acid, std::vector<BandLimit>* bandLim = NULL, Remote antenna = MACRO,bool limitBl=false);
+        /**
+         * Schedules retransmission for the Harq Process of the given UE on a set of logical bands.
+         * Each band has also assigned a band limit amount of bytes: no more than the specified
+         * amount will be served on the given band for the acid.
+         *
+         * @param nodeId The node ID
+         * @param cw The codeword used to serve the acid process
+         * @param bands A vector of logical bands
+         * @param acid The ACID
+         * @return The allocated bytes. 0 if retransmission was not possible
+         */
+        virtual unsigned int schedulePerAcidRtx(MacNodeId nodeId, Codeword cw, unsigned char acid, std::vector<BandLimit>* bandLim = NULL, Remote antenna = MACRO,bool limitBl=false);
 
 
 };

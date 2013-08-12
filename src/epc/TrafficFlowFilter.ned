@@ -21,12 +21,12 @@ package lte.epc;
 simple TrafficFlowFilter
 {
     parameters:
-    	@display("i=block/filter");
-    	
-    	string filterFileName;
-    	string ownerType; // must be one between ENB or PGW 
-	gates:
-	    input internetFilterGateIn;
-	    
-	    output gtpUserGateOut;
+        @display("i=block/filter");
+        
+        string filterFileName;
+        string ownerType; // must be one between ENB or PGW 
+    gates:
+        input internetFilterGateIn;
+        
+        output gtpUserGateOut;
 }

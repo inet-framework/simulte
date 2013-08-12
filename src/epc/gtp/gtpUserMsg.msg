@@ -15,5 +15,5 @@
 
 packet GtpUserMsg
 {
-	unsigned int teid;   
+    unsigned int teid;   
 } 

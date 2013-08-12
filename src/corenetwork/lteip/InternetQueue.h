@@ -31,68 +31,68 @@
  */
 class InternetQueue : public cSimpleModule
 {
-	protected:
+    protected:
 
-		cQueue txQueue_;                     /// Transmission queue
-		int queueSize_;						 /// Size of the transmission queue ( 0 = infinite)
-		cMessage *endTransmissionEvent_;     /// Self message that notifies the end of a transmission
-		cGate    *queueOutGate_;                /// Output gate towards the datarate channel
-		cChannel *datarateChannel_;          /// Datarate Channel
+        cQueue txQueue_;                     /// Transmission queue
+        int queueSize_;                         /// Size of the transmission queue ( 0 = infinite)
+        cMessage *endTransmissionEvent_;     /// Self message that notifies the end of a transmission
+        cGate    *queueOutGate_;                /// Output gate towards the datarate channel
+        cChannel *datarateChannel_;          /// Datarate Channel
 
-		// statistics
-		int numSent_;       /// number of packets sent
-		int numDropped_;    /// number of packets dropped
+        // statistics
+        int numSent_;       /// number of packets sent
+        int numDropped_;    /// number of packets dropped
 
-	public:
+    public:
 
-		/**
-		 * InternetQueue constructor.
-		 */
-		InternetQueue();
+        /**
+         * InternetQueue constructor.
+         */
+        InternetQueue();
 
-		/**
-		 * InternetQueue destructor.
-		 */
-		virtual ~InternetQueue();
+        /**
+         * InternetQueue destructor.
+         */
+        virtual ~InternetQueue();
 
-	protected:
+    protected:
 
-		/**
-		 * Initialize class fields.
-		 */
-		virtual void initialize();
+        /**
+         * Initialize class fields.
+         */
+        virtual void initialize();
 
-		/**
-		 * Handle messages.
-		 *
-		 * If the message is a self message that notifies the
-		 * end of a transmission, a new transmission can be started.
-		 * When a packet is received, if we are idle, it is transmitted
-		 * immediately, otherwise it is enqueued.
-		 * If the queue has a finite size and it is full, incoming packets
-		 * are dropped.
-		 *
-		 * @param msg message received
-		 */
-		virtual void handleMessage(cMessage *msg);
+        /**
+         * Handle messages.
+         *
+         * If the message is a self message that notifies the
+         * end of a transmission, a new transmission can be started.
+         * When a packet is received, if we are idle, it is transmitted
+         * immediately, otherwise it is enqueued.
+         * If the queue has a finite size and it is full, incoming packets
+         * are dropped.
+         *
+         * @param msg message received
+         */
+        virtual void handleMessage(cMessage *msg);
 
-		/**
-		 * Start the transmission of a new packet.
-		 *
-		 * The function sends the packet over the channel, then schedules
-		 * an endOfTransmissionEvent, to know when the channel
-		 * is idle again.
-		 *
-		 * @param msg packet received for transmission
-		 */
-	    virtual void startTransmitting(cPacket *pkt);
+        /**
+         * Start the transmission of a new packet.
+         *
+         * The function sends the packet over the channel, then schedules
+         * an endOfTransmissionEvent, to know when the channel
+         * is idle again.
+         *
+         * @param msg packet received for transmission
+         */
+        virtual void startTransmitting(cPacket *pkt);
 
-	private:
+    private:
 
-	    /**
-	     * utility: show current statistics above the icon
-	     */
-		void updateDisplayString();
+        /**
+         * utility: show current statistics above the icon
+         */
+        void updateDisplayString();
 };
 
 #endif

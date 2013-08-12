@@ -63,8 +63,8 @@ simple LteIp
 {
     parameters:
         @display("i=block/routing");
- 		double procDelay @unit("s") = default(0s); // processing delay 
- 		string localAddr = default("127.0.0.1");   // default src address (on enodeb can be left default)
+         double procDelay @unit("s") = default(0s); // processing delay 
+         string localAddr = default("127.0.0.1");   // default src address (on enodeb can be left default)
         int timeToLive = default(32);              // default time to live
         string protocolMapping = default("");      // mapping between transportIn[]/Out[] indexes and protocol numbers
         string nodeType;                           // can be "internet", "enodeb", "ue"

@@ -13,82 +13,82 @@
 #include "LteMacQueue.h"
 
 LteMacQueue::LteMacQueue(int queueSize) : cPacketQueue("LteMacQueue") {
-	queueSize_ = queueSize;
+    queueSize_ = queueSize;
 }
 
 LteMacQueue::LteMacQueue(const LteMacQueue& queue) {
-	operator=(queue);
+    operator=(queue);
 }
 
 LteMacQueue& LteMacQueue::operator=(const LteMacQueue& queue) {
-	cPacketQueue::operator=(queue);
-	queueSize_ = queue.queueSize_;
-	return *this;
+    cPacketQueue::operator=(queue);
+    queueSize_ = queue.queueSize_;
+    return *this;
 }
 
 LteMacQueue* LteMacQueue::dup () const {
-	return new LteMacQueue(*this);
+    return new LteMacQueue(*this);
 }
 
 // ENQUEUE
 bool LteMacQueue::pushBack (cPacket *pkt) {
-	if (getByteLength() + pkt->getByteLength() > queueSize_ &&
-					queueSize_ != 0 ) {		// Packet Queue Full
-		return false;
-	}
-	cPacketQueue::insert(pkt);
-	return true;
+    if (getByteLength() + pkt->getByteLength() > queueSize_ &&
+                    queueSize_ != 0 ) {        // Packet Queue Full
+        return false;
+    }
+    cPacketQueue::insert(pkt);
+    return true;
 }
 
 bool LteMacQueue::pushFront (cPacket *pkt) {
-	if (getByteLength() + pkt->getByteLength() > queueSize_ &&
-					queueSize_ != 0 ) {		// Packet Queue Full
-		return false;
-	}
-	cPacketQueue::insertBefore(cPacketQueue::front(), pkt);
-	return true;
+    if (getByteLength() + pkt->getByteLength() > queueSize_ &&
+                    queueSize_ != 0 ) {        // Packet Queue Full
+        return false;
+    }
+    cPacketQueue::insertBefore(cPacketQueue::front(), pkt);
+    return true;
 }
 
 cPacket* LteMacQueue::popFront () {
-	if (getQueueLength() > 0) {
-		return cPacketQueue::pop();
-	} else {	// Packet Queue Empty
-		return NULL;
-	}
+    if (getQueueLength() > 0) {
+        return cPacketQueue::pop();
+    } else {    // Packet Queue Empty
+        return NULL;
+    }
 }
 
 cPacket* LteMacQueue::popBack () {
-	if (getQueueLength() > 0) {
-		return cPacketQueue::remove(cPacketQueue::back());
-	} else {	// Packet Queue Empty
-		return NULL;
-	}
+    if (getQueueLength() > 0) {
+        return cPacketQueue::remove(cPacketQueue::back());
+    } else {    // Packet Queue Empty
+        return NULL;
+    }
 }
 
 simtime_t LteMacQueue::getHolTimestamp() const {
-	if (getQueueLength() > 0) {
-		return cPacketQueue::front()->getTimestamp();
-	} else {
-		return 0;
-	}
+    if (getQueueLength() > 0) {
+        return cPacketQueue::front()->getTimestamp();
+    } else {
+        return 0;
+    }
 }
 
 int64_t LteMacQueue::getQueueOccupancy() const {
-	return cPacketQueue::getByteLength();
+    return cPacketQueue::getByteLength();
 }
 
 int64_t LteMacQueue::getQueueSize() const {
-	return queueSize_;
+    return queueSize_;
 }
 
 int LteMacQueue::getQueueLength() const {
-	return cPacketQueue::getLength();
+    return cPacketQueue::getLength();
 }
 
 std::ostream &operator<<(std::ostream &stream, const LteMacQueue* queue) {
-	stream << "LteMacQueue-> Length: " << queue->getQueueLength() <<
-			" Occupancy: " << queue->getQueueOccupancy() <<
-			" HolTimestamp: " << queue->getHolTimestamp() <<
-			" Size: " << queue->getQueueSize();
-	return stream;
+    stream << "LteMacQueue-> Length: " << queue->getQueueLength() <<
+            " Occupancy: " << queue->getQueueOccupancy() <<
+            " HolTimestamp: " << queue->getHolTimestamp() <<
+            " Size: " << queue->getQueueSize();
+    return stream;
 }

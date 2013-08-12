@@ -21,9 +21,9 @@
  */
 class FeedbackTester : public cSimpleModule
 {
-	simtime_t interval_;
-	cMessage *aperiodic_;
-	LteDlFeedbackGenerator *generator_;
+    simtime_t interval_;
+    cMessage *aperiodic_;
+    LteDlFeedbackGenerator *generator_;
 
   protected:
     virtual void initialize();

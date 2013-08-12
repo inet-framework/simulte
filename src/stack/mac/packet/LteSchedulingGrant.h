@@ -15,62 +15,62 @@ class UserTxParams;
 
 class LteSchedulingGrant : public LteSchedulingGrant_Base
 {
-	protected:
+    protected:
 
-	const UserTxParams* userTxParams;
-	RbMap grantedBlocks;
-	std::vector<unsigned int> grantedCwBytes;
+    const UserTxParams* userTxParams;
+    RbMap grantedBlocks;
+    std::vector<unsigned int> grantedCwBytes;
 
-	public:
+    public:
 
-	LteSchedulingGrant(const char *name=NULL, int kind=0) : LteSchedulingGrant_Base(name,kind)
-	{
-		userTxParams=NULL;
-		grantedCwBytes.resize(MAX_CODEWORDS);
-	}
+    LteSchedulingGrant(const char *name=NULL, int kind=0) : LteSchedulingGrant_Base(name,kind)
+    {
+        userTxParams=NULL;
+        grantedCwBytes.resize(MAX_CODEWORDS);
+    }
 
-	LteSchedulingGrant(const LteSchedulingGrant& other) : LteSchedulingGrant_Base(other.getName()) {operator=(other);}
+    LteSchedulingGrant(const LteSchedulingGrant& other) : LteSchedulingGrant_Base(other.getName()) {operator=(other);}
 
-	LteSchedulingGrant& operator=(const LteSchedulingGrant& other) {LteSchedulingGrant_Base::operator=(other); return *this;}
+    LteSchedulingGrant& operator=(const LteSchedulingGrant& other) {LteSchedulingGrant_Base::operator=(other); return *this;}
 
-	virtual LteSchedulingGrant *dup() const {return new LteSchedulingGrant(*this);}
+    virtual LteSchedulingGrant *dup() const {return new LteSchedulingGrant(*this);}
 
-	void setUserTxParams(const UserTxParams* arg)
-	{
-		userTxParams = arg;
-	}
+    void setUserTxParams(const UserTxParams* arg)
+    {
+        userTxParams = arg;
+    }
 
-	const UserTxParams* getUserTxParams () const
-	{
-		return userTxParams;
-	}
+    const UserTxParams* getUserTxParams () const
+    {
+        return userTxParams;
+    }
 
-	const unsigned int getBlocks(Remote antenna,Band b) const
-	{
+    const unsigned int getBlocks(Remote antenna,Band b) const
+    {
 
-		return grantedBlocks.at(antenna).at(b);
-	}
+        return grantedBlocks.at(antenna).at(b);
+    }
 
-	void setBlocks(Remote antenna,Band b, const unsigned int blocks)
-	{
+    void setBlocks(Remote antenna,Band b, const unsigned int blocks)
+    {
 
-		grantedBlocks[antenna][b] = blocks;
-	}
+        grantedBlocks[antenna][b] = blocks;
+    }
 
-	const RbMap& getGrantedBlocks() const
-	{
-			return grantedBlocks;
-	}
+    const RbMap& getGrantedBlocks() const
+    {
+            return grantedBlocks;
+    }
 
-	void setGrantedBlocks(const RbMap& rbMap)
-	{
+    void setGrantedBlocks(const RbMap& rbMap)
+    {
 
-			grantedBlocks = rbMap;
-	}
+            grantedBlocks = rbMap;
+    }
 
 
-	virtual void setGrantedCwBytesArraySize(unsigned int size)  { grantedCwBytes.resize(size); }
+    virtual void setGrantedCwBytesArraySize(unsigned int size)  { grantedCwBytes.resize(size); }
     virtual unsigned int getGrantedCwBytesArraySize() const     { return grantedCwBytes.size(); }
-	virtual unsigned int getGrantedCwBytes(unsigned int k) const        { return grantedCwBytes.at(k); }
-	virtual void setGrantedCwBytes(unsigned int k, unsigned int grantedCwBytes_var) {grantedCwBytes[k]=grantedCwBytes_var;}
+    virtual unsigned int getGrantedCwBytes(unsigned int k) const        { return grantedCwBytes.at(k); }
+    virtual void setGrantedCwBytes(unsigned int k, unsigned int grantedCwBytes_var) {grantedCwBytes[k]=grantedCwBytes_var;}
 };

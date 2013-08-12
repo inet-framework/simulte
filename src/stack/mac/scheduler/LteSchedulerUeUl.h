@@ -25,29 +25,29 @@ class LcgScheduler;
 class LteSchedulerUeUl
 {
 
-	protected:
+    protected:
 
-	// MAC module, queried for parameters
-	LteMacUe *mac_;
+    // MAC module, queried for parameters
+    LteMacUe *mac_;
 
-	// Schedule List
-	LteMacScheduleList scheduleList_;
+    // Schedule List
+    LteMacScheduleList scheduleList_;
 
-	// Inner Scheduler - default to Standard LCG
-	LcgScheduler* lcgScheduler_;
+    // Inner Scheduler - default to Standard LCG
+    LcgScheduler* lcgScheduler_;
 
-	public:
+    public:
 
-	/* Performs the standard LCG scheduling algorithm
-	 * @returns reference to scheduling list
-	 */
+    /* Performs the standard LCG scheduling algorithm
+     * @returns reference to scheduling list
+     */
 
-	 LteMacScheduleList* schedule();
+     LteMacScheduleList* schedule();
 
-	/*
-	 * constructor
-	 */
-	LteSchedulerUeUl(LteMacUe * mac);
+    /*
+     * constructor
+     */
+    LteSchedulerUeUl(LteMacUe * mac);
 };
 
 #endif // LTE_SCHEDULER_UE_UL_H_

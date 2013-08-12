@@ -38,7 +38,7 @@ module LteInternet
 
     submodules:
 
-		// Lte IP module , and gates for connecting to transport stack
+        // Lte IP module , and gates for connecting to transport stack
         lteIp: LteIp {
             @display("p=116,121");
             nodeType = "INTERNET";
@@ -72,9 +72,9 @@ module LteInternet
 
 
         //#
-		//# Internal LTE stack to PHY and
-		//# Lte IP connections
-		//#
+        //# Internal LTE stack to PHY and
+        //# Lte IP connections
+        //#
         lteIp.transportOut[0] --> tcp.ipIn;
         lteIp.transportIn[0] <-- tcp.ipOut;
 
@@ -98,11 +98,11 @@ simple InternetMux
         @display("i=block/dispatch");
 
     gates:
-        input inMux;	        // from lteIp
+        input inMux;            // from lteIp
         output outMux;         // to lteIP
 
         //# externals
 
-        input inExt[];				// from external (ltePeerIp)
-        output outExt[];			// to internet Queues
+        input inExt[];                // from external (ltePeerIp)
+        output outExt[];            // to internet Queues
 }

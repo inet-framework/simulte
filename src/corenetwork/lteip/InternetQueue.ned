@@ -27,10 +27,10 @@ package lte.corenetwork.lteip;
 //
 simple InternetQueue {
     parameters:
-    	@display("i=block/queue");
-    	int queueSize = default(100);		// 0 means infinite
+        @display("i=block/queue");
+        int queueSize = default(100);        // 0 means infinite
     
     gates:
-        input  lteIpIn;            			// input gate to receive packets from LteIP
-        output internetChannelOut; 			// output gate towards datarate channel
+        input  lteIpIn;                        // input gate to receive packets from LteIP
+        output internetChannelOut;             // output gate towards datarate channel
 }
