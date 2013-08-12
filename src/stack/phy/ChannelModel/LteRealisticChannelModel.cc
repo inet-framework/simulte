@@ -1365,7 +1365,6 @@ bool LteRealisticChannelModel::computeInCellInterference( MacNodeId eNbId , MacN
     // check eNb type
     EnbType enbType = deployer->getEnbType();
 
-    int i;
     if( enbType == MACRO_ENB ) // compute MICRO to MACRO interference
     {
         std::vector<EnbInfo*> * microList = deployer->getMicroList();
