@@ -1,0 +1,28 @@
+The purpose of this work is adding the user plane level to the EPC core network, i.e. creating and using GTP tunnels 
+for supporting data flows, whether they are LTE-to-LTE or LTE-to-Internet and vice-versa.
+
+Two new entities have been added
+- TrafficFlowFilter: keeps a table for mapping IP 5-tuples into TFT (at the moment it uses only the Ip destination address). Receives traffic from non-Core 
+  networks and associates it to a Traffic Flow Template
+- gtp-user: keeps two tables, one for TFT->TEID mapping, and one for TEID->TEID mapping. 
+  It can:
+	* receive IP datagrams from the Traffic Flow Filter,
+	* receive/send GTP-u packets from/to the TCP/IP stack (the UDP entity in our case)
+	* send packet to the non-Core network   
+	
+The P-GW and eNB have both GTP-U and Traffic Flow Filter
+The S-GW only has the GTP-U entity	
+
+
+An Example of the path followed by Internet-to-LTE traffic is described here :
+* A traffic source in the internet (SRC) creates an IP datagram and forwards it to the P-GW. 
+* The P-GW reads the IP 5-tuple and appends to
+the IP packet a Traffic Flow Template Identifier (TFT-ID). The TFT-ID is then mapped to a Tunnel Endpoint and a pair <TEID,nextHop> 
+(Tunnel Endpoint Identifier) is obtained. The IP datagram is encapsulated within a GTP-U packet labeled with the TEID, and is then forwarded
+to the nextHop.
+* The S-GW receives a GTP-U packet, reads its TEID and performs a label swapping according to its local TEID Tables. From those tables it obtains
+the nextHop and uses it for forwarding again the GTP-U packet
+* The packet finally reaches the eNB, which reads the TEID, decapsualates the IP datagram and sends the packet to the proper UE (via a radio interface)
+ 
+ 
+Examples can be found in the example/gtpNetwork folder

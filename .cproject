@@ -68,7 +68,7 @@
 					<folderInfo id="org.omnetpp.cdt.gnu.config.release.708846711." name="/" resourcePath="">
 						<toolChain id="org.omnetpp.cdt.gnu.toolchain.release.797979391" name="GCC for OMNeT++" superClass="org.omnetpp.cdt.gnu.toolchain.release">
 							<targetPlatform binaryParser="org.eclipse.cdt.core.ELF;org.eclipse.cdt.core.MachO64;org.eclipse.cdt.core.PE" id="org.omnetpp.cdt.targetPlatform.666673557" isAbstract="false" name="Windows, Linux, Mac" osList="win32,linux,macosx" superClass="org.omnetpp.cdt.targetPlatform"/>
-							<builder id="org.omnetpp.cdt.gnu.builder.release.106409899" keepEnvironmentInBuildfile="false" managedBuildOn="true" name="OMNEST Make Builder (opp_makemake)" superClass="org.omnetpp.cdt.gnu.builder.release"/>
+							<builder id="org.omnetpp.cdt.gnu.builder.release.106409899" keepEnvironmentInBuildfile="false" managedBuildOn="true" name="OMNeT++ Make Builder (opp_makemake)" superClass="org.omnetpp.cdt.gnu.builder.release"/>
 							<tool id="cdt.managedbuild.tool.gnu.archiver.base.701270765" name="GCC Archiver" superClass="cdt.managedbuild.tool.gnu.archiver.base"/>
 							<tool id="cdt.managedbuild.tool.gnu.cpp.compiler.base.170720259" name="GCC C++ Compiler" superClass="cdt.managedbuild.tool.gnu.cpp.compiler.base">
 								<inputType id="cdt.managedbuild.tool.gnu.cpp.compiler.input.373694638" superClass="cdt.managedbuild.tool.gnu.cpp.compiler.input"/>
@@ -114,13 +114,7 @@
 					<folderInfo id="org.omnetpp.cdt.msvc.config.debug.429317958." name="/" resourcePath="">
 						<toolChain id="org.omnetpp.cdt.msvc.toolchain.debug.437317047" name="Microsoft Visual C++ for OMNeT++" superClass="org.omnetpp.cdt.msvc.toolchain.debug">
 							<targetPlatform archList="all" binaryParser="org.eclipse.cdt.core.PE" id="org.omnetpp.cdt.msvc.targetPlatform.858231411" name="Windows" osList="win32"/>
-							<builder id="org.omnetpp.cdt.msvc.builder.debug.414623682" keepEnvironmentInBuildfile="false" name="OMNEST Make Builder (opp_nmakemake - for MS Visual C++)" superClass="org.omnetpp.cdt.msvc.builder.debug"/>
-							<tool id="org.eclipse.cdt.msvc.cl.1884146982" name="C/C++ Compiler (cl)" superClass="org.eclipse.cdt.msvc.cl">
-								<inputType id="org.eclipse.cdt.msvc.cl.inputType.1831111375" superClass="org.eclipse.cdt.msvc.cl.inputType"/>
-							</tool>
-							<tool id="org.eclipse.cdt.msvc.link.1201194134" name="Linker (link)" superClass="org.eclipse.cdt.msvc.link">
-								<inputType id="org.eclipse.cdt.msvc.link.inputType.399759405" superClass="org.eclipse.cdt.msvc.link.inputType"/>
-							</tool>
+							<builder id="org.omnetpp.cdt.msvc.builder.debug.414623682" keepEnvironmentInBuildfile="false" name="OMNeT++ Make Builder (opp_nmakemake - not supported)" superClass="org.omnetpp.cdt.msvc.builder.debug"/>
 						</toolChain>
 					</folderInfo>
 					<sourceEntries>

@@ -1,0 +1,17 @@
+<?xml version="1.0" encoding="ISO-8859-1"?>
+
+<config>
+	<!-- from GTP tunnel information to GTP tunnel information -->
+	<teidTable>
+		<teid 
+			teidIn  ="1"
+			teidOut ="0"
+			nextHop ="0.0.0.0"
+		/>
+		<teid 
+			teidIn  ="1"
+			teidOut ="2"
+			nextHop ="192.168.1.1"
+		/>
+	</teidTable>
+</config>

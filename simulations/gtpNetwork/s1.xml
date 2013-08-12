@@ -1,0 +1,51 @@
+<?xml version="1.0" encoding="ISO-8859-1"?>
+
+<config>
+
+	<!-- from GTP tunnel information to GTP tunnel information -->
+	<teidTable>
+		<teid 
+			teidIn  ="0"
+			teidOut ="-1"
+			nextHop ="0.0.0.0"
+		/>
+	</teidTable>
+	
+	<!-- from tftIdentifier to GTP tunnel information -->
+	<tftTable>
+		<tft 
+			tftId   ="2"
+			teidOut ="0"
+			nextHop ="192.168.4.2"
+		/>
+		<tft 
+			tftId   ="3"
+			teidOut ="0"
+			nextHop ="192.168.1.1"
+		/>
+		<tft 
+			tftId   ="4"
+			teidOut ="4"
+			nextHop ="192.168.4.2"
+		/>
+	</tftTable>
+	
+	<!-- from destination address to tftIdentifier -->
+	<filterTable>
+		<filter
+			destName   ="Host2"
+			srcName	   ="Host1"
+			tftId      = "2"     
+		/>
+		<filter
+			destName   ="Host3"
+			srcName	   ="Host1"
+			tftId      = "3"     
+		/>
+		<filter
+			destName   ="Host4"
+			srcName	   ="Host1"
+			tftId      = "4"    
+		/>
+	</filterTable>
+</config>

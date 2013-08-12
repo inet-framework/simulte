@@ -1,0 +1,12 @@
+<config>
+    <interface hosts="Host1" names="eth*" address="10.1.1.x" netmask=""/>
+    <interface hosts="Host2" names="eth*" address="10.1.1.x" netmask=""/>
+	<interface hosts="Host3" names="eth*" address="10.1.1.x" netmask=""/>
+	<interface hosts="Host4" names="eth*" address="10.1.1.x" netmask=""/>
+	<interface hosts="*" names="eth*" address="10.1.1.x" netmask="255.255.x.x"/>
+	
+	<interface hosts="pgwStandard1" names="ppp*" address="192.168.x.x" netmask="255.255.255.0"/>
+	<interface hosts="pgwStandard2" names="ppp*" address="192.168.x.x" netmask="255.255.255.0"/>
+	<interface hosts="pgwStandard3" names="ppp*" address="192.168.x.x" netmask="255.255.255.0"/>    
+    <interface hosts="*" names="ppp*" address="192.168.x.x" netmask="255.255.x.x"/>
+</config>

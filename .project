@@ -3,7 +3,7 @@
 	<name>lte</name>
 	<comment></comment>
 	<projects>
-		<project>4Gsim</project>
+		<project>inet</project>
 	</projects>
 	<buildSpec>
 		<buildCommand>
