@@ -1401,7 +1401,7 @@ bool LteRealisticChannelModel::computeInCellInterference( MacNodeId eNbId , MacN
 
 			if(isCqi) // check slot occupation for this TTI
 			{
-				for(i=0;i<band_;i++)
+				for(unsigned int i=0;i<band_;i++)
 				{
 					// compute the number of occupied slot (unnecessary)
 					temp = (*it)->mac->getBandStatus(i);
@@ -1413,7 +1413,7 @@ bool LteRealisticChannelModel::computeInCellInterference( MacNodeId eNbId , MacN
 			}
 			else // error computation. We need to check the slot occupation of the previous TTI
 			{
-				for(i=0;i<band_;i++)
+				for(unsigned int i=0;i<band_;i++)
 				{
 					// compute the number of occupied slot (unnecessary)
 					temp = (*it)->mac->getPrevBandStatus(i);
@@ -1455,7 +1455,7 @@ bool LteRealisticChannelModel::computeInCellInterference( MacNodeId eNbId , MacN
 
 		if(isCqi)
 		{
-			for(i=0;i<band_;i++)
+			for(unsigned int i=0;i<band_;i++)
 			{
 				temp = info->mac->getBandStatus(i);
 				if(temp!=0)
@@ -1466,7 +1466,7 @@ bool LteRealisticChannelModel::computeInCellInterference( MacNodeId eNbId , MacN
 		}
 		else // error computation. We need to check the slot occupation of the previous TTI
 		{
-			for(i=0;i<band_;i++)
+			for(unsigned int i=0;i<band_;i++)
 			{
 				temp = info->mac->getPrevBandStatus(i);
 				if(temp!=0)

@@ -700,7 +700,7 @@ void LteMacEnb::cqiStatistics(MacNodeId id,Direction dir,LteFeedback fb){
 	if (dir==DL){
 		tSample_->id=id;
 		if(fb.getTxMode()==SINGLE_ANTENNA_PORT0){
-			for(int i=0;i<fb.getBandCqi(0).size();i++){
+			for(unsigned int i=0;i<fb.getBandCqi(0).size();i++){
 				switch(i){
 					case 0:
 						tSample_->sample=fb.getBandCqi(0)[i];
@@ -726,7 +726,7 @@ void LteMacEnb::cqiStatistics(MacNodeId id,Direction dir,LteFeedback fb){
 			}
 
 		} else if(fb.getTxMode()==TRANSMIT_DIVERSITY){
-			for(int i=0;i<fb.getBandCqi(0).size();i++){
+			for(unsigned int i=0;i<fb.getBandCqi(0).size();i++){
 				switch(i){
 					case 0:
 						tSample_->sample=fb.getBandCqi(0)[i];
@@ -752,7 +752,7 @@ void LteMacEnb::cqiStatistics(MacNodeId id,Direction dir,LteFeedback fb){
 			}
 
 		}else if(fb.getTxMode()==OL_SPATIAL_MULTIPLEXING){
-			for(int i=0;i<fb.getBandCqi(0).size();i++){
+			for(unsigned int i=0;i<fb.getBandCqi(0).size();i++){
 				switch(i){
 					case 0:
 						tSample_->sample=fb.getBandCqi(0)[i];
@@ -778,7 +778,7 @@ void LteMacEnb::cqiStatistics(MacNodeId id,Direction dir,LteFeedback fb){
 			}
 
 		}else if(fb.getTxMode()==MULTI_USER){
-			for(int i=0;i<fb.getBandCqi(0).size();i++){
+			for(unsigned int i=0;i<fb.getBandCqi(0).size();i++){
 				switch(i){
 					case 0:
 						tSample_->sample=fb.getBandCqi(0)[i];

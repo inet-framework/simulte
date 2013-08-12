@@ -89,7 +89,7 @@ void AmRxQueue::handleMessage(cMessage* msg)
 
 	// Reschedule the timer if there are PDUs in the buffer
 
-	for ( int i = 0; i < rxWindowDesc_.windowSize_; i++)
+	for (unsigned int i = 0; i < rxWindowDesc_.windowSize_; i++)
 	{
 		if (pduBuffer_.get(i) != 0)
 		{

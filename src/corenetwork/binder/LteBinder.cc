@@ -391,7 +391,7 @@ void LteBinder::parseParam(cModule* module, cXMLAttributeMap attr) {
 			continue;
 		// FIXME numbers could start with negative sign - or even space !!!
 		if (isdigit((it->second)[0])) {
-			if (it->second.find(".") != -1)
+			if (it->second.find(".") != string::npos)
 				module->par((it->first).c_str()) = atof((it->second).c_str());
 			else
 				module->par((it->first).c_str()) = atoi((it->second).c_str());
