@@ -13,7 +13,7 @@
 // along with this program.  If not, see http://www.gnu.org/licenses/.
 // 
 
-package lte.simulations.gtpNetwork;
+package lte.simulations.networks;
 
 import lte.epc.pgwStandard;
 import lte.epc.sgwStandard;

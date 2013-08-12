@@ -19,8 +19,8 @@ moduleinterface LtePhy {
     parameters:
         @display("i=block/wrxtx");
         bool usePropagationDelay;
-        xml analogueModels;
-        xml decider;
+        //xml analogueModels;
+        //xml decider;
         xml channelModel;
         
     gates:
@@ -36,8 +36,8 @@ simple LtePhyBase like LtePhy {
     parameters:
         @display("i=block/wrxtx");
         bool usePropagationDelay = default(true);                     // Should transmission delay be simulated?
-        xml analogueModels;                                         // Specification of the analogue models to use and their parameters
-        xml decider;                                                 // Specification of the decider to use and its parameters
+        //xml analogueModels;                                         // Specification of the analogue models to use and their parameters
+        //xml decider;                                                 // Specification of the decider to use and its parameters
         xml channelModel;
         double ueTxPower =default(26);
         double eNodeBTxPower =default(46);

@@ -8,11 +8,11 @@
 // The above file and the present reference are part of the software itself, 
 // and cannot be removed from it.
 // 
-package lte.simulations.demo;
+package lte.simulations.networks;
 
 import inet.networklayer.autorouting.ipv4.IPv4NetworkConfigurator;
 import inet.networklayer.ipv4.RoutingTableRecorder;
-import inet.nodes.ethernet.Eth10G;
+import inet.nodes.ethernet.Eth10M;
 import inet.nodes.inet.Router;
 import inet.nodes.inet.StandardHost;
 import inet.world.radio.ChannelControl;
@@ -21,10 +21,9 @@ import lte.corenetwork.nodes.Ue;
 import lte.corenetwork.nodes.eNodeB;
 
 
-network SingleCell
+network MultiCell
 {
     parameters:
-        int numUe = default(1);
         @display("i=block/network2;bgb=991,558;bgi=background/budapest");
     submodules:
         channelControl: ChannelControl {
@@ -35,7 +34,8 @@ network SingleCell
         }
         ipConfigurator: IPv4NetworkConfigurator {
             @display("p=50,125");
-            config = xmldoc("demo.xml");
+            config = xmldoc("multi.xml");
+            dumpTopology = true;
         }
         binder: LteBinder {
             @display("p=50,175;is=s");
@@ -43,16 +43,33 @@ network SingleCell
         server: StandardHost {
             @display("p=212,118;is=n;i=device/server");
         }
-        router: Router {
+        router1: Router {
             @display("p=321,136;i=device/smallrouter");
         }
-        eNodeB: eNodeB {
+        router2: Router {
+            @display("p=614,116;i=device/smallrouter");
+        }
+        eNodeB1: eNodeB {
             @display("p=391,259;is=vl");
         }
-        ue[numUe]: Ue {
-            @display("p=783,278");
+        eNodeB2: eNodeB {
+            @display("p=760,125;is=vl");
+        }
+        ue11: Ue {
+            @display("p=211,271");
+        }
+        ue12: Ue {
+            @display("p=537,424");
+        }
+        ue21: Ue {
+            @display("p=805,484");
+        }
+        ue22: Ue {
+            @display("p=950,271");
         }
     connections:
-        server.pppg++ <--> Eth10G <--> router.pppg++;
-        router.pppg++ <--> Eth10G <--> eNodeB.ppp;
+        server.pppg++ <--> Eth10M <--> router1.pppg++;
+        router1.pppg++ <--> Eth10M <--> router2.pppg++;
+        router1.pppg++ <--> Eth10M <--> eNodeB1.ppp;
+        router2.pppg++ <--> Eth10M <--> eNodeB2.ppp;
 }

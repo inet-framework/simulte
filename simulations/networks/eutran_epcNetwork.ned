@@ -9,7 +9,7 @@
 // and cannot be removed from it.
 // 
 
-package lte.simulations.simpleNetwork;
+package lte.simulations.networks;
 
 import lte.corenetwork.nodes.eNBpp;
 
@@ -29,7 +29,7 @@ import inet.nodes.inet.StandardHost;
 import inet.util.ThruputMeteringChannel;
 
 
-network lteSimpleCoreNetwork
+network eutran_epcNetwork
 {
     parameters:
         int numUe = default(1);
