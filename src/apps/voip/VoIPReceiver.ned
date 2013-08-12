@@ -30,6 +30,8 @@ simple VoIPReceiver like IUDPApp
         @statistic[VoIPFrameDelay](title="VoIP Frame Delay"; unit="s"; source="VoIPFrameDelay"; record=lteAvg);
         @statistic[VoIPPlayoutDelay](title="VoIP Playout Delay"; unit="s"; source="VoIPPlayoutDelay"; record=lteAvg);
         @statistic[VoIPPlayoutLoss](title="VoIP Playout Loss"; unit="ratio"; source="VoIPPlayoutLoss"; record=lteAvg);
+        @statistic[VoIPPlayoutLossSignal](title="VoIP Playout Loss"; unit="ratio"; source="VoIPPlayoutLossSignal"; record=mean,vector);
+        @statistic[VoIPJitterSignal](title="VoIP Playout Loss"; unit="ratio"; source="VoIPJitterSignal"; record=mean,vector);
         @statistic[VoIPMosSignal](title="VoIP Mos Signal"; unit="MOS"; source="VoIPMosSignal"; record=lteAvg);
         @statistic[VoIPTaildropLoss](title="VoIP Tail Drop Loss"; unit="ratio"; source="VoIPTaildropLoss"; record=lteAvg);
 

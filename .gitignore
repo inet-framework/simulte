@@ -11,6 +11,7 @@ src/Makefile.vc
 *.pcap
 *.sca
 *.vec
+*.anf
 
 # ignore binary files
 out/
@@ -33,3 +34,6 @@ out/
 *.bak
 backups
 *~
+
+.cproject
+.project

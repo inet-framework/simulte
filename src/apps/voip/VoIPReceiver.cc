@@ -63,6 +63,10 @@ void VoIPReceiver::initialize(int stage)
 	mMosSignal			= registerSignal("VoIPMosSignal");
 	mTaildropLossSignal	= registerSignal("VoIPTaildropLoss");
 
+	voIPJitterSignal = registerSignal("VoIPJitterSignal");
+	voIPPlayoutLossSignal = registerSignal("voIPPlayoutLossSignal");
+
+
 	mTaggedSample = new TaggedSample();
 	mTaggedSample->module = check_and_cast<cComponent*>(this);;
 	mTaggedSample->id = this->getId();
@@ -157,6 +161,8 @@ void VoIPReceiver::playout(bool finish)
 		EV<<"MISURATO JITTER PACCHETTO: "<<last_jitter<<" TALK "<<pPacket->getIDtalk()<<" FRAME "
 				<<pPacket->getIDframe()<<"\n\n";
 
+		emit(voIPJitterSignal , last_jitter);
+
 		//GESTIONE IN CASO DI DUPLICATI
 		if(isArrived[pPacket->getIDframe()])
 		{
@@ -225,6 +231,7 @@ void VoIPReceiver::playout(bool finish)
 	mTaggedSample->sample = mPlayoutDelay;
 	emit(mPlayoutDelaySignal,mTaggedSample);
 	mTaggedSample->sample = ((double)playoutLoss/(double)n_frames);
+	emit(voIPPlayoutLossSignal , mTaggedSample->sample);
 	emit(mPlayoutLossSignal, mTaggedSample);
 	mTaggedSample->sample = mos;
 	emit(mMosSignal, mTaggedSample);
