@@ -55,38 +55,17 @@ bool LteMacQueue::pushFront(cPacket *pkt)
 
 cPacket* LteMacQueue::popFront()
 {
-    if (getQueueLength() > 0)
-    {
-        return cPacketQueue::pop();
-    }
-    else
-    {    // Packet Queue Empty
-        return NULL;
-    }
+    return getQueueLength() > 0 ? cPacketQueue::pop() : NULL;
 }
 
 cPacket* LteMacQueue::popBack()
 {
-    if (getQueueLength() > 0)
-    {
-        return cPacketQueue::remove(cPacketQueue::back());
-    }
-    else
-    {    // Packet Queue Empty
-        return NULL;
-    }
+    return getQueueLength() > 0 ? cPacketQueue::remove(cPacketQueue::back()) : NULL;
 }
 
 simtime_t LteMacQueue::getHolTimestamp() const
 {
-    if (getQueueLength() > 0)
-    {
-        return cPacketQueue::front()->getTimestamp();
-    }
-    else
-    {
-        return 0;
-    }
+    return getQueueLength() > 0 ? cPacketQueue::front()->getTimestamp() : 0;
 }
 
 int64_t LteMacQueue::getQueueOccupancy() const

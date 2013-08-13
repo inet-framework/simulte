@@ -58,59 +58,41 @@ void LteMacBuffer::pushFront(PacketInfo pkt)
 
 PacketInfo LteMacBuffer::popFront()
 {
-    if (queueLength_ > 0)
-    {
-        PacketInfo pkt = Queue_.front();
-        Queue_.pop_front();
-        processed_++;
-        queueLength_--;
-        queueOccupancy_ -= pkt.first;
-        return pkt;
-    }
-    else
-    {    // Packet queue empty
+    if (queueLength_ <= 0)
         throw cRuntimeError("Packet queue empty");
-    }
+
+    PacketInfo pkt = Queue_.front();
+    Queue_.pop_front();
+    processed_++;
+    queueLength_--;
+    queueOccupancy_ -= pkt.first;
+    return pkt;
 }
 
 PacketInfo LteMacBuffer::popBack()
 {
-    if (queueLength_ > 0)
-    {
-        PacketInfo pkt = Queue_.back();
-        Queue_.pop_back();
-        queueLength_--;
-        queueOccupancy_ -= pkt.first;
-        return pkt;
-    }
-    else
-    {    // Packet queue empty
+    if (queueLength_ <= 0)
         throw cRuntimeError("Packet queue empty");
-    }
+
+    PacketInfo pkt = Queue_.back();
+    Queue_.pop_back();
+    queueLength_--;
+    queueOccupancy_ -= pkt.first;
+    return pkt;
 }
 
 PacketInfo& LteMacBuffer::front()
 {
-    if (queueLength_ > 0)
-    {
-        return Queue_.front();
-    }
-    else
-    {    // Packet queue empty
+    if (queueLength_ <= 0)
         throw cRuntimeError("Packet queue empty");
-    }
+    return Queue_.front();
 }
 
 PacketInfo LteMacBuffer::back() const
 {
-    if (queueLength_ > 0)
-    {
-        return Queue_.back();
-    }
-    else
-    {    // Packet queue empty
+    if (queueLength_ <= 0)
         throw cRuntimeError("Packet queue empty");
-    }
+    return Queue_.back();
 }
 
 void LteMacBuffer::setProcessed(unsigned int i)
@@ -120,14 +102,9 @@ void LteMacBuffer::setProcessed(unsigned int i)
 
 simtime_t LteMacBuffer::getHolTimestamp() const
 {
-    if (queueLength_ > 0)
-    {
-        return Queue_.front().second;
-    }
-    else
-    {    // Packet queue empty
+    if (queueLength_ <= 0)
         throw cRuntimeError("Packet queue empty");
-    }
+    return Queue_.front().second;
 }
 
 unsigned int LteMacBuffer::getProcessed() const
