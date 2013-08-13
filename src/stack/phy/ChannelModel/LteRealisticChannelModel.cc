@@ -421,13 +421,9 @@ double LteRealisticChannelModel::computeSpeed(const MacNodeId nodeId,
         else {
             double time = (NOW.dbl()) - (positionHistory_[nodeId].front().first.dbl());
             if (time <= 0.0) // time not updated since last speed call
-            {
                 throw cRuntimeError("Multiple entries detected in position history referring to same time");
-            }
-            else {
-                // compute speed
-                speed = (movement) / (time);
-            }
+            // compute speed
+            speed = (movement) / (time);
         }
     }
     return speed;
@@ -887,9 +883,8 @@ bool LteRealisticChannelModel::error(LteAirFrame *frame,
     unsigned char nTx = lteInfo->getTxNumber();
 
     //consistency check
-    if (nTx == 0) {
-        throw cRuntimeError("transmissions counter should not be 0");
-    }
+    if (nTx == 0)
+        throw cRuntimeError("Transmissions counter should not be 0");
 
     //Get txmode
     TxMode txmode = (TxMode) lteInfo->getTxMode();
@@ -937,8 +932,7 @@ bool LteRealisticChannelModel::error(LteAirFrame *frame,
 
             //Get the Bler
             if (cqi == 0 || cqi > 15)
-                throw cRuntimeError(
-                        "Error: a packet has been transmitted with a cqi equal to 0 or greater than 15 cqi:%d txmode:%d dir:%d rb:%d cw:%d rtx:%d", cqi,lteInfo->getTxMode(),dir,jt->second,cw,nTx);
+                throw cRuntimeError("A packet has been transmitted with a cqi equal to 0 or greater than 15 cqi:%d txmode:%d dir:%d rb:%d cw:%d rtx:%d", cqi,lteInfo->getTxMode(),dir,jt->second,cw,nTx);
             int snr = snrV[jt->first];  //XXX because jt->first is a Band (=unsigned short)
             if (snr < 0)
                 return false;
@@ -1058,8 +1052,7 @@ double LteRealisticChannelModel::computeUrbanMicro(double d, MacNodeId nodeId) {
             * ((carrierFrequency_ * 1000000000) / SPEED_OF_LIGHT);
     if (losMap_[nodeId]) {
         if (d > 5000)
-            throw cRuntimeError(
-                    "Error LOS urban microcell path loss model is valid for d<5000 m");
+            throw cRuntimeError("Error LOS urban microcell path loss model is valid for d<5000 m");
         if (d < dbp)
             return 22 * log10(d) + 28 + 20 * log10(carrierFrequency_);
         else
@@ -1067,8 +1060,7 @@ double LteRealisticChannelModel::computeUrbanMicro(double d, MacNodeId nodeId) {
                     - 18 * log10(hUe_ - 1) + 2 * log10(carrierFrequency_);
     }
     if (d > 2000 || d < 10)
-        throw cRuntimeError(
-                "Error NLOS urban microcell path loss model is valid for 10d<2000 m");
+        throw cRuntimeError("Error NLOS urban microcell path loss model is valid for 10d<2000 m");
     return 36.7 * log10(d) + 22.7 + 26 * log10(carrierFrequency_);
 }
 
@@ -1080,8 +1072,7 @@ double LteRealisticChannelModel::computeUrbanMacro(double d, MacNodeId nodeId) {
             * ((carrierFrequency_ * 1000000000) / SPEED_OF_LIGHT);
     if (losMap_[nodeId]) {
         if (d > 5000)
-            throw cRuntimeError(
-                    "Error LOS urban microcell path loss model is valid for d<5000 m");
+            throw cRuntimeError("Error LOS urban microcell path loss model is valid for d<5000 m");
         if (d < dbp)
             return 22 * log10(d) + 28 + 20 * log10(carrierFrequency_);
         else
@@ -1089,8 +1080,7 @@ double LteRealisticChannelModel::computeUrbanMacro(double d, MacNodeId nodeId) {
                     - 18 * log10(hUe_ - 1) + 2 * log10(carrierFrequency_);
     }
     if (d > 5000)
-        throw cRuntimeError(
-                "Error NLOS urban microcell path loss model is valid for 10d<2000 m");
+        throw cRuntimeError("Error NLOS urban microcell path loss model is valid for 10d<2000 m");
     double att = 161.04 - 7.1 * log10(wStreet_) + 7.5 * log10(hBuilding_)
             - (24.37 - 3.7 * pow(hBuilding_ / hNodeB_, 2)) * log10(hNodeB_)
             + (43.42 - 3.1 * log10(hNodeB_)) * (log10(d) - 3)
@@ -1108,8 +1098,7 @@ double LteRealisticChannelModel::computeSubUrbanMacro(double d, double& dbp,
             * ((carrierFrequency_ * 1000000000) / SPEED_OF_LIGHT);
     if (losMap_[nodeId]) {
         if (d > 5000)
-            throw cRuntimeError(
-                    "Error LOS urban microcell path loss model is valid for d<5000 m");
+            throw cRuntimeError("Error LOS urban microcell path loss model is valid for d<5000 m");
         double a1 = (0.03 * pow(hBuilding_, 1.72));
         double b1 = 0.044 * pow(hBuilding_, 1.72);
         double a = (a1 < 10) ? a1 : 10;
@@ -1125,8 +1114,7 @@ double LteRealisticChannelModel::computeSubUrbanMacro(double d, double& dbp,
                     + 40 * log10(d / dbp);
     }
     if (d > 5000)
-        throw cRuntimeError(
-                "Error NLOS urban microcell path loss model is valid for 10d<2000 m");
+        throw cRuntimeError("Error NLOS urban microcell path loss model is valid for 10d<2000 m");
     double att = 161.04 - 7.1 * log10(wStreet_) + 7.5 * log10(hBuilding_)
             - (24.37 - 3.7 * pow(hBuilding_ / hNodeB_, 2)) * log10(hNodeB_)
             + (43.42 - 3.1 * log10(hNodeB_)) * (log10(d) - 3)
@@ -1144,8 +1132,7 @@ double LteRealisticChannelModel::computeRuralMacro(double d, double& dbp,
             * ((carrierFrequency_ * 1000000000) / SPEED_OF_LIGHT);
     if (losMap_[nodeId]) {
         if (d > 5000)
-            throw cRuntimeError(
-                    "Error LOS urban microcell path loss model is valid for d<5000 m");
+            throw cRuntimeError("Error LOS urban microcell path loss model is valid for d<5000 m");
         double a1 = (0.03 * pow(hBuilding_, 1.72));
         double b1 = 0.044 * pow(hBuilding_, 1.72);
         double a = (a1 < 10) ? a1 : 10;
@@ -1159,8 +1146,7 @@ double LteRealisticChannelModel::computeRuralMacro(double d, double& dbp,
                     + 40 * log10(d / dbp);
     }
     if (d > 10000)
-        throw cRuntimeError(
-                "Error NLOS urban microcell path loss model is valid for 10d<2000 m");
+        throw cRuntimeError("Error NLOS urban microcell path loss model is valid for 10d<2000 m");
     double att = 161.04 - 7.1 * log10(wStreet_) + 7.5 * log10(hBuilding_)
             - (24.37 - 3.7 * pow(hBuilding_ / hNodeB_, 2)) * log10(hNodeB_)
             + (43.42 - 3.1 * log10(hNodeB_)) * (log10(d) - 3)

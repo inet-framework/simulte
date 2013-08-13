@@ -45,9 +45,8 @@ void LteDrr::prepareSchedule (){
         unsigned int scheduled = eNbScheduler_->scheduleGrant (cid, desc.deficit_, terminateFlag, activeFlag, eligibleFlag);
 
         if(desc.deficit_ - scheduled < 0)
-        {
             throw cRuntimeError("LteDrr::execSchedule CID:%d unexpected deficit value of %d",cid,desc.deficit_);
-        }
+
         // Update the deficit counter.
         desc.deficit_ -= scheduled;
 

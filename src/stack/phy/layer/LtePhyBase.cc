@@ -1,13 +1,13 @@
-// 
+//
 //                           SimuLTE
 // Copyright (C) 2012 Antonio Virdis, Daniele Migliorini, Giovanni
 // Accongiagioco, Generoso Pagano, Vincenzo Pii.
-// 
+//
 // This file is part of a software released under the license included in file
 // "license.pdf". This license can be also found at http://www.ltesimulator.com/
-// The above file and the present reference are part of the software itself, 
+// The above file and the present reference are part of the software itself,
 // and cannot be removed from it.
-// 
+//
 
 
 #include "LtePhyBase.h"
@@ -149,39 +149,32 @@ void LtePhyBase::handleUpperMessage(cMessage* msg) {
 }
 
 void LtePhyBase::initializeChannelModel(cXMLElement* xmlConfig) {
-    if (xmlConfig == 0) {
+    if (xmlConfig == 0)
         throw cRuntimeError("No channel models configuration file specified");
-    }
 
     // Get channel Model field which contains parameters fields
     cXMLElementList channelModelList = xmlConfig->getElementsByTagName("ChannelModel");
 
     if (channelModelList.empty())
-    {
         throw cRuntimeError("No channel models configuration found in configuration file");
-    }
+
     if (channelModelList.size() > 1)
-    {
         throw cRuntimeError("More than one channel configuration found in configuration file.");
-    }
 
     cXMLElement* channelModelData = channelModelList.front();
 
     const char* name = channelModelData->getAttribute("type");
 
     if (name == 0)
-    {
         throw cRuntimeError("Could not read name of channel model");
-    }
+
     ParameterMap params;
     getParametersFromXML(channelModelData, params);
 
     LteChannelModel* newChannelModel = getChannelModelFromName(name, params);
 
     if (newChannelModel == 0)
-    {
-        throw cRuntimeError("Could not find an channel model with the name \"%s\" ",name);
-    }
+        throw cRuntimeError("Could not find a channel model with the name \"%s\" ", name);
 
     // attach the new AnalogueModel to the AnalogueModelList
     channelModel_ = newChannelModel;
@@ -277,12 +270,9 @@ void LtePhyBase::sendUnicast(LteAirFrame *frame) {
     MacNodeId dest = ci->getDestId();
     // destination node (UE, RELAY or ENODEB) omnet id
     OmnetId destOmnetId = binder_->getOmnetId(dest);
-    if (destOmnetId == 0) {
-        throw cRuntimeError(
-                "dest module may not exist if the module with that IP address has not been deployed");
-        delete frame;
-        return;
-    }
+    if (destOmnetId == 0)
+        throw cRuntimeError("Dest module may not exist if the module with that IP address has not been deployed");
+
     // get a pointer to receiving module
     cModule *receiver = simulation.getModule(destOmnetId);
     // receiver's gate

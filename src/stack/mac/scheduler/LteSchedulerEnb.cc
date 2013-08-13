@@ -441,7 +441,8 @@ unsigned int LteSchedulerEnb::scheduleGrant(MacCid cid, unsigned int bytes,
                 {
                     unsigned int blocksAdded = mac_->getAmc()->computeReqRbs(nodeId,b, cw, bandAllocatedBytes, direction_);
 
-                    if (blocksAdded>bandAvailableBlocks) throw cRuntimeError("band %d GRANT allocation overflow : avail. blocks %d alloc. blocks %d",b,bandAvailableBlocks,blocksAdded);
+                    if (blocksAdded>bandAvailableBlocks)
+                        throw cRuntimeError("band %d GRANT allocation overflow : avail. blocks %d alloc. blocks %d",b,bandAvailableBlocks,blocksAdded);
 
                     EV << "LteSchedulerEnb::grant Booking band available blocks" << (bandAvailableBlocks-blocksAdded) << " [" << bandAvailableBytes << " bytes] for future use, going to next band"<<endl;
                     // enable booking  here
@@ -529,9 +530,11 @@ unsigned int LteSchedulerEnb::scheduleGrant(MacCid cid, unsigned int bytes,
                     EV << "LteSchedulerEnb::grant band " << (unsigned short)b << " scheduled  "<<toServe<<" bytes " << " using " <<bookedUsed << " resources on other bands and "
                     << (toServe-bookedUsed) << " on its own space which was " << bandAvailableBytes << endl;
 
-                    if ((toServe-bookedUsed)>bandAvailableBytes) throw cRuntimeError(" Booked resources allocation exited in an abnormal state ");
+                    if ((toServe-bookedUsed)>bandAvailableBytes)
+                        throw cRuntimeError(" Booked resources allocation exited in an abnormal state ");
 
-                    //if (bandAvailableBytes < ((toServe+bookedUsed))) throw cRuntimeError (" grant allocation overflow ");
+                    //if (bandAvailableBytes < ((toServe+bookedUsed)))
+                    //    throw cRuntimeError (" grant allocation overflow ");
 
                     // Updating available and allocated data counters
                     bandAvailableBytes -= (toServe-bookedUsed);
@@ -570,7 +573,8 @@ unsigned int LteSchedulerEnb::scheduleGrant(MacCid cid, unsigned int bytes,
             {
                 unsigned int blocksAdded = mac_->getAmc()->computeReqRbs(nodeId,b, cw, bandAllocatedBytes, direction_);
 
-                if (blocksAdded>bandAvailableBlocks) throw cRuntimeError("band %d GRANT allocation overflow : avail. blocks %d alloc. blocks %d",b,bandAvailableBlocks,blocksAdded);
+                if (blocksAdded>bandAvailableBlocks)
+                    throw cRuntimeError("band %d GRANT allocation overflow: avail. blocks %d alloc. blocks %d",b,bandAvailableBlocks,blocksAdded);
 
                 // update available blocks
                 bandAvailableBlocks-=blocksAdded;
@@ -581,7 +585,8 @@ unsigned int LteSchedulerEnb::scheduleGrant(MacCid cid, unsigned int bytes,
                     if (allocator_->addBlocks(antenna,b,nodeId,blocksAdded,bandAllocatedBytes))
                     {
                         totalAllocatedBlocks+=blocksAdded;
-                    } else throw cRuntimeError("band %d ALLOCATOR allocation overflow - allocation failed in allocator",b);
+                    } else
+                        throw cRuntimeError("band %d ALLOCATOR allocation overflow - allocation failed in allocator",b);
                 }
                 cwAllocatedBlocks +=blocksAdded;
 
@@ -598,7 +603,8 @@ unsigned int LteSchedulerEnb::scheduleGrant(MacCid cid, unsigned int bytes,
                         (*bandLim).at(i).limit_.at(cw) -= bandAllocatedBytes;
                     }
 
-                    if ((*bandLim).at(i).limit_.at(cw) <0) throw cRuntimeError("BandLimit Main Band %d decreasing inconsistency : %d",b,(*bandLim).at(i).limit_.at(cw));
+                    if ((*bandLim).at(i).limit_.at(cw) <0)
+                        throw cRuntimeError("BandLimit Main Band %d decreasing inconsistency : %d",b,(*bandLim).at(i).limit_.at(cw));
                 }
             }
 
@@ -712,7 +718,7 @@ unsigned int LteSchedulerEnb::availableBytes(const MacNodeId id,
     int blocks = allocator_->availableBlocks(id,antenna,b);
     //Consistency Check
     if (limit>blocks && limit!=-1)
-    throw cRuntimeError("LteSchedulerEnb::availableBytes signaled limit inconsistency with available space band b %d, limit %d, available blocks %d",b,limit,blocks);
+        throw cRuntimeError("LteSchedulerEnb::availableBytes signaled limit inconsistency with available space band b %d, limit %d, available blocks %d",b,limit,blocks);
 
     if (limit!=-1)
     blocks=(blocks>limit)?limit:blocks;
@@ -739,7 +745,7 @@ LteScheduler* LteSchedulerEnb::getScheduler(SchedDiscipline discipline) {
         return new LteMaxCi();
 
         default:
-        throw cRuntimeError("Fatal! LteScheduler not recognized. Ending simulation.");
+        throw cRuntimeError("LteScheduler not recognized");
         return NULL;
     }
 }
@@ -827,7 +833,7 @@ void LteSchedulerEnb::resourceBlockStatistics(bool sleep) {
         tSample_->sample = depletedPower;
         mac_->emit(depletedPowerUl_,tSample_);
     } else {
-        throw cRuntimeError("FATAL! Unrecognized direction in LteSchedulerEnb::resourceBlockStatistics, Aborting.");
+        throw cRuntimeError("LteSchedulerEnb::resourceBlockStatistics(): Unrecognized direction %d", direction_);
     }
 }
 ActiveSet LteSchedulerEnb::readActiveConnections() {

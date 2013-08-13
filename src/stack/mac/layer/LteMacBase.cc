@@ -1,13 +1,13 @@
-// 
+//
 //                           SimuLTE
 // Copyright (C) 2012 Antonio Virdis, Daniele Migliorini, Giovanni
 // Accongiagioco, Generoso Pagano, Vincenzo Pii.
-// 
+//
 // This file is part of a software released under the license included in file
 // "license.pdf". This license can be also found at http://www.ltesimulator.com/
-// The above file and the present reference are part of the software itself, 
+// The above file and the present reference are part of the software itself,
 // and cannot be removed from it.
-// 
+//
 
 
 #include "InterfaceTableAccess.h"
@@ -90,7 +90,7 @@ void LteMacBase::fromPhy(cPacket *pkt)
             // if a feeback arrives, a tx buffer must exists (unless it is an handover scenario
             // where the harq buffer was deleted but a feedback was in transit)
             // this case must be taken care of
-            throw cRuntimeError("Mac::fromPhy: Received feedback for an unexisting H-ARQ tx buffer");
+            throw cRuntimeError("Mac::fromPhy(): Received feedback for an unexisting H-ARQ tx buffer");
         }
         LteHarqFeedback *hfbpkt = check_and_cast<LteHarqFeedback *>(pkt);
         htit->second->receiveHarqFeedback(hfbpkt);
@@ -129,7 +129,7 @@ void LteMacBase::fromPhy(cPacket *pkt)
         macHandleRac(pkt);
     }
     else {
-        throw cRuntimeError("Unknown packet type , aborting");
+        throw cRuntimeError("Unknown packet type %d", (int)userInfo->getFrameType());
     }
 }
 

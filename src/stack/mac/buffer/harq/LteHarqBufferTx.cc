@@ -114,15 +114,11 @@ void LteHarqBufferTx::insertPdu(unsigned char acid,Codeword cw, LteMacPdu *pdu)
     {
         // the process has not been used for rtx, or it is the first TB inserted, it must be completely empty
         if (!(*processes_)[acid]->isEmpty())
-        {
             throw cRuntimeError("H-ARQ TX buffer: new process selected for tx is not completely empty");
-        }
     }
 
     if (!(*processes_)[acid]->isUnitEmpty(cw))
-    {
-        throw cRuntimeError("H-ARQ TX buffer: insertPdu, unit is not empty");
-    }
+        throw cRuntimeError("LteHarqBufferTx::insertPdu(): unit is not empty");
 
     selectedAcid_ = acid;
     numEmptyProc_--;
@@ -194,8 +190,6 @@ void LteHarqBufferTx::receiveHarqFeedback(LteHarqFeedback *fbpkt)
         EV << "PDU id: " << unitPduId << endl;
         // todo: comment endsim after tests
         throw cRuntimeError("H-ARQ TX: fb is not for the pdu in this unit, maybe the addressed one was dropped");
-        delete fbpkt;
-        return;
     }
     bool reset = (*processes_)[acid]->pduFeedback(harqResult, cw);
     if (reset)

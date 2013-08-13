@@ -226,10 +226,7 @@ LteSchedulerEnbDl::schedulePerAcidRtx(MacNodeId nodeId, Codeword cw, unsigned ch
         // TODO fixme this only works if MAX_CODEWORDS ==2
         --codewords;
         if (codewords<=0)
-        {
-            throw cRuntimeError(  "FATAL!  LteSchedulerEnbDl::rtxAcid , erroneus codeword count %d ABORTING ! ",codewords ) ;
-
-        }
+            throw cRuntimeError("LteSchedulerEnbDl::rtxAcid(): erroneus codeword count %d", codewords);
     }
 
     // signal a retransmission

@@ -79,6 +79,6 @@ void LteScheduler::initializeGrants()
         grantSizeMap_[BACKGROUND]     = mac_->par("grantSizeBackgroundUl");
     }
     else {
-        throw cRuntimeError("Fatal! Unknown direction.");
+        throw cRuntimeError("Unknown direction %d", direction_);
     }
 }

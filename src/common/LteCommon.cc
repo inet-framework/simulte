@@ -1,13 +1,13 @@
-// 
+//
 //                           SimuLTE
 // Copyright (C) 2012 Antonio Virdis, Daniele Migliorini, Giovanni
 // Accongiagioco, Generoso Pagano, Vincenzo Pii.
-// 
+//
 // This file is part of a software released under the license included in file
 // "license.pdf". This license can be also found at http://www.ltesimulator.com/
-// The above file and the present reference are part of the software itself, 
+// The above file and the present reference are part of the software itself,
 // and cannot be removed from it.
-// 
+//
 
 
 #include "LteCommon.h"
@@ -419,8 +419,7 @@ MacCid ctrlInfoToMacCid(LteControlInfo * info)
         ueId = info->getSourceId();
         break;
     default:
-        throw cRuntimeError("ctrlInfoToMacCid - unknown direction\n");
-        break;
+        throw cRuntimeError("ctrlInfoToMacCid(): unknown direction %d", dir);
     }
     EV << "ctrlInfoToMacCid - dir[" << dir << "] - ueId[" << ueId << "] - lcid[" << lcid << "]" << endl;
     return idToMacCid(ueId,lcid);
@@ -450,8 +449,7 @@ MacNodeId ctrlInfoToUeId(LteControlInfo * info)
         ueId = info->getSourceId();
         break;
     default:
-        throw cRuntimeError("ctrlInfoToMacCid - unknown direction\n");
-        break;
+        throw cRuntimeError("ctrlInfoToMacCid - unknown direction %d", dir);
     }
     return ueId;
 }
@@ -571,7 +569,7 @@ parseStringToIntArray(std::string str, int* values, int dim, int pad) {
     }
     if (!str.empty())
     {
-        throw cRuntimeError( "parseStringToIntArray: Error: more values in string than nodes");
+        throw cRuntimeError( "parseStringToIntArray(): more values in string than nodes");
     }
     return;
 }

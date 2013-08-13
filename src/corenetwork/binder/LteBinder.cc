@@ -1,13 +1,13 @@
-// 
+//
 //                           SimuLTE
 // Copyright (C) 2012 Antonio Virdis, Daniele Migliorini, Giovanni
 // Accongiagioco, Generoso Pagano, Vincenzo Pii.
-// 
+//
 // This file is part of a software released under the license included in file
 // "license.pdf". This license can be also found at http://www.ltesimulator.com/
-// The above file and the present reference are part of the software itself, 
+// The above file and the present reference are part of the software itself,
 // and cannot be removed from it.
-// 
+//
 
 
 #include "LteBinder.h"
@@ -496,8 +496,7 @@ void LteBinder::transportAppAttach(cModule* parentModule, cModule* appModule,
         appTgateOut = transport + "Out";
         appTgateIn = transport + "In";
     } else
-        throw cRuntimeError(
-                "LteBinder::transportAppAttach urecognized transport layer %s",
+        throw cRuntimeError("LteBinder::transportAppAttach(): unrecognized transport layer %s",
                 transport.c_str());
 
     cModule* tLayer = parentModule->getSubmodule(transport.c_str());
@@ -586,10 +585,8 @@ void LteBinder::attachAppModule(cModule *parentModule, std::string IPAddr,
         module = mt->create("udpApp", parentModule);
         transportAppAttach(parentModule, module, string("udp"));
     }
-
     else {
-        throw cRuntimeError(
-                std::string("LteBinder::attachAppModule : unrecognized application type " + appType).c_str());
+        throw cRuntimeError("LteBinder::attachAppModule(): unrecognized application type %s", appType.c_str());
     }
 
     parseParam(module, attr);
@@ -712,19 +709,15 @@ void LteBinder::unregisterNextHop(MacNodeId masterId, MacNodeId slaveId) {
 
 OmnetId LteBinder::getOmnetId(MacNodeId nodeId) {
     Enter_Method("getOmnetId");
-    if (nodeId >= nodeIds_.size()) {
-        throw cRuntimeError("LteBinder::getOmnetId - Aborting Requested bad node %d",
-                nodeId);
-    }
+    if (nodeId >= nodeIds_.size())
+        throw cRuntimeError("LteBinder::getOmnetId(): bad node %d", nodeId);
     return nodeIds_[nodeId];
 }
 
 MacNodeId LteBinder::getNextHop(MacNodeId slaveId) {
     Enter_Method("getNextHop");
-    if (slaveId >= nextHop_.size()) {
-        throw cRuntimeError("LteBinder::getNextHop - Aborting Requested bad slave id %d",
-                slaveId);
-    }
+    if (slaveId >= nextHop_.size())
+        throw cRuntimeError("LteBinder::getNextHop(): bad slave id %d", slaveId);
     return nextHop_[slaveId];
 }
 

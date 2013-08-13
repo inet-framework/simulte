@@ -176,9 +176,8 @@ unsigned int LteAllocationModule::computeTotalRbs()
     int availableBlocks = resourceBlocks - allocatedBlocks;
 
     // available blocks MUST be a non negative amount
-    if(availableBlocks < 0) {
-        throw cRuntimeError( "FATAL! Negative OFDM Space in LteAllocator::checkOFDMspace." );
-    }
+    if(availableBlocks < 0)
+        throw cRuntimeError("LteAllocator::checkOFDMspace(): Negative OFDM space");
 
     // DEBUG
     EV << NOW << " LteAllocationModule::computeTotalRbs "<<dirToA(dir_)<<" - total "<<resourceBlocks<<
@@ -255,10 +254,8 @@ bool LteAllocationModule::addBlocks(const Band band, const MacNodeId nodeId,cons
 bool LteAllocationModule::addBlocks(const Remote antenna, const Band band, const MacNodeId nodeId, const  unsigned int blocks, const unsigned int bytes)
 {
     // Check if the band exists
-    if(band >= bands_) {
-        // Band does not exists
-        throw cRuntimeError("FATAL! LteAllocator::addBlocks - Invalid band. ");
-    }
+    if(band >= bands_)
+        throw cRuntimeError("LteAllocator::addBlocks(): Invalid band %d", (int)band);
 
     // Check if there's enough OFDM space
     // retrieving user's plane

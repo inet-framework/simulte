@@ -334,46 +334,31 @@ void LteDlFeedbackGenerator::initializeFeedbackComputation(
         cXMLElement* xmlConfig) {
     lteFeedbackComputation_ = 0;
 
-    if (xmlConfig == 0) {
+    if (xmlConfig == 0)
         throw cRuntimeError("No feedback computation configuration file specified.");
-        return;
-    }
 
-    cXMLElementList fbComputationList = xmlConfig->getElementsByTagName(
-            "FeedbackComputation");
+    cXMLElementList fbComputationList = xmlConfig->getElementsByTagName("FeedbackComputation");
 
-    if (fbComputationList.empty()) {
-        throw cRuntimeError(
-                "No feedback computation configuration found in configuration file.");
-        return;
-    }
+    if (fbComputationList.empty())
+        throw cRuntimeError("No feedback computation configuration found in configuration file.");
 
-    if (fbComputationList.size() > 1) {
-        throw cRuntimeError(
-                "More than one feedback computation configuration found in configuration file.");
-        return;
-    }
+    if (fbComputationList.size() > 1)
+        throw cRuntimeError("More than one feedback computation configuration found in configuration file.");
 
     cXMLElement* fbComputationData = fbComputationList.front();
 
     const char* name = fbComputationData->getAttribute("type");
 
-    if (name == 0) {
-        throw cRuntimeError(
-                "Could not read type of feedback computation from configuration file.");
-        return;
-    }
+    if (name == 0)
+        throw cRuntimeError("Could not read type of feedback computation from configuration file.");
 
     ParameterMap params;
     getParametersFromXML(fbComputationData, params);
 
     lteFeedbackComputation_ = getFeedbackComputationFromName(name, params);
 
-    if (lteFeedbackComputation_ == 0 && !feedbackComputationPisa_) {
-        throw cRuntimeError("Could not find a feedback computation with the name \"%s\".",
-                name);
-        return;
-    }
+    if (lteFeedbackComputation_ == 0 && !feedbackComputationPisa_)
+        throw cRuntimeError("Could not find a feedback computation with the name \"%s\".", name);
 
     EV << "Feedback Computation \"" << name << "\" loaded." << endl;
 }

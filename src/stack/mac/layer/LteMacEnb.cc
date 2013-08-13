@@ -82,9 +82,7 @@ SchedDiscipline LteMacEnb::getSchedDiscipline(Direction dir) {
         return aToSchedDiscipline(
                 par("schedulingDisciplineUl").stdstringValue());
     else {
-        throw cRuntimeError(
-                "FATAL! Unrecognized direction in LteMacEnb::getSchedDiscipline.");
-        return UNKNOWN_DISCIPLINE;
+        throw cRuntimeError("LteMacEnb::getSchedDiscipline(): unrecognized direction %d", (int)dir);
     }
 }
 
@@ -420,9 +418,8 @@ void LteMacEnb::macPduMake(LteMacScheduleList* scheduleList) {
         while (sduPerCid > 0) {
 
             if ((mbuf_[destCid]->getQueueLength()) < (int) sduPerCid) {
-                throw cRuntimeError(
-                        "FATAL! abnormal queue length detected while building MAC PDU for cid %d "
-                            "Queue real SDU length is %d  while scheduled SDUs are %d Aborting",
+                throw cRuntimeError("Abnormal queue length detected while building MAC PDU for cid %d "
+                            "Queue real SDU length is %d  while scheduled SDUs are %d",
                         destCid, mbuf_[destCid]->getQueueLength(), sduPerCid);
             }
 
@@ -460,9 +457,8 @@ void LteMacEnb::macPduMake(LteMacScheduleList* scheduleList) {
                 macPkt = pit->second;
             }
             if (mbuf_[destCid]->getQueueLength() == 0) {
-                throw cRuntimeError(
-                        "FATAL! abnormal queue length detected while building MAC PDU for cid %d "
-                            "Queue real SDU length is %d  while scheduled SDUs are %d Aborting",
+                throw cRuntimeError("Abnormal queue length detected while building MAC PDU for cid %d "
+                            "Queue real SDU length is %d  while scheduled SDUs are %d",
                         destCid, mbuf_[destCid]->getQueueLength(), sduPerCid);
             }
             pkt = mbuf_[destCid]->popFront();
@@ -503,11 +499,8 @@ void LteMacEnb::macPduMake(LteMacScheduleList* scheduleList) {
                     << endl;
             delete macPkt;
         } else {
-            if (txList.first == HARQ_NONE) {
-                throw cRuntimeError(
-                        "LteMacBase: pduMaker sending to uncorrect void H-ARQ process. Aborting");
-            }
-
+            if (txList.first == HARQ_NONE)
+                throw cRuntimeError("LteMacBase: pduMaker sending to uncorrect void H-ARQ process. Aborting");
             txBuf->insertPdu(txList.first, cw, macPkt);
         }
     }

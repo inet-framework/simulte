@@ -1,13 +1,13 @@
-// 
+//
 //                           SimuLTE
 // Copyright (C) 2012 Antonio Virdis, Daniele Migliorini, Giovanni
 // Accongiagioco, Generoso Pagano, Vincenzo Pii.
-// 
+//
 // This file is part of a software released under the license included in file
 // "license.pdf". This license can be also found at http://www.ltesimulator.com/
-// The above file and the present reference are part of the software itself, 
+// The above file and the present reference are part of the software itself,
 // and cannot be removed from it.
-// 
+//
 
 
 #include "LteHarqBufferRx.h"
@@ -120,13 +120,10 @@ std::list<LteMacPdu *> LteHarqBufferRx::extractCorrectPdus() {
                 tSample_->sample = (NOW - temp->getCreationTime()).dbl();
                 if (info->getDirection() == DL) {
                     tSample_->id = info->getDestId();
-
                 } else if (info->getDirection() == UL) {
                     tSample_->id = info->getSourceId();
-
                 } else {
-                    throw cRuntimeError(
-                            "LteHarqBufferRx::extractCorrectPdus unknown direction");
+                    throw cRuntimeError("LteHarqBufferRx::extractCorrectPdus(): unknown direction %d", (int)info->getDirection());
                 }
                 macOwner_->emit(macDelay_, tSample_);
 
@@ -144,7 +141,7 @@ std::list<LteMacPdu *> LteHarqBufferRx::extractCorrectPdus() {
                     tSample_->id = info->getSourceId();
                     tSampleCell_->id = info->getDestId();
                 } else {
-                    throw cRuntimeError("Unknow direction");
+                    throw cRuntimeError("LteHarqBufferRx::extractCorrectPdus(): unknown nodeType %d", (int)macOwner_->getNodeType());
                 }
                 nodeb->emit(macCellThroughput_, tSampleCell_);
                 macOwner_->emit(macThroughput_, tSample_);

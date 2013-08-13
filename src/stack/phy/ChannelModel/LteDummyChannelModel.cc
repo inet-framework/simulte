@@ -21,9 +21,8 @@ LteDummyChannelModel::LteDummyChannelModel(ParameterMap& params,int band) : LteC
     }
     else
         per_=0.1;
-    if (per_ <0 || per_ > 1){
-        throw cRuntimeError("PER should be smaller than 1 and greater than 0");
-    }
+    if (per_ <0 || per_ > 1)
+        throw cRuntimeError("Wrong PER value %g: should be smaller than 1 and greater than 0", per_);
 
     it = params.find("harqReduction");
     if (it != params.end()) {

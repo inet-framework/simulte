@@ -42,9 +42,7 @@ void VoDUDPServer::initialize(int stage)
         if(traceType=="SVC"){
                infile.open(inputFileName.c_str(),ios::in);
                if (infile.bad()) /* Or file is bad */
-                  {
-                      throw cRuntimeError("Error while opening input file (File not found or incorrect type)\n");
-                  }
+                      throw cRuntimeError("Error while opening input file (File not found or incorrect type)");
 
                infile.seekg(0, ios::beg);
                long int i=0;
@@ -71,34 +69,26 @@ void VoDUDPServer::initialize(int stage)
             * SourceModel's
             */
 
-            if (stat(inputFileName.c_str(), (struct stat *)&buf)) {
-                throw cRuntimeError("Error while opening input file (File not found or incorrect type)\n");
-             }
+            if (stat(inputFileName.c_str(), (struct stat *)&buf))
+                throw cRuntimeError("Error while opening input file (File not found or incorrect type)");
 
              nrec_ = buf.st_size/sizeof(tracerec);
              unsigned nrecplus = nrec_ * sizeof(tracerec);
              unsigned bufst = buf.st_size;
                //      if ((unsigned)(nrec_ * sizeof(tracerec)) != buf.st_size) {
-               if (nrecplus != bufst) {
-                   throw cRuntimeError("bad file size in %s\n", inputFileName.c_str());
-
-               }
+               if (nrecplus != bufst)
+                   throw cRuntimeError("bad file size in %s", inputFileName.c_str());
 
                trace_ = new tracerec[nrec_];
 
-               if ((fp = fopen(inputFileName.c_str(), "rb")) == NULL) {
-                        throw cRuntimeError("can't open file %s\n", inputFileName.c_str());
-
-                   }
+               if ((fp = fopen(inputFileName.c_str(), "rb")) == NULL)
+                        throw cRuntimeError("can't open file %s", inputFileName.c_str());
 
                for (unsigned int i= 0; i < nrec_; i++){
-                       if (fread((char *)&t, sizeof(tracerec), 1, fp) != 1) {
-                               throw cRuntimeError("read failed\n");
-                       }
-                       else {
-                           trace_[i].trec_time=ntohl(t.trec_time);
-                           trace_[i].trec_size=ntohl(t.trec_size);
-                       }
+                       if (fread((char *)&t, sizeof(tracerec), 1, fp) != 1)
+                               throw cRuntimeError("read failed");
+                       trace_[i].trec_time=ntohl(t.trec_time);
+                       trace_[i].trec_size=ntohl(t.trec_size);
                }
                 fclose(fp);
            }

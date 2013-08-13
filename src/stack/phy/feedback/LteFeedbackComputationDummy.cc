@@ -242,7 +242,7 @@ void LteFeedbackComputationDummy::generateBaseFeedback(int numBands,int numPrefe
                 }else if (txmode==SINGLE_ANTENNA_PORT5){
                     newCqi[j]=0;
                 }else {
-                    throw cRuntimeError("TxMode not recognized");
+                    throw cRuntimeError("Wrong TxMode %d", txmode);
                 }
         }
             fb.setTxMode(txmode);

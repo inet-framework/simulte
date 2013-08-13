@@ -1,13 +1,13 @@
-// 
+//
 //                           SimuLTE
 // Copyright (C) 2012 Antonio Virdis, Daniele Migliorini, Giovanni
 // Accongiagioco, Generoso Pagano, Vincenzo Pii.
-// 
+//
 // This file is part of a software released under the license included in file
 // "license.pdf". This license can be also found at http://www.ltesimulator.com/
-// The above file and the present reference are part of the software itself, 
+// The above file and the present reference are part of the software itself,
 // and cannot be removed from it.
-// 
+//
 
 
 #include "LteHarqProcessRx.h"
@@ -36,15 +36,11 @@ void LteHarqProcessRx::insertPdu(Codeword cw,LteMacPdu *pdu)
 
     EV << "LteHarqProcessRx::insertPdu - ndi is " << ndi << endl;
     if (ndi && !(status_.at(cw) == RXHARQ_PDU_EMPTY) )
-    {
-        throw cRuntimeError("ERROR! Unhandled exception:  new data arriving in busy harq process ");
-    }
+        throw cRuntimeError("New data arriving in busy harq process -- this should not happen");
 
     if (!ndi && !(status_.at(cw) == RXHARQ_PDU_EMPTY) && !(status_.at(cw) == RXHARQ_PDU_CORRUPTED))
-    {
-        throw cRuntimeError("Trying to insert macPdu in not empty rx harq process : Node %d acid %d, codeword %d, ndi %d, status %d",
+        throw cRuntimeError("Trying to insert macPdu in non-empty rx harq process: Node %d acid %d, codeword %d, ndi %d, status %d",
                 macOwner_->getMacNodeId() , acid_ , cw , ndi , status_.at(cw));
-    }
 
     pdu_.at(cw) = pdu;
     result_.at(cw)=  lteInfo->getDeciderResult();
@@ -65,9 +61,7 @@ bool LteHarqProcessRx::isEvaluated(Codeword cw)
 LteHarqFeedback *LteHarqProcessRx::createFeedback(Codeword cw)
 {
     if (!isEvaluated(cw))
-    {
         throw cRuntimeError("Cannot send feedback for a pdu not in EVALUATING state");
-    }
 
     UserControlInfo *pduInfo = check_and_cast<UserControlInfo *>(pdu_.at(cw)->getControlInfo());
     LteHarqFeedback *fb = new LteHarqFeedback();
@@ -109,9 +103,8 @@ bool LteHarqProcessRx::isCorrect(Codeword cw)
 
 LteMacPdu* LteHarqProcessRx::extractPdu(Codeword cw)
 {
-    if (!isCorrect(cw)) {
+    if (!isCorrect(cw))
         throw cRuntimeError("Cannot extract pdu if the state is not CORRECT");
-    }
 
     // temporary copy of pdu pointer because reset NULLs it, and I need to return it
     LteMacPdu *pdu = pdu_.at(cw);
