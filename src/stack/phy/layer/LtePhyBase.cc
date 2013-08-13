@@ -154,23 +154,23 @@ void LtePhyBase::initializeChannelModel(cXMLElement* xmlConfig) {
     }
 
     // Get channel Model field which contains parameters fields
-    cXMLElementList channelModelList = xmlConfig->getElementsByTagName(
-            "ChannelModel");
+    cXMLElementList channelModelList = xmlConfig->getElementsByTagName("ChannelModel");
 
-    if (channelModelList.empty()) {
-        throw cRuntimeError(
-                "No channel models configuration found in configuration file");
+    if (channelModelList.empty())
+    {
+        throw cRuntimeError("No channel models configuration found in configuration file");
     }
-    if (channelModelList.size() > 1) {
-        throw cRuntimeError(
-                "More than one channel configuration found in configuration file.");
+    if (channelModelList.size() > 1)
+    {
+        throw cRuntimeError("More than one channel configuration found in configuration file.");
     }
 
     cXMLElement* channelModelData = channelModelList.front();
 
     const char* name = channelModelData->getAttribute("type");
 
-    if (name == 0) {
+    if (name == 0)
+    {
         throw cRuntimeError("Could not read name of channel model");
     }
     ParameterMap params;
@@ -178,9 +178,9 @@ void LtePhyBase::initializeChannelModel(cXMLElement* xmlConfig) {
 
     LteChannelModel* newChannelModel = getChannelModelFromName(name, params);
 
-    if (newChannelModel == 0) {
-        throw cRuntimeError("Could not find an channel model with the name \"%s\" ",
-                name);
+    if (newChannelModel == 0)
+    {
+        throw cRuntimeError("Could not find an channel model with the name \"%s\" ",name);
     }
 
     // attach the new AnalogueModel to the AnalogueModelList
@@ -190,8 +190,7 @@ void LtePhyBase::initializeChannelModel(cXMLElement* xmlConfig) {
     return;
 }
 
-LteChannelModel* LtePhyBase::getChannelModelFromName(std::string name,
-        ParameterMap& params) {
+LteChannelModel* LtePhyBase::getChannelModelFromName(std::string name,ParameterMap& params) {
     if (name == "DUMMY")
         return initializeDummyChannelModel(params);
     else if (name == "REAL")
@@ -200,11 +199,13 @@ LteChannelModel* LtePhyBase::getChannelModelFromName(std::string name,
         return 0;
 }
 
-LteChannelModel* LtePhyBase::initializeChannelModel(ParameterMap& params) {
+LteChannelModel* LtePhyBase::initializeChannelModel(ParameterMap& params)
+{
     return new LteRealisticChannelModel(params, getRadioPosition(), deployer_->getNumBands());
 }
 
-LteChannelModel* LtePhyBase::initializeDummyChannelModel(ParameterMap& params) {
+LteChannelModel* LtePhyBase::initializeDummyChannelModel(ParameterMap& params)
+{
     return new LteDummyChannelModel(params, deployer_->getNumBands());
 }
 

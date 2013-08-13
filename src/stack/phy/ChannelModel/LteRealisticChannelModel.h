@@ -17,6 +17,11 @@
 
 class LteBinder;
 
+
+/*
+ * Realistic Channel Model as taken from
+ * "ITU-R M.2135-1 Guidelines for evaluation of radio interface technologies for IMT-Advanced"
+ */
 class LteRealisticChannelModel : public LteChannelModel{
 private:
     // Carrier Frequency

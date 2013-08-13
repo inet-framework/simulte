@@ -48,7 +48,8 @@
             <parameter name="extCell-interference" type="bool" value="true"/>
 			<!-- if true, enables the in-cell interference computation -->  
             <parameter name="inCell-interference" type="bool" value="false"/>  
-        </ChannelModel>             
+        </ChannelModel>        
+             
         <!-- Feedback Type (REAL, DUMMY) -->
         <FeedbackComputation type="REAL">
         	 <!-- Target bler used to compute feedback -->

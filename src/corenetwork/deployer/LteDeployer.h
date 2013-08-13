@@ -23,15 +23,21 @@
 
 /**
  * @class LteDeployer
- * @brief Lte network elements dynamic deployer
+ * @brief Lte network elements dynamic deployer. There is one deplayer for each eNB (thus one for each cell)
  *
- * eNB module which dynamically creates UEs and relays
- * and deploys them into the playground
+ *
+ * eNB module which can dynamically create UEs and relays
+ * and can deploy them into the playground.
+ *
+ * Keeps general information about the cell
  */
+
 
 /// Forward declaration of DasFilter class, used by LteDeployer.
 class DasFilter;
 
+
+// TODO move all the parameters to their own modules
 class LteDeployer: public cSimpleModule {
 private:
     /// reference to the global module binder

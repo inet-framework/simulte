@@ -58,10 +58,6 @@ void LteDeployer::preInitialize() {
 //        bm->par("initialY")=nodeY_;
 //    }
 
-    // XXX FIXME find out the size of the palyground
-//    IChannelControl * cc = ChannelAccess::getChannelControl();
-//    pgnX_ = cc->par("playgroundSizeX");
-//    pgnY_ = cc->par("playgroundSizeY");
 
     pgnMinX_ = par("constraintAreaMinX");
     pgnMinY_ = par("constraintAreaMinY");
