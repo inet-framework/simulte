@@ -9,7 +9,6 @@
 // and cannot be removed from it.
 // 
 
-
 #ifndef LTEREALISTICCHANNELMODEL_H_
 #define LTEREALISTICCHANNELMODEL_H_
 
@@ -17,13 +16,13 @@
 
 class LteBinder;
 
-
 /*
  * Realistic Channel Model as taken from
  * "ITU-R M.2135-1 Guidelines for evaluation of radio interface technologies for IMT-Advanced"
  */
-class LteRealisticChannelModel : public LteChannelModel{
-private:
+class LteRealisticChannelModel : public LteChannelModel
+{
+  private:
     // Carrier Frequency
     double carrierFrequency_;
 
@@ -52,7 +51,7 @@ private:
     bool enableExtCellInterference_;
     bool enableInCellInterference_;
 
-    typedef std::pair<simtime_t,Coord> Position;
+    typedef std::pair<simtime_t, Coord> Position;
 
     // last position of current user
     std::map<MacNodeId, std::queue<Position> > positionHistory_;
@@ -61,10 +60,10 @@ private:
     DeploymentScenario scenario_;
 
     // map that stores for each user if is in Line of Sight or not with eNodeB
-    std::map<MacNodeId,bool> losMap_;
+    std::map<MacNodeId, bool> losMap_;
 
     // Store the last computed shadowing for each user
-    std::map<MacNodeId,std::pair<simtime_t,double> > lastComputedSF_;
+    std::map<MacNodeId, std::pair<simtime_t, double> > lastComputedSF_;
 
     //correlation distance used in shadowing computation and
     //also used to recompute the probability of LOS
@@ -113,20 +112,24 @@ private:
     double delayRMS_;
 
     //Struct used to store information about jakes fading
-    struct JakesFadingData{
+    struct JakesFadingData
+    {
         std::vector<double> angleOfArrival;
         std::vector<simtime_t> delaySpread;
     };
 
     // for each node and for each band we store information about jakes fading
-    std::map<MacNodeId,std::vector<JakesFadingData> > jakesFadingMap_;
+    std::map<MacNodeId, std::vector<JakesFadingData> > jakesFadingMap_;
 
     typedef std::vector<JakesFadingData> JakesFadingVector;
-    typedef std::map<MacNodeId,JakesFadingVector> JakesFadingMap;
+    typedef std::map<MacNodeId, JakesFadingVector> JakesFadingMap;
 
 //    typedef std::map<MacNodeId,std::vector<JakesFadingData> > JakesFadingMap;
 
-    typedef enum {RAYLEIGH,JAKES} FadingType;
+    typedef enum
+    {
+        RAYLEIGH, JAKES
+    } FadingType;
 
     //Fading type (JAKES or RAYLEIGH)
     FadingType fadingType_;
@@ -137,8 +140,8 @@ private:
     //if dynamicLos is false this boolean is initialized to true if all user will be in LOS or false otherwise
     bool fixedLos_;
 
-public:
-    LteRealisticChannelModel(ParameterMap& params, const Coord& myCoord,unsigned int band);
+  public:
+    LteRealisticChannelModel(ParameterMap& params, const Coord& myCoord, unsigned int band);
     virtual ~LteRealisticChannelModel();
     /*
      * Compute Attenuation caused by pathloss and shadowing (optional)
@@ -147,21 +150,21 @@ public:
      * @param dir traffic direction
      * @param coord position of end point comunication (if dir==UL is the position of UE else is the position of eNodeB)
      */
-    virtual double getAttenuation(MacNodeId nodeId,Direction dir,Coord coord);
+    virtual double getAttenuation(MacNodeId nodeId, Direction dir, Coord coord);
     /*
      * Compute sir for each band for user nodeId according to multipath fading
      *
      * @param frame pointer to the packet
      * @param lteinfo pointer to the user control info
      */
-    virtual std::vector<double> getSIR(LteAirFrame *frame,UserControlInfo* lteInfo);
+    virtual std::vector<double> getSIR(LteAirFrame *frame, UserControlInfo* lteInfo);
     /*
      * Compute sinr for each band for user nodeId according to pathloss, shadowing (optional) and multipath fading
      *
      * @param frame pointer to the packet
      * @param lteinfo pointer to the user control info
      */
-    virtual std::vector<double> getSINR(LteAirFrame *frame,UserControlInfo* lteInfo);
+    virtual std::vector<double> getSINR(LteAirFrame *frame, UserControlInfo* lteInfo);
     /*
      * Compute the error probability of the transmitted packet according to cqi used, txmode, and the received power
      * after that it throws a random number in order to check if this packet will be corrupted or not
@@ -169,64 +172,67 @@ public:
      * @param frame pointer to the packet
      * @param lteinfo pointer to the user control info
      */
-    virtual bool error(LteAirFrame *frame,UserControlInfo* lteI);
+    virtual bool error(LteAirFrame *frame, UserControlInfo* lteI);
     /*
      * The same as before but used for das TODO to be implemnted
      *
      * @param frame pointer to the packet
      * @param lteinfo pointer to the user control info
      */
-    virtual bool errorDas(LteAirFrame *frame,UserControlInfo* lteI){opp_error("DAS PHY LAYER TO BE IMPLEMENTED"); return -1;};
-
+    virtual bool errorDas(LteAirFrame *frame, UserControlInfo* lteI)
+    {
+        opp_error("DAS PHY LAYER TO BE IMPLEMENTED");
+        return -1;
+    }
     /*
      * Compute attenuation for indoor scenario
      *
      * @param distance between UE and eNodeB
      * @param nodeid mac node id of UE
      */
-    double computeIndoor(double distance,MacNodeId nodeId);
+    double computeIndoor(double distance, MacNodeId nodeId);
     /*
      * Compute attenuation for Urban Micro cell
      *
      * @param distance between UE and eNodeB
      * @param nodeid mac node id of UE
      */
-    double computeUrbanMicro(double distance,MacNodeId nodeId);
+    double computeUrbanMicro(double distance, MacNodeId nodeId);
     /*
      * compute scenario for Urban Macro cell
      *
      * @param distance between UE and eNodeB
      * @param nodeid mac node id of UE
      */
-    double computeUrbanMacro(double distance,MacNodeId nodeId);
+    double computeUrbanMacro(double distance, MacNodeId nodeId);
     /*
      * compute scenario for Sub Urban Macro cell
      *
      * @param distance between UE and eNodeB
      * @param nodeid mac node id of UE
      */
-    double computeSubUrbanMacro(double distance,double& dbp,MacNodeId nodeId);
+    double computeSubUrbanMacro(double distance, double& dbp, MacNodeId nodeId);
     /*
      * Compute scenario for rural macro cell
      *
      * @param distance between UE and eNodeB
      * @param nodeid mac node id of UE
      */
-    double computeRuralMacro(double distance,double& dbp,MacNodeId nodeId);
+    double computeRuralMacro(double distance, double& dbp, MacNodeId nodeId);
     /*
      * compute std deviation of shadowing according to scenario and visibility
      *
      * @param distance between UE and eNodeB
      * @param nodeid mac node id of UE
      */
-    double getStdDev(bool dist,MacNodeId nodeId);
+    double getStdDev(bool dist, MacNodeId nodeId);
     /*
      * Compute Rayleigh fading
      *
      * @param i index in the trace file
      * @param nodeid mac node id of UE
      */
-    double rayleighFading(MacNodeId id,unsigned int band);
+    double rayleighFading(MacNodeId id, unsigned int band);
     /*
      * Compute Jakes fading
      *
@@ -235,19 +241,21 @@ public:
      * @param band logical bend id
      * @param cqiDl if true, the jakesMap in the UE side should be used
      */
-    double jakesFading(MacNodeId noedId,double speed,unsigned int band, bool cqiDl);
+    double jakesFading(MacNodeId noedId, double speed, unsigned int band, bool cqiDl);
     /*
      * Compute LOS probability
      *
      * @param d between UE and eNodeB
      * @param nodeid mac node id of UE
      */
-    void computeLosProbability(double d,MacNodeId nodeId);
+    void computeLosProbability(double d, MacNodeId nodeId);
 
+    JakesFadingMap * getJakesMap()
+    {
+        return &jakesFadingMap_;
+    }
 
-    JakesFadingMap * getJakesMap() { return &jakesFadingMap_; }
-
-protected:
+  protected:
 
     /* compute speed (m/s) for a given node
      * @param nodeid mac node id of UE
@@ -259,26 +267,27 @@ protected:
      * Updates position for a given node
      * @param nodeid mac node id of UE
      */
-    void updatePositionHistory(const MacNodeId nodeId,const Coord coord);
+    void updatePositionHistory(const MacNodeId nodeId, const Coord coord);
 
     /*
      * compute total interference due to macro/micro coexistence
      * @param eNbId id of the considered eNb
      * @param isCqi if we are computing a CQI
      */
-    bool computeInCellInterference( MacNodeId eNbId , MacNodeId ueId , Coord coord,  bool isCqi , std::vector<double> * interference);
+    bool computeInCellInterference(MacNodeId eNbId, MacNodeId ueId, Coord coord, bool isCqi,
+        std::vector<double> * interference);
 
     /*
      * evaluates total intercell interference seen from the spot given by coord
      * @return total interference expressed in dBm
      */
-    double computeExtCellInterference(Coord coord , MacNodeId nodeId);
+    double computeExtCellInterference(Coord coord, MacNodeId nodeId);
 
     /*
      * compute attenuation due to path loss and shadowing
      * @return attenuation expressed in dBm
      */
-    double computeExtCellPathLoss(double dist , MacNodeId nodeId);
+    double computeExtCellPathLoss(double dist, MacNodeId nodeId);
 
     /*
      * Obtain the jakes map for the specified UE

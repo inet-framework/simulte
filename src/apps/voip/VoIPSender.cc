@@ -25,7 +25,7 @@ VoIPSender::VoIPSender()
 
 VoIPSender::~VoIPSender()
 {
-    if(selfSender->isScheduled())
+    if (selfSender->isScheduled())
         cancelEvent(selfSender);
 
     delete selfSender;
@@ -33,38 +33,36 @@ VoIPSender::~VoIPSender()
 
 void VoIPSender::initialize(int stage)
 {
-    EV<<"VoIP Sender initialize: stage "<<stage<< " - initialize=" << initialized_ << endl;
+    EV << "VoIP Sender initialize: stage " << stage << " - initialize=" << initialized_ << endl;
 
     // avoid multiple initializations
     if (stage!=3 || initialized_)
-        return;
+    return;
 
-    durTalk       = 0;
-    durSil        = 0;
-    selfSource    = new cMessage("selfSource");
-    scale_talk    = par("scale_talk");
-    shape_talk    = par("shape_talk");
-    scale_sil     = par("scale_sil");
-    shape_sil     = par("shape_sil");
-    is_talk       = par("is_talk");
-    IDtalk        = 0;
-    nframes       = 0;
-    nframes_tmp   = 0;
-    IDframe       = 0;
-    timestamp     = 0;
-    size          = par("PacketSize");
+    durTalk = 0;
+    durSil = 0;
+    selfSource = new cMessage("selfSource");
+    scale_talk = par("scale_talk");
+    shape_talk = par("shape_talk");
+    scale_sil = par("scale_sil");
+    shape_sil = par("shape_sil");
+    is_talk = par("is_talk");
+    IDtalk = 0;
+    nframes = 0;
+    nframes_tmp = 0;
+    IDframe = 0;
+    timestamp = 0;
+    size = par("PacketSize");
     sampling_time = par("sampling_time");
-    selfSender    = new cMessage("selfSender");
-    localPort     = par("localPort");
-    destPort      = par("destPort");
-    destAddress   = IPvXAddressResolver().resolve(par("destAddress").stringValue());
-
+    selfSender = new cMessage("selfSender");
+    localPort = par("localPort");
+    destPort = par("destPort");
+    destAddress = IPvXAddressResolver().resolve(par("destAddress").stringValue());
 
     socket.setOutputGate(gate("udpOut"));
     socket.bind(localPort);
 
-    EV << "VoIPSender::initialize - binding to port: local:" << localPort << " , dest:"<< destPort << endl;
-
+    EV << "VoIPSender::initialize - binding to port: local:" << localPort << " , dest:" << destPort << endl;
 
     // calculating traffic starting time
     // TODO correct this conversion
@@ -79,9 +77,9 @@ void VoIPSender::initialize(int stage)
 
 void VoIPSender::handleMessage(cMessage *msg)
 {
-    if(msg->isSelfMessage())
+    if (msg->isSelfMessage())
     {
-        if(!strcmp(msg->getName(),"selfSender"))
+        if (!strcmp(msg->getName(), "selfSender"))
             sendVoIPPacket();
         else
             selectPeriodTime();
@@ -91,40 +89,40 @@ void VoIPSender::handleMessage(cMessage *msg)
 void VoIPSender::talkspurt(double dur)
 {
     IDtalk++;
-    nframes=(ceil(dur/sampling_time));
+    nframes = (ceil(dur / sampling_time));
 
     // a talkspurt must be at least 1 frame long
-    if(nframes==0)
+    if (nframes == 0)
         nframes = 1;
 
-    EV<<"TALKSPURT "<<IDtalk-1<<" Verranno inviati "<<nframes<<" frames\n\n";
-//    std::cout <<"TALKSPURT "<<IDtalk-1<<" Verranno inviati "<<nframes<<" frames\n\n";
+    EV << "TALKSPURT " << IDtalk-1 << " Verranno inviati " << nframes << " frames\n\n";
+//    std::cout << "TALKSPURT " << IDtalk-1 << " Verranno inviati " << nframes << " frames\n\n";
 
     IDframe = 0;
-    nframes_tmp=nframes;
+    nframes_tmp = nframes;
     scheduleAt(simTime(), selfSender);
 }
 
 void VoIPSender::selectPeriodTime()
 {
-    if(!is_talk)
+    if (!is_talk)
     {
-        durSil=weibull(scale_sil, shape_sil);
-        double durSil2 = round(durSil*1000)/1000;
-        EV<<"PERIODO SILENZIO: "<<"Durata: "<<durSil<<"/" << durSil2<<" secondi\n\n";
+        durSil = weibull(scale_sil, shape_sil);
+        double durSil2 = round(durSil*1000) / 1000;
+        EV << "PERIODO SILENZIO: " << "Durata: " << durSil << "/" << durSil2 << " secondi\n\n";
         durSil = durSil2;
-        scheduleAt(simTime()+durSil,selfSource);
+        scheduleAt(simTime() + durSil, selfSource);
         is_talk = true;
     }
 
     else
     {
-        durTalk=weibull(scale_talk, shape_talk);
-        double durTalk2 = round(durTalk*1000)/1000;
-        EV<<"TALKSPURT: "<<IDtalk<<" Durata: "<<durTalk<< "/"<< durTalk2<< " secondi\n\n";
+        durTalk = weibull(scale_talk, shape_talk);
+        double durTalk2 = round(durTalk*1000) / 1000;
+        EV << "TALKSPURT: " << IDtalk << " Durata: " << durTalk << "/" << durTalk2 << " secondi\n\n";
         durTalk = durTalk2;
         talkspurt(durTalk);
-        scheduleAt(simTime()+durTalk,selfSource);
+        scheduleAt(simTime() + durTalk, selfSource);
         is_talk = false;
     }
 }
@@ -132,18 +130,19 @@ void VoIPSender::selectPeriodTime()
 void VoIPSender::sendVoIPPacket()
 {
     VoipPacket* packet = new VoipPacket("VoIP");
-    packet->setIDtalk(IDtalk-1);
+    packet->setIDtalk(IDtalk - 1);
     packet->setNframes(nframes);
     packet->setIDframe(IDframe);
     packet->setTimestamp(simTime());
     //packet->setSize(size);
     packet->setByteLength(size);
-    EV<<"TALKSPURT "<<IDtalk-1<<" Invio frame "<<IDframe<<"\n";
-//    std::cout << simTime() <<") TALKSPURT "<<IDtalk-1<<" Invio frame "<<IDframe<<"\n";
+    EV << "TALKSPURT " << IDtalk-1 << " Invio frame " << IDframe << "\n";
+//    std::cout << simTime() << ") TALKSPURT " << IDtalk-1 << " Invio frame " << IDframe << "\n";
 
-    socket.sendTo(packet,destAddress, destPort);
+    socket.sendTo(packet, destAddress, destPort);
     --nframes_tmp;
     ++IDframe;
 
-    if(nframes_tmp > 0 ) scheduleAt(simTime()+sampling_time,selfSender);
+    if (nframes_tmp > 0)
+        scheduleAt(simTime() + sampling_time, selfSender);
 }

@@ -9,16 +9,16 @@
 // and cannot be removed from it.
 //
 
-
 #include "AmcPilotAuto.h"
 
 const UserTxParams& AmcPilotAuto::computeTxParams(MacNodeId id, const Direction dir)
 {
-    EV<<NOW<<" AmcPilot"<<getName()<<"::computeTxParams for UE "<<id<<", direction "<<dirToA(dir)<<endl;
+    EV << NOW << " AmcPilot" << getName() << "::computeTxParams for UE " << id << ", direction " << dirToA(dir) << endl;
 
     // Check if user transmission parameters have been already allocated
-    if(amc_->existTxParams(id, dir)) {
-        EV<<NOW<<" AmcPilot"<<getName()<<"::computeTxParams The Information for this user have been already assigned \n";
+    if(amc_->existTxParams(id, dir))
+    {
+        EV << NOW << " AmcPilot" << getName() << "::computeTxParams The Information for this user have been already assigned \n";
         return amc_->getTxParams(id, dir);
     }
 
@@ -34,8 +34,7 @@ const UserTxParams& AmcPilotAuto::computeTxParams(MacNodeId id, const Direction 
     LteSummaryFeedback sfb = amc_->getFeedback(id, MACRO, txMode, dir);
 
     if (TxMode(txMode)==MULTI_USER) // Initialize MuMiMoMatrix
-        amc_->muMimoMatrixInit(dir,id);
-
+    amc_->muMimoMatrixInit(dir,id);
 
     sfb.print(0,id,dir,txMode,"AmcPilotAuto::computeTxParams");
 
@@ -46,9 +45,10 @@ const UserTxParams& AmcPilotAuto::computeTxParams(MacNodeId id, const Direction 
     Band band = 0;
     double max = summaryCqi.at(band);
     BandSet b;
-    unsigned int bands = summaryCqi.size(); // number of bands
+    unsigned int bands = summaryCqi.size();// number of bands
     for(Band b = 1; b < bands; ++b)
-    {    // For all LBs
+    {
+        // For all LBs
         double s = (double)summaryCqi.at(b);
         if(max < s)
         {
@@ -69,7 +69,7 @@ const UserTxParams& AmcPilotAuto::computeTxParams(MacNodeId id, const Direction 
     info.writeAntennas(antennas);
 
     // DEBUG
-    EV<<NOW<<" AmcPilot"<<getName()<<"::computeTxParams NEW values assigned! - CQI MAX=" << max << "\n";
+    EV << NOW << " AmcPilot" << getName() << "::computeTxParams NEW values assigned! - CQI MAX=" << max << "\n";
     info.print("AmcPilotAuto::computeTxParams");
 
     return amc_->setTxParams(id, dir, info);

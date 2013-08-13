@@ -9,7 +9,6 @@
 // and cannot be removed from it.
 // 
 
-
 #ifndef __LTE_LTEDEPLOYER_H_
 #define __LTE_LTEDEPLOYER_H_
 
@@ -32,14 +31,13 @@
  * Keeps general information about the cell
  */
 
-
 /// Forward declaration of DasFilter class, used by LteDeployer.
 class DasFilter;
 
-
 // TODO move all the parameters to their own modules
-class LteDeployer: public cSimpleModule {
-private:
+class LteDeployer : public cSimpleModule
+{
+  private:
     /// reference to the global module binder
     LteBinder *binder_;
     /// Remote Antennas for eNB
@@ -48,14 +46,12 @@ private:
     /// Cell Id
     MacCellId cellId_;
 
-
     //------------- INTERCELL INTERFERENCE SUPPORT ------------------
     /*
      * reference to macro Enb. Used for interference computation purposes.
      * NULL if this is a macro node,
      */
     EnbInfo *refEnb_;
-
 
     /*
      * list of micro eNbs within a cell.
@@ -66,7 +62,6 @@ private:
     // MACRO_ENB or MICRO_ENB
     EnbType eNbType_;
     //---------------------------------------------------------------
-
 
     /// x playground lower bound
     double pgnMinX_;
@@ -129,11 +124,13 @@ private:
     std::map<MacNodeId, Coord> uePosition;
 
     std::map<MacNodeId, Lambda> lambdaMap_;
-protected:
+    protected:
 
     virtual void initialize();
 
-    virtual void handleMessage(cMessage *msg) {}
+    virtual void handleMessage(cMessage *msg)
+    {
+    }
 
     /**
      * Deploys remote antennas.
@@ -151,9 +148,9 @@ protected:
     virtual void deployRu(double nodeX, double nodeY, int numRu, int ruRange);
     virtual void calculateMCSScale(double *mcsUl, double *mcsDl);
     virtual void updateMCSScale(double *mcs, double signalRe,
-            double signalCarriers = 0, Direction dir = DL);
+        double signalCarriers = 0, Direction dir = DL);
 
-private:
+  private:
 
     /**
      * Relay creation.
@@ -181,8 +178,8 @@ private:
      * @param[out] yPos calculated y coordinate
      */
     void calculateNodePosition(double centerX, double centerY, int nTh,
-            int totalNodes, int range, double startingAngle, double *xPos,
-            double *yPos);
+        int totalNodes, int range, double startingAngle, double *xPos,
+        double *yPos);
 
     /**
      * UE creation.
@@ -201,7 +198,7 @@ private:
      * @param masterId ID of the master node
      */
     cModule* createUeAt(double x, double y, std::string mobType, double centerX,
-            double centerY, MacNodeId masterId, double speed);
+        double centerY, MacNodeId masterId, double speed);
 
     /**
      * Attaches the mobility module to a UE module.
@@ -214,11 +211,11 @@ private:
      * @param centerY y center position (used for circle mobility)
      */
     void attachMobilityModule(cModule *parentModule, std::string mobType,
-            double x, double y, double centerX, double centerY, double speed);
+        double x, double y, double centerX, double centerY, double speed);
 
     void createAntennaCwMap();
 
-public:
+  public:
     /**
      * All of the deployer operations are performed in pre-initialization
      */
@@ -235,7 +232,7 @@ public:
      * and are equally spaced over the circumference perimeter.
      */
     virtual int deployRelays(double startAngle, int i, int num, double *xPos,
-            double *yPos);
+        double *yPos);
 
     /**
      * Deploys UEs around a given center.
@@ -251,80 +248,102 @@ public:
      * @param masterId MacNodeId of the master of this UE
      */
     virtual cModule* deployUes(double centerX, double centerY, int Ue,
-            int totalNumOfUes, std::string mobType, int range,
-            uint16_t masterId, double speed);
+        int totalNumOfUes, std::string mobType, int range,
+        uint16_t masterId, double speed);
 
     // Getters
-    int getNumRbDl() {
+    int getNumRbDl()
+    {
         return numRbDl_;
     }
-    int getNumRbUl() {
+    int getNumRbUl()
+    {
         return numRbUl_;
     }
-    int getRbyDl() {
+    int getRbyDl()
+    {
         return rbyDl_;
     }
-    int getRbyUl() {
+    int getRbyUl()
+    {
         return rbyUl_;
     }
-    int getRbxDl() {
+    int getRbxDl()
+    {
         return rbxDl_;
     }
-    int getRbxUl() {
+    int getRbxUl()
+    {
         return rbxUl_;
     }
-    int getRbPilotDl() {
+    int getRbPilotDl()
+    {
         return rbPilotDl_;
     }
-    int getRbPilotUl() {
+    int getRbPilotUl()
+    {
         return rbPilotUl_;
     }
-    int getSignalDl() {
+    int getSignalDl()
+    {
         return signalDl_;
     }
-    int getSignalUl() {
+    int getSignalUl()
+    {
         return signalUl_;
     }
-    int getNumBands() {
+    int getNumBands()
+    {
         return numBands_;
     }
-    double getMcsScaleUl() {
+    double getMcsScaleUl()
+    {
         return mcsScaleUl_;
     }
-    double getMcsScaleDl() {
+    double getMcsScaleDl()
+    {
         return mcsScaleDl_;
     }
-    int getNumRus() {
+    int getNumRus()
+    {
         return numRus_;
     }
 
-    MacCellId getCellId() {
+    MacCellId getCellId()
+    {
         return cellId_;
     }
 
-    std::map<Remote, int> getAntennaCws() {
+    std::map<Remote, int> getAntennaCws()
+    {
         return antennaCws_;
     }
 
-    int getNumPreferredBands() {
+    int getNumPreferredBands()
+    {
         return numPreferredBands_;
     }
 
-    RemoteAntennaSet* getRemoteAntennaSet() {
+    RemoteAntennaSet* getRemoteAntennaSet()
+    {
         return ruSet_;
     }
 //MODIFICATO
-    double getNodeX() {
+    double getNodeX()
+    {
         return nodeX_;
     }
 
-    double getNodeY() {
+    double getNodeY()
+    {
         return nodeY_;
     }
-    Coord getUePosition(MacNodeId id) {
+    Coord getUePosition(MacNodeId id)
+    {
         return uePosition[id];
     }
-    void setUePosition(MacNodeId id, Coord c) {
+    void setUePosition(MacNodeId id, Coord c)
+    {
         uePosition[id] = c;
     }
 
@@ -335,42 +354,46 @@ public:
         nodeY_ = c.y;
     }
 
-    void lambdaUpdate(MacNodeId id, unsigned int index) {
+    void lambdaUpdate(MacNodeId id, unsigned int index)
+    {
         lambdaMap_[id].lambdaMax = binder_->phyPisaData.getLambda(index, 0);
         lambdaMap_[id].index = index;
         lambdaMap_[id].lambdaMin = binder_->phyPisaData.getLambda(index, 1);
-        ;
         lambdaMap_[id].lambdaRatio = binder_->phyPisaData.getLambda(index, 2);
-        ;
     }
-    void lambdaIncrease(MacNodeId id, unsigned int i) {
+    void lambdaIncrease(MacNodeId id, unsigned int i)
+    {
         lambdaMap_[id].index = lambdaMap_[id].lambdaStart + i;
         lambdaUpdate(id, lambdaMap_[id].index);
     }
-    void lambdaInit(MacNodeId id, unsigned int i) {
+    void lambdaInit(MacNodeId id, unsigned int i)
+    {
         lambdaMap_[id].lambdaStart = i;
         lambdaMap_[id].index = lambdaMap_[id].lambdaStart;
         lambdaUpdate(id, lambdaMap_[id].index);
     }
-    void channelUpdate(MacNodeId id, unsigned int in) {
+    void channelUpdate(MacNodeId id, unsigned int in)
+    {
         unsigned int index = in % binder_->phyPisaData.maxChannel2();
         lambdaMap_[id].channelIndex = index;
     }
-    void channelIncrease(MacNodeId id) {
+    void channelIncrease(MacNodeId id)
+    {
         unsigned int i = getNumBands();
         channelUpdate(id, lambdaMap_[id].channelIndex + i);
     }
-    Lambda* getLambda(MacNodeId id) {
+    Lambda* getLambda(MacNodeId id)
+    {
         return &(lambdaMap_.at(id));
     }
 
-    std::map<MacNodeId, Lambda>* getLambda() {
+    std::map<MacNodeId, Lambda>* getLambda()
+    {
         return &lambdaMap_;
     }
 
-
     //------------- INTERCELL INTERFERENCE SUPPORT ------------------
-    bool setMacroNode(MacNodeId id,cModule * eNodeB)
+    bool setMacroNode(MacNodeId id, cModule * eNodeB)
     {
         refEnb_ = new EnbInfo();
         refEnb_->id = id;            // cell ID
@@ -378,7 +401,7 @@ public:
         refEnb_->init = false;        // flag for phy initialization
 
         refEnb_->eNodeB = eNodeB;    // reference to the Macro Node
-        refEnb_->x2=eNodeB->findGate("x2");    // gate for X2 communications
+        refEnb_->x2 = eNodeB->findGate("x2");    // gate for X2 communications
 
         // TODO add node type check
         return true;
@@ -389,15 +412,15 @@ public:
         return refEnb_;
     }
 
-    bool addMicroNode(MacNodeId id,cModule * eNodeB)
+    bool addMicroNode(MacNodeId id, cModule * eNodeB)
     {
         EnbInfo * elem = new EnbInfo();
-        elem->id=id;             // cell ID
-        elem->type=MICRO_ENB;    // eNb Type
-        elem->init=false;        // flag for phy initialization
+        elem->id = id;             // cell ID
+        elem->type = MICRO_ENB;    // eNb Type
+        elem->init = false;        // flag for phy initialization
 
         elem->eNodeB = eNodeB;     // reference to the Micro Node
-        elem->x2=eNodeB->findGate("x2"); // gate for X2 communications
+        elem->x2 = eNodeB->findGate("x2"); // gate for X2 communications
 
         microList_.push_back(elem);
 

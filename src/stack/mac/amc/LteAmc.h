@@ -9,7 +9,6 @@
 // and cannot be removed from it.
 // 
 
-
 #ifndef __LTEAMCMODULE_LTEAMC_H_
 #define __LTEAMCMODULE_LTEAMC_H_
 
@@ -35,17 +34,18 @@ class LteMacEnb;
  *
  * TODO
  */
-class LteAmc {
+class LteAmc
+{
 
   private:
     AmcPilot *getAmcPilot(cPar amcMode);
     MacNodeId getNextHop(MacNodeId dst);
-public:
+    public:
     void printParameters();
     void printFbhb(Direction dir);
     void printTxParams(Direction dir);
     void printMuMimoMatrix(const char *s);
-protected:
+    protected:
     LteMacEnb *mac_;
     LteBinder *binder_;
     LteDeployer *deployer_;
@@ -63,13 +63,13 @@ protected:
     Cqi kCqi_;
     ConnectedUesMap dlConnectedUe_;
     ConnectedUesMap ulConnectedUe_;
-    std::map<MacNodeId,unsigned int> dlNodeIndex_;
-    std::map<MacNodeId,unsigned int> ulNodeIndex_;
+    std::map<MacNodeId, unsigned int> dlNodeIndex_;
+    std::map<MacNodeId, unsigned int> ulNodeIndex_;
     std::vector<MacNodeId> dlRevNodeIndex_;
     std::vector<MacNodeId> ulRevNodeIndex_;
     std::vector<UserTxParams> dlTxParams_;
     std::vector<UserTxParams> ulTxParams_;
-    typedef std::map<Remote,std::vector<std::vector<LteSummaryBuffer> > > History_;
+    typedef std::map<Remote, std::vector<std::vector<LteSummaryBuffer> > > History_;
 
     int fType_; //CQI synchronization Debugging
     History_ dlFeedbackHistory_;
@@ -82,23 +82,28 @@ protected:
     double cqiComputationWeight_;
     LteMuMimoMatrix muMimoDlMatrix_;
     LteMuMimoMatrix muMimoUlMatrix_;
-public:
+    public:
     LteAmc(LteMacEnb *mac, LteBinder *binder, LteDeployer *deployer, int numAntennas);
     void initialize();
     ~LteAmc()
     {
-    };
-
-    void sefType(int f) {fType_=f;}
-    int getfType() {return fType_;}
+    }
+    void sefType(int f)
+    {
+        fType_ = f;
+    }
+    int getfType()
+    {
+        return fType_;
+    }
 
     // CodeRate MCS rescaling
-    void rescaleMcs(double rePerRb,Direction dir =DL);
+    void rescaleMcs(double rePerRb, Direction dir = DL);
 
     void pushFeedback(MacNodeId id, Direction dir, LteFeedback fb);
     LteSummaryFeedback getFeedback(MacNodeId id, Remote antenna, TxMode txMode, const Direction dir);
     //used when is necessary to know if the requested feedback exists or not
-   // LteSummaryFeedback getFeedback(MacNodeId id, Remote antenna, TxMode txMode, const Direction dir,bool& valid);
+    // LteSummaryFeedback getFeedback(MacNodeId id, Remote antenna, TxMode txMode, const Direction dir,bool& valid);
 
     MacNodeId computeMuMimoPairing(const MacNodeId nodeId, Direction dir = DL);
 
@@ -126,24 +131,22 @@ public:
     // utilities - do not involve pilot invocation
     unsigned int getItbsPerCqi(Cqi cqi, const Direction dir);
 
-
     double readCoderate(MacNodeId id, Codeword cw, unsigned int bytes, const Direction dir);
 
     /*
      * Access the correct itbs2tbs conversion table given cqi and layer numer
      */
-    const unsigned int* readTbsVect(Cqi cqi,unsigned int layers,Direction dir);
+    const unsigned int* readTbsVect(Cqi cqi, unsigned int layers, Direction dir);
 
     /*
      * given <cqi> and <layers> returns bytes allocable in <blocks>
      */
-    unsigned int blockGain(Cqi cqi,unsigned int layers,unsigned int blocks,Direction dir);
+    unsigned int blockGain(Cqi cqi, unsigned int layers, unsigned int blocks, Direction dir);
 
     /*
      * given <cqi> and <layers> returns blocks capable of carrying  <bytes>
      */
-    unsigned int bytesGain(Cqi cqi,unsigned int layers,unsigned int bytes,Direction dir);
-
+    unsigned int bytesGain(Cqi cqi, unsigned int layers, unsigned int bytes, Direction dir);
 
     // ---------------------------
     void writeCqiWeight(double weight);
@@ -163,17 +166,19 @@ public:
         return deployer_->getUePosition(id);
     }
 
-    void muMimoMatrixInit(Direction dir,MacNodeId nodeId){
-        if (dir==DL)
+    void muMimoMatrixInit(Direction dir, MacNodeId nodeId)
+    {
+        if (dir == DL)
             muMimoDlMatrix_.initialize(nodeId);
         else
             muMimoUlMatrix_.initialize(nodeId);
     }
-    void addMuMimoPair(Direction dir,MacNodeId id1, MacNodeId id2){
-        if (dir==DL)
-            muMimoDlMatrix_.addPair(id1,id2);
+    void addMuMimoPair(Direction dir, MacNodeId id1, MacNodeId id2)
+    {
+        if (dir == DL)
+            muMimoDlMatrix_.addPair(id1, id2);
         else
-            muMimoUlMatrix_.addPair(id1,id2);
+            muMimoUlMatrix_.addPair(id1, id2);
     }
 };
 

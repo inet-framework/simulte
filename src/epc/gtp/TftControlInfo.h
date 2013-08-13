@@ -18,16 +18,23 @@
 
 #include <omnetpp.h>
 
-class TftControlInfo: public cObject {
+class TftControlInfo : public cObject
+{
 
     unsigned int tft_;
 
-public:
+  public:
     TftControlInfo();
     virtual ~TftControlInfo();
 
-    void setTft(unsigned int tft) { tft_ = tft; }
-    unsigned int getTft() { return tft_; }
+    void setTft(unsigned int tft)
+    {
+        tft_ = tft;
+    }
+    unsigned int getTft()
+    {
+        return tft_;
+    }
 };
 
 #endif /* TFTCONTROLINFO_H_ */

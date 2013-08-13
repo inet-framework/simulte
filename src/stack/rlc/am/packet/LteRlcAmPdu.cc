@@ -9,7 +9,6 @@
 // and cannot be removed from it.
 // 
 
-
 #include "LteRlcAmPdu.h"
 
 void
@@ -26,21 +25,20 @@ LteRlcAmPdu::getBitmapArraySize() const
 
 bool
 LteRlcAmPdu::getBitmap(unsigned int k) const
-{
+    {
     return this->bitmap_.at(k);
 }
-
 
 void
 LteRlcAmPdu::setBitmap(unsigned int k, bool bitmap_)
 {
-    this->bitmap_[k]=bitmap_;
+    this->bitmap_[k] = bitmap_;
 }
 
 void
 LteRlcAmPdu::setBitmapVec(std::vector<bool> bitmap_vec)
 {
-    this->bitmap_=bitmap_vec;
+    this->bitmap_ = bitmap_vec;
 }
 
 std::vector<bool>
@@ -52,13 +50,13 @@ LteRlcAmPdu::getBitmapVec()
 bool
 LteRlcAmPdu::isWhole()
 {
-    return (firstSn_var==lastSn_var);
+    return (firstSn_var == lastSn_var);
 }
 
 bool
 LteRlcAmPdu::isFirst()
 {
-    return (firstSn_var==snoFragment_var);
+    return (firstSn_var == snoFragment_var);
 
 }
 
@@ -71,5 +69,5 @@ LteRlcAmPdu::isMiddle()
 bool
 LteRlcAmPdu::isLast()
 {
-    return (lastSn_var==snoFragment_var);
+    return (lastSn_var == snoFragment_var);
 }

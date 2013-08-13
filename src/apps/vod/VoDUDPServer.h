@@ -48,19 +48,20 @@ class VoDUDPServer : public cSimpleModule
     std::vector<int> vclientsPort;
     std::vector<double> vclientsStartStreamTime;
     std::vector<double> vclientsReqTime;
-    std::vector<IPvXAddress>  clientAddr;
-
+    std::vector<IPvXAddress> clientAddr;
 
     /* Statistics */
 
     unsigned int numStreams;  // number of video streams served
     unsigned long numPkSent;  // total number of packets sent
 
-    struct tracerec{
+    struct tracerec
+    {
         uint32_t trec_time;
         uint32_t trec_size;
     };
-    struct svcPacket{
+    struct svcPacket
+    {
         int tid;
         int lid;
         int qid;
@@ -88,7 +89,7 @@ class VoDUDPServer : public cSimpleModule
   protected:
 
     void initialize(int stage);
-    virtual int numInitStages() const {return 4;}
+    virtual int numInitStages() const { return 4; }
     virtual void finish();
     virtual void handleMessage(cMessage*);
     virtual void handleNS2Message(cMessage*);

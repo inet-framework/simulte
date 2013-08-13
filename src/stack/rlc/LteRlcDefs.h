@@ -9,7 +9,6 @@
 // and cannot be removed from it.
 // 
 
-
 #ifndef LTERLCDEFS_H_
 #define LTERLCDEFS_H_
 
@@ -21,7 +20,8 @@
 /*!
  * LTE RLC AM Types
  */
-enum LteAmType {
+enum LteAmType
+{
     //! Data packet
     DATA = 0,
     //****** control packets ********
@@ -39,7 +39,8 @@ enum LteAmType {
  * RLC AM Window descriptor
  */
 
-struct RlcFragDesc {
+struct RlcFragDesc
+{
 
     /*!
      * Main SDU size (bytes) - the size of  the SDU to be fragmented
@@ -67,7 +68,8 @@ struct RlcFragDesc {
      */
     int firstSn_;
 
-    RlcFragDesc() {
+    RlcFragDesc()
+    {
 
         fragUnit_ = 0;
         resetFragmentation();
@@ -76,7 +78,8 @@ struct RlcFragDesc {
      * Configures the fragmentation descriptor for working on SDU of size sduSize
      */
 
-    void startFragmentation(unsigned int sduSize, unsigned int firstFragment) {
+    void startFragmentation(unsigned int sduSize, unsigned int firstFragment)
+    {
         totalFragments_ = ceil((double) sduSize / (double) fragUnit_);
         fragCounter_ = 0;
         firstSn_ = firstFragment;
@@ -98,7 +101,8 @@ struct RlcFragDesc {
      * adds a fragment to created ones. if last is added, returns true
      */
 
-    bool addFragment() {
+    bool addFragment()
+    {
         fragCounter_++;
         if (fragCounter_ >= totalFragments_)
             return true;
@@ -108,8 +112,9 @@ struct RlcFragDesc {
 
 };
 
-struct RlcWindowDesc {
-public:
+struct RlcWindowDesc
+{
+  public:
     //! Sequence number of the first PDU in the TxWindow
     unsigned int firstSeqNum_;
     //! Sequence number of current PDU in the TxWindow
@@ -117,7 +122,8 @@ public:
     //! Size of the transmission window
     unsigned int windowSize_;
 
-    RlcWindowDesc() {
+    RlcWindowDesc()
+    {
         seqNum_ = 0;
         firstSeqNum_ = 0;
         windowSize_ = 0;
@@ -127,19 +133,22 @@ public:
 /*!
  * Move Receiver Window command descriptor
  */
-struct MrwDesc {
+struct MrwDesc
+{
     //! MRW current Sequence Number
     unsigned int mrwSeqNum_;
     //! Last MRW Sequence Number
     unsigned int lastMrw_;
 
-    MrwDesc() {
+    MrwDesc()
+    {
         mrwSeqNum_ = 0;
         lastMrw_ = 0;
     }
 };
 
-enum RlcAmTimerType {
+enum RlcAmTimerType
+{
     PDU_T = 0, MRW_T = 1, BUFFER_T = 2, BUFFERSTATUS_T = 3
 };
 

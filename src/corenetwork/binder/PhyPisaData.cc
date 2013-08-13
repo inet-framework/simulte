@@ -2644,24 +2644,28 @@ double lambdaTable[][3]={{1.597911858997, 0.710313546117, 2.249586633581}, {1.59
         {1.962448318545, 0.606981312567, 3.233128068220}, {1.271005295625, 0.109347499453, 11.623542394517}, {2.375085806098, 0.161405454565, 14.715028141352}, {1.267014104291, 0.288956792147, 4.384787410182}};
 
 
-PhyPisaData::PhyPisaData(){
+PhyPisaData::PhyPisaData()
+{
     // TODO Auto-generated constructor stub
-    memcpy(blerCurves_,blerCurvesNew,sizeof(double)*3*15*49);
-    memcpy(lambdaTable_,lambdaTable,sizeof(double)*10000*3);
+    memcpy(blerCurves_, blerCurvesNew, sizeof(double) * 3 * 15 * 49);
+    memcpy(lambdaTable_, lambdaTable, sizeof(double) * 10000 * 3);
     channel_.resize(10000);
-    double x,y;
-    for(int i=0;i<1000;i++){
-        x=normal(0,0.5);
-        y=normal(0,0.5);
-        channel_[i]=(x*x)+(y*y);
+    double x, y;
+    for (int i = 0; i < 1000; i++)
+    {
+        x = normal(0, 0.5);
+        y = normal(0, 0.5);
+        channel_[i] = (x * x) + (y * y);
     }
 }
 
-PhyPisaData::~PhyPisaData() {
+PhyPisaData::~PhyPisaData()
+{
     // TODO Auto-generated destructor stub
 }
 
-double PhyPisaData::getChannel(unsigned int i){
-    i=i%channel_.size();
+double PhyPisaData::getChannel(unsigned int i)
+{
+    i = i % channel_.size();
     return channel_[i];
 }

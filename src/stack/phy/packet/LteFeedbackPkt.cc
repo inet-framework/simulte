@@ -9,9 +9,7 @@
 // and cannot be removed from it.
 // 
 
-
 #include "LteFeedbackPkt.h"
-
 
 LteFeedbackDoubleVector LteFeedbackPkt::getLteFeedbackDoubleVectorDl()
 {
@@ -29,9 +27,11 @@ void LteFeedbackPkt::setLteFeedbackDoubleVectorUl(LteFeedbackDoubleVector lteFee
 {
     lteFeedbackDoubleVectorUl_ = lteFeedbackDoubleVector;
 }
-void LteFeedbackPkt::setSourceNodeId(MacNodeId id){
-    sourceNodeId_=id;
+void LteFeedbackPkt::setSourceNodeId(MacNodeId id)
+{
+    sourceNodeId_ = id;
 }
-MacNodeId LteFeedbackPkt::getSourceNodeId(){
+MacNodeId LteFeedbackPkt::getSourceNodeId()
+{
     return sourceNodeId_;
 }

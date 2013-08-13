@@ -9,14 +9,15 @@
 // and cannot be removed from it.
 // 
 
-
 #include "LteChannelModel.h"
 
-LteChannelModel::LteChannelModel(unsigned int band) {
-        band_=band;
+LteChannelModel::LteChannelModel(unsigned int band)
+{
+    band_ = band;
 }
 
-LteChannelModel::~LteChannelModel() {
+LteChannelModel::~LteChannelModel()
+{
     // TODO Auto-generated destructor stub
 }
 

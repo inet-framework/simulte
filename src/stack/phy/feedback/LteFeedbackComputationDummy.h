@@ -9,15 +9,14 @@
 // and cannot be removed from it.
 // 
 
-
 #ifndef LTEFEEDBACKCOMPUTATIONDUMMY_H_
 #define LTEFEEDBACKCOMPUTATIONDUMMY_H_
 
 #include "LteFeedbackComputation.h"
 
-
-class LteFeedbackComputationDummy : public LteFeedbackComputation {
-protected:
+class LteFeedbackComputationDummy : public LteFeedbackComputation
+{
+  protected:
     //last advertised cqi
     CqiVector lastCqi_;
     //Channel variation probability
@@ -42,29 +41,35 @@ protected:
     Rank lastRank_;
     unsigned int numBands_;
     // Cqi computation
-    void throwCqi(FeedbackType fbType,int numBands);
+    void throwCqi(FeedbackType fbType, int numBands);
     // Rank computation
     void throwRank();
     // Generate base feedback for all types of feedback(allbands, preferred, wideband)
-    void generateBaseFeedback(int numBands,int numPreferredBabds, LteFeedback& fb, FeedbackType fbType, int cw,RbAllocationType rbAllocationType,TxMode txmode);
-public:
-    LteFeedbackComputationDummy(double channelVariationProb, int channelVariationStep,    int txDivMin, int txDivMax, int sMuxMin, int sMuxMax, int muMimoMin, int muMimoMax,double rankVariationProb,int numband);
+    void generateBaseFeedback(int numBands, int numPreferredBabds, LteFeedback& fb, FeedbackType fbType, int cw,
+        RbAllocationType rbAllocationType, TxMode txmode);
+    public:
+    LteFeedbackComputationDummy(double channelVariationProb, int channelVariationStep, int txDivMin, int txDivMax,
+        int sMuxMin, int sMuxMax, int muMimoMin, int muMimoMax, double rankVariationProb, int numband);
     virtual ~LteFeedbackComputationDummy();
     /**
      * Performs Random Feedback computation using Pagano's rules
      *
      * @return Vector of Vector of LteFeedback indexes: Ru and Txmode
      */
-    virtual LteFeedbackDoubleVector computeFeedback(FeedbackType fbType, RbAllocationType rbAllocationType, TxMode currentTxMode,
-            std::map<Remote,int> antennaCws, int numPreferredBands,  FeedbackGeneratorType feedbackGeneratortype, int numRus,std::vector<double> snr,MacNodeId id=0);
+    virtual LteFeedbackDoubleVector computeFeedback(FeedbackType fbType, RbAllocationType rbAllocationType,
+        TxMode currentTxMode,
+        std::map<Remote, int> antennaCws, int numPreferredBands, FeedbackGeneratorType feedbackGeneratortype,
+        int numRus, std::vector<double> snr, MacNodeId id = 0);
     /**
      * Performs Random Feedback computation using Pagano's rules
      *
      * @param Remote antenna remote
      * @return Vector of LteFeedback indexes: Txmode
      */
-    virtual LteFeedbackVector computeFeedback(const Remote remote, FeedbackType fbType, RbAllocationType rbAllocationType, TxMode currentTxMode,
-            int antennaCws, int numPreferredBands,   FeedbackGeneratorType feedbackGeneratortype, int numRus,std::vector<double> snr,MacNodeId id=0);
+    virtual LteFeedbackVector computeFeedback(const Remote remote, FeedbackType fbType,
+        RbAllocationType rbAllocationType, TxMode currentTxMode,
+        int antennaCws, int numPreferredBands, FeedbackGeneratorType feedbackGeneratortype, int numRus,
+        std::vector<double> snr, MacNodeId id = 0);
     /**
      * Performs Random Feedback computation using Pagano's rules
      *
@@ -72,8 +77,10 @@ public:
      * @param Txmode txmode
      * @return  LteFeedback
      */
-    virtual LteFeedback computeFeedback(const Remote remote, TxMode txmode, FeedbackType fbType, RbAllocationType rbAllocationType,
-            int antennaCws, int numPreferredBands, FeedbackGeneratorType feedbackGeneratortype, int numRus,std::vector<double> snr,MacNodeId id=0);
+    virtual LteFeedback computeFeedback(const Remote remote, TxMode txmode, FeedbackType fbType,
+        RbAllocationType rbAllocationType,
+        int antennaCws, int numPreferredBands, FeedbackGeneratorType feedbackGeneratortype, int numRus,
+        std::vector<double> snr, MacNodeId id = 0);
 };
 
 #endif /* LTEFEEDBACKCOMPUTATIONDUMMY_H_ */

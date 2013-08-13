@@ -13,16 +13,19 @@
 
 Define_Module(Gaming);
 
-Gaming::Gaming():UDPBasicApp() {
+Gaming::Gaming() :
+    UDPBasicApp()
+{
 }
 
-Gaming::~Gaming() {
+Gaming::~Gaming()
+{
 }
 
 cPacket *Gaming::createPacket()
 {
     char msgName[32];
-    sprintf(msgName,"Gaming");
+    sprintf(msgName, "Gaming");
 
     cPacket *payload = new cPacket(msgName);
     payload->setByteLength(par("messageLength").longValue());

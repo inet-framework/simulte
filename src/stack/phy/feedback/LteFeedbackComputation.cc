@@ -9,13 +9,14 @@
 // and cannot be removed from it.
 // 
 
-
 #include "LteFeedbackComputation.h"
 
-LteFeedbackComputation::LteFeedbackComputation(){
+LteFeedbackComputation::LteFeedbackComputation()
+{
 
 }
 
-LteFeedbackComputation::~LteFeedbackComputation() {
+LteFeedbackComputation::~LteFeedbackComputation()
+{
     // TODO Auto-generated destructor stub
 }

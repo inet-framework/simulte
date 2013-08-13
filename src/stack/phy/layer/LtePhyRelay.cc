@@ -18,8 +18,10 @@ LtePhyRelay::~LtePhyRelay()
     cancelAndDelete(bdcStarter_);
 }
 
-void LtePhyRelay::initialize(int stage) {
-    if (stage == 0) {
+void LtePhyRelay::initialize(int stage)
+{
+    if (stage == 0)
+    {
         LtePhyBase::initialize(stage);
         nodeType_ = RELAY;
         masterId_ = getAncestorPar("masterId");
@@ -27,17 +29,20 @@ void LtePhyRelay::initialize(int stage) {
         WATCH(nodeType_);
         WATCH(masterId_);
 
-    } else if (stage == 1) {
+    }
+    else if (stage == 1)
+    {
         LtePhyBase::initialize(stage);
         // deployer is on DeNB
-        txPower_=relayTxPower_;
+        txPower_ = relayTxPower_;
         OmnetId masterOmnetId = binder_->getOmnetId(masterId_);
         bdcUpdateInterval_ = simulation.getModule(masterOmnetId)->
-                             getSubmodule("deployer")->
-                             par("positionUpdateInterval");
+        getSubmodule("deployer")->
+        par("positionUpdateInterval");
         // TODO: add a parameter not to generate broadcasts (no handovers scenario)
         // e.g.: if (bdcUpdateInterval_ != 0 && !!doHandovers)
-        if (bdcUpdateInterval_ != 0) {
+        if (bdcUpdateInterval_ != 0)
+        {
             // self message provoking the generation of a broadcast message
             bdcStarter_ = new cMessage("bdcStarter");
             scheduleAt(NOW, bdcStarter_);
@@ -45,8 +50,10 @@ void LtePhyRelay::initialize(int stage) {
     }
 }
 
-void LtePhyRelay::handleSelfMessage(cMessage *msg) {
-    if (msg->isName("bdcStarter")) {
+void LtePhyRelay::handleSelfMessage(cMessage *msg)
+{
+    if (msg->isName("bdcStarter"))
+    {
         // send broadcast message
         LteAirFrame *f = createHandoverMessage();
         sendBroadcast(f);
@@ -54,28 +61,31 @@ void LtePhyRelay::handleSelfMessage(cMessage *msg) {
     }
 }
 
-void LtePhyRelay::handleAirFrame(cMessage* msg) {
+void LtePhyRelay::handleAirFrame(cMessage* msg)
+{
     UserControlInfo* lteInfo = check_and_cast<UserControlInfo*>(msg->removeControlInfo());
-    LteAirFrame* frame = static_cast<LteAirFrame* >(msg);
+    LteAirFrame* frame = static_cast<LteAirFrame*>(msg);
     EV << "LtePhy: received new LteAirFrame with ID "
        << frame->getId() << " from channel" << endl;
 
-    if (lteInfo->getFrameType() == HANDOVERPKT) {
+    if (lteInfo->getFrameType() == HANDOVERPKT)
+    {
         // handover broadcast frames must not be relayed or processed by eNB
         delete frame;
         return;
     }
 
     // send H-ARQ feedback up
-    if (lteInfo->getFrameType() == HARQPKT) {
+    if (lteInfo->getFrameType() == HARQPKT)
+    {
         handleControlMsg(frame, lteInfo);
         return;
     }
 
     bool result;
-    result= channelModel_->error(frame,lteInfo);
+    result = channelModel_->error(frame, lteInfo);
     // update statistics
-    if(result)
+    if (result)
         numAirFrameReceived_++;
     else
         numAirFrameNotReceived_++;
@@ -96,6 +106,6 @@ void LtePhyRelay::handleAirFrame(cMessage* msg) {
     send(pkt, upperGateOut_);
 
     if (ev.isGUI())
-        updateDisplayString();
+    updateDisplayString();
 }
 

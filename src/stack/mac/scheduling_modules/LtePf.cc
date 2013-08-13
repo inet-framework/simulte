@@ -1,22 +1,21 @@
-// 
+//
 //                           SimuLTE
 // Copyright (C) 2012 Antonio Virdis, Daniele Migliorini, Giovanni
 // Accongiagioco, Generoso Pagano, Vincenzo Pii.
-// 
+//
 // This file is part of a software released under the license included in file
 // "license.pdf". This license can be also found at http://www.ltesimulator.com/
-// The above file and the present reference are part of the software itself, 
+// The above file and the present reference are part of the software itself,
 // and cannot be removed from it.
-// 
+//
 
 #include <LtePf.h>
 #include <LteSchedulerEnb.h>
 
-
 void LtePf::prepareSchedule()
 {
-    
-    EV << NOW << "LtePf::execSchedule ############### eNodeB " << eNbScheduler_->mac_->getMacNodeId() <<  " ###############" << endl;
+
+    EV << NOW << "LtePf::execSchedule ############### eNodeB " << eNbScheduler_->mac_->getMacNodeId() << " ###############" << endl;
     EV << NOW << "LtePf::execSchedule Direction: " << ( ( direction_ == DL ) ? " DL ": " UL ") << endl;
 
     // Clear structures
@@ -30,7 +29,7 @@ void LtePf::prepareSchedule()
 
     ActiveSet::iterator cidIt = activeConnectionTempSet_.begin();
     ActiveSet::iterator cidEt = activeConnectionTempSet_.end();
-    
+
     for(; cidIt != cidEt; ++cidIt)
     {
         MacCid cid = *cidIt;
@@ -41,18 +40,19 @@ void LtePf::prepareSchedule()
         const std::set<Band>& bands = info.readBands();
         unsigned int codeword=info.getLayers().size();
         if (eNbScheduler_->allocatedCws(nodeId)==codeword)
-                    continue;
+        continue;
         std::set<Band>::const_iterator it = bands.begin(),et=bands.end();
 
-        std::set<Remote>::iterator antennaIt = info.readAntennaSet().begin(),  antennaEt=info.readAntennaSet().end();
+        std::set<Remote>::iterator antennaIt = info.readAntennaSet().begin(), antennaEt=info.readAntennaSet().end();
 
         bool cqiNull=false;
-        for (unsigned int i=0;i<codeword;i++){
+        for (unsigned int i=0;i<codeword;i++)
+        {
             if (info.readCqiVector()[i]==0)
-                cqiNull=true;
+            cqiNull=true;
         }
         if (cqiNull)
-            continue;
+        continue;
         // compute score based on total available bytes
         unsigned int availableBlocks=0;
         unsigned int availableBytes =0;
@@ -66,7 +66,7 @@ void LtePf::prepareSchedule()
                 availableBytes += eNbScheduler_->mac_->getAmc()->computeBytesOnNRbs(nodeId,*it, availableBlocks, direction_);
             }
         }
-        
+
         double s=.0;
 
         if (pfRate_.find(cid)==pfRate_.end()) pfRate_[cid]=0;
@@ -79,31 +79,29 @@ void LtePf::prepareSchedule()
         ScoreDesc desc(cid,s);
         score.push(desc);
 
-        EV << NOW << "LtePf::execSchedule CID " << cid <<  "- Score = " <<  s  << endl;
+        EV << NOW << "LtePf::execSchedule CID " << cid << "- Score = " << s << endl;
     }
-    
 
     // Schedule the connections in score order.
     while(!score.empty())
     {
         // Pop the top connection from the list.
         ScoreDesc current = score.top();
-        MacCid cid = current.x_;    // The CID
+        MacCid cid = current.x_;// The CID
 
         EV << NOW << "LtePf::execSchedule @@@@@@@@@@@@@@@@@@@@@@@@@@@@@@" << endl;
-        EV << NOW << "LtePf::execSchedule CID: "<< cid ;
+        EV << NOW << "LtePf::execSchedule CID: " << cid;
         EV << NOW << "LtePf::execSchedule Score: " << current.score_ << endl;
-
 
         // Grant data to that connection.
         bool terminate = false;
         bool active = true;
         bool eligible = true;
-        
+
         unsigned int granted = eNbScheduler_->scheduleGrant(cid, 4294967295U, terminate, active, eligible);
         grantedBytes_[cid] += granted;
 
-        EV << NOW << "LtePf::execSchedule Granted: " << granted <<" bytes" << endl;
+        EV << NOW << "LtePf::execSchedule Granted: " << granted << " bytes" << endl;
 
         // Exit immediately if the terminate flag is set.
         if(terminate)
@@ -116,9 +114,9 @@ void LtePf::prepareSchedule()
         if(!active || !eligible)
         {
             score.pop ();
-            
+
             if(!eligible)
-                EV << NOW << "LtePf::execSchedule NOT ELIGIBLE " << endl;
+            EV << NOW << "LtePf::execSchedule NOT ELIGIBLE " << endl;
         }
 
         // Set the connection as inactive if indicated by the grant ().
@@ -130,49 +128,50 @@ void LtePf::prepareSchedule()
     }
 }
 
-void LtePf::commitSchedule(){    
+void LtePf::commitSchedule()
+{
 
     unsigned int total = eNbScheduler_->resourceBlocks_;
 
     std::map<MacCid, unsigned int>::iterator it = grantedBytes_.begin();
     std::map<MacCid, unsigned int>::iterator et = grantedBytes_.end();
-    
-    for(; it != et; ++it)
+
+    for (; it != et; ++it)
     {
         MacCid cid = it->first;
         unsigned int granted = it->second;
-        
+
         EV << NOW << " LtePf::storeSchedule @@@@@@@@@@@@@@@@@@@@@@@@@@@@@@" << endl;
         EV << NOW << " LtePf::storeSchedule CID: " << cid << endl;
-        EV << NOW << " LtePf::storeSchedule Direction: " << ((direction_ == DL) ? "DL": "UL" )<< endl;
+        EV << NOW << " LtePf::storeSchedule Direction: " << ((direction_ == DL) ? "DL": "UL" ) << endl;
 
-        
         // Computing the short term rate
         double shortTermRate;
-        
-        if(total > 0) shortTermRate = double(granted) / double(total);
-        else shortTermRate = 0.0;
-        
+
+        if (total > 0)
+            shortTermRate = double(granted) / double(total);
+        else
+            shortTermRate = 0.0;
+
         EV << NOW << " LtePf::storeSchedule Short Term Rate " << shortTermRate << endl;
-        
+
         // Updating the long term rate
         double& longTermRate = pfRate_[cid];
-        longTermRate = (1.0-pfAlpha_)*longTermRate + pfAlpha_*shortTermRate;
-        
+        longTermRate = (1.0 - pfAlpha_) * longTermRate + pfAlpha_ * shortTermRate;
+
         EV << NOW << "LtePf::storeSchedule Long Term Rate = " << longTermRate;
     }
 
     activeConnectionSet_ = activeConnectionTempSet_;
 }
 
-
-void 
+void
 LtePf::updateSchedulingInfo()
 {
 
 }
 
-void 
+void
 LtePf::notifyActiveConnection(MacCid cid)
 {
     EV << NOW << " LtePf::notify CID notified " << cid << endl;
@@ -180,7 +179,7 @@ LtePf::notifyActiveConnection(MacCid cid)
 }
 
 void
-LtePf::removeActiveConnection( MacCid cid )
+LtePf::removeActiveConnection(MacCid cid)
 {
     EV << NOW << " LtePf::remove CID removed " << cid << endl;
     activeConnectionSet_.erase (cid);

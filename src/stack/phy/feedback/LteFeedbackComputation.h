@@ -9,15 +9,14 @@
 // and cannot be removed from it.
 //
 
-
 #ifndef LTEFEEDBACKCOMPUTATION_H_
 #define LTEFEEDBACKCOMPUTATION_H_
 
 #include "LteFeedback.h"
 
-
-class LteFeedbackComputation {
-public:
+class LteFeedbackComputation
+{
+  public:
     LteFeedbackComputation();
     virtual ~LteFeedbackComputation();
     /**
@@ -30,8 +29,10 @@ public:
      * @param Number of preferred bands
      * @return Vector of Vector of LteFeedback indexes: Ru and Txmode
      */
-    virtual LteFeedbackDoubleVector computeFeedback(FeedbackType fbType, RbAllocationType rbAllocationType, TxMode currentTxMode,
-            std::map<Remote,int> antennaCws, int numPreferredBands,  FeedbackGeneratorType feedbackGeneratortype,int numRus,std::vector<double> snr,MacNodeId id=0 )=0;
+    virtual LteFeedbackDoubleVector computeFeedback(FeedbackType fbType, RbAllocationType rbAllocationType,
+        TxMode currentTxMode,
+        std::map<Remote, int> antennaCws, int numPreferredBands, FeedbackGeneratorType feedbackGeneratortype,
+        int numRus, std::vector<double> snr, MacNodeId id = 0)=0;
     /**
      * Interface for Feedback computation
      *
@@ -43,8 +44,10 @@ public:
      * @param Number of preferred bands
      * @return Vector of LteFeedback indexes: Txmode
      */
-    virtual LteFeedbackVector computeFeedback(const Remote remote, FeedbackType fbType, RbAllocationType rbAllocationType, TxMode currentTxMode,
-            int antennaCws, int numPreferredBands, FeedbackGeneratorType feedbackGeneratortype, int numRus,std::vector<double> snr,MacNodeId id=0)=0;
+    virtual LteFeedbackVector computeFeedback(const Remote remote, FeedbackType fbType,
+        RbAllocationType rbAllocationType, TxMode currentTxMode,
+        int antennaCws, int numPreferredBands, FeedbackGeneratorType feedbackGeneratortype, int numRus,
+        std::vector<double> snr, MacNodeId id = 0)=0;
     /**
      * Interface for Feedback computation
      *
@@ -57,8 +60,10 @@ public:
      * @param Number of preferred bands
      * @return  LteFeedback
      */
-    virtual LteFeedback computeFeedback(const Remote remote, TxMode txmode, FeedbackType fbType, RbAllocationType rbAllocationType,
-            int antennaCws, int numPreferredBands, FeedbackGeneratorType feedbackGeneratortype,int numRus,std::vector<double> snr ,MacNodeId id=0)=0;
+    virtual LteFeedback computeFeedback(const Remote remote, TxMode txmode, FeedbackType fbType,
+        RbAllocationType rbAllocationType,
+        int antennaCws, int numPreferredBands, FeedbackGeneratorType feedbackGeneratortype, int numRus,
+        std::vector<double> snr, MacNodeId id = 0)=0;
 };
 
 #endif /* LTEFEEDBACKCOMPUTATION_H_ */

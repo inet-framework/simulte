@@ -9,7 +9,6 @@
 // and cannot be removed from it.
 // 
 
-
 #ifndef __LTE_FEEDBACKTESTER_H_
 #define __LTE_FEEDBACKTESTER_H_
 

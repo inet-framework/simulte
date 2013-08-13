@@ -26,8 +26,6 @@
 #include <map>
 #include "gtp_common.h"
 
-
-
 /**
  * GtpUser is used for building data tunnels between GTP peers.
  * GtpUser can receive two kind of packets:
@@ -46,32 +44,32 @@
  * The teidTable and tftTable are filled via XML configuration files. All fields are mandatory
  *
  * Example format for teidTable
-  <config>
-   <teidTable>
-        <teid
-            teidIn  ="0"
-            teidOut ="127"
-            nextHop ="0.0.0.0"
-        />
-        <teid
-            teidIn  ="1"
-            teidOut ="2"
-            nextHop ="192.168.1.1"
-        />
-    </teidTable>
-  </config>
+ <config>
+ <teidTable>
+ <teid
+ teidIn  ="0"
+ teidOut ="127"
+ nextHop ="0.0.0.0"
+ />
+ <teid
+ teidIn  ="1"
+ teidOut ="2"
+ nextHop ="192.168.1.1"
+ />
+ </teidTable>
+ </config>
  *
  *
  * Example format for tftTable
-  <config>
-    <tftTable>
-        <tft
-            tftId   ="1"
-            teidOut ="1"
-            nextHop ="192.168.4.2"
-        />
-    </tftTable>
-  </config>
+ <config>
+ <tftTable>
+ <tft
+ tftId   ="1"
+ teidOut ="1"
+ nextHop ="192.168.4.2"
+ />
+ </tftTable>
+ </config>
  *
  */
 class GtpUser : public cSimpleModule
@@ -101,7 +99,7 @@ class GtpUser : public cSimpleModule
 
   protected:
 
-    virtual int numInitStages() const {return 4;}
+    virtual int numInitStages() const { return 4; }
     virtual void initialize(int stage);
     virtual void handleMessage(cMessage *msg);
 

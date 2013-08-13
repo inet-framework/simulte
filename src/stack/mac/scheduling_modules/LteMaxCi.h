@@ -17,13 +17,12 @@
 class LteMaxCi : public virtual LteScheduler
 {
 
-    protected:
+  protected:
 
-    typedef SortedDesc<MacCid,unsigned int> ScoreDesc;
+    typedef SortedDesc<MacCid, unsigned int> ScoreDesc;
     typedef std::priority_queue<ScoreDesc> ScoreList;
 
-
-    public:
+  public:
 
     virtual void prepareSchedule();
 
@@ -31,9 +30,9 @@ class LteMaxCi : public virtual LteScheduler
 
     // *****************************************************************************************
 
-    void notifyActiveConnection ( MacCid cid );
+    void notifyActiveConnection(MacCid cid);
 
-    void removeActiveConnection ( MacCid cid );
+    void removeActiveConnection(MacCid cid);
 
     void updateSchedulingInfo();
 };

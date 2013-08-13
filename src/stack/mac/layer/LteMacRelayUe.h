@@ -9,14 +9,14 @@
 // and cannot be removed from it.
 // 
 
-
 #ifndef LTEMACRELAYUE_H_
 #define LTEMACRELAYUE_H_
 
 #include "LteMacUe.h"
 
-class LteMacRelayUe: public LteMacUe {
-public:
+class LteMacRelayUe : public LteMacUe
+{
+  public:
     LteMacRelayUe();
     virtual ~LteMacRelayUe();
 };

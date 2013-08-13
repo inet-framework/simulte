@@ -22,7 +22,7 @@ class LcgScheduler;
  */
 class LteSchedulerUeUl
 {
-    protected:
+  protected:
 
     // MAC module, queried for parameters
     LteMacUe *mac_;
@@ -33,13 +33,13 @@ class LteSchedulerUeUl
     // Inner Scheduler - default to Standard LCG
     LcgScheduler* lcgScheduler_;
 
-    public:
+  public:
 
     /* Performs the standard LCG scheduling algorithm
      * @returns reference to scheduling list
      */
 
-     LteMacScheduleList* schedule();
+    LteMacScheduleList* schedule();
 
     /*
      * constructor

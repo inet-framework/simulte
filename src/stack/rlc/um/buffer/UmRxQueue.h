@@ -9,8 +9,6 @@
 // and cannot be removed from it.
 // 
 
-
-
 #ifndef UMRXBUFFER_H_
 #define UMRXBUFFER_H_
 
@@ -52,62 +50,61 @@ class LteRlcUm;
 class UmRxQueue : public cSimpleModule
 {
 
-    public:
-        UmRxQueue();
-        virtual ~UmRxQueue();
+  public:
+    UmRxQueue();
+    virtual ~UmRxQueue();
 
-        /**
-         * defragment() is called by the receiver via direct method call.
-         * It performs the following tasks:
-         * - takes ownership of the packet
-         * - stores the packet (identified by its sequence number)
-         *   inside the reception buffer
-         * - checks if all fragments have been received
-         *   for the given sequence number:
-         *   - if yes, decapsulates the original packet
-         *     and sends it to the upper layers
-         *   - if no returns false
-         *
-         * When a new packet is received (no fragments are stored for
-         * this packet) the Buffer starts a timer, and if timer expires
-         * acquired fragments are discarded.
-         *
-         * @param pkt Packet to fragment
-         * @return true if packet defragmented, false otherwise
-         */
-        bool defragment(cPacket* pkt);
+    /**
+     * defragment() is called by the receiver via direct method call.
+     * It performs the following tasks:
+     * - takes ownership of the packet
+     * - stores the packet (identified by its sequence number)
+     *   inside the reception buffer
+     * - checks if all fragments have been received
+     *   for the given sequence number:
+     *   - if yes, decapsulates the original packet
+     *     and sends it to the upper layers
+     *   - if no returns false
+     *
+     * When a new packet is received (no fragments are stored for
+     * this packet) the Buffer starts a timer, and if timer expires
+     * acquired fragments are discarded.
+     *
+     * @param pkt Packet to fragment
+     * @return true if packet defragmented, false otherwise
+     */
+    bool defragment(cPacket* pkt);
 
-    protected:
+  protected:
 
-        /**
-         * Initialize watches
-         */
-        virtual void initialize();
-        virtual void handleMessage(cMessage* msg);
+    /**
+     * Initialize watches
+     */
+    virtual void initialize();
+    virtual void handleMessage(cMessage* msg);
 
-        //Statistics
-        TaggedSample *tSample_;
-        TaggedSample *tSampleCell_;
+    //Statistics
+    TaggedSample *tSample_;
+    TaggedSample *tSampleCell_;
 
-        simsignal_t rlcCellPacketLoss_;
-        simsignal_t rlcPacketLoss_;
-        simsignal_t rlcPduPacketLoss_;
-        simsignal_t rlcDelay_;
-        simsignal_t rlcPduDelay_;
-        simsignal_t rlcCellThroughput_;
-        simsignal_t rlcThroughput_;
-        simsignal_t rlcPduThroughput_;
+    simsignal_t rlcCellPacketLoss_;
+    simsignal_t rlcPacketLoss_;
+    simsignal_t rlcPduPacketLoss_;
+    simsignal_t rlcDelay_;
+    simsignal_t rlcPduDelay_;
+    simsignal_t rlcCellThroughput_;
+    simsignal_t rlcThroughput_;
+    simsignal_t rlcPduThroughput_;
 
+  private:
+    /// Reception buffer
+    UmFragbuf fragbuf_;
 
-    private:
-        /// Reception buffer
-        UmFragbuf fragbuf_;
+    /// Timer
+    TMultiTimer timer_;
 
-        /// Timer
-        TMultiTimer timer_;
-
-        /// Timeout for above timer
-        double timeout_;
+    /// Timeout for above timer
+    double timeout_;
 
 };
 

@@ -9,7 +9,6 @@
 // and cannot be removed from it.
 //
 
-
 #include "InterfaceTableAccess.h"
 #include "IPv4InterfaceData.h"
 #include "LteMacBase.h"
@@ -24,7 +23,6 @@
 #include "LteMacBuffer.h"
 #include "assert.h"
 
-
 LteMacBase::LteMacBase()
 {
     mbuf_.clear();
@@ -35,8 +33,10 @@ LteMacBase::~LteMacBase()
 {
     LteMacBuffers::iterator mit;
     LteMacBufferMap::iterator vit;
-    for(mit = mbuf_.begin(); mit != mbuf_.end(); mit++) delete mit->second;
-    for(vit = macBuffers_.begin(); vit != macBuffers_.end(); vit++) delete vit->second;
+    for (mit = mbuf_.begin(); mit != mbuf_.end(); mit++)
+        delete mit->second;
+    for (vit = macBuffers_.begin(); vit != macBuffers_.end(); vit++)
+        delete vit->second;
     mbuf_.clear();
     macBuffers_.clear();
     harqTxBuffers_.clear();
@@ -45,7 +45,7 @@ LteMacBase::~LteMacBase()
 
 void LteMacBase::sendUpperPackets(cPacket* pkt)
 {
-    EV << "LteMacBase : Sending packet " << pkt->getName() <<" on port MAC_to_RLC\n";
+    EV << "LteMacBase : Sending packet " << pkt->getName() << " on port MAC_to_RLC\n";
     // Send message
     send(pkt,up_[OUT]);
     emit(sentPacketToUpperLayer, pkt);
@@ -60,9 +60,9 @@ void LteMacBase::sendLowerPackets(cPacket* pkt)
     emit(sentPacketToLowerLayer, pkt);
 }
 
-/*
- * Upper layer handler
- */
+    /*
+     * Upper layer handler
+     */
 
 void LteMacBase::fromRlc(cPacket *pkt)
 {
@@ -85,8 +85,9 @@ void LteMacBase::fromPhy(cPacket *pkt)
     {
         // H-ARQ feedback, send it to TX buffer of source
         HarqTxBuffers::iterator htit = harqTxBuffers_.find(src);
-        EV << NOW <<  "Mac::fromPhy: node " << nodeId_<<" Received HARQ Feeback pkt" << endl;
-        if (htit == harqTxBuffers_.end()) {
+        EV << NOW << "Mac::fromPhy: node " << nodeId_ << " Received HARQ Feeback pkt" << endl;
+        if (htit == harqTxBuffers_.end())
+        {
             // if a feeback arrives, a tx buffer must exists (unless it is an handover scenario
             // where the harq buffer was deleted but a feedback was in transit)
             // this case must be taken care of
@@ -98,37 +99,41 @@ void LteMacBase::fromPhy(cPacket *pkt)
     else if (userInfo->getFrameType() == FEEDBACKPKT)
     {
         //Feedback pkt
-        EV << NOW <<  "Mac::fromPhy: node " << nodeId_<<" Received feedback pkt" << endl;
+        EV << NOW << "Mac::fromPhy: node " << nodeId_ << " Received feedback pkt" << endl;
         macHandleFeedbackPkt(pkt);
     }
     else if (userInfo->getFrameType()==GRANTPKT)
     {
         //Scheduling Grant
-        EV << NOW <<  "Mac::fromPhy: node " << nodeId_<<" Received Scheduling Grant pkt" << endl;
+        EV << NOW << "Mac::fromPhy: node " << nodeId_ << " Received Scheduling Grant pkt" << endl;
         macHandleGrant(pkt);
     }
     else if(userInfo->getFrameType() == DATAPKT)
     {
         // data packet: insert in proper rx buffer
-        EV << NOW <<  "Mac::fromPhy: node " << nodeId_<<" Received DATA packet" << endl;
+        EV << NOW << "Mac::fromPhy: node " << nodeId_ << " Received DATA packet" << endl;
         LteMacPdu *pdu = check_and_cast<LteMacPdu *>(pkt);
         Codeword cw = userInfo->getCw();
         HarqRxBuffers::iterator hrit = harqRxBuffers_.find(src);
         if (hrit != harqRxBuffers_.end())
         {
             hrit->second->insertPdu(cw,pdu);
-        } else {
+        }
+        else
+        {
             // FIXME: possible memory leak
             LteHarqBufferRx *hrb = new LteHarqBufferRx(ENB_RX_HARQ_PROCESSES, this,src);
             harqRxBuffers_[src] = hrb;
             hrb->insertPdu(cw,pdu);
         }
-    } else if (userInfo->getFrameType() == RACPKT)
+    }
+    else if (userInfo->getFrameType() == RACPKT)
     {
-        EV << NOW <<  "Mac::fromPhy: node " << nodeId_<<" Received RAC packet" << endl;
+        EV << NOW << "Mac::fromPhy: node " << nodeId_ << " Received RAC packet" << endl;
         macHandleRac(pkt);
     }
-    else {
+    else
+    {
         throw cRuntimeError("Unknown packet type %d", (int)userInfo->getFrameType());
     }
 }
@@ -143,10 +148,12 @@ bool LteMacBase::bufferizePacket(cPacket* pkt)
     MacCid cid = ctrlInfoToMacCid(lteInfo);
 
     // build the virtual packet corresponding to this incoming packet
-    PacketInfo vpkt(pkt->getByteLength(),pkt->getTimestamp());
+    PacketInfo vpkt(pkt->getByteLength(), pkt->getTimestamp());
 
     LteMacBuffers::iterator it = mbuf_.find(cid);
-    if(it == mbuf_.end()) {        // Queue not found for this cid: create
+    if (it == mbuf_.end())
+    {
+        // Queue not found for this cid: create
         LteMacQueue* queue = new LteMacQueue(queueSize_);
         LteMacBuffer* vqueue = new LteMacBuffer();
 
@@ -159,23 +166,29 @@ bool LteMacBase::bufferizePacket(cPacket* pkt)
         FlowControlInfo toStore(*lteInfo);
         connDesc_[cid] = toStore;
         // register connection to lcg map.
-        LteTrafficClass tClass = (LteTrafficClass)lteInfo->getTraffic();
+        LteTrafficClass tClass = (LteTrafficClass) lteInfo->getTraffic();
 
-        lcgMap_.insert( LcgPair(tClass,CidBufferPair(cid,macBuffers_[cid])) );
+        lcgMap_.insert(LcgPair(tClass, CidBufferPair(cid, macBuffers_[cid])));
 
         EV << "LteMacBuffers : Using new buffer on node: " <<
-                MacCidToNodeId(cid) << " for Lcid: " << MacCidToLcid(cid) << ", Space left in the Queue: " <<
-                queue->getQueueSize() - queue->getByteLength() << "\n";
-    } else {                    // Found
+        MacCidToNodeId(cid) << " for Lcid: " << MacCidToLcid(cid) << ", Space left in the Queue: " <<
+        queue->getQueueSize() - queue->getByteLength() << "\n";
+    }
+    else
+    {
+        // Found
         LteMacQueue* queue = it->second;
         LteMacBuffer* vqueue = macBuffers_.find(cid)->second;
         if (!queue->pushBack(pkt))
         {
             tSample_->id=nodeId_;
             tSample_->sample=pkt->getByteLength();
-            if (lteInfo->getDirection()==DL){
+            if (lteInfo->getDirection()==DL)
+            {
                 emit(macBufferOverflowDl_,tSample_);
-            }else {
+            }
+            else
+            {
                 emit(macBufferOverflowUl_,tSample_);
             }
 
@@ -186,10 +199,10 @@ bool LteMacBase::bufferizePacket(cPacket* pkt)
         vqueue->pushBack(vpkt);
 
         EV << "LteMacBuffers : Using old buffer on node: " <<
-                MacCidToNodeId(cid) << " for Lcid: " << MacCidToLcid(cid) << ", Space left in the Queue: " <<
-                queue->getQueueSize() - queue->getByteLength() << "\n";
+        MacCidToNodeId(cid) << " for Lcid: " << MacCidToLcid(cid) << ", Space left in the Queue: " <<
+        queue->getQueueSize() - queue->getByteLength() << "\n";
     }
-    /// After bufferization buffers must be synchronized
+        /// After bufferization buffers must be synchronized
     assert(mbuf_[cid]->getQueueLength() == macBuffers_[cid]->getQueueLength());
     return true;
 }
@@ -198,14 +211,18 @@ void LteMacBase::deleteQueues(MacNodeId nodeId)
 {
     LteMacBuffers::iterator mit;
     LteMacBufferMap::iterator vit;
-    for(mit = mbuf_.begin(); mit != mbuf_.end(); mit++) {
-        if (MacCidToNodeId(mit->first) == nodeId) {
+    for (mit = mbuf_.begin(); mit != mbuf_.end(); mit++)
+    {
+        if (MacCidToNodeId(mit->first) == nodeId)
+        {
             delete mit->second;        // Delete Queue
             mbuf_.erase(mit);        // Delete Elem
         }
     }
-    for(vit = macBuffers_.begin(); vit != macBuffers_.end(); vit++) {
-        if (MacCidToNodeId(vit->first) == nodeId) {
+    for (vit = macBuffers_.begin(); vit != macBuffers_.end(); vit++)
+    {
+        if (MacCidToNodeId(vit->first) == nodeId)
+        {
             delete vit->second;        // Delete Queue
             macBuffers_.erase(vit);        // Delete Elem
         }
@@ -217,7 +234,8 @@ void LteMacBase::deleteQueues(MacNodeId nodeId)
 void LteMacBase::registerInterface()
 {
     IInterfaceTable *ift = InterfaceTableAccess().getIfExists();
-    if (!ift) return;
+    if (!ift)
+        return;
     interfaceEntry = new InterfaceEntry(this);
     // interface name: NIC module's name without special characters ([])
     // TODO: KLUDGE: OPP_Global is not INET_API
@@ -233,7 +251,8 @@ void LteMacBase::registerInterface()
 
 void LteMacBase::initialize(int stage)
 {
-    if (stage == 0) {
+    if (stage == 0)
+    {
         /* Gates initialization */
         up_[IN] = gate("RLC_to_MAC");
         up_[OUT] = gate("MAC_to_RLC");
@@ -260,14 +279,14 @@ void LteMacBase::initialize(int stage)
         ttiTick_ = new cMessage("ttiTick_");
         ttiTick_->setSchedulingPriority(1);        // TTI TICK after other messages
         scheduleAt(NOW + TTI, ttiTick_);
-        macBufferOverflowDl_=registerSignal("macBufferOverflowDl");
-        macBufferOverflowUl_=registerSignal("macBufferOverflowUl");
+        macBufferOverflowDl_ = registerSignal("macBufferOverflowDl");
+        macBufferOverflowUl_ = registerSignal("macBufferOverflowUl");
         receivedPacketFromUpperLayer = registerSignal("receivedPacketFromUpperLayer");
         receivedPacketFromLowerLayer = registerSignal("receivedPacketFromLowerLayer");
         sentPacketToUpperLayer = registerSignal("sentPacketToUpperLayer");
         sentPacketToLowerLayer = registerSignal("sentPacketToLowerLayer");
-        tSample_=new TaggedSample();
-        tSample_->module=this;
+        tSample_ = new TaggedSample();
+        tSample_->module = this;
 
         registerInterface();
 
@@ -277,14 +296,16 @@ void LteMacBase::initialize(int stage)
         WATCH_MAP(mbuf_);
         WATCH_MAP(macBuffers_);
     }
-    else if (stage == 2) {
+    else if (stage == 2)
+    {
         binder_->setMacNodeId(interfaceEntry->ipv4Data()->getIPAddress(), nodeId_);
     }
 }
 
 void LteMacBase::handleMessage(cMessage* msg)
 {
-    if(msg->isSelfMessage()) {
+    if (msg->isSelfMessage())
+    {
         handleSelfMessage();
         scheduleAt(NOW + TTI, msg);
         return;
@@ -292,16 +313,18 @@ void LteMacBase::handleMessage(cMessage* msg)
 
     cPacket* pkt = check_and_cast<cPacket *>(msg);
     EV << "LteMacBase : Received packet " << pkt->getName() <<
-          " from port " << pkt->getArrivalGate()->getName() << endl;
+    " from port " << pkt->getArrivalGate()->getName() << endl;
 
     cGate* incoming = pkt->getArrivalGate();
 
-    if (incoming == down_[IN]) {
+    if (incoming == down_[IN])
+    {
         // message from PHY_to_MAC gate (from lower layer)
         emit(receivedPacketFromLowerLayer, pkt);
         fromPhy(pkt);
     }
-    else {
+    else
+    {
         // message from RLC_to_MAC gate (from upper layer)
         emit(receivedPacketFromUpperLayer, pkt);
         fromRlc(pkt);
@@ -309,8 +332,8 @@ void LteMacBase::handleMessage(cMessage* msg)
     return;
 }
 
-void LteMacBase::finish() {
+void LteMacBase::finish()
+{
     // TODO make-finish
 }
-
 

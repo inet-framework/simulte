@@ -33,7 +33,6 @@
 #include "Coord.h"
 #include <algorithm>
 
-
 class LteBinder;
 class LteDeployer;
 class LteMacEnb;
@@ -101,27 +100,32 @@ typedef unsigned short Band;
 typedef unsigned short Codeword;
 
 /// Link Directions
-typedef enum {
+typedef enum
+{
     DL, UL, UNKNOWN_DIRECTION
 } Direction;
 
 /// Modulations
-typedef enum {
+typedef enum
+{
     _QPSK = 0, _16QAM, _64QAM
 } LteMod;
 
 /// Feedback reporting type
-typedef enum {
+typedef enum
+{
     ALLBANDS = 0, PREFERRED, WIDEBAND
 } FeedbackType;
 
 /// Feedback periodicity
-typedef enum {
+typedef enum
+{
     PERIODIC, APERIODIC
 } FbPeriodicity;
 
 /// Resource allocation type
-typedef enum {
+typedef enum
+{
     TYPE2_DISTRIBUTED, TYPE2_LOCALIZED
 } RbAllocationType;
 
@@ -130,29 +134,34 @@ typedef enum {
 #undef OUT
 
 /// Gate Direction
-typedef enum {
+typedef enum
+{
     IN = 0, OUT = 1
 } GateDirection;
 
 /// Lte Traffic Classes
-typedef enum {
+typedef enum
+{
     CONVERSATIONAL, STREAMING, INTERACTIVE, BACKGROUND, UNKNOWN_TRAFFIC_TYPE
 } LteTrafficClass;
 
 /// Scheduler grant type
-typedef enum {
-    FITALL = 0, FIXED_, URGENT, UNKNOWN_GRANT_TYPE  /* Note: FIXED would clash with <windows.h> */
+typedef enum
+{
+    FITALL = 0, FIXED_, URGENT, UNKNOWN_GRANT_TYPE /* Note: FIXED would clash with <windows.h> */
 } GrantType;
 
 // QCI traffic descriptor
-typedef struct {
+typedef struct
+{
     int priority;
     double packetDelayBudget;
     double packetErrorLossRate;
 } QCIParameters;
 
 /// Lte RLC Types
-typedef enum {
+typedef enum
+{
     TM, UM, AM, UNKNOWN_RLC_TYPE
 } LteRlcType;
 
@@ -163,40 +172,43 @@ typedef std::vector<double> AttenuationVector;
  *     Applications      *
  *************************/
 
-typedef enum {
+typedef enum
+{
     VOIP = 0, VOD, WEB, CBR, FTP, GAMING, FULLBUFFER, UNKNOWN_APP
 } ApplicationType;
 
-struct ApplicationTable {
+struct ApplicationTable
+{
     ApplicationType app;
     std::string appName;
 };
 
 const ApplicationTable applications[] = { ELEM(VOIP), ELEM(VOD), ELEM(WEB),
-        ELEM(CBR), ELEM(FTP), ELEM(FULLBUFFER), ELEM(UNKNOWN_APP) };
+    ELEM(CBR), ELEM(FTP), ELEM(FULLBUFFER), ELEM(UNKNOWN_APP) };
 
 /**************************
  * Scheduling discipline  *
  **************************/
 
-typedef enum {
+typedef enum
+{
     DRR, PF, MAXCI, UNKNOWN_DISCIPLINE
 } SchedDiscipline;
 
-struct SchedDisciplineTable {
+struct SchedDisciplineTable
+{
     SchedDiscipline discipline;
     std::string disciplineName;
 };
 
-const SchedDisciplineTable disciplines[] = { ELEM(DRR), ELEM(PF), ELEM(MAXCI),ELEM(UNKNOWN_DISCIPLINE) };
-
-
+const SchedDisciplineTable disciplines[] = { ELEM(DRR), ELEM(PF), ELEM(MAXCI), ELEM(UNKNOWN_DISCIPLINE) };
 
 /*************************
  *   Transmission Modes  *
  *************************/
 
-typedef enum {
+typedef enum
+{
     // Note: If you add more tx modes, update DL_NUM_TXMODE and UL_NUM_TXMODE
     SINGLE_ANTENNA_PORT0 = 0,
     SINGLE_ANTENNA_PORT5,
@@ -207,21 +219,24 @@ typedef enum {
     UNKNOWN_TX_MODE
 } TxMode;
 
-struct TxTable {
+struct TxTable
+{
     TxMode tx;
     std::string txName;
 };
 
 const TxTable txmodes[] = { ELEM(SINGLE_ANTENNA_PORT0),
-        ELEM(SINGLE_ANTENNA_PORT5), ELEM(TRANSMIT_DIVERSITY),
-        ELEM(OL_SPATIAL_MULTIPLEXING), ELEM(CL_SPATIAL_MULTIPLEXING),
-        ELEM(MULTI_USER), ELEM(UNKNOWN_TX_MODE) };
+    ELEM(SINGLE_ANTENNA_PORT5), ELEM(TRANSMIT_DIVERSITY),
+    ELEM(OL_SPATIAL_MULTIPLEXING), ELEM(CL_SPATIAL_MULTIPLEXING),
+    ELEM(MULTI_USER), ELEM(UNKNOWN_TX_MODE) };
 // Lte feedback type
-typedef enum {
+typedef enum
+{
     IDEAL = 0, REAL, DAS_AWARE, UNKNOW_FB_GEN_TYPE
 } FeedbackGeneratorType;
 
-struct FeedbackRequest {
+struct FeedbackRequest
+{
     bool request;
     FeedbackGeneratorType genType;
     FeedbackType type;
@@ -231,14 +246,14 @@ struct FeedbackRequest {
     RbAllocationType rbAllocationType;
 };
 
-struct FeedbackGeneratorTypeTable {
+struct FeedbackGeneratorTypeTable
+{
     FeedbackGeneratorType ty;
     std::string tyname;
 };
 
 const FeedbackGeneratorTypeTable feedbackGeneratorTypeTable[] = { ELEM(IDEAL),
-        ELEM(REAL), ELEM(DAS_AWARE), ELEM(UNKNOW_FB_GEN_TYPE) };
-
+    ELEM(REAL), ELEM(DAS_AWARE), ELEM(UNKNOW_FB_GEN_TYPE) };
 
 /// Number of transmission modes in DL direction.
 const unsigned char DL_NUM_TXMODE = MULTI_USER + 1;
@@ -247,11 +262,13 @@ const unsigned char DL_NUM_TXMODE = MULTI_USER + 1;
 const unsigned char UL_NUM_TXMODE = MULTI_USER + 1;
 
 /// OFDMA layers (see FIXME lteAllocationModuble.h for "layers" meaning)
-typedef enum {
+typedef enum
+{
     MAIN_PLANE = 0, MU_MIMO_PLANE
 } Plane;
 
-typedef enum {
+typedef enum
+{
     INDOOR_HOTSPOT = 0,
     URBAN_MICROCELL,
     URBAN_MACROCELL,
@@ -260,25 +277,27 @@ typedef enum {
     UNKNOW_SCENARIO
 } DeploymentScenario;
 
-struct DeploymentScenarioMapping {
+struct DeploymentScenarioMapping
+{
     DeploymentScenario scenario;
     std::string scenarioName;
 };
 
 const DeploymentScenarioMapping DeploymentScenarioTable[] = {
-        ELEM(INDOOR_HOTSPOT), ELEM(URBAN_MICROCELL), ELEM(URBAN_MACROCELL),
-        ELEM(RURAL_MACROCELL), ELEM(SUBURBAN_MACROCELL),
-        ELEM(UNKNOW_SCENARIO) };
+    ELEM(INDOOR_HOTSPOT), ELEM(URBAN_MICROCELL), ELEM(URBAN_MACROCELL),
+    ELEM(RURAL_MACROCELL), ELEM(SUBURBAN_MACROCELL),
+    ELEM(UNKNOW_SCENARIO) };
 
 const unsigned int txModeToIndex[6] = { 0, 0, 1, 2, 2, 0 };
 const TxMode indexToTxMode[3] = { SINGLE_ANTENNA_PORT0, TRANSMIT_DIVERSITY,
-        OL_SPATIAL_MULTIPLEXING };
+    OL_SPATIAL_MULTIPLEXING };
 typedef std::map<MacNodeId, TxMode> TxModeMap;
 
 const double cqiToByteTms[16] = { 0, 2, 3, 5, 11, 15, 20, 25, 36, 38, 49, 63,
-        72, 79, 89, 92 };
+    72, 79, 89, 92 };
 
-struct Lambda {
+struct Lambda
+{
     unsigned int index;
     unsigned int lambdaStart;
     unsigned int channelIndex;
@@ -297,17 +316,19 @@ double linearToDb(double lin);
  *************************/
 
 /// OFDMA Remotes (see FIXME LteAllocationModule.h for "antenna" meaning)
-typedef enum {
+typedef enum
+{
     MACRO = 0, RU1, RU2, RU3, RU4, RU5, RU6, UNKNOWN_RU
 } Remote;
 
-struct RemoteTable {
+struct RemoteTable
+{
     Remote remote;
     std::string remoteName;
 };
 
 const RemoteTable remotes[] = { ELEM(MACRO), ELEM(RU1), ELEM(RU2), ELEM(RU3),
-        ELEM(RU4), ELEM(RU5), ELEM(RU6), ELEM(UNKNOWN_RU) };
+    ELEM(RU4), ELEM(RU5), ELEM(RU6), ELEM(UNKNOWN_RU) };
 
 /**
  * Maximum number of available DAS RU per cell.
@@ -332,7 +353,8 @@ typedef std::map<Remote, std::map<Band, unsigned int> > RbMap;
  *  Lte PHY Frame Types  *
  *************************/
 
-typedef enum {
+typedef enum
+{
     DATAPKT,
     BROADCASTPKT,
     FEEDBACKPKT,
@@ -343,20 +365,22 @@ typedef enum {
     UNKNOWN_TYPE
 } LtePhyFrameType;
 
-struct LtePhyFrameTable {
+struct LtePhyFrameTable
+{
     LtePhyFrameType phyType;
     std::string phyName;
 };
 
 const LtePhyFrameTable phytypes[] = { ELEM(DATAPKT), ELEM(BROADCASTPKT),
-        ELEM(FEEDBACKPKT), ELEM(HANDOVERPKT), ELEM(GRANTPKT),
-        ELEM(UNKNOWN_TYPE) };
+    ELEM(FEEDBACKPKT), ELEM(HANDOVERPKT), ELEM(GRANTPKT),
+    ELEM(UNKNOWN_TYPE) };
 
 /*************************
  *    Lte Node Types     *
  *************************/
 
-typedef enum {
+typedef enum
+{
     INTERNET, /// Internet side of the Lte network
     ENODEB, /// eNodeB
     RELAY, /// Relay
@@ -365,28 +389,31 @@ typedef enum {
 /// unknown
 } LteNodeType;
 
-struct LteNodeTable {
+struct LteNodeTable
+{
     LteNodeType node;
     std::string nodeName;
 };
 
 const LteNodeTable nodetypes[] = { ELEM(INTERNET), ELEM(ENODEB), ELEM(RELAY),
-        ELEM(UE), ELEM(UNKNOWN_NODE_TYPE) };
+    ELEM(UE), ELEM(UNKNOWN_NODE_TYPE) };
 /**
  * Subframe type
  */
-typedef enum {
+typedef enum
+{
     NORMAL_FRAME_TYPE, MBSFN, PAGING, BROADCAST, SYNCRO, ABS, UNKNOWN_FRAME_TYPE
 } LteSubFrameType;
 
-struct LteSubFrameTypeTable {
+struct LteSubFrameTypeTable
+{
     LteSubFrameType type;
     std::string typeName;
 };
 
 const LteSubFrameTypeTable subFrametypes[] = { ELEM(NORMAL_FRAME_TYPE),
-        ELEM(MBSFN), ELEM(PAGING), ELEM(BROADCAST), ELEM(SYNCRO), ELEM(ABS),
-        ELEM(UNKNOWN_FRAME_TYPE) };
+    ELEM(MBSFN), ELEM(PAGING), ELEM(BROADCAST), ELEM(SYNCRO), ELEM(ABS),
+    ELEM(UNKNOWN_FRAME_TYPE) };
 
 //|--------------------------------------------------|
 //|----------------- ABS Management -----------------|
@@ -412,17 +439,17 @@ typedef struct
 {
     double absStatus;
     AbsBitset usableAbsInfo;
-}AbsStatusInfoMsg;
+} AbsStatusInfoMsg;
 
 //|--------------------------------------------------|
-
 
 /**
  * This is a sample used to gather statistics.
  * It contains a sample plus an id for the metric
  */
-class TaggedSample: public cObject {
-public:
+class TaggedSample : public cObject
+{
+  public:
     double sample;
     unsigned int id;
     // the emitting cComponent (module)
@@ -436,23 +463,27 @@ public:
  * If this limit is -2, the band cannot be used.
  * Among other modules, the rtxAcid and grant methods of LteSchedulerEnb use this structure.
  */
-struct BandLimit {
+struct BandLimit
+{
     /// Band which the element refers to
     Band band_;
     /// Limit of bytes (per codeword) which can be requested for the current band
     std::vector<int> limit_;
 
-    BandLimit() {
+    BandLimit()
+    {
         band_ = 0;
         limit_.resize(MAX_CODEWORDS, -1);
     }
 
     // default "from Band" constructor
-    BandLimit(Band b) {
+    BandLimit(Band b)
+    {
         band_ = b;
         limit_.resize(MAX_CODEWORDS, -1);
     }
-    bool operator<(const BandLimit rhs) const {
+    bool operator<(const BandLimit rhs) const
+    {
         return (limit_[0] > rhs.limit_[0]);
     }
 
@@ -545,12 +576,14 @@ typedef std::list<MacControlElement*> MacControlElementsList;
 #define HARQ_FB_EVALUATION_INTERVAL 3*TTI
 
 /// H-ARQ feedback (ACK, NACK)
-typedef enum {
+typedef enum
+{
     HARQNACK = 0, HARQACK = 1
 } HarqAcknowledgment;
 
 /// TX H-ARQ pdu status
-typedef enum {
+typedef enum
+{
     /// pdu is ready for retransmission (nack received)
     TXHARQ_PDU_BUFFERED = 0,
     /// pdu is waiting for feedback
@@ -562,7 +595,8 @@ typedef enum {
 } TxHarqPduStatus;
 
 /// RX H-ARQ pdu status
-typedef enum {
+typedef enum
+{
     /// no pdu, process is empty
     RXHARQ_PDU_EMPTY = 0,
     /// pdu is in evaluating state
@@ -573,7 +607,8 @@ typedef enum {
     RXHARQ_PDU_CORRUPTED
 } RxHarqPduStatus;
 
-struct RemoteUnitPhyData {
+struct RemoteUnitPhyData
+{
     int txPower;
     Coord m;
 };
@@ -587,7 +622,8 @@ typedef std::pair<unsigned char, CwList> UnitList;
 /*********************
  * Incell Interference Support
  *********************/
-typedef enum {
+typedef enum
+{
     // macro eNb
     MACRO_ENB,
     // micro eNb
@@ -601,7 +637,7 @@ struct EnbInfo
     double txPwr;
     MacNodeId id;
     LteMacEnb * mac;
-    LteRealisticChannelModel * realChan ;
+    LteRealisticChannelModel * realChan;
     cModule * eNodeB;
     int x2;
 };
@@ -671,7 +707,7 @@ const std::string grantTypeToA(GrantType gType);
 LteBinder* getBinder();
 LteDeployer* getDeployer(MacNodeId nodeId);
 cModule* getMacByMacNodeId(MacNodeId nodeId);
-cModule* getRlcByMacNodeId(MacNodeId nodeId,LteRlcType rlcType);
+cModule* getRlcByMacNodeId(MacNodeId nodeId, LteRlcType rlcType);
 LteMacBase* getMacUe(MacNodeId nodeId);
 FeedbackGeneratorType getFeedbackGeneratorType(std::string s);
 const std::string fbGeneratorTypeToA(FeedbackGeneratorType type);

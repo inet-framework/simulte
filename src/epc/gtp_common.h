@@ -16,7 +16,6 @@
 #include <list>
 #include "IPvXAddress.h"
 
-
 enum EpcNodeType
 {
     ENB,
@@ -35,16 +34,17 @@ typedef int TunnelEndpointIdentifier;
 
 struct ConnectionInfo
 {
-    ConnectionInfo(TunnelEndpointIdentifier id, IPvXAddress hop): teid(id) , nextHop(hop){}
+    ConnectionInfo(TunnelEndpointIdentifier id, IPvXAddress hop) :
+        teid(id), nextHop(hop)
+    {
+    }
 
     TunnelEndpointIdentifier teid;
     IPvXAddress nextHop;
 };
 
-typedef std::map<TunnelEndpointIdentifier,ConnectionInfo> LabelTable;
+typedef std::map<TunnelEndpointIdentifier, ConnectionInfo> LabelTable;
 //===================================================================
-
-
 
 //=================== Traffic filters management ====================
 // identifies a traffic flow template
@@ -52,8 +52,10 @@ typedef int TrafficFlowTemplateId;
 
 struct TrafficFlowTemplate
 {
-    TrafficFlowTemplate( IPvXAddress ad , unsigned int src , unsigned int dest ) : addr(ad) , srcPort(src) , destPort(dest) {};
-
+    TrafficFlowTemplate(IPvXAddress ad, unsigned int src, unsigned int dest) :
+        addr(ad), srcPort(src), destPort(dest)
+    {
+    }
     IPvXAddress addr;
 
     unsigned int srcPort;
@@ -63,7 +65,7 @@ struct TrafficFlowTemplate
 
     bool operator==(const TrafficFlowTemplate & b)
     {
-        if( (b.addr==addr) && (b.srcPort==srcPort) && (b.destPort==destPort) )
+        if ((b.addr == addr) && (b.srcPort == srcPort) && (b.destPort == destPort))
             return true;
         else
             return false;
@@ -73,13 +75,9 @@ struct TrafficFlowTemplate
 // contains a list of traffic flow templates associated to a src/dest address. It is used By the Traffic Flow Filter
 typedef std::list<TrafficFlowTemplate> TrafficFilterTemplateList;
 
-typedef std::map<IPvXAddress,TrafficFilterTemplateList> TrafficFilterTemplateTable;
+typedef std::map<IPvXAddress, TrafficFilterTemplateList> TrafficFilterTemplateTable;
 //===================================================================
 
-
-char * const * loadXmlTable(char const * attributes[] , unsigned int numAttributes);
-
-
-
+char * const * loadXmlTable(char const * attributes[], unsigned int numAttributes);
 
 #endif

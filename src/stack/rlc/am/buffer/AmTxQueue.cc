@@ -9,7 +9,6 @@
 // and cannot be removed from it.
 //
 
-
 #include "AmTxQueue.h"
 #include "LteRlcAm.h"
 #include "LteMacBase.h"
@@ -17,7 +16,8 @@
 Define_Module(AmTxQueue);
 
 AmTxQueue::AmTxQueue() :
-        pduTimer_(this), mrwTimer_(this), bufferStatusTimer_(this) {
+    pduTimer_(this), mrwTimer_(this), bufferStatusTimer_(this)
+{
     currentSdu_ = NULL;
 
     lteInfo_ = NULL;
@@ -28,7 +28,8 @@ AmTxQueue::AmTxQueue() :
 
 }
 
-void AmTxQueue::initialize() {
+void AmTxQueue::initialize()
+{
     // initialize all parameters from NED.
     maxRtx_ = par("maxRtx");
     fragDesc_.fragUnit_ = par("fragmentSize");
@@ -41,36 +42,44 @@ void AmTxQueue::initialize() {
     discarded_.resize(txWindowDesc_.windowSize_, false);
 }
 
-AmTxQueue::~AmTxQueue() {
+AmTxQueue::~AmTxQueue()
+{
 }
 
-void AmTxQueue::enque(LteRlcAmSdu* sdu) {
+void AmTxQueue::enque(LteRlcAmSdu* sdu)
+{
     EV << NOW << " AmTxQueue::enque - inserting new SDU  " << endl;
     // Buffer the SDU
     sduQueue_.insert(sdu);
 
     // Check if there are waiting SDUs
-    if (currentSdu_ == NULL) {
+    if (currentSdu_ == NULL)
+    {
         // Add AM-PDU to the transmission buffer
         if (txWindowDesc_.seqNum_ - txWindowDesc_.firstSeqNum_
-                < txWindowDesc_.windowSize_) {
+            < txWindowDesc_.windowSize_)
+        {
             // RLC AM PDUs can be added to the buffer
             addPdus();
         }
     }
 }
 
-void AmTxQueue::addPdus() {
-    Enter_Method("addPdus()");
+void AmTxQueue::addPdus()
+{
+    Enter_Method
+    ("addPdus()");
 
     // Add PDUs to the AM transmission buffer until the transmission
     // window is full or until the SDU buffer is empty
     unsigned int addedPdus = 0;
 
     while ((txWindowDesc_.seqNum_ - txWindowDesc_.firstSeqNum_)
-            < txWindowDesc_.windowSize_) {
+        < txWindowDesc_.windowSize_)
+    {
 
-        if (currentSdu_ == NULL && sduQueue_.empty()) {
+        if (currentSdu_ == NULL && sduQueue_.empty())
+        {
             // No data to send
 
             EV << NOW << " AmTxQueue::addPdus - No data to send " << endl;
@@ -78,26 +87,26 @@ void AmTxQueue::addPdus() {
         }
 
         // Check if we can start to fragment a new SDU
-        if (currentSdu_ == NULL) {
-            EV << NOW << " AmTxQueue::addPdus - No pending SDU has been found"
-                    << endl;
+        if (currentSdu_ == NULL)
+        {
+            EV << NOW << " AmTxQueue::addPdus - No pending SDU has been found" << endl;
             // Get the first available SDU (buffer has already been check'd being non empty)
             currentSdu_ = check_and_cast<LteRlcAmSdu*>(sduQueue_.pop());
 
             // Starting Fragmentation
             fragDesc_.startFragmentation(currentSdu_->getByteLength(),
-                    txWindowDesc_.seqNum_);
+                txWindowDesc_.seqNum_);
 
             EV << NOW << " AmTxQueue::addPdus current SDU size "
-                    << currentSdu_->getByteLength() << " will be fragmented in "
-                    << fragDesc_.totalFragments_ << " PDUs, each  of size "
-                    << fragDesc_.fragUnit_ << endl;
+               << currentSdu_->getByteLength() << " will be fragmented in "
+               << fragDesc_.totalFragments_ << " PDUs, each  of size "
+               << fragDesc_.fragUnit_ << endl;
 
             if (lteInfo_ != NULL)
-                delete lteInfo_;
+            delete lteInfo_;
 
             lteInfo_ = check_and_cast<FlowControlInfo*>(
-                    currentSdu_->getControlInfo()->dup());
+                currentSdu_->getControlInfo()->dup());
 
         }
         // Create a copy of the SDU
@@ -126,25 +135,29 @@ void AmTxQueue::addPdus() {
         // try the insertion into tx buffer
         int txWindowIndex = txWindowDesc_.seqNum_ - txWindowDesc_.firstSeqNum_;
 
-        if (pduRtxQueue_.get(txWindowIndex) == NULL) {
+        if (pduRtxQueue_.get(txWindowIndex) == NULL)
+        {
             // store a copy of current PDU
             LteRlcAmPdu * pduCopy = pdu->dup();
             pduCopy->setControlInfo(lteInfo->dup());
             pduRtxQueue_.addAt(txWindowIndex, pduCopy);
 
             if (received_.at(txWindowIndex) || discarded_.at(txWindowIndex))
-                throw cRuntimeError("AmTxQueue::addPdus(): trying to add a PDU to a  position marked received [%d] discarded [%d]",
-                        (int)(received_.at(txWindowIndex)) ,(int)(discarded_.at(txWindowIndex)));
+            throw cRuntimeError("AmTxQueue::addPdus(): trying to add a PDU to a  position marked received [%d] discarded [%d]",
+                (int)(received_.at(txWindowIndex)) ,(int)(discarded_.at(txWindowIndex)));
 
-        } else {
+        }
+        else
+        {
             throw cRuntimeError("AmTxQueue::addPdus(): trying to add a PDU to a busy position [%d]",
-                    txWindowIndex);
+                txWindowIndex);
         }
         // Start the PDU timer
         pduTimer_.add(pduRtxTimeout_, txWindowDesc_.seqNum_);
 
         // Update number of added PDUs for the current SDU and check if all fragments have been transmitted
-        if (fragDesc_.addFragment()) {
+        if (fragDesc_.addFragment())
+        {
             fragDesc_.resetFragmentation();
             currentSdu_ = NULL;
         }
@@ -153,52 +166,57 @@ void AmTxQueue::addPdus() {
         addedPdus++;
 
         //activate buffer checking timer
-        if (bufferStatusTimer_.busy() == false) {
+        if (bufferStatusTimer_.busy() == false)
+        {
             bufferStatusTimer_.start(bufferStatusTimeout_);
         }
 
         // send down the PDU
         LteRlcAm* lteRlc = check_and_cast<LteRlcAm *>(
-                getParentModule()->getSubmodule("am"));
+            getParentModule()->getSubmodule("am"));
         lteRlc->sendFragmented(pdu);
     }
 
     EV << NOW << " AmTxQueue::addPdus - added " << addedPdus << " PDUs" << endl;
 }
 
-void AmTxQueue::discard(const int seqNum) {
+void AmTxQueue::discard(const int seqNum)
+{
 
     int txWindowIndex = seqNum - txWindowDesc_.firstSeqNum_;
 
     EV << NOW << " AmTxQueue::discard sequence number [" << seqNum
-            << "] window index [" << txWindowIndex << "]" << endl;
+       << "] window index [" << txWindowIndex << "]" << endl;
 
-    if ((txWindowIndex < 0) || (txWindowIndex >= txWindowDesc_.windowSize_)) {
+    if ((txWindowIndex < 0) || (txWindowIndex >= txWindowDesc_.windowSize_))
+    {
         throw cRuntimeError(" AmTxQueue::discard(): requested to discard an out of window PDU :"
-                        " sequence number %d , window first sequence is %d",
-                seqNum, txWindowDesc_.firstSeqNum_);
+            " sequence number %d , window first sequence is %d",
+            seqNum, txWindowDesc_.firstSeqNum_);
     }
 
     if (discarded_.at(txWindowIndex) == true)
     {
-            EV    << " AmTxQueue::discard requested to discard an already discarded  PDU :"
-                        " sequence number" << seqNum << " , window first sequence is "<< txWindowDesc_.firstSeqNum_ << endl;
-    } else {
+        EV << " AmTxQueue::discard requested to discard an already discarded  PDU :"
+        " sequence number" << seqNum << " , window first sequence is " << txWindowDesc_.firstSeqNum_ << endl;
+    }
+    else
+    {
         // mark current PDU for discard
         discarded_.at(txWindowIndex) = true;
     }
 
     LteRlcAmPdu* pdu = check_and_cast<LteRlcAmPdu*>(
-            pduRtxQueue_.get(txWindowIndex));
+        pduRtxQueue_.get(txWindowIndex));
 
     if (pduTimer_.busy(seqNum))
-            pduTimer_.remove(seqNum);
-
+        pduTimer_.remove(seqNum);
 
     LteRlcAmPdu* nextPdu = NULL;
     // Check forward in the buffer if there are other PDUs related to the same SDU
     for (int i = (txWindowIndex + 1);
-            i < (txWindowDesc_.seqNum_ - txWindowDesc_.firstSeqNum_); ++i) {
+        i < (txWindowDesc_.seqNum_ - txWindowDesc_.firstSeqNum_); ++i)
+    {
 
         if (pduRtxQueue_.get(i) != NULL)
         {
@@ -213,10 +231,14 @@ void AmTxQueue::discard(const int seqNum) {
                     if (pduTimer_.busy(i + txWindowDesc_.firstSeqNum_))
                         pduTimer_.remove(i + txWindowDesc_.firstSeqNum_);
                 }
-            } else { // PDU belonging to different SDUs found . stopping forward search
+            }
+            else
+            {
+                // PDU belonging to different SDUs found . stopping forward search
                 break;
             }
-        } else
+        }
+        else
             break; // last PDU in bufer found , stopping forward search
     }
     // Check backward in the buffer if there are other PDUs related to the same SDU
@@ -228,8 +250,10 @@ void AmTxQueue::discard(const int seqNum) {
 
         nextPdu = check_and_cast<LteRlcAmPdu*>(pduRtxQueue_.get(i));
 
-        if (pdu->getSnoMainPacket() == nextPdu->getSnoMainPacket()) {
-            if (!discarded_.at(i)) {
+        if (pdu->getSnoMainPacket() == nextPdu->getSnoMainPacket())
+        {
+            if (!discarded_.at(i))
+            {
                 // Mark the PDU to be discarded
                 discarded_.at(i) = true;
             }
@@ -237,7 +261,9 @@ void AmTxQueue::discard(const int seqNum) {
             if (pduTimer_.busy(i + txWindowDesc_.firstSeqNum_))
                 pduTimer_.remove(i + txWindowDesc_.firstSeqNum_);
 
-        } else {
+        }
+        else
+        {
             break;
         }
     }
@@ -245,7 +271,8 @@ void AmTxQueue::discard(const int seqNum) {
     checkForMrw();
 }
 
-void AmTxQueue::checkForMrw() {
+void AmTxQueue::checkForMrw()
+{
     EV << NOW << " AmTxQueue::checkForMrw " << endl;
 
     // If there is a discarded RLC PDU at the beginning of the buffer, try
@@ -254,83 +281,97 @@ void AmTxQueue::checkForMrw() {
     bool toMove = false;
 
     for (int i = 0; i < (txWindowDesc_.seqNum_ - txWindowDesc_.firstSeqNum_);
-            ++i) {
-        if ((discarded_.at(i) == true) || (received_.at(i) == true)) {
+        ++i)
+    {
+        if ((discarded_.at(i) == true) || (received_.at(i) == true))
+        {
             lastPdu = i;
             toMove = true;
-        } else {
+        }
+        else
+        {
             break;
         }
     }
 
-    if (toMove == true) {
+    if (toMove == true)
+    {
         int lastSn = txWindowDesc_.firstSeqNum_ + lastPdu;
 
-        EV << NOW << " AmTxQueue::checkForMrw  detected a shift from " << lastSn
-                << endl;
+        EV << NOW << " AmTxQueue::checkForMrw  detected a shift from " << lastSn << endl;
 
         sendMrw(lastSn + 1);
     }
 }
 
-void AmTxQueue::moveTxWindow(const int seqNum) {
+void AmTxQueue::moveTxWindow(const int seqNum)
+{
 
     int pos = seqNum - txWindowDesc_.firstSeqNum_;
 
     // ignore the shift, it is uneffective.
-    if (pos <= 0) return;
+    if (pos <= 0)
+        return;
 
     // Shift the tx window - pos is the location after the last PDU to be removed (pointing to the new firstSeqNum_).
 
     EV << NOW << " AmTxQueue::moveTxWindow sequence number " << seqNum
-            << " corresponding index " << pos << endl;
+       << " corresponding index " << pos << endl;
 
     // Delete both discarded and received RLC PDUs
     LteRlcAmPdu* pdu = NULL;
 
-    for (int i = 0; i < pos; ++i) {
-        if (pduRtxQueue_.get(i) != NULL) {
+    for (int i = 0; i < pos; ++i)
+    {
+        if (pduRtxQueue_.get(i) != NULL)
+        {
 
             EV << NOW << " AmTxQueue::moveTxWindow deleting PDU ["
-                    << i + txWindowDesc_.firstSeqNum_
-                    << "] corresponding index " << i << endl;
+               << i + txWindowDesc_.firstSeqNum_
+               << "] corresponding index " << i << endl;
 
             pdu = check_and_cast<LteRlcAmPdu*>(pduRtxQueue_.remove(i));
             delete pdu;
             // Stop the rtx timer event
-            if (pduTimer_.busy(i + txWindowDesc_.firstSeqNum_)) {
+            if (pduTimer_.busy(i + txWindowDesc_.firstSeqNum_))
+            {
                 pduTimer_.remove(i + txWindowDesc_.firstSeqNum_);
                 EV << NOW << " AmTxQueue::moveTxWindow canceling PDU timer ["
-                        << i + txWindowDesc_.firstSeqNum_
-                        << "] corresponding index " << i << endl;
+                   << i + txWindowDesc_.firstSeqNum_
+                   << "] corresponding index " << i << endl;
             }
             received_.at(i)=false;
             discarded_.at(i)=false;
 
-        } else
-            throw cRuntimeError("AmTxQueue::moveTxWindow(): encountered empty PDU at location %d, shift position %d", i, pos);
+        }
+        else
+        throw cRuntimeError("AmTxQueue::moveTxWindow(): encountered empty PDU at location %d, shift position %d", i, pos);
     }
 
     for (int i = pos;
-            i < ((txWindowDesc_.seqNum_ - txWindowDesc_.firstSeqNum_)); ++i) {
-        if (pduRtxQueue_.get(i) != NULL) {
+        i < ((txWindowDesc_.seqNum_ - txWindowDesc_.firstSeqNum_)); ++i)
+    {
+        if (pduRtxQueue_.get(i) != NULL)
+        {
             pdu = check_and_cast<LteRlcAmPdu*>(pduRtxQueue_.remove(i));
             pduRtxQueue_.addAt(i - pos, pdu);
 
             EV << NOW << " AmTxQueue::moveTxWindow  PDU ["
-                    << i + txWindowDesc_.firstSeqNum_
-                    << "] corresponding index " << i
-                    << " being moved at position " << i - pos << endl;
+               << i + txWindowDesc_.firstSeqNum_
+               << "] corresponding index " << i
+               << " being moved at position " << i - pos << endl;
 
-        } else {
+        }
+        else
+        {
             throw cRuntimeError("AmTxQueue::moveTxWindow(): encountered empty PDU at location %d, shift position %d", i, pos);
         }
 
         EV << NOW << " AmTxQueue::moveTxWindow  PDU ["
-                << i + txWindowDesc_.firstSeqNum_
-                << "] corresponding new index " << i - pos
-                << " marked as received [" << (received_.at(i - pos))
-                << "] , discarded [" << (discarded_.at(i - pos)) << "]" << endl;
+           << i + txWindowDesc_.firstSeqNum_
+           << "] corresponding new index " << i - pos
+           << " marked as received [" << (received_.at(i - pos))
+           << "] , discarded [" << (discarded_.at(i - pos)) << "]" << endl;
 
         received_.at(i - pos) = received_.at(i);
         discarded_.at(i - pos) = discarded_.at(i);
@@ -339,22 +380,24 @@ void AmTxQueue::moveTxWindow(const int seqNum) {
         discarded_.at(i) = false;
 
         EV << NOW << " AmTxQueue::moveTxWindow  location [" << i
-                << "] corresponding new PDU "
-                << i + pos + txWindowDesc_.firstSeqNum_
-                << " marked as received [" << (received_.at(i))
-                << "] , discarded [" << (discarded_.at(i)) << "]" << endl;
+           << "] corresponding new PDU "
+           << i + pos + txWindowDesc_.firstSeqNum_
+           << " marked as received [" << (received_.at(i))
+           << "] , discarded [" << (discarded_.at(i)) << "]" << endl;
 
     }
 
-    // cleanup
+            // cleanup
     for (int i = (txWindowDesc_.seqNum_ - txWindowDesc_.firstSeqNum_);
-            i < txWindowDesc_.windowSize_; ++i) {
+        i < txWindowDesc_.windowSize_; ++i)
+    {
         if (pduRtxQueue_.get(i) != NULL)
-            throw cRuntimeError("AmTxQueue::moveTxWindow(): encountered busy PDU at location %d, shift position %d", i, pos);
+            throw cRuntimeError("AmTxQueue::moveTxWindow(): encountered busy PDU at location %d, shift position %d", i,
+                pos);
 
         EV << NOW << " AmTxQueue::moveTxWindow  empty location [" << i
-                << "] marked as received [" << (received_.at(i))
-                << "] , discarded [" << (discarded_.at(i)) << "]" << endl;
+           << "] marked as received [" << (received_.at(i))
+           << "] , discarded [" << (discarded_.at(i)) << "]" << endl;
 
         received_.at(i) = false;
         discarded_.at(i) = false;
@@ -363,19 +406,20 @@ void AmTxQueue::moveTxWindow(const int seqNum) {
     txWindowDesc_.firstSeqNum_ += pos;
 
     EV << NOW << " AmTxQueue::moveTxWindow completed. First sequence number "
-            << txWindowDesc_.firstSeqNum_ << " current sequence number "
-            << txWindowDesc_.seqNum_ << " cleaned up locations from "
-            << txWindowDesc_.seqNum_ - txWindowDesc_.firstSeqNum_ << " to "
-            << txWindowDesc_.windowSize_ - 1 << endl;
+       << txWindowDesc_.firstSeqNum_ << " current sequence number "
+       << txWindowDesc_.seqNum_ << " cleaned up locations from "
+       << txWindowDesc_.seqNum_ - txWindowDesc_.firstSeqNum_ << " to "
+       << txWindowDesc_.windowSize_ - 1 << endl;
 
     // Try to add more PDUs to the buffer
     addPdus();
 }
 
-void AmTxQueue::sendMrw(const int seqNum) {
+void AmTxQueue::sendMrw(const int seqNum)
+{
 
     EV << NOW << " AmTxQueue::sendMrw sending MRW PDU [" << mrwDesc_.mrwSeqNum_
-            << "]for sequence number " << seqNum << endl;
+       << "]for sequence number " << seqNum << endl;
 
     // duplicate SDU control info
     FlowControlInfo* lteInfo = lteInfo_->dup();
@@ -410,71 +454,81 @@ void AmTxQueue::sendMrw(const int seqNum) {
     sendPdu(pdu);
 }
 
-void AmTxQueue::sendPdu(LteRlcAmPdu* pdu) {
-    Enter_Method("sendCtrlPdu()");
+void AmTxQueue::sendPdu(LteRlcAmPdu* pdu)
+{
+    Enter_Method
+    ("sendCtrlPdu()");
     // Pass the RLC PDU to the MAC
     LteRlcAm* lteRlc = check_and_cast<LteRlcAm *>(
-            getParentModule()->getSubmodule("am"));
+        getParentModule()->getSubmodule("am"));
     lteRlc->sendFragmented(pdu);
 }
 
-void AmTxQueue::handleControlPacket(cPacket* pkt) {
-    Enter_Method("handleControlPacket()");
+void AmTxQueue::handleControlPacket(cPacket* pkt)
+{
+    Enter_Method
+    ("handleControlPacket()");
     LteRlcAmPdu * pdu = check_and_cast<LteRlcAmPdu*>(pkt);
     // get RLC type descriptor
     short type = pdu->getAmType();
 
-    switch (type) {
-    case MRW_ACK:
-        EV << NOW << " AmTxQueue::handleControlPacket , received MRW ACK ["
-                << pdu->getSnoMainPacket() << "]: window new first SN  "
-                << pdu->getSnoFragment() << endl;
-        // move tx window
-        moveTxWindow(pdu->getSnoFragment());
-        // signal ACK reception
-        recvMrwAck(pdu->getSnoMainPacket());
-        delete pdu;
-        break;
+    switch (type)
+    {
+        case MRW_ACK:
+            EV << NOW << " AmTxQueue::handleControlPacket , received MRW ACK ["
+               << pdu->getSnoMainPacket() << "]: window new first SN  "
+               << pdu->getSnoFragment() << endl;
+            // move tx window
+            moveTxWindow(pdu->getSnoFragment());
+            // signal ACK reception
+            recvMrwAck(pdu->getSnoMainPacket());
+            delete pdu;
+            break;
 
-    case ACK:
-        EV << NOW << " AmTxQueue::handleControlPacket , received ACK " << endl;
-        recvCumulativeAck(pdu->getLastSn());
+            case ACK:
+            EV << NOW << " AmTxQueue::handleControlPacket , received ACK " << endl;
+            recvCumulativeAck(pdu->getLastSn());
 
-        int bSize = pdu->getBitmapArraySize();
+            int bSize = pdu->getBitmapArraySize();
 
-        if (bSize > 0) {
-            EV << NOW
-                    << " AmTxQueue::handleControlPacket , received BITMAP ACK of size "
-                    << bSize << endl;
+            if (bSize > 0)
+            {
+                EV << NOW
+                   << " AmTxQueue::handleControlPacket , received BITMAP ACK of size "
+                   << bSize << endl;
 
-            for (int i = 0; i < bSize; ++i) {
-                if (pdu->getBitmap(i)) {
-                    recvAck(pdu->getFirstSn() + i);
+                for (int i = 0; i < bSize; ++i)
+                {
+                    if (pdu->getBitmap(i))
+                    {
+                        recvAck(pdu->getFirstSn() + i);
+                    }
                 }
             }
-        }
 
-        delete pdu;
-        break;
+            delete pdu;
+            break;
+
+        }
 
     }
 
-}
-
-void AmTxQueue::recvAck(const int seqNum) {
+void AmTxQueue::recvAck(const int seqNum)
+{
 
     int index = seqNum - txWindowDesc_.firstSeqNum_;
 
     EV << NOW << " AmTxBuffer::recvAck ACK received for sequence number "
-            << seqNum << " first sequence n. [" << txWindowDesc_.firstSeqNum_
-            << "] "
-                    "index [" << index << "] " << endl;
+       << seqNum << " first sequence n. [" << txWindowDesc_.firstSeqNum_
+       << "] "
+    "index [" << index << "] " << endl;
 
-    if (index < 0) {
+    if (index < 0)
+    {
         EV << NOW
-                << " AmTxBuffer::recvAck ACK already received - ignoring : index "
-                << index << " first sequence number"
-                << txWindowDesc_.firstSeqNum_ << endl;
+           << " AmTxBuffer::recvAck ACK already received - ignoring : index "
+           << index << " first sequence number"
+           << txWindowDesc_.firstSeqNum_ << endl;
 
         return;
     }
@@ -485,8 +539,7 @@ void AmTxQueue::recvAck(const int seqNum) {
     if (!(received_.at(index)))
     {
         EV << NOW << " AmTxBuffer::recvAck canceling timer for PDU "
-                << (index + txWindowDesc_.firstSeqNum_) << " index " << index
-                << endl;
+           << (index + txWindowDesc_.firstSeqNum_) << " index " << index << endl;
         // Stop the timer
         if (pduTimer_.busy(index + txWindowDesc_.firstSeqNum_))
         pduTimer_.remove(index + txWindowDesc_.firstSeqNum_);
@@ -495,34 +548,41 @@ void AmTxQueue::recvAck(const int seqNum) {
     }
 }
 
-void AmTxQueue::recvCumulativeAck(const int seqNum) {
+void AmTxQueue::recvCumulativeAck(const int seqNum)
+{
 
     // Mark the AM PDUs as received and shift the window
-    if ((seqNum < txWindowDesc_.firstSeqNum_) || (seqNum < 0)) {
+    if ((seqNum < txWindowDesc_.firstSeqNum_) || (seqNum < 0))
+    {
         // Ignore the cumulative ACK, is out of the transmitter window (the MRW command has not yet been received by AM rx entity)
         return;
-    } else if ((unsigned int) seqNum
-            > (txWindowDesc_.firstSeqNum_ + txWindowDesc_.windowSize_)) {
+    }
+    else if ((unsigned int) seqNum
+        > (txWindowDesc_.firstSeqNum_ + txWindowDesc_.windowSize_))
+    {
         throw cRuntimeError("AmTxQueue::recvCumulativeAck(): SN %d exceeds window size %d",
-                seqNum, txWindowDesc_.windowSize_);
-    } else {
+            seqNum, txWindowDesc_.windowSize_);
+    }
+    else
+    {
         // The ACK is inside the window
 
-        for (int i = 0; i <= (seqNum - txWindowDesc_.firstSeqNum_); ++i) {
+        for (int i = 0; i <= (seqNum - txWindowDesc_.firstSeqNum_); ++i)
+        {
             EV << NOW
-                    << " AmTxBuffer::recvCumulativeAck ACK received for sequence number "
-                    << (i + txWindowDesc_.firstSeqNum_)
-                    << " first sequence n. [" << txWindowDesc_.firstSeqNum_
-                    << "] "
-                            "index [" << i << "] " << endl;
+               << " AmTxBuffer::recvCumulativeAck ACK received for sequence number "
+               << (i + txWindowDesc_.firstSeqNum_)
+               << " first sequence n. [" << txWindowDesc_.firstSeqNum_
+               << "] "
+            "index [" << i << "] " << endl;
 
             // the ACK could have already been received
-            if (!(received_.at(i))) {
+            if (!(received_.at(i)))
+            {
                 // canceling timer for PDU
                 EV << NOW
-                        << " AmTxBuffer::recvCumulativeAck canceling timer for PDU "
-                        << (i + txWindowDesc_.firstSeqNum_) << " index " << i
-                        << endl;
+                   << " AmTxBuffer::recvCumulativeAck canceling timer for PDU "
+                   << (i + txWindowDesc_.firstSeqNum_) << " index " << i << endl;
                 // Stop the timer
                 if (pduTimer_.busy(i + txWindowDesc_.firstSeqNum_))
                 pduTimer_.remove(i + txWindowDesc_.firstSeqNum_);
@@ -534,10 +594,12 @@ void AmTxQueue::recvCumulativeAck(const int seqNum) {
     }
 }
 
-void AmTxQueue::recvMrwAck(const int seqNum) {
+void AmTxQueue::recvMrwAck(const int seqNum)
+{
     EV << NOW << " AmTxQueue::recvMrwAck for MRW command number " << seqNum << endl;
 
-    if (mrwRtxQueue_.get(seqNum) == NULL) {
+    if (mrwRtxQueue_.get(seqNum) == NULL)
+    {
 
         // The message is related to a MRW which has been discarded by the handle function because it was obsolete.
         return;
@@ -545,18 +607,19 @@ void AmTxQueue::recvMrwAck(const int seqNum) {
 
     // Remove the MRW PDU from the retransmission buffer
     LteRlcAmPdu* mrwPdu = check_and_cast<LteRlcAmPdu*>(
-            mrwRtxQueue_.remove(seqNum));
+        mrwRtxQueue_.remove(seqNum));
 
     // Stop the related timer
-    if (mrwTimer_.busy(seqNum)) {
+    if (mrwTimer_.busy(seqNum))
+    {
         mrwTimer_.remove(seqNum);
     }
     //deallocate the MRW PDU
     delete mrwPdu;
 }
 
-void AmTxQueue::pduTimerHandle(const int sn) {
-
+void AmTxQueue::pduTimerHandle(const int sn)
+{
     Enter_Method("pduTimerHandle");
     // A timer is elapsed for the RLC PDU.
     // This function checks if the PDU has been correctly received.
@@ -573,7 +636,9 @@ void AmTxQueue::pduTimerHandle(const int sn) {
 
     // Some debug checks
     if ((index < 0) || (index >= txWindowDesc_.windowSize_))
-        throw cRuntimeError("AmTxQueue::pduTimerHandle(): The PDU [%d] for which timer elapsed is out of the window : index [%d]", sn, index);
+        throw cRuntimeError(
+            "AmTxQueue::pduTimerHandle(): The PDU [%d] for which timer elapsed is out of the window : index [%d]", sn,
+            index);
 
     if (pduRtxQueue_.get(index) == NULL)
         throw cRuntimeError("AmTxQueue::pduTimerHandle(): PDU %d not found", index);
@@ -581,24 +646,24 @@ void AmTxQueue::pduTimerHandle(const int sn) {
     // Check if the PDU has been correctly received, if so the
     // timer should have been previously stopped.
     if (received_.at(index) == true)
-        throw cRuntimeError(" AmTxQueue::pduTimerHandle(): The PDU %d [index %d] has been already received",sn,index);
+        throw cRuntimeError(" AmTxQueue::pduTimerHandle(): The PDU %d [index %d] has been already received", sn, index);
 
     // Get the PDU information
     LteRlcAmPdu* pdu = check_and_cast<LteRlcAmPdu*>(pduRtxQueue_.get(index));
 
     int nextTxNumber = pdu->getTxNumber() + 1;
 
-    if (nextTxNumber > maxRtx_) {
-        EV << NOW
-                << " AmTxQueue::pduTimerHandle maximum transmission reached, discard the PDU"
-                << endl;
+    if (nextTxNumber > maxRtx_)
+    {
+        EV << NOW << " AmTxQueue::pduTimerHandle maximum transmission reached, discard the PDU" << endl;
         // The maximum number of transmission for this PDU has been
         // reached. Discard the PDU and all the PDUs related to the
         // same RLC SDU.
         discard(sn);
-    } else {
-        EV << NOW << " AmTxQueue::pduTimerHandle starting new transmission"
-                << endl;
+    }
+    else
+    {
+        EV << NOW << " AmTxQueue::pduTimerHandle starting new transmission" << endl;
         // extract PDU from buffer
         pdu = check_and_cast<LteRlcAmPdu*>(pduRtxQueue_.remove(index));
         // A new transmission can be started
@@ -616,31 +681,31 @@ void AmTxQueue::pduTimerHandle(const int sn) {
     }
 }
 
-void AmTxQueue::mrwTimerHandle(const int sn) {
-
+void AmTxQueue::mrwTimerHandle(const int sn)
+{
     EV << NOW << " AmTxQueue::mrwTimerHandle MRW_ACK sn: " << sn << endl;
 
     mrwTimer_.handle(sn);
 
-    if (mrwRtxQueue_.get(sn) == NULL) {
+    if (mrwRtxQueue_.get(sn) == NULL)
         throw cRuntimeError("MRW handler: MRW of SN %d not found in MRW message queue", sn);
-    }
 
     // Check if a newer message has been sent
-    if (mrwDesc_.lastMrw_ > sn) {
-        EV << NOW
-                << "AmTxBuffer::mrwTimerHandle newer MRW has been sent - no action has to be taken"
-                << endl;
+    if (mrwDesc_.lastMrw_ > sn)
+    {
+        EV << NOW << "AmTxBuffer::mrwTimerHandle newer MRW has been sent - no action has to be taken" << endl;
 
         // A newer message has been sent
         // Delete the RLC  PDU
         delete (mrwRtxQueue_.remove(sn));
 
-    } else {
+    }
+    else
+    {
         EV << NOW << "AmTxBuffer::mrwTimerHandle retransmitting MRW" << endl;
 
         LteRlcAmPdu* pdu = check_and_cast<LteRlcAmPdu*>(
-                mrwRtxQueue_.remove(sn));
+            mrwRtxQueue_.remove(sn));
         // Retransmit the MRW message
         LteRlcAmPdu* pduCopy = pdu->dup();
         pduCopy->setControlInfo(pdu->getControlInfo()->dup());
@@ -652,34 +717,39 @@ void AmTxQueue::mrwTimerHandle(const int sn) {
     }
 }
 
-void AmTxQueue::handleMessage(cMessage* msg) {
-    if (msg->isName("timer")) {
+void AmTxQueue::handleMessage(cMessage* msg)
+{
+    if (msg->isName("timer"))
+    {
         // message received from a timer
         TTimerMsg* tmsg = check_and_cast<TTimerMsg *>(msg);
         // check timer id
         RlcAmTimerType amType = static_cast<RlcAmTimerType>(tmsg->getTimerId());
         TTimerType type = static_cast<TTimerType>(tmsg->getType());
 
-        switch (type) {
-        case TTSIMPLE:
-            // Check the buffer status and eventually send an MRW command.
-            checkForMrw();
-            // signal the timer the event has been handled
-            bufferStatusTimer_.handle();
-            break;
-        case TTMULTI:
+        switch (type)
+        {
+            case TTSIMPLE:
+                // Check the buffer status and eventually send an MRW command.
+                checkForMrw();
+                // signal the timer the event has been handled
+                bufferStatusTimer_.handle();
+                break;
+            case TTMULTI:
 
-            TMultiTimerMsg* tmtmsg = check_and_cast<TMultiTimerMsg*>(tmsg);
+                TMultiTimerMsg* tmtmsg = check_and_cast<TMultiTimerMsg*>(tmsg);
 
-            if (amType == PDU_T) {
-
-                pduTimerHandle(tmtmsg->getEvent());
-            } else if (amType == MRW_T) {
-
-                mrwTimerHandle(tmtmsg->getEvent());
-            } else
-                throw cRuntimeError("AmTxQueue::handleMessage(): unexpected timer event received");
-            break;
+                if (amType == PDU_T)
+                {
+                    pduTimerHandle(tmtmsg->getEvent());
+                }
+                else if (amType == MRW_T)
+                {
+                    mrwTimerHandle(tmtmsg->getEvent());
+                }
+                else
+                    throw cRuntimeError("AmTxQueue::handleMessage(): unexpected timer event received");
+                break;
         }
         // delete timer event message.
         delete tmsg;

@@ -14,11 +14,11 @@
 
 #include "LteCommon.h"
 
-
 // This file contains MCS types and constants; MCS and ITBS tables;
 // and functions related to MCS and Tx-Modes.
 
-struct CQIelem {
+struct CQIelem
+{
 
     /// Modulation
     LteMod mod_;
@@ -27,10 +27,10 @@ struct CQIelem {
     double rate_;
 
     /// Constructor, with default set to "out of range CQI"
-    CQIelem (LteMod mod = _QPSK, double rate = 0.0)
+    CQIelem(LteMod mod = _QPSK, double rate = 0.0)
     {
-        mod_=mod;
-        rate_=rate;
+        mod_ = mod;
+        rate_ = rate;
     }
 };
 
@@ -40,17 +40,18 @@ struct CQIelem {
  */
 extern const CQIelem cqiTable[];
 
-struct MCSelem {
+struct MCSelem
+{
 
     LteMod mod_;       /// modulation
     Tbs iTbs_;         /// iTbs
     double threshold_; /// coderate threshold
 
-    MCSelem (LteMod mod=_QPSK, Tbs iTbs=0, double threshold=0.0)
+    MCSelem(LteMod mod = _QPSK, Tbs iTbs = 0, double threshold = 0.0)
     {
-        mod_=mod;
-        iTbs_=iTbs;
-        threshold_=threshold;
+        mod_ = mod;
+        iTbs_ = iTbs;
+        threshold_ = threshold;
     }
 };
 
@@ -60,15 +61,17 @@ struct MCSelem {
  */
 class McsTable
 {
-    public:
+  public:
 
     MCSelem table[CQI2ITBSSIZE];
 
     McsTable();
-    ~McsTable() { }
+    ~McsTable()
+    {
+    }
 
     /// MCS table seek operator
-    MCSelem& at (Tbs tbs)
+    MCSelem& at(Tbs tbs)
     {
         return table[tbs];
     }
@@ -110,6 +113,6 @@ const unsigned int* itbs2tbs(LteMod mod, TxMode txMode, unsigned char layers, un
  * @param antennaPorts Number of antenna ports
  * @return A vector containing the number of layers per codeword.
  */
-std::vector<unsigned char> cwMapping(const TxMode& txMode, const Rank& ri,const unsigned int antennaPorts);
+std::vector<unsigned char> cwMapping(const TxMode& txMode, const Rank& ri, const unsigned int antennaPorts);
 
 #endif /* LTEMCS_H_ */

@@ -9,18 +9,18 @@
 // and cannot be removed from it.
 //
 
-
 #ifndef PHYPISADATA_H_
 #define PHYPISADATA_H_
 
 #include <string.h>
 #include <vector>
 
-class PhyPisaData {
+class PhyPisaData
+{
     double lambdaTable_[10000][3];
     double blerCurves_[3][15][49];
     std::vector<double> channel_;
-public:
+    public:
     PhyPisaData();
     virtual ~PhyPisaData();
     double getBler(int i, int j, int k){if (j==0) return 1; else return blerCurves_[i][j][k-1];}

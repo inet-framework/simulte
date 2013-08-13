@@ -25,7 +25,7 @@ void LteMaxCi::prepareSchedule()
     unsigned int blocks =0;
     unsigned int byPs = 0;
 
-    for ( ActiveSet::iterator it1 = activeConnectionTempSet_.begin () ;it1 != activeConnectionTempSet_.end () ; ++it1 )
+    for ( ActiveSet::iterator it1 = activeConnectionTempSet_.begin ();it1 != activeConnectionTempSet_.end (); ++it1 )
     {
         // Current connection.
         cid = *it1;
@@ -38,17 +38,18 @@ void LteMaxCi::prepareSchedule()
         std::set<Band>::const_iterator it = bands.begin(),et=bands.end();
         unsigned int codeword=info.getLayers().size();
         bool cqiNull=false;
-        for (unsigned int i=0;i<codeword;i++){
+        for (unsigned int i=0;i<codeword;i++)
+        {
             if (info.readCqiVector()[i]==0)
-                cqiNull=true;
+            cqiNull=true;
         }
         if (cqiNull)
-            continue;
+        continue;
         //no more free cw
         if (eNbScheduler_->allocatedCws(nodeId)==codeword)
-            continue;
+        continue;
 
-        std::set<Remote>::iterator antennaIt = info.readAntennaSet().begin(),  antennaEt=info.readAntennaSet().end();
+        std::set<Remote>::iterator antennaIt = info.readAntennaSet().begin(), antennaEt=info.readAntennaSet().end();
 
         // compute score based on total available bytes
         unsigned int availableBlocks=0;
@@ -73,17 +74,17 @@ void LteMaxCi::prepareSchedule()
         // insert the cid score
         score.push (desc);
 
-        EV << NOW << " LteMaxCI::schedule computed for cid " << cid <<" score of " << desc.score_ << endl;
+        EV << NOW << " LteMaxCI::schedule computed for cid " << cid << " score of " << desc.score_ << endl;
 
     }
 
-
     // Schedule the connections in score order.
-    while ( ! score.empty () ) {
+    while ( ! score.empty () )
+    {
         // Pop the top connection from the list.
         ScoreDesc current = score.top ();
 
-        EV << NOW << " LteMaxCI::schedule scheduling connection " << current.x_<< " with score of " << current.score_ << endl;
+        EV << NOW << " LteMaxCI::schedule scheduling connection " << current.x_ << " with score of " << current.score_ << endl;
 
         // Grant data to that connection.
         bool terminate = false;
@@ -91,8 +92,7 @@ void LteMaxCi::prepareSchedule()
         bool eligible = true;
         unsigned int granted = requestGrant (current.x_, 4294967295U, terminate, active, eligible);
 
-        EV << NOW << "LteMaxCI::schedule granted " << granted << " bytes to connection " <<  current.x_ << endl;
-
+        EV << NOW << "LteMaxCI::schedule granted " << granted << " bytes to connection " << current.x_ << endl;
 
         // Exit immediately if the terminate flag is set.
         if ( terminate ) break;
@@ -114,7 +114,8 @@ void LteMaxCi::prepareSchedule()
     }
 }
 
-void LteMaxCi::commitSchedule(){
+void LteMaxCi::commitSchedule()
+{
 
     activeConnectionSet_ = activeConnectionTempSet_;
 

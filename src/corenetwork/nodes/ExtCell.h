@@ -9,20 +9,19 @@
 // and cannot be removed from it.
 // 
 
-
 #ifndef EXTCELL_H_
 #define EXTCELL_H_
 
 #include "Coord.h"
 
-
-class ExtCell {
+class ExtCell
+{
 
     Coord position_;
     double txPower_;
     //Pattern pattern_; // enum { HEAVY ; LOW ; MED ; UNIFORM }
 
-public:
+  public:
     /**
      * Creates and external cell
      * @param pwr transmission power of the eNb within the extern cell
@@ -30,11 +29,17 @@ public:
      * @param num number of external cells (used for cell deployment over the playground
      * @param distance from the "main" eNb
      */
-    ExtCell(double pwr , int i , int num , int distance);
+    ExtCell(double pwr, int i, int num, int distance);
     virtual ~ExtCell();
 
-    Coord getPosition() { return position_; }
-    double getTxPower() { return txPower_;     }
+    Coord getPosition()
+    {
+        return position_;
+    }
+    double getTxPower()
+    {
+        return txPower_;
+    }
 
     /**
      * evaluates traffic pattern

@@ -9,7 +9,6 @@
 // and cannot be removed from it.
 // 
 
-
 #ifndef AMCPILOTAUTO_H_
 #define AMCPILOTAUTO_H_
 
@@ -28,16 +27,20 @@
  * Users are sorted by CQI and added to user list for all LBs with
  * the respective RI, CQI and PMI.
  */
-class AmcPilotAuto: public AmcPilot {
+class AmcPilotAuto : public AmcPilot
+{
 
-public:
+  public:
 
     /**
      * Constructor
      * @param amc LteAmc owner module
      */
-    AmcPilotAuto(LteAmc *amc): AmcPilot(amc) { name_ = "Auto"; };
-
+    AmcPilotAuto(LteAmc *amc) :
+        AmcPilot(amc)
+    {
+        name_ = "Auto";
+    }
     /**
      * Assign logical bands for given nodeId and direction
      * @param id The mobile node ID.
@@ -46,7 +49,10 @@ public:
      */
     const UserTxParams& computeTxParams(MacNodeId id, const Direction dir);
     //Used with TMS pilot
-    void updateActiveUsers(ActiveSet aUser, Direction dir){return;}
+    void updateActiveUsers(ActiveSet aUser, Direction dir)
+    {
+        return;
+    }
 
 };
 

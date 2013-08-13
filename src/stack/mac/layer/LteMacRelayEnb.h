@@ -9,7 +9,6 @@
 // and cannot be removed from it.
 // 
 
-
 #ifndef LTEMACRELAYENB_H_
 #define LTEMACRELAYENB_H_
 
@@ -17,14 +16,15 @@
 
 class LteAmc;
 
-class LteMacRelayEnb: public LteMacEnb {
-    protected:
-        virtual LteDeployer* getDeployer();
-        virtual int getNumAntennas();
+class LteMacRelayEnb : public LteMacEnb
+{
+  protected:
+    virtual LteDeployer* getDeployer();
+    virtual int getNumAntennas();
 
-    public:
-        LteMacRelayEnb();
-        virtual ~LteMacRelayEnb();
+  public:
+    LteMacRelayEnb();
+    virtual ~LteMacRelayEnb();
 
 };
 

@@ -9,7 +9,6 @@
 // and cannot be removed from it.
 //
 
-
 #ifndef LTEAIRFRAME_H_
 #define LTEAIRFRAME_H_
 
@@ -18,19 +17,35 @@
 
 class LteAirFrame : public LteAirFrame_Base
 {
-    protected:
-        RemoteUnitPhyDataVector remoteUnitPhyDataVector;
+  protected:
+    RemoteUnitPhyDataVector remoteUnitPhyDataVector;
     public:
-        LteAirFrame(const char *name=NULL, int kind=0) : LteAirFrame_Base(name,kind) {}
-        LteAirFrame(const LteAirFrame& other) : LteAirFrame_Base(other) {operator=(other);}
-        LteAirFrame& operator=(const LteAirFrame& other) {LteAirFrame_Base::operator=(other); this->remoteUnitPhyDataVector=other.remoteUnitPhyDataVector; return *this;}
-        virtual LteAirFrame *dup() const {return new LteAirFrame(*this);}
-        // ADD CODE HERE to redefine and implement pure virtual functions from LteAirFrame_Base
-       void addRemoteUnitPhyDataVector(RemoteUnitPhyData data);
-       RemoteUnitPhyDataVector getRemoteUnitPhyDataVector();
+    LteAirFrame(const char *name = NULL, int kind = 0) :
+        LteAirFrame_Base(name, kind)
+    {
+    }
+    LteAirFrame(const LteAirFrame& other) :
+        LteAirFrame_Base(other)
+    {
+        operator=(other);
+    }
+    LteAirFrame& operator=(const LteAirFrame& other)
+    {
+        LteAirFrame_Base::operator=(other);
+        this->remoteUnitPhyDataVector = other.remoteUnitPhyDataVector;
+        return *this;
+    }
+    virtual LteAirFrame *dup() const
+    {
+        return new LteAirFrame(*this);
+    }
+    // ADD CODE HERE to redefine and implement pure virtual functions from LteAirFrame_Base
+    void addRemoteUnitPhyDataVector(RemoteUnitPhyData data);
+    RemoteUnitPhyDataVector getRemoteUnitPhyDataVector();
 
 };
 
-Register_Class(LteAirFrame); //TODO: this should go into a .cc file
+Register_Class(LteAirFrame);
+//TODO: this should go into a .cc file
 
 #endif /* LTEAIRFRAME_H_ */

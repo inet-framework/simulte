@@ -21,7 +21,6 @@
 #include "TftControlInfo.h"
 #include "gtp_common.h"
 
-
 /**
  * Objective of the Traffic Flow Filter is mapping IP 4-Tuples to TFT identifiers. This commonly means identifying a bearer and
  * associating it to an ID that will be recognized by the first GTP-U entity
@@ -40,23 +39,23 @@
  * be left unspecified
  *
  * Example format for traffic filter XML configuration
-    </config>
-        <filterTable>
-            <filter
-                destName   ="Host2"
-                tftId      = "1"
-            />
-            <filter
-                destAddr   = "10.1.1.1"
-                tftId      = "2"
-            />
-            <filter
-                destAddr   = "10.1.1.1"
-                srcAddr    = "Host3"
-                tftId      = "2"
-            />
-        </filterTable>
-   </config>
+ </config>
+ <filterTable>
+ <filter
+ destName   ="Host2"
+ tftId      = "1"
+ />
+ <filter
+ destAddr   = "10.1.1.1"
+ tftId      = "2"
+ />
+ <filter
+ destAddr   = "10.1.1.1"
+ srcAddr    = "Host3"
+ tftId      = "2"
+ />
+ </filterTable>
+ </config>
  *
  * Each entry of the filter table is specified with a "filter" tag
  * For each filter entry the "tftId" and one between "destName" and "destAddr" ( or "srcName" and "srcAddr" for the eNB )
@@ -78,16 +77,16 @@ class TrafficFlowFilter : public cSimpleModule
     void loadFilterTable(const char * filterTableFile);
 
     EpcNodeType selectOwnerType(const char * type);
-  protected:
-    virtual int numInitStages() const {return 4;}
+    protected:
+    virtual int numInitStages() const { return 4; }
     virtual void initialize(int stage);
 
     // TrafficFlowFilter module may receive messages only from the input interface of its compound module
     virtual void handleMessage(cMessage *msg);
 
     // functions for managing filter tables
-    TrafficFlowTemplateId findTrafficFlow(IPvXAddress firstKey , TrafficFlowTemplate secondKey );
-    bool addTrafficFlow( IPvXAddress firstKey , TrafficFlowTemplate tft);
+    TrafficFlowTemplateId findTrafficFlow(IPvXAddress firstKey, TrafficFlowTemplate secondKey);
+    bool addTrafficFlow(IPvXAddress firstKey, TrafficFlowTemplate tft);
 
 };
 

@@ -9,17 +9,18 @@
 // and cannot be removed from it.
 // 
 
-
 #include "LteMacRelayUe.h"
 
 Define_Module(LteMacRelayUe);
 
-LteMacRelayUe::LteMacRelayUe() {
+LteMacRelayUe::LteMacRelayUe()
+{
     // TODO Auto-generated constructor stub
-    nodeType_=RELAY;
+    nodeType_ = RELAY;
 
 }
 
-LteMacRelayUe::~LteMacRelayUe() {
+LteMacRelayUe::~LteMacRelayUe()
+{
     // TODO Auto-generated destructor stub
 }

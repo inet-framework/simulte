@@ -9,7 +9,6 @@
 // and cannot be removed from it.
 // 
 
-
 #ifndef LTERLCAM_H_
 #define LTERLCAM_H_
 
@@ -28,9 +27,10 @@
 class AmTxQueue;
 class AmRxQueue;
 
-class LteRlcAm: public cSimpleModule {
+class LteRlcAm : public cSimpleModule
+{
 
-protected:
+  protected:
 
     /*
      * Data structures
@@ -50,15 +50,15 @@ protected:
     cGate* up_[2];
     cGate* down_[2];
 
-public:
-    LteRlcAm() {
-        ;
+  public:
+    LteRlcAm()
+    {
     }
-    virtual ~LteRlcAm() {
-        ;
+    virtual ~LteRlcAm()
+    {
     }
 
-protected:
+  protected:
 
     /**
      * Analyze gate of incoming packet
@@ -67,8 +67,8 @@ protected:
     virtual void handleMessage(cMessage *msg);
 
     virtual void initialize();
-    virtual void finish() {
-        ;
+    virtual void finish()
+    {
     }
     /**
      * deleteQueues() must be called on handover
@@ -138,18 +138,18 @@ protected:
      */
     void handleLowerMessage(cPacket *pkt);
 
-public:
+  public:
     /**
-         * handler for control messages coming
-         * from receiver AM entities
-         *
-         *   routeControlMessage() performs the following task:
-         * - Search the proper TXBuffer, depending
-         *   on the packet CID and deliver the control packet to it
-         *
-         * @param pkt packet to process
-         */
-        void routeControlMessage(cPacket *pkt);
+     * handler for control messages coming
+     * from receiver AM entities
+     *
+     *   routeControlMessage() performs the following task:
+     * - Search the proper TXBuffer, depending
+     *   on the packet CID and deliver the control packet to it
+     *
+     * @param pkt packet to process
+     */
+    void routeControlMessage(cPacket *pkt);
     /**
      * sendFragmented() is invoked by the TXBuffer as a direct method
      * call and used to forward fragments to lower layers. This is needed

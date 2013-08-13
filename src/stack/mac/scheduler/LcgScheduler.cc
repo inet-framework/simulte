@@ -16,16 +16,17 @@
 
 LcgScheduler::LcgScheduler(LteMacUe* mac)
 {
-    lastExecutionTime_=0;
-    mac_=mac;
+    lastExecutionTime_ = 0;
+    mac_ = mac;
 }
 
-LcgScheduler::~LcgScheduler() {
+LcgScheduler::~LcgScheduler()
+{
     // TODO Auto-generated destructor stub
 }
 
 ScheduleList&
-LcgScheduler::schedule (unsigned int availableBytes)
+LcgScheduler::schedule(unsigned int availableBytes)
 {
 
     /* clean up old schedule decisions
@@ -51,7 +52,6 @@ LcgScheduler::schedule (unsigned int availableBytes)
     int highestBackloggedFlow = -1;
     int highestBackloggedPriority = -1;
 
-
     // Considering 3GPP TS 36.321:
     //  - ConnDesc::parameters_.minReservedRate_    --> Prioritized Bit Rate (PBR) in Bytes/s
     //  - ConnDesc::parameters_.maximumBucketSizeurst_         --> Maximum Bucket size (MBS) = PBR*BSD product
@@ -63,20 +63,21 @@ LcgScheduler::schedule (unsigned int availableBytes)
 
     LcgMap& lcgMap = mac_->getLcgMap();
 
-    if (lcgMap.empty()) return scheduleList_;
+    if (lcgMap.empty())
+        return scheduleList_;
 
     // for all traffic classes
-    for (unsigned short i=0; i < UNKNOWN_TRAFFIC_TYPE;++i )
+    for (unsigned short i = 0; i < UNKNOWN_TRAFFIC_TYPE; ++i)
     {
         // Prepare the iterators to cycle the entire scheduling set
-        std::pair<LcgMap::iterator,LcgMap::iterator> it_pair;
-        it_pair= lcgMap.equal_range((LteTrafficClass)i);
-        LcgMap::iterator it=it_pair.first,et=it_pair.second;
+        std::pair<LcgMap::iterator, LcgMap::iterator> it_pair;
+        it_pair = lcgMap.equal_range((LteTrafficClass) i);
+        LcgMap::iterator it = it_pair.first, et = it_pair.second;
 
-        EV <<  NOW << " LteSchedulerUeUl::schedule - Node  " << mac_->getMacNodeId() <<", Starting priority service for traffic class "<< i << endl ;
+        EV << NOW << " LteSchedulerUeUl::schedule - Node  " << mac_->getMacNodeId() << ", Starting priority service for traffic class " << i << endl;
 
         //! FIXME Allocation of the same resource to flows with same priority not implemented - not suitable with relays
-        for (;it!=et;++it)
+        for (; it != et; ++it)
         {
             // processing all connections of same traffic class
 
@@ -95,30 +96,31 @@ LcgScheduler::schedule (unsigned int availableBytes)
 //            // information may be consulted at the end of the LCP algorithm
             StatusElem* elem;
 
-            if(statusMap_.find(cid)==statusMap_.end())
+            if (statusMap_.find(cid) == statusMap_.end())
             {
 
                 // the element does not exist, initialize it
-                elem = & statusMap_[cid];
+                elem = &statusMap_[cid];
                 elem->occupancy_ = vQueue->getQueueLength();
                 elem->sentData_ = 0;
-                elem->sentSdus_=0;
+                elem->sentSdus_ = 0;
                 // TODO set bucket from QoS parameters
-                elem->bucket_ =   1000;
-            } else {
-                elem = & statusMap_[cid];
+                elem->bucket_ = 1000;
+            }
+            else
+            {
+                elem = &statusMap_[cid];
             }
 
-
             EV << NOW << " LteSchedulerUeUl::schedule Node " << mac_->getMacNodeId() << " , Parameters:" << endl;
-            EV <<"\t Logical Channel ID: " << MacCidToLcid(cid) << endl;
-            EV <<"\t CID: " <<  cid << endl;
+            EV << "\t Logical Channel ID: " << MacCidToLcid(cid) << endl;
+            EV << "\t CID: " << cid << endl;
 //                fprintf(stderr, "\tGroup ID: %d\n", desc->parameters_.groupId_);
 //                fprintf(stderr, "\tPriority: %d\n", desc->parameters_.priority_);
 //                fprintf(stderr, "\tMin Reserved Rate: %.0lf bytes/s\n", desc->parameters_.minReservedRate_);
 //                fprintf(stderr, "\tMax Burst: %.0lf bytes\n", desc->parameters_.maxBurst_);
 
-            if(priorityService)
+            if (priorityService)
             {
                 // Update bucket value for this connection
 
@@ -126,11 +128,12 @@ LcgScheduler::schedule (unsigned int availableBytes)
                 double bucket = elem->bucket_; // TODO parameters -> bucket ;
                 double maximumBucketSize = 10000.0; // TODO  parameters -> maxBurst;
 
-                EV << NOW << " LteSchedulerUeUl::schedule Bucket size: "<<  bucket <<" bytes (max size " << maximumBucketSize << " bytes) - BEFORE SERVICE " <<endl;
+                EV << NOW << " LteSchedulerUeUl::schedule Bucket size: " << bucket << " bytes (max size " << maximumBucketSize << " bytes) - BEFORE SERVICE " << endl;
 
                 // if the connection started before last scheduling event , use the
                 // global time interval
-                if( lastExecutionTime_ >  0 ) { // TODO desc->parameters_.startTime_) {
+                if (lastExecutionTime_ > 0)
+                { // TODO desc->parameters_.startTime_) {
 //                    // PBR*(n*TTI) where n is the number of TTI from last update
                     bucket += /* TODO desc->parameters_.minReservedRate_*/ 100.0 * TTI;
                 }
@@ -138,11 +141,10 @@ LcgScheduler::schedule (unsigned int availableBytes)
                 else
                 {
                     simtime_t localTimeInterval = NOW - 0/* TODO desc->parameters_.startTime_ */;
-                    if(localTimeInterval < 0)
+                    if (localTimeInterval < 0)
                         localTimeInterval = 0;
 
-
-                bucket = /* TODO desc->parameters_.minReservedRate_*/ 100.0 * localTimeInterval.dbl();
+                    bucket = /* TODO desc->parameters_.minReservedRate_*/ 100.0 * localTimeInterval.dbl();
                 }
 
                 // do not overflow the maximum bucket size
@@ -153,21 +155,21 @@ LcgScheduler::schedule (unsigned int availableBytes)
 // TODO                desc->parameters_.bucket_ = bucket;
 
 //                // update the tracing element accordingly
-                elem->bucket_ =  100.0; // TODO desc->parameters_.bucket_;
-                EV << NOW << " LteSchedulerUeUl::schedule Bucket size: " << bucket << " bytes (max size " << maximumBucketSize << " bytes) - AFTER SERVICE "<< endl;
+                elem->bucket_ = 100.0; // TODO desc->parameters_.bucket_;
+                EV << NOW << " LteSchedulerUeUl::schedule Bucket size: " << bucket << " bytes (max size " << maximumBucketSize << " bytes) - AFTER SERVICE " << endl;
             }
 
-            EV << NOW << " LteSchedulerUeUl::schedule - Node " << mac_->getMacNodeId() << ", remaining grant: "<< availableBytes << " bytes " << endl;
-            EV << NOW << " LteSchedulerUeUl::schedule - Node "  << mac_->getMacNodeId() << " buffer Size: " << vQueue->getQueueOccupancy() << " bytes " << endl;
+            EV << NOW << " LteSchedulerUeUl::schedule - Node " << mac_->getMacNodeId() << ", remaining grant: " << availableBytes << " bytes " << endl;
+            EV << NOW << " LteSchedulerUeUl::schedule - Node " << mac_->getMacNodeId() << " buffer Size: " << vQueue->getQueueOccupancy() << " bytes " << endl;
 
 //
 //            // If priority service: (availableBytes>0) && (desc->buffer_.occupancy() > 0) && (desc->parameters_.bucket_ > 0)
 //            // If best effort service: (availableBytes>0) && (desc->buffer_.occupancy() > 0)
-            while ((availableBytes>0) && (vQueue->getQueueOccupancy() > 0) && (!priorityService || 1 /*TODO (desc->parameters_.bucket_ > 0)*/))
+            while ((availableBytes > 0) && (vQueue->getQueueOccupancy() > 0)
+                && (!priorityService || 1 /*TODO (desc->parameters_.bucket_ > 0)*/))
             {
                 // get size of hol sdu
                 unsigned int sduSize = vQueue->front().first;
-
 
                 // Check if it is possible to serve the sdu, depending on the constraint
 //                // of the type of service
@@ -176,13 +178,13 @@ LcgScheduler::schedule (unsigned int availableBytes)
 //                // Best Effort service:
 //                //    ( sdu->size() <= availableBytes) && (!priorityService_)
 
-                if ( (sduSize <= availableBytes) /*&& ( !priorityService || ( sduSize <= 0/*TODO desc->parameters_.bucket_) )*/  )
+                if ((sduSize <= availableBytes) /*&& ( !priorityService || ( sduSize <= 0/*TODO desc->parameters_.bucket_) )*/)
                 {
 
                     // remove SDU from virtual buffer
                     vQueue->popFront();
 
-                    if(priorityService)
+                    if (priorityService)
                     {
 //    TODO                        desc->parameters_.bucket_ -= sduSize;
 //                        // update the tracing element accordingly
@@ -190,27 +192,28 @@ LcgScheduler::schedule (unsigned int availableBytes)
                     }
                     availableBytes -= sduSize;
 
-
 //
                     // update the tracing element
                     elem->occupancy_ = vQueue->getQueueOccupancy();
                     elem->sentData_ += sduSize;
                     elem->sentSdus_++;
 //
-                    EV << NOW << " LteSchedulerUeUl::schedule - Node " << mac_->getMacNodeId() << ",  SDU of size " << sduSize<< " selected for transmission" << endl;
-                    EV << NOW << " LteSchedulerUeUl::schedule - Node " << mac_->getMacNodeId() << ", remaining grant: "<< availableBytes<<  " bytes" << endl;
-                    EV << NOW << " LteSchedulerUeUl::schedule - Node " << mac_->getMacNodeId() << " buffer Size: "<< vQueue->getQueueOccupancy() <<" bytes" << endl;
+                    EV << NOW << " LteSchedulerUeUl::schedule - Node " << mac_->getMacNodeId() << ",  SDU of size " << sduSize << " selected for transmission" << endl;
+                    EV << NOW << " LteSchedulerUeUl::schedule - Node " << mac_->getMacNodeId() << ", remaining grant: " << availableBytes << " bytes" << endl;
+                    EV << NOW << " LteSchedulerUeUl::schedule - Node " << mac_->getMacNodeId() << " buffer Size: " << vQueue->getQueueOccupancy() << " bytes" << endl;
 
-                } else {
+                }
+                else
+                {
 //
-                    EV << NOW << " LteSchedulerUeUl::schedule - Node " << mac_->getMacNodeId() << ",  SDU of size " << sduSize<< " could not be serviced "<< endl;
-                    break; // sdu can't be serviced
+                    EV << NOW << " LteSchedulerUeUl::schedule - Node " << mac_->getMacNodeId() << ",  SDU of size " << sduSize << " could not be serviced " << endl;
+                    break;// sdu can't be serviced
                 }
 
             }
 
-            // check if flow is still backlogged
-            if(vQueue->getQueueLength() > 0)
+                    // check if flow is still backlogged
+            if (vQueue->getQueueLength() > 0)
             {
 
                 // TODO the priority is higher when the associated integer is lower ( e.g. priority 2 is
@@ -243,13 +246,13 @@ LcgScheduler::schedule (unsigned int availableBytes)
             lastExecutionTime_ = NOW;
 
             // signal service for current connection
-            unsigned int* servicedSdu=NULL;
+            unsigned int* servicedSdu = NULL;
 
-            if (scheduleList_.find(cid)==scheduleList_.end())
+            if (scheduleList_.find(cid) == scheduleList_.end())
             {
 
                 // the element does not exist, initialize it
-                servicedSdu = & scheduleList_[cid];
+                servicedSdu = &scheduleList_[cid];
                 *servicedSdu = elem->sentSdus_;
             }
             else
@@ -259,14 +262,14 @@ LcgScheduler::schedule (unsigned int availableBytes)
             }
 
             // If the end of the connections map is reached and we were on priority and on last traffic class
-            if(priorityService && (it==et) && ((i+1)==(unsigned short)UNKNOWN_TRAFFIC_TYPE))
+            if (priorityService && (it == et) && ((i + 1) == (unsigned short) UNKNOWN_TRAFFIC_TYPE))
             {
-                    // the first phase of the LCP algorithm has completed ...
-                    // ... switch to best effort allocation!
-                    priorityService = false;
-                    //  reset traffic class
-                    i=0;
-                    EV << "LteSchedulerUeUl::schedule - Node" << mac_->getMacNodeId()<< ", Starting best effort service" << endl;
+                // the first phase of the LCP algorithm has completed ...
+                // ... switch to best effort allocation!
+                priorityService = false;
+                //  reset traffic class
+                i = 0;
+                EV << "LteSchedulerUeUl::schedule - Node" << mac_->getMacNodeId() << ", Starting best effort service" << endl;
             }
 
         } // END of connections cycle

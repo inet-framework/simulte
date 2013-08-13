@@ -9,7 +9,6 @@
 // and cannot be removed from it.
 // 
 
-
 #ifndef AMTXBUFFER_H_
 #define AMTXBUFFER_H_
 
@@ -32,9 +31,10 @@
  * moving transmission window enabled with ARQ and drop-timer mechanisms.
  */
 
-class AmTxQueue: public cSimpleModule {
+class AmTxQueue : public cSimpleModule
+{
 
-protected:
+  protected:
 
     /*
      * SDU (upper layer PDU) currently being processed
@@ -114,9 +114,7 @@ protected:
     // map of RLC Control PDU that are waiting for ACK
     std::map<int, LteRlcAmPdu *> unackedMrw_;
 
-
-
-public:
+  public:
     AmTxQueue();
     virtual ~AmTxQueue();
 
@@ -137,7 +135,7 @@ public:
 
     virtual void handleControlPacket(cPacket*pkt);
 
-protected:
+  protected:
 
     /**
      * Initialize
@@ -160,7 +158,6 @@ protected:
      * @param seqNum
      */
     void moveTxWindow(const int seqNum);
-
 
     /* Send a MRW control message
      *

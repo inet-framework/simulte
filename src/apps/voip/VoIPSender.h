@@ -11,7 +11,6 @@
 // Author: Adriano
 //
 
-
 #ifndef VOIPSENDER_H_
 #define VOIPSENDER_H_
 
@@ -29,21 +28,21 @@ class VoIPSender : public cSimpleModule
     bool initialized_;
 
     //source
-    double       durTalk;
-    double       durSil;
-    double       scale_talk;
-    double       shape_talk;
-    double       scale_sil;
-    double       shape_sil;
-    bool      is_talk;
+    double durTalk;
+    double durSil;
+    double scale_talk;
+    double shape_talk;
+    double scale_sil;
+    double shape_sil;
+    bool is_talk;
     cMessage* selfSource;
     //sender
     // FIXME questi non dovrebbero essere interi
-    int    IDtalk;
-    int    nframes;
-    int    IDframe;
-    int    nframes_tmp;
-    int    size;
+    int IDtalk;
+    int nframes;
+    int IDframe;
+    int nframes_tmp;
+    int size;
     double sampling_time;
 
     // ----------------------------
@@ -55,20 +54,17 @@ class VoIPSender : public cSimpleModule
     int destPort;
     IPvXAddress destAddress;
 
-
     void talkspurt(double dur);
     void selectPeriodTime();
     void sendVoIPPacket();
 
-public:
+  public:
     ~VoIPSender();
     VoIPSender();
 
+  protected:
 
-
-protected:
-
-    virtual int numInitStages() const {return 4;}
+    virtual int numInitStages() const { return 4; }
     void initialize(int stage);
     void handleMessage(cMessage *msg);
 

@@ -9,7 +9,6 @@
 // and cannot be removed from it.
 // 
 
-
 #ifndef AIRPHYRELAY_H_
 #define AIRPHYRELAY_H_
 
@@ -17,23 +16,23 @@
 
 class LtePhyRelay : public LtePhyBase
 {
-    private:
-        /** Broadcast messages interval (equal to updatePos interval for mobility) */
-        double bdcUpdateInterval_;
+  private:
+    /** Broadcast messages interval (equal to updatePos interval for mobility) */
+    double bdcUpdateInterval_;
 
-        /** Self message to trigger broadcast message sending for handover purposes */
-        cMessage *bdcStarter_;
+    /** Self message to trigger broadcast message sending for handover purposes */
+    cMessage *bdcStarter_;
 
-        /** Master MacNodeId */
-        MacNodeId masterId_;
+    /** Master MacNodeId */
+    MacNodeId masterId_;
 
-    protected:
-        virtual void initialize(int stage);
+  protected:
+    virtual void initialize(int stage);
 
-        void handleSelfMessage(cMessage *msg);
-        void handleAirFrame(cMessage* msg);
+    void handleSelfMessage(cMessage *msg);
+    void handleAirFrame(cMessage* msg);
     public:
-        virtual ~LtePhyRelay();
+    virtual ~LtePhyRelay();
 };
 
 #endif  /* AIRPHYRELAY_H_ */

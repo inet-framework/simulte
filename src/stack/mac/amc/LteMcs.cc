@@ -16,24 +16,24 @@
  * This table contains value taken from the table 7.2.3-1 (TS 36.213)
  */
 const CQIelem cqiTable[] =
-{
-    CQIelem(_QPSK,0.0),
-    CQIelem(_QPSK,78.0),
-    CQIelem(_QPSK,120.0),
-    CQIelem(_QPSK,193.0),
-    CQIelem(_QPSK,308.0),
-    CQIelem(_QPSK,449.0),
-    CQIelem(_QPSK,602.0),
-    CQIelem(_16QAM,378.0),
-    CQIelem(_16QAM,490.0),
-    CQIelem(_16QAM,616.0),
-    CQIelem(_64QAM,466.0),
-    CQIelem(_64QAM,567.0),
-    CQIelem(_64QAM,666.0),
-    CQIelem(_64QAM,772.0),
-    CQIelem(_64QAM,873.0),
-    CQIelem(_64QAM,948.0),
-};
+    {
+        CQIelem(_QPSK, 0.0),
+        CQIelem(_QPSK, 78.0),
+        CQIelem(_QPSK, 120.0),
+        CQIelem(_QPSK, 193.0),
+        CQIelem(_QPSK, 308.0),
+        CQIelem(_QPSK, 449.0),
+        CQIelem(_QPSK, 602.0),
+        CQIelem(_16QAM, 378.0),
+        CQIelem(_16QAM, 490.0),
+        CQIelem(_16QAM, 616.0),
+        CQIelem(_64QAM, 466.0),
+        CQIelem(_64QAM, 567.0),
+        CQIelem(_64QAM, 666.0),
+        CQIelem(_64QAM, 772.0),
+        CQIelem(_64QAM, 873.0),
+        CQIelem(_64QAM, 948.0),
+    };
 
 /**
  * <MCS Index> , <Modulation> , <I-TBS> , <threshold>
@@ -41,44 +41,45 @@ const CQIelem cqiTable[] =
  */
 McsTable::McsTable()
 {
-    table[0]=MCSelem(_QPSK,0,86.08);
-    table[1]=MCSelem(_QPSK,1,112.80);
-    table[2]=MCSelem(_QPSK,2,138.65);
-    table[3]=MCSelem(_QPSK,3,179.48);
-    table[4]=MCSelem(_QPSK,4,219.96);
-    table[5]=MCSelem(_QPSK,5,269.86);
-    table[6]=MCSelem(_QPSK,6,319.55);
-    table[7]=MCSelem(_QPSK,7,374.48);
-    table[8]=MCSelem(_QPSK,8,428.59);
-    table[9]=MCSelem(_QPSK,9,483.37);
-    table[10]=MCSelem(_16QAM,9,241.69);
-    table[11]=MCSelem(_16QAM,10,268.80);
-    table[12]=MCSelem(_16QAM,11,308.55);
-    table[13]=MCSelem(_16QAM,12,349.13);
-    table[14]=MCSelem(_16QAM,13,393.42);
-    table[15]=MCSelem(_16QAM,14,437.91);
-    table[16]=MCSelem(_16QAM,15,468.67);
-    table[17]=MCSelem(_64QAM,15,312.45);
-    table[18]=MCSelem(_64QAM,16,331.66);
-    table[19]=MCSelem(_64QAM,17,367.66);
-    table[20]=MCSelem(_64QAM,18,403.41);
-    table[21]=MCSelem(_64QAM,19,438.55);
-    table[22]=MCSelem(_64QAM,20,473.85);
-    table[23]=MCSelem(_64QAM,21,511.28);
-    table[24]=MCSelem(_64QAM,22,549.29);
-    table[25]=MCSelem(_64QAM,23,583.51);
-    table[26]=MCSelem(_64QAM,24,621.36);
-    table[27]=MCSelem(_64QAM,25,646.43);
-    table[28]=MCSelem(_64QAM,26,749.52);
+    table[0] = MCSelem(_QPSK, 0, 86.08);
+    table[1] = MCSelem(_QPSK, 1, 112.80);
+    table[2] = MCSelem(_QPSK, 2, 138.65);
+    table[3] = MCSelem(_QPSK, 3, 179.48);
+    table[4] = MCSelem(_QPSK, 4, 219.96);
+    table[5] = MCSelem(_QPSK, 5, 269.86);
+    table[6] = MCSelem(_QPSK, 6, 319.55);
+    table[7] = MCSelem(_QPSK, 7, 374.48);
+    table[8] = MCSelem(_QPSK, 8, 428.59);
+    table[9] = MCSelem(_QPSK, 9, 483.37);
+    table[10] = MCSelem(_16QAM, 9, 241.69);
+    table[11] = MCSelem(_16QAM, 10, 268.80);
+    table[12] = MCSelem(_16QAM, 11, 308.55);
+    table[13] = MCSelem(_16QAM, 12, 349.13);
+    table[14] = MCSelem(_16QAM, 13, 393.42);
+    table[15] = MCSelem(_16QAM, 14, 437.91);
+    table[16] = MCSelem(_16QAM, 15, 468.67);
+    table[17] = MCSelem(_64QAM, 15, 312.45);
+    table[18] = MCSelem(_64QAM, 16, 331.66);
+    table[19] = MCSelem(_64QAM, 17, 367.66);
+    table[20] = MCSelem(_64QAM, 18, 403.41);
+    table[21] = MCSelem(_64QAM, 19, 438.55);
+    table[22] = MCSelem(_64QAM, 20, 473.85);
+    table[23] = MCSelem(_64QAM, 21, 511.28);
+    table[24] = MCSelem(_64QAM, 22, 549.29);
+    table[25] = MCSelem(_64QAM, 23, 583.51);
+    table[26] = MCSelem(_64QAM, 24, 621.36);
+    table[27] = MCSelem(_64QAM, 25, 646.43);
+    table[28] = MCSelem(_64QAM, 26, 749.52);
 }
 
 void McsTable::rescale(const double scale)
 {
-    if (scale <= 0) opp_error("Bad Rescaling value: %f",scale);
+    if (scale <= 0)
+        opp_error("Bad Rescaling value: %f", scale);
 
-    for (Tbs i=0; i < CQI2ITBSSIZE; ++i)
+    for (Tbs i = 0; i < CQI2ITBSSIZE; ++i)
     {
-        table[i].threshold_*= (168.0/scale);
+        table[i].threshold_ *= (168.0 / scale);
     }
 }
 
@@ -256,35 +257,62 @@ const unsigned int* itbs2tbs(LteMod mod, TxMode txMode, unsigned char layers, un
 {
     const unsigned int* res;
 
-    if(layers == 1 || (txMode != OL_SPATIAL_MULTIPLEXING && txMode != CL_SPATIAL_MULTIPLEXING)) {
+    if (layers == 1 || (txMode != OL_SPATIAL_MULTIPLEXING && txMode != CL_SPATIAL_MULTIPLEXING))
+    {
 
-        switch(mod) {
-            case _QPSK: res = itbs2tbs_qpsk_1[itbs]; break;
-            case _16QAM: res = itbs2tbs_16qam_1[itbs]; break;
-            case _64QAM: res = itbs2tbs_64qam_1[itbs]; break;
-            default: throw cRuntimeError("Unknown MCS (%d) in LteAmc::itbs2tbs()", mod);
+        switch (mod)
+        {
+            case _QPSK:
+                res = itbs2tbs_qpsk_1[itbs];
+                break;
+            case _16QAM:
+                res = itbs2tbs_16qam_1[itbs];
+                break;
+            case _64QAM:
+                res = itbs2tbs_64qam_1[itbs];
+                break;
+            default:
+                throw cRuntimeError("Unknown MCS (%d) in LteAmc::itbs2tbs()", mod);
         }
 
     }
 
     // Here we are sure to use Spatial Multiplexing with more than 1 layer (2 or 4)
-    else if(layers == 2) {
+    else if (layers == 2)
+    {
 
-        switch(mod) {
-            case _QPSK: res = itbs2tbs_qpsk_2[itbs]; break;
-            case _16QAM: res = itbs2tbs_16qam_2[itbs]; break;
-            case _64QAM: res = itbs2tbs_64qam_2[itbs]; break;
-            default: throw cRuntimeError("Unknown MCS (%d) in LteAmc::itbs2tbs()", mod);
+        switch (mod)
+        {
+            case _QPSK:
+                res = itbs2tbs_qpsk_2[itbs];
+                break;
+            case _16QAM:
+                res = itbs2tbs_16qam_2[itbs];
+                break;
+            case _64QAM:
+                res = itbs2tbs_64qam_2[itbs];
+                break;
+            default:
+                throw cRuntimeError("Unknown MCS (%d) in LteAmc::itbs2tbs()", mod);
         }
 
     }
-    else if(layers == 4) {
+    else if (layers == 4)
+    {
 
-        switch(mod) {
-            case _QPSK: res = itbs2tbs_qpsk_4[itbs]; break;
-            case _16QAM: res = itbs2tbs_16qam_4[itbs]; break;
-            case _64QAM: res = itbs2tbs_64qam_4[itbs]; break;
-            default: throw cRuntimeError("Unknown MCS (%d) in LteAmc::itbs2tbs()", mod);
+        switch (mod)
+        {
+            case _QPSK:
+                res = itbs2tbs_qpsk_4[itbs];
+                break;
+            case _16QAM:
+                res = itbs2tbs_16qam_4[itbs];
+                break;
+            case _64QAM:
+                res = itbs2tbs_64qam_4[itbs];
+                break;
+            default:
+                throw cRuntimeError("Unknown MCS (%d) in LteAmc::itbs2tbs()", mod);
         }
 
     }
@@ -292,41 +320,65 @@ const unsigned int* itbs2tbs(LteMod mod, TxMode txMode, unsigned char layers, un
     return res;
 }
 
-std::vector<unsigned char> cwMapping(const TxMode& txMode, const Rank& ri,const unsigned int antennaPorts)
+std::vector<unsigned char> cwMapping(const TxMode& txMode, const Rank& ri, const unsigned int antennaPorts)
 {
     std::vector<unsigned char> res;
 
-    if(ri <= 1) {
+    if (ri <= 1)
+    {
         res.push_back(1);
-    } else {
-        switch(txMode) {
+    }
+    else
+    {
+        switch (txMode)
+        {
 
             // SISO and MU-MIMO supports only rank 1 transmission (1 layer)
             case SINGLE_ANTENNA_PORT0:
-            case SINGLE_ANTENNA_PORT5:
-            case MULTI_USER:{
+                case SINGLE_ANTENNA_PORT5:
+                case MULTI_USER:
+            {
                 res.push_back(1);
                 break;
             }
 
-            // TX Diversity uses a number of layers equal to antennaPorts
-            case TRANSMIT_DIVERSITY: {
+                // TX Diversity uses a number of layers equal to antennaPorts
+            case TRANSMIT_DIVERSITY:
+            {
                 res.push_back(antennaPorts);
                 break;
             }
 
-            // Spatial MUX uses MIN(RI, antennaPorts) layers
+                // Spatial MUX uses MIN(RI, antennaPorts) layers
             case OL_SPATIAL_MULTIPLEXING:
-            case CL_SPATIAL_MULTIPLEXING: {
-                int usedRi = (antennaPorts < ri ) ? antennaPorts : ri;
-                if(usedRi == 2) {res.push_back(1); res.push_back(1);}
-                if(usedRi == 3) {res.push_back(1); res.push_back(2);}
-                if(usedRi == 4) {res.push_back(2); res.push_back(2);}
-                if(usedRi == 8) {res.push_back(4); res.push_back(4);}
+                case CL_SPATIAL_MULTIPLEXING:
+            {
+                int usedRi = (antennaPorts < ri) ? antennaPorts : ri;
+                if (usedRi == 2)
+                {
+                    res.push_back(1);
+                    res.push_back(1);
+                }
+                if (usedRi == 3)
+                {
+                    res.push_back(1);
+                    res.push_back(2);
+                }
+                if (usedRi == 4)
+                {
+                    res.push_back(2);
+                    res.push_back(2);
+                }
+                if (usedRi == 8)
+                {
+                    res.push_back(4);
+                    res.push_back(4);
+                }
                 break;
             }
 
-            default: {
+            default:
+            {
                 res.push_back(1);
                 break;
             }

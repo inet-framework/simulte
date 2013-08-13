@@ -9,7 +9,6 @@
 // and cannot be removed from it.
 // 
 
-
 #ifndef CONNECTIONSTABLE_H_
 #define CONNECTIONSTABLE_H_
 
@@ -35,73 +34,74 @@
 class ConnectionsTable
 {
 
-    public:
-        ConnectionsTable();
-        virtual ~ConnectionsTable();
+  public:
+    ConnectionsTable();
+    virtual ~ConnectionsTable();
 
-        /**
-         * find_entry() checks if an entry is in the
-         * table and returns a proper number.
-         *
-         * @param srcAddr part of 4-tuple
-         * @param dstAddr part of 4-tuple
-         * @param srcPort part of 4-tuple
-         * @param dstPort part of 4-tuple
-         * @return value of LCID field in hash table:
-         *             - 0xFFFF if no entry was found
-         *             - LCID if it was found
-         */
-        LogicalCid find_entry(uint32_t srcAddr, uint32_t dstAddr,
-                uint16_t srcPort, uint16_t dstPort);
+    /**
+     * find_entry() checks if an entry is in the
+     * table and returns a proper number.
+     *
+     * @param srcAddr part of 4-tuple
+     * @param dstAddr part of 4-tuple
+     * @param srcPort part of 4-tuple
+     * @param dstPort part of 4-tuple
+     * @return value of LCID field in hash table:
+     *             - 0xFFFF if no entry was found
+     *             - LCID if it was found
+     */
+    LogicalCid find_entry(uint32_t srcAddr, uint32_t dstAddr,
+        uint16_t srcPort, uint16_t dstPort);
 
-        /**
-         * create_entry() adds a new entry to the table
-         *
-         * @param srcAddr part of 4-tuple
-         * @param dstAddr part of 4-tuple
-         * @param srcPort part of 4-tuple
-         * @param dstPort part of 4-tuple
-         * @param LCID connection id to insert
-         */
-        void create_entry(uint32_t srcAddr, uint32_t dstAddr,
-                uint16_t srcPort, uint16_t dstPort, LogicalCid lcid);
+    /**
+     * create_entry() adds a new entry to the table
+     *
+     * @param srcAddr part of 4-tuple
+     * @param dstAddr part of 4-tuple
+     * @param srcPort part of 4-tuple
+     * @param dstPort part of 4-tuple
+     * @param LCID connection id to insert
+     */
+    void create_entry(uint32_t srcAddr, uint32_t dstAddr,
+        uint16_t srcPort, uint16_t dstPort, LogicalCid lcid);
 
-    private:
-        /**
-         * hash_func() calculates the hash function used
-         * by this structure. At the moment it's simply an OR
-         * operation between all fields of the 4-tuple
-         *
-         * @param srcAddr part of 4-tuple
-         * @param dstAddr part of 4-tuple
-         * @param srcPort part of 4-tuple
-         * @param dstPort part of 4-tuple
-         */
-        unsigned int hash_func(uint32_t srcAddr, uint32_t dstAddr,
-                uint16_t srcPort, uint16_t dstPort);
+  private:
+    /**
+     * hash_func() calculates the hash function used
+     * by this structure. At the moment it's simply an OR
+     * operation between all fields of the 4-tuple
+     *
+     * @param srcAddr part of 4-tuple
+     * @param dstAddr part of 4-tuple
+     * @param srcPort part of 4-tuple
+     * @param dstPort part of 4-tuple
+     */
+    unsigned int hash_func(uint32_t srcAddr, uint32_t dstAddr,
+        uint16_t srcPort, uint16_t dstPort);
 
-        /*
-         * Data Structures
-         */
+    /*
+     * Data Structures
+     */
 
-        /**
-         * \struct entry
-         * \brief hash table entry
-         *
-         * This structure contains an entry of the
-         * connections hash table. It contains
-         * all fields of the 4-tuple and the
-         * associated LCID (Logical Connection ID).
-         */
-        struct entry_ {
-            uint32_t srcAddr_;
-            uint32_t dstAddr_;
-            uint16_t srcPort_;
-            uint16_t dstPort_;
-            LogicalCid lcid_;
-        };
-        /// Hash table of size TABLE_SIZE
-        entry_ ht_[TABLE_SIZE];
+    /**
+     * \struct entry
+     * \brief hash table entry
+     *
+     * This structure contains an entry of the
+     * connections hash table. It contains
+     * all fields of the 4-tuple and the
+     * associated LCID (Logical Connection ID).
+     */
+    struct entry_
+    {
+        uint32_t srcAddr_;
+        uint32_t dstAddr_;
+        uint16_t srcPort_;
+        uint16_t dstPort_;
+        LogicalCid lcid_;
+    };
+    /// Hash table of size TABLE_SIZE
+    entry_ ht_[TABLE_SIZE];
 };
 
 #endif /* CONNECTIONSTABLE_H_ */

@@ -21,7 +21,7 @@ class LteSchedulerEnb;
 class LteDrr : public LteScheduler
 {
 
-    private:
+  private:
 
     //! DRR descriptor.
     struct DrrDesc
@@ -36,10 +36,11 @@ class LteDrr : public LteScheduler
         bool eligible_;
 
         //! Create an inactive DRR descriptor.
-        DrrDesc () {
-            quantum_  = 0;
-            deficit_  = 0;
-            active_   = false;
+        DrrDesc()
+        {
+            quantum_ = 0;
+            deficit_ = 0;
+            active_ = false;
             eligible_ = false;
         }
     };
@@ -59,9 +60,7 @@ class LteDrr : public LteScheduler
     //! Deficit round-robin descriptor per-connection map. Temporary variable used in the two phase scheduling operations
     DrrDescMap drrTempMap_;
 
-
-
-    public:
+  public:
 
     // Scheduling functions ********************************************************************
 

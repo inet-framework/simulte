@@ -15,9 +15,11 @@
 
 #include "TftControlInfo.h"
 
-TftControlInfo::TftControlInfo() {
+TftControlInfo::TftControlInfo()
+{
 }
 
-TftControlInfo::~TftControlInfo() {
+TftControlInfo::~TftControlInfo()
+{
 }
 

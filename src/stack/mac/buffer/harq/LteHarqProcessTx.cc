@@ -9,10 +9,10 @@
 // and cannot be removed from it.
 //
 
-
 #include "LteHarqProcessTx.h"
 
-LteHarqProcessTx::LteHarqProcessTx(unsigned char acid, unsigned int numUnits, unsigned int numProcesses, LteMacBase *macOwner,LteMacBase *dstMac)
+LteHarqProcessTx::LteHarqProcessTx(unsigned char acid, unsigned int numUnits, unsigned int numProcesses,
+    LteMacBase *macOwner, LteMacBase *dstMac)
 {
     macOwner_ = macOwner;
     acid_ = acid;
@@ -25,14 +25,14 @@ LteHarqProcessTx::LteHarqProcessTx(unsigned char acid, unsigned int numUnits, un
     // H-ARQ unit istances
     for (unsigned int i = 0; i < numHarqUnits_; i++)
     {
-        (*units_)[i] = new LteHarqUnitTx(acid,i, macOwner_,dstMac);
+        (*units_)[i] = new LteHarqUnitTx(acid, i, macOwner_, dstMac);
     }
 }
 
 std::vector<UnitStatus>
 LteHarqProcessTx::getProcessStatus()
 {
-    std::vector<UnitStatus> ret (numHarqUnits_);
+    std::vector<UnitStatus> ret(numHarqUnits_);
 
     for (unsigned int j = 0; j < numHarqUnits_; j++)
     {

@@ -17,8 +17,9 @@
 
 #include "UDPBasicApp.h"
 
-class Gaming : public UDPBasicApp {
-public:
+class Gaming : public UDPBasicApp
+{
+  public:
     Gaming();
     virtual ~Gaming();
     virtual cPacket *createPacket();

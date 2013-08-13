@@ -9,7 +9,6 @@
 // and cannot be removed from it.
 // 
 
-
 #ifndef LTEHARQUNITTX_H_
 #define LTEHARQUNITTX_H_
 
@@ -36,145 +35,169 @@
 
 class LteMacBase;
 
-class LteHarqUnitTx {
-    protected:
+class LteHarqUnitTx
+{
+  protected:
 
-        /// Carried sub-burst
-        LteMacPdu *pdu_;
-        /// Omnet ID of the pdu
-        long pduId_;
+    /// Carried sub-burst
+    LteMacPdu *pdu_;
+    /// Omnet ID of the pdu
+    long pduId_;
 
-        /// PDU size in bytes
-        int64 pduLength_;
+    /// PDU size in bytes
+    int64 pduLength_;
 
-        // H-ARQ process identifier
-        unsigned char acid_;
+    // H-ARQ process identifier
+    unsigned char acid_;
 
-        /// H-ARQ codeword identifier
-        Codeword cw_;
+    /// H-ARQ codeword identifier
+    Codeword cw_;
 
-        /// Number of (re)transmissions for current pdu (N.B.: values are 1,2,3,4)
-        unsigned char transmissions_;
+    /// Number of (re)transmissions for current pdu (N.B.: values are 1,2,3,4)
+    unsigned char transmissions_;
 
-        TxHarqPduStatus status_;
+    TxHarqPduStatus status_;
 
-        /// TTI at which the pdu has been transmitted
-        simtime_t txTime_;
+    /// TTI at which the pdu has been transmitted
+    simtime_t txTime_;
 
-        LteMacBase *macOwner_;
-        //used for statistics
-        LteMacBase *dstMac_;
-        //Maximum number of H-ARQ retransmission
-        unsigned int maxHarqRtx_;
+    LteMacBase *macOwner_;
+    //used for statistics
+    LteMacBase *dstMac_;
+    //Maximum number of H-ARQ retransmission
+    unsigned int maxHarqRtx_;
 
-        //Statistics
+    //Statistics
 
-        simsignal_t macCellPacketLoss_;
-        simsignal_t macPacketLoss_;
-        simsignal_t harqErrorRate_;
-        simsignal_t harqErrorRate_1_;
-        simsignal_t harqErrorRate_2_;
-        simsignal_t harqErrorRate_3_;
-        simsignal_t harqErrorRate_4_;
+    simsignal_t macCellPacketLoss_;
+    simsignal_t macPacketLoss_;
+    simsignal_t harqErrorRate_;
+    simsignal_t harqErrorRate_1_;
+    simsignal_t harqErrorRate_2_;
+    simsignal_t harqErrorRate_3_;
+    simsignal_t harqErrorRate_4_;
 
-        TaggedSample *tSample_;
-        TaggedSample *tSampleCell_;
+    TaggedSample *tSample_;
+    TaggedSample *tSampleCell_;
 
+  public:
+    /**
+     * Constructor.
+     *
+     * @param id unit identifier
+     */
+    LteHarqUnitTx(unsigned char acid, Codeword cw, LteMacBase *macOwner, LteMacBase *dstMac);
 
-    public:
-        /**
-         * Constructor.
-         *
-         * @param id unit identifier
-         */
-        LteHarqUnitTx(unsigned char acid,Codeword cw, LteMacBase *macOwner,LteMacBase *dstMac);
+    /**
+     * Inserts a pdu in this harq unit.
+     *
+     * When a new pdu is inserted into an H-ARQ unit, its status is TX_HARQ_PDU_SELECTED,
+     * so it will be extracted and sent at this same TTI.
+     *
+     * @param pdu MacPdu to be inserted
+     */
+    virtual void insertPdu(LteMacPdu *pdu);
 
-        /**
-         * Inserts a pdu in this harq unit.
-         *
-         * When a new pdu is inserted into an H-ARQ unit, its status is TX_HARQ_PDU_SELECTED,
-         * so it will be extracted and sent at this same TTI.
-         *
-         * @param pdu MacPdu to be inserted
-         */
-        virtual void insertPdu(LteMacPdu *pdu);
+    /**
+     * Transition from BUFFERED to SELECTED status: the pdu will be extracted when the
+     * buffer will be inspected.
+     */
+    virtual void markSelected();
 
-        /**
-         * Transition from BUFFERED to SELECTED status: the pdu will be extracted when the
-         * buffer will be inspected.
-         */
-        virtual void markSelected();
+    /**
+     * Returns the macPdu to be sent and increments transmissions_ counter.
+     *
+     * The H-ARQ process containing this unit, must call this method in order
+     * to extract the pdu the Mac layer will send.
+     * Before extraction, control info is updated with transmission counter and ndi.
+     */
+    virtual LteMacPdu *extractPdu();
 
-        /**
-         * Returns the macPdu to be sent and increments transmissions_ counter.
-         *
-         * The H-ARQ process containing this unit, must call this method in order
-         * to extract the pdu the Mac layer will send.
-         * Before extraction, control info is updated with transmission counter and ndi.
-         */
-        virtual LteMacPdu *extractPdu();
+    /**
+     * Manages ACK/NACK.
+     *
+     * @param fb ACK or NACK for this H-ARQ unit
+     * @return true if the unit has become empty, false if it is still busy
+     */
+    virtual bool pduFeedback(HarqAcknowledgment fb);
 
-        /**
-         * Manages ACK/NACK.
-         *
-         * @param fb ACK or NACK for this H-ARQ unit
-         * @return true if the unit has become empty, false if it is still busy
-         */
-        virtual bool pduFeedback(HarqAcknowledgment fb);
+    /**
+     * Tells if this unit is currently managing a pdu or not.
+     */
+    virtual bool isEmpty();
 
-        /**
-         * Tells if this unit is currently managing a pdu or not.
-         */
-        virtual bool isEmpty();
+    /**
+     * Tells if the PDU is ready for retransmission (the pdu can then be marked to be sent)
+     */
+    virtual bool isReady();
 
-        /**
-         * Tells if the PDU is ready for retransmission (the pdu can then be marked to be sent)
-         */
-        virtual bool isReady();
+    /**
+     * If, after evaluating the pdu, it cannot be retransmitted because there isn't
+     * enough frame space, a selfNack can be issued to advance the unit status.
+     * This avoids a big pdu that cannot be retransmitted (because the channel changed),
+     * to lock an H-ARQ unit indefinitely.
+     * Must simulate selection, extraction and nack reception.
+     * N.B.: txTime is also updated so firstReadyForRtx returns a different pdu
+     *
+     * @result true if the unit reset as effect of self nack, false otherwise
+     */
+    virtual bool selfNack();
 
-        /**
-         * If, after evaluating the pdu, it cannot be retransmitted because there isn't
-         * enough frame space, a selfNack can be issued to advance the unit status.
-         * This avoids a big pdu that cannot be retransmitted (because the channel changed),
-         * to lock an H-ARQ unit indefinitely.
-         * Must simulate selection, extraction and nack reception.
-         * N.B.: txTime is also updated so firstReadyForRtx returns a different pdu
-         *
-         * @result true if the unit reset as effect of self nack, false otherwise
-         */
-        virtual bool selfNack();
+    /**
+     * Resets unit but throws an error if the unit is not in
+     * BUFFERED state.
+     */
+    virtual void dropPdu();
 
-        /**
-         * Resets unit but throws an error if the unit is not in
-         * BUFFERED state.
-         */
-        virtual void dropPdu();
+    virtual void forceDropUnit();
 
-        virtual void forceDropUnit();
+    virtual LteMacPdu *getPdu();
 
-        virtual LteMacPdu *getPdu();
+    virtual unsigned char getAcid()
+    {
+        return acid_;
+    }
 
-        virtual unsigned char getAcid() { return acid_; }
+    virtual Codeword getCodeword()
+    {
+        return cw_;
+    }
 
-        virtual Codeword getCodeword() { return cw_; }
+    virtual unsigned char getTransmissions()
+    {
+        return transmissions_;
+    }
 
-        virtual unsigned char getTransmissions() { return transmissions_; }
+    virtual int64 getPduLength()
+    {
+        return pduLength_;
+    }
 
-        virtual int64 getPduLength() { return pduLength_; }
+    virtual simtime_t getTxTime()
+    {
+        return txTime_;
+    }
 
-        virtual simtime_t getTxTime() {return txTime_; }
+    virtual bool isMarked()
+    {
+        return (status_ == TXHARQ_PDU_SELECTED);
+    }
 
-        virtual bool isMarked() { return (status_ == TXHARQ_PDU_SELECTED); }
+    virtual long getPduId()
+    {
+        return pduId_;
+    }
 
-        virtual long getPduId() { return pduId_; }
+    virtual TxHarqPduStatus getStatus()
+    {
+        return status_;
+    }
 
-        virtual TxHarqPduStatus getStatus() { return status_; }
+    virtual ~LteHarqUnitTx();
 
-        virtual ~LteHarqUnitTx();
+  protected:
 
-    protected:
-
-        virtual void resetUnit();
+    virtual void resetUnit();
 };
 
 #endif /* LTEHARQUNITTX_H_ */

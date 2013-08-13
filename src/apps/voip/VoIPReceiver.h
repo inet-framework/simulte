@@ -11,7 +11,6 @@
 //   Author: Adriano
 //
 
-
 #ifndef VOIPRECEIVER_H_
 #define VOIPRECEIVER_H_
 
@@ -27,30 +26,30 @@ class VoIPReceiver : public cSimpleModule
 {
     class TaggedSample : public cObject
     {
-        public:
-            double sample;
-            unsigned int id;
-            // the emitting cComponent (module)
-            cComponent* module;
+    public:
+        double sample;
+        unsigned int id;
+        // the emitting cComponent (module)
+        cComponent* module;
     };
     UDPSocket socket;
 
     ~VoIPReceiver();
 
-    int          emodel_Ie_;
-    int         emodel_Bpl_;
-    int         emodel_A_;
-    double         emodel_Ro_;
+    int emodel_Ie_;
+    int emodel_Bpl_;
+    int emodel_A_;
+    double emodel_Ro_;
 
     typedef std::list<VoipPacket*> PacketsList;
-    PacketsList  mPacketsList;
-    PacketsList  mPlayoutQueue;
+    PacketsList mPacketsList;
+    PacketsList mPlayoutQueue;
     unsigned int mCurrentTalkspurt;
     unsigned int mBufferSpace;
-    double          mSamplingDelta;
-    double          mPlayoutDelay;
+    double mSamplingDelta;
+    double mPlayoutDelay;
 
-    bool         mInit;
+    bool mInit;
 
     simsignal_t mFrameLossSignal;
     simsignal_t mFrameDelaySignal;
@@ -66,19 +65,15 @@ class VoIPReceiver : public cSimpleModule
 
     virtual void finish();
 
-protected:
+  protected:
 
-    virtual int numInitStages() const {return 4;}
+    virtual int numInitStages() const { return 4; }
     void initialize(int stage);
     void handleMessage(cMessage *msg);
-    double eModel (double delay, double loss);
+    double eModel(double delay, double loss);
     void playout(bool finish);
-
 
 };
 
-
-
 #endif /* VOIPRECEIVER_H_ */
-
 

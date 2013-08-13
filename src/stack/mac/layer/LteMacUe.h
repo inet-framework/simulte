@@ -9,123 +9,129 @@
 // and cannot be removed from it.
 // 
 
-
 #ifndef LTEMACUE_H_
 #define LTEMACUE_H_
 
 #include "LteMacBase.h"
 #include "LteHarqBufferTx.h"
 
-
 class LteSchedulingGrant;
 class LteSchedulerUeUl;
 
-class LteMacUe: public LteMacBase
+class LteMacUe : public LteMacBase
 {
-    protected:
-        // false if currentHarq_ counter needs to be initialized
-        bool firstTx;
+  protected:
+    // false if currentHarq_ counter needs to be initialized
+    bool firstTx;
 
-        LteSchedulerUeUl* lcgScheduler_;
+    LteSchedulerUeUl* lcgScheduler_;
 
-        // configured grant - one each codeword
-        LteSchedulingGrant* schedulingGrant_;
+    // configured grant - one each codeword
+    LteSchedulingGrant* schedulingGrant_;
 
-        // current H-ARQ process counter
-        unsigned char currentHarq_;
+    // current H-ARQ process counter
+    unsigned char currentHarq_;
 
-        // perodic grant handling
-        unsigned int periodCounter_;
-        unsigned int expirationCounter_;
+    // perodic grant handling
+    unsigned int periodCounter_;
+    unsigned int expirationCounter_;
 
-        // RAC Handling variables
+    // RAC Handling variables
 
-        bool racRequested_;
-        unsigned int racBackoffTimer_;
-        unsigned int maxRacTryouts_;
-        unsigned int currentRacTry_;
-        unsigned int minRacBackoff_;
-        unsigned int maxRacBackoff_;
+    bool racRequested_;
+    unsigned int racBackoffTimer_;
+    unsigned int maxRacTryouts_;
+    unsigned int currentRacTry_;
+    unsigned int minRacBackoff_;
+    unsigned int maxRacBackoff_;
 
-        unsigned int raRespTimer_;
-        unsigned int raRespWinStart_;
+    unsigned int raRespTimer_;
+    unsigned int raRespWinStart_;
 
-        // BSR handling
+    // BSR handling
 
-        bool bsrTriggered_;
+    bool bsrTriggered_;
 
+    /**
+     * Reads MAC parameters for ue and performs initialization.
+     */
+    virtual void initialize(int stage);
 
-        /**
-         * Reads MAC parameters for ue and performs initialization.
-         */
-        virtual void initialize(int stage);
+    /**
+     * macPduMake() creates MAC PDUs (one for each CID)
+     * by extracting SDUs from Real Mac Buffers according
+     * to the Schedule List.
+     * It sends them to H-ARQ (at the moment lower layer)
+     *
+     * On UE it also adds a BSR control element to the MAC PDU
+     * containing the size of its buffer (for that CID)
+     */
+    virtual void macPduMake(LteMacScheduleList* scheduleList);
 
-        /**
-         * macPduMake() creates MAC PDUs (one for each CID)
-         * by extracting SDUs from Real Mac Buffers according
-         * to the Schedule List.
-         * It sends them to H-ARQ (at the moment lower layer)
-         *
-         * On UE it also adds a BSR control element to the MAC PDU
-         * containing the size of its buffer (for that CID)
-         */
-        virtual void macPduMake(LteMacScheduleList* scheduleList);
+    /**
+     * macPduUnmake() extracts SDUs from a received MAC
+     * PDU and sends them to the upper layer.
+     *
+     * @param pkt container packet
+     */
+    virtual void macPduUnmake(cPacket* pkt);
 
-        /**
-         * macPduUnmake() extracts SDUs from a received MAC
-         * PDU and sends them to the upper layer.
-         *
-         * @param pkt container packet
-         */
-        virtual void macPduUnmake(cPacket* pkt);
+    /**
+     * Main loop
+     */
+    virtual void handleSelfMessage();
 
-        /**
-         * Main loop
-         */
-        virtual void handleSelfMessage();
+    /*
+     * Receives and handles scheduling grants
+     */
+    virtual void macHandleGrant(cPacket* pkt);
 
-        /*
-        * Receives and handles scheduling grants
-         */
-        virtual void macHandleGrant(cPacket* pkt);
+    /*
+     * Receives and handles RAC responses
+     */
+    virtual void macHandleRac(cPacket* pkt);
 
-        /*
-         * Receives and handles RAC responses
-         */
-        virtual void macHandleRac(cPacket* pkt);
+    /*
+     * Checks RAC status
+     */
+    virtual void checkRAC();
+    /*
+     * Update UserTxParam stored in every lteMacPdu when an rtx change this information
+     */
+    virtual void updateUserTxParam(cPacket* pkt);
 
-        /*
-         * Checks RAC status
-         */
-        virtual void checkRAC();
-        /*
-         * Update UserTxParam stored in every lteMacPdu when an rtx change this information
-         */
-        virtual void updateUserTxParam(cPacket* pkt);
+  public:
+    LteMacUe();
+    virtual ~LteMacUe();
 
-    public:
-        LteMacUe();
-        virtual ~LteMacUe();
+    /*
+     * Access scheduling grant
+     */
+    inline const LteSchedulingGrant* getSchedulingGrant() const
+    {
+        return schedulingGrant_;
+    }
+    /*
+     * Access current H-ARQ pointer
+     */
+    inline const unsigned char getCurrentHarq() const
+    {
+        return currentHarq_;
+    }
+    /*
+     * Access BSR trigger flag
+     */
+    inline const bool bsrTriggered() const
+    {
+        return bsrTriggered_;
+    }
 
-        /*
-         * Access scheduling grant
-         */
-        inline const LteSchedulingGrant* getSchedulingGrant() const { return schedulingGrant_;}
-        /*
-         * Access current H-ARQ pointer
-         */
-        inline const unsigned char getCurrentHarq() const {return currentHarq_;}
-        /*
-         * Access BSR trigger flag
-         */
-        inline const bool bsrTriggered() const {return bsrTriggered_;}
-
-        /* utility functions used by LCP scheduler
-         * <cid> and <priority> are returned by reference
-         * @return true if at least one backlogged connection exists
-         */
-        bool getHighestBackloggedFlow(MacCid& cid, unsigned int& priority);
-        bool getLowestBackloggedFlow(MacCid& cid, unsigned int& priority);
+    /* utility functions used by LCP scheduler
+     * <cid> and <priority> are returned by reference
+     * @return true if at least one backlogged connection exists
+     */
+    bool getHighestBackloggedFlow(MacCid& cid, unsigned int& priority);
+    bool getLowestBackloggedFlow(MacCid& cid, unsigned int& priority);
 
 };
 

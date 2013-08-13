@@ -9,7 +9,6 @@
 // and cannot be removed from it.
 // 
 
-
 #ifndef __LTE_LTEDLFBGENERATOR_H_
 #define __LTE_LTEDLFBGENERATOR_H_
 
@@ -32,7 +31,10 @@ class DasFilter;
  */
 class LteDlFeedbackGenerator : public cSimpleModule
 {
-    typedef enum { PERIODIC_SENSING = 0, PERIODIC_TX, APERIODIC_TX } FbTimerType;
+    typedef enum
+    {
+        PERIODIC_SENSING = 0, PERIODIC_TX, APERIODIC_TX
+    } FbTimerType;
 
   private:
 
@@ -56,7 +58,7 @@ class LteDlFeedbackGenerator : public cSimpleModule
     LteDeployer *deployer_; /// reference to deployer
 
     // Deployer parameters
-    std::map<Remote,int> antennaCws_; /// number of antenna per remote
+    std::map<Remote, int> antennaCws_; /// number of antenna per remote
     int numPreferredBands_;           /// number of preferred bands to use (meaningful only in PREFERRED mode)
     int numBands_;                      /// number of cell bands
 
@@ -75,7 +77,7 @@ class LteDlFeedbackGenerator : public cSimpleModule
     MacNodeId nodeId_;
 
     bool feedbackComputationPisa_;
-  private:
+    private:
 
     /**
      * DUMMY: should be provided by PHY
@@ -110,9 +112,7 @@ class LteDlFeedbackGenerator : public cSimpleModule
      * Channel sensing
      */
     void sensing(FbPeriodicity per);
-    virtual int numInitStages() const {
-           return 2;
-       }
+    virtual int numInitStages() const { return 2; }
 
   public:
 

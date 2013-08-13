@@ -9,7 +9,6 @@
 // and cannot be removed from it.
 //
 
-
 #ifndef LTEBINDER_H_
 #define LTEBINDER_H_
 
@@ -19,7 +18,6 @@
 #include "IPv4Address.h"
 #include "PhyPisaData.h"
 #include "ExtCell.h"
-
 
 /**
  * The LTE Binder module has one instance in the whole network.
@@ -41,8 +39,9 @@
  * - the map of deployed UEs per master (by amc)
  *
  */
-class LteBinder: public cSimpleModule {
-private:
+class LteBinder : public cSimpleModule
+{
+  private:
     typedef std::map<MacNodeId, std::map<MacNodeId, bool> > DeployedUesMap;
     typedef std::map<MacCellId, LteDeployer*> DeployerList;
 
@@ -63,13 +62,13 @@ private:
 
     std::string increment_address(const char* address_string); //TODO unused function
 
-protected:
+  protected:
     virtual void initialize();
 
-    //virtual int numInitStages() const {return 2;}
+    //virtual int numInitStages() const { return 2; }
 
-    virtual void handleMessage(cMessage *msg) {
-        ;
+    virtual void handleMessage(cMessage *msg)
+    {
     }
     /**
      * Attaches the application module to a UE module.
@@ -80,7 +79,7 @@ protected:
      * @param counter app index in UL direction. Always -1 in DL
      */
     void attachAppModule(cModule *parentModule, std::string IPAddr,
-            cXMLAttributeMap attr , int counter);
+        cXMLAttributeMap attr, int counter);
 
     /*
      * connects the application module gates to the transport layer of
@@ -89,7 +88,7 @@ protected:
      * @param appModule  the application module to be connected
      * @param transport the transport type : <udp|tcp>
      */
-    void transportAppAttach(cModule* parentModule,cModule* appModule,std::string transport);
+    void transportAppAttach(cModule* parentModule, cModule* appModule, std::string transport);
 
     /*
      * Set the appropriate port for the UL application.
@@ -102,22 +101,23 @@ protected:
      * @param counter offset to add to the basePort
      *
      */
-    void setTransportAppPort(cModule* module , unsigned int counter, cXMLAttributeMap attr);
+    void setTransportAppPort(cModule* module, unsigned int counter, cXMLAttributeMap attr);
 
     void parseParam(cModule* module, cXMLAttributeMap attr);
 
-public:
-    LteBinder() {
+  public:
+    LteBinder()
+    {
         macNodeIdCounter_[0] = ENB_MIN_ID;
         macNodeIdCounter_[1] = RELAY_MIN_ID;
         macNodeIdCounter_[2] = UE_MIN_ID;
     }
 
     void registerDeployer(LteDeployer* pDeployer, MacCellId macCellId);
-//    void nodesConfiguration();
+    //    void nodesConfiguration();
 
-    virtual ~LteBinder() {
-        ;
+    virtual ~LteBinder()
+    {
     }
     int getQCIPriority(int);
     double getPacketDelayBudget(int);
@@ -129,9 +129,9 @@ public:
      * Dynamically creates an eNodeB node, set its parameters, registers it to the binder
      * and initializes its channels.
      */
-     cModule* createNodeB(EnbType type);
+    cModule* createNodeB(EnbType type);
 
-     /**
+    /**
      * Registers a node to the global LteBinder module.
      *
      * The binder assigns an IP address to the node, from which it is derived
@@ -193,14 +193,20 @@ public:
      * @param address IP address
      * @return MacNodeId corresponding to the IP addres
      */
-    MacNodeId getMacNodeId(IPv4Address address) { return macNodeIdToIPAddress_[address]; }
+    MacNodeId getMacNodeId(IPv4Address address)
+    {
+        return macNodeIdToIPAddress_[address];
+    }
 
     /**
      * Associates the given IP address with the given MacNodeId.
      *
      * @param address IP address
      */
-    void setMacNodeId(IPv4Address address, MacNodeId nodeId) { macNodeIdToIPAddress_[address] = nodeId; }
+    void setMacNodeId(IPv4Address address, MacNodeId nodeId)
+    {
+        macNodeIdToIPAddress_[address] = nodeId;
+    }
 
     /*
      * getDeployedUes() returns the affiliates
@@ -209,7 +215,10 @@ public:
     ConnectedUesMap getDeployedUes(MacNodeId localId, Direction dir);
     PhyPisaData phyPisaData;
 
-    ExtCellList getExtCellList() { return extCellList_; }
+    ExtCellList getExtCellList()
+    {
+        return extCellList_;
+    }
 };
 
 #endif /* LTEBINDER_H_ */

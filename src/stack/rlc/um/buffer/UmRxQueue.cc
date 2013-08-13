@@ -1,14 +1,13 @@
-// 
+//
 //                           SimuLTE
 // Copyright (C) 2012 Antonio Virdis, Daniele Migliorini, Giovanni
 // Accongiagioco, Generoso Pagano, Vincenzo Pii.
-// 
+//
 // This file is part of a software released under the license included in file
 // "license.pdf". This license can be also found at http://www.ltesimulator.com/
-// The above file and the present reference are part of the software itself, 
+// The above file and the present reference are part of the software itself,
 // and cannot be removed from it.
-// 
-
+//
 
 #include "UmRxQueue.h"
 #include "LteMacBase.h"
@@ -18,23 +17,26 @@
 Define_Module(UmRxQueue);
 
 UmRxQueue::UmRxQueue() :
-        timer_(this) {
+    timer_(this)
+{
 
 }
 
-UmRxQueue::~UmRxQueue() {
+UmRxQueue::~UmRxQueue()
+{
 }
 
-bool UmRxQueue::defragment(cPacket* pkt) {
+bool UmRxQueue::defragment(cPacket* pkt)
+{
 
     EV << NOW << "UmRxQueue::defragment" << endl;
 
     Enter_Method("defragment()"); // Direct Method Call
-    take(pkt); // Take ownership
+    take(pkt);// Take ownership
 
     // Get fragment info
     FlowControlInfo* lteInfo = check_and_cast<FlowControlInfo*>(
-            pkt->removeControlInfo());
+        pkt->removeControlInfo());
     LteRlcPdu* fragment = check_and_cast<LteRlcPdu *>(pkt);
     unsigned short dir = lteInfo->getDirection();
     unsigned int size;
@@ -48,9 +50,9 @@ bool UmRxQueue::defragment(cPacket* pkt) {
     LogicalCid lcid = lteInfo->getLcid();
 
     EV << "UmRxBuffer : Processing fragment " << fragSno << "(size " << fragSize
-            << ")" << " of packet " << pktId << " with LCID: " << lcid << " [src="<< srcId << "]-[dst="<< dstId <<"]\n";
+       << ")" << " of packet " << pktId << " with LCID: " << lcid << " [src=" << srcId << "]-[dst=" << dstId << "]\n";
 //    std::cout << "UmRxBuffer : Processing fragment " << fragSno << "(size " << fragSize
-//            << ")" << " of packet " << pktId << " with LCID: " << lcid << " [src="<< srcId << "]-[dst="<< dstId <<"]\n";
+//            << ")" << " of packet " << pktId << " with LCID: " << lcid << " [src=" << srcId << "]-[dst=" << dstId << "]\n";
 
     pduDelay = (NOW - pkt->getCreationTime()).dbl();
     bool first = fragbuf_.insert(pktId, totFrag, fragSno, fragSize, lteInfo);
@@ -59,13 +61,16 @@ bool UmRxQueue::defragment(cPacket* pkt) {
     cModule* nodeb = NULL;
     cModule* ue = NULL;
 
-    if (dir == DL) {
+    if (dir == DL)
+    {
         tSampleCell_->id = srcId;
         tSample_->id = dstId;
         nodeb = getRlcByMacNodeId(srcId, UM);
         ue = getRlcByMacNodeId(dstId, UM);
 
-    } else if (dir == UL) {
+    }
+    else if (dir == UL)
+    {
         tSampleCell_->id = dstId;
         tSample_->id = srcId;
         nodeb = getRlcByMacNodeId(dstId, UM);
@@ -82,30 +87,35 @@ bool UmRxQueue::defragment(cPacket* pkt) {
     ue->emit(rlcPduPacketLoss_, tSample_);
 
     // Insert and check if all fragments have been gathered
-    if (first) { // First fragment for this pktID
-        timer_.add(timeout_, pktId); // Start timer
+    if (first)
+    {
+        // First fragment for this pktID
+        timer_.add(timeout_, pktId);// Start timer
     }
-    if (!fragbuf_.check(pktId)) {
+    if (!fragbuf_.check(pktId))
+    {
         EV << "UmRxBuffer : Fragments missing... continue\n";
         if (!first)
-            delete lteInfo;
+        delete lteInfo;
         delete fragment;
         return false; // Missing fragments
-    } else {
+    }
+    else
+    {
 //        std::cout << "\tUmRxBuffer - All fragments gathered: defragment" << endl;
         EV << "\tUmRxBuffer - All fragments gathered: defragment" << endl;
         // All fragments gathered: defragment
-        timer_.remove(pktId); // Stop timer
+        timer_.remove(pktId);// Stop timer
         LteRlcUm* lte_rlc = check_and_cast<LteRlcUm *>(
-                getParentModule()->getSubmodule("um"));
+            getParentModule()->getSubmodule("um"));
         int origPktSize = fragbuf_.remove(pktId);
-        pkt->setByteLength(origPktSize); // Set original packet size before decapsulating
+        pkt->setByteLength(origPktSize);// Set original packet size before decapsulating
 
         LteRlcSdu* rlcPkt = check_and_cast<LteRlcSdu*>(fragment->decapsulate());
         size = rlcPkt->getByteLength();
         delay = (NOW - rlcPkt->getCreationTime()).dbl();
         LtePdcpPdu* pdcpPkt = check_and_cast<LtePdcpPdu*>(
-                rlcPkt->decapsulate());
+            rlcPkt->decapsulate());
         delete rlcPkt;
         delete fragment;
         pdcpPkt->setControlInfo(lteInfo);
@@ -129,26 +139,28 @@ bool UmRxQueue::defragment(cPacket* pkt) {
     nodeb->emit(rlcCellPacketLoss_, tSampleCell_);
 
     EV << "UmRxBuffer : Reassembled packet " << pktId << " with LCID: " << lcid
-            << "\n";
+       << "\n";
     return true;
 }
 
-/*
- * Main Functions
- */
+    /*
+     * Main Functions
+     */
 
-void UmRxQueue::initialize() {
+void UmRxQueue::initialize()
+{
     timeout_ = par("timeout").doubleValue();
     tSampleCell_ = new TaggedSample();
     tSample_ = new TaggedSample();
 
     cModule* parent = check_and_cast<LteRlcUm*>(
-            getParentModule()->getSubmodule("um"));
+        getParentModule()->getSubmodule("um"));
     //statistics
     LteMacBase* mac = check_and_cast<LteMacBase*>(
-            getParentModule()->getParentModule()->getSubmodule("mac"));
+        getParentModule()->getParentModule()->getSubmodule("mac"));
 
-    if (mac->getNodeType() == ENODEB) {
+    if (mac->getNodeType() == ENODEB)
+    {
 
         rlcCellPacketLoss_ = parent->registerSignal("rlcCellPacketLossUl");
         rlcPacketLoss_ = parent->registerSignal("rlcPacketLossUl");
@@ -159,8 +171,9 @@ void UmRxQueue::initialize() {
         rlcPduThroughput_ = parent->registerSignal("rlcPduThroughputUl");
         rlcCellThroughput_ = parent->registerSignal("rlcCellThroughputUl");
 
-
-    } else {
+    }
+    else
+    {
 
         cModule* nodeB = getRlcByMacNodeId(mac->getMacCellId(), UM);
 
@@ -178,13 +191,15 @@ void UmRxQueue::initialize() {
     WATCH(timeout_);
 }
 
-void UmRxQueue::handleMessage(cMessage* msg) {
-    if (msg->isName("timer")) { // Timeout for this main packet: discard fragments
-
+void UmRxQueue::handleMessage(cMessage* msg)
+{
+    if (msg->isName("timer"))
+    {
+        // Timeout for this main packet: discard fragments
         TMultiTimerMsg* tmsg = check_and_cast<TMultiTimerMsg *>(msg);
 
         EV << NOW << " UmRxQueue::handleMessage : Timeout triggered for packet "
-                << tmsg->getEvent() << endl;
+           << tmsg->getEvent() << endl;
 
         FlowControlInfo* lteInfo = fragbuf_.getLteInfo(tmsg->getEvent());
         MacNodeId srcId = lteInfo->getSourceId();
@@ -193,11 +208,14 @@ void UmRxQueue::handleMessage(cMessage* msg) {
         tSample_->sample = 1;
         tSampleCell_->sample = 1;
 
-        if (dir == DL) {
+        if (dir == DL)
+        {
             tSample_->id = dstId;
             tSampleCell_->id = srcId;
 
-        } else if (dir == UL) {
+        }
+        else if (dir == UL)
+        {
             tSample_->id = srcId;
             tSampleCell_->id = dstId;
         }
@@ -207,8 +225,8 @@ void UmRxQueue::handleMessage(cMessage* msg) {
         // NODEB
         cModule* nodeb = getRlcByMacNodeId((dir == DL ? srcId : dstId), UM);
 
-        tSampleCell_->module=nodeb;
-        tSample_->module=ue;
+        tSampleCell_->module = nodeb;
+        tSample_->module = ue;
 
         ue->emit(rlcPacketLoss_, tSample_);
         nodeb->emit(rlcCellPacketLoss_, tSampleCell_);

@@ -9,41 +9,40 @@
 // and cannot be removed from it.
 //
 
-
 #include "LteHarqProcessRx.h"
 #include "LteMacBase.h"
 #include "LteControlInfo.h"
 #include "LteHarqFeedback_m.h"
 #include "LteMacPdu.h"
 
-
 LteHarqProcessRx::LteHarqProcessRx(unsigned char acid, LteMacBase *owner)
 {
-    pdu_.resize(MAX_CODEWORDS,NULL);
-    status_.resize(MAX_CODEWORDS,RXHARQ_PDU_EMPTY);
+    pdu_.resize(MAX_CODEWORDS, NULL);
+    status_.resize(MAX_CODEWORDS, RXHARQ_PDU_EMPTY);
     rxTime_.resize(MAX_CODEWORDS, 0);
-    result_.resize(MAX_CODEWORDS,false);
+    result_.resize(MAX_CODEWORDS, false);
     acid_ = acid;
     macOwner_ = owner;
     transmissions_ = 0;
     maxHarqRtx_ = owner->par("maxHarqRtx");
 }
 
-void LteHarqProcessRx::insertPdu(Codeword cw,LteMacPdu *pdu)
+void LteHarqProcessRx::insertPdu(Codeword cw, LteMacPdu *pdu)
 {
     UserControlInfo *lteInfo = check_and_cast<UserControlInfo *>(pdu->getControlInfo());
     bool ndi = lteInfo->getNdi();
 
     EV << "LteHarqProcessRx::insertPdu - ndi is " << ndi << endl;
-    if (ndi && !(status_.at(cw) == RXHARQ_PDU_EMPTY) )
+    if (ndi && !(status_.at(cw) == RXHARQ_PDU_EMPTY))
         throw cRuntimeError("New data arriving in busy harq process -- this should not happen");
 
     if (!ndi && !(status_.at(cw) == RXHARQ_PDU_EMPTY) && !(status_.at(cw) == RXHARQ_PDU_CORRUPTED))
-        throw cRuntimeError("Trying to insert macPdu in non-empty rx harq process: Node %d acid %d, codeword %d, ndi %d, status %d",
-                macOwner_->getMacNodeId() , acid_ , cw , ndi , status_.at(cw));
+        throw cRuntimeError(
+            "Trying to insert macPdu in non-empty rx harq process: Node %d acid %d, codeword %d, ndi %d, status %d",
+            macOwner_->getMacNodeId(), acid_, cw, ndi, status_.at(cw));
 
     pdu_.at(cw) = pdu;
-    result_.at(cw)=  lteInfo->getDeciderResult();
+    result_.at(cw) = lteInfo->getDeciderResult();
     status_.at(cw) = RXHARQ_PDU_EVALUATING;
     rxTime_.at(cw) = NOW;
 
@@ -76,19 +75,21 @@ LteHarqFeedback *LteHarqProcessRx::createFeedback(Codeword cw)
     fbInfo->setFrameType(HARQPKT);
     fb->setControlInfo(fbInfo);
 
-    if (!result_.at(cw)) {
+    if (!result_.at(cw))
+    {
         // NACK will be sent
         status_.at(cw) = RXHARQ_PDU_CORRUPTED;
         //resetCodeword(cw);
 
         EV << "LteHarqProcessRx::createFeedback - tx number " << (unsigned int)transmissions_ << endl;
-        if(transmissions_ == (maxHarqRtx_ + 1))
+        if (transmissions_ == (maxHarqRtx_ + 1))
         {
-            EV << NOW << " LteHarqProcessRx::createFeedback - max number of tx reached for cw "<< cw << ". Resetting cw" << endl;
-//            std::cout << NOW << " LteHarqProcessRx::createFeedback - max number of tx reached for cw "<< cw << ". Resetting cw" << endl;
+            EV << NOW << " LteHarqProcessRx::createFeedback - max number of tx reached for cw " << cw << ". Resetting cw" << endl;
+//            std::cout << NOW << " LteHarqProcessRx::createFeedback - max number of tx reached for cw " << cw << ". Resetting cw" << endl;
             resetCodeword(cw);
         }
-    } else
+    }
+    else
     {
         status_.at(cw) = RXHARQ_PDU_CORRECT;
     }
@@ -112,20 +113,21 @@ LteMacPdu* LteHarqProcessRx::extractPdu(Codeword cw)
     return pdu;
 }
 
-
 int64_t LteHarqProcessRx::getByteLength(Codeword cw)
 {
-    if (pdu_.at(cw)!=NULL)
+    if (pdu_.at(cw) != NULL)
     {
         return pdu_.at(cw)->getByteLength();
     }
-    else return 0;
+    else
+        return 0;
 }
 
 void LteHarqProcessRx::resetCodeword(Codeword cw)
 {
     // drop ownership
-    if (pdu_.at(cw)!=NULL) macOwner_->dropObj(pdu_.at(cw)) ;
+    if (pdu_.at(cw) != NULL)
+        macOwner_->dropObj(pdu_.at(cw));
 
     pdu_.at(cw) = NULL;
     status_.at(cw) = RXHARQ_PDU_EMPTY;
@@ -137,7 +139,7 @@ void LteHarqProcessRx::resetCodeword(Codeword cw)
 
 LteHarqProcessRx::~LteHarqProcessRx()
 {
-    for (unsigned char i =0;i<MAX_CODEWORDS;++i)
+    for (unsigned char i = 0; i < MAX_CODEWORDS; ++i)
     {
         if (pdu_.at(i) != NULL)
         {
@@ -154,7 +156,7 @@ LteHarqProcessRx::~LteHarqProcessRx()
 std::vector<RxUnitStatus>
 LteHarqProcessRx::getProcessStatus()
 {
-    std::vector<RxUnitStatus> ret (MAX_CODEWORDS);
+    std::vector<RxUnitStatus> ret(MAX_CODEWORDS);
 
     for (unsigned int j = 0; j < MAX_CODEWORDS; j++)
     {

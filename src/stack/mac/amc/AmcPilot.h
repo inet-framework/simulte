@@ -9,7 +9,6 @@
 // and cannot be removed from it.
 // 
 
-
 #ifndef AMCPILOT_H_
 #define AMCPILOT_H_
 
@@ -30,9 +29,10 @@ class LteAmc;
  * from this class and to implement the computeTxParams method
  * according to your policy.
  */
-class AmcPilot {
+class AmcPilot
+{
 
-protected:
+  protected:
 
     //! LteAmc owner module
     LteAmc *amc_;
@@ -40,13 +40,17 @@ protected:
     //! Pilot Name
     std::string name_;
 
-public:
+  public:
 
     /**
      * Constructor
      * @param amc LteAmc owner module
      */
-    AmcPilot(LteAmc *amc) { amc_ = amc; name_ = "NONE"; }
+    AmcPilot(LteAmc *amc)
+    {
+        amc_ = amc;
+        name_ = "NONE";
+    }
 
     /**
      * Assign logical bands for given nodeId and direction.
@@ -60,8 +64,10 @@ public:
      * Function to get the AMC Pilot name.
      * Useful for debug print.
      */
-    std::string getName() { return name_; }
-
+    std::string getName()
+    {
+        return name_;
+    }
 
     virtual void updateActiveUsers(ActiveSet aUser, Direction dir)=0;
 

@@ -1,14 +1,13 @@
-// 
+//
 //                           SimuLTE
 // Copyright (C) 2012 Antonio Virdis, Daniele Migliorini, Giovanni
 // Accongiagioco, Generoso Pagano, Vincenzo Pii.
-// 
+//
 // This file is part of a software released under the license included in file
 // "license.pdf". This license can be also found at http://www.ltesimulator.com/
-// The above file and the present reference are part of the software itself, 
+// The above file and the present reference are part of the software itself,
 // and cannot be removed from it.
-// 
-
+//
 
 #include "LteDeployer.h"
 #include "ChannelControl.h"
@@ -19,7 +18,8 @@ Define_Module(LteDeployer);
 
 // TODO: mettere parametro numEnbAntennas da passare a LteMcs::cwMapping (@par antennas)
 
-LteDeployer::LteDeployer() {
+LteDeployer::LteDeployer()
+{
     numRelays_ = 0;
     relayDistance_ = 0;
     nodeX_ = 0;
@@ -33,16 +33,17 @@ LteDeployer::LteDeployer() {
     binder_ = getBinder();
 }
 
-LteDeployer::~LteDeployer() {
+LteDeployer::~LteDeployer()
+{
     binder_ = NULL;
     delete ruSet_;
 }
 
-
-void LteDeployer::preInitialize() {
+void LteDeployer::preInitialize()
+{
 
     StationaryMobility* bm =
-            dynamic_cast<StationaryMobility*>(getParentModule()->getModuleByPath(".nic.mobility"));
+        dynamic_cast<StationaryMobility*>(getParentModule()->getModuleByPath(".nic.mobility"));
 
 //    if(eNbType_ == MACRO_ENB)
 //    {
@@ -57,7 +58,6 @@ void LteDeployer::preInitialize() {
 //        bm->par("initialX")=nodeX_;
 //        bm->par("initialY")=nodeY_;
 //    }
-
 
     pgnMinX_ = par("constraintAreaMinX");
     pgnMinY_ = par("constraintAreaMinY");
@@ -82,15 +82,16 @@ void LteDeployer::preInitialize() {
 
     numPreferredBands_ = par("numPreferredBands");
 
-    if (numRus_ > NUM_RUS) {
+    if (numRus_ > NUM_RUS)
+    {
         error("The number of Antennas specified exceeds the limit of %d",
-                NUM_RUS);
+            NUM_RUS);
     }
 
     EV << "Deployer: eNB coordinates: " << nodeX_ << " " << nodeY_ << " "
-            << nodeZ_ << endl;
+       << nodeZ_ << endl;
     EV << "Deployer: playground size: " << pgnMinX_ << "," << pgnMinY_ << " - "
-            << pgnMaxX_ << "," << pgnMaxY_ << " " << endl;
+       << pgnMaxX_ << "," << pgnMaxY_ << " " << endl;
 
     // register the containing eNB  to the binder
     cellId_ = getParentModule()->par("macCellId");
@@ -114,7 +115,8 @@ void LteDeployer::initialize()
 }
 
 int LteDeployer::deployRelays(double startAngle, int i, int num, double *xPos,
-        double *yPos) {
+    double *yPos)
+{
 
     double startingAngle = startAngle;
     *xPos = 0;
@@ -122,33 +124,35 @@ int LteDeployer::deployRelays(double startAngle, int i, int num, double *xPos,
     unsigned int nRelays = num;
     int relayNodeId = 0;
     calculateNodePosition(nodeX_, nodeY_, i, nRelays, relayDistance_,
-            startingAngle, xPos, yPos);
+        startingAngle, xPos, yPos);
     EV << "Deployer: Relay " << i << " will be deployed at (x,y): " << *xPos
-            << ", " << *yPos << endl;
+       << ", " << *yPos << endl;
     relayNodeId = createRelayAt(*xPos, *yPos);
 
     return relayNodeId;
 }
 
 cModule* LteDeployer::deployUes(double centerX, double centerY, int Ue,
-        int totalNumOfUes, std::string mobType, int range, uint16_t masterId,
-        double speed) {
+    int totalNumOfUes, std::string mobType, int range, uint16_t masterId,
+    double speed)
+{
     double x = 0;
     double y = 0;
     calculateNodePosition(centerX, centerY, Ue, totalNumOfUes, range, 0, &x,
-            &y);
+        &y);
 
     EV << NOW << " LteDeployer::deployUes deploying Ues: centerX " << centerX
-            << " centerY " << centerY << " Ue " << Ue << " total "
-            << totalNumOfUes << " x " << x << " y " << y << endl;
+       << " centerY " << centerY << " Ue " << Ue << " total "
+       << totalNumOfUes << " x " << x << " y " << y << endl;
 
     cModule* p = createUeAt(x, y, mobType, centerX, centerY, masterId, speed);
     return p;
 }
 
 void LteDeployer::calculateNodePosition(double centerX, double centerY, int nTh,
-        int totalNodes, int range, double startingAngle, double *xPos,
-        double *yPos) {
+    int totalNodes, int range, double startingAngle, double *xPos,
+    double *yPos)
+{
     if (totalNodes == 0)
         error("LteDeployer::calculateNodePosition: divide by 0");
     // radians (minus sign because position 0,0 is top-left, not bottom-left)
@@ -164,12 +168,13 @@ void LteDeployer::calculateNodePosition(double centerX, double centerY, int nTh,
     *yPos = (y < pgnMinY_) ? pgnMinY_ : (y > pgnMaxY_) ? pgnMaxY_ : y;
 
     EV << NOW << " LteDeployer::calculateNodePosition: Computed node position "
-            << *xPos << " , " << *yPos << endl;
+       << *xPos << " , " << *yPos << endl;
 
     return;
 }
 
-uint16_t LteDeployer::createRelayAt(double x, double y) {
+uint16_t LteDeployer::createRelayAt(double x, double y)
+{
     cModuleType *mt = cModuleType::get("lte.corenetwork.nodes.Relay");
     // parent module is the network itself
     cModule *module = mt->create("relay", getParentModule()->getParentModule());
@@ -187,7 +192,8 @@ uint16_t LteDeployer::createRelayAt(double x, double y) {
 }
 
 cModule* LteDeployer::createUeAt(double x, double y, std::string mobType, /*std::string appType,*/
-double centerX, double centerY, MacNodeId masterId, double speed) {
+double centerX, double centerY, MacNodeId masterId, double speed)
+{
     cModuleType *mt = cModuleType::get("lte.corenetwork.nodes.Ue");
     cModule *module = mt->create("ue", getParentModule()->getParentModule());
     module->par("masterId") = masterId;
@@ -203,17 +209,19 @@ double centerX, double centerY, MacNodeId masterId, double speed) {
 }
 
 void LteDeployer::attachMobilityModule(cModule *parentModule,
-        std::string mobType, double x, double y, double centerX, double centerY,
-        double speed) {
+    std::string mobType, double x, double y, double centerX, double centerY,
+    double speed)
+{
     EV << NOW << " LteDeployer::attachMobilityModule called with parameters X "
-            << x << " Y " << y << " center X " << centerX << " center Y "
-            << centerY << " speed  " << speed << endl;
+       << x << " Y " << y << " center X " << centerX << " center Y "
+       << centerY << " speed  " << speed << endl;
 
     // circular
-    if (mobType.at(0) == 'c') {
+    if (mobType.at(0) == 'c')
+    {
         cModuleType *mt = cModuleType::get("inet.mobility.models.CircleMobility");
         cModule *module = mt->create("mobility",
-                parentModule->getSubmodule("nic"));
+            parentModule->getSubmodule("nic"));
         module->par("debug") = false;
         module->par("cx") = centerX;
         module->par("cy") = centerY;
@@ -221,8 +229,8 @@ void LteDeployer::attachMobilityModule(cModule *parentModule,
         double r = sqrt(pow(fabs(centerX - x), 2) + pow(fabs(centerY - y), 2));
         module->par("r") = r;
         EV << NOW
-                << " LteDeployer::attachMobilityModule configured with radius "
-                << r << endl;
+           << " LteDeployer::attachMobilityModule configured with radius "
+           << r << endl;
         module->par("speed") = speed;
         module->par("startAngle") = uniform(0, 360);
         module->par("updateInterval") = par("positionUpdateInterval");
@@ -232,10 +240,11 @@ void LteDeployer::attachMobilityModule(cModule *parentModule,
     }
 
     // linear
-    else if (mobType.at(0) == 'l') {
+    else if (mobType.at(0) == 'l')
+    {
         cModuleType *mt = cModuleType::get("inet.mobility.models.ConstSpeedMobility");
         cModule *module = mt->create("mobility",
-                parentModule->getSubmodule("nic"));
+            parentModule->getSubmodule("nic"));
         module->par("initialX") = x;
         module->par("initialY") = y;
         module->par("initialZ") = 0;
@@ -249,7 +258,8 @@ void LteDeployer::attachMobilityModule(cModule *parentModule,
     }
 
     // null (default)
-    else {
+    else
+    {
         cModuleType *mt = cModuleType::get("inet.mobility.models.StationaryMobility");
         cModule *module = mt->create("mobility", parentModule);
         module->par("initialX") = x;
@@ -262,7 +272,8 @@ void LteDeployer::attachMobilityModule(cModule *parentModule,
     }
 }
 
-void LteDeployer::deployRu(double nodeX, double nodeY, int numRu, int ruRange) {
+void LteDeployer::deployRu(double nodeX, double nodeY, int numRu, int ruRange)
+{
     if (numRu == 0)
         return;
     double x = 0;
@@ -271,14 +282,16 @@ void LteDeployer::deployRu(double nodeX, double nodeY, int numRu, int ruRange) {
     std::string txPowersString = par("ruTxPower");
     int *txPowers = new int[numRu];
     parseStringToIntArray(txPowersString, txPowers, numRu, 0);
-    for (int i = 0; i < numRu; i++) {
+    for (int i = 0; i < numRu; i++)
+    {
         calculateNodePosition(nodeX, nodeY, i, numRu, ruRange, angle, &x, &y);
         ruSet_->addRemoteAntenna(x, y, (double) txPowers[i]);
     }
-    delete [] txPowers;
+    delete[] txPowers;
 }
 
-void LteDeployer::calculateMCSScale(double *mcsUl, double *mcsDl) {
+void LteDeployer::calculateMCSScale(double *mcsUl, double *mcsDl)
+{
     // RBsubcarriers * (TTISymbols - SignallingSymbols) - pilotREs
     int ulRbSubcarriers = par("rbyUl");
     int dlRbSubCarriers = par("rbyDl");
@@ -297,7 +310,8 @@ void LteDeployer::calculateMCSScale(double *mcsUl, double *mcsDl) {
 }
 
 void LteDeployer::updateMCSScale(double *mcs, double signalRe,
-        double signalCarriers, Direction dir) {
+    double signalCarriers, Direction dir)
+{
     // RBsubcarriers * (TTISymbols - SignallingSymbols) - pilotREs
 
     int rbSubcarriers = ((dir == DL) ? par("rbyDl") : par("rbyUl"));
@@ -312,17 +326,19 @@ void LteDeployer::updateMCSScale(double *mcs, double signalRe,
     return;
 }
 
-void LteDeployer::createAntennaCwMap() {
+void LteDeployer::createAntennaCwMap()
+{
     std::string cws = par("antennaCws");
     // values for the RUs including the MACRO
     int dim = numRus_ + 1;
     int *values = new int[dim];
     // default for missing values is 1
     parseStringToIntArray(cws, values, dim, 1);
-    for (int i = 0; i < dim; i++) {
+    for (int i = 0; i < dim; i++)
+    {
         antennaCws_[(Remote) i] = values[i];
     }
-    delete [] values;
+    delete[] values;
 }
 
 // TODO: dynamic application creation and user attachment

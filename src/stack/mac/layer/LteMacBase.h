@@ -9,13 +9,11 @@
 // and cannot be removed from it.
 // 
 
-
 #ifndef LTEMACBASE_H_
 #define LTEMACBASE_H_
 
 #include "InterfaceEntry.h"
 #include "LteCommon.h"
-
 
 class LteHarqBufferTx;
 class LteHarqBufferRx;
@@ -39,10 +37,9 @@ typedef std::map<MacNodeId, LteHarqBufferRx *> HarqRxBuffers;
  * corresponding virtual buffer pointer
  */
 
-typedef std::pair <MacCid,LteMacBuffer*> CidBufferPair;
-typedef std::pair <LteTrafficClass , CidBufferPair> LcgPair;
-typedef std::multimap < LteTrafficClass , CidBufferPair > LcgMap;
-
+typedef std::pair<MacCid, LteMacBuffer*> CidBufferPair;
+typedef std::pair<LteTrafficClass, CidBufferPair> LcgPair;
+typedef std::multimap<LteTrafficClass, CidBufferPair> LcgMap;
 
 /**
  * @class LteMacBase
@@ -54,232 +51,268 @@ typedef std::multimap < LteTrafficClass , CidBufferPair > LcgMap;
  * On each TTI, the handleSelfMessage() is called
  * to perform scheduling and other tasks
  */
-class LteMacBase: public cSimpleModule
+class LteMacBase : public cSimpleModule
 {
     friend class LteHarqBufferTx;
     friend class LteHarqBufferRx;
 
-    protected:
-        InterfaceEntry *interfaceEntry;
+  protected:
+    InterfaceEntry *interfaceEntry;
 
-        simsignal_t macBufferOverflowDl_;
-        simsignal_t macBufferOverflowUl_;
-        simsignal_t receivedPacketFromUpperLayer;
-        simsignal_t receivedPacketFromLowerLayer;
-        simsignal_t sentPacketToUpperLayer;
-        simsignal_t sentPacketToLowerLayer;
-        TaggedSample* tSample_;
-        /*
-         * Data Structures
-         */
-        LteBinder *binder_;
+    simsignal_t macBufferOverflowDl_;
+    simsignal_t macBufferOverflowUl_;
+    simsignal_t receivedPacketFromUpperLayer;
+    simsignal_t receivedPacketFromLowerLayer;
+    simsignal_t sentPacketToUpperLayer;
+    simsignal_t sentPacketToLowerLayer;
+    TaggedSample* tSample_;
+    /*
+     * Data Structures
+     */
+    LteBinder *binder_;
 
-        /*
-         * Gates
-         */
+    /*
+     * Gates
+     */
 
-        cGate* up_[2];     /// RLC <--> MAC
-        cGate* down_[2];   /// MAC <--> PHY
+    cGate* up_[2];     /// RLC <--> MAC
+    cGate* down_[2];   /// MAC <--> PHY
 
-        /*
-         * MAC MIB Params
-         */
-        bool muMimo_;
+    /*
+     * MAC MIB Params
+     */
+    bool muMimo_;
 
+    int harqProcesses_;
 
-        int harqProcesses_;
+    /// TTI self message
+    cMessage* ttiTick_;
 
-        /// TTI self message
-        cMessage* ttiTick_;
+    /// MacNodeId
+    MacNodeId nodeId_;
 
-        /// MacNodeId
-        MacNodeId nodeId_;
+    /// MacCellId
+    MacCellId cellId_;
 
-        /// MacCellId
-        MacCellId cellId_;
+    /// Maximum bytes per TTI scheduler can serve
+    int maxBytesPerTti_;
 
-        /// Maximum bytes per TTI scheduler can serve
-        int maxBytesPerTti_;
+    /// Mac Buffers maximum queue size
+    int queueSize_;
 
-        /// Mac Buffers maximum queue size
-        int queueSize_;
+    /// Mac Sdu Real Buffers
+    LteMacBuffers mbuf_;
 
-        /// Mac Sdu Real Buffers
-        LteMacBuffers mbuf_;
+    /// Mac Sdu Virtual Buffers
+    LteMacBufferMap macBuffers_;
 
-        /// Mac Sdu Virtual Buffers
-        LteMacBufferMap macBuffers_;
+    /// List of pdus finalized for each user on each codeword
+    MacPduList macPduList_;
 
-        /// List of pdus finalized for each user on each codeword
-        MacPduList macPduList_;
+    /// Harq Tx Buffers
+    HarqTxBuffers harqTxBuffers_;
 
-        /// Harq Tx Buffers
-        HarqTxBuffers harqTxBuffers_;
+    /// Harq Rx Buffers
+    HarqRxBuffers harqRxBuffers_;
 
-        /// Harq Rx Buffers
-        HarqRxBuffers harqRxBuffers_;
+    /* Connection Descriptors TODO : delete/update entries on hand-over
+     * Holds flow related infos
+     */
+    std::map<MacCid, FlowControlInfo> connDesc_;
 
-        /* Connection Descriptors TODO : delete/update entries on hand-over
-         * Holds flow related infos
-         */
-        std::map<MacCid,FlowControlInfo> connDesc_;
+    /* LCG to CID and buffers map - used for supporting LCG - based scheduler operations
+     * TODO : delete/update entries on hand-over
+     */
+    LcgMap lcgMap_;
+    // Node Type;
+    LteNodeType nodeType_;
 
-        /* LCG to CID and buffers map - used for supporting LCG - based scheduler operations
-         * TODO : delete/update entries on hand-over
-         */
-        LcgMap lcgMap_;
-        // Node Type;
-        LteNodeType nodeType_;
+  public:
 
-    public:
+    /**
+     * Initializes MAC Buffers
+     */
+    LteMacBase();
 
-        /**
-         * Initializes MAC Buffers
-         */
-        LteMacBase();
+    /**
+     * Deletes MAC Buffers
+     */
+    virtual ~LteMacBase();
 
-        /**
-         * Deletes MAC Buffers
-         */
-        virtual ~LteMacBase();
+    /**
+     * deleteQueues() must be called on handover
+     * to delete queues for a given user
+     *
+     * @param nodeId Id of the node whose queues are deleted
+     */
+    void deleteQueues(MacNodeId nodeId);
 
-        /**
-         * deleteQueues() must be called on handover
-         * to delete queues for a given user
-         *
-         * @param nodeId Id of the node whose queues are deleted
-         */
-        void deleteQueues(MacNodeId nodeId);
+    //* public utility function - drops ownership of an object
+    void dropObj(cOwnedObject* obj)
+    {
+        drop(obj);
+    }
 
-        //* public utility function - drops ownership of an object
-        void dropObj(cOwnedObject* obj ) { drop(obj);}
+    //* public utility function - takes ownership of an object
+    void takeObj(cOwnedObject* obj)
+    {
+        take(obj);
+    }
 
-        //* public utility function - takes ownership of an object
-        void takeObj(cOwnedObject* obj ) { take(obj);}
+    /*
+     * Getters
+     */
 
-        /*
-         * Getters
-         */
+    MacNodeId getMacNodeId()
+    {
+        return nodeId_;
+    }
+    MacCellId getMacCellId()
+    {
+        return cellId_;
+    }
 
+    // Returns the virtual buffers
+    LteMacBufferMap* getMacBuffers()
+    {
+        return &macBuffers_;
+    }
 
-        MacNodeId getMacNodeId(){ return nodeId_; }
-        MacCellId getMacCellId(){ return cellId_; }
+    // Returns Traffic Class to cid mapping
+    LcgMap& getLcgMap()
+    {
+        return lcgMap_;
+    }
 
-        // Returns the virtual buffers
-        LteMacBufferMap* getMacBuffers(){ return &macBuffers_; }
+    // Returns connection descriptors
+    std::map<MacCid, FlowControlInfo>& getConnDesc()
+    {
+        return connDesc_;
+    }
 
-        // Returns Traffic Class to cid mapping
-        LcgMap& getLcgMap() { return lcgMap_;}
+    // Returns the harq tx buffers
+    HarqTxBuffers* getHarqTxBuffers()
+    {
+        return &harqTxBuffers_;
+    }
 
-        // Returns connection descriptors
-        std::map<MacCid,FlowControlInfo>& getConnDesc() { return connDesc_;}
+    // Returns the harq tx buffers
+    HarqRxBuffers* getHarqRxBuffers()
+    {
+        return &harqRxBuffers_;
+    }
 
-        // Returns the harq tx buffers
-        HarqTxBuffers* getHarqTxBuffers(){ return &harqTxBuffers_; }
+    // Returns number of Harq Processes
+    unsigned int harqProcesses() const
+    {
+        return harqProcesses_;
+    }
 
-        // Returns the harq tx buffers
-        HarqRxBuffers* getHarqRxBuffers(){ return &harqRxBuffers_; }
+    // Returns the MU-MIMO enabled flag
+    bool muMimo() const
+    {
+        return muMimo_;
+    }
 
-        // Returns number of Harq Processes
-        unsigned int harqProcesses() const {return harqProcesses_;}
+    LteNodeType getNodeType()
+    {
+        return nodeType_;
+    }
 
-        // Returns the MU-MIMO enabled flag
-        bool muMimo() const {return muMimo_;}
+  protected:
 
-        LteNodeType getNodeType(){
-            return nodeType_;
-        }
+    virtual int numInitStages() const { return 3; }
 
+    /**
+     * Grabs NED parameters, initializes gates
+     * and the TTI self message
+     */
+    virtual void initialize(int stage);
 
-    protected:
+    /**
+     * Analyze gate of incoming packet
+     * and call proper handler
+     */
+    virtual void handleMessage(cMessage *msg);
 
-        virtual int numInitStages() const  {return 3;}
+    /**
+     *
+     */
+    virtual void registerInterface();
 
-        /**
-         * Grabs NED parameters, initializes gates
-         * and the TTI self message
-         */
-        virtual void initialize(int stage);
+    /**
+     * Statistics recording
+     */
+    virtual void finish();
 
-        /**
-         * Analyze gate of incoming packet
-         * and call proper handler
-         */
-        virtual void handleMessage(cMessage *msg);
+    /**
+     * Main loop of the Mac level, calls the scheduler
+     * and every other function every TTI : must be reimplemented
+     * by derivate classes
+     */
+    virtual void handleSelfMessage() = 0;
 
-        /**
-         *
-         */
-        virtual void registerInterface();
+    /**
+     * sendLowerPackets() is used
+     * to send packets to lower layer
+     *
+     * @param pkt Packet to send
+     */
+    void sendLowerPackets(cPacket* pkt);
 
-        /**
-         * Statistics recording
-         */
-        virtual void finish();
+    /**
+     * sendUpperPackets() is used
+     * to send packets to upper layer
+     *
+     * @param pkt Packet to send
+     */
+    void sendUpperPackets(cPacket* pkt);
 
-        /**
-         * Main loop of the Mac level, calls the scheduler
-         * and every other function every TTI : must be reimplemented
-         * by derivate classes
-         */
-        virtual void handleSelfMessage() = 0;
+    /*
+     * Functions to be redefined by derivated classes
+     */
 
+    virtual void macPduMake(LteMacScheduleList* scheduleList) = 0;
+    virtual void macPduUnmake(cPacket* pkt) = 0;
 
-        /**
-         * sendLowerPackets() is used
-         * to send packets to lower layer
-         *
-         * @param pkt Packet to send
-         */
-        void sendLowerPackets(cPacket* pkt);
+    /**
+     * bufferizePacket() is called every time a packet is
+     * received from the upper layer
+     */
+    virtual bool bufferizePacket(cPacket* pkt);
+    /**
+     * macHandleFeedbackPkt is called every time a feedback pkt arrives on MAC
+     */
+    virtual void macHandleFeedbackPkt(cPacket* pkt)
+    {
+    }
 
-        /**
-         * sendUpperPackets() is used
-         * to send packets to upper layer
-         *
-         * @param pkt Packet to send
-         */
-        void sendUpperPackets(cPacket* pkt);
+    /*
+     * Receives and handles scheduling grants - implemented in LteMacUe
+     */
+    virtual void macHandleGrant(cPacket* pkt)
+    {
+    }
 
-        /*
-         * Functions to be redefined by derivated classes
-         */
+    /*
+     * Receives and handles RAC requests (eNodeB implementation)  and responses (LteMacUe implementation)
+     */
+    virtual void macHandleRac(cPacket* pkt)
+    {
+    }
 
-        virtual void macPduMake(LteMacScheduleList* scheduleList) = 0;
-        virtual void macPduUnmake(cPacket* pkt) = 0;
+    /*
+     * Update UserTxParam stored in every lteMacPdu when an rtx change this information
+     */
+    virtual void updateUserTxParam(cPacket* pkt)=0;
 
-        /**
-         * bufferizePacket() is called every time a packet is
-         * received from the upper layer
-         */
-        virtual bool bufferizePacket(cPacket* pkt);
-        /**
-         * macHandleFeedbackPkt is called every time a feedback pkt arrives on MAC
-         */
-        virtual void macHandleFeedbackPkt(cPacket* pkt){}
+  private:
 
-        /*
-         * Receives and handles scheduling grants - implemented in LteMacUe
-         */
-        virtual void macHandleGrant(cPacket* pkt){}
+    /// Upper Layer Handler
+    void fromRlc(cPacket *pkt);
 
-        /*
-         * Receives and handles RAC requests (eNodeB implementation)  and responses (LteMacUe implementation)
-         */
-        virtual void macHandleRac(cPacket* pkt){}
-
-        /*
-         * Update UserTxParam stored in every lteMacPdu when an rtx change this information
-         */
-        virtual void updateUserTxParam(cPacket* pkt)=0;
-
-    private:
-
-        /// Upper Layer Handler
-        void fromRlc(cPacket *pkt);
-
-        /// Lower Layer Handler
-        void fromPhy(cPacket *pkt);
+    /// Lower Layer Handler
+    void fromPhy(cPacket *pkt);
 
 };
 

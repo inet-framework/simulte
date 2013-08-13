@@ -9,24 +9,28 @@
 // and cannot be removed from it.
 //
 
-
 #include "LteControlInfo.h"
 #include "UserTxParams.h"
 
-UserControlInfo::~UserControlInfo() {
-    if (userTxParams!=0)
+UserControlInfo::~UserControlInfo()
+{
+    if (userTxParams != 0)
         delete userTxParams;
 }
 
-UserControlInfo::UserControlInfo() : UserControlInfo_Base() {
-    userTxParams=0;
+UserControlInfo::UserControlInfo() :
+    UserControlInfo_Base()
+{
+    userTxParams = 0;
     grantedBlocks.clear();
 }
 
-void UserControlInfo::setCoord(const Coord& coord) {
+void UserControlInfo::setCoord(const Coord& coord)
+{
     senderCoord = coord;
 }
 
-Coord UserControlInfo::getCoord() const {
+Coord UserControlInfo::getCoord() const
+{
     return senderCoord;
 }

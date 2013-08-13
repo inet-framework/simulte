@@ -9,7 +9,6 @@
 // and cannot be removed from it.
 //
 
-
 #include "LteMacEnb.h"
 #include "LteHarqBufferRx.h"
 #include "LteMacBuffer.h"
@@ -31,7 +30,8 @@ Define_Module( LteMacEnb);
  *********************/
 
 LteMacEnb::LteMacEnb() :
-    LteMacBase() {
+    LteMacBase()
+{
     deployer_ = NULL;
     amc_ = NULL;
     enbSchedulerDl_ = NULL;
@@ -44,7 +44,8 @@ LteMacEnb::LteMacEnb() :
     lastTtiAllocatedRb_ = 0;
 }
 
-LteMacEnb::~LteMacEnb() {
+LteMacEnb::~LteMacEnb()
+{
     delete amc_;
     delete enbSchedulerDl_;
     delete enbSchedulerUl_;
@@ -59,129 +60,152 @@ LteMacEnb::~LteMacEnb() {
  * PROTECTED FUNCTIONS
  ***********************/
 
-LteDeployer* LteMacEnb::getDeployer() {
+LteDeployer* LteMacEnb::getDeployer()
+{
     // Get local deployer
     if (deployer_ != NULL)
         return deployer_;
 
-    return check_and_cast<LteDeployer*> (getParentModule()-> // Stack
-            getParentModule()-> // Enb
-            getSubmodule("deployer")); // Deployer
+    return check_and_cast<LteDeployer*>(getParentModule()-> // Stack
+    getParentModule()-> // Enb
+    getSubmodule("deployer")); // Deployer
 }
 
-int LteMacEnb::getNumAntennas() {
+int LteMacEnb::getNumAntennas()
+{
     /* Get number of antennas: +1 is for MACRO */
     return deployer_->getNumRus() + 1;
 }
 
-SchedDiscipline LteMacEnb::getSchedDiscipline(Direction dir) {
+SchedDiscipline LteMacEnb::getSchedDiscipline(Direction dir)
+{
     if (dir == DL)
         return aToSchedDiscipline(
-                par("schedulingDisciplineDl").stdstringValue());
+            par("schedulingDisciplineDl").stdstringValue());
     else if (dir == UL)
         return aToSchedDiscipline(
-                par("schedulingDisciplineUl").stdstringValue());
-    else {
-        throw cRuntimeError("LteMacEnb::getSchedDiscipline(): unrecognized direction %d", (int)dir);
+            par("schedulingDisciplineUl").stdstringValue());
+    else
+    {
+        throw cRuntimeError("LteMacEnb::getSchedDiscipline(): unrecognized direction %d", (int) dir);
     }
 }
 
-double LteMacEnb::getLteAdeadline(LteTrafficClass tClass, Direction dir) {
+double LteMacEnb::getLteAdeadline(LteTrafficClass tClass, Direction dir)
+{
     std::string a("lteAdeadline");
     a.append(lteTrafficClassToA(tClass));
     a.append(dirToA(dir));
     return par(a.c_str());
 }
 
-double LteMacEnb::getLteAslackTerm(LteTrafficClass tClass, Direction dir) {
+double LteMacEnb::getLteAslackTerm(LteTrafficClass tClass, Direction dir)
+{
     std::string a("lteAslackTerm");
     a.append(lteTrafficClassToA(tClass));
     a.append(dirToA(dir));
     return par(a.c_str());
 }
 
-int LteMacEnb::getLteAmaxUrgentBurst(LteTrafficClass tClass, Direction dir) {
+int LteMacEnb::getLteAmaxUrgentBurst(LteTrafficClass tClass, Direction dir)
+{
     std::string a("lteAmaxUrgentBurst");
     a.append(lteTrafficClassToA(tClass));
     a.append(dirToA(dir));
     return par(a.c_str());
 }
-int LteMacEnb::getLteAmaxFairnessBurst(LteTrafficClass tClass, Direction dir) {
+int LteMacEnb::getLteAmaxFairnessBurst(LteTrafficClass tClass, Direction dir)
+{
     std::string a("lteAmaxFairnessBurst");
     a.append(lteTrafficClassToA(tClass));
     a.append(dirToA(dir));
     return par(a.c_str());
 }
 
-int LteMacEnb::getLteAhistorySize(Direction dir) {
+int LteMacEnb::getLteAhistorySize(Direction dir)
+{
     std::string a("lteAhistorySize");
     a.append(dirToA(dir));
     return par(a.c_str());
 }
 
-int LteMacEnb::getLteAgainHistoryTh(LteTrafficClass tClass,Direction dir) {
+int LteMacEnb::getLteAgainHistoryTh(LteTrafficClass tClass, Direction dir)
+{
     std::string a("lteAgainHistoryTh");
     a.append(lteTrafficClassToA(tClass));
     a.append(dirToA(dir));
     return par(a.c_str());
 }
 
-double LteMacEnb::getZeroLevel(Direction dir, LteSubFrameType type) {
+double LteMacEnb::getZeroLevel(Direction dir, LteSubFrameType type)
+{
     std::string a("zeroLevel");
     a.append(SubFrameTypeToA(type));
     a.append(dirToA(dir));
     return par(a.c_str());
 }
 
-double LteMacEnb::getIdleLevel(Direction dir, LteSubFrameType type) {
+double LteMacEnb::getIdleLevel(Direction dir, LteSubFrameType type)
+{
     std::string a("idleLevel");
     a.append(SubFrameTypeToA(type));
     a.append(dirToA(dir));
     return par(a.c_str());
 }
 
-double LteMacEnb::getPowerUnit(Direction dir, LteSubFrameType type) {
+double LteMacEnb::getPowerUnit(Direction dir, LteSubFrameType type)
+{
     std::string a("powerUnit");
     a.append(SubFrameTypeToA(type));
     a.append(dirToA(dir));
     return par(a.c_str());
 }
-double LteMacEnb::getMaxPower(Direction dir, LteSubFrameType type) {
+double LteMacEnb::getMaxPower(Direction dir, LteSubFrameType type)
+{
     std::string a("maxPower");
     a.append(SubFrameTypeToA(type));
     a.append(dirToA(dir));
     return par(a.c_str());
 }
 
-unsigned int LteMacEnb::getAllocationRbs(Direction dir) {
-    if (dir == DL) {
+unsigned int LteMacEnb::getAllocationRbs(Direction dir)
+{
+    if (dir == DL)
+    {
         return par("lteAallocationRbsDl");
-    } else
+    }
+    else
         return par("lteAallocationRbsUl");
 }
 
-bool LteMacEnb::getPfTmsAwareFlag(Direction dir) {
+bool LteMacEnb::getPfTmsAwareFlag(Direction dir)
+{
     if (dir == DL)
         return par("pfTmsAwareDL");
     else
         return par("pfTmsAwareUL");
 }
 
-void LteMacEnb::deleteQueues(MacNodeId nodeId) {
+void LteMacEnb::deleteQueues(MacNodeId nodeId)
+{
     LteMacBase::deleteQueues(nodeId);
 
     LteMacBufferMap::iterator bit;
-    for (bit = bsrbuf_.begin(); bit != bsrbuf_.end(); bit++) {
-        if (MacCidToNodeId(bit->first) == nodeId) {
+    for (bit = bsrbuf_.begin(); bit != bsrbuf_.end(); bit++)
+    {
+        if (MacCidToNodeId(bit->first) == nodeId)
+        {
             delete bit->second; // Delete Queue
             bsrbuf_.erase(bit); // Delete Elem
         }
     }
 }
 
-void LteMacEnb::initialize(int stage) {
+void LteMacEnb::initialize(int stage)
+{
     LteMacBase::initialize(stage);
-    if (stage == 0) {
+    if (stage == 0)
+    {
         // TODO: read NED parameters, when will be present
         deployer_ = getDeployer();
         /* Get num RB Dl */
@@ -191,7 +215,6 @@ void LteMacEnb::initialize(int stage) {
 
         /* Get number of antennas */
         numAntennas_ = getNumAntennas();
-
 
         /* Create and initialize MAC Downlink scheduler */
         enbSchedulerDl_ = new LteSchedulerEnbDl();
@@ -204,78 +227,85 @@ void LteMacEnb::initialize(int stage) {
         //Initialize the current sub frame type with the first subframe of the MBSFN pattern
         currentSubFrameType_ = NORMAL_FRAME_TYPE;
 
-
         tSample_ = new TaggedSample();
         activatedFrames_ = registerSignal("activatedFrames");
         sleepFrames_ = registerSignal("sleepFrames");
         wastedFrames_ = registerSignal("wastedFrames");
-        cqiDlMuMimo0_=registerSignal("cqiDlMuMimo0");
-        cqiDlMuMimo1_=registerSignal("cqiDlMuMimo1");
-        cqiDlMuMimo2_=registerSignal("cqiDlMuMimo2");
-        cqiDlMuMimo3_=registerSignal("cqiDlMuMimo3");
-        cqiDlMuMimo4_=registerSignal("cqiDlMuMimo4");
+        cqiDlMuMimo0_ = registerSignal("cqiDlMuMimo0");
+        cqiDlMuMimo1_ = registerSignal("cqiDlMuMimo1");
+        cqiDlMuMimo2_ = registerSignal("cqiDlMuMimo2");
+        cqiDlMuMimo3_ = registerSignal("cqiDlMuMimo3");
+        cqiDlMuMimo4_ = registerSignal("cqiDlMuMimo4");
 
-        cqiDlTxDiv0_=registerSignal("cqiDlTxDiv0");
-        cqiDlTxDiv1_=registerSignal("cqiDlTxDiv1");
-        cqiDlTxDiv2_=registerSignal("cqiDlTxDiv2");
-        cqiDlTxDiv3_=registerSignal("cqiDlTxDiv3");
-        cqiDlTxDiv4_=registerSignal("cqiDlTxDiv4");
+        cqiDlTxDiv0_ = registerSignal("cqiDlTxDiv0");
+        cqiDlTxDiv1_ = registerSignal("cqiDlTxDiv1");
+        cqiDlTxDiv2_ = registerSignal("cqiDlTxDiv2");
+        cqiDlTxDiv3_ = registerSignal("cqiDlTxDiv3");
+        cqiDlTxDiv4_ = registerSignal("cqiDlTxDiv4");
 
-        cqiDlSpmux0_=registerSignal("cqiDlSpmux0");
-        cqiDlSpmux1_=registerSignal("cqiDlSpmux1");
-        cqiDlSpmux2_=registerSignal("cqiDlSpmux2");
-        cqiDlSpmux3_=registerSignal("cqiDlSpmux3");
-        cqiDlSpmux4_=registerSignal("cqiDlSpmux4");
+        cqiDlSpmux0_ = registerSignal("cqiDlSpmux0");
+        cqiDlSpmux1_ = registerSignal("cqiDlSpmux1");
+        cqiDlSpmux2_ = registerSignal("cqiDlSpmux2");
+        cqiDlSpmux3_ = registerSignal("cqiDlSpmux3");
+        cqiDlSpmux4_ = registerSignal("cqiDlSpmux4");
 
-        cqiDlSiso0_=registerSignal("cqiDlSiso0");
-        cqiDlSiso1_=registerSignal("cqiDlSiso1");
-        cqiDlSiso2_=registerSignal("cqiDlSiso2");
-        cqiDlSiso3_=registerSignal("cqiDlSiso3");
-        cqiDlSiso4_=registerSignal("cqiDlSiso4");
+        cqiDlSiso0_ = registerSignal("cqiDlSiso0");
+        cqiDlSiso1_ = registerSignal("cqiDlSiso1");
+        cqiDlSiso2_ = registerSignal("cqiDlSiso2");
+        cqiDlSiso3_ = registerSignal("cqiDlSiso3");
+        cqiDlSiso4_ = registerSignal("cqiDlSiso4");
 
-
-        tSample_->module = check_and_cast<cComponent*> (this);
+        tSample_->module = check_and_cast<cComponent*>(this);
         tSample_->id = nodeId_;
         WATCH(numAntennas_);
         WATCH_MAP(bsrbuf_);
     }
-    else if (stage == 1) {
+    else if (stage == 1)
+    {
         /* Create and initialize AMC module */
         amc_ = new LteAmc(this, binder_, deployer_, numAntennas_);
     }
 }
 
-void LteMacEnb::bufferizeBsr(MacBsr* bsr, MacCid cid) {
+void LteMacEnb::bufferizeBsr(MacBsr* bsr, MacCid cid)
+{
     PacketInfo vpkt(bsr->getSize(), bsr->getTimestamp());
 
     LteMacBufferMap::iterator it = bsrbuf_.find(cid);
-    if (it == bsrbuf_.end()) { // Queue not found for this cid: create
+    if (it == bsrbuf_.end())
+    {
+        // Queue not found for this cid: create
         LteMacBuffer* bsrqueue = new LteMacBuffer();
 
         bsrqueue->pushBack(vpkt);
         bsrbuf_[cid] = bsrqueue;
 
         EV << "LteBsrBuffers : Added new BSR buffer for node: "
-                << MacCidToNodeId(cid) << " for Lcid: " << MacCidToLcid(cid)
-                << " Current BSR size: " << bsr->getSize() << "\n";
+           << MacCidToNodeId(cid) << " for Lcid: " << MacCidToLcid(cid)
+           << " Current BSR size: " << bsr->getSize() << "\n";
 
-    } else { // Found
+    }
+    else
+    {
+        // Found
         LteMacBuffer* bsrqueue = it->second;
         bsrqueue->pushBack(vpkt);
 
         EV << "LteBsrBuffers : Using old buffer for node: " << MacCidToNodeId(
-                cid) << " for Lcid: " << MacCidToLcid(cid)
-                << " Current BSR size: " << bsr->getSize() << "\n";
+            cid) << " for Lcid: " << MacCidToLcid(cid)
+           << " Current BSR size: " << bsr->getSize() << "\n";
     }
 
-    // signal backlog to Uplink scheduler
+        // signal backlog to Uplink scheduler
     enbSchedulerUl_->backlog(cid);
 }
 
-void LteMacEnb::sendGrants(LteMacScheduleList* scheduleList) {
+void LteMacEnb::sendGrants(LteMacScheduleList* scheduleList)
+{
     EV << NOW << "LteMacEnb::sendGrants " << endl;
 
-    while (!scheduleList->empty()) {
+    while (!scheduleList->empty())
+    {
         LteMacScheduleList::iterator it, ot;
         it = scheduleList->begin();
 
@@ -289,10 +319,13 @@ void LteMacEnb::sendGrants(LteMacScheduleList* scheduleList) {
         // removing visited element from scheduleList.
         scheduleList->erase(it);
 
-        if (granted > 0) {
+        if (granted > 0)
+        {
             // increment number of allocated Cw
             ++codewords;
-        } else {
+        }
+        else
+        {
 
             // active cw becomes the "other one"
             cw = otherCw;
@@ -300,7 +333,8 @@ void LteMacEnb::sendGrants(LteMacScheduleList* scheduleList) {
 
         std::pair<unsigned int, Codeword> otherPair(nodeId, otherCw);
 
-        if ((ot = (scheduleList->find(otherPair))) != (scheduleList->end())) {
+        if ((ot = (scheduleList->find(otherPair))) != (scheduleList->end()))
+        {
             // increment number of allocated Cw
             ++codewords;
 
@@ -309,11 +343,11 @@ void LteMacEnb::sendGrants(LteMacScheduleList* scheduleList) {
         }
 
         if (granted == 0)
-            continue; // avoiding transmission of 0 grant (0 grant should not be created)
+        continue; // avoiding transmission of 0 grant (0 grant should not be created)
 
         EV << NOW << " LteMacEnb::sendGrants Node[" << getMacNodeId() << "] - "
-                << granted << " blocks to grant for user " << nodeId << " on "
-                << codewords << " codewords. CW[" << cw << "\\" << otherCw << "]"<< endl;
+           << granted << " blocks to grant for user " << nodeId << " on "
+           << codewords << " codewords. CW[" << cw << "\\" << otherCw << "]" << endl;
 
         // TODO Grant is set aperiodic as default
         LteSchedulingGrant* grant = new LteSchedulingGrant("LteGrant");
@@ -339,23 +373,26 @@ void LteMacEnb::sendGrants(LteMacScheduleList* scheduleList) {
         // acquiring remote antennas set from user info
         const std::set<Remote>& antennas = ui.readAntennaSet();
         std::set<Remote>::const_iterator antenna_it = antennas.begin(),
-                antenna_et = antennas.end();
+        antenna_et = antennas.end();
         const unsigned int logicalBands = deployer_->getNumBands();
 
         //  HANDLE MULTICW
-        for (; cw <= codewords; ++cw) {
+        for (; cw <= codewords; ++cw)
+        {
             unsigned int grantedBytes = 0;
 
-            for (Band b = 0; b < logicalBands; ++b) {
+            for (Band b = 0; b < logicalBands; ++b)
+            {
                 unsigned int bandAllocatedBlocks = 0;
 
-                for (; antenna_it != antenna_et; ++antenna_it) {
+                for (; antenna_it != antenna_et; ++antenna_it)
+                {
                     bandAllocatedBlocks += enbSchedulerUl_->readPerUeAllocatedBlocks(nodeId,
-                            *antenna_it, b);
+                        *antenna_it, b);
                 }
 
                 grantedBytes += amc_->computeBytesOnNRbs(nodeId, b, cw,
-                        bandAllocatedBlocks, UL);
+                    bandAllocatedBlocks, UL);
             }
 
             grant->setGrantedCwBytes(cw, grantedBytes);
@@ -373,13 +410,14 @@ void LteMacEnb::sendGrants(LteMacScheduleList* scheduleList) {
     }
 }
 
-void LteMacEnb::macHandleRac(cPacket* pkt) {
+void LteMacEnb::macHandleRac(cPacket* pkt)
+{
 
-    EV<< NOW << " LteMacEnb::macHandleRac" << endl;
+    EV << NOW << " LteMacEnb::macHandleRac" << endl;
 
     LteRac* racPkt = check_and_cast<LteRac*> (pkt);
     UserControlInfo* uinfo = check_and_cast<UserControlInfo*> (
-            racPkt->getControlInfo());
+        racPkt->getControlInfo());
 
     enbSchedulerUl_->signalRac(uinfo->getSourceId());
 
@@ -394,7 +432,8 @@ void LteMacEnb::macHandleRac(cPacket* pkt) {
 
 }
 
-void LteMacEnb::macPduMake(LteMacScheduleList* scheduleList) {
+void LteMacEnb::macPduMake(LteMacScheduleList* scheduleList)
+{
 
     EV << "----- START LteMacEnb::macPduMake -----\n";
     // Finalizes the scheduling decisions according to the schedule list,
@@ -404,23 +443,26 @@ void LteMacEnb::macPduMake(LteMacScheduleList* scheduleList) {
 
     //  Build a MAC pdu for each scheduled user on each codeword
     LteMacScheduleList::const_iterator it;
-    for (it = scheduleList->begin(); it != scheduleList->end(); it++) {
+    for (it = scheduleList->begin(); it != scheduleList->end(); it++)
+    {
         LteMacPdu* macPkt;
         cPacket* pkt;
         MacCid destCid = it->first.first;
         Codeword cw = it->first.second;
         MacNodeId destId = MacCidToNodeId(destCid);
         std::pair<MacNodeId, Codeword> pktId = std::pair<MacNodeId, Codeword>(
-                destId, cw);
+            destId, cw);
         unsigned int sduPerCid = it->second;
         unsigned int grantedBlocks = 0;
         TxMode txmode;
-        while (sduPerCid > 0) {
+        while (sduPerCid > 0)
+        {
 
-            if ((mbuf_[destCid]->getQueueLength()) < (int) sduPerCid) {
+            if ((mbuf_[destCid]->getQueueLength()) < (int) sduPerCid)
+            {
                 throw cRuntimeError("Abnormal queue length detected while building MAC PDU for cid %d "
-                            "Queue real SDU length is %d  while scheduled SDUs are %d",
-                        destCid, mbuf_[destCid]->getQueueLength(), sduPerCid);
+                    "Queue real SDU length is %d  while scheduled SDUs are %d",
+                    destCid, mbuf_[destCid]->getQueueLength(), sduPerCid);
             }
 
             // Add SDU to PDU
@@ -428,7 +470,8 @@ void LteMacEnb::macPduMake(LteMacScheduleList* scheduleList) {
             MacPduList::iterator pit = macPduList_.find(pktId);
 
             // No packets for this user on this codeword
-            if (pit == macPduList_.end()) {
+            if (pit == macPduList_.end())
+            {
                 UserControlInfo* uinfo = new UserControlInfo();
                 uinfo->setSourceId(getMacNodeId());
                 uinfo->setDestId(destId);
@@ -453,13 +496,16 @@ void LteMacEnb::macPduMake(LteMacScheduleList* scheduleList) {
                 macPkt->setControlInfo(uinfo);
                 macPkt->setTimestamp(NOW);
                 macPduList_[pktId] = macPkt;
-            } else {
+            }
+            else
+            {
                 macPkt = pit->second;
             }
-            if (mbuf_[destCid]->getQueueLength() == 0) {
+            if (mbuf_[destCid]->getQueueLength() == 0)
+            {
                 throw cRuntimeError("Abnormal queue length detected while building MAC PDU for cid %d "
-                            "Queue real SDU length is %d  while scheduled SDUs are %d",
-                        destCid, mbuf_[destCid]->getQueueLength(), sduPerCid);
+                    "Queue real SDU length is %d  while scheduled SDUs are %d",
+                    destCid, mbuf_[destCid]->getQueueLength(), sduPerCid);
             }
             pkt = mbuf_[destCid]->popFront();
 
@@ -472,18 +518,22 @@ void LteMacEnb::macPduMake(LteMacScheduleList* scheduleList) {
     }
 
     MacPduList::iterator pit;
-    for (pit = macPduList_.begin(); pit != macPduList_.end(); pit++) {
+    for (pit = macPduList_.begin(); pit != macPduList_.end(); pit++)
+    {
         MacNodeId destId = pit->first.first;
         Codeword cw = pit->first.second;
 
         LteHarqBufferTx* txBuf;
         HarqTxBuffers::iterator hit = harqTxBuffers_.find(destId);
-        if (hit != harqTxBuffers_.end()) {
+        if (hit != harqTxBuffers_.end())
+        {
             txBuf = hit->second;
-        } else {
+        }
+        else
+        {
             // FIXME: possible memory leak
             LteHarqBufferTx* hb = new LteHarqBufferTx(ENB_TX_HARQ_PROCESSES,
-                    this,(LteMacBase*)getMacUe(destId));
+                this,(LteMacBase*)getMacUe(destId));
             harqTxBuffers_[destId] = hb;
             txBuf = hb;
         }
@@ -493,35 +543,42 @@ void LteMacEnb::macPduMake(LteMacScheduleList* scheduleList) {
         EV << "LteMacBase: pduMaker created PDU: " << macPkt->info() << endl;
 
         // pdu transmission here (if any)
-        if (txList.second.empty()) {
-            EV
-                    << "macPduMake() : no available process for this MAC pdu in TxHarqBuffer"
-                    << endl;
+        if (txList.second.empty())
+        {
+            EV << "macPduMake() : no available process for this MAC pdu in TxHarqBuffer" << endl;
             delete macPkt;
-        } else {
+        }
+        else
+        {
             if (txList.first == HARQ_NONE)
-                throw cRuntimeError("LteMacBase: pduMaker sending to uncorrect void H-ARQ process. Aborting");
+            throw cRuntimeError("LteMacBase: pduMaker sending to uncorrect void H-ARQ process. Aborting");
             txBuf->insertPdu(txList.first, cw, macPkt);
         }
     }
     EV << "------ END LteMacEnb::macPduMake ------\n";
 }
 
-void LteMacEnb::macPduUnmake(cPacket* pkt) {
-    LteMacPdu* macPkt = check_and_cast<LteMacPdu*> (pkt);
-    while (macPkt->hasSdu()) { // Extract and send SDU
+void LteMacEnb::macPduUnmake(cPacket* pkt)
+{
+    LteMacPdu* macPkt = check_and_cast<LteMacPdu*>(pkt);
+    while (macPkt->hasSdu())
+    {
+        // Extract and send SDU
         cPacket* upPkt = macPkt->popSdu();
         take(upPkt);
 
-        /* TODO: upPkt->info() */
+        // TODO: upPkt->info()
         EV << "LteMacBase: pduUnmaker extracted SDU" << endl;
         sendUpperPackets(upPkt);
     }
-    while (macPkt->hasCe()) { // Extract CE
+
+    while (macPkt->hasCe())
+    {
+        // Extract CE
         // TODO: vedere se bsr  per cid o lcid
-        MacBsr* bsr = check_and_cast<MacBsr*> (macPkt->popCe());
-        UserControlInfo* lteInfo = check_and_cast<UserControlInfo*> (
-                macPkt->getControlInfo());
+        MacBsr* bsr = check_and_cast<MacBsr*>(macPkt->popCe());
+        UserControlInfo* lteInfo = check_and_cast<UserControlInfo*>(
+            macPkt->getControlInfo());
         MacCid cid = idToMacCid(lteInfo->getSourceId(), 0);
         bufferizeBsr(bsr, cid);
     }
@@ -529,35 +586,39 @@ void LteMacEnb::macPduUnmake(cPacket* pkt) {
     //delete macPkt;
 }
 
-int LteMacEnb::getNumRbDl() {
+int LteMacEnb::getNumRbDl()
+{
     return numRbDl_;
 }
 
-int LteMacEnb::getNumRbUl() {
+int LteMacEnb::getNumRbUl()
+{
     return numRbUl_;
 }
 
-bool LteMacEnb::bufferizePacket(cPacket* pkt) {
-    FlowControlInfo* lteInfo = check_and_cast<FlowControlInfo*> (
-            pkt->getControlInfo());
+bool LteMacEnb::bufferizePacket(cPacket* pkt)
+{
+    FlowControlInfo* lteInfo = check_and_cast<FlowControlInfo*>(pkt->getControlInfo());
     MacCid cid = idToMacCid(lteInfo->getDestId(), lteInfo->getLcid());
 
     bool ret = false;
 
-    if ((ret = LteMacBase::bufferizePacket(pkt))) {
+    if ((ret = LteMacBase::bufferizePacket(pkt)))
+    {
         enbSchedulerDl_->backlog(cid);
     }
     return ret;
 }
 
-void LteMacEnb::handleSelfMessage() {
+void LteMacEnb::handleSelfMessage()
+{
     /***************
      *  MAIN LOOP  *
      ***************/
 //    std::cout << "TTI: " << NOW << endl;
     EnbType nodeType = deployer_->getEnbType();
 
-    EV << "-----" << ((nodeType==MACRO_ENB)?"MACRO":"MICRO")<< " ENB MAIN LOOP -----" << endl;
+    EV << "-----" << ((nodeType==MACRO_ENB)?"MACRO":"MICRO") << " ENB MAIN LOOP -----" << endl;
 
     /*************
      * END DEBUG
@@ -571,9 +632,11 @@ void LteMacEnb::handleSelfMessage() {
     LteMacPdu *pdu = NULL;
     std::list<LteMacPdu*> pduList;
 
-    for (; hit != het; hit++) {
+    for (; hit != het; hit++)
+    {
         pduList = hit->second->extractCorrectPdus();
-        while (!pduList.empty()) {
+        while (!pduList.empty())
+        {
             pdu = pduList.front();
             pduList.pop_front();
             macPduUnmake(pdu);
@@ -600,7 +663,8 @@ void LteMacEnb::handleSelfMessage() {
     // use this flag to enable/disable scheduling...don't look at me, this is very useful!!!
     bool activation = true;
 
-    if (activation) {
+    if (activation)
+    {
         // perform Downlink scheduling
         LteMacScheduleList* scheduleListDl = enbSchedulerDl_->schedule();
         // creates pdus from schedule list and puts them in harq buffers
@@ -609,7 +673,8 @@ void LteMacEnb::handleSelfMessage() {
     EV << "========================================== END DOWNLINK ============================================" << endl;
 
     // purge from corrupted PDUs all Rx H-HARQ buffers for all users
-    for (; hit != het; hit++) {
+    for (; hit != het; hit++)
+    {
         hit->second->purgeCorruptedPdus();
     }
 
@@ -621,9 +686,9 @@ void LteMacEnb::handleSelfMessage() {
     EV << "--- END " << ((nodeType==MACRO_ENB)?"MACRO":"MICRO") << " ENB MAIN LOOP ---" << endl;
 }
 
-
-void LteMacEnb::macHandleFeedbackPkt(cPacket *pkt) {
-    LteFeedbackPkt* fb = check_and_cast<LteFeedbackPkt*> (pkt);
+void LteMacEnb::macHandleFeedbackPkt(cPacket *pkt)
+{
+    LteFeedbackPkt* fb = check_and_cast<LteFeedbackPkt*>(pkt);
     LteFeedbackDoubleVector fbMapDl = fb->getLteFeedbackDoubleVectorDl();
     LteFeedbackDoubleVector fbMapUl = fb->getLteFeedbackDoubleVectorUl();
     //get Source Node Id<
@@ -631,19 +696,24 @@ void LteMacEnb::macHandleFeedbackPkt(cPacket *pkt) {
     LteFeedbackDoubleVector::iterator it;
     LteFeedbackVector::iterator jt;
 
-    for (it = fbMapDl.begin(); it != fbMapDl.end(); ++it) {
+    for (it = fbMapDl.begin(); it != fbMapDl.end(); ++it)
+    {
         unsigned int i = 0;
-        for (jt = it->begin(); jt != it->end(); ++jt) {
+        for (jt = it->begin(); jt != it->end(); ++jt)
+        {
             //            TxMode rx=(TxMode)i;
-            if (!jt->isEmptyFeedback()){
+            if (!jt->isEmptyFeedback())
+            {
                 amc_->pushFeedback(id, DL, (*jt));
-                cqiStatistics(id,DL,(*jt));
+                cqiStatistics(id, DL, (*jt));
             }
             i++;
         }
     }
-    for (it = fbMapUl.begin(); it != fbMapUl.end(); ++it) {
-        for (jt = it->begin(); jt != it->end(); ++jt) {
+    for (it = fbMapUl.begin(); it != fbMapUl.end(); ++it)
+    {
+        for (jt = it->begin(); jt != it->end(); ++jt)
+        {
             if (!jt->isEmptyFeedback())
                 amc_->pushFeedback(id, UL, (*jt));
         }
@@ -651,144 +721,163 @@ void LteMacEnb::macHandleFeedbackPkt(cPacket *pkt) {
     delete fb;
 }
 
-void LteMacEnb::updateUserTxParam(cPacket* pkt) {
+void LteMacEnb::updateUserTxParam(cPacket* pkt)
+{
 
-    UserControlInfo *lteInfo = check_and_cast<UserControlInfo *> (
-            pkt->getControlInfo());
+    UserControlInfo *lteInfo = check_and_cast<UserControlInfo *>(
+        pkt->getControlInfo());
 
-    if (lteInfo->getFrameType()!=DATAPKT) return; // TODO check if this should be removed.
+    if (lteInfo->getFrameType() != DATAPKT)
+        return; // TODO check if this should be removed.
 
-    Direction dir = (Direction)lteInfo->getDirection();
+    Direction dir = (Direction) lteInfo->getDirection();
 
-    const UserTxParams& newParam = amc_->computeTxParams(lteInfo->getDestId(),
-            dir);
-    UserTxParams* tmp=new UserTxParams(newParam);
+    const UserTxParams& newParam = amc_->computeTxParams(lteInfo->getDestId(), dir);
+    UserTxParams* tmp = new UserTxParams(newParam);
 
     lteInfo->setUserTxParams(tmp);
     RbMap rbMap;
     lteInfo->setTxMode(newParam.readTxMode());
-    LteSchedulerEnb* scheduler = ((dir==DL)?(LteSchedulerEnb*)enbSchedulerDl_:(LteSchedulerEnb*)enbSchedulerUl_);
+    LteSchedulerEnb* scheduler = ((dir == DL) ? (LteSchedulerEnb*) enbSchedulerDl_ : (LteSchedulerEnb*) enbSchedulerUl_);
 
-    int grantedBlocks = scheduler->readRbOccupation(lteInfo->getDestId(),
-            rbMap);
+    int grantedBlocks = scheduler->readRbOccupation(lteInfo->getDestId(), rbMap);
 
     lteInfo->setGrantedBlocks(rbMap);
     lteInfo->setTotalGrantedBlocks(grantedBlocks);
 
 }
-ActiveSet LteMacEnb::getActiveSet(Direction dir) {
+ActiveSet LteMacEnb::getActiveSet(Direction dir)
+{
     if (dir == DL)
         return enbSchedulerDl_->readActiveConnections();
     else
         return enbSchedulerUl_->readActiveConnections();
 }
-void LteMacEnb::allocatedRB(unsigned int rb) {
+void LteMacEnb::allocatedRB(unsigned int rb)
+{
     lastTtiAllocatedRb_ = rb;
 }
 
-void LteMacEnb::cqiStatistics(MacNodeId id,Direction dir,LteFeedback fb){
-    if (dir==DL){
-        tSample_->id=id;
-        if(fb.getTxMode()==SINGLE_ANTENNA_PORT0){
-            for(unsigned int i=0;i<fb.getBandCqi(0).size();i++){
-                switch(i){
+void LteMacEnb::cqiStatistics(MacNodeId id, Direction dir, LteFeedback fb)
+{
+    if (dir == DL)
+    {
+        tSample_->id = id;
+        if (fb.getTxMode() == SINGLE_ANTENNA_PORT0)
+        {
+            for (unsigned int i = 0; i < fb.getBandCqi(0).size(); i++)
+            {
+                switch (i)
+                {
                     case 0:
-                        tSample_->sample=fb.getBandCqi(0)[i];
-                        emit(cqiDlSiso0_,tSample_);
+                        tSample_->sample = fb.getBandCqi(0)[i];
+                        emit(cqiDlSiso0_, tSample_);
                         break;
                     case 1:
-                        tSample_->sample=fb.getBandCqi(0)[i];
-                        emit(cqiDlSiso1_,tSample_);
+                        tSample_->sample = fb.getBandCqi(0)[i];
+                        emit(cqiDlSiso1_, tSample_);
                         break;
                     case 2:
-                        tSample_->sample=fb.getBandCqi(0)[i];
-                        emit(cqiDlSiso2_,tSample_);
+                        tSample_->sample = fb.getBandCqi(0)[i];
+                        emit(cqiDlSiso2_, tSample_);
                         break;
                     case 3:
-                        tSample_->sample=fb.getBandCqi(0)[i];
-                        emit(cqiDlSiso3_,tSample_);
+                        tSample_->sample = fb.getBandCqi(0)[i];
+                        emit(cqiDlSiso3_, tSample_);
                         break;
                     case 4:
-                        tSample_->sample=fb.getBandCqi(0)[i];
-                        emit(cqiDlSiso4_,tSample_);
+                        tSample_->sample = fb.getBandCqi(0)[i];
+                        emit(cqiDlSiso4_, tSample_);
                         break;
                 }
             }
 
-        } else if(fb.getTxMode()==TRANSMIT_DIVERSITY){
-            for(unsigned int i=0;i<fb.getBandCqi(0).size();i++){
-                switch(i){
+        }
+        else if (fb.getTxMode() == TRANSMIT_DIVERSITY)
+        {
+            for (unsigned int i = 0; i < fb.getBandCqi(0).size(); i++)
+            {
+                switch (i)
+                {
                     case 0:
-                        tSample_->sample=fb.getBandCqi(0)[i];
-                        emit(cqiDlTxDiv0_,tSample_);
+                        tSample_->sample = fb.getBandCqi(0)[i];
+                        emit(cqiDlTxDiv0_, tSample_);
                         break;
                     case 1:
-                        tSample_->sample=fb.getBandCqi(0)[i];
-                        emit(cqiDlTxDiv1_,tSample_);
+                        tSample_->sample = fb.getBandCqi(0)[i];
+                        emit(cqiDlTxDiv1_, tSample_);
                         break;
                     case 2:
-                        tSample_->sample=fb.getBandCqi(0)[i];
-                        emit(cqiDlTxDiv2_,tSample_);
+                        tSample_->sample = fb.getBandCqi(0)[i];
+                        emit(cqiDlTxDiv2_, tSample_);
                         break;
                     case 3:
-                        tSample_->sample=fb.getBandCqi(0)[i];
-                        emit(cqiDlTxDiv3_,tSample_);
+                        tSample_->sample = fb.getBandCqi(0)[i];
+                        emit(cqiDlTxDiv3_, tSample_);
                         break;
                     case 4:
-                        tSample_->sample=fb.getBandCqi(0)[i];
-                        emit(cqiDlTxDiv4_,tSample_);
+                        tSample_->sample = fb.getBandCqi(0)[i];
+                        emit(cqiDlTxDiv4_, tSample_);
                         break;
                 }
             }
 
-        }else if(fb.getTxMode()==OL_SPATIAL_MULTIPLEXING){
-            for(unsigned int i=0;i<fb.getBandCqi(0).size();i++){
-                switch(i){
+        }
+        else if (fb.getTxMode() == OL_SPATIAL_MULTIPLEXING)
+        {
+            for (unsigned int i = 0; i < fb.getBandCqi(0).size(); i++)
+            {
+                switch (i)
+                {
                     case 0:
-                        tSample_->sample=fb.getBandCqi(0)[i];
-                        emit(cqiDlSpmux0_,tSample_);
+                        tSample_->sample = fb.getBandCqi(0)[i];
+                        emit(cqiDlSpmux0_, tSample_);
                         break;
                     case 1:
-                        tSample_->sample=fb.getBandCqi(0)[i];
-                        emit(cqiDlSpmux1_,tSample_);
+                        tSample_->sample = fb.getBandCqi(0)[i];
+                        emit(cqiDlSpmux1_, tSample_);
                         break;
                     case 2:
-                        tSample_->sample=fb.getBandCqi(0)[i];
-                        emit(cqiDlSpmux2_,tSample_);
+                        tSample_->sample = fb.getBandCqi(0)[i];
+                        emit(cqiDlSpmux2_, tSample_);
                         break;
                     case 3:
-                        tSample_->sample=fb.getBandCqi(0)[i];
-                        emit(cqiDlSpmux3_,tSample_);
+                        tSample_->sample = fb.getBandCqi(0)[i];
+                        emit(cqiDlSpmux3_, tSample_);
                         break;
                     case 4:
-                        tSample_->sample=fb.getBandCqi(0)[i];
-                        emit(cqiDlSpmux4_,tSample_);
+                        tSample_->sample = fb.getBandCqi(0)[i];
+                        emit(cqiDlSpmux4_, tSample_);
                         break;
                 }
             }
 
-        }else if(fb.getTxMode()==MULTI_USER){
-            for(unsigned int i=0;i<fb.getBandCqi(0).size();i++){
-                switch(i){
+        }
+        else if (fb.getTxMode() == MULTI_USER)
+        {
+            for (unsigned int i = 0; i < fb.getBandCqi(0).size(); i++)
+            {
+                switch (i)
+                {
                     case 0:
-                        tSample_->sample=fb.getBandCqi(0)[i];
-                        emit(cqiDlMuMimo0_,tSample_);
+                        tSample_->sample = fb.getBandCqi(0)[i];
+                        emit(cqiDlMuMimo0_, tSample_);
                         break;
                     case 1:
-                        tSample_->sample=fb.getBandCqi(0)[i];
-                        emit(cqiDlMuMimo1_,tSample_);
+                        tSample_->sample = fb.getBandCqi(0)[i];
+                        emit(cqiDlMuMimo1_, tSample_);
                         break;
                     case 2:
-                        tSample_->sample=fb.getBandCqi(0)[i];
-                        emit(cqiDlMuMimo2_,tSample_);
+                        tSample_->sample = fb.getBandCqi(0)[i];
+                        emit(cqiDlMuMimo2_, tSample_);
                         break;
                     case 3:
-                        tSample_->sample=fb.getBandCqi(0)[i];
-                        emit(cqiDlMuMimo3_,tSample_);
+                        tSample_->sample = fb.getBandCqi(0)[i];
+                        emit(cqiDlMuMimo3_, tSample_);
                         break;
                     case 4:
-                        tSample_->sample=fb.getBandCqi(0)[i];
-                        emit(cqiDlMuMimo4_,tSample_);
+                        tSample_->sample = fb.getBandCqi(0)[i];
+                        emit(cqiDlMuMimo4_, tSample_);
                         break;
                 }
             }
@@ -798,13 +887,13 @@ void LteMacEnb::cqiStatistics(MacNodeId id,Direction dir,LteFeedback fb){
 
 unsigned int LteMacEnb::getBandStatus(Band b)
 {
-    unsigned int i = enbSchedulerDl_->readPerBandAllocatedBlocks(MAIN_PLANE, MACRO , b);
+    unsigned int i = enbSchedulerDl_->readPerBandAllocatedBlocks(MAIN_PLANE, MACRO, b);
     return i;
 }
 
 unsigned int LteMacEnb::getPrevBandStatus(Band b)
 {
-    unsigned int i = enbSchedulerDl_->getInterferringBlocks(MAIN_PLANE, MACRO , b);
+    unsigned int i = enbSchedulerDl_->getInterferringBlocks(MAIN_PLANE, MACRO, b);
     return i;
 }
 

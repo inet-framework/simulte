@@ -9,11 +9,8 @@
 // and cannot be removed from it.
 // 
 
-
 #ifndef AMRXBUFFER_H_
 #define AMRXBUFFER_H_
-
-
 
 #include "LteRlcDefs.h"
 #include "TTimer.h"
@@ -21,9 +18,10 @@
 #include "LteRlcAmSdu_m.h"
 #include "LtePdcpPdu_m.h"
 
-class AmRxQueue: public cSimpleModule {
+class AmRxQueue : public cSimpleModule
+{
 
-protected:
+  protected:
 
     //! Receiver window descriptor
     RlcWindowDesc rxWindowDesc_;
@@ -74,7 +72,7 @@ protected:
     simsignal_t rlcThroughput_;
     simsignal_t rlcPduThroughput_;
 
-public:
+  public:
 
     AmRxQueue();
 
@@ -89,8 +87,7 @@ public:
     //initialize
     void initialize();
 
-protected:
-
+  protected:
 
     //! Send the RLC SDU stored in the buffer to the upper layer
     /** Note that, the buffer contains a set of RLC PDU. At most,
@@ -110,7 +107,7 @@ protected:
     void checkCompleteSdu(const int index);
 
     //! send buffer status report to the ACK manager
-    void sendStatusReport() ;
+    void sendStatusReport();
 
     //! Compute the shift of the rx window
     int computeWindowShift() const;
@@ -119,10 +116,10 @@ protected:
     /** Shift the rx window. The number of position to shift is
      *  given by  seqNum - current rx first seqnum.
      */
-    void moveRxWindow(const  int seqNum);
+    void moveRxWindow(const int seqNum);
 
     //! Discard out of MRW PDUs
-    void discard(const  int sn);
+    void discard(const int sn);
 
 };
 

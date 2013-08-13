@@ -9,14 +9,11 @@
 // and cannot be removed from it.
 // 
 
-
 #ifndef LTEHARQBUFFERRX_H_
 #define LTEHARQBUFFERRX_H_
 
 #include "LteMacBase.h"
 #include "LteHarqProcessRx.h"
-
-
 
 /**
  * H-ARQ RX buffer: messages coming from phy are stored in H-ARQ RX buffer.
@@ -32,81 +29,86 @@
 class LteMacBase;
 class LteHarqProcessRx;
 
+class LteHarqBufferRx
+{
+  protected:
+    /// mac module reference
+    LteMacBase *macOwner_;
 
+    /// number of contained H-ARQ processes
+    unsigned int numHarqProcesses_;
 
-class LteHarqBufferRx {
-    protected:
-        /// mac module reference
-        LteMacBase *macOwner_;
+    MacNodeId nodeId_; // UE nodeId for which this buffer has been created
 
-        /// number of contained H-ARQ processes
-        unsigned int numHarqProcesses_;
+    /// processes vector
+    std::vector<LteHarqProcessRx *> processes_;
 
-        MacNodeId nodeId_; // UE nodeId for which this buffer has been created
+    //Statistics
+    simsignal_t macDelay_;
+    simsignal_t macCellThroughput_;
+    simsignal_t macThroughput_;
 
-        /// processes vector
-        std::vector<LteHarqProcessRx *> processes_;
+    TaggedSample *tSample_;
+    TaggedSample *tSampleCell_;
 
-        //Statistics
-        simsignal_t macDelay_;
-        simsignal_t macCellThroughput_;
-        simsignal_t macThroughput_;
+  public:
+    LteHarqBufferRx(unsigned int num, LteMacBase *owner, MacNodeId nodeId);
 
-        TaggedSample *tSample_;
-        TaggedSample *tSampleCell_;
+    /**
+     * Insertion of a new pdu coming from phy layer into
+     * RX H-ARQ buffer.
+     *
+     * @param pdu to be inserted
+     */
+    virtual void insertPdu(Codeword cw, LteMacPdu *pdu);
 
-    public:
-        LteHarqBufferRx(unsigned int num, LteMacBase *owner,MacNodeId nodeId);
+    /**
+     * Sends feedback for all processes which are older than
+     * HARQ_FB_EVALUATION_INTERVAL, then extract the pdu in correct state (if any)
+     *
+     * @return uncorrupted pdus or empty list if none
+     */
+    std::list<LteMacPdu*> extractCorrectPdus();
 
-        /**
-         * Insertion of a new pdu coming from phy layer into
-         * RX H-ARQ buffer.
-         *
-         * @param pdu to be inserted
-         */
-        virtual void insertPdu(Codeword cw,LteMacPdu *pdu);
+    /**
+     * Purges PDUs in corrupted state (if any)
+     *
+     * @return number of purged corrupted PDUs or zero if none
+     */
+    unsigned int purgeCorruptedPdus();
 
-        /**
-         * Sends feedback for all processes which are older than
-         * HARQ_FB_EVALUATION_INTERVAL, then extract the pdu in correct state (if any)
-         *
-         * @return uncorrupted pdus or empty list if none
-         */
-        std::list<LteMacPdu*> extractCorrectPdus();
+    /*
+     * Returns pointer to <acid> process.
+     */
+    LteHarqProcessRx* getProcess(unsigned char acid)
+    {
+        return processes_.at(acid);
+    }
 
-        /**
-         * Purges PDUs in corrupted state (if any)
-         *
-         * @return number of purged corrupted PDUs or zero if none
-         */
-         unsigned int purgeCorruptedPdus();
+    //* Returns the number of contained H-ARQ processes
+    unsigned int getProcesses()
+    {
+        return numHarqProcesses_;
+    }
 
-        /*
-         * Returns pointer to <acid> process.
-         */
-        LteHarqProcessRx* getProcess (unsigned char acid) {return processes_.at(acid);}
+    // @return whole buffer status {RXHARQ_PDU_EMPTY, RXHARQ_PDU_EVALUATING, RXHARQ_PDU_CORRECT, RXHARQ_PDU_CORRUPTED }
+    RxBufferStatus getBufferStatus();
 
-        //* Returns the number of contained H-ARQ processes
-        unsigned int getProcesses() {return  numHarqProcesses_;}
+    /**
+     * Returns a pair with h-arq process id and a list of its empty {RXHARQ_PDU_EMPTY} units to be used for reception of new H-arq sub-bursts.
+     *
+     * @return  a list of acid and their units  to be used for reception
+     */
+    UnitList firstAvailable();
 
-        // @return whole buffer status {RXHARQ_PDU_EMPTY, RXHARQ_PDU_EVALUATING, RXHARQ_PDU_CORRECT, RXHARQ_PDU_CORRUPTED }
-        RxBufferStatus getBufferStatus();
+    virtual ~LteHarqBufferRx();
 
-        /**
-        * Returns a pair with h-arq process id and a list of its empty {RXHARQ_PDU_EMPTY} units to be used for reception of new H-arq sub-bursts.
-        *
-        * @return  a list of acid and their units  to be used for reception
-        */
-        UnitList firstAvailable();
-
-        virtual ~LteHarqBufferRx();
-
-    protected:
-        /**
-         * Checks for all processes if the pdu has been evaluated and sends
-         * feedback if affirmative.
-         */
-        virtual void sendFeedback();
+  protected:
+    /**
+     * Checks for all processes if the pdu has been evaluated and sends
+     * feedback if affirmative.
+     */
+    virtual void sendFeedback();
 };
 
 #endif /* LTEHARQBUFFERRX_H_ */

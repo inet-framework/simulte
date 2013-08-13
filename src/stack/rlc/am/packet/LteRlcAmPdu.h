@@ -14,32 +14,43 @@
 
 #include "LteRlcAmPdu_m.h"
 
-class LteRlcAmPdu : public LteRlcAmPdu_Base {
+class LteRlcAmPdu : public LteRlcAmPdu_Base
+{
     std::vector<bool> bitmap_;
 
-public:
+  public:
 
-
-    LteRlcAmPdu(const char *name=NULL) : LteRlcAmPdu_Base(name) {}
-    LteRlcAmPdu(const LteRlcAmPdu& other) : LteRlcAmPdu_Base(other) {}
+    LteRlcAmPdu(const char *name = NULL) :
+        LteRlcAmPdu_Base(name)
+    {
+    }
+    LteRlcAmPdu(const LteRlcAmPdu& other) :
+        LteRlcAmPdu_Base(other)
+    {
+    }
 
     LteRlcAmPdu& operator=(const LteRlcAmPdu& other)
-    {LteRlcAmPdu_Base::operator=(other); return *this;}
+    {
+        LteRlcAmPdu_Base::operator=(other);
+        return *this;
+    }
 
-    virtual LteRlcAmPdu* dup() {return new LteRlcAmPdu(*this);}
+    virtual LteRlcAmPdu* dup()
+    {
+        return new LteRlcAmPdu(*this);
+    }
 
     virtual void setBitmapArraySize(unsigned int size);
-    virtual unsigned int getBitmapArraySize() const ;
-    virtual bool getBitmap(unsigned int k) const ;
-    virtual void setBitmap(unsigned int k, bool bitmap_var) ;
-    virtual void setBitmapVec(std::vector<bool> bitmap_vec) ;
-    virtual std::vector<bool> getBitmapVec() ;
+    virtual unsigned int getBitmapArraySize() const;
+    virtual bool getBitmap(unsigned int k) const;
+    virtual void setBitmap(unsigned int k, bool bitmap_var);
+    virtual void setBitmapVec(std::vector<bool> bitmap_vec);
+    virtual std::vector<bool> getBitmapVec();
     //sequence check functions
     virtual bool isWhole();
     virtual bool isFirst();
     virtual bool isMiddle();
     virtual bool isLast();
-
 
 };
 

@@ -16,10 +16,10 @@
 
 class LtePf : public LteScheduler
 {
-    protected:
+  protected:
 
     typedef std::map<MacCid, double> PfRate;
-    typedef SortedDesc<MacCid,double> ScoreDesc;
+    typedef SortedDesc<MacCid, double> ScoreDesc;
     typedef std::priority_queue<ScoreDesc> ScoreList;
 
     //! Long-term rates, used by PF scheduling.
@@ -34,9 +34,12 @@ class LtePf : public LteScheduler
     //! Small number to slightly blur away scores.
     const double scoreEpsilon_;
 
-    public:
+  public:
 
-    double & pfAlpha() { return pfAlpha_; }
+    double & pfAlpha()
+    {
+        return pfAlpha_;
+    }
 
     // Scheduling functions ********************************************************************
 
@@ -48,16 +51,17 @@ class LtePf : public LteScheduler
 
     // *****************************************************************************************
 
-    void notifyActiveConnection ( MacCid cid );
+    void notifyActiveConnection(MacCid cid);
 
-    void removeActiveConnection ( MacCid cid );
+    void removeActiveConnection(MacCid cid);
 
     void updateSchedulingInfo();
 
-    LtePf (double pfAlpha): scoreEpsilon_ (0.000001)
+    LtePf(double pfAlpha) :
+        scoreEpsilon_(0.000001)
     {
 
-        pfAlpha_=pfAlpha;
+        pfAlpha_ = pfAlpha;
         pfRate_.clear();
     }
 

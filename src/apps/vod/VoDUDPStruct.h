@@ -24,5 +24,4 @@ struct Media1
     long numPkSent;           // number of packets sent
 };
 
-
 #endif

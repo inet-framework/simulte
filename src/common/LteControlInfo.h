@@ -9,7 +9,6 @@
 // and cannot be removed from it.
 // 
 
-
 #ifndef LTECONTROLINFO_H_
 #define LTECONTROLINFO_H_
 
@@ -27,98 +26,101 @@ class UserTxParams;
  */
 class UserControlInfo : public UserControlInfo_Base
 {
-    protected:
+  protected:
 
-        const UserTxParams* userTxParams;
-        RbMap grantedBlocks;
-        /** @brief The movement of the sending host.*/
-        //Move senderMovement;
-        /** @brief The playground position of the sending host.*/
-        Coord senderCoord;
+    const UserTxParams* userTxParams;
+    RbMap grantedBlocks;
+    /** @brief The movement of the sending host.*/
+    //Move senderMovement;
+    /** @brief The playground position of the sending host.*/
+    Coord senderCoord;
 
-    public:
+  public:
 
-        /**
-         * Constructor: base initialization
-         * @param name packet name
-         * @param kind packet kind
-         */
-        UserControlInfo();
-        virtual ~UserControlInfo();
-        /**
-         * Copy constructor: packet copy
-         * @param other source packet
-         */
-        UserControlInfo(const UserControlInfo& other) : UserControlInfo_Base() {
-            operator=(other);
-        }
+    /**
+     * Constructor: base initialization
+     * @param name packet name
+     * @param kind packet kind
+     */
+    UserControlInfo();
+    virtual ~UserControlInfo();
+    /**
+     * Copy constructor: packet copy
+     * @param other source packet
+     */
+    UserControlInfo(const UserControlInfo& other) :
+        UserControlInfo_Base()
+    {
+        operator=(other);
+    }
 
-        /**
-         * Operator = : packet copy
-         * @param other source packet
-         * @return reference to this packet
-         */
+    /**
+     * Operator = : packet copy
+     * @param other source packet
+     * @return reference to this packet
+     */
 
-        UserControlInfo& operator=(const UserControlInfo& other) {
-            if (&other==this) return *this;
-
-            this->userTxParams=other.userTxParams;
-            this->grantedBlocks=other.grantedBlocks;
-            this->senderCoord=other.senderCoord;
-            UserControlInfo_Base::operator=(other);
+    UserControlInfo& operator=(const UserControlInfo& other)
+    {
+        if (&other == this)
             return *this;
-        }
 
-        /**
-         * dup() : packet duplicate
-         * @return pointer to duplicate packet
-         */
-        virtual UserControlInfo *dup() const {
-            return new UserControlInfo(*this);
-        }
+        this->userTxParams = other.userTxParams;
+        this->grantedBlocks = other.grantedBlocks;
+        this->senderCoord = other.senderCoord;
+        UserControlInfo_Base::operator=(other);
+        return *this;
+    }
 
-        void setUserTxParams(const UserTxParams* arg)
+    /**
+     * dup() : packet duplicate
+     * @return pointer to duplicate packet
+     */
+    virtual UserControlInfo *dup() const
+    {
+        return new UserControlInfo(*this);
+    }
+
+    void setUserTxParams(const UserTxParams* arg)
+    {
+        userTxParams = arg;
+    }
+
+    const UserTxParams* getUserTxParams() const
+    {
+        return userTxParams;
+    }
+
+    const unsigned int getBlocks(Remote antenna, Band b) const
         {
-            userTxParams = arg;
-        }
+        return grantedBlocks.at(antenna).at(b);
+    }
 
-        const UserTxParams* getUserTxParams () const
-        {
-                return userTxParams;
-        }
+    void setBlocks(Remote antenna, Band b, const unsigned int blocks)
+    {
 
+        grantedBlocks[antenna][b] = blocks;
+    }
 
-        const unsigned int getBlocks(Remote antenna,Band b) const
-        {
-                return grantedBlocks.at(antenna).at(b);
-        }
+    const RbMap& getGrantedBlocks() const
+    {
+        return grantedBlocks;
+    }
 
-        void setBlocks(Remote antenna,Band b, const unsigned int blocks)
-        {
+    void setGrantedBlocks(const RbMap& rbMap)
+    {
 
-                grantedBlocks[antenna][b] = blocks;
-        }
+        grantedBlocks = rbMap;
+    }
 
-        const RbMap& getGrantedBlocks() const
-        {
-                return grantedBlocks;
-        }
-
-        void setGrantedBlocks(const RbMap& rbMap)
-        {
-
-                grantedBlocks = rbMap;
-        }
-
-        // struct used to request a feedback computation by nodeB
-        FeedbackRequest feedbackReq;
-        void setCoord(const Coord& coord);
-        Coord getCoord() const;
+    // struct used to request a feedback computation by nodeB
+    FeedbackRequest feedbackReq;
+    void setCoord(const Coord& coord);
+    Coord getCoord() const;
 
 };
 
 Register_Class(UserControlInfo);
-
 
 #endif /* LTECONTROLINFO_H_ */
 

@@ -13,20 +13,24 @@
 
 Define_Module(LteMacRelayEnb);
 
-LteMacRelayEnb::LteMacRelayEnb() {
+LteMacRelayEnb::LteMacRelayEnb()
+{
     // TODO Auto-generated constructor stub
-    nodeType_=RELAY;
+    nodeType_ = RELAY;
 }
-LteMacRelayEnb::~LteMacRelayEnb() {
+LteMacRelayEnb::~LteMacRelayEnb()
+{
     // TODO Auto-generated destructor stub
 }
 
-LteDeployer* LteMacRelayEnb::getDeployer() {
+LteDeployer* LteMacRelayEnb::getDeployer()
+{
     MacNodeId masterId = getAncestorPar("masterId");
     OmnetId masterOmnetId = binder_->getOmnetId(masterId);
     return check_and_cast<LteDeployer *>(simulation.getModule(masterOmnetId)->getSubmodule("deployer"));
 }
 
-int LteMacRelayEnb::getNumAntennas() {
+int LteMacRelayEnb::getNumAntennas()
+{
     return 1;
 }

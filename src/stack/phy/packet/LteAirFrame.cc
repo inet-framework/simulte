@@ -9,12 +9,13 @@
 // and cannot be removed from it.
 // 
 
-
 #include "LteAirFrame.h"
 
-void LteAirFrame::addRemoteUnitPhyDataVector(RemoteUnitPhyData data){
-            remoteUnitPhyDataVector.push_back(data);
-        }
-RemoteUnitPhyDataVector LteAirFrame::getRemoteUnitPhyDataVector(){
-            return remoteUnitPhyDataVector;
-        }
+void LteAirFrame::addRemoteUnitPhyDataVector(RemoteUnitPhyData data)
+{
+    remoteUnitPhyDataVector.push_back(data);
+}
+RemoteUnitPhyDataVector LteAirFrame::getRemoteUnitPhyDataVector()
+{
+    return remoteUnitPhyDataVector;
+}

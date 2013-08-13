@@ -22,11 +22,11 @@
 #include "UDPSocket.h"
 #include "IPvXAddressResolver.h"
 
-
 using namespace std;
 
-class TaggedSample: public cObject {
-public:
+class TaggedSample : public cObject
+{
+  public:
     double sample;
     unsigned int id;
     // the emitting cComponent (module)
@@ -38,7 +38,7 @@ class VoDUDPClient : public cSimpleModule
     UDPSocket socket;
     fstream outfile;
 
-public:
+  public:
     simsignal_t tptLayer0_;
     simsignal_t tptLayer1_;
     simsignal_t tptLayer2_;
@@ -52,12 +52,11 @@ public:
   protected:
 
     virtual void initialize(int stage);
-    virtual int numInitStages() const {return 4;}
+    virtual int numInitStages() const { return 4; }
     virtual void finish();
     virtual void handleMessage(cMessage *msg);
     virtual void receiveStream(VoDPacket *msg);
 };
-
 
 #endif
 

@@ -9,26 +9,29 @@
 // and cannot be removed from it.
 //
 
-
 #include "LtePhyBase.h"
 #include "LteCommon.h"
 
 short LtePhyBase::airFramePriority_ = 10;
 
-LtePhyBase::LtePhyBase() {
+LtePhyBase::LtePhyBase()
+{
     channelModel_ = NULL;
 }
 
-LtePhyBase::~LtePhyBase() {
+LtePhyBase::~LtePhyBase()
+{
     delete channelModel_;
 }
 
-void LtePhyBase::initialize(int stage) {
+void LtePhyBase::initialize(int stage)
+{
     ChannelAccess::initialize(stage);
 
     EV << "LtePhyBase initialize, stage: " << stage << endl;
 
-    if (stage == 0) {
+    if (stage == 0)
+    {
         binder_ = getBinder();
         // get gate ids
         upperGateIn_ = findGate("upperGateIn");
@@ -46,7 +49,7 @@ void LtePhyBase::initialize(int stage) {
         microTxPower_ = par("microTxPower");
         relayTxPower_ = par("relayTxPower");
         deployer_->channelUpdate(nodeId_,
-                intuniform(1, binder_->phyPisaData.maxChannel2()));
+            intuniform(1, binder_->phyPisaData.maxChannel2()));
         averageCqiDl_ = registerSignal("averageCqiDl");
         averageCqiUl_ = registerSignal("averageCqiUl");
 
@@ -59,35 +62,43 @@ void LtePhyBase::initialize(int stage) {
         WATCH(numAirFrameReceived_);
         WATCH(numAirFrameNotReceived_);
 
-    } else if (stage == 2) {
+    }
+    else if (stage == 2)
+    {
         initializeChannelModel(par("channelModel").xmlValue());
     }
 }
 
-void LtePhyBase::handleMessage(cMessage* msg) {
+void LtePhyBase::handleMessage(cMessage* msg)
+{
     EV << " LtePhyBase::handleMessage - new message received" << endl;
 
-    if (msg->isSelfMessage()) {
+    if (msg->isSelfMessage())
+    {
         handleSelfMessage(msg);
     }
     // AirFrame
-    else if (msg->getArrivalGate()->getId() == radioInGate_) {
+    else if (msg->getArrivalGate()->getId() == radioInGate_)
+    {
         handleAirFrame(msg);
     }
 
     // message from stack
-    else if (msg->getArrivalGate()->getId() == upperGateIn_) {
+    else if (msg->getArrivalGate()->getId() == upperGateIn_)
+    {
         handleUpperMessage(msg);
     }
     // unknown message
-    else {
+    else
+    {
         EV << "Unknown message received." << endl;
         delete msg;
     }
 }
 
 void LtePhyBase::handleControlMsg(LteAirFrame *frame,
-        UserControlInfo *userInfo) {
+    UserControlInfo *userInfo)
+{
     cPacket *pkt = frame->decapsulate();
     delete frame;
     pkt->setControlInfo(userInfo);
@@ -95,7 +106,8 @@ void LtePhyBase::handleControlMsg(LteAirFrame *frame,
     return;
 }
 
-LteAirFrame *LtePhyBase::createHandoverMessage() {
+LteAirFrame *LtePhyBase::createHandoverMessage()
+{
     // broadcast airframe
     LteAirFrame *bdcAirFrame = new LteAirFrame("handoverFrame");
     UserControlInfo *cInfo = new UserControlInfo();
@@ -113,20 +125,24 @@ LteAirFrame *LtePhyBase::createHandoverMessage() {
     return bdcAirFrame;
 }
 
-void LtePhyBase::handleUpperMessage(cMessage* msg) {
+void LtePhyBase::handleUpperMessage(cMessage* msg)
+{
     EV << "LtePhy: message from stack" << endl;
 
     UserControlInfo* lteInfo = check_and_cast<UserControlInfo*>(
-            msg->removeControlInfo());
+        msg->removeControlInfo());
 
     LteAirFrame* frame = NULL;
 
     if (lteInfo->getFrameType() == HARQPKT
-            || lteInfo->getFrameType() == GRANTPKT
-            || lteInfo->getFrameType() == RACPKT) {
+        || lteInfo->getFrameType() == GRANTPKT
+        || lteInfo->getFrameType() == RACPKT)
+    {
         frame = new LteAirFrame("harqFeedback-grant");
 
-    } else {
+    }
+    else
+    {
         // create LteAirFrame and encapsulate the received packet
         frame = new LteAirFrame("airframe");
     }
@@ -144,11 +160,12 @@ void LtePhyBase::handleUpperMessage(cMessage* msg) {
     frame->setControlInfo(lteInfo);
 
     EV << "LtePhy: " << nodeTypeToA(nodeType_) << " with id " << nodeId_
-            << " sending message to the air channel. Dest=" << lteInfo->getDestId()<< endl;
+       << " sending message to the air channel. Dest=" << lteInfo->getDestId() << endl;
     sendUnicast(frame);
 }
 
-void LtePhyBase::initializeChannelModel(cXMLElement* xmlConfig) {
+void LtePhyBase::initializeChannelModel(cXMLElement* xmlConfig)
+{
     if (xmlConfig == 0)
         throw cRuntimeError("No channel models configuration file specified");
 
@@ -183,7 +200,8 @@ void LtePhyBase::initializeChannelModel(cXMLElement* xmlConfig) {
     return;
 }
 
-LteChannelModel* LtePhyBase::getChannelModelFromName(std::string name,ParameterMap& params) {
+LteChannelModel* LtePhyBase::getChannelModelFromName(std::string name, ParameterMap& params)
+{
     if (name == "DUMMY")
         return initializeDummyChannelModel(params);
     else if (name == "REAL")
@@ -202,7 +220,8 @@ LteChannelModel* LtePhyBase::initializeDummyChannelModel(ParameterMap& params)
     return new LteDummyChannelModel(params, deployer_->getNumBands());
 }
 
-void LtePhyBase::updateDisplayString() {
+void LtePhyBase::updateDisplayString()
+{
     char buf[80] = "";
     if (numAirFrameReceived_ > 0)
         sprintf(buf + strlen(buf), "af_ok:%d ", numAirFrameReceived_);
@@ -211,7 +230,8 @@ void LtePhyBase::updateDisplayString() {
     getDisplayString().setTagArg("t", 0, buf);
 }
 
-void LtePhyBase::sendBroadcast(LteAirFrame *airFrame) {
+void LtePhyBase::sendBroadcast(LteAirFrame *airFrame)
+{
     //TODO
 
 //    const ChannelControl::RadioRefVector& gateList = cc->getNeighbors(myRadioRef);
@@ -254,18 +274,20 @@ void LtePhyBase::sendBroadcast(LteAirFrame *airFrame) {
     error("sendBroadcast is not implemented!");
 }
 
-LteAmc *LtePhyBase::getAmcModule(MacNodeId id) {
+LteAmc *LtePhyBase::getAmcModule(MacNodeId id)
+{
     LteAmc *amc = NULL;
     OmnetId omid = binder_->getOmnetId(id);
     amc = check_and_cast<LteMacEnb *>(
-            simulation.getModule(omid)->getSubmodule("nic")->getSubmodule(
-                    "mac"))->getAmc();
+        simulation.getModule(omid)->getSubmodule("nic")->getSubmodule(
+            "mac"))->getAmc();
     return amc;
 }
 
-void LtePhyBase::sendUnicast(LteAirFrame *frame) {
+void LtePhyBase::sendUnicast(LteAirFrame *frame)
+{
     UserControlInfo *ci = check_and_cast<UserControlInfo *>(
-            frame->getControlInfo());
+        frame->getControlInfo());
     // dest MacNodeId from control info
     MacNodeId dest = ci->getDestId();
     // destination node (UE, RELAY or ENODEB) omnet id
