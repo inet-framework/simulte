@@ -14,6 +14,10 @@
 
 #include "LteHarqUnitTx.h"
 
+typedef std::vector<LteHarqUnitTx *> UnitVector;
+typedef std::pair<unsigned char, TxHarqPduStatus> UnitStatus;
+typedef std::vector<std::vector<UnitStatus> > BufferStatus;
+
 /**
  * Container of H-ARQ units.
  * An H-ARQ process contains the units with id (acid + totalNumberOfProcesses * cw[i]), for each i.
@@ -22,16 +26,7 @@
  * An H-ARQ process is atomic for transmission, while H-ARQ units are atomic for
  * H-ARQ feedback.
  */
-
-/*
- * Aggiungere output di debug ripreso da old
- * commenti
- */
-
-typedef std::vector<LteHarqUnitTx *> UnitVector;
-typedef std::pair<unsigned char, TxHarqPduStatus> UnitStatus;
-typedef std::vector<std::vector<UnitStatus> > BufferStatus;
-
+//TODO Aggiungere output di debug ripreso da old commenti
 class LteHarqProcessTx
 {
 
@@ -92,7 +87,6 @@ class LteHarqProcessTx
      *
      * @returns
      */
-
     std::vector<UnitStatus> getProcessStatus();
 
     /**

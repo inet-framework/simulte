@@ -30,7 +30,6 @@ const std::string lteTrafficClassToA(LteTrafficClass type)
         default:
             return "UNKNOWN_TRAFFIC_TYPE";
     }
-    return "UNKNOWN_TRAFFIC_TYPE";
 }
 
 LteTrafficClass aToLteTrafficClass(std::string s)
@@ -59,7 +58,6 @@ const std::string rlcTypeToA(LteRlcType type)
         default:
             return "UNKNOWN_RLC_TYPE";
     }
-    return "UNKNOWN_RLC_TYPE";
 }
 
 char * cStringToLower(char* str)
@@ -332,6 +330,7 @@ ApplicationType aToApplicationType(std::string s)
     }
     return UNKNOWN_APP;
 }
+
 const std::string fbGeneratorTypeToA(FeedbackGeneratorType type)
 {
     int i = 0;
@@ -343,6 +342,7 @@ const std::string fbGeneratorTypeToA(FeedbackGeneratorType type)
     }
     return "UNKNOW_FB_GEN_TYPE";
 }
+
 LteNodeType getNodeTypeById(MacNodeId id)
 {
     if (id >= ENB_MIN_ID && id <= ENB_MAX_ID)
@@ -362,16 +362,21 @@ const std::string planeToA(Plane p)
             return "MAIN_PLANE";
         case MU_MIMO_PLANE:
             return "MU_MIMO_PLANE";
+        default:
+            return "UNKNOWN PLANE";
     }
-    return "UNKNOWN PLANE";
 }
 
 GrantType aToGrantType(std::string a)
 {
-  if ( a == "FITALL" ) return FITALL;
-  else if ( a == "FIXED" ) return FIXED_;
-  else if ( a == "URGENT") return URGENT;
-  else return UNKNOWN_GRANT_TYPE;
+    if (a == "FITALL") 
+        return FITALL;
+    else if (a == "FIXED" ) 
+        return FIXED_;
+    else if (a == "URGENT") 
+        return URGENT;
+    else 
+        return UNKNOWN_GRANT_TYPE;
 }
 
 const std::string grantTypeToA(GrantType gType)
@@ -573,13 +578,12 @@ void getParametersFromXML(cXMLElement* xmlData, ParameterMap& outputMap)
             continue;
         }
 
-            // add parameter to output map
+        // add parameter to output map
         outputMap[name] = param;
     }
 }
 
-void
-parseStringToIntArray(std::string str, int* values, int dim, int pad)
+void parseStringToIntArray(std::string str, int* values, int dim, int pad)
 {
     for (int i = 0; i < dim; i++)
     {
@@ -605,25 +609,26 @@ parseStringToIntArray(std::string str, int* values, int dim, int pad)
         ss >> values[i];
         str = str.erase(0, pos + 1);
     }
+
     if (!str.empty())
-    {
         throw cRuntimeError("parseStringToIntArray(): more values in string than nodes");
-    }
-    return;
 }
 
 double linearToDBm(double linear)
 {
     return 10 * log10(1000 * linear);
 }
+
 double linearToDb(double linear)
 {
     return 10 * log10(linear);
 }
+
 double dBmToLinear(double db)
 {
     return pow(10, (db - 30) / 10);
 }
+
 double dBToLinear(double db)
 {
     return pow(10, (db) / 10);

@@ -60,10 +60,9 @@ void LteMacBase::sendLowerPackets(cPacket* pkt)
     emit(sentPacketToLowerLayer, pkt);
 }
 
-    /*
-     * Upper layer handler
-     */
-
+/*
+ * Upper layer handler
+ */
 void LteMacBase::fromRlc(cPacket *pkt)
 {
     bufferizePacket(pkt);
@@ -72,7 +71,6 @@ void LteMacBase::fromRlc(cPacket *pkt)
 /*
  * Lower layer handler
  */
-
 void LteMacBase::fromPhy(cPacket *pkt)
 {
     // TODO: harq test (comment fromPhy: it has only to pass pdus to proper rx buffer and
@@ -248,7 +246,6 @@ void LteMacBase::registerInterface()
 /*
  * Main functions
  */
-
 void LteMacBase::initialize(int stage)
 {
     if (stage == 0)

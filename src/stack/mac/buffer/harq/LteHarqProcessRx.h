@@ -15,8 +15,13 @@
 #include <omnetpp.h>
 
 #include "LteCommon.h"
+
 typedef std::pair<unsigned char, RxHarqPduStatus> RxUnitStatus;
 typedef std::vector<std::vector<RxUnitStatus> > RxBufferStatus;
+
+class LteMacBase;
+class LteMacPdu;
+class LteHarqFeedback;
 
 /**
  * H-ARQ RX processes contain pdus received from phy layer for which
@@ -27,16 +32,8 @@ typedef std::vector<std::vector<RxUnitStatus> > RxBufferStatus;
  * RXHARQ_PDU_EVALUATING
  * RXHARQ_PDU_CORRECT
  */
-
-/*
- * TODO: controllare numero di processi UL/DL, UE, ENB
- * TODO: statistiche per i drop (aggiungere membro?)
- */
-
-class LteMacBase;
-class LteMacPdu;
-class LteHarqFeedback;
-
+// TODO: controllare numero di processi UL/DL, UE, ENB
+// TODO: statistiche per i drop (aggiungere membro?)
 class LteHarqProcessRx
 {
   protected:

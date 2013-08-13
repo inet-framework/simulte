@@ -1,13 +1,13 @@
-// 
+//
 //                           SimuLTE
 // Copyright (C) 2012 Antonio Virdis, Daniele Migliorini, Giovanni
 // Accongiagioco, Generoso Pagano, Vincenzo Pii.
-// 
+//
 // This file is part of a software released under the license included in file
 // "license.pdf". This license can be also found at http://www.ltesimulator.com/
-// The above file and the present reference are part of the software itself, 
+// The above file and the present reference are part of the software itself,
 // and cannot be removed from it.
-// 
+//
 
 //
 //  Description:
@@ -174,7 +174,14 @@ typedef std::vector<double> AttenuationVector;
 
 typedef enum
 {
-    VOIP = 0, VOD, WEB, CBR, FTP, GAMING, FULLBUFFER, UNKNOWN_APP
+    VOIP = 0,
+    VOD,
+    WEB,
+    CBR,
+    FTP,
+    GAMING,
+    FULLBUFFER,
+    UNKNOWN_APP
 } ApplicationType;
 
 struct ApplicationTable
@@ -183,8 +190,15 @@ struct ApplicationTable
     std::string appName;
 };
 
-const ApplicationTable applications[] = { ELEM(VOIP), ELEM(VOD), ELEM(WEB),
-    ELEM(CBR), ELEM(FTP), ELEM(FULLBUFFER), ELEM(UNKNOWN_APP) };
+const ApplicationTable applications[] = {
+    ELEM(VOIP),
+    ELEM(VOD),
+    ELEM(WEB),
+    ELEM(CBR),
+    ELEM(FTP),
+    ELEM(FULLBUFFER),
+    ELEM(UNKNOWN_APP)
+};
 
 /**************************
  * Scheduling discipline  *
@@ -201,7 +215,12 @@ struct SchedDisciplineTable
     std::string disciplineName;
 };
 
-const SchedDisciplineTable disciplines[] = { ELEM(DRR), ELEM(PF), ELEM(MAXCI), ELEM(UNKNOWN_DISCIPLINE) };
+const SchedDisciplineTable disciplines[] = {
+    ELEM(DRR),
+    ELEM(PF),
+    ELEM(MAXCI),
+    ELEM(UNKNOWN_DISCIPLINE)
+};
 
 /*************************
  *   Transmission Modes  *
@@ -225,14 +244,23 @@ struct TxTable
     std::string txName;
 };
 
-const TxTable txmodes[] = { ELEM(SINGLE_ANTENNA_PORT0),
-    ELEM(SINGLE_ANTENNA_PORT5), ELEM(TRANSMIT_DIVERSITY),
-    ELEM(OL_SPATIAL_MULTIPLEXING), ELEM(CL_SPATIAL_MULTIPLEXING),
-    ELEM(MULTI_USER), ELEM(UNKNOWN_TX_MODE) };
+const TxTable txmodes[] = {
+    ELEM(SINGLE_ANTENNA_PORT0),
+    ELEM(SINGLE_ANTENNA_PORT5),
+    ELEM(TRANSMIT_DIVERSITY),
+    ELEM(OL_SPATIAL_MULTIPLEXING),
+    ELEM(CL_SPATIAL_MULTIPLEXING),
+    ELEM(MULTI_USER),
+    ELEM(UNKNOWN_TX_MODE)
+};
+
 // Lte feedback type
 typedef enum
 {
-    IDEAL = 0, REAL, DAS_AWARE, UNKNOW_FB_GEN_TYPE
+    IDEAL = 0,
+    REAL,
+    DAS_AWARE,
+    UNKNOW_FB_GEN_TYPE
 } FeedbackGeneratorType;
 
 struct FeedbackRequest
@@ -252,8 +280,12 @@ struct FeedbackGeneratorTypeTable
     std::string tyname;
 };
 
-const FeedbackGeneratorTypeTable feedbackGeneratorTypeTable[] = { ELEM(IDEAL),
-    ELEM(REAL), ELEM(DAS_AWARE), ELEM(UNKNOW_FB_GEN_TYPE) };
+const FeedbackGeneratorTypeTable feedbackGeneratorTypeTable[] = {
+    ELEM(IDEAL),
+    ELEM(REAL),
+    ELEM(DAS_AWARE),
+    ELEM(UNKNOW_FB_GEN_TYPE)
+};
 
 /// Number of transmission modes in DL direction.
 const unsigned char DL_NUM_TXMODE = MULTI_USER + 1;
@@ -284,17 +316,25 @@ struct DeploymentScenarioMapping
 };
 
 const DeploymentScenarioMapping DeploymentScenarioTable[] = {
-    ELEM(INDOOR_HOTSPOT), ELEM(URBAN_MICROCELL), ELEM(URBAN_MACROCELL),
-    ELEM(RURAL_MACROCELL), ELEM(SUBURBAN_MACROCELL),
-    ELEM(UNKNOW_SCENARIO) };
+    ELEM(INDOOR_HOTSPOT),
+    ELEM(URBAN_MICROCELL),
+    ELEM(URBAN_MACROCELL),
+    ELEM(RURAL_MACROCELL),
+    ELEM(SUBURBAN_MACROCELL),
+    ELEM(UNKNOW_SCENARIO)
+};
 
 const unsigned int txModeToIndex[6] = { 0, 0, 1, 2, 2, 0 };
-const TxMode indexToTxMode[3] = { SINGLE_ANTENNA_PORT0, TRANSMIT_DIVERSITY,
-    OL_SPATIAL_MULTIPLEXING };
+
+const TxMode indexToTxMode[3] = {
+    SINGLE_ANTENNA_PORT0,
+    TRANSMIT_DIVERSITY,
+    OL_SPATIAL_MULTIPLEXING
+};
+
 typedef std::map<MacNodeId, TxMode> TxModeMap;
 
-const double cqiToByteTms[16] = { 0, 2, 3, 5, 11, 15, 20, 25, 36, 38, 49, 63,
-    72, 79, 89, 92 };
+const double cqiToByteTms[16] = { 0, 2, 3, 5, 11, 15, 20, 25, 36, 38, 49, 63, 72, 79, 89, 92 };
 
 struct Lambda
 {
@@ -318,7 +358,14 @@ double linearToDb(double lin);
 /// OFDMA Remotes (see FIXME LteAllocationModule.h for "antenna" meaning)
 typedef enum
 {
-    MACRO = 0, RU1, RU2, RU3, RU4, RU5, RU6, UNKNOWN_RU
+    MACRO = 0,
+    RU1,
+    RU2,
+    RU3,
+    RU4,
+    RU5,
+    RU6,
+    UNKNOWN_RU
 } Remote;
 
 struct RemoteTable
@@ -327,8 +374,16 @@ struct RemoteTable
     std::string remoteName;
 };
 
-const RemoteTable remotes[] = { ELEM(MACRO), ELEM(RU1), ELEM(RU2), ELEM(RU3),
-    ELEM(RU4), ELEM(RU5), ELEM(RU6), ELEM(UNKNOWN_RU) };
+const RemoteTable remotes[] = {
+    ELEM(MACRO),
+    ELEM(RU1),
+    ELEM(RU2),
+    ELEM(RU3),
+    ELEM(RU4),
+    ELEM(RU5),
+    ELEM(RU6),
+    ELEM(UNKNOWN_RU)
+};
 
 /**
  * Maximum number of available DAS RU per cell.
@@ -344,15 +399,14 @@ const unsigned char NUM_RUS = RU6;
  */
 const unsigned char NUM_ANTENNAS = NUM_RUS + 1;
 
-/*
+/**
  *  Block allocation Map: # of Rbs per Band, per Remote.
  */
 typedef std::map<Remote, std::map<Band, unsigned int> > RbMap;
 
-/*************************
- *  Lte PHY Frame Types  *
- *************************/
-
+/**
+ * Lte PHY Frame Types
+ */
 typedef enum
 {
     DATAPKT,
@@ -371,22 +425,25 @@ struct LtePhyFrameTable
     std::string phyName;
 };
 
-const LtePhyFrameTable phytypes[] = { ELEM(DATAPKT), ELEM(BROADCASTPKT),
-    ELEM(FEEDBACKPKT), ELEM(HANDOVERPKT), ELEM(GRANTPKT),
-    ELEM(UNKNOWN_TYPE) };
+const LtePhyFrameTable phytypes[] = {
+    ELEM(DATAPKT),
+    ELEM(BROADCASTPKT),
+    ELEM(FEEDBACKPKT),
+    ELEM(HANDOVERPKT),
+    ELEM(GRANTPKT),
+    ELEM(UNKNOWN_TYPE)
+};
 
-/*************************
- *    Lte Node Types     *
- *************************/
-
+/**
+ * Lte Node Types
+ */
 typedef enum
 {
     INTERNET, /// Internet side of the Lte network
     ENODEB, /// eNodeB
     RELAY, /// Relay
     UE, /// UE
-    UNKNOWN_NODE_TYPE
-/// unknown
+    UNKNOWN_NODE_TYPE /// unknown
 } LteNodeType;
 
 struct LteNodeTable
@@ -395,14 +452,26 @@ struct LteNodeTable
     std::string nodeName;
 };
 
-const LteNodeTable nodetypes[] = { ELEM(INTERNET), ELEM(ENODEB), ELEM(RELAY),
-    ELEM(UE), ELEM(UNKNOWN_NODE_TYPE) };
+const LteNodeTable nodetypes[] = {
+    ELEM(INTERNET),
+    ELEM(ENODEB),
+    ELEM(RELAY),
+    ELEM(UE),
+    ELEM(UNKNOWN_NODE_TYPE)
+};
+
 /**
  * Subframe type
  */
 typedef enum
 {
-    NORMAL_FRAME_TYPE, MBSFN, PAGING, BROADCAST, SYNCRO, ABS, UNKNOWN_FRAME_TYPE
+    NORMAL_FRAME_TYPE,
+    MBSFN,
+    PAGING,
+    BROADCAST,
+    SYNCRO,
+    ABS,
+    UNKNOWN_FRAME_TYPE
 } LteSubFrameType;
 
 struct LteSubFrameTypeTable
@@ -411,9 +480,15 @@ struct LteSubFrameTypeTable
     std::string typeName;
 };
 
-const LteSubFrameTypeTable subFrametypes[] = { ELEM(NORMAL_FRAME_TYPE),
-    ELEM(MBSFN), ELEM(PAGING), ELEM(BROADCAST), ELEM(SYNCRO), ELEM(ABS),
-    ELEM(UNKNOWN_FRAME_TYPE) };
+const LteSubFrameTypeTable subFrametypes[] = {
+    ELEM(NORMAL_FRAME_TYPE),
+    ELEM(MBSFN),
+    ELEM(PAGING),
+    ELEM(BROADCAST),
+    ELEM(SYNCRO),
+    ELEM(ABS),
+    ELEM(UNKNOWN_FRAME_TYPE)
+};
 
 //|--------------------------------------------------|
 //|----------------- ABS Management -----------------|
@@ -641,6 +716,7 @@ struct EnbInfo
     cModule * eNodeB;
     int x2;
 };
+
 /*****************
  *  PHY Support  *
  *****************/
@@ -660,6 +736,7 @@ typedef std::pair<int, simtime_t> PacketInfo;
 typedef std::vector<RemoteUnitPhyData> RemoteUnitPhyDataVector;
 typedef std::set<MacNodeId> ActiveUser;
 typedef std::set<MacCid> ActiveSet;
+
 /**
  * Used at initialization to pass the parameters
  * to the AnalogueModels and Decider.
@@ -715,6 +792,7 @@ LteSubFrameType aToSubFrameType(std::string s);
 const std::string SubFrameTypeToA(const LteSubFrameType r);
 const std::string DeploymentScenarioToA(DeploymentScenario type);
 DeploymentScenario aToDeploymentScenario(std::string s);
+
 /**
  * Utility function that reads the parameters of an XML element
  * and stores them in the passed ParameterMap reference.
@@ -723,6 +801,7 @@ DeploymentScenario aToDeploymentScenario(std::string s);
  * @param[output] outputMap map to store read parameters
  */
 void getParametersFromXML(cXMLElement* xmlData, ParameterMap& outputMap);
+
 /**
  * Parses a CSV string parameter into an int array.
  *

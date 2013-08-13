@@ -15,6 +15,10 @@
 #include "LteMacBase.h"
 #include "LteHarqProcessRx.h"
 
+class LteMacBase;
+class LteHarqProcessRx;
+
+
 /**
  * H-ARQ RX buffer: messages coming from phy are stored in H-ARQ RX buffer.
  * When a new pdu is inserted, it is in EVALUATING state meaning that the hardware is
@@ -25,10 +29,6 @@
  * done in the extractCorrectPdu mehtod which must be called at every tti (it must be part
  * of the mac main loop).
  */
-
-class LteMacBase;
-class LteHarqProcessRx;
-
 class LteHarqBufferRx
 {
   protected:

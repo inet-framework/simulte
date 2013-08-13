@@ -20,6 +20,7 @@ class LteHarqBufferRx;
 class LteBinder;
 class FlowControlInfo;
 class LteMacBuffer;
+
 /**
  * Map associating a nodeId with the corresponding TX H-ARQ buffer.
  * Used in eNB, where there is more than one TX H-ARQ buffer.
@@ -36,7 +37,6 @@ typedef std::map<MacNodeId, LteHarqBufferRx *> HarqRxBuffers;
  * MultiMap associating a LCG group with all connection belonging to it and
  * corresponding virtual buffer pointer
  */
-
 typedef std::pair<MacCid, LteMacBuffer*> CidBufferPair;
 typedef std::pair<LteTrafficClass, CidBufferPair> LcgPair;
 typedef std::multimap<LteTrafficClass, CidBufferPair> LcgMap;
@@ -74,7 +74,6 @@ class LteMacBase : public cSimpleModule
     /*
      * Gates
      */
-
     cGate* up_[2];     /// RLC <--> MAC
     cGate* down_[2];   /// MAC <--> PHY
 

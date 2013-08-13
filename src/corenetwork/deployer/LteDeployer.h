@@ -20,6 +20,8 @@
 #include "LteBinder.h"
 #include "LteCommon.h"
 
+class DasFilter;
+
 /**
  * @class LteDeployer
  * @brief Lte network elements dynamic deployer. There is one deplayer for each eNB (thus one for each cell)
@@ -30,10 +32,6 @@
  *
  * Keeps general information about the cell
  */
-
-/// Forward declaration of DasFilter class, used by LteDeployer.
-class DasFilter;
-
 // TODO move all the parameters to their own modules
 class LteDeployer : public cSimpleModule
 {

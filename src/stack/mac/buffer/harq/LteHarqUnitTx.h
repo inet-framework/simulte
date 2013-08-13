@@ -19,6 +19,8 @@
 #include "LteCommon.h"
 #include "LteMacBase.h"
 
+class LteMacBase;
+
 /**
  * An LteHarqUnit is an HARQ mac pdu container,
  * an harqBuffer is made of harq processes which is made of harq units.
@@ -32,9 +34,6 @@
  * TXHARQ_PDU_EMPTY:        yes        not present            not ready for tx
  * TXHARQ_PDU_SELECTED:        no        present                will be tx
  */
-
-class LteMacBase;
-
 class LteHarqUnitTx
 {
   protected:

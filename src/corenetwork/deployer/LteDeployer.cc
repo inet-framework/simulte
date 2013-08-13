@@ -83,10 +83,7 @@ void LteDeployer::preInitialize()
     numPreferredBands_ = par("numPreferredBands");
 
     if (numRus_ > NUM_RUS)
-    {
-        error("The number of Antennas specified exceeds the limit of %d",
-            NUM_RUS);
-    }
+        throw cRuntimeError("The number of Antennas specified exceeds the limit of %d", NUM_RUS);
 
     EV << "Deployer: eNB coordinates: " << nodeX_ << " " << nodeY_ << " "
        << nodeZ_ << endl;
@@ -138,8 +135,7 @@ cModule* LteDeployer::deployUes(double centerX, double centerY, int Ue,
 {
     double x = 0;
     double y = 0;
-    calculateNodePosition(centerX, centerY, Ue, totalNumOfUes, range, 0, &x,
-        &y);
+    calculateNodePosition(centerX, centerY, Ue, totalNumOfUes, range, 0, &x, &y);
 
     EV << NOW << " LteDeployer::deployUes deploying Ues: centerX " << centerX
        << " centerY " << centerY << " Ue " << Ue << " total "
