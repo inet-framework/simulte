@@ -262,79 +262,75 @@ LteSchedulerEnbDl::schedulePerAcidRtx(MacNodeId nodeId, Codeword cw, unsigned ch
 
 
 bool
-LteSchedulerEnbDl::rtxschedule() {
-//     try {
-        EV << NOW << " LteSchedulerEnbDl::rtxschedule --------------------::[ START RTX-SCHEDULE ]::--------------------" << endl;
-        EV << NOW << " LteSchedulerEnbDl::rtxschedule Cell:  " <<   mac_->getMacCellId() << endl;
-        EV << NOW << " LteSchedulerEnbDl::rtxschedule Direction: " <<  (direction_ == DL ? "DL" : "UL") << endl;
+LteSchedulerEnbDl::rtxschedule()
+{
+    EV << NOW << " LteSchedulerEnbDl::rtxschedule --------------------::[ START RTX-SCHEDULE ]::--------------------" << endl;
+    EV << NOW << " LteSchedulerEnbDl::rtxschedule Cell:  " <<   mac_->getMacCellId() << endl;
+    EV << NOW << " LteSchedulerEnbDl::rtxschedule Direction: " <<  (direction_ == DL ? "DL" : "UL") << endl;
 
 
-        // retrieving reference to HARQ entities
-        HarqTxBuffers* harqQueues = mac_->getHarqTxBuffers() ;
+    // retrieving reference to HARQ entities
+    HarqTxBuffers* harqQueues = mac_->getHarqTxBuffers() ;
 
-        HarqTxBuffers::iterator it = harqQueues->begin();
-        HarqTxBuffers::iterator et = harqQueues->end();
+    HarqTxBuffers::iterator it = harqQueues->begin();
+    HarqTxBuffers::iterator et = harqQueues->end();
 
-        // examination of HARQ process in rtx status, adding them to scheduling list
-        for(; it != et; ++it)
-        {    // For each UE
-            MacNodeId nodeId = it->first;
-            LteHarqBufferTx* currHarq = it->second;
+    // examination of HARQ process in rtx status, adding them to scheduling list
+    for(; it != et; ++it)
+    {    // For each UE
+        MacNodeId nodeId = it->first;
+        LteHarqBufferTx* currHarq = it->second;
 
-            // get harq status vector
-            BufferStatus harqStatus = currHarq->getBufferStatus();
-            BufferStatus::iterator jt = harqStatus.begin(), jet= harqStatus.end();
+        // get harq status vector
+        BufferStatus harqStatus = currHarq->getBufferStatus();
+        BufferStatus::iterator jt = harqStatus.begin(), jet= harqStatus.end();
 
-            // Get user transmission parameters
-            const UserTxParams& txParams = mac_->getAmc()->computeTxParams(nodeId, direction_);    // get the user info
-            // TODO SK Get the number of codewords - FIX with correct mapping
-            unsigned int codewords = txParams.getLayers().size();                // get the number of available codewords
+        // Get user transmission parameters
+        const UserTxParams& txParams = mac_->getAmc()->computeTxParams(nodeId, direction_);    // get the user info
+        // TODO SK Get the number of codewords - FIX with correct mapping
+        unsigned int codewords = txParams.getLayers().size();                // get the number of available codewords
 
-            EV <<  NOW << " LteSchedulerEnbDl::rtxschedule  UE: " <<  nodeId << endl;
-            EV <<  NOW << " LteSchedulerEnbDl::rtxschedule Number of codewords: " <<  codewords << endl;
-            unsigned int process=0;
-            for(; jt != jet; ++jt,++process)
-            {    // for each HARQ process
+        EV <<  NOW << " LteSchedulerEnbDl::rtxschedule  UE: " <<  nodeId << endl;
+        EV <<  NOW << " LteSchedulerEnbDl::rtxschedule Number of codewords: " <<  codewords << endl;
+        unsigned int process=0;
+        for(; jt != jet; ++jt,++process)
+        {    // for each HARQ process
+            if (allocatedCws_[nodeId]==codewords)
+                break;
+            for(Codeword cw = 0; cw < codewords; ++cw)
+            {
                 if (allocatedCws_[nodeId]==codewords)
                     break;
-                for(Codeword cw = 0; cw < codewords; ++cw)
+                EV <<  NOW << " LteSchedulerEnbDl::rtxschedule process "<< process  << endl;
+                EV <<  NOW << " LteSchedulerEnbDl::rtxschedule ------- CODEWORD " << cw << endl;
+
+                // skip processes which are not in rtx status
+                if (jt->at(cw).second != TXHARQ_PDU_BUFFERED) {
+
+                    EV << NOW << " LteSchedulerEnbDl::rtxschedule detected Acid: " << jt->at(cw).first << " in status " <<jt->at(cw).second<< endl;
+
+                    continue;
+                }
+
+                EV << NOW << " LteSchedulerEnbDl::rtxschedule " << endl ;
+                EV << NOW << " LteSchedulerEnbDl::rtxschedule detected RTX Acid: " << jt->at(cw).first << endl;
+
+                // perform the retransmission
+
+                unsigned int bytes = schedulePerAcidRtx(nodeId,cw,process);
+
+                // if a value different from zero is returned, there was a service
+                if(bytes > 0)
                 {
-                    if (allocatedCws_[nodeId]==codewords)
-                        break;
-                    EV <<  NOW << " LteSchedulerEnbDl::rtxschedule process "<< process  << endl;
-                    EV <<  NOW << " LteSchedulerEnbDl::rtxschedule ------- CODEWORD " << cw << endl;
-
-                    // skip processes which are not in rtx status
-                    if (jt->at(cw).second != TXHARQ_PDU_BUFFERED) {
-
-                        EV << NOW << " LteSchedulerEnbDl::rtxschedule detected Acid: " << jt->at(cw).first << " in status " <<jt->at(cw).second<< endl;
-
-                        continue;
-                    }
-
-                    EV << NOW << " LteSchedulerEnbDl::rtxschedule " << endl ;
-                    EV << NOW << " LteSchedulerEnbDl::rtxschedule detected RTX Acid: " << jt->at(cw).first << endl;
-
-                    // perform the retransmission
-
-                    unsigned int bytes = schedulePerAcidRtx(nodeId,cw,process);
-
-                    // if a value different from zero is returned, there was a service
-                    if(bytes > 0)
-                    {
-                        EV << NOW << " LteSchedulerEnbDl::rtxschedule CODEWORD IS NOW BUSY!!!" << endl;
-                        // do not process this HARQ process anymore
-                        // go to next codeword
-                        break;
-                    }
+                    EV << NOW << " LteSchedulerEnbDl::rtxschedule CODEWORD IS NOW BUSY!!!" << endl;
+                    // do not process this HARQ process anymore
+                    // go to next codeword
+                    break;
                 }
             }
         }
+    }
 
-//    } catch(...) {
-//         EV << "EXCEPTION! Exception in LteSchedulerEnbDl::rtxschedule, Aborting." << endl;
-//         mac_->endSimulation();
-//     }
 
     unsigned int availableBlocks = allocator_->computeTotalRbs();
     EV << " LteSchedulerEnbDl::rtxschedule OFDM Space: " <<  availableBlocks << endl;

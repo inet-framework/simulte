@@ -189,8 +189,10 @@ LteSchedulerEnbUl::rtxschedule() {
 
         return (availableBlocks == 0);
 
-     } catch(...) {
-        throw cRuntimeError("EXCEPTION! Exception in LteSchedulerEnbUl::rtxschedule, Aborting.");
+     }
+     catch(std::out_of_range)
+     {
+        throw cRuntimeError("EXCEPTION! Exception in LteSchedulerEnbUl::rtxschedule");
      }
      return 0;
 }
@@ -357,9 +359,10 @@ LteSchedulerEnbUl::schedulePerAcidRtx(MacNodeId nodeId, Codeword cw, unsigned ch
             delete(bandLim);
             return bytes;
         }
-    } catch(...)
+    }
+    catch(std::out_of_range)
     {
-        throw cRuntimeError("EXCEPTION! Exception in LteSchedulerEnbUl::rtxAcid, Aborting.");
+        throw cRuntimeError("EXCEPTION! Exception in LteSchedulerEnbUl::rtxAcid.");
     }
     delete(bandLim);
     return 0;

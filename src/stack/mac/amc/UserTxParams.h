@@ -137,8 +137,10 @@ class UserTxParams {
         /** Print debug information - FOR DEBUG ONLY
          *  @param s The name of the invoking function.
          */
-        void print(const char* s) const {
-            try {
+        void print(const char* s) const
+        {
+            try
+            {
                 EV << NOW << " " << s << " --------------------------\n";
                 EV << NOW << " " << s << "           UserTxParams\n";
                 EV << NOW << " " << s << " --------------------------\n";
@@ -148,7 +150,8 @@ class UserTxParams {
                 //*** CQIs *********************************************
                 unsigned int codewords = cqiVector_.size();
                 EV << NOW << " " << s << " CQI = {";
-                if(codewords > 0) {
+                if(codewords > 0)
+                {
                     EV << cqiVector_.at(0);
                     for(Codeword cw = 1; cw < codewords; ++cw)
                         EV << ", " << cqiVector_.at(cw);
@@ -163,7 +166,8 @@ class UserTxParams {
                 std::set<Band>::const_iterator et = allowedBands_.end();
 
                 EV << NOW << " " << s << " Bands = {";
-                if(it != et) {
+                if(it != et)
+                {
                     EV << *it;
                     ++it;
                     for(; it != et; ++it)
@@ -175,9 +179,10 @@ class UserTxParams {
 
                 EV << NOW << " " << s << " --------------------------\n";
 
-            } catch(...) {
-                EV << "EXCEPTION! Exception in UserTxParams::print, Aborting." << endl;
-                abort();
+            }
+            catch(std::out_of_range)
+            {
+                throw cRuntimeError("UserTxParams::print - FATAL!");
             }
         }
 };

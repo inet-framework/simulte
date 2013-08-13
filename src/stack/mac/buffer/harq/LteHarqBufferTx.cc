@@ -296,15 +296,13 @@ BufferStatus LteHarqBufferTx::getBufferStatus()
 LteHarqProcessTx *
 LteHarqBufferTx::getProcess(unsigned char acid)
 {
-
     try
     {
         return (*processes_).at(acid);
-
     }
-    catch(...)
+    catch(std::out_of_range & x)
     {
-        EV << NOW << "FATAL! acid "<<acid<<" out of bounds . Aborting. " << endl;
+        throw cRuntimeError("LteHarqBufferTx::getProcess - FATAL! acid %i out of bounds." , int(acid));
     }
 }
 

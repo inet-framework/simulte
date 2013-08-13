@@ -35,5 +35,8 @@ out/
 backups
 *~
 
+
+*.FAILED
 .cproject
 .project
+ui/com.simulte.configeditor/bin/

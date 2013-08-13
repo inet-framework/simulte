@@ -267,7 +267,7 @@ void LteIp::toTransport(cPacket * msg)
     try {
         gateindex = mapping_.getOutputGateForProtocol(protocol);
     }
-    catch(...) {
+    catch(cRuntimeError) {
         EV <<"Protocol mapping failed with protocol number : " << protocol << endl;
         EV <<"Packet dropped" << endl;
         delete msg;

@@ -78,7 +78,9 @@ LteSummaryBuffer::createSummary(LteFeedback fb) {
                     cumulativeSummary_.setPmi(pmi, *it);
             }
         }
-    } catch(...) {
+    }
+    catch(std::out_of_range)
+    {
         EV << "EXCEPTION! Exception in LteSummaryBuffer::summarize, Aborting." << endl;
         abort();
     }
