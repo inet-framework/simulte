@@ -1,29 +1,30 @@
-// 
+//
 //                           SimuLTE
 // Copyright (C) 2012 Antonio Virdis, Daniele Migliorini, Giovanni
 // Accongiagioco, Generoso Pagano, Vincenzo Pii.
-// 
+//
 // This file is part of a software released under the license included in file
 // "license.pdf". This license can be also found at http://www.ltesimulator.com/
-// The above file and the present reference are part of the software itself, 
+// The above file and the present reference are part of the software itself,
 // and cannot be removed from it.
-// 
+//
 //
 
-#ifndef VODUDPCLIENT
-#define VODUDPCLIENT
+#ifndef VODUDPCLIENT_H
+#define VODUDPCLIENT_H
 
 #include <omnetpp.h>
-#include "VoDPacket_m.h"
 #include <string.h>
-#include "VoDUDPStruct.h"
 #include <fstream>
+#include "VoDPacket_m.h"
+#include "VoDUDPStruct.h"
 #include "UDPControlInfo_m.h"
 #include "UDPSocket.h"
 #include "IPvXAddressResolver.h"
 
 
 using namespace std;
+
 class TaggedSample: public cObject {
 public:
     double sample;
@@ -31,6 +32,7 @@ public:
     // the emitting cComponent (module)
     cComponent* module;
 };
+
 class VoDUDPClient : public cSimpleModule
 {
     UDPSocket socket;
@@ -58,3 +60,4 @@ public:
 
 
 #endif
+

@@ -1,21 +1,15 @@
-// 
+//
 //                           SimuLTE
 // Copyright (C) 2012 Antonio Virdis, Daniele Migliorini, Giovanni
 // Accongiagioco, Generoso Pagano, Vincenzo Pii.
-// 
+//
 // This file is part of a software released under the license included in file
 // "license.pdf". This license can be also found at http://www.ltesimulator.com/
-// The above file and the present reference are part of the software itself, 
+// The above file and the present reference are part of the software itself,
 // and cannot be removed from it.
-// 
-//==========================================================================
-//  LTERECORDER.H - external plugin for
-//                     OMNeT++/OMNEST
-//            Discrete System Simulation in C++
 //
 //  Author: Giovanni Accongiagioco
 //
-//==========================================================================
 
 #ifndef __ENVIR_LTERECORDERS_H
 #define __ENVIR_LTERECORDERS_H
@@ -26,7 +20,7 @@
 /**
  * \class TaggedSample
  * \brief Object used to send samples with IDs
- * \author Giovanni Accongiagioco <gio.acon@gmail.com> 
+ * \author Giovanni Accongiagioco <gio.acon@gmail.com>
  *
  * This class is used so that the sender can pass
  * a cObject containing both the sample and the id
@@ -43,8 +37,8 @@ class TaggedSample : public cObject
 /**
  * \class LteRecorder
  * \brief Abstract class for recording statistic
- * \author Giovanni Accongiagioco <gio.acon@gmail.com> 
- * 
+ * \author Giovanni Accongiagioco <gio.acon@gmail.com>
+ *
  * This class is the lteRecorder. It records samples and has
  * an optional parameter "id" specified by the caller, that can
  * be used to gather separate statistics
@@ -114,8 +108,8 @@ class LteRecorder : public cNumericResultRecorder, private cObject
 /**
  * \class LteStatisticsRecorder
  * \brief Abstract class for recording cStatistic objects
- * \author Giovanni Accongiagioco <gio.acon@gmail.com> 
- * 
+ * \author Giovanni Accongiagioco <gio.acon@gmail.com>
+ *
  * This class records object of type cStatistic aggregating them
  * by name of the module and by "id" specified by the caller,
  * moreover there is a global statistic (without id)
@@ -126,7 +120,7 @@ class LteStatisticsRecorder : public LteRecorder
         LteStatisticsRecorder() {;}
 
         /**
-         * Destroys all elements allocated 
+         * Destroys all elements allocated
          * inside the above map
          */
         virtual ~LteStatisticsRecorder();
@@ -156,8 +150,8 @@ class LteStatisticsRecorder : public LteRecorder
 /**
  * \class LteStatsRecorder
  * \brief Implements LteStatisticRecorder using cStdDev objects
- * \author Giovanni Accongiagioco <gio.acon@gmail.com> 
- * 
+ * \author Giovanni Accongiagioco <gio.acon@gmail.com>
+ *
  * This class implements the LteStatisticRecorder using
  * objects of type cStdDev
  */
@@ -192,8 +186,8 @@ class LteStatsRecorder : public LteStatisticsRecorder
 /**
  * \class LteHistogramRecorder
  * \brief Implements LteStatisticRecorder using cHistogram objects
- * \author Giovanni Accongiagioco <gio.acon@gmail.com> 
- * 
+ * \author Giovanni Accongiagioco <gio.acon@gmail.com>
+ *
  * This class implements the LteStatisticRecorder using
  * objects of type cHistogram
  */
@@ -214,7 +208,7 @@ class LteHistogramRecorder : public LteStatisticsRecorder
     protected:
         /**
          * collect() collects sample inside a different
-         * cHistogram object for each id specified: if the cHistogram 
+         * cHistogram object for each id specified: if the cHistogram
          * does not exist yet for this id, it is created
          *
          * @param t Reference to simulation time event occurred
@@ -228,8 +222,8 @@ class LteHistogramRecorder : public LteStatisticsRecorder
 /**
  * \class LteVectorRecorder
  * \brief Records samples associating a timestamp to each one
- * \author Giovanni Accongiagioco <gio.acon@gmail.com> 
- * 
+ * \author Giovanni Accongiagioco <gio.acon@gmail.com>
+ *
  * This class uses the cOutVector (implicitly) to store
  * samples associating a timestamp to each of them
  */
@@ -266,10 +260,10 @@ class LteVectorRecorder : public LteRecorder
     private:
         /// This variable is used to ensure increasing timestamp order
         simtime_t lastTime_;
-        
+
         /**
          * This map associated each id with an handle
-         * who identifies the output vector for the 
+         * who identifies the output vector for the
          * output vector manager
          */
         std::map<unsigned int, void*> handle_;
@@ -279,16 +273,16 @@ class LteVectorRecorder : public LteRecorder
 /**
  * \class LteAvgRecorder
  * \brief Average metrics recoder
- * \author Giovanni Accongiagioco <gio.acon@gmail.com> 
- * 
+ * \author Giovanni Accongiagioco <gio.acon@gmail.com>
+ *
  * This class implements the LteRecorder and records
  * average values for the given samples, dividing them
  * by id (an aggragate metric is also given)
  *
- * Usage example: to record delay values just issue 
- * emit() inside the module, providing the delay 
+ * Usage example: to record delay values just issue
+ * emit() inside the module, providing the delay
  * value and an id (delay of flow $i).
- * Average between all emitted values for all IDs 
+ * Average between all emitted values for all IDs
  * will be automatically calculated
  */
 class LteAvgRecorder : public LteRecorder
@@ -338,13 +332,13 @@ class LteAvgRecorder : public LteRecorder
          * every module is recorded aswell
          */
         virtual void finish(cResultFilter *prev);
-};  
+};
 
 /**
  * \class LteRateRecorder
  * \brief Rate metrics recoder
- * \author Giovanni Accongiagioco <gio.acon@gmail.com> 
- * 
+ * \author Giovanni Accongiagioco <gio.acon@gmail.com>
+ *
  * This class implements the LteRecorder and records
  * rate values for the given samples, dividing them
  * by id (an aggragate metric is also given)

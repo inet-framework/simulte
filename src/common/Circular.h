@@ -1,13 +1,14 @@
-// 
+//
 //                           SimuLTE
 // Copyright (C) 2012 Antonio Virdis, Daniele Migliorini, Giovanni
 // Accongiagioco, Generoso Pagano, Vincenzo Pii.
-// 
+//
 // This file is part of a software released under the license included in file
 // "license.pdf". This license can be also found at http://www.ltesimulator.com/
-// The above file and the present reference are part of the software itself, 
+// The above file and the present reference are part of the software itself,
 // and cannot be removed from it.
-// 
+//
+
 #ifndef CIRCULAR_H
 #define CIRCULAR_H
 
@@ -28,9 +29,9 @@ class CircularList {
 
 public:
     //! Create an empty circular list.
-    CircularList () { 
-        size_ = 0; 
-        cur_ = list_.begin(); 
+    CircularList () {
+        size_ = 0;
+        cur_ = list_.begin();
     }
     //! Do nothing.
     ~CircularList () { }
@@ -123,10 +124,10 @@ public:
         list_.erase (it);
         --size_;
     }
-    
-    //! Goes back to the beginning of the circular list 
-    void rewind() 
-    {    
+
+    //! Goes back to the beginning of the circular list
+    void rewind()
+    {
         cur_=list_.begin();
     }
 

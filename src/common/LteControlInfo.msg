@@ -1,4 +1,13 @@
-
+//
+//                           SimuLTE
+// Copyright (C) 2012 Antonio Virdis, Daniele Migliorini, Giovanni
+// Accongiagioco, Generoso Pagano, Vincenzo Pii.
+//
+// This file is part of a software released under the license included in file
+// "license.pdf". This license can be also found at http://www.ltesimulator.com/
+// The above file and the present reference are part of the software itself,
+// and cannot be removed from it.
+//
 
 
 cplusplus {{
@@ -24,45 +33,45 @@ enum LteTrafficClass;
 // Both FlowControlInfo and UserControlInfo inherit from LteControlInfo
 // to avoid replication of common parts.
 //
-// The Mac layer receives packets (MAC sdu) with FlowControlInfo attached 
-// and creates a MAC pdu with UserControlInfo attached. 
+// The Mac layer receives packets (MAC sdu) with FlowControlInfo attached
+// and creates a MAC pdu with UserControlInfo attached.
 // The MacPduMaker does the job.
-// 
+//
 // NOTE: a MAC pdu contains different MAC sdus that may belong to different flows.
-// 
+//
 
 //
 // @class LteControlInfo
 // @brief Base class for FlowControlInfo and UserControlInfo
-// 
+//
 // This class contains information present in both Flow and User ControlInfo:
-// - Source MAC Node ID 
-// - Destination MAC Node ID 
+// - Source MAC Node ID
+// - Destination MAC Node ID
 //
 class LteControlInfo {
 
     //# Information shared between FlowControlInfo and UserControlInfo
-    
+
     uint16 sourceId;                                    // Source MacNodeId
     uint16 destId;                                        // Destination MacNodeId
-    unsigned short direction enum(Direction);            // Traffic Direction (UL, DL)  
-    
+    unsigned short direction enum(Direction);            // Traffic Direction (UL, DL)
+
     //# Traffic Control Information
-    
+
     unsigned short application enum(ApplicationType);    // Application Type
     unsigned short traffic enum(LteTrafficClass);        // Lte Traffic Type
-    
+
     //# RLC Control Information
-    
+
     unsigned short rlcType enum(LteRlcType);            // RLC Traffic Type
-    
+
     //# Connection Information
-    
-    uint16 lcid;                                        // Logical Connection Identifier  
+
+    uint16 lcid;                                        // Logical Connection Identifier
 
 }
 
-// 
+//
 // @class FlowControlInfo
 // @brief contains information flowing from LteIp to Mac
 //
@@ -74,18 +83,18 @@ class LteControlInfo {
 // - Connection information: Logical CID
 //
 class FlowControlInfo extends LteControlInfo {
-    
+
     //# IP Control Information
 
     uint32 srcAddr;                                       // source IP
     uint32 dstAddr;                                       // destination IP
-    uint16 srcPort;                                          // source port 
+    uint16 srcPort;                                          // source port
     uint16 dstPort;                                       // destination port
     unsigned int sequenceNumber;                          // packet sequence number
-    int headerSize;                                       // IP + Transport header size (used by pdcp ROHC)   
+    int headerSize;                                       // IP + Transport header size (used by pdcp ROHC)
 }
 
-// 
+//
 // @class UserControlInfo
 // @brief contains information flowing from Mac to Phy
 //
@@ -95,18 +104,18 @@ class FlowControlInfo extends LteControlInfo {
 //   txMode, Resource blocks used, RemoteSet
 //
 class UserControlInfo extends LteControlInfo {
-    
+
     @customize(true);
-    
+
     //# H-ARQ Control Information
-    
+
     unsigned char acid;                // H-ARQ process identifier
     unsigned char cw;                // H-ARQ codeword identifier
     unsigned char txNumber = 0;            // number of (re)transmissions for the same pdu (1, 2, 3, 4)
     bool ndi = true;                    // new data indicator (new data overwrites a process content if present)
-    
+
     //# PHY Control Informations
-    
+
     bool isCorruptible;                                // Frame is corruptible
     bool isBroadcast = false;                        // Broadcast packet
     bool deciderResult;                                // Decider result
@@ -117,13 +126,13 @@ class UserControlInfo extends LteControlInfo {
     double txPower;                                    //Transmission Power
     // blocks granted on all Remotes, all Bands
     unsigned int totalGrantedBlocks;
-    
-    //# 
+
+    //#
     //# Follows a list of elements only present in
     //# the customized class (see LteControlInfo.h):
     //#
     //# RemoteSet ru;                                // Remote Antenna Set
-    //# RbMap grantedBlocks;                        // Blocks allocated per Remote, per Band. 
+    //# RbMap grantedBlocks;                        // Blocks allocated per Remote, per Band.
 }
 
 

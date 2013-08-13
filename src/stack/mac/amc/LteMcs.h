@@ -1,26 +1,22 @@
-// 
+//
 //                           SimuLTE
 // Copyright (C) 2012 Antonio Virdis, Daniele Migliorini, Giovanni
 // Accongiagioco, Generoso Pagano, Vincenzo Pii.
-// 
+//
 // This file is part of a software released under the license included in file
 // "license.pdf". This license can be also found at http://www.ltesimulator.com/
-// The above file and the present reference are part of the software itself, 
+// The above file and the present reference are part of the software itself,
 // and cannot be removed from it.
-// 
-
-/*
- * LteMcs.h
- *  Description:
- *  This file contains MCS types and constants.
- *  The MCS and ITBS tables are here.
- *  There are also functions related to MCS and Tx-Modes.
- */
+//
 
 #ifndef LTEMCS_H_
 #define LTEMCS_H_
 
 #include "LteCommon.h"
+
+
+// This file contains MCS types and constants; MCS and ITBS tables;
+// and functions related to MCS and Tx-Modes.
 
 struct CQIelem {
 

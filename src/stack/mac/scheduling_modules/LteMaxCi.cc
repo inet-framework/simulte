@@ -1,13 +1,14 @@
-// 
+//
 //                           SimuLTE
 // Copyright (C) 2012 Antonio Virdis, Daniele Migliorini, Giovanni
 // Accongiagioco, Generoso Pagano, Vincenzo Pii.
-// 
+//
 // This file is part of a software released under the license included in file
 // "license.pdf". This license can be also found at http://www.ltesimulator.com/
-// The above file and the present reference are part of the software itself, 
+// The above file and the present reference are part of the software itself,
 // and cannot be removed from it.
-// 
+//
+
 #include <LteMaxCi.h>
 #include <LteSchedulerEnb.h>
 
@@ -15,7 +16,7 @@ void LteMaxCi::prepareSchedule()
 {
 
     EV << NOW << " LteMaxCI::schedule " << eNbScheduler_->mac_->getMacNodeId() << endl;
-    
+
     activeConnectionTempSet_ = activeConnectionSet_;
 
     // Build the score list by cycling through the active connections.
@@ -28,9 +29,9 @@ void LteMaxCi::prepareSchedule()
     {
         // Current connection.
         cid = *it1;
-        
+
         MacNodeId nodeId = MacCidToNodeId(cid);
-    
+
         // compute available blocks for the current user
         const UserTxParams& info = eNbScheduler_->mac_->getAmc()->computeTxParams(nodeId,direction_);
         const std::set<Band>& bands = info.readBands();
@@ -62,7 +63,7 @@ void LteMaxCi::prepareSchedule()
                 availableBytes += eNbScheduler_->mac_->getAmc()->computeBytesOnNRbs(nodeId,*it, availableBlocks, direction_);
             }
         }
-        
+
         blocks = availableBlocks;
         // current user bytes per slot
         byPs = (blocks>0) ? (availableBytes/blocks ) : 0;
@@ -75,7 +76,7 @@ void LteMaxCi::prepareSchedule()
         EV << NOW << " LteMaxCI::schedule computed for cid " << cid <<" score of " << desc.score_ << endl;
 
     }
-    
+
 
     // Schedule the connections in score order.
     while ( ! score.empty () ) {
@@ -97,15 +98,15 @@ void LteMaxCi::prepareSchedule()
         if ( terminate ) break;
 
         // Pop the descriptor from the score list if the active or eligible flag are clear.
-        if ( ! active || ! eligible ) 
+        if ( ! active || ! eligible )
         {
             score.pop ();
             EV << NOW << "LteMaxCI::schedule  connection " << current.x_ << " was found ineligible" << endl;
         }
 
         // Set the connection as inactive if indicated by the grant ().
-        if ( ! active ) 
-        {    
+        if ( ! active )
+        {
             EV << NOW << "LteMaxCI::schedule scheduling connection " << current.x_ << " set to inactive " << endl;
 
             activeConnectionTempSet_.erase (current.x_);
@@ -121,7 +122,7 @@ void LteMaxCi::commitSchedule(){
 
 void LteMaxCi::updateSchedulingInfo()
 {
-    
+
 }
 
 void LteMaxCi::notifyActiveConnection(MacCid cid)

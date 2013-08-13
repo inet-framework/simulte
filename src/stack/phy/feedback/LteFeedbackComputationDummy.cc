@@ -1,31 +1,31 @@
-// 
+//
 //                           SimuLTE
 // Copyright (C) 2012 Antonio Virdis, Daniele Migliorini, Giovanni
 // Accongiagioco, Generoso Pagano, Vincenzo Pii.
-// 
+//
 // This file is part of a software released under the license included in file
 // "license.pdf". This license can be also found at http://www.ltesimulator.com/
-// The above file and the present reference are part of the software itself, 
+// The above file and the present reference are part of the software itself,
 // and cannot be removed from it.
-// 
+//
 
 
 #include "LteFeedbackComputationDummy.h"
 #include "LteFeedback.h"
 
 LteFeedbackComputationDummy::LteFeedbackComputationDummy(double channelVariationProb, int channelVariationStep,    int txDivMin, int txDivMax, int sMuxMin, int sMuxMax, int muMimoMin, int muMimoMax,double rankVariationProb,int numband) {
-channelVariationProb_=channelVariationProb;
-channelVariationStep_=channelVariationStep;
-txDivMin_=txDivMin;
-txDivMax_=txDivMax;
-sMuxMin_=sMuxMin;
-sMuxMax_=sMuxMax;
-muMimoMin_=muMimoMin;
-muMimoMax_=muMimoMax;
-rankVariationProb_=rankVariationProb;
-lastCqi_.resize(numband,15);
-lastRank_=1;
-numBands_=numband;
+    channelVariationProb_=channelVariationProb;
+    channelVariationStep_=channelVariationStep;
+    txDivMin_=txDivMin;
+    txDivMax_=txDivMax;
+    sMuxMin_=sMuxMin;
+    sMuxMax_=sMuxMax;
+    muMimoMin_=muMimoMin;
+    muMimoMax_=muMimoMax;
+    rankVariationProb_=rankVariationProb;
+    lastCqi_.resize(numband,15);
+    lastRank_=1;
+    numBands_=numband;
 }
 
 LteFeedbackComputationDummy::~LteFeedbackComputationDummy() {

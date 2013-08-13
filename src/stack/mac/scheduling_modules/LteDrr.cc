@@ -1,13 +1,14 @@
-// 
+//
 //                           SimuLTE
 // Copyright (C) 2012 Antonio Virdis, Daniele Migliorini, Giovanni
 // Accongiagioco, Generoso Pagano, Vincenzo Pii.
-// 
+//
 // This file is part of a software released under the license included in file
 // "license.pdf". This license can be also found at http://www.ltesimulator.com/
-// The above file and the present reference are part of the software itself, 
+// The above file and the present reference are part of the software itself,
 // and cannot be removed from it.
-// 
+//
+
 #include <LteDrr.h>
 #include <LteSchedulerEnb.h>
 
@@ -33,7 +34,7 @@ void LteDrr::prepareSchedule (){
             eligible--;
             continue;
         }
-        
+
         // Update the deficit counter.
         desc.deficit_ += desc.quantum_;
         // Clear the flags passed to the grant() function.
@@ -62,7 +63,7 @@ void LteDrr::prepareSchedule (){
             activeConnectionTempSet_.erase(cid);
             desc.deficit_ = 0;       // reset the deficit to zero
             desc.active_  = false;   // set this descriptor as inactive
-        
+
         // If scheduling is going to stop and the current queue has not
         // been served entirely, then the RR pointer should NOT move to
         // the next element of the active list. Instead, the deficit
@@ -72,7 +73,7 @@ void LteDrr::prepareSchedule (){
         // as not to give the queue more bandwidth than its fair share.
         } else if ( terminateFlag && desc.deficit_ >= desc.quantum_ ){
             desc.deficit_ -= desc.quantum_;
-            
+
         // Otherwise, move the round-robin pointer to the next element.
         } else {
             activeTempList_.move ();
@@ -142,27 +143,27 @@ LteDrr::updateSchedulingInfo ()
 
 }
 
-void 
+void
 LteDrr::notifyActiveConnection(MacCid cid)
 {
     EV << NOW <<"LteDrr::notify CID: " << cid<<endl;
     //this is a mirror structure of activelist, used by all the modules that want to know the list of active users
     activeConnectionSet_.insert (cid);
 
-    bool alreadyIn=false;    
+    bool alreadyIn=false;
     activeList_.find(cid,alreadyIn);
     if (!alreadyIn)
     {
         activeList_.insert(cid);
         (drrMap_[cid]).active_=true;
     }
-    
+
     (drrMap_[cid]).eligible_=true;
 
     EV << NOW << "LteSchedulerEnb::notifyDrr active: " << drrMap_[cid].active_ << endl;
 }
 
-void 
+void
 LteDrr::removeActiveConnection(MacCid cid){
     activeList_.eraseElem(cid);
     activeConnectionSet_.erase(cid);

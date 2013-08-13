@@ -1,27 +1,25 @@
-// 
+//
 //                           SimuLTE
 // Copyright (C) 2012 Antonio Virdis, Daniele Migliorini, Giovanni
 // Accongiagioco, Generoso Pagano, Vincenzo Pii.
-// 
+//
 // This file is part of a software released under the license included in file
 // "license.pdf". This license can be also found at http://www.ltesimulator.com/
-// The above file and the present reference are part of the software itself, 
+// The above file and the present reference are part of the software itself,
 // and cannot be removed from it.
-// 
+//
 
 
 package lte.stack.pdcp_rrc;
 
-
-
-// 
+//
 // Interface for the PDCP/RRC layer of LTE Stack.
 //
 moduleinterface LtePdcpRrc {
     parameters:
         @display("i=block/fork");
         int headerCompressedSize @unit(B);
-        
+
     gates:
         inout DataPort;
         inout EUTRAN_RRC_Sap;
@@ -31,19 +29,19 @@ moduleinterface LtePdcpRrc {
 }
 
 
-// 
+//
 // Base module for the PDCP/RRC layer of LTE Stack.
 //
 simple LtePdcpRrcBase like LtePdcpRrc {
-        
+
     parameters:
         @display("i=block/fork");
-        int headerCompressedSize @unit(B) = default(-1B);    // Header compressed size (bytes) ( -1B = compression disabled 
+        int headerCompressedSize @unit(B) = default(-1B);    // Header compressed size (bytes) ( -1B = compression disabled
         int conversationalRlc @enum(TM, UM, AM, UNKNOWN_RLC_TYPE) = default(1);
         int streamingRlc @enum(TM, UM, AM, UNKNOWN_RLC_TYPE) = default(1);
         int interactiveRlc @enum(TM, UM, AM, UNKNOWN_RLC_TYPE) = default(1);
-        int backgroundRlc @enum(TM, UM, AM, UNKNOWN_RLC_TYPE) = default(1);        
-        
+        int backgroundRlc @enum(TM, UM, AM, UNKNOWN_RLC_TYPE) = default(1);
+
         //#
         //# Statistic recording: end2end delay and throughput at the mac layer
         //#
@@ -56,9 +54,9 @@ simple LtePdcpRrcBase like LtePdcpRrc {
         @statistic[sentPacketToUpperLayer](source="sentPacketToUpperLayer"; record=count,"sum(packetBytes)","vector(packetBytes)"; interpolationmode=none);
         @statistic[sentPacketToLowerLayer](source="sentPacketToLowerLayer"; record=count,"sum(packetBytes)","vector(packetBytes)"; interpolationmode=none);
     gates:
-        //# 
+        //#
         //# Gates connecting UE/eNB and PDCP/RRC Layer
-        //#     
+        //#
         //# Data Ports
 
         inout DataPort;            // Port to transmit data packets
@@ -67,7 +65,7 @@ simple LtePdcpRrcBase like LtePdcpRrc {
 
         inout EUTRAN_RRC_Sap;    // Control of RRC Layer
 
-        //# 
+        //#
         //# Gates connecting PDCP/RRC and RLC Layer
         //#
         //# Data Ports

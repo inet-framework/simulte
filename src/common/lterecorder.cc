@@ -1,29 +1,16 @@
-// 
+//
 //                           SimuLTE
 // Copyright (C) 2012 Antonio Virdis, Daniele Migliorini, Giovanni
 // Accongiagioco, Generoso Pagano, Vincenzo Pii.
-// 
+//
 // This file is part of a software released under the license included in file
 // "license.pdf". This license can be also found at http://www.ltesimulator.com/
-// The above file and the present reference are part of the software itself, 
+// The above file and the present reference are part of the software itself,
 // and cannot be removed from it.
-// 
-//==========================================================================
-//  LTERECORDER.CC - external plugin for
-//                     OMNeT++/OMNEST
-//            Discrete System Simulation in C++
+//
 //
 //  Author: Giovanni Accongiagioco
 //
-//==========================================================================
-
-/*--------------------------------------------------------------*
-  Copyright (C) 1992-2008 Andras Varga
-  Copyright (C) 2006-2008 OpenSim Ltd.
-
-  This file is distributed WITHOUT ANY WARRANTY. See the file
-  `license' for details on this and other legal matters.
-*--------------------------------------------------------------*/
 
 #include "lterecorder.h"
 
@@ -62,7 +49,7 @@ void LteStatisticsRecorder::finish(cResultFilter *prev) {
  * LteStatsRecorder member functions
  */
 
-void LteStatsRecorder::subscribedTo(cResultFilter *prev) 
+void LteStatsRecorder::subscribedTo(cResultFilter *prev)
 {
 
 }
@@ -71,7 +58,7 @@ void LteStatsRecorder::collect(simtime_t t, double value, unsigned int id,cCompo
     if (!stats_[id])
         stats_[id] = new cStdDev();
     stats_[id]->collect(value);    // Local Recording
-    
+
 
     moduleMap_[id]=module;
 }
@@ -144,7 +131,7 @@ void LteAvgRecorder::collect(simtime_t t, double value, unsigned int id,cCompone
     moduleMap_[id]=module;
 }
 
-void LteAvgRecorder::finish(cResultFilter *prev) {                                                
+void LteAvgRecorder::finish(cResultFilter *prev) {
     opp_string_map attributes = getStatisticAttributes();
     //char metricName[50];
     double totalSum = 0;        // Global numbers
@@ -173,13 +160,13 @@ void LteRateRecorder::collect(simtime_t t, double value, unsigned int id,cCompon
 void LteRateRecorder::finish(cResultFilter *prev) {
     opp_string_map attributes = getStatisticAttributes();
     double interval, totalSum = 0;        // Global numbers
-    
+
     std::map<unsigned int, recordedValues_>::iterator it;
     for(it=vals_.begin(); it != vals_.end(); it++) {
-        
+
         interval = (simTime() - it->second.startTime_).dbl();
         totalSum += it->second.sum_/interval;
-    
+
         ev.recordScalar(moduleMap_[it->first], getResultName().c_str(),
                 it->second.sum_/interval, &attributes);
     }

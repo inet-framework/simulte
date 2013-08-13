@@ -1,18 +1,19 @@
-// 
+//
 //                           SimuLTE
 // Copyright (C) 2012 Antonio Virdis, Daniele Migliorini, Giovanni
 // Accongiagioco, Generoso Pagano, Vincenzo Pii.
-// 
+//
 // This file is part of a software released under the license included in file
 // "license.pdf". This license can be also found at http://www.ltesimulator.com/
-// The above file and the present reference are part of the software itself, 
+// The above file and the present reference are part of the software itself,
 // and cannot be removed from it.
-// 
+//
+
 #ifndef LTEDRR_H
 #define LTEDRR_H
 
-#include <LteScheduler.h>
 #include <map>
+#include <LteScheduler.h>
 #include <Circular.h>
 
 class LteSchedulerEnb;
@@ -21,7 +22,7 @@ class LteDrr : public LteScheduler
 {
 
     private:
-    
+
     //! DRR descriptor.
     struct DrrDesc
     {
@@ -43,7 +44,7 @@ class LteDrr : public LteScheduler
         }
     };
 
-    typedef std::map<MacCid, DrrDesc> DrrDescMap;    
+    typedef std::map<MacCid, DrrDesc> DrrDescMap;
     typedef CircularList<MacCid> ActiveList;
 
     //! Deficit round-robin Active List
@@ -65,9 +66,9 @@ class LteDrr : public LteScheduler
     // Scheduling functions ********************************************************************
 
     //virtual void schedule ();
-    
+
     virtual void prepareSchedule();
-    
+
     virtual void commitSchedule();
 
     // *****************************************************************************************
@@ -78,6 +79,6 @@ class LteDrr : public LteScheduler
 
     void updateSchedulingInfo();
 
-};    
+};
 #endif
 
