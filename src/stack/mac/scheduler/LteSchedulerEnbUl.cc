@@ -1,13 +1,13 @@
-// 
+//
 //                           SimuLTE
 // Copyright (C) 2012 Antonio Virdis, Daniele Migliorini, Giovanni
 // Accongiagioco, Generoso Pagano, Vincenzo Pii.
-// 
+//
 // This file is part of a software released under the license included in file
 // "license.pdf". This license can be also found at http://www.ltesimulator.com/
-// The above file and the present reference are part of the software itself, 
+// The above file and the present reference are part of the software itself,
 // and cannot be removed from it.
-// 
+//
 
 #include "LteSchedulerEnbUl.h"
 #include "LteMacEnb.h"
@@ -19,29 +19,23 @@
 bool
 LteSchedulerEnbUl::checkEligibility(MacNodeId id, Codeword& cw)
 {
-    try {
-            // check if harq buffer have already been created for this node
-        if (mac_->getHarqRxBuffers()->find(id)!= mac_->getHarqRxBuffers()->end())
-        {
-            LteHarqBufferRx* ulHarq = mac_->getHarqRxBuffers()->at(id);
+    // check if harq buffer have already been created for this node
+    if (mac_->getHarqRxBuffers()->find(id)!= mac_->getHarqRxBuffers()->end())
+    {
+        LteHarqBufferRx* ulHarq = mac_->getHarqRxBuffers()->at(id);
 
-            // get current Harq Process for nodeId
-            unsigned char currentAcid = harqStatus_.at(id);
-            // get current Harq Process status
-            std::vector<RxUnitStatus> status = ulHarq->getProcess(currentAcid)->getProcessStatus();
-            // check if at least one codeword buffer is available for reception
-            for(; cw < MAX_CODEWORDS; ++cw)
+        // get current Harq Process for nodeId
+        unsigned char currentAcid = harqStatus_.at(id);
+        // get current Harq Process status
+        std::vector<RxUnitStatus> status = ulHarq->getProcess(currentAcid)->getProcessStatus();
+        // check if at least one codeword buffer is available for reception
+        for(; cw < MAX_CODEWORDS; ++cw)
+        {
+            if (status.at(cw).second == RXHARQ_PDU_EMPTY)
             {
-                if (status.at(cw).second == RXHARQ_PDU_EMPTY)
-                {
-                    return true;
-                }
+                return true;
             }
         }
-    }
-    catch (Codeword)
-    {
-        throw cRuntimeError("EXCEPTION! Exception in LteSchedulerEnbUl::checkEligibility, abnormal codeword id.");
     }
     return false;
 }
@@ -190,9 +184,9 @@ LteSchedulerEnbUl::rtxschedule() {
         return (availableBlocks == 0);
 
      }
-     catch(std::out_of_range)
+     catch(std::exception& e)
      {
-        throw cRuntimeError("EXCEPTION! Exception in LteSchedulerEnbUl::rtxschedule");
+        throw cRuntimeError("Exception in LteSchedulerEnbUl::rtxschedule(): %s", e.what());
      }
      return 0;
 }
@@ -360,9 +354,9 @@ LteSchedulerEnbUl::schedulePerAcidRtx(MacNodeId nodeId, Codeword cw, unsigned ch
             return bytes;
         }
     }
-    catch(std::out_of_range)
+    catch(std::exception& e)
     {
-        throw cRuntimeError("EXCEPTION! Exception in LteSchedulerEnbUl::rtxAcid.");
+        throw cRuntimeError("Exception in LteSchedulerEnbUl::rtxAcid(): %s", e.what());
     }
     delete(bandLim);
     return 0;

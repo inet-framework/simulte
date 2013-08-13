@@ -1,13 +1,13 @@
-// 
+//
 //                           SimuLTE
 // Copyright (C) 2012 Antonio Virdis, Daniele Migliorini, Giovanni
 // Accongiagioco, Generoso Pagano, Vincenzo Pii.
-// 
+//
 // This file is part of a software released under the license included in file
 // "license.pdf". This license can be also found at http://www.ltesimulator.com/
-// The above file and the present reference are part of the software itself, 
+// The above file and the present reference are part of the software itself,
 // and cannot be removed from it.
-// 
+//
 
 #include "LteMcs.h"
 
@@ -262,10 +262,7 @@ const unsigned int* itbs2tbs(LteMod mod, TxMode txMode, unsigned char layers, un
             case _QPSK: res = itbs2tbs_qpsk_1[itbs]; break;
             case _16QAM: res = itbs2tbs_16qam_1[itbs]; break;
             case _64QAM: res = itbs2tbs_64qam_1[itbs]; break;
-            default: {
-                EV << "Unknown MCS in LteAmc::itbs2tbs, Aborting." << endl;
-                abort();
-            }
+            default: throw cRuntimeError("Unknown MCS (%d) in LteAmc::itbs2tbs()", mod);
         }
 
     }
@@ -277,10 +274,7 @@ const unsigned int* itbs2tbs(LteMod mod, TxMode txMode, unsigned char layers, un
             case _QPSK: res = itbs2tbs_qpsk_2[itbs]; break;
             case _16QAM: res = itbs2tbs_16qam_2[itbs]; break;
             case _64QAM: res = itbs2tbs_64qam_2[itbs]; break;
-            default: {
-                EV << "Unknown MCS in LteAmc::itbs2tbs, Aborting." << endl;
-                abort();
-            }
+            default: throw cRuntimeError("Unknown MCS (%d) in LteAmc::itbs2tbs()", mod);
         }
 
     }
@@ -290,10 +284,7 @@ const unsigned int* itbs2tbs(LteMod mod, TxMode txMode, unsigned char layers, un
             case _QPSK: res = itbs2tbs_qpsk_4[itbs]; break;
             case _16QAM: res = itbs2tbs_16qam_4[itbs]; break;
             case _64QAM: res = itbs2tbs_64qam_4[itbs]; break;
-            default: {
-                EV << "Unknown MCS in LteAmc::itbs2tbs, Aborting." << endl;
-                abort();
-            }
+            default: throw cRuntimeError("Unknown MCS (%d) in LteAmc::itbs2tbs()", mod);
         }
 
     }

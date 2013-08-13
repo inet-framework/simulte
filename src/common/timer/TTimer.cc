@@ -1,13 +1,13 @@
-// 
+//
 //                           SimuLTE
 // Copyright (C) 2012 Antonio Virdis, Daniele Migliorini, Giovanni
 // Accongiagioco, Generoso Pagano, Vincenzo Pii.
-// 
+//
 // This file is part of a software released under the license included in file
 // "license.pdf". This license can be also found at http://www.ltesimulator.com/
-// The above file and the present reference are part of the software itself, 
+// The above file and the present reference are part of the software itself,
 // and cannot be removed from it.
-// 
+//
 
 
 #include "TTimer.h"
@@ -56,12 +56,9 @@ void TMultiTimer::add(const simtime_t time, const unsigned int event) {
 
     // add the information to the reverse List
     // If the element already exists abort
-    if (reverseList_.find(event) != reverseList_.end()) {
-        EV
-                << "FATAL! TMultiTimer::add - Error added the already existing element ["
-                << event << "].Aborting.\n";
-        abort();
-    }
+    if (reverseList_.find(event) != reverseList_.end())
+        throw cRuntimeError("TMultiTimer::add(): element %d already exists", event);
+
     // Add the event to the reverse list
     reverseList_.insert(
             std::pair<const unsigned int, const Event_it>(event, rIt));
@@ -91,10 +88,8 @@ void TMultiTimer::handle(unsigned int event) {
 
     // retrieve the earliest event to dispatch
 
-    if (directList_.begin() == directList_.end()) {
-        EV << "FATAL! TMultiTimer::handle - The list is empty" << endl;
-        abort();
-    }
+    if (directList_.begin() == directList_.end())
+        throw cRuntimeError("TMultiTimer::handle(): The list is empty");
 
     // Note that, the first element in the map is the element with the
     // lowest key value

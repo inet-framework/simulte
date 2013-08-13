@@ -1,13 +1,13 @@
-// 
+//
 //                           SimuLTE
 // Copyright (C) 2012 Antonio Virdis, Daniele Migliorini, Giovanni
 // Accongiagioco, Generoso Pagano, Vincenzo Pii.
-// 
+//
 // This file is part of a software released under the license included in file
 // "license.pdf". This license can be also found at http://www.ltesimulator.com/
-// The above file and the present reference are part of the software itself, 
+// The above file and the present reference are part of the software itself,
 // and cannot be removed from it.
-// 
+//
 
 
 #include "LteHarqUnitTx.h"
@@ -69,7 +69,6 @@ void LteHarqUnitTx::insertPdu(LteMacPdu *pdu) {
     // cannot insert if the unit is not idle
     if (!this->isEmpty()) {
         throw cRuntimeError("Trying to insert macPdu in already busy harq unit");
-        ;
     }
 
     pdu_ = pdu;
@@ -93,9 +92,7 @@ void LteHarqUnitTx::markSelected() {
             << acid_ << " codeword " << cw_ << " for transmission " << endl;
 
     if (!(this->isReady())) {
-        throw cRuntimeError(
-                " ERROR acid %d codeword %d trying to select for transmission an empty buffer, aborting simulation.",
-                acid_, cw_);
+        throw cRuntimeError("ERROR acid %d codeword %d trying to select for transmission an empty buffer", acid_, cw_);
     }
 
     status_ = TXHARQ_PDU_SELECTED;
@@ -159,8 +156,7 @@ bool LteHarqUnitTx::pduFeedback(HarqAcknowledgment a) {
 
         }
     } else {
-        throw cRuntimeError("LteHarqUnitTx::pduFeedback unknown feedback received from process  %d , Codeword %d",
-                acid_, cw_);
+        throw cRuntimeError("LteHarqUnitTx::pduFeedback unknown feedback received from process %d , Codeword %d", acid_, cw_);
     }
 
     LteMacBase* emitter = NULL;

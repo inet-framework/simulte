@@ -80,9 +80,8 @@ LteSummaryBuffer::createSummary(LteFeedback fb) {
             }
         }
     }
-    catch(std::out_of_range)
+    catch(std::exception& e)
     {
-        EV << "EXCEPTION! Exception in LteSummaryBuffer::summarize, Aborting." << endl;
-        abort();
+        throw cRuntimeError("Exception in LteSummaryBuffer::summarize(): %s", e.what());
     }
 }

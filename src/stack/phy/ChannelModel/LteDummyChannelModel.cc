@@ -1,13 +1,13 @@
-// 
+//
 //                           SimuLTE
 // Copyright (C) 2012 Antonio Virdis, Daniele Migliorini, Giovanni
 // Accongiagioco, Generoso Pagano, Vincenzo Pii.
-// 
+//
 // This file is part of a software released under the license included in file
 // "license.pdf". This license can be also found at http://www.ltesimulator.com/
-// The above file and the present reference are part of the software itself, 
+// The above file and the present reference are part of the software itself,
 // and cannot be removed from it.
-// 
+//
 
 
 #include "LteDummyChannelModel.h"
@@ -60,10 +60,9 @@ bool LteDummyChannelModel::error(LteAirFrame *frame,UserControlInfo* lteInfo){
     // Number of RTX
     unsigned char nTx=lteInfo->getTxNumber();
     //Consistency check
-    if (nTx==0){
-        EV<<"Number of tx should not be 0"<<endl;
-        abort();
-    }
+    if (nTx==0)
+        throw cRuntimeError("Number of tx should not be 0");
+
     // compute packet error rate according to number of retransmission
     // and the harq reduction parameter
     double totalPer=per_*pow(harqReduction_,nTx-1);

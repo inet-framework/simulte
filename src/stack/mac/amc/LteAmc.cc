@@ -1,13 +1,13 @@
-// 
+//
 //                           SimuLTE
 // Copyright (C) 2012 Antonio Virdis, Daniele Migliorini, Giovanni
 // Accongiagioco, Generoso Pagano, Vincenzo Pii.
-// 
+//
 // This file is part of a software released under the license included in file
 // "license.pdf". This license can be also found at http://www.ltesimulator.com/
-// The above file and the present reference are part of the software itself, 
+// The above file and the present reference are part of the software itself,
 // and cannot be removed from it.
-// 
+//
 
 
 #include "LteAmc.h"
@@ -1021,8 +1021,8 @@ void LteAmc::detachUser(MacNodeId nodeId, Direction dir)
         (*userInfoVec).at(nodeIndex).restoreDefaultValues();
 
     }
-    catch( ... ){
-        throw cRuntimeError("Exception occurred in LteAmc::detachUser.");
+    catch(std::exception& e) {
+        throw cRuntimeError("Exception in LteAmc::detachUser(): %s", e.what());
     }
 
 }

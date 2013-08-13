@@ -14,38 +14,29 @@
 #include "LteScheduler.h"
 #include "LteAllocationModule.h"
 
-/**
- * TODO
- */
 bool
 LteSchedulerEnbDl::checkEligibility(MacNodeId id, Codeword& cw)
 {
-    try {
-        // check if harq buffer have already been created for this node
-        if (mac_->getHarqTxBuffers()->find(id)!= mac_->getHarqTxBuffers()->end())
-        {
-            LteHarqBufferTx* dlHarq = mac_->getHarqTxBuffers()->at(id);
-            UnitList freeUnits = dlHarq->firstAvailable();
-
-            if (freeUnits.first!=HARQ_NONE)
-            {
-                if (freeUnits.second.empty())
-                    // there is a process currently selected for user <id> , but all of its cws have been already used.
-                    return false;
-                // retrieving the cw index
-                cw =  freeUnits.second.front();
-                // DEBUG check
-                if (cw >MAX_CODEWORDS ) throw cw;
-                return true;
-            }
-        }
-        return true;
-    }
-    catch (Codeword)
+    // check if harq buffer have already been created for this node
+    if (mac_->getHarqTxBuffers()->find(id)!= mac_->getHarqTxBuffers()->end())
     {
-        throw cRuntimeError("EXCEPTION! Exception in LteSchedulerEnbDl::checkEligibility, abnormal codeword id.");
+        LteHarqBufferTx* dlHarq = mac_->getHarqTxBuffers()->at(id);
+        UnitList freeUnits = dlHarq->firstAvailable();
+
+        if (freeUnits.first!=HARQ_NONE)
+        {
+            if (freeUnits.second.empty())
+                // there is a process currently selected for user <id> , but all of its cws have been already used.
+                return false;
+            // retrieving the cw index
+            cw =  freeUnits.second.front();
+            // DEBUG check
+            if (cw >MAX_CODEWORDS )
+                throw cRuntimeError("LteSchedulerEnbDl::checkEligibility(): abnormal codeword id %d", (int)cw);
+            return true;
+        }
     }
-    return false;
+    return true;
 }
 
 unsigned int

@@ -1,13 +1,13 @@
-// 
+//
 //                           SimuLTE
 // Copyright (C) 2012 Antonio Virdis, Daniele Migliorini, Giovanni
 // Accongiagioco, Generoso Pagano, Vincenzo Pii.
-// 
+//
 // This file is part of a software released under the license included in file
 // "license.pdf". This license can be also found at http://www.ltesimulator.com/
-// The above file and the present reference are part of the software itself, 
+// The above file and the present reference are part of the software itself,
 // and cannot be removed from it.
-// 
+//
 
 
 #include "LteRealisticChannelModel.h"
@@ -308,8 +308,7 @@ double LteRealisticChannelModel::getAttenuation(MacNodeId nodeId, Direction dir,
         attenuation = computeSubUrbanMacro(sqrDistance, dbp, nodeId);
         break;
     default:
-        throw cRuntimeError("Error wrong path-loss scenario");
-        break;
+        throw cRuntimeError("Wrong value %d for path-loss scenario", scenario_);
     }
     //    Applying shadowing only if it is enabled by configuration
     //    log-normal shadowing
@@ -423,10 +422,9 @@ double LteRealisticChannelModel::computeSpeed(const MacNodeId nodeId,
             double time = (NOW.dbl()) - (positionHistory_[nodeId].front().first.dbl());
             if (time <= 0.0) // time not updated since last speed call
             {
-                // abnormal situation - abort
-                throw cRuntimeError("multiple entries detected in position history referring to same time");
-                return speed;
-            } else {
+                throw cRuntimeError("Multiple entries detected in position history referring to same time");
+            }
+            else {
                 // compute speed
                 speed = (movement) / (time);
             }
@@ -1027,8 +1025,7 @@ void LteRealisticChannelModel::computeLosProbability(double d,
             p = exp(-1 * (d - 10) / 1000);
         break;
     default:
-        throw cRuntimeError("Error wrong path-loss scenario");
-        break;
+        throw cRuntimeError("Wrong path-loss scenario value %d", scenario_);
     }
     double random = uniform(0.0, 1.0);
     if (random <= p)
@@ -1198,9 +1195,7 @@ double LteRealisticChannelModel::getStdDev(bool dist, MacNodeId nodeId) {
             return 8.;
         break;
     default:
-        throw cRuntimeError("Error wrong path-loss scenario");
-        break;
-        return 0.;
+        throw cRuntimeError("Wrong path-loss scenario value %d", scenario_);
     }
     return 0.0;
 }
@@ -1285,8 +1280,7 @@ double LteRealisticChannelModel::computeExtCellPathLoss(double dist , MacNodeId 
         attenuation = computeSubUrbanMacro(dist, dbp, nodeId);
         break;
     default:
-        throw cRuntimeError("Error wrong path-loss scenario");
-        break;
+        throw cRuntimeError("Wrong path-loss scenario value %d", scenario_);
     }
 
     //TODO Apply shadowing to each interfering extCell signal

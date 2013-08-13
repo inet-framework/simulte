@@ -1,13 +1,13 @@
-// 
+//
 //                           SimuLTE
 // Copyright (C) 2012 Antonio Virdis, Daniele Migliorini, Giovanni
 // Accongiagioco, Generoso Pagano, Vincenzo Pii.
-// 
+//
 // This file is part of a software released under the license included in file
 // "license.pdf". This license can be also found at http://www.ltesimulator.com/
-// The above file and the present reference are part of the software itself, 
+// The above file and the present reference are part of the software itself,
 // and cannot be removed from it.
-// 
+//
 
 #include "InterfaceTableAccess.h"
 #include "IPv4InterfaceData.h"
@@ -267,7 +267,7 @@ void LteIp::toTransport(cPacket * msg)
     try {
         gateindex = mapping_.getOutputGateForProtocol(protocol);
     }
-    catch(cRuntimeError) {
+    catch (cRuntimeError) {
         EV <<"Protocol mapping failed with protocol number : " << protocol << endl;
         EV <<"Packet dropped" << endl;
         delete msg;
