@@ -21,17 +21,9 @@
 #include "UDPControlInfo_m.h"
 #include "UDPSocket.h"
 #include "IPvXAddressResolver.h"
+#include "lterecorder.h"
 
 using namespace std;
-
-class TaggedSample : public cObject
-{
-  public:
-    double sample_;
-    unsigned int id_;
-    // the emitting cComponent (module)
-    cComponent* module_;
-};
 
 class VoDUDPClient : public cSimpleModule
 {
