@@ -70,13 +70,13 @@ class LteAllocationModule
   public:
 
     // Amount of bytes served by a single set of allocated blocks
-    typedef struct
+    struct AllocationElem
     {
         /// Blocks of the request
         unsigned int resourceBlocks_;
         /// Bytes served
         unsigned int bytes_;
-    } AllocationElem;
+    };
 
     typedef std::list<AllocationElem> AllocationList;
 

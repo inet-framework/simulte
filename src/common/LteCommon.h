@@ -100,70 +100,70 @@ typedef unsigned short Band;
 typedef unsigned short Codeword;
 
 /// Link Directions
-typedef enum
+enum Direction
 {
     DL, UL, UNKNOWN_DIRECTION
-} Direction;
+};
 
 /// Modulations
-typedef enum
+enum LteMod
 {
     _QPSK = 0, _16QAM, _64QAM
-} LteMod;
+};
 
 /// Feedback reporting type
-typedef enum
+enum FeedbackType
 {
     ALLBANDS = 0, PREFERRED, WIDEBAND
-} FeedbackType;
+};
 
 /// Feedback periodicity
-typedef enum
+enum FbPeriodicity
 {
     PERIODIC, APERIODIC
-} FbPeriodicity;
+};
 
 /// Resource allocation type
-typedef enum
+enum RbAllocationType
 {
     TYPE2_DISTRIBUTED, TYPE2_LOCALIZED
-} RbAllocationType;
+};
 
 /* workaround: <windows.h> defines IN and OUT */
 #undef IN
 #undef OUT
 
 /// Gate Direction
-typedef enum
+enum GateDirection
 {
     IN = 0, OUT = 1
-} GateDirection;
+};
 
 /// Lte Traffic Classes
-typedef enum
+enum LteTrafficClass
 {
     CONVERSATIONAL, STREAMING, INTERACTIVE, BACKGROUND, UNKNOWN_TRAFFIC_TYPE
-} LteTrafficClass;
+};
 
 /// Scheduler grant type
-typedef enum
+enum GrantType
 {
     FITALL = 0, FIXED_, URGENT, UNKNOWN_GRANT_TYPE /* Note: FIXED would clash with <windows.h> */
-} GrantType;
+};
 
 // QCI traffic descriptor
-typedef struct
+struct QCIParameters
 {
     int priority;
     double packetDelayBudget;
     double packetErrorLossRate;
-} QCIParameters;
+};
 
 /// Lte RLC Types
-typedef enum
+enum LteRlcType
 {
     TM, UM, AM, UNKNOWN_RLC_TYPE
-} LteRlcType;
+};
 
 // Attenuation vector for analogue models
 typedef std::vector<double> AttenuationVector;
@@ -172,7 +172,7 @@ typedef std::vector<double> AttenuationVector;
  *     Applications      *
  *************************/
 
-typedef enum
+enum ApplicationType
 {
     VOIP = 0,
     VOD,
@@ -182,7 +182,7 @@ typedef enum
     GAMING,
     FULLBUFFER,
     UNKNOWN_APP
-} ApplicationType;
+};
 
 struct ApplicationTable
 {
@@ -204,10 +204,10 @@ const ApplicationTable applications[] = {
  * Scheduling discipline  *
  **************************/
 
-typedef enum
+enum SchedDiscipline
 {
     DRR, PF, MAXCI, UNKNOWN_DISCIPLINE
-} SchedDiscipline;
+};
 
 struct SchedDisciplineTable
 {
@@ -226,7 +226,7 @@ const SchedDisciplineTable disciplines[] = {
  *   Transmission Modes  *
  *************************/
 
-typedef enum
+enum TxMode
 {
     // Note: If you add more tx modes, update DL_NUM_TXMODE and UL_NUM_TXMODE
     SINGLE_ANTENNA_PORT0 = 0,
@@ -236,7 +236,7 @@ typedef enum
     CL_SPATIAL_MULTIPLEXING,
     MULTI_USER,
     UNKNOWN_TX_MODE
-} TxMode;
+};
 
 struct TxTable
 {
@@ -255,13 +255,13 @@ const TxTable txmodes[] = {
 };
 
 // Lte feedback type
-typedef enum
+enum FeedbackGeneratorType
 {
     IDEAL = 0,
     REAL,
     DAS_AWARE,
     UNKNOW_FB_GEN_TYPE
-} FeedbackGeneratorType;
+};
 
 struct FeedbackRequest
 {
@@ -294,12 +294,12 @@ const unsigned char DL_NUM_TXMODE = MULTI_USER + 1;
 const unsigned char UL_NUM_TXMODE = MULTI_USER + 1;
 
 /// OFDMA layers (see FIXME lteAllocationModuble.h for "layers" meaning)
-typedef enum
+enum Plane
 {
     MAIN_PLANE = 0, MU_MIMO_PLANE
-} Plane;
+};
 
-typedef enum
+enum DeploymentScenario
 {
     INDOOR_HOTSPOT = 0,
     URBAN_MICROCELL,
@@ -307,7 +307,7 @@ typedef enum
     RURAL_MACROCELL,
     SUBURBAN_MACROCELL,
     UNKNOW_SCENARIO
-} DeploymentScenario;
+};
 
 struct DeploymentScenarioMapping
 {
@@ -356,7 +356,7 @@ double linearToDb(double lin);
  *************************/
 
 /// OFDMA Remotes (see FIXME LteAllocationModule.h for "antenna" meaning)
-typedef enum
+enum Remote
 {
     MACRO = 0,
     RU1,
@@ -366,7 +366,7 @@ typedef enum
     RU5,
     RU6,
     UNKNOWN_RU
-} Remote;
+};
 
 struct RemoteTable
 {
@@ -407,7 +407,7 @@ typedef std::map<Remote, std::map<Band, unsigned int> > RbMap;
 /**
  * Lte PHY Frame Types
  */
-typedef enum
+enum LtePhyFrameType
 {
     DATAPKT,
     BROADCASTPKT,
@@ -417,7 +417,7 @@ typedef enum
     GRANTPKT,
     RACPKT,
     UNKNOWN_TYPE
-} LtePhyFrameType;
+};
 
 struct LtePhyFrameTable
 {
@@ -437,14 +437,14 @@ const LtePhyFrameTable phytypes[] = {
 /**
  * Lte Node Types
  */
-typedef enum
+enum LteNodeType
 {
     INTERNET, /// Internet side of the Lte network
     ENODEB, /// eNodeB
     RELAY, /// Relay
     UE, /// UE
     UNKNOWN_NODE_TYPE /// unknown
-} LteNodeType;
+};
 
 struct LteNodeTable
 {
@@ -463,7 +463,7 @@ const LteNodeTable nodetypes[] = {
 /**
  * Subframe type
  */
-typedef enum
+enum LteSubFrameType
 {
     NORMAL_FRAME_TYPE,
     MBSFN,
@@ -472,7 +472,7 @@ typedef enum
     SYNCRO,
     ABS,
     UNKNOWN_FRAME_TYPE
-} LteSubFrameType;
+};
 
 struct LteSubFrameTypeTable
 {
@@ -510,11 +510,11 @@ enum X2MsgType
 };
 
 // Abs Status Information structure
-typedef struct
+struct AbsStatusInfoMsg
 {
     double absStatus;
     AbsBitset usableAbsInfo;
-} AbsStatusInfoMsg;
+};
 
 //|--------------------------------------------------|
 
@@ -651,13 +651,13 @@ typedef std::list<MacControlElement*> MacControlElementsList;
 #define HARQ_FB_EVALUATION_INTERVAL 3*TTI
 
 /// H-ARQ feedback (ACK, NACK)
-typedef enum
+enum HarqAcknowledgment
 {
     HARQNACK = 0, HARQACK = 1
-} HarqAcknowledgment;
+};
 
 /// TX H-ARQ pdu status
-typedef enum
+enum TxHarqPduStatus
 {
     /// pdu is ready for retransmission (nack received)
     TXHARQ_PDU_BUFFERED = 0,
@@ -667,10 +667,10 @@ typedef enum
     TXHARQ_PDU_EMPTY,
     /// pdu selected for transmission
     TXHARQ_PDU_SELECTED
-} TxHarqPduStatus;
+};
 
 /// RX H-ARQ pdu status
-typedef enum
+enum RxHarqPduStatus
 {
     /// no pdu, process is empty
     RXHARQ_PDU_EMPTY = 0,
@@ -680,7 +680,7 @@ typedef enum
     RXHARQ_PDU_CORRECT,
     /// pdu has been evaluated and it is not correct
     RXHARQ_PDU_CORRUPTED
-} RxHarqPduStatus;
+};
 
 struct RemoteUnitPhyData
 {
@@ -697,13 +697,13 @@ typedef std::pair<unsigned char, CwList> UnitList;
 /*********************
  * Incell Interference Support
  *********************/
-typedef enum
+enum EnbType
 {
     // macro eNb
     MACRO_ENB,
     // micro eNb
     MICRO_ENB
-} EnbType;
+};
 
 struct EnbInfo
 {
@@ -828,3 +828,4 @@ void parseStringToIntArray(std::string str, int* values, int dim, int pad);
 void initializeAllChannels(cModule *mod);
 
 #endif /* LTECOMMON_H_ */
+
