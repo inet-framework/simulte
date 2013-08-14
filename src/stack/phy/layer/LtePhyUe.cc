@@ -427,8 +427,7 @@ DasFilter* LtePhyUe::getDasFilter()
 
 void LtePhyUe::sendFeedback(LteFeedbackDoubleVector fbDl, LteFeedbackDoubleVector fbUl, FeedbackRequest req)
 {
-    Enter_Method
-    ("SendFeedback");
+    Enter_Method("SendFeedback");
     EV << "LtePhyUe: feedback from Feedback Generator" << endl;
 
     //Create a feedback packet

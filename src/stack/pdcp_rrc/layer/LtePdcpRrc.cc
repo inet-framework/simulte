@@ -270,8 +270,7 @@ void LtePdcpRrcBase::handleMessage(cMessage* msg)
 void LtePdcpRrcBase::setDrop(MacCid cid, unsigned int layer,
     double probability)
 {
-    Enter_Method
-    ("setDrop");
+    Enter_Method("setDrop");
 
     dropMap_[cid].drop = true;
     dropMap_[cid].layer = layer;
@@ -280,8 +279,7 @@ void LtePdcpRrcBase::setDrop(MacCid cid, unsigned int layer,
 
 void LtePdcpRrcBase::clearDrop(MacCid cid)
 {
-    Enter_Method
-    ("clearDrop");
+    Enter_Method("clearDrop");
     dropMap_[cid].clear();
 
 }

@@ -86,8 +86,7 @@ LteRlcAm::getRxBuffer(MacNodeId nodeId, LogicalCid lcid)
 
 void LteRlcAm::sendDefragmented(cPacket *pkt)
 {
-    Enter_Method
-    ("sendDefragmented()"); // Direct Method Call
+    Enter_Method("sendDefragmented()"); // Direct Method Call
     take(pkt); // Take ownership
 
     EV << NOW << " LteRlcAm : Sending packet " << pkt->getName()
@@ -97,8 +96,7 @@ void LteRlcAm::sendDefragmented(cPacket *pkt)
 
 void LteRlcAm::sendFragmented(cPacket *pkt)
 {
-    Enter_Method
-    ("sendFragmented()"); // Direct Method Call
+    Enter_Method("sendFragmented()"); // Direct Method Call
     take(pkt); // Take ownership
 
     EV << NOW << " LteRlcAm : Sending packet " << pkt->getName() << " of size "
@@ -128,8 +126,7 @@ void LteRlcAm::handleUpperMessage(cPacket *pkt)
 
 void LteRlcAm::routeControlMessage(cPacket *pkt)
 {
-    Enter_Method
-    ("routeControlMessage");
+    Enter_Method("routeControlMessage");
 
     FlowControlInfo* lteInfo = check_and_cast<FlowControlInfo*>(
         pkt->removeControlInfo());

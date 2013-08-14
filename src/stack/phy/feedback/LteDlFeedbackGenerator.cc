@@ -259,16 +259,14 @@ LteDlFeedbackGenerator::~LteDlFeedbackGenerator()
 
 void LteDlFeedbackGenerator::aperiodicRequest()
 {
-    Enter_Method
-    ("aperiodicRequest()");
+    Enter_Method("aperiodicRequest()");
     EV << NOW << " Aperiodic request" << endl;
     sensing(APERIODIC);
 }
 
 void LteDlFeedbackGenerator::setTxMode(TxMode newTxMode)
 {
-    Enter_Method
-    ("setTxMode()");
+    Enter_Method("setTxMode()");
     currentTxMode_ = newTxMode;
 }
 

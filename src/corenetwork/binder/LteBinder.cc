@@ -635,8 +635,7 @@ void LteBinder::attachAppModule(cModule *parentModule, std::string IPAddr,
 MacNodeId LteBinder::registerNode(cModule *module, LteNodeType type,
     MacNodeId masterId)
 {
-    Enter_Method
-    ("registerNode");
+    Enter_Method("registerNode");
 
     MacNodeId macNodeId = -1;
 
@@ -681,8 +680,7 @@ MacNodeId LteBinder::registerNode(cModule *module, LteNodeType type,
 
 void LteBinder::registerNextHop(MacNodeId masterId, MacNodeId slaveId)
 {
-    Enter_Method
-    ("registerNextHop");
+    Enter_Method("registerNextHop");
     EV << "LteBinder : Registering slave " << slaveId << " to master "
        << masterId << "\n";
 
@@ -748,8 +746,7 @@ double LteBinder::getPacketErrorLossRate(int QCI)
 
 void LteBinder::unregisterNextHop(MacNodeId masterId, MacNodeId slaveId)
 {
-    Enter_Method
-    ("unregisterNextHop");
+    Enter_Method("unregisterNextHop");
     EV << "LteBinder : Unregistering slave " << slaveId << " from master "
        << masterId << "\n";
     dMap_[masterId][slaveId] = false;
@@ -761,8 +758,7 @@ void LteBinder::unregisterNextHop(MacNodeId masterId, MacNodeId slaveId)
 
 OmnetId LteBinder::getOmnetId(MacNodeId nodeId)
 {
-    Enter_Method
-    ("getOmnetId");
+    Enter_Method("getOmnetId");
     if (nodeId >= nodeIds_.size())
         throw cRuntimeError("LteBinder::getOmnetId(): bad node %d", nodeId);
     return nodeIds_[nodeId];
@@ -770,8 +766,7 @@ OmnetId LteBinder::getOmnetId(MacNodeId nodeId)
 
 MacNodeId LteBinder::getNextHop(MacNodeId slaveId)
 {
-    Enter_Method
-    ("getNextHop");
+    Enter_Method("getNextHop");
     if (slaveId >= nextHop_.size())
         throw cRuntimeError("LteBinder::getNextHop(): bad slave id %d", slaveId);
     return nextHop_[slaveId];
@@ -779,8 +774,7 @@ MacNodeId LteBinder::getNextHop(MacNodeId slaveId)
 
 ConnectedUesMap LteBinder::getDeployedUes(MacNodeId localId, Direction dir)
 {
-    Enter_Method
-    ("getDeployedUes");
+    Enter_Method("getDeployedUes");
     return dMap_[localId];
 }
 

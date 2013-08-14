@@ -168,8 +168,7 @@ void AmRxQueue::discard(const int sn)
 void AmRxQueue::enque(LteRlcAmPdu* pdu)
 {
 
-    Enter_Method
-    ("enque()");
+    Enter_Method("enque()");
 
     LteRlcAm* lteRlc = check_and_cast<LteRlcAm *>(
         getParentModule()->getSubmodule("am"));
@@ -330,8 +329,7 @@ void AmRxQueue::enque(LteRlcAmPdu* pdu)
 
 void AmRxQueue::passUp(const int index)
 {
-    Enter_Method
-    ("passUp");
+    Enter_Method("passUp");
 
     LteRlcAm* lteRlc = check_and_cast<LteRlcAm *>(getParentModule()->getSubmodule("am"));
 
@@ -560,8 +558,7 @@ void AmRxQueue::checkCompleteSdu(const int index)
 
 void AmRxQueue::sendStatusReport()
 {
-    Enter_Method
-    ("sendStatusReport()");
+    Enter_Method("sendStatusReport()");
     EV << NOW << " AmRxQueue::sendStatusReport " << endl;
 
     // Check if the prohibit status report has been set.

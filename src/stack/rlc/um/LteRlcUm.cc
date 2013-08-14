@@ -77,8 +77,7 @@ UmRxQueue* LteRlcUm::getRxBuffer(MacNodeId nodeId, LogicalCid lcid)
 
 void LteRlcUm::sendDefragmented(cPacket *pkt)
 {
-    Enter_Method
-    ("sendDefragmented()");                            // Direct Method Call
+    Enter_Method("sendDefragmented()");                            // Direct Method Call
     take(pkt);                                                    // Take ownership
 
     EV << "LteRlcUm : Sending packet " << pkt->getName() << " to port UM_Sap_up$o\n";
@@ -87,8 +86,7 @@ void LteRlcUm::sendDefragmented(cPacket *pkt)
 
 void LteRlcUm::sendFragmented(cPacket *pkt)
 {
-    Enter_Method
-    ("sendFragmented()");                            // Direct Method Call
+    Enter_Method("sendFragmented()");                            // Direct Method Call
     take(pkt);                                                    // Take ownership
 
     EV << "LteRlcUm : Sending packet " << pkt->getName() << " to port UM_Sap_down$o\n";

@@ -15,8 +15,7 @@ Define_Module(UmTxQueue);
 
 void UmTxQueue::fragment(cPacket* pkt)
 {
-    Enter_Method
-    ("fragment()");        // Direct Method Call
+    Enter_Method("fragment()");        // Direct Method Call
     take(pkt);                        // Take ownership
 
     int packetSize = pkt->getByteLength();

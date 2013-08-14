@@ -67,8 +67,7 @@ void AmTxQueue::enque(LteRlcAmSdu* sdu)
 
 void AmTxQueue::addPdus()
 {
-    Enter_Method
-    ("addPdus()");
+    Enter_Method("addPdus()");
 
     // Add PDUs to the AM transmission buffer until the transmission
     // window is full or until the SDU buffer is empty
@@ -456,8 +455,7 @@ void AmTxQueue::sendMrw(const int seqNum)
 
 void AmTxQueue::sendPdu(LteRlcAmPdu* pdu)
 {
-    Enter_Method
-    ("sendCtrlPdu()");
+    Enter_Method("sendCtrlPdu()");
     // Pass the RLC PDU to the MAC
     LteRlcAm* lteRlc = check_and_cast<LteRlcAm *>(
         getParentModule()->getSubmodule("am"));
@@ -466,8 +464,7 @@ void AmTxQueue::sendPdu(LteRlcAmPdu* pdu)
 
 void AmTxQueue::handleControlPacket(cPacket* pkt)
 {
-    Enter_Method
-    ("handleControlPacket()");
+    Enter_Method("handleControlPacket()");
     LteRlcAmPdu * pdu = check_and_cast<LteRlcAmPdu*>(pkt);
     // get RLC type descriptor
     short type = pdu->getAmType();
