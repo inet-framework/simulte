@@ -26,20 +26,10 @@ LteHarqUnitTx::LteHarqUnitTx(unsigned char acid, Codeword cw,
     dstMac_ = dstMac;
     maxHarqRtx_ = macOwner->par("maxHarqRtx");
 
-    tSample_ = new TaggedSample();
-
-    tSampleCell_ = new TaggedSample();
-    tSampleCell_->module_ = check_and_cast<cComponent*>(macOwner_);
-
     if (macOwner_->getNodeType() == ENODEB)
     {
-        tSample_->module_ = check_and_cast<cComponent*>(dstMac_);
-
-        macCellPacketLoss_ = macOwner_->registerSignal("macCellPacketLossDl");
-
-        tSampleCell_->module_ = check_and_cast<cComponent*>(macOwner_);
-
         macPacketLoss_ = dstMac_->registerSignal("macPacketLossDl");
+        macCellPacketLoss_ = macOwner_->registerSignal("macCellPacketLossDl");
         harqErrorRate_ = dstMac_->registerSignal("harqErrorRateDl");
         harqErrorRate_1_ = dstMac_->registerSignal("harqErrorRate_1st_Dl");
         harqErrorRate_2_ = dstMac_->registerSignal("harqErrorRate_2nd_Dl");
@@ -49,12 +39,8 @@ LteHarqUnitTx::LteHarqUnitTx(unsigned char acid, Codeword cw,
     else
     {
         cModule* nodeB = getMacByMacNodeId(macOwner_->getMacCellId());
-        tSample_->module_ = check_and_cast<cComponent*>(macOwner_);
-
-        macCellPacketLoss_ = nodeB->registerSignal("macCellPacketLossUl");
-        tSampleCell_->module_ = check_and_cast<cComponent*>(nodeB);
-
         macPacketLoss_ = macOwner_->registerSignal("macPacketLossUl");
+        macCellPacketLoss_ = nodeB->registerSignal("macCellPacketLossUl");
         harqErrorRate_ = macOwner_->registerSignal("harqErrorRateUl");
         harqErrorRate_1_ = macOwner_->registerSignal("harqErrorRate_1st_Ul");
         harqErrorRate_2_ = macOwner_->registerSignal("harqErrorRate_2nd_Ul");
@@ -117,6 +103,7 @@ LteMacPdu *LteHarqUnitTx::extractPdu()
 bool LteHarqUnitTx::pduFeedback(HarqAcknowledgment a)
 {
     EV << "LteHarqUnitTx::pduFeedback - Welcome!" << endl;
+    double sample;
     bool reset = false;
     UserControlInfo *lteInfo;
     lteInfo = check_and_cast<UserControlInfo *>(pdu_->getControlInfo());
@@ -134,13 +121,11 @@ bool LteHarqUnitTx::pduFeedback(HarqAcknowledgment a)
         delete pdu_;
         resetUnit();
         reset = true;
-        tSample_->sample_ = 0;
-        tSampleCell_->sample_ = 0;
+        sample = 0;
     }
     else if (a == HARQNACK)
     {
-        tSample_->sample_ = 1;
-        tSampleCell_->sample_ = 1;
+        sample = 1;
         if (transmissions_ == (maxHarqRtx_ + 1))
         {
             // discard
@@ -165,16 +150,16 @@ bool LteHarqUnitTx::pduFeedback(HarqAcknowledgment a)
         throw cRuntimeError("LteHarqUnitTx::pduFeedback unknown feedback received from process %d , Codeword %d", acid_, cw_);
     }
 
-    LteMacBase* emitter = NULL;
+    LteMacBase *ue, *eNodeB;
     if (dir == DL)
     {
-        tSample_->id_ = dstId;
-        emitter = dstMac_;
+        ue = dstMac_;
+        eNodeB = macOwner_;
     }
     else if (dir == UL)
     {
-        tSample_->id_ = srcId;
-        emitter = macOwner_;
+        ue = macOwner_;
+        eNodeB = dstMac_;
     }
     else
     {
@@ -184,28 +169,27 @@ bool LteHarqUnitTx::pduFeedback(HarqAcknowledgment a)
     switch (ntx)
     {
         case 1:
-        emitter->emit(harqErrorRate_1_, tSample_);
+        ue->emit(harqErrorRate_1_, sample);
         break;
         case 2:
-        emitter->emit(harqErrorRate_2_, tSample_);
+        ue->emit(harqErrorRate_2_, sample);
         break;
         case 3:
-        emitter->emit(harqErrorRate_3_, tSample_);
+        ue->emit(harqErrorRate_3_, sample);
         break;
         case 4:
-        emitter->emit(harqErrorRate_4_, tSample_);
+        ue->emit(harqErrorRate_4_, sample);
         break;
         default:
         break;
     }
 
-    emitter->emit(harqErrorRate_, tSample_);
+    ue->emit(harqErrorRate_, sample);
 
     if (reset)
     {
-        tSampleCell_->id_ = srcId;
-        emitter->emit(macPacketLoss_, tSample_);
-        macOwner_->emit(macCellPacketLoss_, tSampleCell_);
+        ue->emit(macPacketLoss_, sample);
+        eNodeB->emit(macCellPacketLoss_, sample);
     }
     return reset;
 }

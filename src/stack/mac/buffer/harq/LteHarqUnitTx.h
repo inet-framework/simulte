@@ -76,9 +76,6 @@ class LteHarqUnitTx
     simsignal_t harqErrorRate_3_;
     simsignal_t harqErrorRate_4_;
 
-    TaggedSample *tSample_;
-    TaggedSample *tSampleCell_;
-
   public:
     /**
      * Constructor.
