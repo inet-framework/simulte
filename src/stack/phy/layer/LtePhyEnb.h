@@ -9,8 +9,8 @@
 // and cannot be removed from it.
 //
 
-#ifndef AIRPHYENB_H_
-#define AIRPHYENB_H_
+#ifndef _LTE_AIRPHYENB_H_
+#define _LTE_AIRPHYENB_H_
 
 #include "LtePhyBase.h"
 
@@ -61,4 +61,4 @@ class LtePhyEnb : public LtePhyBase
 //        void setMicroTxPower();
 };
 
-#endif  /* AIRPHYENB_H_ */
+#endif  /* _LTE_AIRPHYENB_H_ */

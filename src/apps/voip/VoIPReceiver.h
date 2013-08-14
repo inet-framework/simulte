@@ -11,8 +11,8 @@
 //   Author: Adriano
 //
 
-#ifndef VOIPRECEIVER_H_
-#define VOIPRECEIVER_H_
+#ifndef _LTE_VOIPRECEIVER_H_
+#define _LTE_VOIPRECEIVER_H_
 
 #include <string.h>
 #include <omnetpp.h>
@@ -75,5 +75,5 @@ class VoIPReceiver : public cSimpleModule
 
 };
 
-#endif /* VOIPRECEIVER_H_ */
+#endif
 

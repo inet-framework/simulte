@@ -11,8 +11,8 @@
 //  Author: Giovanni Accongiagioco
 //
 
-#ifndef __ENVIR_LTERECORDERS_H
-#define __ENVIR_LTERECORDERS_H
+#ifndef _LTE_LTERECORDERS_H_
+#define _LTE_LTERECORDERS_H_
 
 #include <omnetpp.h>
 #include <map>
@@ -447,5 +447,5 @@ class LteRateRecorder : public LteRecorder
     virtual void finish(cResultFilter *prev);
 };
 
-#endif /* __ENVIR_LTERECORDERS_H */
+#endif
 

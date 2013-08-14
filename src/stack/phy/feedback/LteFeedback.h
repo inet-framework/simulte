@@ -9,8 +9,8 @@
 // and cannot be removed from it.
 //
 
-#ifndef LTEFEEDBACK_H_
-#define LTEFEEDBACK_H_
+#ifndef _LTE_LTEFEEDBACK_H_
+#define _LTE_LTEFEEDBACK_H_
 
 #include "LteCommon.h"
 #include "UserTxParams.h"
@@ -744,4 +744,4 @@ class LteMuMimoMatrix
 
 };
 
-#endif /* LTEFEEDBACK_H_ */
+#endif

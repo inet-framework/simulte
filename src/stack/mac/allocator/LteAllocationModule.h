@@ -9,8 +9,8 @@
 // and cannot be removed from it.
 //
 
-#ifndef LTEALLOCATIONMODULE_H_
-#define LTEALLOCATIONMODULE_H_
+#ifndef _LTE_LTEALLOCATIONMODULE_H_
+#define _LTE_LTEALLOCATIONMODULE_H_
 
 #include "LteCommon.h"
 
@@ -293,4 +293,4 @@ class LteAllocationModule
     }
 };
 
-#endif /* LTEALLOCATIONMODULE_H_ */
+#endif

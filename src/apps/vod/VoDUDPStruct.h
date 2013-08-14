@@ -9,8 +9,8 @@
 // and cannot be removed from it.
 //
 
-#ifndef VODUDPSTRUCT_H
-#define VODUDPSTRUCT_H
+#ifndef _LTE_VODUDPSTRUCT_H_
+#define _LTE_VODUDPSTRUCT_H_
 
 #include "IPvXAddress.h"
 

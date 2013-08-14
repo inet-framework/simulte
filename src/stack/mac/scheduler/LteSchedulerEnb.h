@@ -9,8 +9,8 @@
 // and cannot be removed from it.
 //
 
-#ifndef LTESCHEDULERENB_H_
-#define LTESCHEDULERENB_H_
+#ifndef _LTE_LTESCHEDULERENB_H_
+#define _LTE_LTESCHEDULERENB_H_
 
 #include "LteCommon.h"
 #include "LteHarqBufferTx.h"
@@ -310,4 +310,4 @@ class LteSchedulerEnb
 
 };
 
-#endif // LTESCHEDULERENB_H_
+#endif // _LTE_LTESCHEDULERENB_H_

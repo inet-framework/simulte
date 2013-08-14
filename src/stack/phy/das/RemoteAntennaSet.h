@@ -9,8 +9,8 @@
 // and cannot be removed from it.
 //
 
-#ifndef REMOTEANTENNASET_H_
-#define REMOTEANTENNASET_H_
+#ifndef _LTE_REMOTEANTENNASET_H_
+#define _LTE_REMOTEANTENNASET_H_
 
 #include <vector>
 #include "Coord.h"
@@ -97,4 +97,4 @@ class RemoteAntennaSet
     friend std::ostream &operator << (std::ostream &stream, const RemoteAntennaSet* ruSet_);
 };
 
-#endif /* REMOTEANTENNASET_H_ */
+#endif

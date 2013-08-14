@@ -9,8 +9,8 @@
 // and cannot be removed from it.
 //
 
-#ifndef LTEMAXCI_H
-#define LTEMAXCI_H
+#ifndef _LTE_LTEMAXCI_H_
+#define _LTE_LTEMAXCI_H_
 
 #include <LteScheduler.h>
 
@@ -37,4 +37,4 @@ class LteMaxCi : public virtual LteScheduler
     void updateSchedulingInfo();
 };
 
-#endif // LTEMAXCI_H
+#endif // _LTE_LTEMAXCI_H_

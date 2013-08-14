@@ -9,8 +9,8 @@
 // and cannot be removed from it.
 //
 
-#ifndef LTEBINDER_H_
-#define LTEBINDER_H_
+#ifndef _LTE_LTEBINDER_H_
+#define _LTE_LTEBINDER_H_
 
 #include <omnetpp.h>
 #include <string>
@@ -221,4 +221,4 @@ class LteBinder : public cSimpleModule
     }
 };
 
-#endif /* LTEBINDER_H_ */
+#endif

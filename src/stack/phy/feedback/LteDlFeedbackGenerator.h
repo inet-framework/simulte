@@ -9,8 +9,8 @@
 // and cannot be removed from it.
 //
 
-#ifndef __LTE_LTEDLFBGENERATOR_H_
-#define __LTE_LTEDLFBGENERATOR_H_
+#ifndef _LTE_LTEDLFBGENERATOR_H_
+#define _LTE_LTEDLFBGENERATOR_H_
 
 #include <omnetpp.h>
 #include "LteCommon.h"

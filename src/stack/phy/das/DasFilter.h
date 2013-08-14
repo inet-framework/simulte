@@ -9,8 +9,8 @@
 // and cannot be removed from it.
 //
 
-#ifndef DASFILTER_H_
-#define DASFILTER_H_
+#ifndef _LTE_DASFILTER_H_
+#define _LTE_DASFILTER_H_
 
 #include <omnetpp.h>
 #include "RemoteAntennaSet.h"
@@ -157,4 +157,4 @@ class DasFilter
 
 };
 
-#endif /* DASFILTER_H_ */
+#endif

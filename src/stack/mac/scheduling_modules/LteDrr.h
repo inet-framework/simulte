@@ -9,8 +9,8 @@
 // and cannot be removed from it.
 //
 
-#ifndef LTEDRR_H
-#define LTEDRR_H
+#ifndef _LTE_LTEDRR_H_
+#define _LTE_LTEDRR_H_
 
 #include <map>
 #include <LteScheduler.h>

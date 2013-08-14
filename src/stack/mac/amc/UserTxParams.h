@@ -13,8 +13,8 @@
  *  TODO: scrivere i commenti in inglese!
  */
 
-#ifndef USERTXPARAMS_H_
-#define USERTXPARAMS_H_
+#ifndef _LTE_USERTXPARAMS_H_
+#define _LTE_USERTXPARAMS_H_
 
 //#include "LteCommon.h"
 #include "LteMcs.h"
@@ -234,4 +234,4 @@ class UserTxParams
     }
 };
 
-#endif /* USERTXPARAMS_H_ */
+#endif

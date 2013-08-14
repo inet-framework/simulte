@@ -9,8 +9,8 @@
 // and cannot be removed from it.
 //
 
-#ifndef AIRPHYBASE_H_
-#define AIRPHYBASE_H_
+#ifndef _LTE_AIRPHYBASE_H_
+#define _LTE_AIRPHYBASE_H_
 
 #include <map>
 #include <vector>
@@ -304,4 +304,4 @@ class LtePhyBase : public ChannelAccess
     LteAmc *getAmcModule(MacNodeId id);
 };
 
-#endif  /* AIRPHYBASE_H_ */
+#endif  /* _LTE_AIRPHYBASE_H_ */

@@ -9,8 +9,8 @@
 // and cannot be removed from it.
 //
 
-#ifndef LTEAIRFRAME_H_
-#define LTEAIRFRAME_H_
+#ifndef _LTE_LTEAIRFRAME_H_
+#define _LTE_LTEAIRFRAME_H_
 
 #include "LteCommon.h"
 #include "LteAirFrame_m.h"
@@ -48,4 +48,4 @@ class LteAirFrame : public LteAirFrame_Base
 Register_Class(LteAirFrame);
 //TODO: this should go into a .cc file
 
-#endif /* LTEAIRFRAME_H_ */
+#endif

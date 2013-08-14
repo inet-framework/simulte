@@ -9,8 +9,8 @@
 // and cannot be removed from it.
 //
 
-#ifndef LTEPF_H
-#define LTEPF_H
+#ifndef _LTE_LTEPF_H_
+#define _LTE_LTEPF_H_
 
 #include <LteScheduler.h>
 
@@ -67,4 +67,4 @@ class LtePf : public LteScheduler
 
 };
 
-#endif // LTEPF_H
+#endif // _LTE_LTEPF_H_

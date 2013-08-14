@@ -9,8 +9,8 @@
 // and cannot be removed from it.
 //
 
-#ifndef TTIMER_H_
-#define TTIMER_H_
+#ifndef _LTE_TTIMER_H_
+#define _LTE_TTIMER_H_
 
 #include "TTimerMsg_m.h"
 #include "TMultiTimerMsg_m.h"
@@ -259,4 +259,4 @@ class TMultiTimer : public cObject
     typedef std::map<const unsigned int, const Event_it>::iterator iterator_r;
 };
 
-#endif /* TTIMER_H_ */
+#endif

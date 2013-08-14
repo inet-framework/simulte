@@ -1,16 +1,16 @@
-// 
+//
 //                           SimuLTE
 // Copyright (C) 2012 Antonio Virdis, Daniele Migliorini, Giovanni
 // Accongiagioco, Generoso Pagano, Vincenzo Pii.
-// 
+//
 // This file is part of a software released under the license included in file
 // "license.pdf". This license can be also found at http://www.ltesimulator.com/
-// The above file and the present reference are part of the software itself, 
+// The above file and the present reference are part of the software itself,
 // and cannot be removed from it.
-// 
+//
 
-#ifndef LTERLCAM_H_
-#define LTERLCAM_H_
+#ifndef _LTE_LTERLCAM_H_
+#define _LTE_LTERLCAM_H_
 
 #include <omnetpp.h>
 #include <LteCommon.h>
@@ -169,4 +169,4 @@ class LteRlcAm : public cSimpleModule
     void sendDefragmented(cPacket *pkt);
 };
 
-#endif /* LTERLC_AM_H_ */
+#endif

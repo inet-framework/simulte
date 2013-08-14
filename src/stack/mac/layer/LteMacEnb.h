@@ -1,16 +1,16 @@
-// 
+//
 //                           SimuLTE
 // Copyright (C) 2012 Antonio Virdis, Daniele Migliorini, Giovanni
 // Accongiagioco, Generoso Pagano, Vincenzo Pii.
-// 
+//
 // This file is part of a software released under the license included in file
 // "license.pdf". This license can be also found at http://www.ltesimulator.com/
-// The above file and the present reference are part of the software itself, 
+// The above file and the present reference are part of the software itself,
 // and cannot be removed from it.
-// 
+//
 
-#ifndef LTEMACENB_H_
-#define LTEMACENB_H_
+#ifndef _LTE_LTEMACENB_H_
+#define _LTE_LTEMACENB_H_
 
 #include "LteMacBase.h"
 #include "LteDeployer.h"
@@ -316,4 +316,4 @@ class LteMacEnb : public LteMacBase
     unsigned int getPrevBandStatus(Band b);
 };
 
-#endif /* LTEMACENB_H_ */
+#endif

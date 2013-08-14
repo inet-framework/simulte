@@ -15,8 +15,8 @@
 //  At the end of the file there are some utility functions.
 //
 
-#ifndef LTECOMMON_H_
-#define LTECOMMON_H_
+#ifndef _LTE_LTECOMMON_H_
+#define _LTE_LTECOMMON_H_
 
 #define _NO_W32_PSEUDO_MODIFIERS
 
@@ -827,5 +827,5 @@ void parseStringToIntArray(std::string str, int* values, int dim, int pad);
  */
 void initializeAllChannels(cModule *mod);
 
-#endif /* LTECOMMON_H_ */
+#endif
 

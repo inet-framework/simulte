@@ -9,8 +9,8 @@
 // and cannot be removed from it.
 //
 
-#ifndef LTESCHEDULER_H_
-#define LTESCHEDULER_H_
+#ifndef _LTE_LTESCHEDULER_H_
+#define _LTE_LTESCHEDULER_H_
 
 #include "LteCommon.h"
 #include "LteMacEnb.h"
@@ -176,4 +176,4 @@ class LteScheduler
 
 };
 
-#endif // LTESCHEDULER_H_
+#endif // _LTE_LTESCHEDULER_H_

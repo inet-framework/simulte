@@ -9,8 +9,8 @@
 // and cannot be removed from it.
 //
 
-#ifndef GAMING_H_
-#define GAMING_H_
+#ifndef _LTE_GAMING_H_
+#define _LTE_GAMING_H_
 
 #include <string.h>
 #include <omnetpp.h>
@@ -25,4 +25,4 @@ class Gaming : public UDPBasicApp
     virtual cPacket *createPacket();
 };
 
-#endif /* GAMING_H_ */
+#endif

@@ -9,8 +9,8 @@
 // and cannot be removed from it.
 //
 
-#ifndef LTEMACQUEUE_H_
-#define LTEMACQUEUE_H_
+#ifndef _LTE_LTEMACQUEUE_H_
+#define _LTE_LTEMACQUEUE_H_
 
 #include <omnetpp.h>
 
@@ -131,4 +131,4 @@ class LteMacQueue : public cPacketQueue
 
 };
 
-#endif /* LTEMACQUEUE_H_ */
+#endif

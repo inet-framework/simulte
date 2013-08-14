@@ -9,8 +9,8 @@
 // and cannot be removed from it.
 //
 
-#ifndef LTEFEEDBACKCOMPUTATION_H_
-#define LTEFEEDBACKCOMPUTATION_H_
+#ifndef _LTE_LTEFEEDBACKCOMPUTATION_H_
+#define _LTE_LTEFEEDBACKCOMPUTATION_H_
 
 #include "LteFeedback.h"
 
@@ -66,4 +66,4 @@ class LteFeedbackComputation
         std::vector<double> snr, MacNodeId id = 0)=0;
 };
 
-#endif /* LTEFEEDBACKCOMPUTATION_H_ */
+#endif

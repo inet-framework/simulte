@@ -9,8 +9,8 @@
 // and cannot be removed from it.
 //
 
-#ifndef LteMacBuffer_H_
-#define LteMacBuffer_H_
+#ifndef _LTE_LTEMACBUFFER_H_
+#define _LTE_LTEMACBUFFER_H_
 
 #include "LteCommon.h"
 #include <omnetpp.h>
@@ -162,4 +162,4 @@ class LteMacBuffer
 
 };
 
-#endif /* LteMacBuffer_H_ */
+#endif

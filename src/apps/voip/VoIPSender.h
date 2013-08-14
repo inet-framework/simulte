@@ -11,8 +11,8 @@
 // Author: Adriano
 //
 
-#ifndef VOIPSENDER_H_
-#define VOIPSENDER_H_
+#ifndef _LTE_VOIPSENDER_H_
+#define _LTE_VOIPSENDER_H_
 
 #include <string.h>
 #include <omnetpp.h>
@@ -70,5 +70,5 @@ class VoIPSender : public cSimpleModule
 
 };
 
-#endif /* VOIPSENDER_H_ */
+#endif
 

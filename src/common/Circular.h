@@ -9,8 +9,8 @@
 // and cannot be removed from it.
 //
 
-#ifndef CIRCULAR_H
-#define CIRCULAR_H
+#ifndef _LTE_CIRCULAR_H_
+#define _LTE_CIRCULAR_H_
 
 #include <list>
 #include <assert.h>
@@ -226,4 +226,4 @@ class CircularList
     }
 };
 
-#endif // CIRCULAR_H
+#endif // _LTE_CIRCULAR_H_

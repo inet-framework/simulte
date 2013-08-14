@@ -9,8 +9,8 @@
 // and cannot be removed from it.
 //
 
-#ifndef GTP_COMMON_H
-#define GTP_COMMON_H
+#ifndef _LTE_GTP_COMMON_H_
+#define _LTE_GTP_COMMON_H_
 
 #include <map>
 #include <list>

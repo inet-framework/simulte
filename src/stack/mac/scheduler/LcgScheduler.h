@@ -11,8 +11,8 @@
 // Author: sk0rp10
 //
 
-#ifndef LCGSCHEDULER_H_
-#define LCGSCHEDULER_H_
+#ifndef _LTE_LCGSCHEDULER_H_
+#define _LTE_LCGSCHEDULER_H_
 
 #include "LteCommon.h"
 #include "LteMacUe.h"
@@ -123,5 +123,5 @@ class LcgScheduler
 //        virtual void update() {;}
 
 };
-#endif /* LCGSCHEDULER_H_ */
+#endif
 

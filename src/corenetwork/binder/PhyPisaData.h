@@ -9,8 +9,8 @@
 // and cannot be removed from it.
 //
 
-#ifndef PHYPISADATA_H_
-#define PHYPISADATA_H_
+#ifndef _LTE_PHYPISADATA_H_
+#define _LTE_PHYPISADATA_H_
 
 #include <string.h>
 #include <vector>
@@ -33,4 +33,4 @@ class PhyPisaData
     double getChannel(unsigned int i);
 };
 
-#endif /* PHYPISADATA_H_ */
+#endif

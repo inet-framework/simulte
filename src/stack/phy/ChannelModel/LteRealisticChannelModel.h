@@ -9,8 +9,8 @@
 // and cannot be removed from it.
 //
 
-#ifndef LTEREALISTICCHANNELMODEL_H_
-#define LTEREALISTICCHANNELMODEL_H_
+#ifndef _LTE_LTEREALISTICCHANNELMODEL_H_
+#define _LTE_LTEREALISTICCHANNELMODEL_H_
 
 #include "LteChannelModel.h"
 
@@ -296,4 +296,4 @@ class LteRealisticChannelModel : public LteChannelModel
     JakesFadingMap * obtainUeJakesMap(MacNodeId id);
 };
 
-#endif /* LTEREALISTICCHANNELMODEL_H_ */
+#endif

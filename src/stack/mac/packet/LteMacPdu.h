@@ -9,8 +9,8 @@
 // and cannot be removed from it.
 //
 
-#ifndef LTEMACPDU_H_
-#define LTEMACPDU_H_
+#ifndef _LTE_LTEMACPDU_H_
+#define _LTE_LTEMACPDU_H_
 
 #include "LteMacPdu_m.h"
 #include "LteCommon.h"
@@ -214,5 +214,5 @@ class LteMacPdu : public LteMacPdu_Base
 
 Register_Class(LteMacPdu);
 
-#endif /* LTEMACPDU_H_ */
+#endif
 

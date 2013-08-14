@@ -9,8 +9,8 @@
 // and cannot be removed from it.
 //
 
-#ifndef VODUDPSRV_H
-#define VODUDPSRV_H
+#ifndef _LTE_VODUDPSRV_H_
+#define _LTE_VODUDPSRV_H_
 
 #include <platdep/sockets.h>
 #include <omnetpp.h>

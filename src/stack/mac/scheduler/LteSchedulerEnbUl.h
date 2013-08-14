@@ -9,8 +9,8 @@
 // and cannot be removed from it.
 //
 
-#ifndef LTE_SCHEDULER_ENB_UL_H_
-#define LTE_SCHEDULER_ENB_UL_H_
+#ifndef _LTE_LTE_SCHEDULER_ENB_UL_H_
+#define _LTE_LTE_SCHEDULER_ENB_UL_H_
 
 #include "LteSchedulerEnb.h"
 
@@ -89,4 +89,4 @@ class LteSchedulerEnbUl : public LteSchedulerEnb
 
 };
 
-#endif // LTE_SCHEDULER_ENB_UL_H_
+#endif // _LTE_LTE_SCHEDULER_ENB_UL_H_

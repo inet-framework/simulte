@@ -10,8 +10,8 @@
 //
 //
 
-#ifndef VODUDPCLIENT_H
-#define VODUDPCLIENT_H
+#ifndef _LTE_VODUDPCLIENT_H_
+#define _LTE_VODUDPCLIENT_H_
 
 #include <omnetpp.h>
 #include <string.h>

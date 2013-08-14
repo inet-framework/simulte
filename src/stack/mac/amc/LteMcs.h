@@ -9,8 +9,8 @@
 // and cannot be removed from it.
 //
 
-#ifndef LTEMCS_H_
-#define LTEMCS_H_
+#ifndef _LTE_LTEMCS_H_
+#define _LTE_LTEMCS_H_
 
 #include "LteCommon.h"
 
@@ -115,4 +115,4 @@ const unsigned int* itbs2tbs(LteMod mod, TxMode txMode, unsigned char layers, un
  */
 std::vector<unsigned char> cwMapping(const TxMode& txMode, const Rank& ri, const unsigned int antennaPorts);
 
-#endif /* LTEMCS_H_ */
+#endif

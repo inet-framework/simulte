@@ -13,8 +13,8 @@
 // along with this program.  If not, see http://www.gnu.org/licenses/.
 //
 
-#ifndef TFTCONTROLINFO_H_
-#define TFTCONTROLINFO_H_
+#ifndef _LTE_TFTCONTROLINFO_H_
+#define _LTE_TFTCONTROLINFO_H_
 
 #include <omnetpp.h>
 
@@ -37,5 +37,5 @@ class TftControlInfo : public cObject
     }
 };
 
-#endif /* TFTCONTROLINFO_H_ */
+#endif
 
