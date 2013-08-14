@@ -520,19 +520,6 @@ struct AbsStatusInfoMsg
 //|--------------------------------------------------|
 
 /**
- * This is a sample used to gather statistics.
- * It contains a sample plus an id for the metric
- */
-//class TaggedSample : public cObject
-//{
-//  public:
-//    double sample_;
-//    unsigned int id_;
-//    // the emitting cComponent (module)
-//    cComponent* module_;
-//};
-
-/**
  * The following structure specifies a band and a byte amount which limits the schedulable data
  * on it.
  * If this limit is -1, it is considered an unlimited capping.
