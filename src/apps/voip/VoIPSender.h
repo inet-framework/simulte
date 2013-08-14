@@ -28,31 +28,32 @@ class VoIPSender : public cSimpleModule
     bool initialized_;
 
     //source
-    double durTalk;
-    double durSil;
-    double scale_talk;
-    double shape_talk;
-    double scale_sil;
-    double shape_sil;
-    bool is_talk;
-    cMessage* selfSource;
+    double durTalk_;
+    double durSil_;
+    double scaleTalk_;
+    double shapeTalk_;
+    double scaleSil_;
+    double shapeSil_;
+    bool isTalk_;
+    cMessage* selfSource_;
     //sender
-    // FIXME questi non dovrebbero essere interi
-    int IDtalk;
-    int nframes;
-    int IDframe;
-    int nframes_tmp;
-    int size;
+    int iDtalk_;
+    int nframes_;
+    int iDframe_;
+    int nframesTmp_;
+    int size_;
     double sampling_time;
 
+
+    simsignal_t voIPGeneratedThroughtput_;
     // ----------------------------
 
-    cMessage *selfSender;
+    cMessage *selfSender_;
 
-    simtime_t timestamp;
-    int localPort;
-    int destPort;
-    IPvXAddress destAddress;
+    simtime_t timestamp_;
+    int localPort_;
+    int destPort_;
+    IPvXAddress destAddress_;
 
     void talkspurt(double dur);
     void selectPeriodTime();

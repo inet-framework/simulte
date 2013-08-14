@@ -20,19 +20,10 @@
 #include "IPvXAddressResolver.h"
 #include "UDPSocket.h"
 #include "VoipPacket_m.h"
-#include "lterecorder.h"
 #include <list>
 
 class VoIPReceiver : public cSimpleModule
 {
-//    class TaggedSample : public cObject
-//    {
-//    public:
-//        double sample_;
-//        unsigned int id_;
-//        // the emitting cComponent (module)
-//        cComponent* module_;
-//    };
     UDPSocket socket;
 
     ~VoIPReceiver();
@@ -43,26 +34,23 @@ class VoIPReceiver : public cSimpleModule
     double emodel_Ro_;
 
     typedef std::list<VoipPacket*> PacketsList;
-    PacketsList mPacketsList;
-    PacketsList mPlayoutQueue;
-    unsigned int mCurrentTalkspurt;
-    unsigned int mBufferSpace;
-    double mSamplingDelta;
-    double mPlayoutDelay;
+    PacketsList mPacketsList_;
+    PacketsList mPlayoutQueue_;
+    unsigned int mCurrentTalkspurt_;
+    unsigned int mBufferSpace_;
+    double mSamplingDelta_;
+    double mPlayoutDelay_;
 
-    bool mInit;
+    bool mInit_;
 
-    simsignal_t mFrameLossSignal;
-    simsignal_t mFrameDelaySignal;
-    simsignal_t mPlayoutDelaySignal;
-    simsignal_t mPlayoutLossSignal;
-    simsignal_t mMosSignal;
-    simsignal_t mTaildropLossSignal;
-
-    simsignal_t voIPPlayoutLossSignal;
-    simsignal_t voIPJitterSignal;
-
-    TaggedSample* mTaggedSample;
+    simsignal_t voIPFrameLossSignal_;
+    simsignal_t voIPFrameDelaySignal_;
+    simsignal_t voIPPlayoutDelaySignal_;
+    simsignal_t voIPMosSignal_;
+    simsignal_t voIPTaildropLossSignal_;
+    simsignal_t voIPPlayoutLossSignal_;
+    simsignal_t voIPJitterSignal_;
+    simsignal_t voIPReceivedThroughtput_;
 
     virtual void finish();
 
