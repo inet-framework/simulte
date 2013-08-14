@@ -29,7 +29,7 @@ simple GtpUser
 
         bool filter = default(true);
 
-        @display("i=old/bwxconn");
+        @display("i=block/tunnel");
 
     gates:
         output udpOut;

@@ -15,12 +15,13 @@
 
 package lte.simulations.networks;
 
-import lte.epc.pgwStandard;
-import lte.epc.sgwStandard;
+import inet.networklayer.autorouting.ipv4.IPv4NetworkConfigurator;
 import inet.nodes.inet.Router;
 import inet.nodes.inet.StandardHost;
 import inet.util.ThruputMeteringChannel;
-import inet.networklayer.autorouting.ipv4.IPv4NetworkConfigurator;
+import lte.epc.PgwStandard;
+import lte.epc.SgwStandard;
+
 
 network lteCoreNetwork
 {
@@ -37,26 +38,26 @@ network lteCoreNetwork
             @display("p=95,42");
             config = xmldoc("lteCoreConfigFiles/lteIpAddresses.xml");
         }
-        pgwStandard: pgwStandard {
+        pgwStandard: PgwStandard {
             nodeType = "PGW";
             @display("p=746,244");
         }
-        eNB3: pgwStandard {
+        eNB3: PgwStandard {
             nodeType = "ENODEB";
             @display("p=223,463");
         }
-        eNB1: pgwStandard {
+        eNB1: PgwStandard {
             nodeType = "ENODEB";
             @display("p=223,113");
         }
-        eNB2: pgwStandard {
+        eNB2: PgwStandard {
             nodeType = "ENODEB";
             @display("p=223,317");
         }
-        sgwStandard2: sgwStandard {
+        sgwStandard2: SgwStandard {
             @display("p=557,370");
         }
-        sgwStandard1: sgwStandard {
+        sgwStandard1: SgwStandard {
             @display("p=557,113");
         }
         router: Router {

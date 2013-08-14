@@ -15,12 +15,11 @@
 
 package lte.simulations.networks;
 
-import lte.epc.pgwStandard;
-import inet.examples.bgpv4.BGPOpen.BGPRouterSimple;
 import inet.networklayer.autorouting.ipv4.IPv4NetworkConfigurator;
 import inet.nodes.inet.Router;
 import inet.nodes.inet.StandardHost;
 import inet.util.ThruputMeteringChannel;
+import lte.epc.PgwStandard;
 
 
 //
@@ -50,11 +49,11 @@ network GtpNetwork
         Host1: StandardHost {
             @display("p=89,121");
         }
-        pgwStandard3: pgwStandard {
+        pgwStandard3: PgwStandard {
             nodeType = "PGW";
             @display("p=551,374;i=device/mainframe");
         }
-        pgwStandard1: pgwStandard {
+        pgwStandard1: PgwStandard {
             nodeType = "PGW";
             @display("p=89,374");
         }
@@ -64,7 +63,7 @@ network GtpNetwork
         coreNetwork: Router {
             @display("p=313,488");
         }
-        pgwStandard2: pgwStandard {
+        pgwStandard2: PgwStandard {
             nodeType = "PGW";
             @display("p=313,374");
         }
@@ -78,7 +77,7 @@ network GtpNetwork
             @display("p=598,121");
         }
     connections:
-        router3.ethg++ <--> networkConnection <--> Host3.ethg++;        
+        router3.ethg++ <--> networkConnection <--> Host3.ethg++;
         router3.pppg++ <--> networkConnection <--> pgwStandard3.filterGate;
         pgwStandard1.filterGate <--> networkConnection <--> router1.pppg++;
         router1.ethg++ <--> networkConnection <--> Host1.ethg++;

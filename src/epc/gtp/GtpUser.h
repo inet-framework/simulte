@@ -21,7 +21,7 @@
 #include "IPvXAddressResolver.h"
 #include "IPv4Datagram.h"
 #include "TftControlInfo.h"
-#include "gtpUserMsg_m.h"
+#include "GtpUserMsg_m.h"
 
 #include <map>
 #include "gtp_common.h"

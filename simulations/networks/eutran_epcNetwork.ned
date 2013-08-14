@@ -11,22 +11,17 @@
 
 package lte.simulations.networks;
 
-import lte.corenetwork.nodes.eNBpp;
-
 import inet.networklayer.autorouting.ipv4.IPv4NetworkConfigurator;
 import inet.networklayer.ipv4.RoutingTableRecorder;
-import inet.nodes.ethernet.Eth10G;
 import inet.nodes.inet.Router;
 import inet.nodes.inet.StandardHost;
+import inet.util.ThruputMeteringChannel;
 import inet.world.radio.ChannelControl;
 import lte.corenetwork.binder.LteBinder;
 import lte.corenetwork.nodes.Ue;
-import lte.corenetwork.nodes.eNodeB;
-
-import lte.epc.pgwStandard;
-import lte.epc.sgwStandard;
-import inet.nodes.inet.StandardHost;
-import inet.util.ThruputMeteringChannel;
+import lte.corenetwork.nodes.eNBpp;
+import lte.epc.PgwStandard;
+import lte.epc.SgwStandard;
 
 
 network eutran_epcNetwork
@@ -67,7 +62,7 @@ network eutran_epcNetwork
         InternetHost: StandardHost {
             @display("p=735,144");
         }
-        pgwStandard: pgwStandard {
+        pgwStandard: PgwStandard {
             nodeType = "PGW";
             @display("p=542,291");
         }
@@ -77,7 +72,7 @@ network eutran_epcNetwork
         router3: Router {
             @display("p=735,291");
         }
-        sgwStandard1: sgwStandard {
+        sgwStandard1: SgwStandard {
             @display("p=300,291");
         }
     connections:
