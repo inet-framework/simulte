@@ -13,7 +13,11 @@
 #define _LTE_LTERLCAM_H_
 
 #include <omnetpp.h>
-#include <LteCommon.h>
+#include "LteCommon.h"
+
+class AmTxQueue;
+class AmRxQueue;
+
 /**
  * @class LteRlcAm
  * @brief AM Module
@@ -23,10 +27,6 @@
  *
  * TODO
  */
-
-class AmTxQueue;
-class AmRxQueue;
-
 class LteRlcAm : public cSimpleModule
 {
 
@@ -70,6 +70,7 @@ class LteRlcAm : public cSimpleModule
     virtual void finish()
     {
     }
+
     /**
      * deleteQueues() must be called on handover
      * to delete queues for a given user

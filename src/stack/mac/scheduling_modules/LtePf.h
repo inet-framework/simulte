@@ -12,7 +12,7 @@
 #ifndef _LTE_LTEPF_H_
 #define _LTE_LTEPF_H_
 
-#include <LteScheduler.h>
+#include "LteScheduler.h"
 
 class LtePf : public LteScheduler
 {

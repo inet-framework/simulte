@@ -13,8 +13,8 @@
 #define _LTE_LTEDRR_H_
 
 #include <map>
-#include <LteScheduler.h>
-#include <Circular.h>
+#include "LteScheduler.h"
+#include "Circular.h"
 
 class LteSchedulerEnb;
 

@@ -12,7 +12,7 @@
 #ifndef _LTE_LTEMAXCI_H_
 #define _LTE_LTEMAXCI_H_
 
-#include <LteScheduler.h>
+#include "LteScheduler.h"
 
 class LteMaxCi : public virtual LteScheduler
 {

@@ -9,8 +9,8 @@
 // and cannot be removed from it.
 //
 
-#include <LteMaxCi.h>
-#include <LteSchedulerEnb.h>
+#include "LteMaxCi.h"
+#include "LteSchedulerEnb.h"
 
 void LteMaxCi::prepareSchedule()
 {

@@ -9,8 +9,8 @@
 // and cannot be removed from it.
 //
 
-#include <LteDrr.h>
-#include <LteSchedulerEnb.h>
+#include "LteDrr.h"
+#include "LteSchedulerEnb.h"
 
 void LteDrr::prepareSchedule()
 {

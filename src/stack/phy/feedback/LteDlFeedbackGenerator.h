@@ -21,7 +21,6 @@
 #include "TTimerMsg_m.h"
 #include "LteFeedbackComputation.h"
 #include "LteFeedbackComputationDummy.h"
-#include <cxmlelement.h>
 
 class DasFilter;
 /**
