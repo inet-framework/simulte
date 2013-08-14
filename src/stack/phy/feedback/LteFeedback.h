@@ -643,7 +643,6 @@ class LteSummaryFeedback
 
 class LteSummaryBuffer
 {
-
   protected:
     //! Buffer dimension
     unsigned char bufferSize_;
@@ -741,7 +740,6 @@ class LteMuMimoMatrix
         for (unsigned int i=1025;i<maxNodeId_;i++)
         EV << NOW << "" << muMatrix_[i];
     }
-
 };
 
 #endif

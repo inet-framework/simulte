@@ -17,7 +17,6 @@ LteMacRelayUe::LteMacRelayUe()
 {
     // TODO Auto-generated constructor stub
     nodeType_ = RELAY;
-
 }
 
 LteMacRelayUe::~LteMacRelayUe()

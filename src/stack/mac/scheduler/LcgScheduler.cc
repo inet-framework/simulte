@@ -28,7 +28,6 @@ LcgScheduler::~LcgScheduler()
 ScheduleList&
 LcgScheduler::schedule(unsigned int availableBytes)
 {
-
     /* clean up old schedule decisions
      for each cid, this map will store the the amount of sent data (in SDUs)
      */
@@ -98,7 +97,6 @@ LcgScheduler::schedule(unsigned int availableBytes)
 
             if (statusMap_.find(cid) == statusMap_.end())
             {
-
                 // the element does not exist, initialize it
                 elem = &statusMap_[cid];
                 elem->occupancy_ = vQueue->getQueueLength();
@@ -180,7 +178,6 @@ LcgScheduler::schedule(unsigned int availableBytes)
 
                 if ((sduSize <= availableBytes) /*&& ( !priorityService || ( sduSize <= 0/*TODO desc->parameters_.bucket_) )*/)
                 {
-
                     // remove SDU from virtual buffer
                     vQueue->popFront();
 
@@ -201,7 +198,6 @@ LcgScheduler::schedule(unsigned int availableBytes)
                     EV << NOW << " LteSchedulerUeUl::schedule - Node " << mac_->getMacNodeId() << ",  SDU of size " << sduSize << " selected for transmission" << endl;
                     EV << NOW << " LteSchedulerUeUl::schedule - Node " << mac_->getMacNodeId() << ", remaining grant: " << availableBytes << " bytes" << endl;
                     EV << NOW << " LteSchedulerUeUl::schedule - Node " << mac_->getMacNodeId() << " buffer Size: " << vQueue->getQueueOccupancy() << " bytes" << endl;
-
                 }
                 else
                 {
@@ -209,13 +205,11 @@ LcgScheduler::schedule(unsigned int availableBytes)
                     EV << NOW << " LteSchedulerUeUl::schedule - Node " << mac_->getMacNodeId() << ",  SDU of size " << sduSize << " could not be serviced " << endl;
                     break;// sdu can't be serviced
                 }
-
             }
 
                     // check if flow is still backlogged
             if (vQueue->getQueueLength() > 0)
             {
-
                 // TODO the priority is higher when the associated integer is lower ( e.g. priority 2 is
                 // greater than 4 )
 //
@@ -250,7 +244,6 @@ LcgScheduler::schedule(unsigned int availableBytes)
 
             if (scheduleList_.find(cid) == scheduleList_.end())
             {
-
                 // the element does not exist, initialize it
                 servicedSdu = &scheduleList_[cid];
                 *servicedSdu = elem->sentSdus_;
@@ -271,9 +264,7 @@ LcgScheduler::schedule(unsigned int availableBytes)
                 i = 0;
                 EV << "LteSchedulerUeUl::schedule - Node" << mac_->getMacNodeId() << ", Starting best effort service" << endl;
             }
-
         } // END of connections cycle
-
     } // END of Traffic Classes cycle
 
     return scheduleList_;

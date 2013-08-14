@@ -72,7 +72,6 @@ class VoIPReceiver : public cSimpleModule
     void handleMessage(cMessage *msg);
     double eModel(double delay, double loss);
     void playout(bool finish);
-
 };
 
 #endif

@@ -19,7 +19,6 @@
 
 struct CQIelem
 {
-
     /// Modulation
     LteMod mod_;
 
@@ -42,7 +41,6 @@ extern const CQIelem cqiTable[];
 
 struct MCSelem
 {
-
     LteMod mod_;       /// modulation
     Tbs iTbs_;         /// iTbs
     double threshold_; /// coderate threshold

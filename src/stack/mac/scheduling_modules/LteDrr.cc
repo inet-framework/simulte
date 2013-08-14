@@ -14,7 +14,6 @@
 
 void LteDrr::prepareSchedule()
 {
-
     activeTempList_ = activeList_;
     drrTempMap_ = drrMap_;
 
@@ -149,9 +148,7 @@ LteDrr::updateSchedulingInfo()
 
         drrMap_[cid].quantum_ = (unsigned int) (ceil(( /*pars.minReservedRate_*/ 500 / minRate) * minSize));
         drrMap_[cid].eligible_ = eligible;
-
     }
-
 }
 
 void

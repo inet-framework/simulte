@@ -61,7 +61,6 @@ void LtePhyBase::initialize(int stage)
         carrierFrequency_ = 2.1e+9;
         WATCH(numAirFrameReceived_);
         WATCH(numAirFrameNotReceived_);
-
     }
     else if (stage == 2)
     {
@@ -139,7 +138,6 @@ void LtePhyBase::handleUpperMessage(cMessage* msg)
         || lteInfo->getFrameType() == RACPKT)
     {
         frame = new LteAirFrame("harqFeedback-grant");
-
     }
     else
     {

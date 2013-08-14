@@ -132,7 +132,6 @@ class LteMacUe : public LteMacBase
      */
     bool getHighestBackloggedFlow(MacCid& cid, unsigned int& priority);
     bool getLowestBackloggedFlow(MacCid& cid, unsigned int& priority);
-
 };
 
 #endif

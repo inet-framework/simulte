@@ -130,7 +130,6 @@ class LtePhyUe : public LtePhyBase
         double fd = (speed / SPEED_OF_LIGHT) * carrierFrequency_;
         return 0.1 / fd;
     }
-
 };
 
 #endif  /* _LTE_AIRPHYUE_H_ */

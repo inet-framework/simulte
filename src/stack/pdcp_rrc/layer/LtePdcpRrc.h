@@ -49,7 +49,6 @@
  */
 class LtePdcpRrcBase : public cSimpleModule
 {
-
   public:
     /**
      * Initializes the connection table
@@ -265,7 +264,6 @@ class LtePdcpRrcBase : public cSimpleModule
 
     void setDrop(MacCid cid, unsigned int layer, double probability);
     void clearDrop(MacCid cid);
-
 };
 
 class LtePdcpRrcUe : public LtePdcpRrcBase

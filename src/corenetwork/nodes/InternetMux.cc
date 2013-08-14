@@ -18,7 +18,6 @@ Define_Module(InternetMux);
 InternetMux::InternetMux()
 {
     // TODO Auto-generated constructor stub
-
 }
 
 InternetMux::~InternetMux()
@@ -29,13 +28,11 @@ InternetMux::~InternetMux()
 void
 InternetMux::initialize()
 {
-
 }
 
 void
 InternetMux::handleMessage(cMessage *msg)
 {
-
     cGate* incoming = msg->getArrivalGate();
     if (incoming == gate("inMux"))
     {
@@ -48,7 +45,6 @@ InternetMux::handleMessage(cMessage *msg)
         MacNodeId nextHop = getBinder()->getNextHop(dest);
 
         send(msg, routingTable_.at(nextHop)); // send either to nodeB or relay node.
-
     }
     else
     {
@@ -56,5 +52,4 @@ InternetMux::handleMessage(cMessage *msg)
         send(msg, gate("outMux")); // send to LteIP
     }
     return;
-
 }

@@ -52,7 +52,6 @@ LteSchedulerUeUl::schedule()
 
     for (Codeword cw = 0; cw < codewords; ++cw)
     {
-
         unsigned int availableBytes = grant->getGrantedCwBytes(cw);
 
         EV << NOW << " LteSchedulerUeUl::schedule - Node " << mac_->getMacNodeId() << " available data from grant are "
@@ -92,7 +91,6 @@ LteSchedulerUeUl::schedule()
         }
 
         // TODO make use of above values
-
     }
     return &scheduleList_;
 }

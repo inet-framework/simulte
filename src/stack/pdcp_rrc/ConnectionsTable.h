@@ -33,7 +33,6 @@
  */
 class ConnectionsTable
 {
-
   public:
     ConnectionsTable();
     virtual ~ConnectionsTable();

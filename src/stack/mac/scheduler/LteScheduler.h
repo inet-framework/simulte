@@ -24,7 +24,6 @@ class LteSchedulerEnb;
 template<typename T, typename S>
 struct SortedDesc
 {
-
     /// Connection identifier.
     T x_;
     /// Score value.
@@ -49,7 +48,6 @@ struct SortedDesc
  */
 class LteScheduler
 {
-
   protected:
 
     /// MAC module, used to get parameters from NED
@@ -173,7 +171,6 @@ class LteScheduler
      * Note: mac_ amd direction_ should be initialized.
      */
     void initializeGrants();
-
 };
 
 #endif // _LTE_LTESCHEDULER_H_

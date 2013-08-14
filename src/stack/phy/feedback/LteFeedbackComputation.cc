@@ -13,7 +13,6 @@
 
 LteFeedbackComputation::LteFeedbackComputation()
 {
-
 }
 
 LteFeedbackComputation::~LteFeedbackComputation()

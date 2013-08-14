@@ -28,7 +28,6 @@ void LtePhyRelay::initialize(int stage)
 
         WATCH(nodeType_);
         WATCH(masterId_);
-
     }
     else if (stage == 1)
     {

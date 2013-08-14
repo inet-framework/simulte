@@ -514,20 +514,17 @@ cModule* getMacByMacNodeId(MacNodeId nodeId)
 
 cModule* getRlcByMacNodeId(MacNodeId nodeId, LteRlcType rlcType)
 {
-
     return getMacByMacNodeId(nodeId)->getParentModule()->getSubmodule(
         "rlc")->getSubmodule(rlcTypeToA(rlcType).c_str());
 }
 
 LteBinder* getBinder()
 {
-
     return check_and_cast<LteBinder*>(simulation.getModuleByPath("binder"));
 }
 
 LteMacBase* getMacUe(MacNodeId nodeId)
 {
-
     return check_and_cast<LteMacBase*>(getMacByMacNodeId(nodeId));
 }
 
@@ -555,22 +552,18 @@ void getParametersFromXML(cXMLElement* xmlData, ParameterMap& outputMap)
         if (sType == "bool")
         {
             param.setBoolValue(sValue == "true" || sValue == "1");
-
         }
         else if (sType == "double")
         {
             param.setDoubleValue(strtod(value, 0));
-
         }
         else if (sType == "string")
         {
             param.setStringValue(value);
-
         }
         else if (sType == "long")
         {
             param.setLongValue(strtol(value, 0, 0));
-
         }
         else
         {

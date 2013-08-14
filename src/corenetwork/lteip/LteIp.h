@@ -125,7 +125,6 @@ class LteIp : public QueueBase
      * @param ci LteStackControlInfo object
      */
     void printControlInfo(FlowControlInfo* ci);
-
 };
 
 #endif

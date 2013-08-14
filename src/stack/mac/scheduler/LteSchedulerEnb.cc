@@ -114,7 +114,6 @@ void LteSchedulerEnb::initialize(Direction dir, LteMacEnb* mac)
 
     tSample_ = new TaggedSample();
     tSample_->module = check_and_cast<cComponent*>(mac_);
-
 }
 
 LteMacScheduleList* LteSchedulerEnb::schedule()
@@ -397,7 +396,6 @@ unsigned int LteSchedulerEnb::scheduleGrant(MacCid cid, unsigned int bytes,
             // Process the SDUs of the specified flow
             while (true)
             {
-
                 // Check whether the virtual buffer is empty
                 if (conn->isEmpty())
                 {
@@ -447,7 +445,6 @@ unsigned int LteSchedulerEnb::scheduleGrant(MacCid cid, unsigned int bytes,
                 {
                     totalBooked += li->bytes_;
                     EV << "LteSchedulerEnb::grant Band " << li->b_ << " can contribute with " << li->bytes_ << " of booked resources " << endl;
-
                 }
 
                     // The current SDU may have a size greater than available space
@@ -469,7 +466,6 @@ unsigned int LteSchedulerEnb::scheduleGrant(MacCid cid, unsigned int bytes,
                 }
                 else
                 {
-
                     EV << "LteSchedulerEnb::grant servicing " << toServe << " bytes with " << bandAvailableBytes << " own bytes and " << totalBooked << " booked bytes " << endl;
 
                     // decrease booking value - if totalBooked is greater than 0, we used booked resources for scheduling the pdu
@@ -499,7 +495,6 @@ unsigned int LteSchedulerEnb::scheduleGrant(MacCid cid, unsigned int bytes,
                             }
                             else
                             {
-
                                 li->blocks_=uBlocks=0;
                             }
 
@@ -532,7 +527,6 @@ unsigned int LteSchedulerEnb::scheduleGrant(MacCid cid, unsigned int bytes,
                                 li->bytes_-=toServe;
 
                                 li++;
-
                             }
                             else
                             {
@@ -544,9 +538,7 @@ unsigned int LteSchedulerEnb::scheduleGrant(MacCid cid, unsigned int bytes,
 
                                 EV << "LteSchedulerEnb::grant band " << (unsigned short)u << " depleted all its booked resources " << endl;
                             }
-
                         }
-
                     }
                     EV << "LteSchedulerEnb::grant band " << (unsigned short)b << " scheduled  " << toServe << " bytes " << " using " << bookedUsed << " resources on other bands and "
                        << (toServe-bookedUsed) << " on its own space which was " << bandAvailableBytes << endl;
@@ -569,11 +561,9 @@ unsigned int LteSchedulerEnb::scheduleGrant(MacCid cid, unsigned int bytes,
                         // update the virtual queue
 
                         conn->front().first = (vQueueFrontSize-toServe);
-
                     }
                     else
                     {
-
                         conn->popFront();
                     }
 
@@ -659,7 +649,6 @@ unsigned int LteSchedulerEnb::scheduleGrant(MacCid cid, unsigned int bytes,
             if (direction_ == DL)
             {
                 scListId.first = cid;
-
             }
             else //if  (direction_==UL )
             {
@@ -794,7 +783,6 @@ LteScheduler* LteSchedulerEnb::getScheduler(SchedDiscipline discipline)
 
 void LteSchedulerEnb::resourceBlockStatistics(bool sleep)
 {
-
     if (sleep)
     {
         tSample_->id = mac_->getMacCellId();
@@ -806,7 +794,6 @@ void LteSchedulerEnb::resourceBlockStatistics(bool sleep)
             mac_->emit(lteAvgServedBlocksDl_, tSample_);
             tSample_->sample = mac_->getIdleLevel(DL, MBSFN);
             mac_->emit(depletedPowerDl_, tSample_);
-
         }
         return;
     }
@@ -827,17 +814,14 @@ void LteSchedulerEnb::resourceBlockStatistics(bool sleep)
 
     // TODO CHECK IDLE / ACTIVE STATUS
     //if ( ... ) {
-
     // For Each layer (normal/MU-MIMO)
     //    for (; planeIt != planeItEnd; ++planeIt) {
-
     std::vector<unsigned int>::const_iterator antennaIt = planeIt->begin();
     std::vector<unsigned int>::const_iterator antennaItEnd = planeIt->end();
 
     // For each antenna (MACRO/RUs)
     for (; antennaIt != antennaItEnd; ++antennaIt)
     {
-
         if (plane == MAIN_PLANE && antenna == MACRO)
             if (direction_ == DL)
                 mac_->allocatedRB(*antennaIt);
@@ -851,7 +835,6 @@ void LteSchedulerEnb::resourceBlockStatistics(bool sleep)
                 mac_->getCurrentSubFrameType()))
                 + ((double) (*antennaIt) * mac_->getPowerUnit(direction_,
                     mac_->getCurrentSubFrameType())));
-
         }
         EV << "LteSchedulerEnb::resourceBlockStatistics collecting utilization for plane" <<
         plane << "antenna" << dasToA((Remote)antenna) << " allocated blocks "
@@ -889,7 +872,6 @@ void LteSchedulerEnb::resourceBlockStatistics(bool sleep)
 }
 ActiveSet LteSchedulerEnb::readActiveConnections()
 {
-
     ActiveSet active = scheduler_->readActiveSet();
     ActiveSet::iterator it = active.begin();
     ActiveSet::iterator et = active.end();

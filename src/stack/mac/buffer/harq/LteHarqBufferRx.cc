@@ -34,7 +34,6 @@ LteHarqBufferRx::LteHarqBufferRx(unsigned int num, LteMacBase *owner,
 
     if (macOwner_->getNodeType() == ENODEB)
     {
-
         macDelay_ = macOwner_->registerSignal("macDelayUl");
         macThroughput_ = getMacByMacNodeId(nodeId_)->registerSignal(
             "macThroughputUl");
@@ -43,7 +42,6 @@ LteHarqBufferRx::LteHarqBufferRx(unsigned int num, LteMacBase *owner,
         tSampleCell_->module = check_and_cast<cComponent*>(macOwner_);
         tSample_->module = check_and_cast<cComponent*>(
             getMacByMacNodeId(nodeId_));
-
     }
     else if (macOwner_->getNodeType() == UE)
     {
@@ -55,7 +53,6 @@ LteHarqBufferRx::LteHarqBufferRx(unsigned int num, LteMacBase *owner,
         tSampleCell_->module = nodeB;
         tSample_->module = macOwner_;
     }
-
 }
 
 void LteHarqBufferRx::insertPdu(Codeword cw, LteMacPdu *pdu)
@@ -159,7 +156,6 @@ std::list<LteMacPdu *> LteHarqBufferRx::extractCorrectPdus()
                     nodeb = getMacByMacNodeId(macOwner_->getMacCellId());
                     tSample_->id = info->getDestId();
                     tSampleCell_->id = info->getSourceId();
-
                 }
                 else if (macOwner_->getNodeType() == ENODEB)
                 {
@@ -181,7 +177,6 @@ std::list<LteMacPdu *> LteHarqBufferRx::extractCorrectPdus()
                 EV << "LteHarqBufferRx::extractCorrectPdus H-ARQ RX: pdu (id " << ret.back()->getId()
                    << " ) extracted from process " << (int) acid
                    << "to be sent upper" << endl;
-
             }
         }
     }

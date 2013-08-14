@@ -18,7 +18,6 @@ class LteMacEnb;
 
 class LteAllocationModule
 {
-
     // Members *********************************************************************************
 
     // --- General Parameters ------------------------------------------------------------------
@@ -87,7 +86,6 @@ class LteAllocationModule
     /// This structure contains information for a single UE
     struct AllocatedRbsPerUeInfo
     {
-
         /// Stores the amount of blocks allocated in every band by the structure UE
         unsigned int allocatedBlocks_;
         /// Stores the amount of bytes allocated to every UE in the structure band
@@ -124,7 +122,6 @@ class LteAllocationModule
             availableAntennaSet_.insert(MACRO);
             currentAntenna_ = MACRO;
         }
-
     };
 
     typedef std::map<MacNodeId, AllocatedRbsPerUeInfo> AllocatedRbsPerUeMap;

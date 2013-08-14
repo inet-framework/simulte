@@ -19,7 +19,6 @@ Define_Module(UmRxQueue);
 UmRxQueue::UmRxQueue() :
     timer_(this)
 {
-
 }
 
 UmRxQueue::~UmRxQueue()
@@ -28,7 +27,6 @@ UmRxQueue::~UmRxQueue()
 
 bool UmRxQueue::defragment(cPacket* pkt)
 {
-
     EV << NOW << "UmRxQueue::defragment" << endl;
 
     Enter_Method("defragment()"); // Direct Method Call
@@ -67,7 +65,6 @@ bool UmRxQueue::defragment(cPacket* pkt)
         tSample_->id = dstId;
         nodeb = getRlcByMacNodeId(srcId, UM);
         ue = getRlcByMacNodeId(dstId, UM);
-
     }
     else if (dir == UL)
     {
@@ -161,7 +158,6 @@ void UmRxQueue::initialize()
 
     if (mac->getNodeType() == ENODEB)
     {
-
         rlcCellPacketLoss_ = parent->registerSignal("rlcCellPacketLossUl");
         rlcPacketLoss_ = parent->registerSignal("rlcPacketLossUl");
         rlcPduPacketLoss_ = parent->registerSignal("rlcPduPacketLossUl");
@@ -170,11 +166,9 @@ void UmRxQueue::initialize()
         rlcPduDelay_ = parent->registerSignal("rlcPduDelayUl");
         rlcPduThroughput_ = parent->registerSignal("rlcPduThroughputUl");
         rlcCellThroughput_ = parent->registerSignal("rlcCellThroughputUl");
-
     }
     else
     {
-
         cModule* nodeB = getRlcByMacNodeId(mac->getMacCellId(), UM);
 
         rlcPacketLoss_ = parent->registerSignal("rlcPacketLossDl");
@@ -212,7 +206,6 @@ void UmRxQueue::handleMessage(cMessage* msg)
         {
             tSample_->id = dstId;
             tSampleCell_->id = srcId;
-
         }
         else if (dir == UL)
         {

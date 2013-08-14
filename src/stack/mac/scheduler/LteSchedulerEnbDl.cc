@@ -43,7 +43,6 @@ unsigned int
 LteSchedulerEnbDl::schedulePerAcidRtx(MacNodeId nodeId, Codeword cw, unsigned char acid,
     std::vector<BandLimit>* bandLim, Remote antenna, bool limitBl)
 {
-
     // Get user transmission parameters
     const UserTxParams& txParams = mac_->getAmc()->computeTxParams(nodeId, direction_);    // get the user info
     // TODO SK Get the number of codewords - FIX with correct mapping
@@ -156,7 +155,6 @@ LteSchedulerEnbDl::schedulePerAcidRtx(MacNodeId nodeId, Codeword cw, unsigned ch
             // limit eventually allocated blocks on other codeword to limit for current cw
             //b1 = (limitBl ? (b1>limit?limit:b1) : b1);
             available = mac_->getAmc()->computeBytesOnNRbs(nodeId, b, remappedCw, b1, direction_);
-
         }
         else
             available = availableBytes(nodeId, antenna, b, remappedCw, (limitBl) ? limit : -1);    // available space
@@ -174,7 +172,6 @@ LteSchedulerEnbDl::schedulePerAcidRtx(MacNodeId nodeId, Codeword cw, unsigned ch
         {
             allocation = available;
             bytes -= available;
-
         }
         else
         {
@@ -301,7 +298,6 @@ LteSchedulerEnbDl::rtxschedule()
                 // skip processes which are not in rtx status
                 if (jt->at(cw).second != TXHARQ_PDU_BUFFERED)
                 {
-
                     EV << NOW << " LteSchedulerEnbDl::rtxschedule detected Acid: " << jt->at(cw).first << " in status " << jt->at(cw).second << endl;
 
                     continue;

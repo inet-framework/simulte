@@ -135,7 +135,6 @@ void LteDlFeedbackGenerator::initialize(int stage)
         WATCH(fbDelay_);
         WATCH(usePeriodic_);
         WATCH(currentTxMode_);
-
     }
     else if (stage == 1)
     {
@@ -236,7 +235,6 @@ void LteDlFeedbackGenerator::sensing(FbPeriodicity per)
     tPeriodicTx_->start(fbDelay_);
     else if (per == APERIODIC)
     tAperiodicTx_->start(fbDelay_);
-
 }
 
         /***************************
@@ -371,7 +369,6 @@ LteFeedbackComputation* LteDlFeedbackGenerator::getFeedbackComputationFromName(
     }
     else
         return 0;
-
 }
 
 void LteDlFeedbackGenerator::initializeFeedbackComputation(

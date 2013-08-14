@@ -41,7 +41,6 @@ enum LteAmType
 
 struct RlcFragDesc
 {
-
     /*!
      * Main SDU size (bytes) - the size of  the SDU to be fragmented
      */
@@ -70,7 +69,6 @@ struct RlcFragDesc
 
     RlcFragDesc()
     {
-
         fragUnit_ = 0;
         resetFragmentation();
     }
@@ -109,7 +107,6 @@ struct RlcFragDesc
         else
             return false;
     }
-
 };
 
 struct RlcWindowDesc

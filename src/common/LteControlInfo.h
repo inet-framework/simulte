@@ -98,7 +98,6 @@ class UserControlInfo : public UserControlInfo_Base
 
     void setBlocks(Remote antenna, Band b, const unsigned int blocks)
     {
-
         grantedBlocks[antenna][b] = blocks;
     }
 
@@ -109,7 +108,6 @@ class UserControlInfo : public UserControlInfo_Base
 
     void setGrantedBlocks(const RbMap& rbMap)
     {
-
         grantedBlocks = rbMap;
     }
 
@@ -117,7 +115,6 @@ class UserControlInfo : public UserControlInfo_Base
     FeedbackRequest feedbackReq;
     void setCoord(const Coord& coord);
     Coord getCoord() const;
-
 };
 
 Register_Class(UserControlInfo);

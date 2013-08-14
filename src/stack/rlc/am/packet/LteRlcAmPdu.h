@@ -51,7 +51,6 @@ class LteRlcAmPdu : public LteRlcAmPdu_Base
     virtual bool isFirst();
     virtual bool isMiddle();
     virtual bool isLast();
-
 };
 
 Register_Class(LteRlcAmPdu);

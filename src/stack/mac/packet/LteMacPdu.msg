@@ -25,7 +25,6 @@ packet LteMacPdu
     //# MacSduList sduList;
     //# MacControlElementsList ceList;
     //#
-
 }
 
 //

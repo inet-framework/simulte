@@ -89,7 +89,6 @@ module LteInternet
         //#
       
         lteIp.ifIn <-- mux.outMux;
-
 }
 
 simple InternetMux

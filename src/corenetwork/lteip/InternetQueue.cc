@@ -40,7 +40,6 @@ void InternetQueue::initialize()
     // watches
     WATCH(numSent_);
     WATCH(numDropped_);
-
 }
 
 void InternetQueue::handleMessage(cMessage *msg)
@@ -69,7 +68,6 @@ void InternetQueue::handleMessage(cMessage *msg)
         {
             EV << "Queue size: " << queueSize_ << endl;
             EV << "Queue connected: " << connected << endl;
-
         }
     }
 
@@ -115,7 +113,6 @@ void InternetQueue::handleMessage(cMessage *msg)
 
     if (ev.isGUI())
     updateDisplayString();
-
 }
 
 void InternetQueue::startTransmitting(cPacket *pkt)
@@ -129,7 +126,6 @@ void InternetQueue::startTransmitting(cPacket *pkt)
     datarateChannel_->getTransmissionFinishTime();
     scheduleAt(endTransmissionTime, endTransmissionEvent_);
     EV << "The transmission will finish at simtime: " << endTransmissionTime << endl;
-
 }
 
 void InternetQueue::updateDisplayString()

@@ -91,7 +91,6 @@ bool TMultiTimer::busy(unsigned int event) const
 
 void TMultiTimer::handle(unsigned int event)
 {
-
     iterator_d direct;
 
     // retrieve the earliest event to dispatch
@@ -168,7 +167,6 @@ void TMultiTimer::remove(const unsigned int event)
             intr_->setEvent(event);
             module_->scheduleAt(time, intr_);
         }
-
     }
     else
     {

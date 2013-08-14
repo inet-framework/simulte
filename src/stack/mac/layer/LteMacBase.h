@@ -312,7 +312,6 @@ class LteMacBase : public cSimpleModule
 
     /// Lower Layer Handler
     void fromPhy(cPacket *pkt);
-
 };
 
 #endif

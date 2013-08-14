@@ -64,7 +64,6 @@ void VoDUDPServer::initialize(int stage)
             svcPacket tmp;
             tmp.index = LONG_MAX;
             svcTrace_.push_back(tmp);
-
         }
         else
         {
@@ -118,10 +117,8 @@ void VoDUDPServer::finish()
 
 void VoDUDPServer::handleMessage(cMessage *msg)
 {
-
     if (msg->isSelfMessage())
     {
-
         if (!strcmp(msg->getName(), "Timer"))
         {
             clientsPort = par("destPort");
@@ -168,11 +165,9 @@ void VoDUDPServer::handleMessage(cMessage *msg)
             handleSVCMessage(msg);
         else
             handleNS2Message(msg);
-
     }
     else
         delete msg;
-
 }
 
 void VoDUDPServer::handleNS2Message(cMessage *msg)
@@ -201,12 +196,10 @@ void VoDUDPServer::handleNS2Message(cMessage *msg)
 
     EV << "VoD Server Sent New Packet: Dest IP: " << msgNew -> getClientAddr() << " port: " << msgNew -> getClientPort() << endl;
     scheduleAt(simTime() + TIME_SLOT, msgNew);
-
 }
 
 void VoDUDPServer::handleSVCMessage(cMessage *msg)
 {
-
     M1Message* msgNew = (M1Message*) msg;
     long numPkSentApp = msgNew->getNumPkSent();
     if (svcTrace_[numPkSentApp].index == LONG_MAX)
@@ -218,7 +211,6 @@ void VoDUDPServer::handleSVCMessage(cMessage *msg)
     }
     else
     {
-
         int seq_num = numPkSentApp;
         int currentFrame = svcTrace_[numPkSentApp].frameNumber;
 
@@ -233,7 +225,6 @@ void VoDUDPServer::handleSVCMessage(cMessage *msg)
         numPkSentApp++;
         while (1)
         {
-
             /* Get infos about the frame from file */
 
             if (svcTrace_[numPkSentApp].index == LONG_MAX)
@@ -253,11 +244,9 @@ void VoDUDPServer::handleSVCMessage(cMessage *msg)
             socket.sendTo(frame, msgNew->getClientAddr(), msgNew->getClientPort());
             EV << " VoDUDPServer::handleSVCMessage sending frame " << seq_num << std::endl;
             numPkSentApp++;
-
         }
         msgNew->setNumPkSent(numPkSentApp);
         scheduleAt(simTime() + TIME_SLOT, msgNew);
-
     }
 }
 

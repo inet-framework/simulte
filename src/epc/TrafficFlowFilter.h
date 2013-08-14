@@ -87,7 +87,6 @@ class TrafficFlowFilter : public cSimpleModule
     // functions for managing filter tables
     TrafficFlowTemplateId findTrafficFlow(IPvXAddress firstKey, TrafficFlowTemplate secondKey);
     bool addTrafficFlow(IPvXAddress firstKey, TrafficFlowTemplate tft);
-
 };
 
 #endif

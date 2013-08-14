@@ -33,7 +33,6 @@
 
 class AmTxQueue : public cSimpleModule
 {
-
   protected:
 
     /*
@@ -196,7 +195,6 @@ class AmTxQueue : public cSimpleModule
     /* timer events handlers*/
     void pduTimerHandle(const int sn);
     void mrwTimerHandle(const int sn);
-
 };
 
 #endif

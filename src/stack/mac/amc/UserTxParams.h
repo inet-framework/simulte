@@ -30,7 +30,6 @@
  */
 class UserTxParams
 {
-
   protected:
 
     TxMode txMode_; // tx mode da usare
@@ -225,7 +224,6 @@ class UserTxParams
             //******************************************************
 
             EV << NOW << " " << s << " --------------------------\n";
-
         }
         catch(std::exception& e)
         {

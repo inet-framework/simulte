@@ -17,7 +17,6 @@ LteSummaryBuffer::createSummary(LteFeedback fb)
 {
     try
     {
-
         // RI
         if (fb.hasRankIndicator())
         {

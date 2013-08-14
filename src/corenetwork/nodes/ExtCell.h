@@ -16,7 +16,6 @@
 
 class ExtCell
 {
-
     Coord position_;
     double txPower_;
     //Pattern pattern_; // enum { HEAVY ; LOW ; MED ; UNIFORM }

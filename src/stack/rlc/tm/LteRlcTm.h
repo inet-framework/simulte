@@ -34,7 +34,6 @@
  */
 class LteRlcTm : public cSimpleModule
 {
-
   public:
     LteRlcTm()
     {

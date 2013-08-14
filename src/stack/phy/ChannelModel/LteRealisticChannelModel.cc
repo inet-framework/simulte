@@ -31,7 +31,6 @@ LteRealisticChannelModel::LteRealisticChannelModel(ParameterMap& params,
     {
         // set nodeB height
         scenario_ = aToDeploymentScenario(it->second.stringValue());
-
     }
     else
         //DEFAULT
@@ -45,7 +44,6 @@ LteRealisticChannelModel::LteRealisticChannelModel(ParameterMap& params,
         EV
            << "create Realistic Channel Model: nodeb-height set from config.xml to "
            << hNodeB_ << endl;
-
     }
     else
     //DEFAULT
@@ -73,7 +71,6 @@ LteRealisticChannelModel::LteRealisticChannelModel(ParameterMap& params,
         EV
            << "create Realistic Channel Model: shadowing set from config.xml to "
            << shadowing_ << endl;
-
     }
     else
     shadowing_ = true;
@@ -311,13 +308,11 @@ LteRealisticChannelModel::LteRealisticChannelModel(ParameterMap& params,
 
 LteRealisticChannelModel::~LteRealisticChannelModel()
 {
-
 }
 
 double LteRealisticChannelModel::getAttenuation(MacNodeId nodeId, Direction dir,
     Coord coord)
 {
-
     double movement = .0;
     double speed = .0;
 
@@ -381,7 +376,6 @@ double LteRealisticChannelModel::getAttenuation(MacNodeId nodeId, Direction dir,
         // if shadowing for current user has never been computed
         if (lastComputedSF_.find(nodeId) == lastComputedSF_.end())
         {
-
             //Get the log normal shadowing with std deviation stdDev
             att = normal(mean, stdDev);
 
@@ -395,7 +389,6 @@ double LteRealisticChannelModel::getAttenuation(MacNodeId nodeId, Direction dir,
         else if ((NOW - lastComputedSF_.at(nodeId).first).dbl() * speed
             > correlationDistance_)
         {
-
             //get the temporal mark of the last computed shadowing attenuation
             time = (NOW - lastComputedSF_.at(nodeId).first).dbl();
 
@@ -828,7 +821,6 @@ double LteRealisticChannelModel::rayleighFading(MacNodeId id,
 double LteRealisticChannelModel::jakesFading(MacNodeId nodeId, double speed,
     unsigned int band, bool cqiDl)
 {
-
     /**
      * NOTE: there are two different jakes map. One on the Ue side and one on the eNb side, with different values.
      *
@@ -890,7 +882,6 @@ double LteRealisticChannelModel::jakesFading(MacNodeId nodeId, double speed,
 
     for (int i = 0; i < fadingPaths_; i++)
     {
-
         // Phase shift due to Doppler => t-selectivity.
         double phi_d = actualJakesMap->at(nodeId).at(band).angleOfArrival[i] * doppler_shift;
 
@@ -923,7 +914,6 @@ double LteRealisticChannelModel::jakesFading(MacNodeId nodeId, double speed,
 bool LteRealisticChannelModel::error(LteAirFrame *frame,
     UserControlInfo* lteInfo)
 {
-
     EV << "LteRealisticChannelModel::error" << endl;
 
     //get codeword
@@ -987,11 +977,9 @@ bool LteRealisticChannelModel::error(LteAirFrame *frame,
     //for each Remote unit used to transmit the packet
     for (it = rbmap.begin(); it != rbmap.end(); ++it)
     {
-
         //for each logical band used to transmit the packet
         for (jt = it->second.begin(); jt != it->second.end(); ++jt)
         {
-
             //this Rb is not allocated
             if (jt->second == 0)
             continue;
@@ -1054,7 +1042,6 @@ bool LteRealisticChannelModel::error(LteAirFrame *frame,
     EV << "This is your lucky day (" << er << " > " << totalPer
        << ") -> Receive AirFrame." << endl;
     return true;
-
 }
 
 void LteRealisticChannelModel::computeLosProbability(double d,

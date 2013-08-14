@@ -42,7 +42,6 @@ LteSchedulerEnbUl::checkEligibility(MacNodeId id, Codeword& cw)
 void
 LteSchedulerEnbUl::updateHarqDescs()
 {
-
     EV << NOW << "LteSchedulerEnbUl::updateHarqDescs  cell " << mac_->getMacCellId() << endl;
 
     HarqRxBuffers::iterator it;
@@ -63,7 +62,6 @@ LteSchedulerEnbUl::updateHarqDescs()
             EV << NOW << "LteSchedulerEnbUl::updateHarqDescs UE " << it->first << " initialized the H-ARQ status " << endl;
             harqStatus_[it->first]=0;
         }
-
     }
 }
 
@@ -96,7 +94,6 @@ bool LteSchedulerEnbUl::racschedule()
         {
             if ( allocator_->availableBlocks(nodeId,MACRO,b) >0)
             {
-
                 allocator_->addBlocks(MACRO,b,nodeId,1, mac_->getAmc()->computeBytesOnNRbs(nodeId,b,cw,blocks,UL) );
 
                 EV << NOW << "LteSchedulerEnbUl::racschedule UE: " << nodeId << "Handled RAC on band: " << b << endl;
@@ -123,13 +120,11 @@ bool LteSchedulerEnbUl::racschedule()
     int availableBlocks = allocator_->computeTotalRbs();
 
     return (availableBlocks==0);
-
 }
 
 bool
 LteSchedulerEnbUl::rtxschedule()
 {
-
     // try to handle RAC requests first and abort rtx scheduling if no OFDMA space is left after
     if (racschedule())
         return true;
@@ -183,7 +178,6 @@ LteSchedulerEnbUl::rtxschedule()
         EV << NOW << " LteSchedulerEnbUl::rtxschedule --------------------::[  END RTX-SCHEDULE  ]::--------------------" << endl;
 
         return (availableBlocks == 0);
-
     }
     catch(std::exception& e)
     {

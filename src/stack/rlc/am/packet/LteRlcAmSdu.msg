@@ -17,5 +17,4 @@ packet LteRlcSdu;
 
 packet LteRlcAmSdu extends LteRlcSdu
 {
-
 }

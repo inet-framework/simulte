@@ -29,7 +29,6 @@ typedef std::vector<std::vector<UnitStatus> > BufferStatus;
 //TODO Aggiungere output di debug ripreso da old commenti
 class LteHarqProcessTx
 {
-
   protected:
 
     /// reference to mac module, used to handle errors

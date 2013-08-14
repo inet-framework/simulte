@@ -41,7 +41,6 @@ LteDeployer::~LteDeployer()
 
 void LteDeployer::preInitialize()
 {
-
     StationaryMobility* bm =
         dynamic_cast<StationaryMobility*>(getParentModule()->getModuleByPath(".nic.mobility"));
 
@@ -114,7 +113,6 @@ void LteDeployer::initialize()
 int LteDeployer::deployRelays(double startAngle, int i, int num, double *xPos,
     double *yPos)
 {
-
     double startingAngle = startAngle;
     *xPos = 0;
     *yPos = 0;

@@ -47,7 +47,6 @@ class LtePhyEnb;
  */
 class DasFilter
 {
-
   public:
     /// Constructor: Initializes the Remote Antenna Set
     DasFilter(LtePhyBase* ltePhy, LteBinder* binder,
@@ -154,7 +153,6 @@ class DasFilter
 
     /// Pointer to the Nic
     LtePhyBase* ltePhy_;
-
 };
 
 #endif

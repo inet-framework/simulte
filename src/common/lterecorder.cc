@@ -55,7 +55,6 @@ void LteStatisticsRecorder::finish(cResultFilter *prev)
 
 void LteStatsRecorder::subscribedTo(cResultFilter *prev)
 {
-
 }
 
 void LteStatsRecorder::collect(simtime_t t, double value, unsigned int id, cComponent* module)
@@ -179,7 +178,6 @@ void LteRateRecorder::finish(cResultFilter *prev)
     std::map<unsigned int, recordedValues_>::iterator it;
     for (it = vals_.begin(); it != vals_.end(); it++)
     {
-
         interval = (simTime() - it->second.startTime_).dbl();
         totalSum += it->second.sum_ / interval;
 

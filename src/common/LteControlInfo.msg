@@ -49,7 +49,6 @@ enum LteTrafficClass;
 // - Destination MAC Node ID
 //
 class LteControlInfo {
-
     //# Information shared between FlowControlInfo and UserControlInfo
 
     uint16 sourceId;                                    // Source MacNodeId
@@ -68,7 +67,6 @@ class LteControlInfo {
     //# Connection Information
 
     uint16 lcid;                                        // Logical Connection Identifier
-
 }
 
 //
@@ -83,7 +81,6 @@ class LteControlInfo {
 // - Connection information: Logical CID
 //
 class FlowControlInfo extends LteControlInfo {
-
     //# IP Control Information
 
     uint32 srcAddr;                                       // source IP
@@ -104,7 +101,6 @@ class FlowControlInfo extends LteControlInfo {
 //   txMode, Resource blocks used, RemoteSet
 //
 class UserControlInfo extends LteControlInfo {
-
     @customize(true);
 
     //# H-ARQ Control Information

@@ -128,7 +128,6 @@ class LteMacQueue : public cPacketQueue
   private:
     /// Size of queue
     int queueSize_;
-
 };
 
 #endif

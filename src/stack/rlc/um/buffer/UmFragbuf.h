@@ -32,7 +32,6 @@
  */
 class UmFragbuf
 {
-
   public:
     UmFragbuf()
     {
@@ -126,7 +125,6 @@ class UmFragbuf
     std::map<unsigned int, MainPktInfo_> frags_;
 
     unsigned int debugCounter_;
-
 };
 
 #endif

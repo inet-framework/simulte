@@ -92,7 +92,6 @@ void LteAllocationModule::setRemoteAntenna(const Plane plane, const Remote anten
      */
     for (int i = totalRbsMatrix_.at(plane).size(); i < antenna + 1; ++i)
     {
-
         // here we have to add missing antennas to the given plane and to set the number of RB for each antenna in this plane
         totalRbsMatrix_.at(plane).resize(i + 1);
         allocatedRbsMatrix_.at(plane).resize(i + 1);
@@ -365,9 +364,7 @@ LteAllocationModule::rbOccupation(const MacNodeId nodeId, RbMap& rbMap)
         for (Band b = 0; b < bands_; ++b)
         {
             blocks += (rbMap[*it][b] = getBlocks(*it, b, nodeId));
-
         }
-
     }
     return blocks;
 }

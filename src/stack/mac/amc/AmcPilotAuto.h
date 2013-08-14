@@ -29,7 +29,6 @@
  */
 class AmcPilotAuto : public AmcPilot
 {
-
   public:
 
     /**
@@ -53,7 +52,6 @@ class AmcPilotAuto : public AmcPilot
     {
         return;
     }
-
 };
 
 #endif

@@ -20,7 +20,6 @@ class LteSchedulerEnb;
 
 class LteDrr : public LteScheduler
 {
-
   private:
 
     //! DRR descriptor.
@@ -77,7 +76,6 @@ class LteDrr : public LteScheduler
     void removeActiveConnection(MacCid cid);
 
     void updateSchedulingInfo();
-
 };
 #endif
 

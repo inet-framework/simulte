@@ -38,7 +38,6 @@ void LtePhyEnb::initialize(int stage)
 
     if (stage == 0)
     {
-
         nodeType_ = ENODEB;
 
         das_ = new DasFilter(this, binder_, deployer_->getRemoteAntennaSet(),
@@ -46,7 +45,6 @@ void LtePhyEnb::initialize(int stage)
 
         WATCH(nodeType_);
         WATCH(das_);
-
     }
     else if (stage == 1)
     {
@@ -136,7 +134,6 @@ void LtePhyEnb::handleAirFrame(cMessage* msg)
         // Message from ue
         for (RemoteSet::iterator it = r.begin(); it != r.end(); it++)
         {
-
             EV << "LtePhy: Receiving Packet from antenna " << (*it) << "\n";
 
             /*
@@ -250,12 +247,10 @@ void LtePhyEnb::requestFeedback(UserControlInfo* lteinfo, LteAirFrame* frame,
         }
         else
         pkt->setLteFeedbackDoubleVectorDl(fb_);
-
     }
     EV << "LtePhyEnb::requestFeedback : Pisa Feedback Generated for nodeId: "
        << nodeId_ << " with generator type "
        << fbGeneratorTypeToA(req.genType) << " Fb size: " << fb_.size() << endl;
-
 }
 
 void LtePhyEnb::handleFeedbackPkt(UserControlInfo* lteinfo,
@@ -351,7 +346,6 @@ LteFeedbackComputation* LtePhyEnb::getFeedbackComputationFromName(
     }
     else
         return 0;
-
 }
 
 void LtePhyEnb::initializeFeedbackComputation(cXMLElement* xmlConfig)

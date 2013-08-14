@@ -26,7 +26,6 @@ class LteMacEnb;
  */
 class LteSchedulerEnb
 {
-
     /******************
      * Friend classes
      ******************/
@@ -307,7 +306,6 @@ class LteSchedulerEnb
      * @param discipline scheduler discipline
      */
     LteScheduler* getScheduler(SchedDiscipline discipline);
-
 };
 
 #endif // _LTE_LTESCHEDULERENB_H_

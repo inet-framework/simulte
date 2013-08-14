@@ -30,7 +30,6 @@
  */
 class LteRlcMux : public cSimpleModule
 {
-
   public:
     LteRlcMux()
     {
@@ -89,7 +88,6 @@ class LteRlcMux : public cSimpleModule
     cGate* tmSap_[2];
     cGate* umSap_[2];
     cGate* amSap_[2];
-
 };
 
 #endif

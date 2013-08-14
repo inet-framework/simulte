@@ -25,7 +25,6 @@ class LteMacRelayEnb : public LteMacEnb
   public:
     LteMacRelayEnb();
     virtual ~LteMacRelayEnb();
-
 };
 
 #endif

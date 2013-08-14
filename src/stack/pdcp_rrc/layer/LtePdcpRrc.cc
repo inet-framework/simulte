@@ -58,7 +58,6 @@ void LtePdcpRrcBase::headerDecompress(cPacket* pkt, int headerSize)
 void LtePdcpRrcBase::setTrafficInformation(cPacket* pkt,
     FlowControlInfo* lteInfo)
 {
-
     if ((strcmp(pkt->getName(), "VoIP")) == 0)
     {
         lteInfo->setApplication(VOIP);
@@ -281,7 +280,6 @@ void LtePdcpRrcBase::clearDrop(MacCid cid)
 {
     Enter_Method("clearDrop");
     dropMap_[cid].clear();
-
 }
 
 void LtePdcpRrcBase::finish()

@@ -112,7 +112,6 @@ class LteRecorder : public cNumericResultRecorder, private cObject
     {
         collect(t, ((TaggedSample*) object)->sample_, ((TaggedSample*) object)->id_, ((TaggedSample*) object)->module_);
     }
-
 };
 
 /**
@@ -158,7 +157,6 @@ class LteStatisticsRecorder : public LteRecorder
      * cStatistic object
      */
     std::map<unsigned int, cStatistic*> stats_;
-
 };
 
 /**
@@ -198,7 +196,6 @@ class LteStatsRecorder : public LteStatisticsRecorder
      * @param id Id specified by the caller
      */
     virtual void collect(simtime_t t, double value, unsigned int id, cComponent* module);
-
 };
 
 /**
@@ -238,7 +235,6 @@ class LteHistogramRecorder : public LteStatisticsRecorder
      * @param id Id specified by the caller
      */
     virtual void collect(simtime_t t, double value, unsigned int id, cComponent* module);
-
 };
 
 /**
@@ -294,7 +290,6 @@ class LteVectorRecorder : public LteRecorder
      * output vector manager
      */
     std::map<unsigned int, void*> handle_;
-
 };
 
 /**

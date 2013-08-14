@@ -57,7 +57,6 @@ bool
 LteRlcAmPdu::isFirst()
 {
     return (firstSn_var == snoFragment_var);
-
 }
 
 bool

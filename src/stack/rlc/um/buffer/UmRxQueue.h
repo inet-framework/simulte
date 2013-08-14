@@ -49,7 +49,6 @@ class LteRlcUm;
  */
 class UmRxQueue : public cSimpleModule
 {
-
   public:
     UmRxQueue();
     virtual ~UmRxQueue();
@@ -105,7 +104,6 @@ class UmRxQueue : public cSimpleModule
 
     /// Timeout for above timer
     double timeout_;
-
 };
 
 #endif

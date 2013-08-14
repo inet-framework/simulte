@@ -36,7 +36,6 @@ class LteMacEnb;
  */
 class LteAmc
 {
-
   private:
     AmcPilot *getAmcPilot(cPar amcMode);
     MacNodeId getNextHop(MacNodeId dst);

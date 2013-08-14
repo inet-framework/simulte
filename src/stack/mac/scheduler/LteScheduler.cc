@@ -56,7 +56,6 @@ void LteScheduler::initializeGrants()
 {
     if (direction_ == DL)
     {
-
         grantTypeMap_[CONVERSATIONAL] = aToGrantType(mac_->par("grantTypeConversationalDl"));
         grantTypeMap_[STREAMING] = aToGrantType(mac_->par("grantTypeStreamingDl"));
         grantTypeMap_[INTERACTIVE] = aToGrantType(mac_->par("grantTypeInteractiveDl"));
@@ -69,7 +68,6 @@ void LteScheduler::initializeGrants()
     }
     else if (direction_ == UL)
     {
-
         grantTypeMap_[CONVERSATIONAL] = aToGrantType(mac_->par("grantTypeConversationalUl"));
         grantTypeMap_[STREAMING] = aToGrantType(mac_->par("grantTypeStreamingUl"));
         grantTypeMap_[INTERACTIVE] = aToGrantType(mac_->par("grantTypeInteractiveUl"));

@@ -31,7 +31,6 @@ class LteAmc;
  */
 class AmcPilot
 {
-
   protected:
 
     //! LteAmc owner module
@@ -70,7 +69,6 @@ class AmcPilot
     }
 
     virtual void updateActiveUsers(ActiveSet aUser, Direction dir)=0;
-
 };
 
 #endif

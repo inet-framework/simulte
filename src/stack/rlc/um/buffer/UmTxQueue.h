@@ -42,7 +42,6 @@
  */
 class UmTxQueue : public cSimpleModule
 {
-
   public:
     UmTxQueue()
     {
@@ -92,7 +91,6 @@ class UmTxQueue : public cSimpleModule
   private:
     /// Size of the fragments
     int fragmentSize_;
-
 };
 
 #endif

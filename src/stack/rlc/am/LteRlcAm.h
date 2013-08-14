@@ -29,7 +29,6 @@ class AmRxQueue;
  */
 class LteRlcAm : public cSimpleModule
 {
-
   protected:
 
     /*

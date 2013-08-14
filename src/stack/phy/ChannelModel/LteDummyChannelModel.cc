@@ -34,7 +34,6 @@ LteDummyChannelModel::LteDummyChannelModel(ParameterMap& params, int band) :
     }
     else
     harqReduction_=0.3;
-
 }
 
 LteDummyChannelModel::~LteDummyChannelModel()

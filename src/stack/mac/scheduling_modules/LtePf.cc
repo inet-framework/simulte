@@ -14,7 +14,6 @@
 
 void LtePf::prepareSchedule()
 {
-
     EV << NOW << "LtePf::execSchedule ############### eNodeB " << eNbScheduler_->mac_->getMacNodeId() << " ###############" << endl;
     EV << NOW << "LtePf::execSchedule Direction: " << ( ( direction_ == DL ) ? " DL ": " UL ") << endl;
 
@@ -130,7 +129,6 @@ void LtePf::prepareSchedule()
 
 void LtePf::commitSchedule()
 {
-
     unsigned int total = eNbScheduler_->resourceBlocks_;
 
     std::map<MacCid, unsigned int>::iterator it = grantedBytes_.begin();
@@ -168,7 +166,6 @@ void LtePf::commitSchedule()
 void
 LtePf::updateSchedulingInfo()
 {
-
 }
 
 void

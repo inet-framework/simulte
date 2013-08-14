@@ -209,7 +209,6 @@ class LteMacPdu : public LteMacPdu_Base
     {
         return (getByteLength() * 8);
     }
-
 };
 
 Register_Class(LteMacPdu);

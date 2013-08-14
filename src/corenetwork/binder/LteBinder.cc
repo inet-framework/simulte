@@ -521,7 +521,6 @@ void LteBinder::transportAppAttach(cModule* parentModule, cModule* appModule,
 void LteBinder::attachAppModule(cModule *parentModule, std::string IPAddr,
     cXMLAttributeMap attr, int counter)
 {
-
     cXMLAttributeMap::iterator jt;
     jt = attr.find("type");
     std::string appType = jt->second;
@@ -566,7 +565,6 @@ void LteBinder::attachAppModule(cModule *parentModule, std::string IPAddr,
         transportAppAttach(parentModule, module, string("udp"));
         if (counter != -1) // set the appropriate port for UL direction
             setTransportAppPort(module, counter, attr);
-
     }
     else if (appType == "TCPBasicClientApp")
     {
@@ -629,7 +627,6 @@ void LteBinder::attachAppModule(cModule *parentModule, std::string IPAddr,
 //    {
 //        module->callInitialize();
 //    }
-
 }
 
 MacNodeId LteBinder::registerNode(cModule *module, LteNodeType type,
@@ -696,7 +693,6 @@ void LteBinder::registerNextHop(MacNodeId masterId, MacNodeId slaveId)
 
 void LteBinder::initialize()
 {
-
     const char * stringa;
 
     std::vector<int> apppriority;
@@ -720,7 +716,6 @@ void LteBinder::initialize()
 
     // execute node creation and setup.
     // nodesConfiguration();
-
 }
 
 std::string LteBinder::increment_address(const char* address_string)  //TODO unused function

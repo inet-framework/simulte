@@ -61,7 +61,6 @@ LteHarqUnitTx::LteHarqUnitTx(unsigned char acid, Codeword cw,
         harqErrorRate_3_ = macOwner_->registerSignal("harqErrorRate_3rd_Ul");
         harqErrorRate_4_ = macOwner_->registerSignal("harqErrorRate_4th_Ul");
     }
-
 }
 
 void LteHarqUnitTx::insertPdu(LteMacPdu *pdu)
@@ -151,7 +150,6 @@ bool LteHarqUnitTx::pduFeedback(HarqAcknowledgment a)
             delete pdu_;
             resetUnit();
             reset = true;
-
         }
         else
         {
@@ -160,7 +158,6 @@ bool LteHarqUnitTx::pduFeedback(HarqAcknowledgment a)
             status_ = TXHARQ_PDU_BUFFERED;
             EV << NOW << " LteHarqUnitTx::pduFeedbackH-ARQ process  " << (unsigned int)acid_ << " Codeword " << cw_ << " PDU "
                << pdu_->getId() << " set for RTX " << endl;
-
         }
     }
     else

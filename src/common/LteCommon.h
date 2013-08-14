@@ -561,7 +561,6 @@ struct BandLimit
     {
         return (limit_[0] > rhs.limit_[0]);
     }
-
 };
 
 /*****************

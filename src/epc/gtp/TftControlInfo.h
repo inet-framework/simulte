@@ -20,7 +20,6 @@
 
 class TftControlInfo : public cObject
 {
-
     unsigned int tft_;
 
   public:

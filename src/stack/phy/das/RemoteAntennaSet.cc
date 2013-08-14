@@ -32,7 +32,6 @@ double RemoteAntennaSet::getAntennaTxPower(unsigned int remote)
     if (remote >= remoteAntennaSet_.size())
         return 0.0;
     return remoteAntennaSet_[remote].txPower_;
-
 }
 
 unsigned int RemoteAntennaSet::getAntennaSetSize()

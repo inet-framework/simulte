@@ -33,7 +33,6 @@ moduleinterface LtePdcpRrc {
 // Base module for the PDCP/RRC layer of LTE Stack.
 //
 simple LtePdcpRrcBase like LtePdcpRrc {
-
     parameters:
         @display("i=block/fork");
         int headerCompressedSize @unit(B) = default(-1B);    // Header compressed size (bytes) ( -1B = compression disabled

@@ -59,7 +59,6 @@ int64 LteHarqBufferTx::pduLength(unsigned char acid, Codeword cw)
 
 void LteHarqBufferTx::markSelected(UnitList unitIds, unsigned char availableTbs)
 {
-
     if (unitIds.second.size() == 0)
     {
         EV << "H-ARQ TX buffer: markSelected(): empty unitIds list" << endl;

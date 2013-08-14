@@ -9,9 +9,10 @@
 // and cannot be removed from it.
 //
 
+#include <assert.h>
 #include "LtePhyUe.h"
 #include "LteFeedbackPkt.h"
-#include "assert.h"
+
 Define_Module(LtePhyUe);
 
 LtePhyUe::LtePhyUe()
@@ -30,7 +31,6 @@ void LtePhyUe::initialize(int stage)
 
     if (stage == 0)
     {
-
         nodeType_ = UE;
         masterId_ = getAncestorPar("masterId");
         candidateMasterId_ = masterId_;
@@ -63,11 +63,9 @@ void LtePhyUe::initialize(int stage)
         WATCH(hysteresisFactor_);
         WATCH(handoverDelta_);
         WATCH(das_);
-
     }
     else if (stage == 1)
     {
-
         if (useBattery_)
         {
             // TODO register the device to the battery with two accounts, e.g. 0=tx and 1=rx
@@ -210,7 +208,6 @@ void LtePhyUe::handleAirFrame(cMessage* msg)
         // DAS
         for (RemoteSet::iterator it = r.begin(); it != r.end(); it++)
         {
-
             EV << "LtePhy: Receiving Packet from antenna " << (*it) << "\n";
 
             /*
@@ -314,7 +311,6 @@ void LtePhyUe::handoverHandler(LteAirFrame* frame, UserControlInfo* lteInfo)
     lteInfo->setDestId(nodeId_);
     if (!enableHandover_)
     {
-
         // Even if handover is not enabled, this call is necessary
         // to allow Reporting Set computation.
         if (getNodeTypeById(lteInfo->getSourceId()) == ENODEB && lteInfo->getSourceId() == masterId_)
@@ -346,7 +342,6 @@ void LtePhyUe::handoverHandler(LteAirFrame* frame, UserControlInfo* lteInfo)
         for (it = rssiV.begin(); it != rssiV.end(); ++it)
             rssi += *it;
         rssi /= rssiV.size();
-
     }
 
     EV << "UE " << nodeId_ << " broadcast frame from " << lteInfo->getSourceId() << " with "
@@ -417,7 +412,6 @@ void LtePhyUe::deleteOldBuffers(MacNodeId masterId)
 
     // delete queues for master at this ue
     rlcUm_->deleteQueues(masterId_);
-
 }
 
 DasFilter* LtePhyUe::getDasFilter()
@@ -465,5 +459,4 @@ void LtePhyUe::sendFeedback(LteFeedbackDoubleVector fbDl, LteFeedbackDoubleVecto
     EV << "LtePhy: " << nodeTypeToA(nodeType_) << " with id "
        << nodeId_ << " sending feedback to the air channel" << endl;
     sendUnicast(frame);
-
 }

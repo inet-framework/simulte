@@ -125,7 +125,6 @@ Cqi LteFeedbackComputationRealistic::getCqi(TxMode txmode, double snr)
             found = i;
             low = min[i];
         }
-
     }
     return found + 1;
 }

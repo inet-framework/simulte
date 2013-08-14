@@ -40,8 +40,8 @@ void DasFilter::setMasterRuSet(MacNodeId masterId)
     }
 
     // Clear structures used with old master on handover
-        reportingSet_.clear();
-    }
+    reportingSet_.clear();
+}
 
 double DasFilter::receiveBroadcast(LteAirFrame* frame, UserControlInfo* lteInfo)
 {
@@ -50,15 +50,15 @@ double DasFilter::receiveBroadcast(LteAirFrame* frame, UserControlInfo* lteInfo)
     reportingSet_.clear();
 
     double rssiEnb = 0;
-    for(unsigned int i=0; i<ruSet_->getAntennaSetSize(); i++)
+    for (unsigned int i=0; i<ruSet_->getAntennaSetSize(); i++)
     {
         // equal bitrate mapping
         std::vector<double> rssiV = ltePhy_->getChannelModel()->getSINR(frame,lteInfo);
         std::vector<double>::iterator it;
-        double rssi=0;
+        double rssi = 0;
         for (it=rssiV.begin();it!=rssiV.end();++it)
-        rssi+=*it;
-        rssi/=rssiV.size();
+            rssi+=*it;
+        rssi /= rssiV.size();
         //EV << "Sender Position: (" << senderPos.getX() << "," << senderPos.getY() << ")\n";
         //EV << "My Position: (" << myPos.getX() << "," << myPos.getY() << ")\n";
 
@@ -70,7 +70,7 @@ double DasFilter::receiveBroadcast(LteAirFrame* frame, UserControlInfo* lteInfo)
         }
         EV << "\n";
         if (i == 0)
-        rssiEnb = rssi;
+            rssiEnb = rssi;
     }
 
     return rssiEnb;

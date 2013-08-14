@@ -137,7 +137,6 @@ void LteRlcAm::routeControlMessage(cPacket *pkt)
 
 void LteRlcAm::handleLowerMessage(cPacket *pkt)
 {
-
     LteRlcAmPdu* pdu = check_and_cast<LteRlcAmPdu*>(pkt);
 
     if ((pdu->getAmType() == ACK) || (pdu->getAmType() == MRW_ACK))

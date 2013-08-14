@@ -67,7 +67,6 @@ class VoIPSender : public cSimpleModule
     virtual int numInitStages() const { return 4; }
     void initialize(int stage);
     void handleMessage(cMessage *msg);
-
 };
 
 #endif

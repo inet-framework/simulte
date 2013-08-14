@@ -144,7 +144,6 @@ class LteHarqProcessRx
     virtual ~LteHarqProcessRx();
 
   protected:
-
 };
 
 #endif

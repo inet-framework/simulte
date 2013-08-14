@@ -57,7 +57,6 @@ void LteRlcMux::mac2rlc(cPacket *pkt)
 
 void LteRlcMux::initialize()
 {
-
     macSap_[IN] = gate("MAC_to_RLC");
     macSap_[OUT] = gate("RLC_to_MAC");
     tmSap_[IN] = gate("TM_Sap$i");
@@ -66,12 +65,10 @@ void LteRlcMux::initialize()
     umSap_[OUT] = gate("UM_Sap$o");
     amSap_[IN] = gate("AM_Sap$i");
     amSap_[OUT] = gate("AM_Sap$o");
-
 }
 
 void LteRlcMux::handleMessage(cMessage* msg)
 {
-
     cPacket* pkt = check_and_cast<cPacket *>(msg);
     EV << "LteRlcMux : Received packet " << pkt->getName() <<
     " from port " << pkt->getArrivalGate()->getName() << endl;

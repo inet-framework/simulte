@@ -32,7 +32,6 @@ LteFeedbackComputationDummy::LteFeedbackComputationDummy(double channelVariation
 
 LteFeedbackComputationDummy::~LteFeedbackComputationDummy()
 {
-
 }
 
 LteFeedbackDoubleVector LteFeedbackComputationDummy::computeFeedback(FeedbackType fbType,
@@ -217,7 +216,6 @@ void LteFeedbackComputationDummy::throwCqi(FeedbackType fbType, int numBands_)
         if (fbType == WIDEBAND && i == 0)
             break;
     }
-
 }
 
 void LteFeedbackComputationDummy::generateBaseFeedback(int numBands, int numPreferredBands,
@@ -246,7 +244,6 @@ void LteFeedbackComputationDummy::generateBaseFeedback(int numBands, int numPref
                 if (txmode == TRANSMIT_DIVERSITY)
                 {
                     newCqi[j] = intuniform(txDivMin_, txDivMax_);
-
                 }
                 else if (txmode == SINGLE_ANTENNA_PORT0)
                 {
@@ -336,5 +333,4 @@ void LteFeedbackComputationDummy::generateBaseFeedback(int numBands, int numPref
         for (j = 0; j < newCqi.size(); j++)
             fb.setWideBandCqi(cqiTemp[j][0], j);
     }
-
 }

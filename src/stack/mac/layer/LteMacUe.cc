@@ -272,7 +272,6 @@ void LteMacUe::macPduUnmake(cPacket* pkt)
 
 void LteMacUe::handleSelfMessage()
 {
-
     EV << "----- UE MAIN LOOP -----" << endl;
 
     // extract pdus from all harqrxbuffers and pass them to unmaker
@@ -412,7 +411,6 @@ void LteMacUe::handleSelfMessage()
             delete schedulingGrant_;
             schedulingGrant_=NULL;
         }
-
     }
 
     //============================ DEBUG ==========================
@@ -482,7 +480,6 @@ LteMacUe::macHandleGrant(cPacket* pkt)
 
     // clearing pending RAC requests
     racRequested_=false;
-
 }
 
 void
@@ -589,7 +586,6 @@ LteMacUe::checkRAC()
 void
 LteMacUe::updateUserTxParam(cPacket* pkt)
 {
-
     UserControlInfo *lteInfo = check_and_cast<UserControlInfo *>
         (pkt->getControlInfo());
 
@@ -622,7 +618,6 @@ LteMacUe::getHighestBackloggedFlow(MacCid& cid, unsigned int& priority)
             // TODO priority = something;
             return true;
         }
-
     }
     return false;
 }
@@ -641,7 +636,6 @@ LteMacUe::getLowestBackloggedFlow(MacCid& cid, unsigned int& priority)
             // TODO priority = something;
             return true;
         }
-
     }
 
     return false;

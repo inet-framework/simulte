@@ -45,7 +45,6 @@ class UmRxQueue;
  */
 class LteRlcUm : public cSimpleModule
 {
-
   public:
     LteRlcUm()
     {

@@ -60,13 +60,11 @@ class LteSchedulingGrant : public LteSchedulingGrant_Base
 
     const unsigned int getBlocks(Remote antenna, Band b) const
         {
-
         return grantedBlocks.at(antenna).at(b);
     }
 
     void setBlocks(Remote antenna, Band b, const unsigned int blocks)
     {
-
         grantedBlocks[antenna][b] = blocks;
     }
 
@@ -77,7 +75,6 @@ class LteSchedulingGrant : public LteSchedulingGrant_Base
 
     void setGrantedBlocks(const RbMap& rbMap)
     {
-
         grantedBlocks = rbMap;
     }
 

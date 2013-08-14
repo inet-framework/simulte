@@ -138,7 +138,6 @@ class LteDlFeedbackGenerator : public cSimpleModule
      * @param newTxMode new transmission mode
      */
     void setTxMode(TxMode newTxMode);
-
 };
 
 #endif

@@ -16,7 +16,6 @@
 
 class LteMaxCi : public virtual LteScheduler
 {
-
   protected:
 
     typedef SortedDesc<MacCid, unsigned int> ScoreDesc;

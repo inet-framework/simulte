@@ -159,7 +159,6 @@ class LteMacBuffer
 
     /// List of  packets
     std::list<PacketInfo> Queue_;
-
 };
 
 #endif

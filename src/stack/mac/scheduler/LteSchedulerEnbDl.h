@@ -24,7 +24,6 @@
  */
 class LteSchedulerEnbDl : public LteSchedulerEnb
 {
-
     // XXX debug: to call grant from mac
     friend class LteMacEnb;
 
@@ -74,7 +73,6 @@ class LteSchedulerEnbDl : public LteSchedulerEnb
      */
     virtual unsigned int schedulePerAcidRtx(MacNodeId nodeId, Codeword cw, unsigned char acid,
         std::vector<BandLimit>* bandLim = NULL, Remote antenna = MACRO, bool limitBl = false);
-
 };
 
 #endif // _LTE_LTE_SCHEDULER_ENB_DL_H_

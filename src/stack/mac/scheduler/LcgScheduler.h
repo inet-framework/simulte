@@ -33,7 +33,6 @@ class LcgScheduler
     template<typename T, typename S>
     struct SortedDesc
     {
-
         /// Connection identifier.
         T x_;
         /// Score value.
@@ -121,7 +120,6 @@ class LcgScheduler
 //        virtual void remove( MacCid cid ) {;}
 //
 //        virtual void update() {;}
-
 };
 #endif
 

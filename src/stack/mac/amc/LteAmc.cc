@@ -173,7 +173,6 @@ void LteAmc::printTxParams(Direction dir)
 
         index++;
     }
-
 }
 
 void LteAmc::printMuMimoMatrix(const char* s)
@@ -306,7 +305,6 @@ void LteAmc::initialize()
     //printFbhb(UL);
     //printTxParams(DL);
     //printTxParams(UL);
-
 }
 
 void LteAmc::rescaleMcs(double rePerRb, Direction dir)
@@ -470,7 +468,6 @@ const UserTxParams& LteAmc::computeTxParams(MacNodeId id, const Direction dir)
     EV << NOW << " LteAmc::computeTxParams --------------::[  END  ]::--------------\n";
 
     return info;
-
 }
 
 void LteAmc::cleanAmcStructures(Direction dir, ActiveSet aUser)
@@ -486,7 +483,6 @@ void LteAmc::cleanAmcStructures(Direction dir, ActiveSet aUser)
         std::vector<UserTxParams>::iterator et = dlTxParams_.end();
         for(; it != et; ++it)
         it->restoreDefaultValues();
-
     }
     else if (dir == UL)
     {
@@ -495,7 +491,6 @@ void LteAmc::cleanAmcStructures(Direction dir, ActiveSet aUser)
         std::vector<UserTxParams>::iterator et = ulTxParams_.end();
         for(; it != et; ++it)
         it->restoreDefaultValues();
-
     }
     else
     {
@@ -513,7 +508,6 @@ unsigned int LteAmc::computeReqRbs(MacNodeId id, Band b, Codeword cw, unsigned i
 
     if(bytes == 0)
     {
-
         // DEBUG
         EV << NOW << " LteAmc::getRbs Occupation: 0 bytes\n";
         EV << NOW << " LteAmc::getRbs Number of RBs: 0\n";
@@ -566,7 +560,6 @@ unsigned int LteAmc::computeBitsOnNRbs(MacNodeId id, Band b, unsigned int blocks
     unsigned int codewords = layers.size();
     for (Codeword cw = 0; cw < codewords; ++cw)
     {
-
         // if CQI == 0 the UE is out of range, thus bits=0
         if (info.readCqiVector().at(cw) == 0)
         {
@@ -928,7 +921,6 @@ Cqi LteAmc::readWbCqi(const CqiVector& cqi)
     unsigned int bands = cqi.size();
     for (Band b = 0; b < bands; ++b)
     {
-
         EV << "LteAmc::getWbCqi - Cqi " << cqi.at(b) << " on band " << (int)b << endl;
 
         cqiCounter += cqi.at(b);
@@ -959,7 +951,6 @@ Cqi LteAmc::readWbCqi(const CqiVector& cqi)
         // ceil or floor depending on decimal part (casting to unsigned int results in a ceiling)
         double ret = (cqiComputationWeight_ + 1.0) * ((double) cqiMean - (double) cqiMin);
         cqiRet += ret - ((unsigned int) ret) > 0.5 ? (unsigned int) ret + 1 : (unsigned int) ret;
-
     }
     // the following weight is used in order to obtain a value between the min and the max
     else if (0.0 < cqiComputationWeight_ && cqiComputationWeight_ < 1.0)
@@ -1029,7 +1020,6 @@ Pmi LteAmc::readWbPmi(const PmiVector& pmi)
         // ceil or floor depending on decimal part (casting to unsigned int results in a ceiling)
         double ret = (pmiComputationWeight_ + 1.0) * ((double) pmiMean - (double) pmiMin);
         pmiRet += ret - ((unsigned int) ret) > 0.5 ? (unsigned int) ret + 1 : (unsigned int) ret;
-
     }
     // the following weight is used in order to obtain a value between the min and the max
     else if (0.0 < pmiComputationWeight_ && pmiComputationWeight_ < 1.0)
@@ -1060,7 +1050,6 @@ void LteAmc::detachUser(MacNodeId nodeId, Direction dir)
     EV << "##################################" << endl;
     try
     {
-
         ConnectedUesMap *connectedUe;
         std::vector<UserTxParams> *userInfoVec;
         History_ *history;
@@ -1097,13 +1086,11 @@ void LteAmc::detachUser(MacNodeId nodeId, Direction dir)
 
         // clear user transmission parameters for this UE
         (*userInfoVec).at(nodeIndex).restoreDefaultValues();
-
     }
     catch(std::exception& e)
     {
         throw cRuntimeError("Exception in LteAmc::detachUser(): %s", e.what());
     }
-
 }
 
 void LteAmc::attachUser(MacNodeId nodeId, Direction dir)
@@ -1255,7 +1242,6 @@ void LteAmc::testUe(MacNodeId nodeId, Direction dir)
         feedback = (*history).at(*it).at(nodeIndex);
         for(int i=0; i<numTxModes; i++)
         {
-
             // Print only non empty feedback summary! (all cqi are != NOSIGNALCQI)
             Cqi testCqi = (feedback.at(i).get()).getCqi(Codeword(0),Band(0));
             if(testCqi==NOSIGNALCQI)

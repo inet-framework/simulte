@@ -20,7 +20,6 @@
 
 class AmRxQueue : public cSimpleModule
 {
-
   protected:
 
     //! Receiver window descriptor
@@ -120,7 +119,6 @@ class AmRxQueue : public cSimpleModule
 
     //! Discard out of MRW PDUs
     void discard(const int sn);
-
 };
 
 #endif

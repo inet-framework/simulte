@@ -14,7 +14,6 @@
 
 void LteMaxCi::prepareSchedule()
 {
-
     EV << NOW << " LteMaxCI::schedule " << eNbScheduler_->mac_->getMacNodeId() << endl;
 
     activeConnectionTempSet_ = activeConnectionSet_;
@@ -75,7 +74,6 @@ void LteMaxCi::prepareSchedule()
         score.push (desc);
 
         EV << NOW << " LteMaxCI::schedule computed for cid " << cid << " score of " << desc.score_ << endl;
-
     }
 
     // Schedule the connections in score order.
@@ -116,14 +114,11 @@ void LteMaxCi::prepareSchedule()
 
 void LteMaxCi::commitSchedule()
 {
-
     activeConnectionSet_ = activeConnectionTempSet_;
-
 }
 
 void LteMaxCi::updateSchedulingInfo()
 {
-
 }
 
 void LteMaxCi::notifyActiveConnection(MacCid cid)

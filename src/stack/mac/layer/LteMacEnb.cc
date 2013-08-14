@@ -283,7 +283,6 @@ void LteMacEnb::bufferizeBsr(MacBsr* bsr, MacCid cid)
         EV << "LteBsrBuffers : Added new BSR buffer for node: "
            << MacCidToNodeId(cid) << " for Lcid: " << MacCidToLcid(cid)
            << " Current BSR size: " << bsr->getSize() << "\n";
-
     }
     else
     {
@@ -326,7 +325,6 @@ void LteMacEnb::sendGrants(LteMacScheduleList* scheduleList)
         }
         else
         {
-
             // active cw becomes the "other one"
             cw = otherCw;
         }
@@ -412,7 +410,6 @@ void LteMacEnb::sendGrants(LteMacScheduleList* scheduleList)
 
 void LteMacEnb::macHandleRac(cPacket* pkt)
 {
-
     EV << NOW << " LteMacEnb::macHandleRac" << endl;
 
     LteRac* racPkt = check_and_cast<LteRac*> (pkt);
@@ -429,12 +426,10 @@ void LteMacEnb::macHandleRac(cPacket* pkt)
     uinfo->setDirection(DL);
 
     sendLowerPackets(racPkt);
-
 }
 
 void LteMacEnb::macPduMake(LteMacScheduleList* scheduleList)
 {
-
     EV << "----- START LteMacEnb::macPduMake -----\n";
     // Finalizes the scheduling decisions according to the schedule list,
     // detaching sdus from real buffers.
@@ -457,7 +452,6 @@ void LteMacEnb::macPduMake(LteMacScheduleList* scheduleList)
         TxMode txmode;
         while (sduPerCid > 0)
         {
-
             if ((mbuf_[destCid]->getQueueLength()) < (int) sduPerCid)
             {
                 throw cRuntimeError("Abnormal queue length detected while building MAC PDU for cid %d "
@@ -723,7 +717,6 @@ void LteMacEnb::macHandleFeedbackPkt(cPacket *pkt)
 
 void LteMacEnb::updateUserTxParam(cPacket* pkt)
 {
-
     UserControlInfo *lteInfo = check_and_cast<UserControlInfo *>(
         pkt->getControlInfo());
 
@@ -744,7 +737,6 @@ void LteMacEnb::updateUserTxParam(cPacket* pkt)
 
     lteInfo->setGrantedBlocks(rbMap);
     lteInfo->setTotalGrantedBlocks(grantedBlocks);
-
 }
 ActiveSet LteMacEnb::getActiveSet(Direction dir)
 {
@@ -791,7 +783,6 @@ void LteMacEnb::cqiStatistics(MacNodeId id, Direction dir, LteFeedback fb)
                         break;
                 }
             }
-
         }
         else if (fb.getTxMode() == TRANSMIT_DIVERSITY)
         {
@@ -821,7 +812,6 @@ void LteMacEnb::cqiStatistics(MacNodeId id, Direction dir, LteFeedback fb)
                         break;
                 }
             }
-
         }
         else if (fb.getTxMode() == OL_SPATIAL_MULTIPLEXING)
         {
@@ -851,7 +841,6 @@ void LteMacEnb::cqiStatistics(MacNodeId id, Direction dir, LteFeedback fb)
                         break;
                 }
             }
-
         }
         else if (fb.getTxMode() == MULTI_USER)
         {
