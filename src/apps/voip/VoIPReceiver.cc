@@ -65,8 +65,8 @@ void VoIPReceiver::initialize(int stage)
     voIPPlayoutLossSignal = registerSignal("voIPPlayoutLossSignal");
 
     mTaggedSample = new TaggedSample();
-    mTaggedSample->module = check_and_cast<cComponent*>(this);
-    mTaggedSample->id = this->getId();
+    mTaggedSample->module_ = check_and_cast<cComponent*>(this);
+    mTaggedSample->id_ = this->getId();
 }
 
 void VoIPReceiver::handleMessage(cMessage *msg)
@@ -128,7 +128,7 @@ void VoIPReceiver::playout(bool finish)
     else
         channelLoss = pPacket->getNframes() - mPacketsList.size();
 
-    mTaggedSample->sample = ((double) channelLoss / (double) n_frames);
+    mTaggedSample->sample_ = ((double) channelLoss / (double) n_frames);
     emit(mFrameLossSignal, mTaggedSample);
 
     //VETTORE PER GESTIRE DUPLICATI
@@ -145,7 +145,7 @@ void VoIPReceiver::playout(bool finish)
     {
         pPacket = mPacketsList.front();
 
-        mTaggedSample->sample = pPacket->getArrivalTime() - SIMTIME_DBL(pPacket->getTimestamp());
+        mTaggedSample->sample_ = pPacket->getArrivalTime() - SIMTIME_DBL(pPacket->getTimestamp());
         emit(mFrameDelaySignal, mTaggedSample);
 
         pPacket->setPlayoutTime(firstPlayoutTime + (pPacket->getIDframe() - firstFrameId) * mSamplingDelta);
@@ -226,14 +226,14 @@ void VoIPReceiver::playout(bool finish)
 
     double mos = eModel(mPlayoutDelay, proportionalLoss);
 
-    mTaggedSample->sample = mPlayoutDelay;
+    mTaggedSample->sample_ = mPlayoutDelay;
     emit(mPlayoutDelaySignal, mTaggedSample);
-    mTaggedSample->sample = ((double) playoutLoss / (double) n_frames);
-    emit(voIPPlayoutLossSignal, mTaggedSample->sample);
+    mTaggedSample->sample_ = ((double) playoutLoss / (double) n_frames);
+    emit(voIPPlayoutLossSignal, mTaggedSample->sample_);
     emit(mPlayoutLossSignal, mTaggedSample);
-    mTaggedSample->sample = mos;
+    mTaggedSample->sample_ = mos;
     emit(mMosSignal, mTaggedSample);
-    mTaggedSample->sample = ((double) tailDropLoss / (double) n_frames);
+    mTaggedSample->sample_ = ((double) tailDropLoss / (double) n_frames);
     emit(mTaildropLossSignal, mTaggedSample);
 
     EV << "MOS CALCOLATO: eModel( " << mPlayoutDelay << " , " << tailDropLoss << "+" << playoutLoss << "+"

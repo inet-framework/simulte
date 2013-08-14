@@ -20,18 +20,19 @@
 #include "IPvXAddressResolver.h"
 #include "UDPSocket.h"
 #include "VoipPacket_m.h"
+#include "lterecorder.h"
 #include <list>
 
 class VoIPReceiver : public cSimpleModule
 {
-    class TaggedSample : public cObject
-    {
-    public:
-        double sample;
-        unsigned int id;
-        // the emitting cComponent (module)
-        cComponent* module;
-    };
+//    class TaggedSample : public cObject
+//    {
+//    public:
+//        double sample_;
+//        unsigned int id_;
+//        // the emitting cComponent (module)
+//        cComponent* module_;
+//    };
     UDPSocket socket;
 
     ~VoIPReceiver();

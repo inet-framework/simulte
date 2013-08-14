@@ -32,6 +32,7 @@
 #include <list>
 #include "Coord.h"
 #include <algorithm>
+#include "lterecorder.h"
 
 class LteBinder;
 class LteDeployer;
@@ -522,14 +523,14 @@ struct AbsStatusInfoMsg
  * This is a sample used to gather statistics.
  * It contains a sample plus an id for the metric
  */
-class TaggedSample : public cObject
-{
-  public:
-    double sample;
-    unsigned int id;
-    // the emitting cComponent (module)
-    cComponent* module;
-};
+//class TaggedSample : public cObject
+//{
+//  public:
+//    double sample_;
+//    unsigned int id_;
+//    // the emitting cComponent (module)
+//    cComponent* module_;
+//};
 
 /**
  * The following structure specifies a band and a byte amount which limits the schedulable data

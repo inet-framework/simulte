@@ -39,8 +39,8 @@ LteHarqBufferRx::LteHarqBufferRx(unsigned int num, LteMacBase *owner,
             "macThroughputUl");
         macCellThroughput_ = macOwner_->registerSignal("macCellThroughputUl");
 
-        tSampleCell_->module = check_and_cast<cComponent*>(macOwner_);
-        tSample_->module = check_and_cast<cComponent*>(
+        tSampleCell_->module_ = check_and_cast<cComponent*>(macOwner_);
+        tSample_->module_ = check_and_cast<cComponent*>(
             getMacByMacNodeId(nodeId_));
     }
     else if (macOwner_->getNodeType() == UE)
@@ -50,8 +50,8 @@ LteHarqBufferRx::LteHarqBufferRx(unsigned int num, LteMacBase *owner,
         macCellThroughput_ = nodeB->registerSignal("macCellThroughputDl");
         macDelay_ = macOwner_->registerSignal("macDelayDl");
 
-        tSampleCell_->module = nodeB;
-        tSample_->module = macOwner_;
+        tSampleCell_->module_ = nodeB;
+        tSample_->module_ = macOwner_;
     }
 }
 
@@ -131,14 +131,14 @@ std::list<LteMacPdu *> LteHarqBufferRx::extractCorrectPdus()
 
                 // Calculate delay by subtracting the arrival time
                 // to the MAC packet creation time
-                tSample_->sample = (NOW - temp->getCreationTime()).dbl();
+                tSample_->sample_ = (NOW - temp->getCreationTime()).dbl();
                 if (info->getDirection() == DL)
                 {
-                    tSample_->id = info->getDestId();
+                    tSample_->id_ = info->getDestId();
                 }
                 else if (info->getDirection() == UL)
                 {
-                    tSample_->id = info->getSourceId();
+                    tSample_->id_ = info->getSourceId();
                 }
                 else
                 {
@@ -148,20 +148,21 @@ std::list<LteMacPdu *> LteHarqBufferRx::extractCorrectPdus()
                 macOwner_->emit(macDelay_, tSample_);
 
                 // Calculate Throughput by sending the number of bits for this packet
-                tSample_->sample = size;
-                tSampleCell_->sample = size;
+                tSample_->sample_ = size;
+                tSampleCell_->sample_ = size;
                 cModule* nodeb = NULL;
                 if (macOwner_->getNodeType() == UE)
                 {
                     nodeb = getMacByMacNodeId(macOwner_->getMacCellId());
-                    tSample_->id = info->getDestId();
-                    tSampleCell_->id = info->getSourceId();
+
+                    tSample_->id_ = info->getDestId();
+                    tSampleCell_->id_ = info->getSourceId();
                 }
                 else if (macOwner_->getNodeType() == ENODEB)
                 {
                     nodeb = macOwner_;
-                    tSample_->id = info->getSourceId();
-                    tSampleCell_->id = info->getDestId();
+                    tSample_->id_ = info->getSourceId();
+                    tSampleCell_->id_ = info->getDestId();
                 }
                 else
                 {

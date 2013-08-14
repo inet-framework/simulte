@@ -27,10 +27,10 @@ using namespace std;
 class TaggedSample : public cObject
 {
   public:
-    double sample;
-    unsigned int id;
+    double sample_;
+    unsigned int id_;
     // the emitting cComponent (module)
-    cComponent* module;
+    cComponent* module_;
 };
 
 class VoDUDPClient : public cSimpleModule

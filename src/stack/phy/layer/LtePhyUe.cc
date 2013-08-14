@@ -195,9 +195,9 @@ void LtePhyUe::handleAirFrame(cMessage* msg)
         if (lteInfo->getUserTxParams()->readCqiVector().size() == 1)
             cw = 0;
         double cqi = lteInfo->getUserTxParams()->readCqiVector()[cw];
-        tSample_->sample = cqi;
-        tSample_->id = nodeId_;
-        tSample_->module = getMacByMacNodeId(nodeId_);
+        tSample_->sample_ = cqi;
+        tSample_->id_ = nodeId_;
+        tSample_->module_ = getMacByMacNodeId(nodeId_);
         emit(averageCqiDl_, tSample_);
     }
     // apply decider to received packet

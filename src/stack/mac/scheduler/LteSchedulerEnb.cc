@@ -113,7 +113,8 @@ void LteSchedulerEnb::initialize(Direction dir, LteMacEnb* mac)
     rb_9 = mac_->registerSignal("rb_9");
 
     tSample_ = new TaggedSample();
-    tSample_->module = check_and_cast<cComponent*>(mac_);
+
+    tSample_->module_ = check_and_cast<cComponent*>(mac_);
 }
 
 LteMacScheduleList* LteSchedulerEnb::schedule()
@@ -785,14 +786,14 @@ void LteSchedulerEnb::resourceBlockStatistics(bool sleep)
 {
     if (sleep)
     {
-        tSample_->id = mac_->getMacCellId();
+        tSample_->id_ = mac_->getMacCellId();
         if (direction_ == DL)
         {
-            tSample_->sample = 0;
+            tSample_->sample_ = 0;
             mac_->emit(cellBlocksUtilizationDl_, tSample_);
-            tSample_->sample = 0;
+            tSample_->sample_ = 0;
             mac_->emit(lteAvgServedBlocksDl_, tSample_);
-            tSample_->sample = mac_->getIdleLevel(DL, MBSFN);
+            tSample_->sample_ = mac_->getIdleLevel(DL, MBSFN);
             mac_->emit(depletedPowerDl_, tSample_);
         }
         return;
@@ -846,23 +847,23 @@ void LteSchedulerEnb::resourceBlockStatistics(bool sleep)
     // antenna here is the number of antennas used; the same applies for plane;
     // Compute average OFDMA utilization between layers and antennas
     utilization /= (((double) (antenna)) * ((double) resourceBlocks_));
-    tSample_->id = mac_->getMacCellId();
+    tSample_->id_ = mac_->getMacCellId();
     if (direction_ == DL)
     {
-        tSample_->sample = utilization;
+        tSample_->sample_ = utilization;
         mac_->emit(cellBlocksUtilizationDl_, tSample_);
-        tSample_->sample = allocatedBlocks;
+        tSample_->sample_ = allocatedBlocks;
         mac_->emit(lteAvgServedBlocksDl_, tSample_);
-        tSample_->sample = depletedPower;
+        tSample_->sample_ = depletedPower;
         mac_->emit(depletedPowerDl_, tSample_);
     }
     else if (direction_ == UL)
     {
-        tSample_->sample = utilization;
+        tSample_->sample_ = utilization;
         mac_->emit(cellBlocksUtilizationUl_, tSample_);
-        tSample_->sample = allocatedBlocks;
+        tSample_->sample_ = allocatedBlocks;
         mac_->emit(lteAvgServedBlocksUl_, tSample_);
-        tSample_->sample = depletedPower;
+        tSample_->sample_ = depletedPower;
         mac_->emit(depletedPowerUl_, tSample_);
     }
     else

@@ -121,9 +121,9 @@ void LtePhyEnb::handleAirFrame(cMessage* msg)
     if ((lteInfo->getUserTxParams()) != NULL)
     {
         double cqi = lteInfo->getUserTxParams()->readCqiVector()[lteInfo->getCw()];
-        tSample_->sample = cqi;
-        tSample_->id = lteInfo->getSourceId();
-        tSample_->module = getMacByMacNodeId(lteInfo->getSourceId());
+        tSample_->sample_ = cqi;
+        tSample_->id_ = lteInfo->getSourceId();
+        tSample_->module_ = getMacByMacNodeId(lteInfo->getSourceId());
         emit(averageCqiUl_, tSample_);
     }
     bool result = true;

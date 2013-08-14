@@ -136,24 +136,24 @@ void AmRxQueue::discard(const int sn)
 
     if (dir != UNKNOWN_DIRECTION)
     {
-        tSample_->sample = 1;
-        tSampleCell_->sample = 1;
+        tSample_->sample_ = 1;
+        tSampleCell_->sample_ = 1;
         if (dir == DL)
         {
-            tSample_->id = dstId;
-            tSampleCell_->id = srcId;
+            tSample_->id_ = dstId;
+            tSampleCell_->id_ = srcId;
         }
         else if (dir == UL)
         {
-            tSample_->id = srcId;
-            tSampleCell_->id = dstId;
+            tSample_->id_ = srcId;
+            tSampleCell_->id_ = dstId;
         }
         // UE module
         cModule* ue = getRlcByMacNodeId((dir == DL ? dstId : srcId), UM);
         // NODEB
         cModule* nodeb = getRlcByMacNodeId((dir == DL ? srcId : dstId), UM);
-        tSampleCell_->module = nodeb;
-        tSample_->module = ue;
+        tSampleCell_->module_ = nodeb;
+        tSample_->module_ = ue;
         ue->emit(rlcPacketLoss_, tSample_);
         nodeb->emit(rlcCellPacketLoss_, tSampleCell_);
     }
@@ -351,33 +351,33 @@ void AmRxQueue::passUp(const int index)
 
     if (dir == DL)
     {
-        tSampleCell_->id = srcId;
-        tSample_->id = dstId;
+        tSampleCell_->id_ = srcId;
+        tSample_->id_ = dstId;
         nodeb = getRlcByMacNodeId(srcId, UM);
         ue = getRlcByMacNodeId(dstId, UM);
     }
     else if (dir == UL)
     {
-        tSampleCell_->id = dstId;
-        tSample_->id = srcId;
+        tSampleCell_->id_ = dstId;
+        tSample_->id_ = srcId;
         nodeb = getRlcByMacNodeId(dstId, UM);
         ue = getRlcByMacNodeId(srcId, UM);
     }
 
-    tSampleCell_->module = nodeb;
-    tSample_->module = ue;
+    tSampleCell_->module_ = nodeb;
+    tSample_->module_ = ue;
 
-    tSample_->sample = pkt->getByteLength();
-    tSampleCell_->sample = pkt->getByteLength();
+    tSample_->sample_ = pkt->getByteLength();
+    tSampleCell_->sample_ = pkt->getByteLength();
 
     nodeb->emit(rlcCellThroughput_, tSampleCell_);
     ue->emit(rlcThroughput_, tSample_);
 
-    tSample_->sample = delay;
+    tSample_->sample_ = delay;
     ue->emit(rlcDelay_, tSample_);
 
-    tSample_->sample = 0;
-    tSampleCell_->sample = 0;
+    tSample_->sample_ = 0;
+    tSampleCell_->sample_ = 0;
     ue->emit(rlcPacketLoss_, tSample_);
     nodeb->emit(rlcCellPacketLoss_, tSampleCell_);
     // Get the SDU and pass it to the upper layers - PDU // SDU // PDCPPDU

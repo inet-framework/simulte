@@ -57,7 +57,7 @@ void LtePhyBase::initialize(int stage)
             error("no phy listeners");
 
         tSample_ = new TaggedSample();
-        tSample_->module = check_and_cast<cComponent*>(this);
+        tSample_->module_ = check_and_cast<cComponent*>(this);
         carrierFrequency_ = 2.1e+9;
         WATCH(numAirFrameReceived_);
         WATCH(numAirFrameNotReceived_);

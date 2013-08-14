@@ -255,8 +255,8 @@ void LteMacEnb::initialize(int stage)
         cqiDlSiso3_ = registerSignal("cqiDlSiso3");
         cqiDlSiso4_ = registerSignal("cqiDlSiso4");
 
-        tSample_->module = check_and_cast<cComponent*>(this);
-        tSample_->id = nodeId_;
+        tSample_->module_ = check_and_cast<cComponent*>(this);
+        tSample_->id_ = nodeId_;
         WATCH(numAntennas_);
         WATCH_MAP(bsrbuf_);
     }
@@ -754,7 +754,7 @@ void LteMacEnb::cqiStatistics(MacNodeId id, Direction dir, LteFeedback fb)
 {
     if (dir == DL)
     {
-        tSample_->id = id;
+        tSample_->id_ = id;
         if (fb.getTxMode() == SINGLE_ANTENNA_PORT0)
         {
             for (unsigned int i = 0; i < fb.getBandCqi(0).size(); i++)
@@ -762,23 +762,23 @@ void LteMacEnb::cqiStatistics(MacNodeId id, Direction dir, LteFeedback fb)
                 switch (i)
                 {
                     case 0:
-                        tSample_->sample = fb.getBandCqi(0)[i];
+                        tSample_->sample_ = fb.getBandCqi(0)[i];
                         emit(cqiDlSiso0_, tSample_);
                         break;
                     case 1:
-                        tSample_->sample = fb.getBandCqi(0)[i];
+                        tSample_->sample_ = fb.getBandCqi(0)[i];
                         emit(cqiDlSiso1_, tSample_);
                         break;
                     case 2:
-                        tSample_->sample = fb.getBandCqi(0)[i];
+                        tSample_->sample_ = fb.getBandCqi(0)[i];
                         emit(cqiDlSiso2_, tSample_);
                         break;
                     case 3:
-                        tSample_->sample = fb.getBandCqi(0)[i];
+                        tSample_->sample_ = fb.getBandCqi(0)[i];
                         emit(cqiDlSiso3_, tSample_);
                         break;
                     case 4:
-                        tSample_->sample = fb.getBandCqi(0)[i];
+                        tSample_->sample_ = fb.getBandCqi(0)[i];
                         emit(cqiDlSiso4_, tSample_);
                         break;
                 }
@@ -791,23 +791,23 @@ void LteMacEnb::cqiStatistics(MacNodeId id, Direction dir, LteFeedback fb)
                 switch (i)
                 {
                     case 0:
-                        tSample_->sample = fb.getBandCqi(0)[i];
+                        tSample_->sample_ = fb.getBandCqi(0)[i];
                         emit(cqiDlTxDiv0_, tSample_);
                         break;
                     case 1:
-                        tSample_->sample = fb.getBandCqi(0)[i];
+                        tSample_->sample_ = fb.getBandCqi(0)[i];
                         emit(cqiDlTxDiv1_, tSample_);
                         break;
                     case 2:
-                        tSample_->sample = fb.getBandCqi(0)[i];
+                        tSample_->sample_ = fb.getBandCqi(0)[i];
                         emit(cqiDlTxDiv2_, tSample_);
                         break;
                     case 3:
-                        tSample_->sample = fb.getBandCqi(0)[i];
+                        tSample_->sample_ = fb.getBandCqi(0)[i];
                         emit(cqiDlTxDiv3_, tSample_);
                         break;
                     case 4:
-                        tSample_->sample = fb.getBandCqi(0)[i];
+                        tSample_->sample_ = fb.getBandCqi(0)[i];
                         emit(cqiDlTxDiv4_, tSample_);
                         break;
                 }
@@ -820,23 +820,23 @@ void LteMacEnb::cqiStatistics(MacNodeId id, Direction dir, LteFeedback fb)
                 switch (i)
                 {
                     case 0:
-                        tSample_->sample = fb.getBandCqi(0)[i];
+                        tSample_->sample_ = fb.getBandCqi(0)[i];
                         emit(cqiDlSpmux0_, tSample_);
                         break;
                     case 1:
-                        tSample_->sample = fb.getBandCqi(0)[i];
+                        tSample_->sample_ = fb.getBandCqi(0)[i];
                         emit(cqiDlSpmux1_, tSample_);
                         break;
                     case 2:
-                        tSample_->sample = fb.getBandCqi(0)[i];
+                        tSample_->sample_ = fb.getBandCqi(0)[i];
                         emit(cqiDlSpmux2_, tSample_);
                         break;
                     case 3:
-                        tSample_->sample = fb.getBandCqi(0)[i];
+                        tSample_->sample_ = fb.getBandCqi(0)[i];
                         emit(cqiDlSpmux3_, tSample_);
                         break;
                     case 4:
-                        tSample_->sample = fb.getBandCqi(0)[i];
+                        tSample_->sample_ = fb.getBandCqi(0)[i];
                         emit(cqiDlSpmux4_, tSample_);
                         break;
                 }
@@ -849,23 +849,23 @@ void LteMacEnb::cqiStatistics(MacNodeId id, Direction dir, LteFeedback fb)
                 switch (i)
                 {
                     case 0:
-                        tSample_->sample = fb.getBandCqi(0)[i];
+                        tSample_->sample_ = fb.getBandCqi(0)[i];
                         emit(cqiDlMuMimo0_, tSample_);
                         break;
                     case 1:
-                        tSample_->sample = fb.getBandCqi(0)[i];
+                        tSample_->sample_ = fb.getBandCqi(0)[i];
                         emit(cqiDlMuMimo1_, tSample_);
                         break;
                     case 2:
-                        tSample_->sample = fb.getBandCqi(0)[i];
+                        tSample_->sample_ = fb.getBandCqi(0)[i];
                         emit(cqiDlMuMimo2_, tSample_);
                         break;
                     case 3:
-                        tSample_->sample = fb.getBandCqi(0)[i];
+                        tSample_->sample_ = fb.getBandCqi(0)[i];
                         emit(cqiDlMuMimo3_, tSample_);
                         break;
                     case 4:
-                        tSample_->sample = fb.getBandCqi(0)[i];
+                        tSample_->sample_ = fb.getBandCqi(0)[i];
                         emit(cqiDlMuMimo4_, tSample_);
                         break;
                 }

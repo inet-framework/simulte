@@ -179,8 +179,8 @@ bool LteMacBase::bufferizePacket(cPacket* pkt)
         LteMacBuffer* vqueue = macBuffers_.find(cid)->second;
         if (!queue->pushBack(pkt))
         {
-            tSample_->id=nodeId_;
-            tSample_->sample=pkt->getByteLength();
+            tSample_->id_=nodeId_;
+            tSample_->sample_=pkt->getByteLength();
             if (lteInfo->getDirection()==DL)
             {
                 emit(macBufferOverflowDl_,tSample_);
@@ -283,7 +283,7 @@ void LteMacBase::initialize(int stage)
         sentPacketToUpperLayer = registerSignal("sentPacketToUpperLayer");
         sentPacketToLowerLayer = registerSignal("sentPacketToLowerLayer");
         tSample_ = new TaggedSample();
-        tSample_->module = this;
+        tSample_->module_ = this;
 
         registerInterface();
 

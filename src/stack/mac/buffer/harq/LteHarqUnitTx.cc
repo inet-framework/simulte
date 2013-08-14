@@ -29,15 +29,15 @@ LteHarqUnitTx::LteHarqUnitTx(unsigned char acid, Codeword cw,
     tSample_ = new TaggedSample();
 
     tSampleCell_ = new TaggedSample();
-    tSampleCell_->module = check_and_cast<cComponent*>(macOwner_);
+    tSampleCell_->module_ = check_and_cast<cComponent*>(macOwner_);
 
     if (macOwner_->getNodeType() == ENODEB)
     {
-        tSample_->module = check_and_cast<cComponent*>(dstMac_);
+        tSample_->module_ = check_and_cast<cComponent*>(dstMac_);
 
         macCellPacketLoss_ = macOwner_->registerSignal("macCellPacketLossDl");
 
-        tSampleCell_->module = check_and_cast<cComponent*>(macOwner_);
+        tSampleCell_->module_ = check_and_cast<cComponent*>(macOwner_);
 
         macPacketLoss_ = dstMac_->registerSignal("macPacketLossDl");
         harqErrorRate_ = dstMac_->registerSignal("harqErrorRateDl");
@@ -49,10 +49,10 @@ LteHarqUnitTx::LteHarqUnitTx(unsigned char acid, Codeword cw,
     else
     {
         cModule* nodeB = getMacByMacNodeId(macOwner_->getMacCellId());
-        tSample_->module = check_and_cast<cComponent*>(macOwner_);
+        tSample_->module_ = check_and_cast<cComponent*>(macOwner_);
 
         macCellPacketLoss_ = nodeB->registerSignal("macCellPacketLossUl");
-        tSampleCell_->module = check_and_cast<cComponent*>(nodeB);
+        tSampleCell_->module_ = check_and_cast<cComponent*>(nodeB);
 
         macPacketLoss_ = macOwner_->registerSignal("macPacketLossUl");
         harqErrorRate_ = macOwner_->registerSignal("harqErrorRateUl");
@@ -134,13 +134,13 @@ bool LteHarqUnitTx::pduFeedback(HarqAcknowledgment a)
         delete pdu_;
         resetUnit();
         reset = true;
-        tSample_->sample = 0;
-        tSampleCell_->sample = 0;
+        tSample_->sample_ = 0;
+        tSampleCell_->sample_ = 0;
     }
     else if (a == HARQNACK)
     {
-        tSample_->sample = 1;
-        tSampleCell_->sample = 1;
+        tSample_->sample_ = 1;
+        tSampleCell_->sample_ = 1;
         if (transmissions_ == (maxHarqRtx_ + 1))
         {
             // discard
@@ -168,12 +168,12 @@ bool LteHarqUnitTx::pduFeedback(HarqAcknowledgment a)
     LteMacBase* emitter = NULL;
     if (dir == DL)
     {
-        tSample_->id = dstId;
+        tSample_->id_ = dstId;
         emitter = dstMac_;
     }
     else if (dir == UL)
     {
-        tSample_->id = srcId;
+        tSample_->id_ = srcId;
         emitter = macOwner_;
     }
     else
@@ -203,7 +203,7 @@ bool LteHarqUnitTx::pduFeedback(HarqAcknowledgment a)
 
     if (reset)
     {
-        tSampleCell_->id = srcId;
+        tSampleCell_->id_ = srcId;
         emitter->emit(macPacketLoss_, tSample_);
         macOwner_->emit(macCellPacketLoss_, tSampleCell_);
     }

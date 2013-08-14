@@ -51,7 +51,7 @@ void VoDUDPClient::initialize(int stage)
     delayLayer2_ = registerSignal("VoDDelayLayer2");
     delayLayer3_ = registerSignal("VoDDelayLayer3");
     tSample_ = new TaggedSample();
-    tSample_->module = check_and_cast<cComponent*>(this);
+    tSample_->module_ = check_and_cast<cComponent*>(this);
 }
 
 void VoDUDPClient::finish()
@@ -142,30 +142,30 @@ void VoDUDPClient::receiveStream(VoDPacket *msg)
     int frameLength = msg->getFrameLength();
     simtime_t delay = simTime() - sendingTime;
     int layer = msg->getQid();
-    tSample_->sample = msg->getByteLength();
-    tSample_->id = 0;
+    tSample_->sample_ = msg->getByteLength();
+    tSample_->id_ = 0;
     if (layer == 0)
     {
         emit(tptLayer0_, tSample_);
-        tSample_->sample = delay.dbl();
+        tSample_->sample_ = delay.dbl();
         emit(delayLayer0_, tSample_);
     }
     else if (layer == 1)
     {
         emit(tptLayer1_, tSample_);
-        tSample_->sample = delay.dbl();
+        tSample_->sample_ = delay.dbl();
         emit(delayLayer1_, tSample_);
     }
     else if (layer == 2)
     {
         emit(tptLayer2_, tSample_);
-        tSample_->sample = delay.dbl();
+        tSample_->sample_ = delay.dbl();
         emit(delayLayer2_, tSample_);
     }
     else if (layer == 3)
     {
         emit(tptLayer3_, tSample_);
-        tSample_->sample = delay.dbl();
+        tSample_->sample_ = delay.dbl();
         emit(delayLayer3_, tSample_);
     }
     //    outfile << seqNum << "\t" << frameLength << "\t" << delay << endl;
