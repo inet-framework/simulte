@@ -12,7 +12,12 @@
 package lte.corenetwork.lteip;
 
 //
-// TODO auto-generated module
+// IP2lte module performs as a bridge between the network layer and the LTE protocol stack
+// It has a slightly different behavior in the UE rather than in the eNB
+// It basically:
+// - Registers itself as an interface for being accessible from upper layers (e.g. IP Layer)
+// - In the downstream direction adds control information to IP packets (5-tuple). Moreover in the ENb 
+//   module it adds the destination id to the control information, in order to send packets to the correct UE  
 //
 simple IP2lte
 {
@@ -20,9 +25,11 @@ simple IP2lte
         string nodeType;    
         @display("i=block/layer");
     gates:
+        // connection to network layer.
+        // These gate names are recognized by the network layer (same as the ones in the INic interface) 
+        input upperLayerIn;
+        output upperLayerOut;
 
-        input fromIp;
-        output toIp;
-
+        // connection to the lte stack
         inout stackLte @labels(IPDatagram);
 }

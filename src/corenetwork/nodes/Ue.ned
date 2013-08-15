@@ -20,9 +20,10 @@ import inet.networklayer.common.InterfaceTable;
 import inet.networklayer.ipv4.ErrorHandling;
 import inet.networklayer.ipv4.ICMP;
 import inet.networklayer.ipv4.RoutingTable;
+import inet.nodes.inet.NetworkLayer;
 import inet.transport.tcp.TCP;
 import inet.transport.udp.UDP;
-import lte.corenetwork.lteip.LteIp;
+import lte.corenetwork.lteip.IP2lte;
 import lte.stack.phy.LteNicUe;
 
 
@@ -33,7 +34,7 @@ module Ue
 {
     parameters:
         @node();
-        @display("i=device/pocketpc;bgb=400,400");
+        @display("i=device/pocketpc;bgb=400,518");
 
         //# Mobility
         string mobilityType = default("StationaryMobility");
@@ -76,23 +77,13 @@ module Ue
         udp: UDP if numUdpApps>0 {
             @display("p=325,150");
         }
-        lteIp: LteIp {
-            @display("p=250,250");
-            nodeType = nodeType;
-            protocolMapping = "6:0,17:1,1:2";
-            gates:
-                transportIn[3];
-                transportOut[3];
-        }
         // NOTE: instance must be named "nic"
         nic: LteNicUe {
-            @display("p=250,350");
+            nodeType = nodeType;
+            @display("p=250,407");
         }
-        errorHandling: ErrorHandling {
-            @display("p=119,250");
-        }
-        icmp: ICMP {
-            @display("p=195,250");
+        networkLayer: NetworkLayer {
+            @display("p=250,258");
         }
     connections allowunconnected:
         //# 
@@ -104,32 +95,19 @@ module Ue
             tcpApp[i].tcpIn <-- tcp.appOut++;
         }
 
-        tcp.ipOut --> lteIp.transportIn[0] if numTcpApps>0;
-        tcp.ipIn <-- lteIp.transportOut[0] if numTcpApps>0;
+        tcp.ipOut --> networkLayer.tcpIn if numTcpApps>0;
+        tcp.ipIn <-- networkLayer.tcpOut if numTcpApps>0;
 
         for i=0..numUdpApps-1 {
             udpApp[i].udpOut --> udp.appIn++;
             udpApp[i].udpIn <-- udp.appOut++;
         }
 
-        udp.ipOut --> lteIp.transportIn[1] if numUdpApps>0;
-        udp.ipIn <-- lteIp.transportOut[1] if numUdpApps>0;
-
-        icmp.localIn <-- lteIp.transportOut[2];
-        icmp.sendOut --> lteIp.transportIn[2];
-
-        icmp.errorOut --> errorHandling.in;  // log ICMP messages
-
-        //#
-        //# Internal LTE stack to PHY connections
-        //#
-
-        lteIp.stackLte$i <-- nic.upperLayerOut;    // LTE Stack data port
-        lteIp.stackLte$o --> nic.upperLayerIn; // LTE Stack data port
-
-        //# 
-        //# External connection to air interface
-        //#
+        udp.ipOut --> networkLayer.udpIn if numUdpApps>0;
+        udp.ipIn <-- networkLayer.udpOut if numUdpApps>0;
 
         nic.radioIn <-- radioIn;
+
+        networkLayer.ifOut++ --> nic.upperLayerIn;
+        networkLayer.ifIn++ <-- nic.upperLayerOut;
 }

@@ -59,14 +59,10 @@ module eNodeB
         deployer: LteDeployer {
             @display("p=50,225;is=s");
         }
-        // TODO: should be replaced with a relay?
-        lteIp: LteIp {
-            @display("p=200,150");
-            nodeType = nodeType;
-        }
         // NOTE: instance must be named "nic"
         // TODO: rename to something like lte?
         nic: LteNicEnb {
+            nodeType = nodeType;
             @display("p=150,250");
         }
         ppp: PPPInterface {
@@ -78,15 +74,8 @@ module eNodeB
         //# Lte IP connections
         //#
 
-        lteIp.stackLte$i <-- nic.upperLayerOut;            // LTE stack data port
-        lteIp.stackLte$o --> nic.upperLayerIn;         // LTE stack data port
-
-        //# 
-        //# External connection to peer Lte Ip and air interface
-        //#
-
         nic.radioIn <-- radioIn;
-        lteIp.ifIn <-- ppp.upperLayerOut;
-        lteIp.ifOut --> ppp.upperLayerIn;
         ppp.phys <--> ppp;
+        nic.upperLayerOut --> ppp.upperLayerIn;
+        ppp.upperLayerOut --> nic.upperLayerIn;
 }

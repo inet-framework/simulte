@@ -28,7 +28,7 @@ Define_Module(IP2lte);
 void IP2lte::initialize()
 {
     stackGateOut_ = gate("stackLte$o");
-    ipGateOut_ = gate("toIp");
+    ipGateOut_ = gate("upperLayerOut");
 
     setNodeType(par("nodeType").stdstringValue());
 
@@ -36,12 +36,14 @@ void IP2lte::initialize()
 
     if (nodeType_ == UE)
     {
-        cModule *ue = getParentModule();
+        // TODO not so elegant
+        cModule *ue = getParentModule()->getParentModule();
         getBinder()->registerNode(ue, nodeType_, ue->par("masterId"));
     }
     else if (nodeType_ == ENODEB)
     {
-        cModule *enodeb = getParentModule();
+        // TODO not so elegant
+        cModule *enodeb = getParentModule()->getParentModule();
         MacNodeId cellId = getBinder()->registerNode(enodeb, nodeType_);
         LteDeployer * deployer = check_and_cast<LteDeployer*>(enodeb->getSubmodule("deployer"));
         getBinder()->registerDeployer(deployer, cellId);
@@ -55,7 +57,7 @@ void IP2lte::handleMessage(cMessage *msg)
     if( nodeType_ == ENODEB )
     {
         // message from IP Layer: send to stack
-        if (msg->getArrivalGate()->isName("fromIp"))
+        if (msg->getArrivalGate()->isName("upperLayerIn"))
         {
             IPv4Datagram *ipDatagram = check_and_cast<IPv4Datagram *>(msg);
             fromIpEnb(ipDatagram);
@@ -74,7 +76,7 @@ void IP2lte::handleMessage(cMessage *msg)
     else if( nodeType_ == UE )
     {
         // message from transport: send to stack
-        if (msg->getArrivalGate()->isName("fromIp"))
+        if (msg->getArrivalGate()->isName("upperLayerIn"))
         {
             IPv4Datagram *ipDatagram = check_and_cast<IPv4Datagram *>(msg);
             EV << "LteIp: message from transport: send to stack" << endl;
@@ -242,11 +244,9 @@ void IP2lte::registerInterface()
     if (!ift)
         return;
     interfaceEntry = new InterfaceEntry(this);
-    // interface name: NIC module's name without special characters ([])
-    // TODO: KLUDGE: OPP_Global is not INET_API
-    // TODO: wlan must be used for the IPv4NetworkConfigurator to kick in
     interfaceEntry->setName("wlan");
-//    interfaceEntry->setName(OPP_Global::stripnonalnum(getParentModule()->getFullName()).c_str());
+    // TODO configure MTE size from NED
+    interfaceEntry->setMtu(1500);
     ift->addInterface(interfaceEntry);
 }
 

@@ -501,6 +501,7 @@ LteDeployer* getDeployer(MacNodeId nodeId)
     LteBinder* temp = getBinder();
     // Check if nodeId is a relay, if nodeId is a eNodeB
     // function GetNextHop returns nodeId
+    // TODO change this behavior (its not needed unless we don't implement relays)
     MacNodeId id = temp->getNextHop(nodeId);
     OmnetId omnetid = temp->getOmnetId(id);
     return check_and_cast<LteDeployer*>(simulation.getModule(omnetid)->getSubmodule("deployer"));
@@ -514,8 +515,7 @@ cModule* getMacByMacNodeId(MacNodeId nodeId)
 
 cModule* getRlcByMacNodeId(MacNodeId nodeId, LteRlcType rlcType)
 {
-    return getMacByMacNodeId(nodeId)->getParentModule()->getSubmodule(
-        "rlc")->getSubmodule(rlcTypeToA(rlcType).c_str());
+    return getMacByMacNodeId(nodeId)->getParentModule()->getSubmodule("rlc")->getSubmodule(rlcTypeToA(rlcType).c_str());
 }
 
 LteBinder* getBinder()

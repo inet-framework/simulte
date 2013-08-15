@@ -23,28 +23,20 @@
  */
 class IP2lte : public cSimpleModule
 {
-    cGate *stackGateOut_;           /// gate connecting LteIp module to LTE stack
-    cGate *ipGateOut_;
-    LteNodeType nodeType_;     /// node type: can be INTERNET, ENODEB, UE
+    cGate *stackGateOut_;       // gate connecting IP2lte module to LTE stack
+    cGate *ipGateOut_;          // gate connecting IP2lte module to network layer
+    LteNodeType nodeType_;      // node type: can be ENODEB, UE
 
-    unsigned int seqNum_;     /// datagram sequence number (RLC fragmentation needs it)
+    unsigned int seqNum_;       // datagram sequence number (RLC fragmentation needs it)
 
     /**
-     * Handle packets from transport layer and forward them
-     * to the specified output gate, after encapsulation in
-     * IP Datagram.
-     * This method adds to the datagram the LteStackControlInfo.
-     *
-     * @param transportPacket transport packet received from transport layer
-     * @param outputgate output gate where the datagram will be sent
+     * Handle packets from transport layer and forward them to the stack
      */
     void fromIpUe(IPv4Datagram * datagram);
 
     /**
-     * Manage packets received from Lte Stack or LteIp peer
+     * Manage packets received from Lte Stack
      * and forward them to transport layer.
-     *
-     * @param msg  IP Datagram received from Lte Stack or LteIp peer
      */
     void toIpUe(IPv4Datagram *datagram);
 
@@ -54,7 +46,7 @@ class IP2lte : public cSimpleModule
     /**
      * utility: set nodeType_ field
      *
-     * @param s string containing the node type ("internet", "enodeb", "ue")
+     * @param s string containing the node type ("enodeb", "ue")
      */
     void setNodeType(std::string s);
 

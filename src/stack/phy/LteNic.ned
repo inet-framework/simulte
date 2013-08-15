@@ -17,12 +17,13 @@ import lte.stack.mac.LteMac;
 import lte.stack.pdcp_rrc.LtePdcpRrc;
 import lte.stack.phy.feedback.LteDlFeedbackGenerator;
 import lte.stack.rlc.LteRlc;
+import lte.corenetwork.lteip.IP2lte;
 
 
 // 
 // Interface for the LTE Stack.
 //
-moduleinterface LteNic extends IWirelessNic
+moduleinterface ILteNic extends IWirelessNic
 {
 }
 
@@ -30,14 +31,14 @@ moduleinterface LteNic extends IWirelessNic
 // Base module for the LTE Stack.
 //
 // TODO: implement IWirelessNic
-module LteNicBase like LteNic
+module LteNicBase like ILteNic
 {
     parameters:
-        @display("i=block/ifcard;bgb=250,400");
+        @display("i=block/ifcard;bgb=250,444;bgl=3");
         string LtePdcpRrcType;      // One of: "LtePdcpRrcUe", "LtePdcpRrcEnb", "LtePdcpRrcRelayUe", "LtePdcpRrcRelayEnb"
         string LteMacType;          // One of: "LteMacUe", "LteMacEnb", "LteMacRelayUe", "LteMacRelayEnb"
         string LtePhyType;
-
+        string nodeType;
     gates:
         //#
         //# Gates connecting UE/eNB and LTE Stack
@@ -49,35 +50,37 @@ module LteNicBase like LteNic
         input radioIn @loose;  // to receive messages sent using sendDirect()
 
     submodules:
+        // bridge between lte stack and network layer
+        ip2lte: IP2lte {
+            nodeType = nodeType;
+            @display("p=150,68");
+        }
         // PDCP-RRC Layer
         pdcpRrc: <LtePdcpRrcType> like LtePdcpRrc {
-            @display("p=150,50");
+            @display("p=150,142");
         }
         // RLC Layer
         rlc: LteRlc {
-            @display("p=150,150");
+            @display("p=150,227");
         }
         // MAC Layer
         mac: <LteMacType> like LteMac {
-            @display("p=150,250");
+            @display("p=151,315");
         }
         // LtePhy submodule
         phy: <LtePhyType> like LtePhy {
-            @display("p=150,350");
+            @display("p=151,390");
             @class(LtePhyType);
         }
-    connections:
-        //#
-        //# Connections from LTE Stack to UE/eNB interface
-        //#
-        EUTRAN_RRC_Sap <--> pdcpRrc.EUTRAN_RRC_Sap;
-        upperLayerOut <-- pdcpRrc.DataPort$o;
-        upperLayerIn --> pdcpRrc.DataPort$i;
 
+    connections:
+        ip2lte.stackLte <--> pdcpRrc.DataPort;
 
         //#
         //# Internal LTE Stack Connections 
         //# 
+        
+        EUTRAN_RRC_Sap <--> pdcpRrc.EUTRAN_RRC_Sap;
 
         //# PDCP <-> RLC
         pdcpRrc.UM_Sap <--> rlc.UM_Sap;
@@ -96,6 +99,8 @@ module LteNicBase like LteNic
 
         //# external: lower connection
         radioIn --> phy.radioIn;
+        ip2lte.upperLayerOut --> upperLayerOut;
+        upperLayerIn --> ip2lte.upperLayerIn;
 }
 
 //
