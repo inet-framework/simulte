@@ -58,7 +58,7 @@ void VoIPReceiver::initialize(int stage)
     voIPFrameDelaySignal_ = registerSignal("voIPFrameDelay");
     voIPPlayoutDelaySignal_ = registerSignal("voIPPlayoutDelay");
 
-    voIPMosSignal_ = registerSignal("voIPMosSignal");
+    voIPMosSignal_ = registerSignal("voIPMos");
     voIPTaildropLossSignal_ = registerSignal("voIPTaildropLoss");
 
     voIPJitterSignal_ = registerSignal("voIPJitter");
