@@ -62,14 +62,10 @@ module eNBpp
         deployer: LteDeployer {
             @display("p=50,225;is=s");
         }
-        // TODO: should be replaced with a relay?
-        lteIp: LteIp {
-            @display("p=200,225");
-            nodeType = nodeType;
-        }
         // NOTE: instance must be named "nic"
         // TODO: rename to something like lte?
         nic: LteNicEnb {
+            nodeType = nodeType;
             @display("p=200,311");
         }
         ppp: PPPInterface {
@@ -94,15 +90,12 @@ module eNBpp
         //# Lte IP connections
         //#
 
-        lteIp.stackLte$i <-- nic.upperLayerOut;            // LTE stack data port
-        lteIp.stackLte$o --> nic.upperLayerIn;         // LTE stack data port
 
         //#
         //# External connection to peer Lte Ip and air interface
         //#
 
         nic.radioIn <-- radioIn;
-
         ppp.phys <--> ppp;
 
         udp.ipOut --> networkLayer.udpIn;
@@ -110,12 +103,12 @@ module eNBpp
 
         trafficFlowFilter.gtpUserGateOut --> gtp_user.trafficFlowFilterGate;
 
-        lteIp.ifOut --> trafficFlowFilter.internetFilterGateIn;
-
-        gtp_user.pppGate --> lteIp.ifIn;
         gtp_user.udpOut --> udp.appIn++;
         gtp_user.udpIn <-- udp.appOut++;
 
-        networkLayer.ifOut++ --> ppp.upperLayerIn;
+        networkLayer.ifOut++ --> ppp.upperLayerIn;       
         ppp.upperLayerOut --> networkLayer.ifIn++;
+        
+        nic.upperLayerOut --> trafficFlowFilter.internetFilterGateIn;
+        gtp_user.pppGate --> nic.upperLayerIn;
 }

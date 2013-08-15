@@ -18,7 +18,6 @@ import inet.mobility.models.StationaryMobility;
 import inet.networklayer.common.InterfaceTable;
 import inet.networklayer.ipv4.RoutingTable;
 import lte.corenetwork.deployer.LteDeployer;
-import lte.corenetwork.lteip.LteIp;
 import lte.stack.phy.LteNicEnb;
 
 
