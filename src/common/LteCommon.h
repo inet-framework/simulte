@@ -519,6 +519,7 @@ struct AbsStatusInfoMsg
 
 //|--------------------------------------------------|
 
+
 /**
  * The following structure specifies a band and a byte amount which limits the schedulable data
  * on it.

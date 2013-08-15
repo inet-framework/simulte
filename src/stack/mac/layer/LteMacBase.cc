@@ -231,16 +231,16 @@ void LteMacBase::deleteQueues(MacNodeId nodeId)
 
 void LteMacBase::registerInterface()
 {
-    IInterfaceTable *ift = InterfaceTableAccess().getIfExists();
-    if (!ift)
-        return;
-    interfaceEntry = new InterfaceEntry(this);
-    // interface name: NIC module's name without special characters ([])
-    // TODO: KLUDGE: OPP_Global is not INET_API
-    // TODO: wlan must be used for the IPv4NetworkConfigurator to kick in
-    interfaceEntry->setName("wlan");
-//    interfaceEntry->setName(OPP_Global::stripnonalnum(getParentModule()->getFullName()).c_str());
-    ift->addInterface(interfaceEntry);
+//    IInterfaceTable *ift = InterfaceTableAccess().getIfExists();
+//    if (!ift)
+//        return;
+//    interfaceEntry = new InterfaceEntry(this);
+//    // interface name: NIC module's name without special characters ([])
+//    // TODO: KLUDGE: OPP_Global is not INET_API
+//    // TODO: wlan must be used for the IPv4NetworkConfigurator to kick in
+//    interfaceEntry->setName("wlan");
+////    interfaceEntry->setName(OPP_Global::stripnonalnum(getParentModule()->getFullName()).c_str());
+//    ift->addInterface(interfaceEntry);
 }
 
 /*
@@ -295,6 +295,10 @@ void LteMacBase::initialize(int stage)
     }
     else if (stage == 2)
     {
+        // find interface entry and use its address
+        IInterfaceTable *interfaceTable = InterfaceTableAccess().get();
+        // TODO: how do we find the LTE interface?
+        interfaceEntry = interfaceTable->getInterfaceByName("wlan");
         binder_->setMacNodeId(interfaceEntry->ipv4Data()->getIPAddress(), nodeId_);
     }
 }

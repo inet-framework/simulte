@@ -23,7 +23,7 @@
 #include "TCPSegment.h"
 #include "UDPPacket.h"
 #include "UDP.h"
-#include "LteCommon.h"
+#include "LteControlInfo.h"
 
 /**
  * @class LteIp
