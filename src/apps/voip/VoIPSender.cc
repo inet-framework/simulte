@@ -21,14 +21,14 @@ Define_Module(VoIPSender);
 VoIPSender::VoIPSender()
 {
     initialized_ = false;
+    selfSource_ = NULL;
+    selfSender_ = NULL;
 }
 
 VoIPSender::~VoIPSender()
 {
-    if (selfSender_->isScheduled())
-        cancelEvent(selfSender_);
-
-    delete selfSender_;
+    cancelAndDelete(selfSource_);
+    cancelAndDelete(selfSender_);
 }
 
 void VoIPSender::initialize(int stage)
@@ -37,7 +37,7 @@ void VoIPSender::initialize(int stage)
 
     // avoid multiple initializations
     if (stage!=3 || initialized_)
-    return;
+        return;
 
     durTalk_ = 0;
     durSil_ = 0;
@@ -115,7 +115,6 @@ void VoIPSender::selectPeriodTime()
         scheduleAt(simTime() + durSil_, selfSource_);
         isTalk_ = true;
     }
-
     else
     {
         durTalk_ = weibull(scaleTalk_, shapeTalk_);
