@@ -12,7 +12,6 @@
 #ifndef _LTE_LTEMACBASE_H_
 #define _LTE_LTEMACBASE_H_
 
-#include "InterfaceEntry.h"
 #include "LteCommon.h"
 
 class LteHarqBufferTx;
@@ -57,8 +56,6 @@ class LteMacBase : public cSimpleModule
     friend class LteHarqBufferRx;
 
   protected:
-    InterfaceEntry *interfaceEntry;
-
     simsignal_t macBufferOverflowDl_;
     simsignal_t macBufferOverflowUl_;
     simsignal_t receivedPacketFromUpperLayer;
@@ -234,10 +231,6 @@ class LteMacBase : public cSimpleModule
      */
     virtual void handleMessage(cMessage *msg);
 
-    /**
-     *
-     */
-    virtual void registerInterface();
 
     /**
      * Statistics recording

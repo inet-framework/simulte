@@ -17,6 +17,10 @@
 #include "LteRac_m.h"
 #include "LteMacBuffer.h"
 #include "UserTxParams.h"
+#include "InterfaceEntry.h"
+#include "InterfaceTableAccess.h"
+#include "IPv4InterfaceData.h"
+#include "LteBinder.h"
 
 Define_Module(LteMacUe);
 
@@ -56,6 +60,14 @@ void LteMacUe::initialize(int stage)
     LteMacBase::initialize(stage);
     if (stage == 0)
         lcgScheduler_ = new LteSchedulerUeUl(this);
+    else if (stage == 2)
+    {
+        // find interface entry and use its address
+        IInterfaceTable *interfaceTable = InterfaceTableAccess().get();
+        // TODO: how do we find the LTE interface?
+        InterfaceEntry * interfaceEntry = interfaceTable->getInterfaceByName("wlan");
+        binder_->setMacNodeId(interfaceEntry->ipv4Data()->getIPAddress(), nodeId_);
+    }
 }
 
 void LteMacUe::macPduMake(LteMacScheduleList* scheduleList)

@@ -9,8 +9,7 @@
 // and cannot be removed from it.
 //
 
-#include "InterfaceTableAccess.h"
-#include "IPv4InterfaceData.h"
+
 #include "LteMacBase.h"
 #include "LteHarqBufferTx.h"
 #include "LteHarqBufferRx.h"
@@ -229,19 +228,6 @@ void LteMacBase::deleteQueues(MacNodeId nodeId)
     // TODO remove traffic descriptor and lcg entry
 }
 
-void LteMacBase::registerInterface()
-{
-//    IInterfaceTable *ift = InterfaceTableAccess().getIfExists();
-//    if (!ift)
-//        return;
-//    interfaceEntry = new InterfaceEntry(this);
-//    // interface name: NIC module's name without special characters ([])
-//    // TODO: KLUDGE: OPP_Global is not INET_API
-//    // TODO: wlan must be used for the IPv4NetworkConfigurator to kick in
-//    interfaceEntry->setName("wlan");
-////    interfaceEntry->setName(OPP_Global::stripnonalnum(getParentModule()->getFullName()).c_str());
-//    ift->addInterface(interfaceEntry);
-}
 
 /*
  * Main functions
@@ -285,21 +271,11 @@ void LteMacBase::initialize(int stage)
         tSample_ = new TaggedSample();
         tSample_->module_ = this;
 
-        registerInterface();
-
         WATCH(queueSize_);
         WATCH(maxBytesPerTti_);
         WATCH(nodeId_);
         WATCH_MAP(mbuf_);
         WATCH_MAP(macBuffers_);
-    }
-    else if (stage == 2)
-    {
-        // find interface entry and use its address
-        IInterfaceTable *interfaceTable = InterfaceTableAccess().get();
-        // TODO: how do we find the LTE interface?
-        interfaceEntry = interfaceTable->getInterfaceByName("wlan");
-        binder_->setMacNodeId(interfaceEntry->ipv4Data()->getIPAddress(), nodeId_);
     }
 }
 

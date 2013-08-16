@@ -17,6 +17,7 @@
 
 class LteSchedulingGrant;
 class LteSchedulerUeUl;
+class LteBinder;
 
 class LteMacUe : public LteMacBase
 {
