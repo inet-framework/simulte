@@ -60,7 +60,7 @@ void LteMacUe::initialize(int stage)
     LteMacBase::initialize(stage);
     if (stage == 0)
         lcgScheduler_ = new LteSchedulerUeUl(this);
-    else if (stage == 2)
+    else if (stage == 3)
     {
         // find interface entry and use its address
         IInterfaceTable *interfaceTable = InterfaceTableAccess().get();
