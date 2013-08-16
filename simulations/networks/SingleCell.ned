@@ -13,6 +13,7 @@ package lte.simulations.networks;
 import inet.networklayer.autorouting.ipv4.IPv4NetworkConfigurator;
 import inet.networklayer.ipv4.RoutingTableRecorder;
 import inet.nodes.ethernet.Eth10G;
+import inet.nodes.ethernet.Eth10M;
 import inet.nodes.inet.Router;
 import inet.nodes.inet.StandardHost;
 import inet.world.radio.ChannelControl;
@@ -33,7 +34,7 @@ network SingleCell
         routingRecorder: RoutingTableRecorder {
             @display("p=50,75;is=s");
         }
-        ipConfigurator: IPv4NetworkConfigurator {
+        configurator: IPv4NetworkConfigurator {
             @display("p=50,125");
             config = xmldoc("demo.xml");
         }

@@ -15,6 +15,7 @@ package lte.corenetwork.nodes;
 import inet.base.NotificationBoard;
 import inet.linklayer.ppp.PPPInterface;
 import inet.mobility.models.StationaryMobility;
+import inet.networklayer.autorouting.ipv4.IPv4NodeConfigurator;
 import inet.networklayer.common.InterfaceTable;
 import inet.networklayer.ipv4.RoutingTable;
 import lte.corenetwork.deployer.LteDeployer;
@@ -66,6 +67,9 @@ module eNodeB
         }
         ppp: PPPInterface {
             @display("p=250,250");
+        }
+        nodeConfigurator: IPv4NodeConfigurator {
+            @display("p=50,272");
         }
     connections allowunconnected:
         //#
