@@ -92,7 +92,7 @@ void VoIPReceiver::handleMessage(cMessage *msg)
 
     EV << "VoIPReceiver::handleMessage - Packet received: TALK[" << pPacket->getIDtalk() << "] - FRAME[" << pPacket->getIDframe() << "]\n";
 
-    pPacket->setArrivalTime(SIMTIME_DBL(simTime()));
+    pPacket->setArrivalTime(simTime());
     mPacketsList_.push_back(pPacket);
 }
 
@@ -105,7 +105,7 @@ void VoIPReceiver::playout(bool finish)
 
     VoipPacket* pPacket = mPacketsList_.front();
 
-    double firstPlayoutTime = pPacket->getArrivalTime() + mPlayoutDelay_;
+    simtime_t firstPlayoutTime = pPacket->getArrivalTime() + mPlayoutDelay_;
     unsigned int firstFrameId = pPacket->getIDframe();
     unsigned int n_frames = pPacket->getNframes();
     unsigned int playoutLoss = 0;
@@ -134,14 +134,14 @@ void VoIPReceiver::playout(bool finish)
         isArrived[y] = false;
     }
 
-    double last_jitter = 0.0;
-    double max_jitter = -1000.0;
+    simtime_t last_jitter = 0.0;
+    simtime_t max_jitter = -1000.0;
 
     while (!mPacketsList_.empty() /*&& pPacket->getIDtalk() == mCurrentTalkspurt*/)
     {
         pPacket = mPacketsList_.front();
 
-        sample = pPacket->getArrivalTime() - SIMTIME_DBL(pPacket->getTimestamp());
+        sample = SIMTIME_DBL(pPacket->getArrivalTime() - pPacket->getTimestamp());
         emit(voIPFrameDelaySignal_, sample);
 
         pPacket->setPlayoutTime(firstPlayoutTime + (pPacket->getIDframe() - firstFrameId) * mSamplingDelta_);
@@ -203,8 +203,8 @@ void VoIPReceiver::playout(bool finish)
 
     double mos = eModel(mPlayoutDelay_, proportionalLoss);
 
-    sample = mPlayoutDelay_;
-    emit(voIPPlayoutDelaySignal_, sample);
+//    sample = SIMmPlayoutDelay_;
+    emit(voIPPlayoutDelaySignal_, mPlayoutDelay_);
 
     sample = ((double) playoutLoss / (double) n_frames);
     emit(voIPPlayoutLossSignal_, sample);
@@ -229,9 +229,9 @@ void VoIPReceiver::playout(bool finish)
     delete[] isArrived;
 }
 
-double VoIPReceiver::eModel(double delay, double loss)
+double VoIPReceiver::eModel(simtime_t delay, double loss)
 {
-    double delayms = 1000 * delay;
+    double delayms = 1000 * SIMTIME_DBL(delay);
 
     // Compute the Id parameter
     int u = ((delayms - 177.3) > 0 ? 1 : 0);

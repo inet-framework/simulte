@@ -65,12 +65,14 @@ void VoIPSender::initialize(int stage)
     EV << "VoIPSender::initialize - binding to port: local:" << localPort_ << " , dest:" << destPort_ << endl;
 
     // calculating traffic starting time
-    // TODO correct this conversion
-    double startTime = round((double)par("startTime")*1000)/1000;
-    double offset = startTime+simTime().dbl();
+    simtime_t startTime = par("startTime");
+
+    // TODO maybe un-necesessary
+    // this conversion is made in order to obtain ms-aligned start time, even in case of random generated ones
+    simtime_t offset = (round(SIMTIME_DBL(startTime)*1000)/1000)+simTime();
 
     scheduleAt(offset,selfSource_);
-    EV << "\t starting traffic in " << startTime << " ms" << endl;
+    EV << "\t starting traffic in " << offset << " seconds " << endl;
 
     initialized_ = true;
 }
@@ -86,7 +88,7 @@ void VoIPSender::handleMessage(cMessage *msg)
     }
 }
 
-void VoIPSender::talkspurt(double dur)
+void VoIPSender::talkspurt(simtime_t dur)
 {
     iDtalk_++;
     nframes_ = (ceil(dur / sampling_time));
@@ -107,9 +109,9 @@ void VoIPSender::selectPeriodTime()
     if (!isTalk_)
     {
         durSil_ = weibull(scaleSil_, shapeSil_);
-        double durSil2 = round(durSil_*1000) / 1000;
+        double durSil2 = round(SIMTIME_DBL(durSil_)*1000) / 1000;
         EV << "VoIPSender::selectPeriodTime - Silence Period: " << "Duration[" << durSil_ << "/" << durSil2 << "] seconds\n";
-        durSil_ = durSil2;
+//        durSil_ = durSil2;
         scheduleAt(simTime() + durSil_, selfSource_);
         isTalk_ = true;
     }
@@ -117,9 +119,9 @@ void VoIPSender::selectPeriodTime()
     else
     {
         durTalk_ = weibull(scaleTalk_, shapeTalk_);
-        double durTalk2 = round(durTalk_*1000) / 1000;
+        double durTalk2 = round(SIMTIME_DBL(durTalk_)*1000) / 1000;
         EV << "VoIPSender::selectPeriodTime - Talkspurt[" << iDtalk_ << "] - Duration[" << durTalk_ << "/" << durTalk2 << "] seconds\n";
-        durTalk_ = durTalk2;
+//        durTalk_ = durTalk2;
         talkspurt(durTalk_);
         scheduleAt(simTime() + durTalk_, selfSource_);
         isTalk_ = false;

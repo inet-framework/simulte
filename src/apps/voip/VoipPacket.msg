@@ -10,6 +10,7 @@
 //
 
 
+
 //
 // Packet used by the ~VoPSender and ~VoIPReceiver modules.
 //
@@ -19,7 +20,7 @@ packet VoipPacket
     unsigned int nframes;
     unsigned int IDframe;
     simtime_t timestamp;
-    double arrivalTime;
-    double playoutTime;
+    simtime_t arrivalTime;
+    simtime_t playoutTime;
     unsigned int size;
 }

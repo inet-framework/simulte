@@ -38,8 +38,8 @@ class VoIPReceiver : public cSimpleModule
     PacketsList mPlayoutQueue_;
     unsigned int mCurrentTalkspurt_;
     unsigned int mBufferSpace_;
-    double mSamplingDelta_;
-    double mPlayoutDelay_;
+    simtime_t mSamplingDelta_;
+    simtime_t mPlayoutDelay_;
 
     bool mInit_;
 
@@ -59,7 +59,7 @@ class VoIPReceiver : public cSimpleModule
     virtual int numInitStages() const { return 4; }
     void initialize(int stage);
     void handleMessage(cMessage *msg);
-    double eModel(double delay, double loss);
+    double eModel(simtime_t delay, double loss);
     void playout(bool finish);
 };
 

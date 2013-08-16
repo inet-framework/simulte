@@ -28,8 +28,8 @@ class VoIPSender : public cSimpleModule
     bool initialized_;
 
     //source
-    double durTalk_;
-    double durSil_;
+    simtime_t durTalk_;
+    simtime_t durSil_;
     double scaleTalk_;
     double shapeTalk_;
     double scaleSil_;
@@ -42,7 +42,7 @@ class VoIPSender : public cSimpleModule
     int iDframe_;
     int nframesTmp_;
     int size_;
-    double sampling_time;
+    simtime_t sampling_time;
 
 
     simsignal_t voIPGeneratedThroughtput_;
@@ -55,7 +55,7 @@ class VoIPSender : public cSimpleModule
     int destPort_;
     IPvXAddress destAddress_;
 
-    void talkspurt(double dur);
+    void talkspurt(simtime_t dur);
     void selectPeriodTime();
     void sendVoIPPacket();
 
