@@ -43,7 +43,7 @@ network eutran_epcNetwork
         routingRecorder: RoutingTableRecorder {
             @display("p=434,25;is=s");
         }
-        ipConfigurator: IPv4NetworkConfigurator {
+        configurator: IPv4NetworkConfigurator {
             @display("p=183,25");
             config = xmldoc("lteCoreConfigFiles/lteIpAddresses.xml");
         }

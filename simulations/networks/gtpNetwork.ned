@@ -42,7 +42,7 @@ network GtpNetwork
         router3: Router {
             @display("p=551,262");
         }
-        iPv4NetworkConfigurator: IPv4NetworkConfigurator {
+        configurator: IPv4NetworkConfigurator {
             @display("p=95,42");
             config = xmldoc("ipAddresses.xml");
         }

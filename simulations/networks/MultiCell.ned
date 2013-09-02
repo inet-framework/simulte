@@ -32,7 +32,7 @@ network MultiCell
         routingRecorder: RoutingTableRecorder {
             @display("p=50,75;is=s");
         }
-        ipConfigurator: IPv4NetworkConfigurator {
+        configurator: IPv4NetworkConfigurator {
             @display("p=50,125");
             config = xmldoc("multi.xml");
             dumpTopology = true;

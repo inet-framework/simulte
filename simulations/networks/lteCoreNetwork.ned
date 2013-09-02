@@ -34,7 +34,7 @@ network lteCoreNetwork
             thruputDisplayFormat = "u";
         }
     submodules:
-        iPv4NetworkConfigurator: IPv4NetworkConfigurator {
+        configurator: IPv4NetworkConfigurator {
             @display("p=95,42");
             config = xmldoc("lteCoreConfigFiles/lteIpAddresses.xml");
         }
