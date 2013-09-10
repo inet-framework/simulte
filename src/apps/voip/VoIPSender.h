@@ -8,8 +8,6 @@
 // The above file and the present reference are part of the software itself,
 // and cannot be removed from it.
 //
-// Author: Adriano
-//
 
 #ifndef _LTE_VOIPSENDER_H_
 #define _LTE_VOIPSENDER_H_

@@ -8,8 +8,6 @@
 // The above file and the present reference are part of the software itself,
 // and cannot be removed from it.
 //
-//  Author: Giovanni Accongiagioco
-//
 
 #ifndef _LTE_LTERECORDERS_H_
 #define _LTE_LTERECORDERS_H_
@@ -20,7 +18,6 @@
 /**
  * \class TaggedSample
  * \brief Object used to send samples with IDs
- * \author Giovanni Accongiagioco <gio.acon@gmail.com>
  *
  * This class is used so that the sender can pass
  * a cObject containing both the sample and the id
@@ -37,7 +34,6 @@ class TaggedSample : public cObject
 /**
  * \class LteRecorder
  * \brief Abstract class for recording statistic
- * \author Giovanni Accongiagioco <gio.acon@gmail.com>
  *
  * This class is the lteRecorder. It records samples and has
  * an optional parameter "id" specified by the caller, that can
@@ -117,8 +113,6 @@ class LteRecorder : public cNumericResultRecorder, private cObject
 /**
  * \class LteStatisticsRecorder
  * \brief Abstract class for recording cStatistic objects
- * \author Giovanni Accongiagioco <gio.acon@gmail.com>
- *
  * This class records object of type cStatistic aggregating them
  * by name of the module and by "id" specified by the caller,
  * moreover there is a global statistic (without id)
@@ -162,7 +156,6 @@ class LteStatisticsRecorder : public LteRecorder
 /**
  * \class LteStatsRecorder
  * \brief Implements LteStatisticRecorder using cStdDev objects
- * \author Giovanni Accongiagioco <gio.acon@gmail.com>
  *
  * This class implements the LteStatisticRecorder using
  * objects of type cStdDev
@@ -201,7 +194,6 @@ class LteStatsRecorder : public LteStatisticsRecorder
 /**
  * \class LteHistogramRecorder
  * \brief Implements LteStatisticRecorder using cHistogram objects
- * \author Giovanni Accongiagioco <gio.acon@gmail.com>
  *
  * This class implements the LteStatisticRecorder using
  * objects of type cHistogram
@@ -240,7 +232,6 @@ class LteHistogramRecorder : public LteStatisticsRecorder
 /**
  * \class LteVectorRecorder
  * \brief Records samples associating a timestamp to each one
- * \author Giovanni Accongiagioco <gio.acon@gmail.com>
  *
  * This class uses the cOutVector (implicitly) to store
  * samples associating a timestamp to each of them
@@ -295,7 +286,6 @@ class LteVectorRecorder : public LteRecorder
 /**
  * \class LteAvgRecorder
  * \brief Average metrics recoder
- * \author Giovanni Accongiagioco <gio.acon@gmail.com>
  *
  * This class implements the LteRecorder and records
  * average values for the given samples, dividing them
@@ -365,7 +355,6 @@ class LteAvgRecorder : public LteRecorder
 /**
  * \class LteRateRecorder
  * \brief Rate metrics recoder
- * \author Giovanni Accongiagioco <gio.acon@gmail.com>
  *
  * This class implements the LteRecorder and records
  * rate values for the given samples, dividing them

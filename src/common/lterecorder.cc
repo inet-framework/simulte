@@ -9,8 +9,6 @@
 // and cannot be removed from it.
 //
 //
-//  Author: Giovanni Accongiagioco
-//
 
 #include "lterecorder.h"
 

@@ -8,8 +8,6 @@
 // The above file and the present reference are part of the software itself,
 // and cannot be removed from it.
 //
-// Author: sk0rp10
-//
 
 #ifndef _LTE_LCGSCHEDULER_H_
 #define _LTE_LCGSCHEDULER_H_

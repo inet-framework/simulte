@@ -8,8 +8,6 @@
 // The above file and the present reference are part of the software itself,
 // and cannot be removed from it.
 //
-// Author: Adriano
-//
 
 #include "VoIPReceiver.h"
 

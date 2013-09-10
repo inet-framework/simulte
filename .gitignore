@@ -5,9 +5,6 @@ src/Makefile
 src/Makefile.vc
 /doc/doxy/
 /doc/neddoc/
-/simulations/*/results/
-/simulations/*/*/results/
-/simulations/*/*/*/results/
 *.pcap
 *.sca
 *.vec
@@ -40,3 +37,9 @@ backups
 .cproject
 .project
 ui/com.simulte.configeditor/bin/
+
+# ignore result folders
+/simulations/gtpNetwork/ResultLteCoreNetwork/
+/simulations/*/results/
+/simulations/*/*/results/
+/simulations/*/*/*/results/

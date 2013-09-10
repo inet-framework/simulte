@@ -1,7 +1,6 @@
 //
 //                           SimuLTE
-// Copyright (C) 2012 Antonio Virdis, Daniele Migliorini, Giovanni
-// Accongiagioco, Generoso Pagano, Vincenzo Pii.
+// Copyright (C) 2013 Antonio Virdis
 //
 // This file is part of a software released under the license included in file
 // "license.pdf". This license can be also found at http://www.ltesimulator.com/
