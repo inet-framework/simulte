@@ -56,16 +56,16 @@ network MultiCell
             @display("p=760,125;is=vl");
         }
         ue11: Ue {
-            @display("p=211,271");
+            @display("p=275,289");
         }
         ue12: Ue {
-            @display("p=537,424");
+            @display("p=477,363");
         }
         ue21: Ue {
-            @display("p=805,484");
+            @display("p=789,280");
         }
         ue22: Ue {
-            @display("p=950,271");
+            @display("p=915,183");
         }
     connections:
         server.pppg++ <--> Eth10M <--> router1.pppg++;
