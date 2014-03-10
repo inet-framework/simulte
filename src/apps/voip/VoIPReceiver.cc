@@ -142,7 +142,10 @@ void VoIPReceiver::playout(bool finish)
         sample = SIMTIME_DBL(pPacket->getArrivalTime() - pPacket->getTimestamp());
         emit(voIPFrameDelaySignal_, sample);
 
-        pPacket->setPlayoutTime(firstPlayoutTime + (pPacket->getIDframe() - firstFrameId) * mSamplingDelta_);
+        unsigned int IDframe = pPacket->getIDframe();
+
+        pPacket->setPlayoutTime(firstPlayoutTime + IDframe * mSamplingDelta_);
+        //pPacket->setPlayoutTime(firstPlayoutTime + (pPacket->getIDframe() - firstFrameId) * mSamplingDelta_);
 
         last_jitter = pPacket->getArrivalTime() - pPacket->getPlayoutTime();
         max_jitter = std::max(max_jitter, last_jitter);
