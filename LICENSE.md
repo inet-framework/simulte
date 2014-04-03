@@ -1,177 +1,170 @@
-The following license governs the use of SimuLTE in academic and educational environments.
-ACADEMIC PUBLIC LICENSE
+Copyright (C) 2012 Antonio Virdis, Daniele Migliorini, Matteo Maria Andreozzi,
+Giovanni Accongiagioco, Generoso Pagano, Vincenzo Pii.
 
-Copyright (C) 2012 Antonio Virdis, Daniele Migliorini, Giovanni Accongiagioco, Generoso
-Pagano, Vincenzo Pii, henceforth referred to as the Authors.
-This license is based on the license of OMNeT++ (© 2003-2012 András Varga), license used
-and modified with permission.
+The following license governs the use of SimuLTE 
 
-Preamble
+                   GNU LESSER GENERAL PUBLIC LICENSE
+                       Version 3, 29 June 2007
 
-This license contains the terms and conditions of using SimuLTE in noncommercial settings:
-at academic institutions for teaching and research use, and at non-profit research
-organizations. You will find that this license provides noncommercial users of SimuLTE with
-rights that are similar to the well-known GNU General Public License, yet it retains the
-possibility for SimuLTE Authors to financially support the development by selling commercial
-licenses. In fact, uses of SimuLTE in a "for-profit" environment, such as research conducted
-to develop or enhance a product, used in a commercial service offering, or in cases when a
-commercial company uses SimuLTE to participate in a research project (for example
-government-funded or EU-funded research projects), are not covered by this license
-agreement. What are the rights given to noncommercial users? Similarly to GPL, you have
-the right to use the software, to distribute copies, to receive source code, to change the
-software and distribute your modifications or the modified software. Also similarly to the GPL,
-if you distribute verbatim or modified copies of this software, they must be distributed under
-this license.
+ Copyright (C) 2007 Free Software Foundation, Inc. <http://fsf.org/>
+ Everyone is permitted to copy and distribute verbatim copies
+ of this license document, but changing it is not allowed.
 
-By modeling the GPL, this license guarantees that you're safe when using SimuLTE in your
-work, for teaching or research. This license guarantees that SimuLTE will remain available
-free of charge for nonprofit use. You can modify SimuLTE to your purposes, and you can also
-share your modifications. Even in the unlikely case of the authors abandoning SimuLTE
-entirely, this license permits anyone to continue developing it from the last release, and to
-create further releases under this license.
-The precise terms and conditions for using, copying, distribution and modification follow.
 
-ACADEMIC PUBLIC LICENSE
-TERMS AND CONDITIONS FOR USE, COPYING, DISTRIBUTION AND MODIFICATION
+  This version of the GNU Lesser General Public License incorporates
+the terms and conditions of version 3 of the GNU General Public
+License, supplemented by the additional permissions listed below.
 
-0. Definitions
-"Program" means a copy of SimuLTE, which is said to be distributed under this Academic
-Public License.
-"Work based on the Program" means either the Program or any derivative work under
-copyright law: that is to say, a work containing the Program or a portion of it, either verbatim
-or with modifications and/or translated into another language. (Hereinafter, translation is
-included without limitation in the term "modification".)
-"Using the Program" means any act of creating executables that contain or directly use
-libraries that are part of the Program, running any of the tools that are part of the Program,
-or creating works based on the Program.
-Each licensee is addressed as "you".
+  0. Additional Definitions.
 
-1. Permission is hereby granted to use the Program free of charge for any noncommercial
-purpose, including teaching and research at universities, colleges and other educational
-institutions, research at non-profit research institutions, and personal non-profit purposes. For
-using the Program for commercial purposes, including but not restricted to consulting
-activities, design of commercial hardware or software networking products, and a commercial
-entity participating in research projects, you have to contact the Authors for an appropriate
-license.
+  As used herein, "this License" refers to version 3 of the GNU Lesser
+General Public License, and the "GNU GPL" refers to version 3 of the GNU
+General Public License.
 
-2. You may copy and distribute verbatim copies of the Program's source code as you receive
-it, in any medium, provided that you conspicuously and appropriately publish on each copy
-an appropriate copyright notice and disclaimer of warranty; keep intact all the notices that
-refer to this License and to the absence of any warranty; and give any other recipients of the
-Program a copy of this License along with the Program.
+  "The Library" refers to a covered work governed by this License,
+other than an Application or a Combined Work as defined below.
 
-3. You may modify your copy or copies of the Program or any portion of it, thus forming a
-work based on the Program, and copy and distribute such modifications or work under the
-terms of Section 2 above, provided that you also meet all of these conditions:
+  An "Application" is any work that makes use of an interface provided
+by the Library, but which is not otherwise based on the Library.
+Defining a subclass of a class defined by the Library is deemed a mode
+of using an interface provided by the Library.
 
-a) You must cause the modified files to carry prominent notices stating that you changed the
-files and the date of any change.
+  A "Combined Work" is a work produced by combining or linking an
+Application with the Library.  The particular version of the Library
+with which the Combined Work was made is also called the "Linked
+Version".
 
-b) You must cause any work that you distribute or publish, that in whole or in part contains or
-is derived from the Program or any part thereof, to be licensed as a whole at no charge to all
-third parties under the terms of this License.
-These requirements apply to the modified work as a whole. If identifiable sections of that
-work are not derived from the Program, and can be reasonably considered independent and
-separate works in themselves, then this License, and its terms, do not apply to those sections
-when you distribute them as separate works. But when you distribute the same sections as
-part of a whole which is a work based on the Program, the distribution of the whole must be
-on the terms of this License, whose regulations for other licensees extend to the entire
-whole, and thus to each and every part regardless of who wrote it. (If the same, independent
-sections are distributed as part of a package that is otherwise reliant on, or is based on the
-Program, then the distribution of the whole package, including but not restricted to the
-independent section, must be on the unmodified terms of this License, regardless of who the
-author of the included sections was.)
-Thus, it is not the intent of this section to claim rights or contest your rights to work written
-entirely by you; rather, the intent is to exercise the right to control the distribution of
-derivative or collective works based or reliant on the Program.
-In addition, mere aggregation of another work not based on the Program with the Program
-(or with a work based on the Program) on a volume of storage or distribution medium does
-not bring the other work under the scope of this License.
+  The "Minimal Corresponding Source" for a Combined Work means the
+Corresponding Source for the Combined Work, excluding any source code
+for portions of the Combined Work that, considered in isolation, are
+based on the Application, and not on the Linked Version.
 
-4. You may copy and distribute the Program (or a work based on it, under Section 3) in object
-code or executable form under the terms of Sections 2 and 3 above provided that you also do
-one of the following:
+  The "Corresponding Application Code" for a Combined Work means the
+object code and/or source code for the Application, including any data
+and utility programs needed for reproducing the Combined Work from the
+Application, but excluding the System Libraries of the Combined Work.
 
-a) Accompany it with the complete corresponding machine-readable source code, which must
-be distributed under the terms of Sections 2 and 3 above on a medium customarily used for
-software interchange; or,
+  1. Exception to Section 3 of the GNU GPL.
 
-b) Accompany it with a written offer, valid for at least three years, to give any third party, for
-a charge no more than your cost of physically performing source distribution, a complete
-machine-readable copy of the corresponding source code, to be distributed under the terms
-of Sections 2 and 3 above on a medium customarily used for software interchange; or,
+  You may convey a covered work under sections 3 and 4 of this License
+without being bound by section 3 of the GNU GPL.
 
-c) Accompany it with the information you received as to the offer to distribute corresponding
-source code. (This alternative is allowed only for noncommercial distribution and only if you
-received the program in object code or executable form with such an offer, in accord with
-Subsection b) above.)
-The source code for a work means the preferred form of the work for making modifications to
-it. For an executable work, complete source code means all the source code for all modules it
-contains, plus any associated interface definition files, plus the scripts used to control
-compilation and installation of the executable. However, as a special exception, the source
-code distributed need not include anything that is normally distributed (in either source or
-binary form) with the major components (compiler, kernel, and so on) of the operating
-system on which the executable runs, unless that component itself accompanies the
-executable.
-If distribution of executable or object code is made by offering access to copy from a
-designated place, then offering equivalent access to copy the source code from the same
-place counts as distribution of the source code, even though third parties are not compelled
-to copy the source along with the object code.
+  2. Conveying Modified Versions.
 
-5. You may not copy, modify, sublicense, or distribute the Program except as expressly
-provided under this License. Any attempt otherwise to copy, modify, sublicense or distribute
-the Program is void, and will automatically terminate your rights under this License. However,
-parties who have received copies, or rights, from you under this License will not have their
-licenses terminated so long as such parties remain in full compliance.
+  If you modify a copy of the Library, and, in your modifications, a
+facility refers to a function or data to be supplied by an Application
+that uses the facility (other than as an argument passed when the
+facility is invoked), then you may convey a copy of the modified
+version:
 
-6. You are not required to accept this License, since you have not signed it. Nothing else
-grants you permission to modify or distribute the Program or its derivative works; law
-prohibits these actions if you do not accept this License. Therefore, by modifying or
-distributing the Program (or any work based on the Program), you indicate your acceptance
-of this License and all its terms and conditions for copying, distributing or modifying the
-Program or works based on it, to do so.
+   a) under this License, provided that you make a good faith effort to
+   ensure that, in the event an Application does not supply the
+   function or data, the facility still operates, and performs
+   whatever part of its purpose remains meaningful, or
 
-7. Each time you redistribute the Program (or any work based on the Program), the recipient
-automatically receives a license from the original licensor to copy, distribute or modify the
-Program subject to these terms and conditions. You may not impose any further restrictions
-on the recipients' exercise of the rights granted herein. You are not responsible for enforcing
-compliance by third parties to this License.
+   b) under the GNU GPL, with none of the additional permissions of
+   this License applicable to that copy.
 
-8. If, as a consequence of a court judgment or allegation of patent infringement or for any
-other reason (not limited to patent issues), conditions are imposed on you (whether by court
-order, agreement or otherwise) that contradict the conditions of this License, they do not
-excuse you from the conditions of this License. If you cannot distribute so as to satisfy
-simultaneously your obligations under this License and any other pertinent obligations, then
-as a consequence you may not distribute the Program at all. For example, if a patent license
-would not permit royalty-free redistribution of the Program by all those who receive copies
-directly or indirectly through you, then the only way you could satisfy both it and this License
-would be to refrain entirely from distribution of the Program.
-If any portion of this section is held invalid or unenforceable under any particular
-circumstance, the balance of the section is intended to apply and the section as a whole is
-intended to apply in other circumstances.
+  3. Object Code Incorporating Material from Library Header Files.
 
-9. If the distribution and/or use of the Program are restricted in certain countries either by
-patents or by copyrighted interfaces, the original copyright holder who places the Program
-under this License may add an explicit geographical distribution limitation excluding those
-countries, so that distribution is permitted only in or among countries not thus excluded. In
-such case, this License incorporates the limitation as if written in the body of this License.
+  The object code form of an Application may incorporate material from
+a header file that is part of the Library.  You may convey such object
+code under terms of your choice, provided that, if the incorporated
+material is not limited to numerical parameters, data structure
+layouts and accessors, or small macros, inline functions and templates
+(ten or fewer lines in length), you do both of the following:
 
-NO WARRANTY
+   a) Give prominent notice with each copy of the object code that the
+   Library is used in it and that the Library and its use are
+   covered by this License.
 
-10. BECAUSE THE PROGRAM IS LICENSED FREE OF CHARGE, THERE IS NO WARRANTY FOR
-THE PROGRAM, TO THE EXTENT PERMITTED BY APPLICABLE LAW. EXCEPT WHEN OTHERWISE
-STATED IN WRITING THE COPYRIGHT HOLDERS AND/OR OTHER PARTIES PROVIDE THE
-PROGRAM "AS IS" WITHOUT WARRANTY OF ANY KIND, EITHER EXPRESSED OR IMPLIED,
-INCLUDING, BUT NOT LIMITED TO, THE IMPLIED WARRANTIES OF MERCHANTABILITY AND
-FITNESS FOR A PARTICULAR PURPOSE. THE ENTIRE RISK AS TO THE QUALITY AND
-PERFORMANCE OF THE PROGRAM IS WITH YOU. SHOULD THE PROGRAM PROVE DEFECTIVE,
-YOU ASSUME THE COST OF ALL NECESSARY SERVICING, REPAIR OR CORRECTION.
-11. IN NO EVENT UNLESS REQUIRED BY APPLICABLE LAW OR AGREED ON IN WRITING WILL
-ANY COPYRIGHT HOLDER, OR ANY OTHER PARTY WHO MAY MODIFY AND/OR REDISTRIBUTE
-THE PROGRAM AS PERMITTED ABOVE, BE LIABLE TO YOU FOR DAMAGES, INCLUDING ANY
-GENERAL, SPECIAL, INCIDENTAL OR CONSEQUENTIAL DAMAGES ARISING OUT OF THE USE OR
-INABILITY TO USE THE PROGRAM INCLUDING BUT NOT LIMITED TO LOSS OF DATA OR DATA
-BEING RENDERED INACCURATE OR LOSSES SUSTAINED BY YOU OR THIRD PARTIES OR A
-FAILURE OF THE PROGRAM TO OPERATE WITH ANY OTHER PROGRAMS), EVEN IF SUCH
-HOLDER OR OTHER PARTY HAS BEEN ADVISED OF THE POSSIBILITY OF SUCH DAMAGES.
-END OF TERMS AND CONDITIONS
+   b) Accompany the object code with a copy of the GNU GPL and this license
+   document.
+
+  4. Combined Works.
+
+  You may convey a Combined Work under terms of your choice that,
+taken together, effectively do not restrict modification of the
+portions of the Library contained in the Combined Work and reverse
+engineering for debugging such modifications, if you also do each of
+the following:
+
+   a) Give prominent notice with each copy of the Combined Work that
+   the Library is used in it and that the Library and its use are
+   covered by this License.
+
+   b) Accompany the Combined Work with a copy of the GNU GPL and this license
+   document.
+
+   c) For a Combined Work that displays copyright notices during
+   execution, include the copyright notice for the Library among
+   these notices, as well as a reference directing the user to the
+   copies of the GNU GPL and this license document.
+
+   d) Do one of the following:
+
+       0) Convey the Minimal Corresponding Source under the terms of this
+       License, and the Corresponding Application Code in a form
+       suitable for, and under terms that permit, the user to
+       recombine or relink the Application with a modified version of
+       the Linked Version to produce a modified Combined Work, in the
+       manner specified by section 6 of the GNU GPL for conveying
+       Corresponding Source.
+
+       1) Use a suitable shared library mechanism for linking with the
+       Library.  A suitable mechanism is one that (a) uses at run time
+       a copy of the Library already present on the user's computer
+       system, and (b) will operate properly with a modified version
+       of the Library that is interface-compatible with the Linked
+       Version.
+
+   e) Provide Installation Information, but only if you would otherwise
+   be required to provide such information under section 6 of the
+   GNU GPL, and only to the extent that such information is
+   necessary to install and execute a modified version of the
+   Combined Work produced by recombining or relinking the
+   Application with a modified version of the Linked Version. (If
+   you use option 4d0, the Installation Information must accompany
+   the Minimal Corresponding Source and Corresponding Application
+   Code. If you use option 4d1, you must provide the Installation
+   Information in the manner specified by section 6 of the GNU GPL
+   for conveying Corresponding Source.)
+
+  5. Combined Libraries.
+
+  You may place library facilities that are a work based on the
+Library side by side in a single library together with other library
+facilities that are not Applications and are not covered by this
+License, and convey such a combined library under terms of your
+choice, if you do both of the following:
+
+   a) Accompany the combined library with a copy of the same work based
+   on the Library, uncombined with any other library facilities,
+   conveyed under the terms of this License.
+
+   b) Give prominent notice with the combined library that part of it
+   is a work based on the Library, and explaining where to find the
+   accompanying uncombined form of the same work.
+
+  6. Revised Versions of the GNU Lesser General Public License.
+
+  The Free Software Foundation may publish revised and/or new versions
+of the GNU Lesser General Public License from time to time. Such new
+versions will be similar in spirit to the present version, but may
+differ in detail to address new problems or concerns.
+
+  Each version is given a distinguishing version number. If the
+Library as you received it specifies that a certain numbered version
+of the GNU Lesser General Public License "or any later version"
+applies to it, you have the option of following the terms and
+conditions either of that published version or of any later version
+published by the Free Software Foundation. If the Library as you
+received it does not specify a version number of the GNU Lesser
+General Public License, you may choose any version of the GNU Lesser
+General Public License ever published by the Free Software Foundation.
+
+  If the Library as you received it specifies that a proxy can decide
+whether future versions of the GNU Lesser General Public License shall
+apply, that proxy's public statement of acceptance of any version is
+permanent authorization for you to choose that version for the
+Library.
