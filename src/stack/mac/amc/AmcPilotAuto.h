@@ -38,6 +38,7 @@ class AmcPilotAuto : public AmcPilot
     AmcPilotAuto(LteAmc *amc) :
         AmcPilot(amc)
     {
+        mode_ = MIN_CQI;
         name_ = "Auto";
     }
     /**
@@ -52,6 +53,15 @@ class AmcPilotAuto : public AmcPilot
     {
         return;
     }
+
+    /*
+     * defines a subset of bands that will be used in AMC operation.
+     * e.g. limit the set of bands that will be considered in the "computeTxParams" function
+     */
+    void setUsableBands(MacNodeId id , UsableBands usableBands);
+
+    // returns a vector with one CQI for each band ( for the given user )
+    std::vector<Cqi>  getMultiBandCqi(MacNodeId id, const Direction dir);
 };
 
 #endif

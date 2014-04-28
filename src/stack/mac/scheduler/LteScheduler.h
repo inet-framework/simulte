@@ -80,6 +80,8 @@ class LteScheduler
      */
     std::map<LteTrafficClass, int> grantSizeMap_;
 
+//    CplexTest cplexTest_;
+
   public:
 
     /**
@@ -128,7 +130,7 @@ class LteScheduler
     // *****************************************************************************************
 
     /// performs request of grant to the eNbScheduler
-    virtual unsigned int requestGrant(MacCid cid, unsigned int bytes, bool& terminate, bool& active, bool& eligible);
+    virtual unsigned int requestGrant(MacCid cid, unsigned int bytes, bool& terminate, bool& active, bool& eligible , std::vector<BandLimit>* bandLim = NULL);
 
     /// calls eNbScheduler rtxschedule()
     virtual bool scheduleRetransmissions();

@@ -17,6 +17,12 @@
 #include "UserTxParams.h"
 #include "LteFeedback.h"
 
+// specifies a list of bands that can be used by a user
+typedef std::vector<unsigned short> UsableBands;
+
+// maps a user with a set of usable bands. If a UE is not in the list, the set of usable bands comprises the whole spectrum
+typedef std::map<MacNodeId,UsableBands> UsableBandsList;
+
 /// Forward declaration of LteAmc class, used by AmcPilot.
 class LteAmc;
 
@@ -38,6 +44,12 @@ class AmcPilot
 
     //! Pilot Name
     std::string name_;
+
+    //! contains for each user, the subset of Bands that will be considered in the AMC operations
+    UsableBandsList usableBandsList_;
+
+    // specifies how the final CQI will be computed from the per band CQIs (e.g. AVG, MAX, MIN)
+    PilotComputationModes mode_;
 
   public:
 
@@ -68,7 +80,13 @@ class AmcPilot
         return name_;
     }
 
+    virtual std::vector<Cqi>  getMultiBandCqi(MacNodeId id, const Direction dir) = 0;
+
     virtual void updateActiveUsers(ActiveSet aUser, Direction dir)=0;
+
+    virtual void setUsableBands(MacNodeId id , UsableBands usableBands) = 0;
+
+    void setMode(PilotComputationModes mode ) { mode_ = mode; }
 };
 
 #endif

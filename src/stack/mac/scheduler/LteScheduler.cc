@@ -26,9 +26,10 @@ void LteScheduler::setEnbScheduler(LteSchedulerEnb* eNbScheduler)
     initializeGrants();
 }
 
-unsigned int LteScheduler::requestGrant(MacCid cid, unsigned int bytes, bool& terminate, bool& active, bool& eligible)
+
+unsigned int LteScheduler::requestGrant(MacCid cid, unsigned int bytes, bool& terminate, bool& active, bool& eligible , std::vector<BandLimit>* bandLim)
 {
-    return eNbScheduler_->scheduleGrant(cid, bytes, terminate, active, eligible);
+    return eNbScheduler_->scheduleGrant(cid, bytes, terminate, active, eligible ,bandLim);
 }
 
 bool LteScheduler::scheduleRetransmissions()

@@ -661,6 +661,76 @@ unsigned int LteAmc::computeBytesOnNRbs(MacNodeId id, Band b, Codeword cw, unsig
     return bytes;
 }
 
+unsigned int LteAmc::computeBytesOnNRbs_MB(MacNodeId id, Band b, unsigned int blocks, const Direction dir)
+{
+    EV << NOW << " LteAmc::computeBytesOnNRbs_MB Node " << id << ", Band " << b << ",  direction " << dirToA(dir) << ", blocks " << blocks << "\n";
+
+    unsigned int bits = computeBitsOnNRbs_MB(id, b, blocks, dir);
+    unsigned int bytes = bits/8;
+
+    // DEBUG
+    EV << NOW << " LteAmc::computeBytesOnNRbs_MB Resource Blocks: " << blocks << "\n";
+    EV << NOW << " LteAmc::computeBytesOnNRbs_MB Available space: " << bits << "\n";
+    EV << NOW << " LteAmc::computeBytesOnNRbs_MB Available space: " << bytes << "\n";
+
+    return bytes;
+
+}
+
+unsigned int LteAmc::computeBitsOnNRbs_MB(MacNodeId id, Band b,  unsigned int blocks, const Direction dir)
+{
+    if (blocks > 110)    // Safety check to avoid segmentation fault
+        throw cRuntimeError("LteAmc::computeBitsOnNRbs_MB(): Too many blocks");
+
+    if (blocks == 0)
+        return 0;
+
+    // DEBUG
+    EV << NOW << " LteAmc::computeBitsOnNRbs_MB Node: " << id << "\n";
+    EV << NOW << " LteAmc::computeBitsOnNRbs_MB Band: " << b << "\n";
+    EV << NOW << " LteAmc::computeBitsOnNRbs_MB Direction: " << dirToA(dir) << "\n";
+
+    Cqi cqi = readMultiBandCqi(id,dir)[b];
+
+    // Acquiring current user scheduling information
+    UserTxParams info = computeTxParams(id, dir);
+
+    std::vector<unsigned char> layers = info.getLayers();
+
+    // if CQI == 0 the UE is out of range, thus return 0
+    if (cqi == 0)
+    {
+        EV << NOW << " LteAmc::computeBitsOnNRbs_MB - CQI equal to zero, return no blocks available" << endl;
+        return 0;
+    }
+
+    unsigned int iTbs = getItbsPerCqi(cqi, dir);
+    LteMod mod = cqiTable[cqi].mod_;
+    unsigned int i = (mod == _QPSK ? 0 : (mod == _16QAM ? 9 : (mod == _64QAM ? 15 : 0)));
+
+    // DEBUG
+    EV << NOW << " LteAmc::computeBitsOnNRbs_MB Modulation: " << modToA(mod) << "\n";
+    EV << NOW << " LteAmc::computeBitsOnNRbs_MB iTbs: " << iTbs << "\n";
+    EV << NOW << " LteAmc::computeBitsOnNRbs_MB i: " << i << "\n";
+
+    const unsigned int* tbsVect = itbs2tbs(mod, TRANSMIT_DIVERSITY, layers[0], iTbs - i);
+
+    // DEBUG
+    EV << NOW << " LteAmc::computeBitsOnNRbs_MB Resource Blocks: " << blocks << "\n";
+    EV << NOW << " LteAmc::computeBitsOnNRbs_MB Available space: " << tbsVect[blocks-1] << "\n";
+
+    return tbsVect[blocks - 1];
+
+}
+
+bool LteAmc::setPilotUsableBands(MacNodeId id , std::vector<unsigned short>  usableBands)
+{
+    pilot_->setUsableBands(id,usableBands);
+}
+
+
+
+
 unsigned int LteAmc::getItbsPerCqi(Cqi cqi, const Direction dir)
 {
     // CQI threshold table selection
@@ -968,6 +1038,12 @@ Cqi LteAmc::readWbCqi(const CqiVector& cqi)
     EV << "LteAmc::getWbCqi - Cqi " << cqiRet << " evaluated\n";
 
     return cqiRet;
+}
+
+
+std::vector<Cqi>  LteAmc::readMultiBandCqi(MacNodeId id, const Direction dir)
+{
+    return pilot_->getMultiBandCqi(id,dir);
 }
 
 void LteAmc::writePmiWeight(const double weight)

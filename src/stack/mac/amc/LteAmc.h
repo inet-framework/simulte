@@ -116,6 +116,7 @@ class LteAmc
         return kCqi_;
     }
 
+
     bool existTxParams(MacNodeId id, const Direction dir);
     const UserTxParams & getTxParams(MacNodeId id, const Direction dir);
     const UserTxParams & setTxParams(MacNodeId id, const Direction dir, UserTxParams & info);
@@ -126,6 +127,11 @@ class LteAmc
     unsigned int computeBitsOnNRbs(MacNodeId id, Band b, Codeword cw, unsigned int blocks, const Direction dir);
     unsigned int computeBytesOnNRbs(MacNodeId id, Band b, unsigned int blocks, const Direction dir);
     unsigned int computeBytesOnNRbs(MacNodeId id, Band b, Codeword cw, unsigned int blocks, const Direction dir);
+
+    // multiband version of the above function. It returns the number of bytes that can fit in the given "blocks" of the given "band"
+    unsigned int computeBytesOnNRbs_MB(MacNodeId id, Band b, unsigned int blocks, const Direction dir);
+    unsigned int computeBitsOnNRbs_MB(MacNodeId id, Band b, unsigned int blocks, const Direction dir);
+    bool setPilotUsableBands(MacNodeId id , std::vector<unsigned short> usableBands);
 
     // utilities - do not involve pilot invocation
     unsigned int getItbsPerCqi(Cqi cqi, const Direction dir);
@@ -179,6 +185,8 @@ class LteAmc
         else
             muMimoUlMatrix_.addPair(id1, id2);
     }
+
+    std::vector<Cqi>  readMultiBandCqi(MacNodeId id, const Direction dir);
 };
 
 #endif

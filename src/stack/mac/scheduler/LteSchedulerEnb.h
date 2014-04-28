@@ -35,6 +35,8 @@ class LteSchedulerEnb
     friend class LteDrr;
     friend class LtePf;
     friend class LteMaxCi;
+    friend class LteMaxCiMultiband;
+    friend class LteMaxCiOptMB;
 
   protected:
 

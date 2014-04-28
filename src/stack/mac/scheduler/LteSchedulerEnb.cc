@@ -15,6 +15,8 @@
 #include "LteDrr.h"
 #include "LteMaxCi.h"
 #include "LtePf.h"
+#include "LteMaxCiMultiband.h"
+#include "LteMaxCiOptMB.h"
 #include "LteMacBuffer.h"
 #include "LteMacQueue.h"
 
@@ -775,6 +777,10 @@ LteScheduler* LteSchedulerEnb::getScheduler(SchedDiscipline discipline)
         return new LtePf(mac_->par("pfAlpha").doubleValue());
         case MAXCI:
         return new LteMaxCi();
+        case MAXCI_MB:
+        return new LteMaxCiMultiband();
+        case MAXCI_OPT_MB:
+        return new LteMaxCiOptMB();
 
         default:
         throw cRuntimeError("LteScheduler not recognized");

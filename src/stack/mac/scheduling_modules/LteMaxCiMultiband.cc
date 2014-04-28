@@ -1,0 +1,136 @@
+/*
+ * LteMaxCiMultiband.cpp
+ *
+ *  Created on: Apr 16, 2014
+ *      Author: antonio
+ */
+
+#include <vector>
+
+#include "LteMaxCiMultiband.h"
+#include "LteSchedulerEnb.h"
+
+using namespace std;
+
+bool debug = false;
+
+void LteMaxCiMultiband::prepareSchedule()
+{
+    activeConnectionTempSet_ = activeConnectionSet_;
+    MacCid cid;
+    unsigned int byPs = 0;
+    ScoreList score;
+
+    // compute score based on total available bytes
+    unsigned int availableBlocks   = 0;
+    unsigned int availableBytes    = 0;
+    unsigned int availableBytes_MB = 0;
+
+    unsigned int totAvailableBlocks   = 0;
+    unsigned int totAvailableBytes    = 0;
+    unsigned int totAvailableBytes_MB = 0;
+
+    UsableBands * usableBands;
+    if(debug)
+        cout << NOW << " LteMaxCiMultiband::prepareSchedule - Tot Active Connections:"<< activeConnectionTempSet_.size() << endl;
+    for ( ActiveSet::iterator it1 = activeConnectionTempSet_.begin ();it1 != activeConnectionTempSet_.end (); ++it1 )
+    {
+        // Current connection.
+        cid = *it1;
+
+        MacNodeId nodeId = MacCidToNodeId(cid);
+
+        // obtain a vector of CQI, one for each band
+        std::vector<Cqi> vect = eNbScheduler_->mac_->getAmc()->readMultiBandCqi(nodeId,direction_);
+        int band = 0;
+        if(debug)
+            cout << NOW << " LteMaxCiMultiband::prepareSchedule - per band cqi for UE[" << nodeId << "]" << endl;
+
+        totAvailableBlocks   = 0;
+        totAvailableBytes    = 0; // DEBUG
+        totAvailableBytes_MB = 0;
+
+        // compute the number of bytes that can be fitted into each BAND
+        for( ; band < vect.size() ; ++band )
+        {
+            availableBlocks = eNbScheduler_->readAvailableRbs(nodeId,MACRO,band);
+            availableBytes_MB = eNbScheduler_->mac_->getAmc()->computeBytesOnNRbs_MB(nodeId,band, availableBlocks, direction_);
+            availableBytes = eNbScheduler_->mac_->getAmc()->computeBytesOnNRbs(nodeId,band, availableBlocks, direction_);
+
+            totAvailableBlocks   += availableBlocks;
+            totAvailableBytes    += availableBytes; // DEBUG
+            totAvailableBytes_MB += availableBytes_MB;
+            if(debug)
+                cout << "\t"<< band << ") CQI=" << vect[band] << " - Blocks="<< availableBlocks
+                     << " - Bytes_MB="<< availableBytes_MB<< " - Bytes="<< availableBytes<< endl;
+        }
+
+
+        // current user bytes per slot
+        byPs = (totAvailableBlocks>0) ? (totAvailableBytes_MB/totAvailableBlocks ) : 0;
+
+        // Create a new score descriptor for the connection, where the score is equal to the ratio between bytes per slot and long term rate
+        ScoreDesc desc(cid,byPs);
+        // insert the cid score
+        score.push (desc);
+        if(debug)
+            cout << NOW << " LteMaxCiMultiband::schedule computed for cid " << cid << " score of " << desc.score_ << endl;
+    }
+
+    // Schedule the connections in score order.
+    while ( ! score.empty () )
+    {
+        // Pop the top connection from the list.
+        ScoreDesc current = score.top ();
+
+        EV << NOW << " LteMaxCiMultiband::schedule scheduling connection " << current.x_ << " with score of " << current.score_ << endl;
+
+        // Grant data to that connection.
+        bool terminate = false;
+        bool active = true;
+        bool eligible = true;
+        unsigned int granted = requestGrant (current.x_, 4294967295U, terminate, active, eligible);
+
+        EV << NOW << "LteMaxCiMultiband::schedule granted " << granted << " bytes to connection " << current.x_ << endl;
+
+        // Exit immediately if the terminate flag is set.
+        if ( terminate ) break;
+
+        // Pop the descriptor from the score list if the active or eligible flag are clear.
+        if ( ! active || ! eligible )
+        {
+            score.pop ();
+            EV << NOW << "LteMaxCiMultiband::schedule  connection " << current.x_ << " was found ineligible" << endl;
+        }
+
+        // Set the connection as inactive if indicated by the grant ().
+        if ( ! active )
+        {
+            EV << NOW << "LteMaxCiMultiband::schedule scheduling connection " << current.x_ << " set to inactive " << endl;
+
+            activeConnectionTempSet_.erase (current.x_);
+        }
+    }
+}
+
+void LteMaxCiMultiband::commitSchedule()
+{
+    activeConnectionSet_ = activeConnectionTempSet_;
+}
+
+void LteMaxCiMultiband::updateSchedulingInfo()
+{
+
+}
+
+void LteMaxCiMultiband::notifyActiveConnection(MacCid cid)
+{
+    EV << NOW << "LteMaxCiMultiband::notify CID notified " << cid<< "/"<<MacCidToNodeId(cid) << endl;
+    activeConnectionSet_.insert(cid);
+}
+
+void LteMaxCiMultiband::removeActiveConnection(MacCid cid)
+{
+    EV << NOW << "LteMaxCiMultiband::remove CID removed " << cid<< "/"<<MacCidToNodeId(cid) << endl;
+    activeConnectionSet_.erase(cid);
+}

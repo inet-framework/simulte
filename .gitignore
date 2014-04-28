@@ -31,6 +31,7 @@ out/
 *.bak
 backups
 *~
+*.log
 
 
 *.FAILED
@@ -40,6 +41,6 @@ ui/com.simulte.configeditor/bin/
 
 # ignore result folders
 /simulations/gtpNetwork/ResultLteCoreNetwork/
-/simulations/*/results/
-/simulations/*/*/results/
-/simulations/*/*/*/results/
+/simulations/*/results*/
+/simulations/*/*/results*/
+/simulations/*/*/*/results*/

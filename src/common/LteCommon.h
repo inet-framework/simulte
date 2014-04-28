@@ -207,7 +207,7 @@ const ApplicationTable applications[] = {
 
 enum SchedDiscipline
 {
-    DRR, PF, MAXCI, UNKNOWN_DISCIPLINE
+    DRR, PF, MAXCI, MAXCI_MB, MAXCI_OPT_MB, UNKNOWN_DISCIPLINE
 };
 
 struct SchedDisciplineTable
@@ -220,7 +220,15 @@ const SchedDisciplineTable disciplines[] = {
     ELEM(DRR),
     ELEM(PF),
     ELEM(MAXCI),
+    ELEM(MAXCI_MB),
+    ELEM(MAXCI_OPT_MB),
     ELEM(UNKNOWN_DISCIPLINE)
+};
+
+// specifies how the final CQI will be computed from the multiband ones
+enum PilotComputationModes
+{
+    MIN_CQI, MAX_CQI, AVG_CQI
 };
 
 /*************************
