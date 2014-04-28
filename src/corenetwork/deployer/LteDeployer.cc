@@ -41,8 +41,8 @@ LteDeployer::~LteDeployer()
 
 void LteDeployer::preInitialize()
 {
-    StationaryMobility* bm =
-        dynamic_cast<StationaryMobility*>(getParentModule()->getModuleByPath(".nic.mobility"));
+//    StationaryMobility* bm =
+//        dynamic_cast<StationaryMobility*>(getParentModule()->getModuleByPath(".nic.mobility"));
 
 //    if(eNbType_ == MACRO_ENB)
 //    {
