@@ -487,6 +487,53 @@ double LteRealisticChannelModel::computeSpeed(const MacNodeId nodeId,
     return speed;
 }
 
+double computeAngle(Coord center, Coord point) {
+    double relx, rely, arcoSen, angle, dist;
+
+    // compute distance between points
+    dist = point.distance(center);
+
+    // compute distance along the axis
+    relx = point.x - center.x;
+    rely = point.y - center.y;
+
+    // compute the arc sine
+    arcoSen = asin(rely / dist) * 180.0 / PI;
+
+    // adjust the angle depending on the quadrants
+    if (relx < 0 && rely > 0) // quadrant II
+        angle = 180.0 - arcoSen;
+    else if (relx < 0 && rely <= 0) // quadrant III
+        angle = 180.0 - arcoSen;
+    else if (relx > 0 && rely < 0) // quadrant IV
+        angle = 360.0 + arcoSen;
+    else
+        // quadrant I
+        angle = arcoSen;
+
+//    EV << "computeAngle: angle[" << angle <<"] - arcoSen[" << arcoSen <<
+//          "] - relativePos[" << relx << "," << rely <<
+//          "] - siny[" << rely/dist << "] - senx[" << relx/dist <<
+//          "]" << endl;
+
+    return angle;
+}
+
+double computeAngolarAttenuation(double angle) {
+    double angolarAtt;
+    double angolarAttMin = 25;
+    // compute attenuation due to angolar position
+    // see TR 36.814 V9.0.0 for more details
+    angolarAtt = 12 * pow(angle / 70.0, 2);
+
+//  EV << "\t angolarAtt[" << angolarAtt << "]" << endl;
+    // max value for angolar attenuation is 25 dB
+    if (angolarAtt > angolarAttMin)
+        angolarAtt = angolarAttMin;
+
+    return angolarAtt;
+}
+
 std::vector<double> LteRealisticChannelModel::getSINR(LteAirFrame *frame, UserControlInfo* lteInfo)
 {
     AttenuationVector::iterator it;
@@ -609,6 +656,35 @@ std::vector<double> LteRealisticChannelModel::getSINR(LteAirFrame *frame, UserCo
 
     //sub cable loss
     recvPower -= cableLoss_; // (dBm-dB)=dBm
+
+    //=============== ANGOLAR ATTENUATION =================
+    if (dir == DL)
+    {
+        //get tx angle
+        LtePhyBase* ltePhy = check_and_cast<LtePhyBase*>(
+                simulation.getModule(binder_->getOmnetId(eNbId))->getSubmodule(
+                        "nic")->getSubmodule("phy"));
+
+        double txAngle = ltePhy->getTxAngle();
+        if (txAngle != -1)
+        {
+            // compute the angle between uePosition and reference axis, considering the eNb as center
+            double ueAngle = computeAngle(enbCoord, ueCoord);
+
+            // compute the reception angle between ue and eNb
+            double recvAngle = fabs(txAngle - ueAngle);
+
+            if (recvAngle > 180)
+                recvAngle = 360 - recvAngle;
+
+            // compute attenuation due to sectorial tx
+            double angolarAtt = computeAngolarAttenuation(recvAngle);
+
+            recvPower -= angolarAtt;
+        }
+        // else, antenna is omni-directional
+    }
+    //=============== END ANGOLAR ATTENUATION =================
 
     std::vector<double> snrVector;
 

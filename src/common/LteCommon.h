@@ -706,6 +706,7 @@ struct EnbInfo
     bool init;         // initialization flag
     EnbType type;     // MICRO_ENB or MACRO_ENB
     double txPwr;
+    double txAngle;
     MacNodeId id;
     LteMacEnb * mac;
     LteRealisticChannelModel * realChan;

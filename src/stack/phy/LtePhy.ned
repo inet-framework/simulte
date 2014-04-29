@@ -39,7 +39,8 @@ simple LtePhyBase like LtePhy {
         double eNodeBTxPower =default(46);
         double relayTxPower =default(20);
         double microTxPower =default(30);
-        
+        double txAngle = default(-1);    // -1 = Omni-directional antenna   
+             
         //# CQI statistics
         @statistic[averageCqiDl](title="Average Cqi reported in DL"; unit="cqi"; source="averageCqiDl"; record=lteAvg);
         @statistic[averageCqiUl](title="Average Cqi reported in UL"; unit="cqi"; source="averageCqiUl"; record=lteAvg);

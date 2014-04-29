@@ -103,6 +103,8 @@ class LtePhyBase : public ChannelAccess
     double microTxPower_;
     // Tx Power
     double txPower_;
+    // Tx Angle
+    double txAngle_;
     // Attenuation array
     AttenuationVector attenuationVector_;
     //Used only for PisaPhy
@@ -145,6 +147,10 @@ class LtePhyBase : public ChannelAccess
     double getTxPwr()
     {
         return txPower_;
+    }
+    double getTxAngle()
+    {
+        return txAngle_;
     }
 
   protected:

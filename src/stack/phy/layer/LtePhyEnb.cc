@@ -56,6 +56,9 @@ void LtePhyEnb::initialize(int stage)
         else
             txPower_ = eNodeBtxPower_;
 
+        // set TX angle
+        txAngle_ = par("txAngle");
+
         bdcUpdateInterval_ = deployer_->par("broadcastMessageInterval");
 
         // TODO: add a parameter not to generate broadcasts (no handovers scenario)
