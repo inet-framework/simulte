@@ -264,6 +264,14 @@ void LteMacEnb::initialize(int stage)
     {
         /* Create and initialize AMC module */
         amc_ = new LteAmc(this, binder_, deployer_, numAntennas_);
+
+        /* Insert EnbInfo in the Binder */
+        EnbInfo* info = new EnbInfo();
+        info->id = nodeId_;            // local mac ID
+        info->type = MACRO_ENB;        // eNb Type
+        info->init = false;            // flag for phy initialization
+        info->eNodeB = this->getParentModule()->getParentModule();  // reference to the eNodeB module
+        binder_->addEnbInfo(info);
     }
 }
 

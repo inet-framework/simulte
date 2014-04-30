@@ -49,7 +49,7 @@ class LteRealisticChannelModel : public LteChannelModel
 
     // enable/disable intercell interference computation
     bool enableExtCellInterference_;
-    bool enableInCellInterference_;
+    bool enableMultiCellInterference_;
 
     typedef std::pair<simtime_t, Coord> Position;
 
@@ -270,11 +270,11 @@ class LteRealisticChannelModel : public LteChannelModel
     void updatePositionHistory(const MacNodeId nodeId, const Coord coord);
 
     /*
-     * compute total interference due to macro/micro coexistence
+     * compute total interference due to eNB coexistence
      * @param eNbId id of the considered eNb
      * @param isCqi if we are computing a CQI
      */
-    bool computeInCellInterference(MacNodeId eNbId, MacNodeId ueId, Coord coord, bool isCqi,
+    bool computeMultiCellInterference(MacNodeId eNbId, MacNodeId ueId, Coord coord, bool isCqi,
         std::vector<double> * interference);
 
     /*

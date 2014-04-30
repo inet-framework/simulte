@@ -46,8 +46,8 @@
             <parameter name="fading-paths" type="int" value="6"/> 
 			<!-- if true, enables the inter-cell interference computation -->  
             <parameter name="extCell-interference" type="bool" value="true"/>
-			<!-- if true, enables the in-cell interference computation -->  
-            <parameter name="inCell-interference" type="bool" value="false"/>  
+			<!-- if true, enables the multi-cell interference computation -->  
+            <parameter name="multiCell-interference" type="bool" value="false"/>  
         </ChannelModel>        
              
         <!-- Feedback Type (REAL, DUMMY) -->

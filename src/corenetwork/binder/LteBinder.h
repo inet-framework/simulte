@@ -54,6 +54,9 @@ class LteBinder : public cSimpleModule
     // list of static external cells. Used for intercell interference evaluation
     ExtCellList extCellList_;
 
+    // list of all eNBs. Used for inter-cell interference evaluation
+    std::vector<EnbInfo*> enbList_;
+
     MacNodeId macNodeIdCounter_[3]; // MacNodeId Counter
     DeployedUesMap dMap_; // DeployedUes --> Master Mapping
     QCIParameters QCIParam_[LTE_QCI_CLASSES];
@@ -218,6 +221,16 @@ class LteBinder : public cSimpleModule
     ExtCellList getExtCellList()
     {
         return extCellList_;
+    }
+
+    void addEnbInfo(EnbInfo* info)
+    {
+        enbList_.push_back(info);
+    }
+
+    std::vector<EnbInfo*> * getEnbList()
+    {
+        return &enbList_;
     }
 };
 

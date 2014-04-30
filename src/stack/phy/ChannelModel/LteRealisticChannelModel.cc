@@ -289,8 +289,13 @@ LteRealisticChannelModel::LteRealisticChannelModel(ParameterMap& params,
     else
         enableExtCellInterference_ = false;
 
-    // disabled
-    enableInCellInterference_ = false;
+    it = params.find("multiCell-interference");
+    if (it != params.end())
+    {
+        enableMultiCellInterference_ = it->second;
+    }
+    else
+        enableMultiCellInterference_ = false;
 
     //get delay rms for jakes fading
     it = params.find("delay-rms");
@@ -389,6 +394,7 @@ double LteRealisticChannelModel::getAttenuation(MacNodeId nodeId, Direction dir,
         else if ((NOW - lastComputedSF_.at(nodeId).first).dbl() * speed
             > correlationDistance_)
         {
+
             //get the temporal mark of the last computed shadowing attenuation
             time = (NOW - lastComputedSF_.at(nodeId).first).dbl();
 
@@ -423,7 +429,6 @@ double LteRealisticChannelModel::getAttenuation(MacNodeId nodeId, Direction dir,
     if (dir == DL)
         //store the position of user
         updatePositionHistory(nodeId, myCoord_);
-
     else
         //sender is an UE
         updatePositionHistory(nodeId, coord);
@@ -533,7 +538,6 @@ double computeAngolarAttenuation(double angle) {
 
     return angolarAtt;
 }
-
 std::vector<double> LteRealisticChannelModel::getSINR(LteAirFrame *frame, UserControlInfo* lteInfo)
 {
     AttenuationVector::iterator it;
@@ -646,7 +650,11 @@ std::vector<double> LteRealisticChannelModel::getSINR(LteAirFrame *frame, UserCo
     " - txPwr=" << lteInfo->getTxPower() << " - for ueId=" << ueId << endl;
 
     // attenuation for the desired signal
-    double attenuation = getAttenuation(ueId, dir, coord); // dB
+    double attenuation;
+    if ((lteInfo->getFrameType() == FEEDBACKPKT))
+        attenuation = getAttenuation(ueId, UL, coord); // dB
+    else
+        attenuation = getAttenuation(ueId, dir, coord); // dB
 
     //compute attenuation (PATHLOSS + SHADOWING)
     recvPower -= attenuation; // (dBm-dB)=dBm
@@ -740,17 +748,17 @@ std::vector<double> LteRealisticChannelModel::getSINR(LteAirFrame *frame, UserCo
      *           N  +  I
      *
      * Ndb = thermalNoise_ + noiseFigure (measured in decibel)
-     * I = extCellInterference + inCellInterference
+     * I = extCellInterference + multiCellInterference
      */
 
-    //============ IN CELL INTERFERENCE COMPUTATION =================
-    //vector containing the sum of inCell interference for each band
-    std::vector<double> inCellInterference; // Linear value (mW)
+    //============ MULTI CELL INTERFERENCE COMPUTATION =================
+    //vector containing the sum of multiCell interference for each band
+    std::vector<double> multiCellInterference; // Linear value (mW)
     // prepare data structure
-    inCellInterference.resize(band_, 0);
-    if (enableInCellInterference_ && dir == DL)
+    multiCellInterference.resize(band_, 0);
+    if (enableMultiCellInterference_ && dir == DL)
     {
-        computeInCellInterference(eNbId, ueId, ueCoord, (lteInfo->getFrameType() == FEEDBACKPKT), &inCellInterference);
+        computeMultiCellInterference(eNbId, ueId, ueCoord, (lteInfo->getFrameType() == FEEDBACKPKT), &multiCellInterference);
     }
 
     //============ EXTCELL INTERFERENCE COMPUTATION =================
@@ -764,12 +772,12 @@ std::vector<double> LteRealisticChannelModel::getSINR(LteAirFrame *frame, UserCo
     }
 
     //===================== SINR COMPUTATION ========================
-    if ((enableExtCellInterference_ || enableInCellInterference_) && dir == DL)
+    if ((enableExtCellInterference_ || enableMultiCellInterference_) && dir == DL)
     {
         // compute and linearize total noise
         double totN = dBmToLinear(thermalNoise_ + noiseFigure);
 
-        // denominator expressed in dBm as (N+extCell+inCell)
+        // denominator expressed in dBm as (N+extCell+multiCell)
         double den;
         EV << "LteRealisticChannelModel::getSINR - distance from my eNb=" << enbCoord.distance(ueCoord) << " - DIR=" << (( dir==DL )?"DL" : "UL") << endl;
 
@@ -777,16 +785,16 @@ std::vector<double> LteRealisticChannelModel::getSINR(LteAirFrame *frame, UserCo
         for (unsigned int i = 0; i < band_; i++)
         {
             //               (      mW            +  mW  +        mW            )
-            den = linearToDBm(extCellInterference + totN + inCellInterference[i]);
+            den = linearToDBm(extCellInterference + totN + multiCellInterference[i]);
 
-            EV << "\t ext[" << extCellInterference << "] - in[" << inCellInterference[i] << "] - recvPwr["
+            EV << "\t ext[" << extCellInterference << "] - multi[" << multiCellInterference[i] << "] - recvPwr["
                << dBmToLinear(snrVector[i]) << "] - sinr[" << snrVector[i]-den << "]\n";
 
             // compute final SINR
             snrVector[i] -= den;
         }
     }
-    // compute snr with no intercell/incell interference
+    // compute snr with no intercell interference
     else
     {
         for (unsigned int i = 0; i < band_; i++)
@@ -1487,15 +1495,12 @@ LteRealisticChannelModel::JakesFadingMap * LteRealisticChannelModel::obtainUeJak
         return j;
     }
 
-bool LteRealisticChannelModel::computeInCellInterference(MacNodeId eNbId, MacNodeId ueId, Coord coord, bool isCqi,
+bool LteRealisticChannelModel::computeMultiCellInterference(MacNodeId eNbId, MacNodeId ueId, Coord coord, bool isCqi,
     std::vector<double> * interference)
 {
-    EV << "**** In Cell Interference for cellId[" << eNbId << "] ****" << endl;
+    EV << "**** Multi Cell Interference ****" << endl;
 
-    // get Deployer Reference
-    LteDeployer * deployer = getDeployer(eNbId);
-
-    // reference to the mac/phy/channel  of each micro/macro cell
+    // reference to the mac/phy/channel of each cell
     LtePhyBase * ltePhy;
 
     int temp;
@@ -1503,103 +1508,74 @@ bool LteRealisticChannelModel::computeInCellInterference(MacNodeId eNbId, MacNod
 
     double txPwr;
 
-    // check eNb type
-    EnbType enbType = deployer->getEnbType();
+    std::vector<EnbInfo*> * enbList = binder_->getEnbList();
+    std::vector<EnbInfo*>::iterator it = enbList->begin(), et = enbList->end();
 
-    if( enbType == MACRO_ENB )// compute MICRO to MACRO interference
+    while(it!=et)
     {
-        std::vector<EnbInfo*> * microList = deployer->getMicroList();
-        std::vector<EnbInfo*>::iterator it = microList->begin(),
-        et = microList->end();
+        MacNodeId id = (*it)->id;
 
-        while(it!=et)
+        if (id == eNbId)
         {
-            MacNodeId id = (*it)->id;
-
-            // initialize eNb data structures
-            if(!(*it)->init)
-            {
-                // obtain a reference to micro phy and obtain tx power
-                ltePhy = check_and_cast<LtePhyBase*>(simulation.getModule(binder_->getOmnetId(id))->getSubmodule("nic")->getSubmodule("phy"));
-                (*it)->txPwr = ltePhy->getTxPwr();//dBm
-
-                // get real Channel
-                (*it)->realChan = dynamic_cast<LteRealisticChannelModel *>(ltePhy->getChannelModel());
-
-                //get reference to mac layer
-                (*it)->mac = check_and_cast<LteMacEnb*>(getMacByMacNodeId(id));
-
-                (*it)->init = true;
-            }
-
-            // compute attenuation using data structures within the micro cell
-            att = (*it)->realChan->getAttenuation(ueId,UL,coord);
-            EV << "MicroId [" << id << "] - attenuation [" << att << "]" << endl;
-
-            // cable loss = 0 for MICRO nodes
-            txPwr = (*it)->txPwr + antennaGainMicro_;
-
-            if(isCqi)// check slot occupation for this TTI
-            {
-                for(unsigned int i=0;i<band_;i++)
-                {
-                    // compute the number of occupied slot (unnecessary)
-                    temp = (*it)->mac->getBandStatus(i);
-                    if(temp!=0)
-                    (*interference)[i] += dBmToLinear(txPwr-att);//(dBm-dB)=dBm
-
-                    EV << "\t band " << i << " occupied " << temp << "/pwr[" << txPwr << "]-int[" << (*interference)[i] << "]" << endl;
-                }
-            }
-            else // error computation. We need to check the slot occupation of the previous TTI
-            {
-                for(unsigned int i=0;i<band_;i++)
-                {
-                    // compute the number of occupied slot (unnecessary)
-                    temp = (*it)->mac->getPrevBandStatus(i);
-                    if(temp!=0)
-                    (*interference)[i] += dBmToLinear(txPwr-att);//(dBm-dB)=dBm
-
-                    EV << "\t band " << i << " occupied " << temp << "/pwr[" << txPwr << "]-int[" << (*interference)[i] << "]" << endl;
-                }
-            }
             ++it;
+            continue;
         }
-    }
-    else // compute MACRO to MICRO interference
-    {
-        EnbInfo * info = deployer->getMacroNode();
-        MacNodeId id = info->id;
 
         // initialize eNb data structures
-        if(!info->init)
+        if(!(*it)->init)
         {
-            // obtain a reference to micro phy and obtain tx power
+            // obtain a reference to enb phy and obtain tx power
             ltePhy = check_and_cast<LtePhyBase*>(simulation.getModule(binder_->getOmnetId(id))->getSubmodule("nic")->getSubmodule("phy"));
-            info->txPwr = ltePhy->getTxPwr();//dBm
+            (*it)->txPwr = ltePhy->getTxPwr();//dBm
+
+            // get tx angle
+            (*it)->txAngle = ltePhy->getTxAngle();
 
             // get real Channel
-            info->realChan = dynamic_cast<LteRealisticChannelModel *>(ltePhy->getChannelModel());
+            (*it)->realChan = dynamic_cast<LteRealisticChannelModel *>(ltePhy->getChannelModel());
 
             //get reference to mac layer
-            info->mac = check_and_cast<LteMacEnb*>(getMacByMacNodeId(id));
+            (*it)->mac = check_and_cast<LteMacEnb*>(getMacByMacNodeId(id));
 
-            info->init = true;
+            (*it)->init = true;
         }
 
-        // compute attenuation using data structures within the macro cell
-        att = info->realChan->getAttenuation(ueId,UL,coord);
-        EV << "MacroId [" << id << "] - attenuation [" << att << "]" << endl;
+        // compute attenuation using data structures within the cell
+        att = (*it)->realChan->getAttenuation(ueId,UL,coord);
+        EV << "EnbId [" << id << "] - attenuation [" << att << "]" << endl;
 
-        txPwr = info->txPwr - cableLoss_ + antennaGainEnB_;
+        //=============== ANGOLAR ATTENUATION =================
+        double angolarAtt = 0;
 
-        if(isCqi)
+        //get tx angle
+        double txAngle = (*it)->txAngle;
+        if (txAngle != -1)
+        {
+            // compute the angle between uePosition and reference axis, considering the eNb as center
+            double ueAngle = computeAngle((*it)->realChan->myCoord_, coord);
+
+            // compute the reception angle between ue and eNb
+            double recvAngle = fabs(txAngle - ueAngle);
+            if (recvAngle > 180)
+                recvAngle = 360 - recvAngle;
+
+            // compute attenuation due to sectorial tx
+            angolarAtt = computeAngolarAttenuation(recvAngle);
+
+        }
+        // else, antenna is omni-directional
+        //=============== END ANGOLAR ATTENUATION =================
+
+        txPwr = (*it)->txPwr - angolarAtt - cableLoss_ + antennaGainEnB_;
+
+        if(isCqi)// check slot occupation for this TTI
         {
             for(unsigned int i=0;i<band_;i++)
             {
-                temp = info->mac->getBandStatus(i);
+                // compute the number of occupied slot (unnecessary)
+                temp = (*it)->mac->getBandStatus(i);
                 if(temp!=0)
-                (*interference)[i] += dBmToLinear(txPwr-att);
+                    (*interference)[i] += dBmToLinear(txPwr-att);//(dBm-dB)=dBm
 
                 EV << "\t band " << i << " occupied " << temp << "/pwr[" << txPwr << "]-int[" << (*interference)[i] << "]" << endl;
             }
@@ -1608,13 +1584,15 @@ bool LteRealisticChannelModel::computeInCellInterference(MacNodeId eNbId, MacNod
         {
             for(unsigned int i=0;i<band_;i++)
             {
-                temp = info->mac->getPrevBandStatus(i);
+                // compute the number of occupied slot (unnecessary)
+                temp = (*it)->mac->getPrevBandStatus(i);
                 if(temp!=0)
-                (*interference)[i] += dBmToLinear(txPwr-att);
+                    (*interference)[i] += dBmToLinear(txPwr-att);//(dBm-dB)=dBm
 
                 EV << "\t band " << i << " occupied " << temp << "/pwr[" << txPwr << "]-int[" << (*interference)[i] << "]" << endl;
             }
         }
+        ++it;
     }
 
     return true;
