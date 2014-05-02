@@ -26,8 +26,11 @@ simple ExtCell
         // transmission power
         double txPower = default(46);
         		
+        // transmission direction
+        string txDirection = default("OMNI");
+        
         // transmission angle
-        double txAngle = default(-1);
+        double txAngle = default(0);
         
         // number of logical bands
         int numBands = default(1);

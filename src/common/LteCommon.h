@@ -264,6 +264,23 @@ const TxTable txmodes[] = {
     ELEM(UNKNOWN_TX_MODE)
 };
 
+enum TxDirectionType
+{
+    ANISOTROPIC,
+    OMNI
+};
+
+struct TxDirectionTable
+{
+    TxDirectionType txDirection;
+    std::string txDirectionName;
+};
+
+const TxDirectionTable txDirections[] = {
+    ELEM(ANISOTROPIC),
+    ELEM(OMNI)
+};
+
 // Lte feedback type
 enum FeedbackGeneratorType
 {
@@ -707,6 +724,7 @@ struct EnbInfo
     bool init;         // initialization flag
     EnbType type;     // MICRO_ENB or MACRO_ENB
     double txPwr;
+    TxDirectionType txDirection;
     double txAngle;
     MacNodeId id;
     LteMacEnb * mac;

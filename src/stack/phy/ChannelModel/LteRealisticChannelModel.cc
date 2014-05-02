@@ -671,9 +671,11 @@ std::vector<double> LteRealisticChannelModel::getSINR(LteAirFrame *frame, UserCo
                 simulation.getModule(binder_->getOmnetId(eNbId))->getSubmodule(
                         "nic")->getSubmodule("phy"));
 
-        double txAngle = ltePhy->getTxAngle();
-        if (txAngle != -1)
+        if (ltePhy->getTxDirection() == ANISOTROPIC)
         {
+            // get tx angle
+            double txAngle = ltePhy->getTxAngle();
+
             // compute the angle between uePosition and reference axis, considering the eNb as center
             double ueAngle = computeAngle(enbCoord, ueCoord);
 
@@ -1365,7 +1367,6 @@ bool LteRealisticChannelModel::computeExtCellInterference(MacNodeId eNbId, MacNo
         recvPwr, // watt
         recvPwrDBm, // dBm
         att, // dBm
-        txAngle,
         angolarAtt; // dBm
 
     //compute distance for each cell
@@ -1384,8 +1385,7 @@ bool LteRealisticChannelModel::computeExtCellInterference(MacNodeId eNbId, MacNo
         att = computeExtCellPathLoss(dist, nodeId);
 
         //=============== ANGOLAR ATTENUATION =================
-        txAngle = (*it)->getTxAngle();
-        if (txAngle == -1)
+        if ((*it)->getTxDirection() == OMNI)
         {
             angolarAtt = 0;
         }
@@ -1410,7 +1410,6 @@ bool LteRealisticChannelModel::computeExtCellInterference(MacNodeId eNbId, MacNo
         recvPwrDBm = (*it)->getTxPower() - att - angolarAtt - cableLoss_ + antennaGainEnB_;
         recvPwr = dBmToLinear(recvPwrDBm);
 
-        EV << endl << " RECV PWR = " << recvPwr << endl;
         // add interference in those bands where the ext cell is active
         for (unsigned int i = 0; i < band_; i++) {
             int occ;
@@ -1422,7 +1421,6 @@ bool LteRealisticChannelModel::computeExtCellInterference(MacNodeId eNbId, MacNo
             {
                 occ = (*it)->getPrevBandStatus(i);
             }
-            EV << " band[" << i << "] = "<<occ<<"\t";
 
             // if the ext cell is active, add interference
             if (occ)
@@ -1563,6 +1561,9 @@ bool LteRealisticChannelModel::computeMultiCellInterference(MacNodeId eNbId, Mac
             ltePhy = check_and_cast<LtePhyBase*>(simulation.getModule(binder_->getOmnetId(id))->getSubmodule("nic")->getSubmodule("phy"));
             (*it)->txPwr = ltePhy->getTxPwr();//dBm
 
+            // get tx direction
+            (*it)->txDirection = ltePhy->getTxDirection();
+
             // get tx angle
             (*it)->txAngle = ltePhy->getTxAngle();
 
@@ -1581,11 +1582,11 @@ bool LteRealisticChannelModel::computeMultiCellInterference(MacNodeId eNbId, Mac
 
         //=============== ANGOLAR ATTENUATION =================
         double angolarAtt = 0;
-
-        //get tx angle
-        double txAngle = (*it)->txAngle;
-        if (txAngle != -1)
+        if ((*it)->txDirection == ANISOTROPIC)
         {
+            //get tx angle
+            double txAngle = (*it)->txAngle;
+
             // compute the angle between uePosition and reference axis, considering the eNb as center
             double ueAngle = computeAngle((*it)->realChan->myCoord_, coord);
 

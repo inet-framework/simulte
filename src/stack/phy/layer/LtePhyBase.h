@@ -103,6 +103,8 @@ class LtePhyBase : public ChannelAccess
     double microTxPower_;
     // Tx Power
     double txPower_;
+    // Tx Direction
+    TxDirectionType txDirection_;
     // Tx Angle
     double txAngle_;
     // Attenuation array
@@ -147,6 +149,10 @@ class LtePhyBase : public ChannelAccess
     double getTxPwr()
     {
         return txPower_;
+    }
+    TxDirectionType getTxDirection()
+    {
+        return txDirection_;
     }
     double getTxAngle()
     {

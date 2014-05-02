@@ -38,6 +38,9 @@ class ExtCell : public cSimpleModule
     // tx power
     double txPower_;
 
+    // tx direction
+    TxDirectionType txDirection_;
+
     // tx angle
     double txAngle_;
 
@@ -84,6 +87,8 @@ class ExtCell : public cSimpleModule
     int getId() { return id_; }
 
     double getTxPower() { return txPower_; }
+
+    TxDirectionType getTxDirection() { return txDirection_; }
 
     double getTxAngle() { return txAngle_; }
 

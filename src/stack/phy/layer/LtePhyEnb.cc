@@ -56,8 +56,19 @@ void LtePhyEnb::initialize(int stage)
         else
             txPower_ = eNodeBtxPower_;
 
-        // set TX angle
-        txAngle_ = par("txAngle");
+        // set TX direction
+        std::string txDir = par("txDirection");
+        if (txDir.compare(txDirections[OMNI].txDirectionName)==0)
+        {
+            txDirection_ = OMNI;
+        }
+        else   // ANISOTROPIC
+        {
+            txDirection_ = ANISOTROPIC;
+
+            // set TX angle
+            txAngle_ = par("txAngle");
+        }
 
         bdcUpdateInterval_ = deployer_->par("broadcastMessageInterval");
 
