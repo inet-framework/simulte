@@ -281,7 +281,8 @@ class LteRealisticChannelModel : public LteChannelModel
      * evaluates total intercell interference seen from the spot given by coord
      * @return total interference expressed in dBm
      */
-    double computeExtCellInterference(Coord coord, MacNodeId nodeId);
+    bool computeExtCellInterference(MacNodeId eNbId, MacNodeId nodeId, Coord coord, bool isCqi,
+        std::vector<double>* interference);
 
     /*
      * compute attenuation due to path loss and shadowing

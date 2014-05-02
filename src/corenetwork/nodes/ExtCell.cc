@@ -11,27 +11,134 @@
 
 #include "ExtCell.h"
 
-ExtCell::ExtCell(double pwr, int i, int num, int distance)
+Define_Module(ExtCell);
+
+void ExtCell::initialize()
 {
-    double angle = (360 / num) * i;
+    // get coord
+    position_.x = par("position_x");
+    position_.y = par("position_y");
 
-    double c = cos(angle * PI / 180);
-    double s = sin(angle * PI / 180);
+    txPower_ = par("txPower");
 
-    position_.x = (c * distance) + distance;
-    position_.y = (s * distance) + distance;
+    txAngle_ = par("txAngle");
 
-    EV << "ExtCell::ExtCell - Creating an External Cell with \n\t[x=" << position_.x << ",y=" << position_.y << "]\n\t" <<
-    "[angle=" << angle << "]\n\t" <<
-    "[distance=" << distance << "]\n\t" <<
-    "[index=" << i << "/" << num-1 << "]\n\t" <<
-    "[pwr=" << pwr << "]" << endl;
-    txPower_ = pwr;
-    //position_ = pos;
+    numBands_ = par("numBands");
+
+    binder_ = getBinder();
+
+    // initialize band status structures
+    bandStatus_.resize(numBands_, 0);
+    prevBandStatus_.resize(numBands_, 0);
+
+    // get allocation type
+    std::string allocationType = par("bandAllocationType").stdstringValue();
+    if (allocationType.compare("CONTIGUOUS_ALLOC") == 0)
+    {
+        allocationType_ = CONTIGUOUS_ALLOC;
+    }
+    else if (allocationType.compare("RANDOM_ALLOC") == 0)
+    {
+        allocationType_ = RANDOM_ALLOC;
+    }
+    else
+    {
+        allocationType_ = FULL_ALLOC;
+    }
+
+    // get the allocation parameters
+    if (allocationType_ == FULL_ALLOC)
+    {
+        bandStatus_.clear();
+        prevBandStatus_.clear();
+
+        // mark all RBs as occupied
+        bandStatus_.resize(numBands_, 1);
+        prevBandStatus_.resize(numBands_, 1);
+    }
+    else
+    {
+        // get the band utilization
+        double bandUtilization = par("bandUtilization");
+        setBandUtilization(bandUtilization);
+
+        if (allocationType_ == CONTIGUOUS_ALLOC)
+        {
+            // get the starting offset
+            startingOffset_ = par("startingOffset");
+        }
+
+        /* Start TTI tick */
+        ttiTick_ = new cMessage("ttiTick_");
+        ttiTick_->setSchedulingPriority(1);        // TTI TICK after other messages
+        scheduleAt(NOW + TTI, ttiTick_);
+    }
+
+    // add this cell to the binder
+    id_ = binder_->addExtCell(this);
 }
 
-ExtCell::~ExtCell()
+void ExtCell::handleMessage(cMessage *msg)
 {
-    // TODO Auto-generated destructor stub
+    if (msg->isSelfMessage())
+    {
+        updateBandStatus();
+
+        scheduleAt(NOW + TTI, msg);
+        return;
+    }
 }
 
+void ExtCell::updateBandStatus()
+{
+    EV << "----- EXT CELL ALLOCATION UPDATE -----" << endl;
+
+    resetBandStatus();
+
+    if (allocationType_ == RANDOM_ALLOC)
+    {
+        EV << " ExtCell::updateBandStatus() - generating new random allocation for extCell " << id_ << endl;
+
+        // allocates each band with probability equal to bandUtilization_
+        for (int band = 0; band < numBands_; ++band)
+        {
+            int occ = bernoulli(bandUtilization_);
+            bandStatus_[band] = occ;
+        }
+    }
+    else    // CONTIGUOUS ALLOC
+    {
+        EV << " ExtCell::updateBandStatus() - generating new contiguous allocation for extCell " << id_ << endl;
+
+        // get the number of bands to be allocated
+        int toAlloc = ceil( (double)numBands_ * bandUtilization_);
+        int band = startingOffset_;
+        int prev = band;
+        for (; (band != startingOffset_ || band == prev) && toAlloc > 0; prev = band, band = (band+1)%numBands_)
+        {
+            bandStatus_[band] = 1;
+            toAlloc--;
+        }
+    }
+
+    EV << "----- END EXT CELL ALLOCATION UPDATE -----" << endl;
+}
+
+void ExtCell::resetBandStatus()
+{
+    prevBandStatus_.clear();
+    prevBandStatus_ = bandStatus_;
+
+    bandStatus_.clear();
+    bandStatus_.resize(numBands_, 0);
+}
+
+void ExtCell::setBandUtilization(double bandUtilization)
+{
+    if (bandUtilization < 0)
+        bandUtilization = 0;
+    else if (bandUtilization > 1)
+        bandUtilization = 1;
+
+    bandUtilization_ = bandUtilization;
+}

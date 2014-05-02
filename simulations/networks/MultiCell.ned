@@ -19,11 +19,13 @@ import inet.world.radio.ChannelControl;
 import lte.corenetwork.binder.LteBinder;
 import lte.corenetwork.nodes.Ue;
 import lte.corenetwork.nodes.eNodeB;
+import lte.corenetwork.nodes.ExtCell;
 
 
 network MultiCell
 {
     parameters:
+        int numExtCells = default(0);
         @display("i=block/network2;bgb=991,558;bgi=background/budapest");
     submodules:
         channelControl: ChannelControl {
@@ -66,6 +68,9 @@ network MultiCell
         }
         ue22: Ue {
             @display("p=915,183");
+        }
+        extCell[numExtCells]: ExtCell {
+            @display("p=100,480;is=vl");
         }
     connections:
         server.pppg++ <--> Eth10M <--> router1.pppg++;

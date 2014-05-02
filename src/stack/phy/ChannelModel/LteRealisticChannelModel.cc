@@ -555,8 +555,6 @@ std::vector<double> LteRealisticChannelModel::getSINR(LteAirFrame *frame, UserCo
     double antennaGain = 0.0;
     double noiseFigure = 0.0;
     double speed = 0.0;
-    double extCellInterference = 0,
-        extCellInterferenceDBm = 0;
 
     // true if we are computing a CQI for the DL direction
     bool cqiDl = false;
@@ -762,13 +760,13 @@ std::vector<double> LteRealisticChannelModel::getSINR(LteAirFrame *frame, UserCo
     }
 
     //============ EXTCELL INTERFERENCE COMPUTATION =================
-    // evaluate interference for each external cell if needed
-    // intercell interference needs to be (eventually) computed in DL for both error() e requestFeedback() functions
+    //vector containing the sum of multiCell interference for each band
+    std::vector<double> extCellInterference; // Linear value (mW)
+    // prepare data structure
+    extCellInterference.resize(band_, 0);
     if (enableExtCellInterference_ && dir == DL)
     {
-        extCellInterferenceDBm = computeExtCellInterference(ueCoord, ueId); // dBm
-        // linearize interference
-        extCellInterference = dBmToLinear(extCellInterferenceDBm); // mW
+        computeExtCellInterference(eNbId, ueId, ueCoord, (lteInfo->getFrameType() == FEEDBACKPKT), &extCellInterference); // dBm
     }
 
     //===================== SINR COMPUTATION ========================
@@ -785,9 +783,9 @@ std::vector<double> LteRealisticChannelModel::getSINR(LteAirFrame *frame, UserCo
         for (unsigned int i = 0; i < band_; i++)
         {
             //               (      mW            +  mW  +        mW            )
-            den = linearToDBm(extCellInterference + totN + multiCellInterference[i]);
+            den = linearToDBm(extCellInterference[i] + totN + multiCellInterference[i]);
 
-            EV << "\t ext[" << extCellInterference << "] - multi[" << multiCellInterference[i] << "] - recvPwr["
+            EV << "\t ext[" << extCellInterference[i] << "] - multi[" << multiCellInterference[i] << "] - recvPwr["
                << dBmToLinear(snrVector[i]) << "] - sinr[" << snrVector[i]-den << "]\n";
 
             // compute final SINR
@@ -1353,21 +1351,22 @@ double LteRealisticChannelModel::getStdDev(bool dist, MacNodeId nodeId)
     return 0.0;
 }
 
-double LteRealisticChannelModel::computeExtCellInterference(Coord coord, MacNodeId nodeId)
+bool LteRealisticChannelModel::computeExtCellInterference(MacNodeId eNbId, MacNodeId nodeId, Coord coord, bool isCqi,
+    std::vector<double>* interference)
 {
+    EV << "**** Ext Cell Interference **** " << endl;
+
     // get external cell list
     ExtCellList list = binder_->getExtCellList();
     ExtCellList::iterator it = list.begin();
 
     Coord c;
-    double dist,    // meters
-        interference = 0,    // watt
-        interferenceDBm = 0,    // dBm
-        recvPwr,    // watt
-        recvPwrDBm,    // dBm
-        att;    // dBm
-
-    EV << "**** Ext Cell Interference **** " << endl;
+    double dist, // meters
+        recvPwr, // watt
+        recvPwrDBm, // dBm
+        att, // dBm
+        txAngle,
+        angolarAtt; // dBm
 
     //compute distance for each cell
     while (it != list.end())
@@ -1378,28 +1377,64 @@ double LteRealisticChannelModel::computeExtCellInterference(Coord coord, MacNode
         dist = coord.distance(c);
 
         EV << "\t distance between UE[" << coord.x << "," << coord.y <<
-        "] and extCell[" << c.x << "," << c.y << "] is -> "
-           << dist << "\t";
+            "] and extCell[" << c.x << "," << c.y << "] is -> "
+            << dist << "\t";
 
         // compute attenuation according to some path loss model
         att = computeExtCellPathLoss(dist, nodeId);
 
+        //=============== ANGOLAR ATTENUATION =================
+        txAngle = (*it)->getTxAngle();
+        if (txAngle == -1)
+        {
+            angolarAtt = 0;
+        }
+        else
+        {
+            // compute the angle between uePosition and reference axis, considering the eNb as center
+            double ueAngle = computeAngle(c, coord);
+
+            // compute the reception angle between ue and eNb
+            double recvAngle = fabs((*it)->getTxAngle() - ueAngle);
+
+            if (recvAngle > 180)
+                recvAngle = 360 - recvAngle;
+
+            // compute attenuation due to sectorial tx
+            angolarAtt = computeAngolarAttenuation(recvAngle);
+        }
+        //=============== END ANGOLAR ATTENUATION =================
+
         // TODO do we need to use (- cableLoss_ + antennaGainEnB_) in ext cells too?
         // compute and linearize received power
-        recvPwrDBm = (*it)->getTxPower() - att - cableLoss_ + antennaGainEnB_;
+        recvPwrDBm = (*it)->getTxPower() - att - angolarAtt - cableLoss_ + antennaGainEnB_;
         recvPwr = dBmToLinear(recvPwrDBm);
 
-        // update total interference (watt)
-        interference += recvPwr;
+        EV << endl << " RECV PWR = " << recvPwr << endl;
+        // add interference in those bands where the ext cell is active
+        for (unsigned int i = 0; i < band_; i++) {
+            int occ;
+            if (isCqi)  // check slot occupation for this TTI
+            {
+                occ = (*it)->getBandStatus(i);
+            }
+            else        // error computation. We need to check the slot occupation of the previous TTI
+            {
+                occ = (*it)->getPrevBandStatus(i);
+            }
+            EV << " band[" << i << "] = "<<occ<<"\t";
 
-        EV << "recvPwr [" << recvPwrDBm << "]dBm with attenuation [" << att << "]dB\n";
+            // if the ext cell is active, add interference
+            if (occ)
+            {
+                (*interference)[i] += recvPwr;
+            }
+        }
+
         it++;
     }
-    interferenceDBm = linearToDBm(interference);
 
-    EV << "total interference is " << interference << "[watt] - " << interferenceDBm << "[dBm]" << endl;
-
-    return interferenceDBm;
+    return true;
 }
 
 double LteRealisticChannelModel::computeExtCellPathLoss(double dist, MacNodeId nodeId)

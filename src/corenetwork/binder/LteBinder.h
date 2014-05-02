@@ -39,6 +39,7 @@
  * - the map of deployed UEs per master (by amc)
  *
  */
+
 class LteBinder : public cSimpleModule
 {
   private:
@@ -217,6 +218,12 @@ class LteBinder : public cSimpleModule
      */
     ConnectedUesMap getDeployedUes(MacNodeId localId, Direction dir);
     PhyPisaData phyPisaData;
+
+    int addExtCell(ExtCell* extCell)
+    {
+        extCellList_.push_back(extCell);
+        return extCellList_.size() - 1;
+    }
 
     ExtCellList getExtCellList()
     {

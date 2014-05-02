@@ -41,6 +41,7 @@ class LteMacBase;
 class cXMLElement;
 class LteRealisticChannelModel;
 class LteControlInfo;
+class ExtCell;
 
 /**
  * TODO
@@ -713,6 +714,8 @@ struct EnbInfo
     cModule * eNodeB;
     int x2;
 };
+
+typedef std::vector<ExtCell*> ExtCellList;
 
 /*****************
  *  PHY Support  *
