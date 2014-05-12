@@ -13,7 +13,7 @@
 package lte.corenetwork.nodes;
 
 import inet.base.NotificationBoard;
-import inet.mobility.models.StationaryMobility;
+import inet.mobility.static.StationaryMobility;
 import lte.stack.phy.LteNicRelay;
 
 

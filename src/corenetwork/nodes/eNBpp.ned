@@ -14,16 +14,16 @@ package lte.corenetwork.nodes;
 
 import inet.base.NotificationBoard;
 import inet.linklayer.ppp.PPPInterface;
-import inet.mobility.models.StationaryMobility;
+import inet.mobility.static.StationaryMobility;
 import inet.networklayer.common.InterfaceTable;
 import inet.networklayer.ipv4.RoutingTable;
 import inet.nodes.inet.NetworkLayer;
-import lte.corenetwork.deployer.LteDeployer;
-import lte.corenetwork.lteip.LteIp;
-import lte.stack.phy.LteNicEnb;
-import lte.epc.gtp.GtpUser;
 import inet.transport.udp.UDP;
+import lte.corenetwork.deployer.LteDeployer;
 import lte.epc.TrafficFlowFilter;
+import lte.epc.gtp.GtpUser;
+import lte.stack.phy.LteNicEnb;
+
 
 //
 // eNodeB module with support for EPC (GTP-U, etc).
@@ -98,17 +98,17 @@ module eNBpp
         nic.radioIn <-- radioIn;
         ppp.phys <--> ppp;
 
-        udp.ipOut --> networkLayer.udpIn;
-        udp.ipIn <-- networkLayer.udpOut;
+        udp.ipOut --> networkLayer.transportIn++;
+        udp.ipIn <-- networkLayer.transportOut++;
 
         trafficFlowFilter.gtpUserGateOut --> gtp_user.trafficFlowFilterGate;
 
         gtp_user.udpOut --> udp.appIn++;
         gtp_user.udpIn <-- udp.appOut++;
 
-        networkLayer.ifOut++ --> ppp.upperLayerIn;       
+        networkLayer.ifOut++ --> ppp.upperLayerIn;
         ppp.upperLayerOut --> networkLayer.ifIn++;
-        
+
         nic.upperLayerOut --> trafficFlowFilter.internetFilterGateIn;
         gtp_user.pppGate --> nic.upperLayerIn;
 }

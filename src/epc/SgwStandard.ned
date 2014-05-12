@@ -31,8 +31,8 @@ module SgwStandard extends NodeBase
             tftFileName = "";
         }
     connections:
-        udp.ipOut --> networkLayer.udpIn;
-        udp.ipIn <-- networkLayer.udpOut;
+        udp.ipOut --> networkLayer.transportIn++;
+        udp.ipIn <-- networkLayer.transportOut++;
 
         udp.appOut++ --> gtp_user.udpIn;
         gtp_user.udpOut --> udp.appIn++;

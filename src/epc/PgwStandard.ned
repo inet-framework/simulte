@@ -41,8 +41,8 @@ module PgwStandard extends NodeBase
             @display("p=591,206");
         }
     connections:
-        udp.ipOut --> networkLayer.udpIn;
-        udp.ipIn <-- networkLayer.udpOut;
+        udp.ipOut --> networkLayer.transportIn++;
+        udp.ipIn <-- networkLayer.transportOut++;
 
         pppInterface.upperLayerOut --> trafficFlowFilter.internetFilterGateIn;
         pppInterface.upperLayerIn <-- gtp_user.pppGate;

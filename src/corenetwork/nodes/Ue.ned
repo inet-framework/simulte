@@ -15,15 +15,12 @@ package lte.corenetwork.nodes;
 import inet.applications.ITCPApp;
 import inet.applications.IUDPApp;
 import inet.base.NotificationBoard;
-import inet.mobility.IMobility;
+import inet.mobility.contract.IMobility;
 import inet.networklayer.common.InterfaceTable;
-import inet.networklayer.ipv4.ErrorHandling;
-import inet.networklayer.ipv4.ICMP;
 import inet.networklayer.ipv4.RoutingTable;
 import inet.nodes.inet.NetworkLayer;
 import inet.transport.tcp.TCP;
 import inet.transport.udp.UDP;
-import lte.corenetwork.lteip.IP2lte;
 import lte.stack.phy.LteNicUe;
 
 
@@ -95,16 +92,16 @@ module Ue
             tcpApp[i].tcpIn <-- tcp.appOut++;
         }
 
-        tcp.ipOut --> networkLayer.tcpIn if numTcpApps>0;
-        tcp.ipIn <-- networkLayer.tcpOut if numTcpApps>0;
+        tcp.ipOut --> networkLayer.transportIn++ if numTcpApps>0;
+        tcp.ipIn <-- networkLayer.transportOut++ if numTcpApps>0;
 
         for i=0..numUdpApps-1 {
             udpApp[i].udpOut --> udp.appIn++;
             udpApp[i].udpIn <-- udp.appOut++;
         }
 
-        udp.ipOut --> networkLayer.udpIn if numUdpApps>0;
-        udp.ipIn <-- networkLayer.udpOut if numUdpApps>0;
+        udp.ipOut --> networkLayer.transportIn++ if numUdpApps>0;
+        udp.ipIn <-- networkLayer.transportOut++ if numUdpApps>0;
 
         nic.radioIn <-- radioIn;
 
