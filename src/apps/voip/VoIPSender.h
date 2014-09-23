@@ -42,6 +42,8 @@ class VoIPSender : public cSimpleModule
     int size_;
     simtime_t sampling_time;
 
+    bool silences_;
+
 
     simsignal_t voIPGeneratedThroughtput_;
     // ----------------------------

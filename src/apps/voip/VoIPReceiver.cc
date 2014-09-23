@@ -10,6 +10,7 @@
 //
 
 #include "VoIPReceiver.h"
+#include "lterecorder.h"
 
 Define_Module(VoIPReceiver);
 
@@ -61,6 +62,9 @@ void VoIPReceiver::initialize(int stage)
 
     voIPJitterSignal_ = registerSignal("voIPJitter");
     voIPPlayoutLossSignal_ = registerSignal("voIPPlayoutLoss");
+
+    voipReceivedThroughtput_ = registerSignal("voipReceivedThroughtput");
+    voipReceivedThroughtput_lte_ = registerSignal("voipReceivedThroughtput_lte");
 }
 
 void VoIPReceiver::handleMessage(cMessage *msg)
@@ -89,6 +93,17 @@ void VoIPReceiver::handleMessage(cMessage *msg)
     //emit(mFrameLossSignal,1.0);
 
     EV << "VoIPReceiver::handleMessage - Packet received: TALK[" << pPacket->getIDtalk() << "] - FRAME[" << pPacket->getIDframe() << "]\n";
+
+    TaggedSample t;
+    t.id_ = 0;
+    t.module_ = this;
+    t.sample_ = (int)pPacket->getByteLength();
+
+    emit(voipReceivedThroughtput_, (int)pPacket->getByteLength() );
+    emit(voipReceivedThroughtput_lte_, &t );
+
+
+//    std::cout << simTime() << "received " << (int)pPacket->getByteLength() << endl;
 
     pPacket->setArrivalTime(simTime());
     mPacketsList_.push_back(pPacket);

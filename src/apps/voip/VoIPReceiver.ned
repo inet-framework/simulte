@@ -34,8 +34,8 @@ simple VoIPReceiver like IUDPApp
         @statistic[voIPMos](title="VoIP Mos Signal"; unit="MOS"; source="voIPMos"; record=mean,vector);
         @statistic[voIPTaildropLoss](title="VoIP Tail Drop Loss"; unit="ratio"; source="voIPTaildropLoss"; record=mean,vector);
         
-        @statistic[voIPReceivedThroughtput](title="Throughput received at the application level"; unit="Bps"; source="VoIPReceivedThroughtput"; record=timeavg,mean,vector);
-
+        @statistic[voipReceivedThroughtput_lte](title="Throughput received at the application level"; unit="Bps"; source="voipReceivedThroughtput_lte"; record=lteRate);
+        @statistic[voipReceivedThroughtput](title="Throughput received at the application level"; unit="Bps"; source="voipReceivedThroughtput"; record=timeavg,mean,vector,sum);
         @display("i=block/source");
     gates:
         output udpOut;

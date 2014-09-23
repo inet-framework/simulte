@@ -48,7 +48,8 @@ class VoIPReceiver : public cSimpleModule
     simsignal_t voIPTaildropLossSignal_;
     simsignal_t voIPPlayoutLossSignal_;
     simsignal_t voIPJitterSignal_;
-    simsignal_t voIPReceivedThroughtput_;
+    simsignal_t voipReceivedThroughtput_;
+    simsignal_t voipReceivedThroughtput_lte_;
 
     virtual void finish();
 

@@ -57,6 +57,8 @@ void VoIPSender::initialize(int stage)
     destPort_ = par("destPort");
     destAddress_ = IPvXAddressResolver().resolve(par("destAddress").stringValue());
 
+    silences_ = par("silences");
+
     socket.setOutputGate(gate("udpOut"));
     socket.bind(localPort_);
 
@@ -106,8 +108,17 @@ void VoIPSender::selectPeriodTime()
 {
     if (!isTalk_)
     {
-        durSil_ = weibull(scaleSil_, shapeSil_);
-        double durSil2 = round(SIMTIME_DBL(durSil_)*1000) / 1000;
+        double durSil2;
+        if(silences_)
+        {
+            durSil_ = weibull(scaleSil_, shapeSil_);
+            durSil2 = round(SIMTIME_DBL(durSil_)*1000) / 1000;
+        }
+        else
+        {
+            durSil_ = durSil2 = 0;
+        }
+
         EV << "VoIPSender::selectPeriodTime - Silence Period: " << "Duration[" << durSil_ << "/" << durSil2 << "] seconds\n";
 //        durSil_ = durSil2;
         scheduleAt(simTime() + durSil_, selfSource_);
