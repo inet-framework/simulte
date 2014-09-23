@@ -62,6 +62,10 @@ class LteMacBase : public cSimpleModule
     simsignal_t receivedPacketFromLowerLayer;
     simsignal_t sentPacketToUpperLayer;
     simsignal_t sentPacketToLowerLayer;
+
+    simsignal_t measuredItbs_;
+    simsignal_t measuredItbs_lte_;
+
     TaggedSample* tSample_;
     /*
      * Data Structures
@@ -213,6 +217,11 @@ class LteMacBase : public cSimpleModule
     LteNodeType getNodeType()
     {
         return nodeType_;
+    }
+
+    void emitItbs( unsigned int iTbs )
+    {
+        emit( measuredItbs_ , iTbs );
     }
 
   protected:

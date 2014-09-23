@@ -271,6 +271,8 @@ void LteMacBase::initialize(int stage)
         tSample_ = new TaggedSample();
         tSample_->module_ = this;
 
+        measuredItbs_ = registerSignal("measuredItbs");
+        measuredItbs_lte_ = registerSignal("measuredItbs_lte");
         WATCH(queueSize_);
         WATCH(maxBytesPerTti_);
         WATCH(nodeId_);

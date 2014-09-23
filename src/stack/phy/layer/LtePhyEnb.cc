@@ -139,6 +139,7 @@ void LtePhyEnb::handleAirFrame(cMessage* msg)
         tSample_->id_ = lteInfo->getSourceId();
         tSample_->module_ = getMacByMacNodeId(lteInfo->getSourceId());
         emit(averageCqiUl_, tSample_);
+        emit(averageCqiUlvect_,cqi);
     }
     bool result = true;
     RemoteSet r = lteInfo->getUserTxParams()->readAntennaSet();

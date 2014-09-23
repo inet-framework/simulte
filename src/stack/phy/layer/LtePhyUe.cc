@@ -199,6 +199,7 @@ void LtePhyUe::handleAirFrame(cMessage* msg)
         tSample_->id_ = nodeId_;
         tSample_->module_ = getMacByMacNodeId(nodeId_);
         emit(averageCqiDl_, tSample_);
+        emit(averageCqiDlvect_,cqi);
     }
     // apply decider to received packet
     bool result = true;

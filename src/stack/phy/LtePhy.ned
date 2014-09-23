@@ -44,7 +44,9 @@ simple LtePhyBase like LtePhy {
              
         //# CQI statistics
         @statistic[averageCqiDl](title="Average Cqi reported in DL"; unit="cqi"; source="averageCqiDl"; record=lteAvg);
+        @statistic[averageCqiDlvect](title="Average Cqi reported in DL"; unit="cqi"; source="averageCqiDlvect"; record=vector);
         @statistic[averageCqiUl](title="Average Cqi reported in UL"; unit="cqi"; source="averageCqiUl"; record=lteAvg);
+        @statistic[averageCqiUlvect](title="Average Cqi reported in UL"; unit="cqi"; source="averageCqiUlvect"; record=vector);
     
         
     gates:

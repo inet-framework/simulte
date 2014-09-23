@@ -78,6 +78,10 @@ simple LteMacBase like LteMac {
         @statistic[sentPacketToUpperLayer](source="sentPacketToUpperLayer"; record=count,"sum(packetBytes)","vector(packetBytes)"; interpolationmode=none);
         @statistic[sentPacketToLowerLayer](source="sentPacketToLowerLayer"; record=count,"sum(packetBytes)","vector(packetBytes)"; interpolationmode=none);
 
+
+		@statistic[measuredItbs](title="TBS index"; unit=""; source="measuredItbs"; record=mean,vector);
+		@statistic[measuredItbs_lte](title="TBS index"; unit=""; source="measuredItbs_lte"; record=lteAvg);
+
     gates:
         //# 
         //# Gates connecting RLC and MAC Layers

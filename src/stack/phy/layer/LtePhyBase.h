@@ -116,6 +116,10 @@ class LtePhyBase : public ChannelAccess
     //Statistics
     simsignal_t averageCqiDl_;
     simsignal_t averageCqiUl_;
+
+    simsignal_t averageCqiDlvect_;
+    simsignal_t averageCqiUlvect_;
+
     TaggedSample *tSample_;
 
     // User that are trasmitting (uplink)
