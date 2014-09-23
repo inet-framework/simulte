@@ -9,6 +9,7 @@ src/Makefile.vc
 *.sca
 *.vec
 *.anf
+.settings/
 
 # ignore binary files
 out/
