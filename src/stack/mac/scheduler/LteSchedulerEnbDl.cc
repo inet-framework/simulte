@@ -327,3 +327,8 @@ LteSchedulerEnbDl::rtxschedule()
     return (availableBlocks == 0);
 }
 
+unsigned int LteSchedulerEnbDl::scheduleGrant(MacCid cid, unsigned int bytes, bool& terminate, bool& active, bool& eligible,
+    std::vector<BandLimit>* bandLim, Remote antenna, bool limitBl)
+{
+    return LteSchedulerEnb::scheduleGrant(cid, bytes, terminate, active, eligible, bandLim, antenna, limitBl);
+}

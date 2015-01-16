@@ -13,6 +13,7 @@
 #include "LteMacQueue.h"
 #include "LteFeedbackPkt.h"
 #include "LteSchedulerEnbDl.h"
+#include "LteSchedulerEnbDlExperimental.h"
 #include "LteSchedulerEnbUl.h"
 #include "LteSchedulingGrant.h"
 #include "LteAllocationModule.h"
@@ -230,7 +231,8 @@ void LteMacEnb::initialize(int stage)
         numAntennas_ = getNumAntennas();
 
         /* Create and initialize MAC Downlink scheduler */
-        enbSchedulerDl_ = new LteSchedulerEnbDl();
+//        enbSchedulerDl_ = new LteSchedulerEnbDl();
+        enbSchedulerDl_ = new LteSchedulerEnbDlExperimental();
         enbSchedulerDl_->initialize(DL, this);
 
         /* Create and initialize MAC Uplink scheduler */

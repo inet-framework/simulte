@@ -1,0 +1,45 @@
+/*
+ * LteSchedulerEnbDlExperimental.h
+ *
+ *  Created on: Jan 14, 2015
+ *      Author: nardini
+ */
+
+#ifndef _LTE_LTESCHEDULERENBDLEXPERIMENTAL_H_
+#define _LTE_LTESCHEDULERENBDLEXPERIMENTAL_H_
+
+#include "LteSchedulerEnbDl.h"
+#include "LteCommon.h"
+#include "LteAmc.h"
+#include "UserTxParams.h"
+
+class LteSchedulerEnbDlExperimental : public LteSchedulerEnbDl
+{
+
+public:
+    LteSchedulerEnbDlExperimental();
+    virtual ~LteSchedulerEnbDlExperimental();
+
+    /**
+     * Schedules capacity for a given connection without effectively perform the operation on the
+     * real downlink/uplink buffer: instead, it performs the operation on a virtual buffer,
+     * which is used during the finalize() operation in order to commit the decision performed
+     * by the grant function.
+     * Each band has also assigned a band limit amount of bytes: no more than the
+     * specified amount will be served on the given band for the cid
+     *
+     * @param cid Identifier of the connection that is granted capacity
+     * @param antenna the DAS remote antenna
+     * @param bands The set of logical bands with their related limits
+     * @param bytes Grant size, in bytes
+     * @param terminate Set to true if scheduling has to stop now
+     * @param active Set to false if the current queue becomes inactive
+     * @param eligible Set to false if the current queue becomes ineligible
+     * @param limitBl if true bandLim vector express the limit of allocation for each band in block
+     * @return The number of bytes that have been actually granted.
+     */
+    virtual unsigned int scheduleGrant(MacCid cid, unsigned int bytes, bool& terminate, bool& active, bool& eligible,
+        std::vector<BandLimit>* bandLim = NULL, Remote antenna = MACRO, bool limitBl = false);
+};
+
+#endif /* _LTE_LTESCHEDULERENBDLEXPERIMENTAL_H_ */
