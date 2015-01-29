@@ -10,13 +10,15 @@
 
 package lte.stack.rlc;
 
-
 // 
 // Compound module for the RLC layer of LTE Stack.
 //
 module LteRlc {
     parameters:
         @display("i=block/transport");
+        
+        string LteRlcUmType = default("LteRlcUm");          // One of: "LteRlcUm", "LteRlcUmExperimental"
+        
         @statistic[rlcDelayDl](title="Delay at the rlc layer UL"; unit="s"; source="rlcDelayDl"; record=lteAvg);
         @statistic[rlcThroughputDl](title="Throughput at the rlc layer DL"; unit="Bps"; source="rlcThroughputDl"; record=lteRate);
         @statistic[rlcDelayUl](title="Delay at the rlc layer UL"; unit="s"; source="rlcDelayUl"; record=lteAvg);
@@ -65,7 +67,7 @@ module LteRlc {
         }
         
         // UM Module
-        um: LteRlcUm {
+        um: <LteRlcUmType> like ILteRlcUm {
             @display("p=200,100;");
         }
         
@@ -120,9 +122,9 @@ simple LteRlcTm {
 }
 
 // 
-// UM Module for the RLC layer of LTE Stack.
+// UM Module Interface for the RLC layer of LTE Stack.
 //
-simple LteRlcUm {
+moduleinterface ILteRlcUm {
     parameters:
         @display("i=block/wheelbarrow");
         
@@ -132,6 +134,34 @@ simple LteRlcUm {
         //# 
         inout UM_Sap_up;    // Gate to PDCP
         inout UM_Sap_down;    // Gate to RLC Mux
+}
+
+// 
+// UM Module for the RLC layer of LTE Stack.
+//
+simple LteRlcUm like ILteRlcUm {
+    parameters:
+        @class("LteRlcUm");
+        
+        @display("i=block/wheelbarrow");
+        
+    gates:
+        //# 
+        //# Gates connecting RLC and UM
+        //# 
+        inout UM_Sap_up;    // Gate to PDCP
+        inout UM_Sap_down;    // Gate to RLC Mux
+}
+
+// 
+// UM Module (experimental) for the RLC layer of LTE Stack.
+//
+simple LteRlcUmExperimental extends LteRlcUm{
+    parameters:
+        @class("LteRlcUmExperimental");
+        
+        @display("i=block/wheelbarrow");
+
 }
 
 // 
@@ -210,6 +240,59 @@ simple AmTxQueue {
 // Receive Buffer of RLC AM
 //
 simple AmRxQueue {
+    parameters:
+        @dynamic(true);
+        @display("i=block/segm");
+        int rxWindowSize = default(20);
+        double ackReportInterval @unit(s) = 0.10s;
+        double statusReportInterval @unit(s) = 0.20s;
+        double timeout @unit(s) = default(1s);            // Timeout for RX Buffer
+}
+
+//
+// Entities for the RLC Experimental module
+//
+
+// 
+// Transmit Entity of RLC UM
+//
+simple UmTxEntity {
+    parameters:
+        @dynamic(true);
+        @display("i=block/segm");
+        int fragmentSize @unit(B) = default(30B);        // Size of fragments
+}
+
+// 
+// Receive Entity of RLC UM
+//
+simple UmRxEntity {
+    parameters:
+        @dynamic(true);
+        @display("i=block/segm");
+        double timeout @unit(s) = default(1s);            // Timeout for RX Buffer
+        int rxWindowSize = default(16); 
+}
+
+// 
+// Transmit Entity of RLC AM
+//
+simple AmTxEntity {
+    parameters:
+        @dynamic(true);
+        @display("i=block/segm");
+        int fragmentSize @unit(B) = default(30B);        // Size of fragments
+        int maxRtx = default(3);
+        double pduRtxTimeout @unit(s) = default(2.0s);
+        double ctrlPduRtxTimeout @unit(s) = default (2.0s);
+        double bufferStatusTimeout @unit(s) = default (2.0s);
+        int txWindowSize = default (16);
+}
+
+// 
+// Receive Entity of RLC AM
+//
+simple AmRxEntity {
     parameters:
         @dynamic(true);
         @display("i=block/segm");

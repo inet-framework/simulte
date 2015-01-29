@@ -1,9 +1,11 @@
-/*
- * LteSchedulerEnbDlExperimental.cpp
- *
- *  Created on: Jan 14, 2015
- *      Author: nardini
- */
+//
+//                           SimuLTE
+//
+// This file is part of a software released under the license included in file
+// "license.pdf". This license can be also found at http://www.ltesimulator.com/
+// The above file and the present reference are part of the software itself,
+// and cannot be removed from it.
+//
 
 #include "LteSchedulerEnbDlExperimental.h"
 #include "LteScheduler.h"
@@ -77,6 +79,9 @@ unsigned int LteSchedulerEnbDlExperimental::scheduleGrant(MacCid cid, unsigned i
 
     // get the buffer size
     unsigned int queueLength = conn->getQueueOccupancy(); // in bytes
+
+    // get traffic descriptor
+    FlowControlInfo connDesc = mac_->getConnDesc().at(cid);
 
     EV << "LteSchedulerEnbDlExperimental::grant --------------------::[ START GRANT ]::--------------------" << endl;
     EV << "LteSchedulerEnbDlExperimental::grant Cell: " << mac_->getMacCellId() << endl;
@@ -191,8 +196,6 @@ unsigned int LteSchedulerEnbDlExperimental::scheduleGrant(MacCid cid, unsigned i
 
         unsigned int size = (*bandLim).size();
 
-        bool firstSdu = true;
-
         unsigned int toBook;
         // Check whether the virtual buffer is empty
         if (queueLength == 0)
@@ -203,7 +206,19 @@ unsigned int LteSchedulerEnbDlExperimental::scheduleGrant(MacCid cid, unsigned i
             break;
         }
         else
+        {
+            // we need to consider also the size of RLC and MAC headers
+
+            if (connDesc.getRlcType() == UM)
+                queueLength += RLC_HEADER_UM;
+            else if (connDesc.getRlcType() == AM)
+                queueLength += RLC_HEADER_AM;
+            queueLength += MAC_HEADER;
+
             toBook = queueLength;
+        }
+
+        EV << "LteSchedulerEnbDlExperimental::grant bytes to be allocated: " << toBook << endl;
 
         // Book bands for this connection
         for (unsigned int i = 0; i < size; ++i)
@@ -248,7 +263,7 @@ unsigned int LteSchedulerEnbDlExperimental::scheduleGrant(MacCid cid, unsigned i
             // if limit is expressed in blocks, limit value must be passed to availableBytes function
             else
             {
-                bandAvailableBytes = availableBytes(nodeId, antenna, b, cw, (limitBl) ? limit : -1); // available space (in bytes)
+                bandAvailableBytes = availableBytes(nodeId, antenna, b, cw, direction_,(limitBl) ? limit : -1); // available space (in bytes)
                 bandAvailableBlocks = allocator_->availableBlocks(nodeId, antenna, b);
             }
 
@@ -284,12 +299,7 @@ unsigned int LteSchedulerEnbDlExperimental::scheduleGrant(MacCid cid, unsigned i
             EV << "LteSchedulerEnbDlExperimental::grant Available Bytes: " << bandAvailableBytes << " available blocks " << bandAvailableBlocks << endl;
 
 
-            // for the first SDU, add 2 byte for the MAC PDU Header
-            if (firstSdu)
-            {
-                toBook += MAC_HEADER;
-                firstSdu = false;
-            }
+
 
             // book resources on this band
 
@@ -411,7 +421,14 @@ unsigned int LteSchedulerEnbDlExperimental::scheduleGrant(MacCid cid, unsigned i
         }
 
         // update virtual buffer
-        while (!conn->isEmpty() && toServe > 0)
+        unsigned int alloc = toServe;
+        alloc -= MAC_HEADER;
+        if (connDesc.getRlcType() == UM)
+            alloc -= RLC_HEADER_UM;
+        else if (connDesc.getRlcType() == AM)
+            alloc -= RLC_HEADER_AM;
+        // alloc is the number of effective bytes allocated (without overhead)
+        while (!conn->isEmpty() && alloc > 0)
         {
             unsigned int vPktSize = conn->front().first;
             if (vPktSize <= toServe)
@@ -421,12 +438,20 @@ unsigned int LteSchedulerEnbDlExperimental::scheduleGrant(MacCid cid, unsigned i
 
                 vQueueItemCounter++;
 
-                toServe -= vPktSize;
+                alloc -= vPktSize;
             }
             else
             {
-                // cannot serve partial vPkt
-                toServe = 0;
+                // serve partial vPkt
+
+                // update pkt info
+                PacketInfo newPktInfo = conn->popFront();
+                newPktInfo.first = newPktInfo.first - alloc;
+                conn->pushFront(newPktInfo);
+
+                vQueueItemCounter++;
+
+                alloc = 0;
             }
         }
 

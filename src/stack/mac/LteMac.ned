@@ -480,8 +480,13 @@ simple LteMacEnbD2D extends LteMacEnb
         
         bool usePreconfiguredTxParams = default(true);
         int d2dCqi = default(7);
-        
+}
       
+
+// eNodeB MAC layer of LTE stack (Experimental)
+//
+simple LteMacEnbExperimental extends LteMacEnb {
+    @class("LteMacEnbExperimental");
 }
 
 //

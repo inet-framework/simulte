@@ -24,6 +24,7 @@ class LteSchedulerEnbDl : public LteSchedulerEnb
 {
     // XXX debug: to call grant from mac
     friend class LteMacEnb;
+    friend class LteMacEnbExperimental;
 
     /**
      * TODO

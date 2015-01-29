@@ -19,6 +19,9 @@
 
 class LteHandoverManager;
 
+// a sort of five-tuple with only two elements (a two-tuple...), src and dst addresses
+typedef std::pair<IPv4Address, IPv4Address> AddressPair;
+
 /**
  *
  */
@@ -28,6 +31,11 @@ class IP2lte : public cSimpleModule
     cGate *ipGateOut_;          // gate connecting IP2lte module to network layer
     LteNodeType nodeType_;      // node type: can be ENODEB, UE
 
+    // datagram sequence numbers (one for each flow)
+    // TODO move numbering to PDCP
+    std::map<AddressPair, unsigned int> seqNums_;
+
+    // obsolete with the above map
     unsigned int seqNum_;       // datagram sequence number (RLC fragmentation needs it)
 
     // reference to the binder

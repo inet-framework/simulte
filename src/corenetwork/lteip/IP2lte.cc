@@ -132,6 +132,14 @@ void IP2lte::fromIpUe(IPv4Datagram * datagram)
     IPv4Address srcAddr  = datagram->getSrcAddress() ,
                 destAddr = datagram->getDestAddress();
 
+    // if needed, create a new structure for the flow
+    AddressPair pair(srcAddr, destAddr);
+    if (seqNums_.find(pair) == seqNums_.end())
+    {
+        std::pair<AddressPair, unsigned int> p(pair, 0);
+        seqNums_.insert(p);
+    }
+
     int headerSize = datagram->getHeaderLength();
 
     // inspect packet depending on the transport protocol type
@@ -158,7 +166,8 @@ void IP2lte::fromIpUe(IPv4Datagram * datagram)
     controlInfo->setDstAddr(destAddr.getInt());
     controlInfo->setSrcPort(srcPort);
     controlInfo->setDstPort(dstPort);
-    controlInfo->setSequenceNumber(seqNum_++);
+//    controlInfo->setSequenceNumber(seqNum_++);
+    controlInfo->setSequenceNumber(seqNums_[pair]++);
     controlInfo->setHeaderSize(headerSize);
     printControlInfo(controlInfo);
 
@@ -228,6 +237,15 @@ void IP2lte::toStackEnb(IPv4Datagram* datagram)
     IPv4Address srcAddr  = datagram->getSrcAddress() ,
                 destAddr = datagram->getDestAddress();
     MacNodeId destId = binder_->getMacNodeId(destAddr);
+
+    // if needed, create a new structure for the flow
+    AddressPair pair(srcAddr, destAddr);
+    if (seqNums_.find(pair) == seqNums_.end())
+    {
+        std::pair<AddressPair, unsigned int> p(pair, 0);
+        seqNums_.insert(p);
+    }
+
     int headerSize = 0;
 
     switch(transportProtocol)
@@ -253,7 +271,8 @@ void IP2lte::toStackEnb(IPv4Datagram* datagram)
     controlInfo->setDstAddr(destAddr.getInt());
     controlInfo->setSrcPort(srcPort);
     controlInfo->setDstPort(dstPort);
-    controlInfo->setSequenceNumber(seqNum_++);
+//    controlInfo->setSequenceNumber(seqNum_++);
+    controlInfo->setSequenceNumber(seqNums_[pair]++);
     controlInfo->setHeaderSize(headerSize);
 
     // TODO Relay management should be placed here

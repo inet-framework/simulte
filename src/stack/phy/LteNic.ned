@@ -37,7 +37,7 @@ module LteNicBase like ILteNic
     parameters:
         @display("i=block/ifcard;bgb=250,444;bgl=3");
         string LtePdcpRrcType;      // One of: "LtePdcpRrcUe", "LtePdcpRrcEnb", "LtePdcpRrcRelayUe", "LtePdcpRrcRelayEnb"
-        string LteMacType;          // One of: "LteMacUe", "LteMacEnb", "LteMacRelayUe", "LteMacRelayEnb"
+        string LteMacType;          // One of: "LteMacUe", "LteMacEnb", "LteMacEnbExperimental", "LteMacRelayUe", "LteMacRelayEnb"
         string LtePhyType;
         string nodeType;
 
@@ -148,7 +148,7 @@ module LteNicEnb extends LteNicBase
 {
     parameters:
         LtePdcpRrcType = "LtePdcpRrcEnb";
-        LteMacType = "LteMacEnb";
+        LteMacType = default("LteMacEnb");
         LtePhyType = "LtePhyEnb";
         bool compEnabled = default(false);
         string LteCompManagerType = default("LteCompManagerProportional");

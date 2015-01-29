@@ -70,7 +70,7 @@ void LteMacBase::sendLowerPackets(cPacket* pkt)
  */
 void LteMacBase::fromRlc(cPacket *pkt)
 {
-    bufferizePacket(pkt);
+    handleUpperMessage(pkt);
 }
 
 /*

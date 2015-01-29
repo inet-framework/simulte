@@ -98,6 +98,12 @@ class LteMacEnb : public LteMacBase
     virtual void initialize(int stage);
 
     /**
+     * Analyze gate of incoming packet
+     * and call proper handler
+     */
+    virtual void handleMessage(cMessage *msg);
+
+    /**
      * creates scheduling grants (one for each nodeId) according to the Schedule List.
      * It sends them to the  lower layer
      */
@@ -139,6 +145,12 @@ class LteMacEnb : public LteMacBase
      * received from the upper layer
      */
     virtual bool bufferizePacket(cPacket* pkt);
+
+    /**
+     * handleUpperMessage() is called every time a packet is
+     * received from the upper layer
+     */
+    virtual void handleUpperMessage(cPacket* pkt);
 
     /**
      * Main loop

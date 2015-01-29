@@ -286,6 +286,16 @@ class LteMacBase : public cSimpleModule
      * received from the upper layer
      */
     virtual bool bufferizePacket(cPacket* pkt);
+
+    /**
+     * handleUpperMessage() is called every time a packet is
+     * received from the upper layer
+     */
+    virtual void handleUpperMessage(cPacket* pkt)
+    {
+        bufferizePacket(pkt);
+    }
+
     /**
      * macHandleFeedbackPkt is called every time a feedback pkt arrives on MAC
      */

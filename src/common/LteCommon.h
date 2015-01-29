@@ -667,6 +667,12 @@ typedef std::map<std::pair<MacNodeId, Codeword>, LteMacPdu*> MacPduList;
 typedef std::map<MacNodeId, unsigned int> LteMacAllocatedCws;
 
 /**
+ * The Rlc Sdu List, a list of RLC SDUs
+ * contained inside a RLC PDU
+ */
+typedef std::list<cPacket*> RlcSduList;
+
+/**
  * The Mac Sdu List, a list of MAC SDUs
  * contained inside a MAC PDU
  */

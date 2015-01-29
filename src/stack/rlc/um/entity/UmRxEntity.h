@@ -1,0 +1,115 @@
+//
+//                           SimuLTE
+//
+// This file is part of a software released under the license included in file
+// "license.pdf". This license can be also found at http://www.ltesimulator.com/
+// The above file and the present reference are part of the software itself,
+// and cannot be removed from it.
+//
+
+#ifndef _LTE_UMRXENTITY_H_
+#define _LTE_UMRXENTITY_H_
+
+#include <omnetpp.h>
+#include "LteRlcUmExperimental.h"
+#include "TTimer.h"
+#include "LteControlInfo.h"
+#include "LtePdcpPdu_m.h"
+#include "LteRlcDefs.h"
+
+class LteMacBase;
+class LteRlcUm;
+class LteRlcUmDataPdu;
+
+/**
+ * @class UmRxEntity
+ * @brief Receiver entity for UM
+ *
+ * This module is used to buffer RLC PDUs and to reassemble
+ * RLC SDUs in UM mode at RLC layer of the LTE stack.
+ *
+ * It implements the procedures described in 3GPP TS 36.322
+ */
+class UmRxEntity : public cSimpleModule
+{
+  public:
+    UmRxEntity();
+    virtual ~UmRxEntity();
+
+    /*
+     * Enqueues a lower layer packet into the PDU buffer
+     * @param pdu the packet to be enqueued
+     */
+    void enque(cPacket* pkt);
+
+    void setFlowControlInfo(FlowControlInfo* lteInfo) { flowControlInfo_ = lteInfo; }
+    FlowControlInfo* getFlowControlInfo() { return flowControlInfo_; }
+
+  protected:
+
+    /**
+     * Initialize watches
+     */
+    virtual void initialize();
+    virtual void handleMessage(cMessage* msg);
+
+    //Statistics
+    TaggedSample *tSample_;
+    TaggedSample *tSampleCell_;
+
+    simsignal_t rlcCellPacketLoss_;
+    simsignal_t rlcPacketLoss_;
+    simsignal_t rlcPduPacketLoss_;
+    simsignal_t rlcDelay_;
+    simsignal_t rlcPduDelay_;
+    simsignal_t rlcCellThroughput_;
+    simsignal_t rlcThroughput_;
+    simsignal_t rlcPduThroughput_;
+
+  private:
+
+    // reference to eNB for statistic purpose
+    cModule* nodeB_;
+
+    /*
+     * Flow-related info.
+     * Initialized with the control info of the first packet of the flow
+     */
+    FlowControlInfo* flowControlInfo_;
+
+    // The PDU enqueue buffer.
+    cArray pduBuffer_;
+
+    // State variables
+    RlcUmRxWindowDesc rxWindowDesc_;
+
+    // Timer to manage reordering of the PDUs
+    TTimer t_reordering_;
+
+    // Timeout for above timer
+    double timeout_;
+
+    // For each PDU a received status variable is kept.
+    std::vector<bool> received_;
+
+    // The SDU waiting for the missing portion
+    LteRlcSdu* buffered_;
+
+    // Sequence number of the last SDU delivered to the upper layer
+    unsigned int lastSnoDelivered_;
+
+    // Sequence number of the last correctly reassembled PDU
+    unsigned int lastPduReassembled_;
+
+    // move forward the reordering window
+    void moveRxWindow(const int pos);
+
+    // consider the PDU at position 'index' for reassembly
+    void reassemble(unsigned int index);
+
+    // deliver a PDCP PDU to the PDCP layer
+    void toPdcp(LteRlcSdu* rlcSdu);
+};
+
+#endif
+

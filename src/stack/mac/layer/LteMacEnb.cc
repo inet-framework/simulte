@@ -13,7 +13,6 @@
 #include "LteMacQueue.h"
 #include "LteFeedbackPkt.h"
 #include "LteSchedulerEnbDl.h"
-#include "LteSchedulerEnbDlExperimental.h"
 #include "LteSchedulerEnbUl.h"
 #include "LteSchedulingGrant.h"
 #include "LteAllocationModule.h"
@@ -231,8 +230,7 @@ void LteMacEnb::initialize(int stage)
         numAntennas_ = getNumAntennas();
 
         /* Create and initialize MAC Downlink scheduler */
-//        enbSchedulerDl_ = new LteSchedulerEnbDl();
-        enbSchedulerDl_ = new LteSchedulerEnbDlExperimental();
+        enbSchedulerDl_ = new LteSchedulerEnbDl();
         enbSchedulerDl_->initialize(DL, this);
 
         /* Create and initialize MAC Uplink scheduler */
@@ -293,6 +291,12 @@ void LteMacEnb::initialize(int stage)
         binder_->registerName(nodeId_, moduleName);
     }
 }
+
+void LteMacEnb::handleMessage(cMessage *msg)
+{
+    LteMacBase::handleMessage(msg);
+}
+
 
 void LteMacEnb::bufferizeBsr(MacBsr* bsr, MacCid cid)
 {
@@ -633,6 +637,16 @@ bool LteMacEnb::bufferizePacket(cPacket* pkt)
         enbSchedulerDl_->backlog(cid);
     }
     return ret;
+}
+
+void LteMacEnb::handleUpperMessage(cPacket* pkt)
+{
+    FlowControlInfo* lteInfo = check_and_cast<FlowControlInfo*>(pkt->getControlInfo());
+    MacCid cid = idToMacCid(lteInfo->getDestId(), lteInfo->getLcid());
+    if (LteMacBase::bufferizePacket(pkt))
+    {
+        enbSchedulerDl_->backlog(cid);
+    }
 }
 
 void LteMacEnb::handleSelfMessage()
