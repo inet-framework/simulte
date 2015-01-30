@@ -23,6 +23,8 @@ typedef std::map<MacCid, unsigned int> ScheduleList;
 
 class LcgScheduler
 {
+
+  protected:
     /**
      * Score-based schedulers descriptor.
      */
@@ -55,8 +57,6 @@ class LcgScheduler
         unsigned int sentData_;
         unsigned int sentSdus_;
     };
-
-  protected:
 
     // last execution time
     simtime_t lastExecutionTime_;

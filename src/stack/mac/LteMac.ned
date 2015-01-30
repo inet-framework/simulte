@@ -126,6 +126,13 @@ simple LteMacUeD2D extends LteMacUe {
 }
 
 //
+// User Equipment MAC layer of LTE stack (Experimental)
+//
+simple LteMacUeExperimental extends LteMacUe {
+    @class("LteMacUeExperimental");
+}
+
+//
 // eNodeB MAC layer of LTE stack
 //
 simple LteMacEnb extends LteMacBase {

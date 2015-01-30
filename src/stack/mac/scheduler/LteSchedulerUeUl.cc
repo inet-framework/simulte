@@ -13,11 +13,18 @@
 #include "LteSchedulingGrant.h"
 #include "LteMacPdu.h"
 #include "LcgScheduler.h"
+#include "LcgSchedulerExperimental.h"
 
 LteSchedulerUeUl::LteSchedulerUeUl(LteMacUe * mac)
 {
     mac_ = mac;
-    lcgScheduler_ = new LcgScheduler(mac);
+
+    // check if MAC is "experimental"
+    std::string macType = mac_->getParentModule()->par("LteMacType").stdstringValue();
+    if (macType.compare("LteMacUeExperimental") == 0)
+        lcgScheduler_ = new LcgSchedulerExperimental(mac);
+    else
+        lcgScheduler_ = new LcgScheduler(mac);
 }
 
 LteMacScheduleList*

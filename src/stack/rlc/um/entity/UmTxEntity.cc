@@ -43,9 +43,6 @@ void UmTxEntity::rlcPduMake(unsigned int pduLength)
     bool startFrag = firstIsFragment_;
     bool endFrag = false;
 
-    bool first = true;
-    LteRlcSdu* newRlcSdu;
-
     while (!sduQueue_.empty() && pduLength > 0)
     {
         // detach data from the SDU buffer
@@ -105,6 +102,13 @@ void UmTxEntity::rlcPduMake(unsigned int pduLength)
             EV << NOW << " UmTxEntity::rlcPduMake - The new SDU has length " << len << ", left space is " << pduLength << endl;
 
         }
+    }
+
+    if (len == 0)
+    {
+        EV << NOW << " UmTxEntity::rlcPduMake - No data to send" << endl;
+        delete rlcPdu;
+        return;
     }
 
     // compute FI

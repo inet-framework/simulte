@@ -193,13 +193,11 @@ void LteRlcUmExperimental::initialize()
         if (macType.compare("LteMacEnbExperimental") != 0)
             throw cRuntimeError("LteRlcUmExperimental::initialize - %s module found, must be LteMacEnbExperimental. Aborting", macType.c_str());
     }
-//    // TODO uncomment this part when LteMacUeExperimental is ready
-//    else  // "UE"
-//    {
-//        if (macType.compare("LteMacUeExperimental") != 0)
-//            throw cRuntimeError("LteRlcUmExperimental::initialize - %s module found, must be LteMacEnbExperimental. Aborting", macType.c_str());
-//
-//    }
+    else if (nodeType.compare("UE") == 0)
+    {
+        if (macType.compare("LteMacUeExperimental") != 0)
+            throw cRuntimeError("LteRlcUmExperimental::initialize - %s module found, must be LteMacUeExperimental. Aborting", macType.c_str());
+    }
 
     up_[IN] = gate("UM_Sap_up$i");
     up_[OUT] = gate("UM_Sap_up$o");

@@ -112,7 +112,7 @@ module LteNicUe extends LteNicBase
 {
     parameters:
         LtePdcpRrcType = "LtePdcpRrcUe";
-        LteMacType = "LteMacUe";
+        LteMacType = default("LteMacUe");
         LtePhyType = "LtePhyUe";
 
     submodules:
