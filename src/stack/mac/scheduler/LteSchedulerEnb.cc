@@ -17,6 +17,7 @@
 #include "LtePf.h"
 #include "LteMaxCiMultiband.h"
 #include "LteMaxCiOptMB.h"
+#include "LteMaxCiComp.h"
 #include "LteMacBuffer.h"
 #include "LteMacQueue.h"
 
@@ -781,6 +782,8 @@ LteScheduler* LteSchedulerEnb::getScheduler(SchedDiscipline discipline)
         return new LteMaxCiMultiband();
         case MAXCI_OPT_MB:
         return new LteMaxCiOptMB();
+        case MAXCI_COMP:
+        return new LteMaxCiComp();
 
         default:
         throw cRuntimeError("LteScheduler not recognized");

@@ -85,6 +85,7 @@ class AmcPilot
     virtual void updateActiveUsers(ActiveSet aUser, Direction dir)=0;
 
     virtual void setUsableBands(MacNodeId id , UsableBands usableBands) = 0;
+    virtual UsableBands* getUsableBands(MacNodeId id) = 0;
 
     void setMode(PilotComputationModes mode ) { mode_ = mode; }
 };

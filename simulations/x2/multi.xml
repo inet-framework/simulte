@@ -1,0 +1,8 @@
+<config>   
+    <interface hosts="*" address="10.x.x.x" netmask="255.x.x.x"/>
+    
+    <!-- for each eNodeB, define a different wlan --> 
+    <wireless hosts="eNodeB1 ue1[*]"/>
+    <wireless hosts="eNodeB2 ue2[*]"/>  
+    <wireless hosts="eNodeB3 ue3[*]"/>
+</config>

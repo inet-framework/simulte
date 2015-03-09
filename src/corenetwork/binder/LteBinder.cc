@@ -773,3 +773,29 @@ ConnectedUesMap LteBinder::getDeployedUes(MacNodeId localId, Direction dir)
     return dMap_[localId];
 }
 
+void LteBinder::registerX2Port(X2NodeId nodeId, int port)
+{
+    if (x2ListeningPorts_.find(nodeId) == x2ListeningPorts_.end() )
+    {
+        // no port has yet been registered
+        std::list<int> ports;
+        ports.push_back(port);
+        x2ListeningPorts_[nodeId] = ports;
+    }
+    else
+    {
+        x2ListeningPorts_[nodeId].push_back(port);
+    }
+}
+
+int LteBinder::getX2Port(X2NodeId nodeId)
+{
+    if (x2ListeningPorts_.find(nodeId) == x2ListeningPorts_.end() )
+        throw cRuntimeError("LteBinder::getX2Port - No ports available on node %d", nodeId);
+
+    int port = x2ListeningPorts_[nodeId].front();
+    x2ListeningPorts_[nodeId].pop_front();
+    return port;
+}
+
+

@@ -1,6 +1,6 @@
 //
 //                           SimuLTE
-// Copyright (C) 2012 Antonio Virdis, Daniele Migliorini, Giovanni
+// Copyright (C) 2015 Antonio Virdis, Giovanni Nardini, Daniele Migliorini, Giovanni
 // Accongiagioco, Generoso Pagano, Vincenzo Pii.
 //
 // This file is part of a software released under the license included in file
@@ -73,6 +73,9 @@ typedef unsigned short MacNodeId;
 
 /// Cell node ID. It is numerically equal to eNodeB MAC node ID.
 typedef unsigned short MacCellId;
+
+/// X2 node ID. It is equal to the eNodeB MAC Cell ID
+typedef unsigned short X2NodeId;
 
 /// Omnet Node Id
 typedef unsigned int OmnetId;
@@ -208,7 +211,7 @@ const ApplicationTable applications[] = {
 
 enum SchedDiscipline
 {
-    DRR, PF, MAXCI, MAXCI_MB, MAXCI_OPT_MB, UNKNOWN_DISCIPLINE
+    DRR, PF, MAXCI, MAXCI_MB, MAXCI_OPT_MB, MAXCI_COMP, UNKNOWN_DISCIPLINE
 };
 
 struct SchedDisciplineTable
@@ -223,6 +226,7 @@ const SchedDisciplineTable disciplines[] = {
     ELEM(MAXCI),
     ELEM(MAXCI_MB),
     ELEM(MAXCI_OPT_MB),
+    ELEM(MAXCI_COMP),
     ELEM(UNKNOWN_DISCIPLINE)
 };
 
@@ -544,6 +548,20 @@ struct AbsStatusInfoMsg
 };
 
 //|--------------------------------------------------|
+
+/*****************
+ * X2 Support
+ *****************/
+
+class X2InformationElement;
+
+/**
+ * The Information Elements List, a list
+ * of IEs contained inside a X2Message
+ */
+typedef std::list<X2InformationElement*> X2InformationElementsList;
+
+
 
 
 /**

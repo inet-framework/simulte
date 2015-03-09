@@ -41,11 +41,8 @@ const UserTxParams& AmcPilotAuto::computeTxParams(MacNodeId id, const Direction 
     // get a vector of  CQI over first CW
     std::vector<Cqi> summaryCqi = sfb.getCqi(0);
 
-    // check if usable bands are defined for this user
-    UsableBands usableB;
-    UsableBandsList::iterator it = usableBandsList_.find(id);
-    if( it != usableBandsList_.end())
-        usableB = it->second;
+    // get the usable bands for this user
+    UsableBands* usableB = getUsableBands(id);
 
     Band chosenBand = 0;
     double chosenCqi = 0;
@@ -58,7 +55,7 @@ const UserTxParams& AmcPilotAuto::computeTxParams(MacNodeId id, const Direction 
     if(mode_ == MAX_CQI)
     {
         // if there are no usable bands, compute the final CQI through all the bands
-        if(it == usableBandsList_.end())
+        if (usableB == NULL || usableB->empty())
         {
             chosenBand = 0;
             chosenCqi = summaryCqi.at(chosenBand);
@@ -79,13 +76,13 @@ const UserTxParams& AmcPilotAuto::computeTxParams(MacNodeId id, const Direction 
         else
         {
             // TODO Add MIN and MEAN cqi computation methods
-            chosenBand = 0;
             int bandIt = 0;
-            unsigned short currBand = usableB[bandIt];
+            unsigned short currBand = (*usableB)[bandIt];
+            chosenBand = currBand;
             chosenCqi = summaryCqi.at(currBand);
-            for(; bandIt < usableB.size(); ++bandIt)
+            for(; bandIt < usableB->size(); ++bandIt)
             {
-                currBand = usableB[bandIt];
+                currBand = (*usableB)[bandIt];
                 // For all available band
                 double s = (double)summaryCqi.at(currBand);
                 if(chosenCqi < s)
@@ -94,13 +91,13 @@ const UserTxParams& AmcPilotAuto::computeTxParams(MacNodeId id, const Direction 
                     chosenCqi = s;
                 }
             }
-            EV << NOW <<" AmcPilotAuto::computeTxParams - UsableBand of size " << usableB.size() << " available for this user" << endl;
+            EV << NOW <<" AmcPilotAuto::computeTxParams - UsableBand of size " << usableB->size() << " available for this user" << endl;
         }
     }
     else if(mode_ == MIN_CQI)
     {
         // if there are no usable bands, compute the final CQI through all the bands
-        if(it == usableBandsList_.end())
+        if (usableB == NULL || usableB->empty())
         {
             chosenBand = 0;
             chosenCqi = summaryCqi.at(chosenBand);
@@ -120,13 +117,13 @@ const UserTxParams& AmcPilotAuto::computeTxParams(MacNodeId id, const Direction 
         }
         else
         {
-            chosenBand = 0;
             int bandIt = 0;
-            unsigned short currBand = usableB[bandIt];
+            unsigned short currBand = (*usableB)[bandIt];
+            chosenBand = currBand;
             chosenCqi = summaryCqi.at(currBand);
-            for(; bandIt < usableB.size(); ++bandIt)
+            for(; bandIt < usableB->size(); ++bandIt)
             {
-                currBand = usableB[bandIt];
+                currBand = (*usableB)[bandIt];
                 // For all available band
                 double s = (double)summaryCqi.at(currBand);
                 if(chosenCqi > s)
@@ -135,7 +132,8 @@ const UserTxParams& AmcPilotAuto::computeTxParams(MacNodeId id, const Direction 
                     chosenCqi = s;
                 }
             }
-            EV << NOW <<" AmcPilotAuto::computeTxParams - UsableBand of size " << usableB.size() << " available for this user" << endl;
+
+            EV << NOW <<" AmcPilotAuto::computeTxParams - UsableBand of size " << usableB->size() << " available for this user" << endl;
         }
     }
 
@@ -154,7 +152,7 @@ const UserTxParams& AmcPilotAuto::computeTxParams(MacNodeId id, const Direction 
     info.writeAntennas(antennas);
 
     // DEBUG
-    EV << NOW << " AmcPilot" << getName() << "::computeTxParams NEW values assigned! - CQI MAX=" << chosenCqi << "\n";
+    EV << NOW << " AmcPilot" << getName() << "::computeTxParams NEW values assigned! - CQI =" << chosenCqi << "\n";
     info.print("AmcPilotAuto::computeTxParams");
 
     return amc_->setTxParams(id, dir, info);
@@ -181,7 +179,7 @@ std::vector<Cqi> AmcPilotAuto::getMultiBandCqi(MacNodeId id , const Direction di
 
 void AmcPilotAuto::setUsableBands(MacNodeId id , UsableBands usableBands)
 {
-    EV << NOW << " AmcPilotAuto::setUsableBands - setting Usable bands: for UE " << id<< " [" ;
+    EV << NOW << " AmcPilotAuto::setUsableBands - setting Usable bands: for node " << id<< " [" ;
     for(int i = 0 ; i<usableBands.size() ; ++i)
     {
         EV << usableBands[i] << ",";
@@ -189,8 +187,46 @@ void AmcPilotAuto::setUsableBands(MacNodeId id , UsableBands usableBands)
     EV << "]"<<endl;
     UsableBandsList::iterator it = usableBandsList_.find(id);
 
-    // if usable bands for this user are already setm delete it (probably unnecessary)
+    // if usable bands for this node are already setm delete it (probably unnecessary)
     if(it!=usableBandsList_.end())
         usableBandsList_.erase(id);
     usableBandsList_.insert(std::pair<MacNodeId,UsableBands>(id,usableBands));
+}
+
+UsableBands* AmcPilotAuto::getUsableBands(MacNodeId id)
+{
+    EV << NOW << " AmcPilotAuto::getUsableBands - getting Usable bands for node " << id;
+
+    bool found = false;
+    UsableBandsList::iterator it = usableBandsList_.find(id);
+    if(it!=usableBandsList_.end())
+    {
+        found = true;
+    }
+    else
+    {
+        // usable bands for this id not found
+        if (getNodeTypeById(id) == UE)
+        {
+            // if it is a UE, look for its serving cell
+            MacNodeId cellId = getBinder()->getNextHop(id);
+            it = usableBandsList_.find(cellId);
+            if(it!=usableBandsList_.end())
+                found = true;
+        }
+    }
+
+    if (found)
+    {
+        EV << " [" ;
+        for(unsigned int i = 0 ; i < it->second.size() ; ++i)
+        {
+            EV << it->second[i] << ",";
+        }
+        EV << "]"<<endl;
+
+        return &(it->second);
+    }
+    EV << " [All bands are usable]" << endl ;
+    return NULL;
 }

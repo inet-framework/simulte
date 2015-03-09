@@ -66,6 +66,12 @@ class LteBinder : public cSimpleModule
 
     std::string increment_address(const char* address_string); //TODO unused function
 
+    /*
+     * X2 Support
+     */
+    typedef std::map<X2NodeId, std::list<int> > X2ListeningPortMap;
+    X2ListeningPortMap x2ListeningPorts_;
+
   protected:
     virtual void initialize();
 
@@ -203,6 +209,17 @@ class LteBinder : public cSimpleModule
     }
 
     /**
+     * Returns the X2NodeId for the given IP address
+     *
+     * @param address IP address
+     * @return X2NodeId corresponding to the IP address
+     */
+    X2NodeId getX2NodeId(IPv4Address address)
+    {
+        return getMacNodeId(address);
+    }
+
+    /**
      * Associates the given IP address with the given MacNodeId.
      *
      * @param address IP address
@@ -211,7 +228,15 @@ class LteBinder : public cSimpleModule
     {
         macNodeIdToIPAddress_[address] = nodeId;
     }
-
+    /**
+     * Associates the given IP address with the given X2NodeId.
+     *
+     * @param address IP address
+     */
+    void setX2NodeId(IPv4Address address, X2NodeId nodeId)
+    {
+        setMacNodeId(address, nodeId);
+    }
     /*
      * getDeployedUes() returns the affiliates
      * of a given eNodeB
@@ -239,6 +264,13 @@ class LteBinder : public cSimpleModule
     {
         return &enbList_;
     }
+
+    /*
+     * X2 Support
+     */
+    void registerX2Port(X2NodeId nodeId, int port);
+    int getX2Port(X2NodeId nodeId);
+
 };
 
 #endif

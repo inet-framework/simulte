@@ -1,6 +1,6 @@
 // 
 //                           SimuLTE
-// Copyright (C) 2012 Antonio Virdis, Daniele Migliorini, Giovanni
+// Copyright (C) 2015 Antonio Virdis, Giovanni Nardini, Daniele Migliorini, Giovanni
 // Accongiagioco, Generoso Pagano, Vincenzo Pii.
 // 
 // This file is part of a software released under the license included in file
@@ -18,7 +18,8 @@ import lte.stack.pdcp_rrc.LtePdcpRrc;
 import lte.stack.phy.feedback.LteDlFeedbackGenerator;
 import lte.stack.rlc.LteRlc;
 import lte.corenetwork.lteip.IP2lte;
-
+import lte.x2.LteX2Manager;
+import lte.stack.compManager.LteCompManager;
 
 // 
 // Interface for the LTE Stack.
@@ -79,7 +80,7 @@ module LteNicBase like ILteNic
         //#
         //# Internal LTE Stack Connections 
         //# 
-        
+
         EUTRAN_RRC_Sap <--> pdcpRrc.EUTRAN_RRC_Sap;
 
         //# PDCP <-> RLC
@@ -135,6 +136,44 @@ module LteNicEnb extends LteNicBase
         // ulFbGen: LteUlFeedbackGenerator {
         //     @display("p=200,100;is=s");
         // }
+}
+
+//
+// eNodeB of LTE stack, with X2 and X2 user modules
+//
+module LteNicEnbX2 extends LteNicEnb
+{
+    parameters:
+        bool compEnabled = default(false);
+        
+    gates:
+        inout x2[];
+
+    submodules:
+        //#
+        //# X2 manager
+        //#       
+        x2Manager: LteX2Manager {
+            @display("p=60,276,row");
+        }
+
+        //#
+        //# Modules exploiting X2 interface
+        //#
+        compManager: LteCompManager if compEnabled {
+            @display("p=60,173,row");
+        }
+        
+    connections:
+        //# connections between X2 Manager and its users
+        compManager.x2ManagerIn <-- x2Manager.dataPort$o++ if compEnabled;
+        compManager.x2ManagerOut --> x2Manager.dataPort$i++ if compEnabled;
+
+        //# connections between X2 Manager and the outer world
+        for i=0..sizeof(x2)-1 {
+            x2$i[i] --> x2Manager.x2$i++;
+            x2$o[i] <-- x2Manager.x2$o++;
+        }
 }
 
 //
