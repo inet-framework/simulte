@@ -1,5 +1,6 @@
 /*******************************************************************************
-Slate Theme for GitHub Pages
+Slate Theme for GitHu
+b Pages
 by Jason Costello, @jsncostello
 *******************************************************************************/
 
@@ -25,7 +26,6 @@ time, mark, audio, video {
   margin: 0;
   padding: 0;
   border: 0;
-  font: inherit;
   vertical-align: baseline;
 }
 
@@ -234,7 +234,7 @@ hr {
 }
 
 table {
-  border: 1px solid #373737;
+  border: 0px;
   margin-bottom: 20px;
   text-align: left;
  }
