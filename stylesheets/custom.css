@@ -108,8 +108,9 @@
     font-size: 130%;
 }
 
-html {
-  overflow-y: scroll;
+html 
+{
+    overflow-y: scroll;
 }
 
 .pub
@@ -122,7 +123,17 @@ html {
     font-size: 90%;
 }
 
-#contributors
+#webmaster
 {
-    font-size: 90%;
+    float:right;    
+}
+
+#webmaster a
+{
+    text-decoration: none;
+}
+
+#webmaster a:hover
+{
+    text-decoration: underline;
 }
