@@ -1,0 +1,128 @@
+ 
+ 
+<!DOCTYPE html>
+<html>
+
+  <head>
+    <meta charset='utf-8'>
+    <meta http-equiv="X-UA-Compatible" content="chrome=1">
+    <meta name="description" content="Simulte : SimuLTE -- LTE User Plane Simulation Model for INET &amp; OMNeT++">
+
+    <link rel="stylesheet" type="text/css" media="screen" href="stylesheets/stylesheet.css">
+    <link rel="stylesheet" type="text/css" media="screen" href="stylesheets/custom.css">
+    <title>SimuLTE</title>
+
+  </head>
+
+  <body>
+
+    <!-- HEADER -->
+    <div id="header_wrap" class="outer">
+        <header class="inner_title">
+            <a id="forkme_banner" href="https://github.com/inet-framework/simulte">View on GitHub</a>   
+            <a id="title" href="index.html"><img src="images/logo.png" width="50%"/></a>
+            <h2 id="project_tagline">LTE User Plane Simulation Model for INET &amp; OMNeT++</h2>
+            
+            <section id="downloads">
+              <a class="zip_download_link" href="https://github.com/inet-framework/simulte/zipball/master">Download this project as a .zip file</a>
+              <a class="tar_download_link" href="https://github.com/inet-framework/simulte/tarball/master">Download this project as a tar.gz file</a>
+            </section>
+
+            <div id="menu">
+                <ul>
+                    <li><a href="index.html">Home</a></li>
+                    <li><a href="description.html">Description</a></li>
+                    <li><a href="guides.html">Guides</a></li>
+                    <li><a href="faq.html">FAQ</a></li>
+                    <li><a href="related.html">Publications</a></li>                    
+                    <li><a href="contacts.html">Contact us</a></li>
+                </ul>
+            </div>
+        </header>
+    </div>
+
+    <!-- MAIN CONTENT -->
+    <div id="main_content_wrap" class="outer">
+      <section id="main_content" class="inner">
+
+        <h2>Simulating more than one cell</h2>
+        <p>Let us introduce another configuration, called <b>MultiCell</b>. The network model (defined in the <i>simulations/networks</i> directory) contains two eNodeBs, each serving two UEs. Again, UEs want to communicate with a server.
+        <pre class="code"><span class="first">[Config MultiCell]
+network = lte.simulations.networks.MultiCell
+</span></pre>
+The configuration is very similar to that of the single cell scenario. Remember to associate UEs with the correct eNodeB:
+        <pre class="code"><span class="first">**.ue1*.macCellId = 1
+**.ue1*.masterId = 1
+**.ue2*.macCellId = 2
+**.ue2*.masterId = 2
+</span></pre>
+In addition, we need to tell the <i>IPv4NetworkConfigurator</i> module that UEs served by eNodeB1 and UEs served by eNodeB2 belongs to different networks. We do this by creating a configuration file for the <i>IPv4NetworkConfigurator</i> called <i>multi.xml</i>. The name of the configuration file must be specified in the NED definition of the network, as a parameter of the <i>IPv4NetworkConfigurator</i> submodule.
+        <pre class="code"><span class="first">&lt;config&gt;
+    &lt;interface hosts="*" address="10.x.x.x" netmask="255.x.x.x"/&gt;
+    &lt;wireless hosts="eNodeB1 ue1*"/&gt;
+    &lt;wireless hosts="eNodeB2 ue2*"/&gt;
+&lt;/config&gt;
+</span></pre>
+When using two or more eNodeBs, it is likely that we want to take into consideration the presence of inter-cell interference. This feature must be enabled in the channel model configuration. Thus, we modify the <i>multiCell-interference</i> parameter in the <i>config_channel.xml</i> file as follows:
+        <pre class="code"><span class="first">&lt;parameter name="multiCell-interference" type="bool" value="true"/&gt;</span></pre>
+Similar to the single cell scenario, we extend the configuration to specify the traffic type.
+        <pre class="code"><span class="first">[Config MultiCell-DL]
+extends=MultiCell
+
+#============= Application Setup =============
+*.ue*.udpApp[*].typename = "VoIPReceiver"
+*.server.udpApp[*].typename = "VoIPSender"
+*.server.udpApp[0].destAddress = "ue11" 
+*.server.udpApp[1].destAddress = "ue12"
+*.server.udpApp[2].destAddress = "ue21"
+*.server.udpApp[3].destAddress = "ue22"
+*.server.udpApp[*].localPort = 3088+ancestorIndex(0) 
+*.server.udpApp[*].startTime = uniform(0s,0.02s)
+#------------------------------------#
+</span></pre>
+
+<h4>Adding external cells to the network</h4>
+SimuLTE offers the possibility to add <i>external cells</i> to the network. An external cell is a simplified eNodeB that has no UEs to serve but produces interference to UEs deployed in the network. This is a useful mechanism to simulate downlink inter-cell interference without adding more and more eNodeBs, together with their served UEs. We define a <b>MultiCell-DL-ExtCell</b> configuration as follows:
+<pre class="code"><span class="first">[Config MultiCell-DL-ExtCells]
+extends=MultiCell-DL
+
+*.numExtCells = 2
+
+#============= Configuration ============
+*.extCell[*].txPower = 20
+*.extCell[*].txDirection = "ANISOTROPIC"
+*.extCell[*].bandAllocationType = "RANDOM_ALLOC"
+*.extCell[*].bandUtilization = 0.5
+
+#============= Positioning ============
+*.extCell[0].position_x = 100m
+*.extCell[0].position_y = 600m 
+*.extCell[0].txAngle = 315
+*.extCell[1].position_x = 600m
+*.extCell[1].position_y = 600m
+*.extCell[1].txAngle = 225
+</span></pre>
+For each external cell, we define the position, the transmission power and the transmission angle (if anisotropic cells are used). Moreover, <i>bandAllocationType</i> and <i>bandUtilization</i> parameters specify how external cells allocates Resource Blocks over the available bandwidth (e.g., using contiguous RBs or randomly chosen RBs over the whole bandwidth) and the percentage of occupied Resource Blocks, respectively.
+Again, to enable interference from external cells, we need to set the <i>extCell-interference</i> parameter in the <i>config_channel.xml</i> file as follows:
+        <pre class="code"><span class="first">&lt;parameter name="extCell-interference" type="bool" value="true"/&gt;</span></pre>
+        </p>
+
+        <p>Prev: <a href="tutorial-basic.html">Basic usage</a></p>
+        <p>Next: <a href="guides.html">Using X2 interface (coming soon)</a></p>
+      
+       </section>
+    </div>
+
+    <!-- FOOTER  -->
+    <div id="footer_wrap" class="outer">
+      <footer class="inner">
+        <p>Published with <a href="http://pages.github.com">GitHub Pages</a></p>
+      </footer>
+    </div>
+
+    
+
+  </body>
+</html>
+
+

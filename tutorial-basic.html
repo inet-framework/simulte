@@ -1,0 +1,133 @@
+ 
+ 
+<!DOCTYPE html>
+<html>
+
+  <head>
+    <meta charset='utf-8'>
+    <meta http-equiv="X-UA-Compatible" content="chrome=1">
+    <meta name="description" content="Simulte : SimuLTE -- LTE User Plane Simulation Model for INET &amp; OMNeT++">
+
+    <link rel="stylesheet" type="text/css" media="screen" href="stylesheets/stylesheet.css">
+    <link rel="stylesheet" type="text/css" media="screen" href="stylesheets/custom.css">
+    <title>SimuLTE</title>
+
+  </head>
+
+  <body>
+
+    <!-- HEADER -->
+    <div id="header_wrap" class="outer">
+        <header class="inner_title">
+            <a id="forkme_banner" href="https://github.com/inet-framework/simulte">View on GitHub</a>   
+            <a id="title" href="index.html"><img src="images/logo.png" width="50%"/></a>
+            <h2 id="project_tagline">LTE User Plane Simulation Model for INET &amp; OMNeT++</h2>
+            
+            <section id="downloads">
+              <a class="zip_download_link" href="https://github.com/inet-framework/simulte/zipball/master">Download this project as a .zip file</a>
+              <a class="tar_download_link" href="https://github.com/inet-framework/simulte/tarball/master">Download this project as a tar.gz file</a>
+            </section>
+
+            <div id="menu">
+                <ul>
+                    <li><a href="index.html">Home</a></li>
+                    <li><a href="description.html">Description</a></li>
+                    <li><a href="guides.html">Guides</a></li>
+                    <li><a href="faq.html">FAQ</a></li>
+                    <li><a href="related.html">Publications</a></li>                    
+                    <li><a href="contacts.html">Contact us</a></li>
+                </ul>
+            </div>
+        </header>
+    </div>
+
+    <!-- MAIN CONTENT -->
+    <div id="main_content_wrap" class="outer">
+      <section id="main_content" class="inner">
+
+        <h2>Basic usage</h2>
+        <p>This section refers to the example simulations in the <i>simulations/tutorial</i> directory. We create a <b>General</b> configuration in the <i>omnetpp.ini</i> file, which specifies some common parameters of our scenarios. For example, we can specify the number of Resource Blocks to be used in the simulations:
+<pre class="code"><span class="first">**.deployer.numRbDl = 6
+**.deployer.numRbUl = 6</span></pre>
+Parameters related to the channel model and feedback computation are located in a separate XML file that needs to be pointed as follows:
+<pre class="code"><span class="first">**.nic.phy.channelModel = xmldoc("config_channel.xml")
+**.feedbackComputation = xmldoc("config_channel.xml")
+</span></pre>
+These files are used to determine physical layer parameters like antenna gain, thermal noise, target BLER etc. and to enable/disable the computation of shadowing, fading, interference from other cells and so on.
+        </p>
+
+        <h4>A very simple scenario</h4>
+        <p>We are ready for setting up our first simulation scenario. In the <i>omnetpp.ini</i> file, we create a new configuration called <b>SingleCell</b>. The network model (defined in the <i>simulations/networks</i> directory) contains one eNodeB serving a variable number of UEs. 
+<pre class="code"><span class="first">[Config SingleCell]
+network = lte.simulations.networks.SingleCell
+</span></pre>
+UEs need to communicate with a server located on the internet. Thus, we configure the server so as it runs as many application as the number of UEs. UEs must be associated with the eNodeB, by setting <i>macCellId</i> and <i>masterId</i> parameters (eNodeB IDs are assigned progressively, starting from 1). Mobility parameters (i.e., initial position and mobility type) are also specified both for the eNodeB and the UEs. 
+<pre class="code"><span class="first">*.numUe = ${numUEs=5}
+
+#============= Amount of applications ================
+*.ue[*].numUdpApps = 1
+*.server.numUdpApps = ${numUEs}
+
+# connect each UE to the eNB
+**.ue[*].macCellId = 1
+**.ue[*].masterId = 1
+
+#============= Positioning and mobility ============
+*.eNodeB.mobility.initFromDisplayString = false
+*.eNodeB.mobility.initialX = 300m
+*.eNodeB.mobility.initialY = 300m
+*.ue[*].mobility.constraintAreaMaxX = 600m
+*.ue[*].mobility.constraintAreaMaxY = 600m
+*.ue[*].mobility.constraintAreaMinX = 0m
+*.ue[*].mobility.constraintAreaMinY = 0m
+*.ue[*].mobility.initFromDisplayString = false
+*.ue[*].mobility.initialX = uniform(0m,600m)
+*.ue[*].mobility.initialY = uniform(0m,600m)
+*.ue[*].mobility.speed = 1mps
+*.ue[*].mobilityType = "LinearMobility"
+#------------------------------------#</span></pre>
+
+We have not yet defined the type of the traffic. We obtain two different configurations by extending the previous one: one for the downlink direction and one for the uplink direction.
+<pre class="code"><span class="first">[Config SingleCell-DL]
+extends=SingleCell
+
+*.ue[*].udpApp[0].typename = "VoIPReceiver"
+*.server.udpApp[*].destAddress = "ue["+string(ancestorIndex(0))+"]"
+*.server.udpApp[*].localPort = 3088+ancestorIndex(0) 
+*.server.udpApp[*].typename = "VoIPSender"
+*.server.udpApp[*].startTime = uniform(0s,0.02s)
+#------------------------------------#
+
+[Config SingleCell-UL]
+extends=SingleCell
+
+*.server.udpApp[*].typename = "VoIPReceiver"
+*.server.udpApp[*].localPort = 3000+ancestorIndex(0)
+*.ue[*].udpApp[*].destAddress = "server" 
+*.ue[*].udpApp[*].destPort = 3000+ancestorIndex(1)
+*.ue[*].udpApp[*].localPort = 3088 
+*.ue[*].udpApp[*].typename = "VoIPSender"
+*.ue[*].udpApp[*].startTime = uniform(0s,0.02s)
+#------------------------------------#</span></pre>
+
+In this example, we use VoIP traffic model. The main difference between downlink and uplink is the modules where the <i>VoIPSender</i> and <i>VoIPReceiver</i> applications are located. Destination addresses and port numbers must be set such that one sender application can unequivocally identify the receiver application.
+        </p> 
+
+        <p>Next: <a href="tutorial-multicell.html">Simulating more than one cell</a></p>
+
+      </section>
+    </div>
+
+    <!-- FOOTER  -->
+    <div id="footer_wrap" class="outer">
+      <footer class="inner">
+        <p>Published with <a href="http://pages.github.com">GitHub Pages</a></p>
+      </footer>
+    </div>
+
+    
+
+  </body>
+</html>
+
+
