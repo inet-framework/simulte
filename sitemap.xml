@@ -1,0 +1,49 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<urlset
+      xmlns="http://www.sitemaps.org/schemas/sitemap/0.9"
+      xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+      xsi:schemaLocation="http://www.sitemaps.org/schemas/sitemap/0.9
+            http://www.sitemaps.org/schemas/sitemap/0.9/sitemap.xsd">
+<!-- created with Free Online Sitemap Generator www.xml-sitemaps.com -->
+
+<url>
+  <loc>http://simulte.com/</loc>
+  <lastmod>2015-03-17T14:46:00+00:00</lastmod>
+  <changefreq>weekly</changefreq>
+</url>
+<url>
+  <loc>http://simulte.com/index.html</loc>
+  <lastmod>2015-03-17T14:46:00+00:00</lastmod>
+  <changefreq>weekly</changefreq>
+</url>
+<url>
+  <loc>http://simulte.com/description.html</loc>
+  <lastmod>2015-03-17T14:46:00+00:00</lastmod>
+  <changefreq>weekly</changefreq>
+</url>
+<url>
+  <loc>http://simulte.com/guides.html</loc>
+  <lastmod>2015-03-17T14:46:00+00:00</lastmod>
+  <changefreq>weekly</changefreq>
+</url>
+<url>
+  <loc>http://simulte.com/faq.html</loc>
+  <lastmod>2015-03-17T14:46:00+00:00</lastmod>
+  <changefreq>weekly</changefreq>
+</url>
+<url>
+  <loc>http://simulte.com/related.html</loc>
+  <lastmod>2015-03-17T14:46:00+00:00</lastmod>
+  <changefreq>weekly</changefreq>
+</url>
+<url>
+  <loc>http://simulte.com/contacts.html</loc>
+  <lastmod>2015-03-17T14:46:00+00:00</lastmod>
+  <changefreq>weekly</changefreq>
+</url>
+<url>
+  <loc>http://simulte.com/install.html</loc>
+  <lastmod>2015-03-17T14:46:00+00:00</lastmod>
+  <changefreq>weekly</changefreq>
+</url>
+</urlset>
