@@ -1,0 +1,98 @@
+ 
+ 
+<!DOCTYPE html>
+<html>
+
+  <head>
+    <meta charset='utf-8'>
+    <meta http-equiv="X-UA-Compatible" content="chrome=1">
+    <meta name="description" content="Simulte : SimuLTE -- LTE User Plane Simulation Model for INET &amp; OMNeT++">
+
+    <link rel="stylesheet" type="text/css" media="screen" href="stylesheets/stylesheet.css">
+    <link rel="stylesheet" type="text/css" media="screen" href="stylesheets/custom.css">
+
+    <title>SimuLTE</title>
+  </head>
+
+  <body>
+
+    <!-- HEADER -->
+    <div id="header_wrap" class="outer">
+        <header class="inner_title">
+            <a id="forkme_banner" href="https://github.com/inet-framework/simulte">View on GitHub</a>   
+            <a id="title" href="index.html"><img src="images/logo.png" width="50%"/></a>
+            <h2 id="project_tagline">LTE User Plane Simulation Model for INET &amp; OMNeT++</h2>
+            
+            <section id="downloads">
+              <a class="zip_download_link" href="https://github.com/inet-framework/simulte/zipball/master">Download this project as a .zip file</a>
+              <a class="tar_download_link" href="https://github.com/inet-framework/simulte/tarball/master">Download this project as a tar.gz file</a>
+            </section>
+
+            <div id="menu">
+                <ul>
+                    <li><a href="index.html">Home</a></li>
+                    <li><a href="description.html">Description</a></li>
+                    <li><a href="guides.html">Guides</a></li>
+                    <li><a href="faq.html">FAQ</a></li>
+                    <li><a href="related.html">Publications</a></li>                    
+                    <li><a href="contacts.html">Contact us</a></li>
+                </ul>
+            </div>
+        </header>
+    </div>
+
+    <!-- MAIN CONTENT -->
+    <div id="main_content_wrap" class="outer">
+      <section id="main_content" class="inner">
+
+<h2><b class="question">F</b>requently <b class="question">A</b>sked <b class="question">Q</b>uestions</h2>
+
+<!-- QUESTION 1 -->
+<p><b class="question">Q:</b> How can I set the number of available Resource Blocks in Downlink/Uplink?</p>
+<p><b class="answer">A:</b> It can be set via the numRbDl/numRbUl parameters of the deployer. For example you can both values in .ini file as follows
+
+<pre class="code"><span class="first">**.deployer.numRbDl = </span><span class="second">6</span>
+<span class="first">**.deployer.numRbUl = </span><span class="second">6</span></pre>
+</p>
+
+<hr><hr>
+
+<!-- QUESTION 2 -->
+<p><b class="question">Q:</b> How can I select the serving eNB for a UE?</p>
+<p><b class="answer">A:</b> It can be selected using the macCellId and masterId parameters of the UE node. For example lets suppose we have 2 UEs (<i>ue1</i> and <i>ue2</i>) and two eNB (<i>enb1</i> and <i>enb2</i>). We can connect <i>ue1</i> with <i>enb1</i> and <i>ue2</i> with <i>enb2</i> usign the following code in an .ini file:
+<pre class="code"><span class="first">**.ue1.macCellId = </span><span class="second">1</span>
+<span class="first">**.ue1.masterId  = </span><span class="second">1</span>
+
+<span class="first">**.ue2.macCellId = </span><span class="second">2</span>
+<span class="first">**.ue2.masterId  = </span><span class="second">2</span>
+</pre>
+
+<b>NOTE</b> that ids are assigned to the eNBs progressively, according to their creation order in the network file.
+</p>
+
+<hr><hr>
+
+<!-- QUESTION 3 -->
+<p><b class="question">Q:</b> I need to measure channel utilization (or something alike) and packet loss for the LTE network. Are there any parameters in SimuLTE which provide this information?</p>
+<p><b class="answer">A:</b> There are two main metrics you may be interested in:
+<br>
+<b>Channel utilization:</b> look at <code>cellBlocksUtilizationDl</code> for a percentage of used RBs over the total in downlink. As an alternative <code>avgServedBlocksDl</code> gives you the average per-TTI number of used RBs. (same think applies in uplink, adding the suffix UL instead of DL)
+<br>
+<b>Packet Loss:</b> as far as it is concerned you are probably looking for HARQ errors (i.e. error due to decoding). Those statistics are stored into <code>harqErrorRateDl</code>, which gives you a percentage of errors due to HARQ, over the total of transport blocks received. If you need more detailed information, look at <code>harqErrorRate_1st_Dl</code> , <code>harqErrorRate_2nd_Dl</code>, etc. which gives you the same information as above, but related to 1st HARQ transmissions, 2nd transmissions and so on.
+
+
+
+      </section>
+    </div>
+
+    <!-- FOOTER  -->
+    <div id="footer_wrap" class="outer">
+      <footer class="inner">
+        <p>Published with <a href="http://pages.github.com">GitHub Pages</a></p>
+      </footer>
+    </div>
+
+    
+
+  </body>
+</html>

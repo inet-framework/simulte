@@ -1,0 +1,81 @@
+<!DOCTYPE html>
+<html>
+
+  <head>
+    <meta charset='utf-8'>
+    <meta http-equiv="X-UA-Compatible" content="chrome=1">
+    <meta name="description" content="Simulte : SimuLTE -- LTE User Plane Simulation Model for INET &amp; OMNeT++">
+
+    <link rel="stylesheet" type="text/css" media="screen" href="stylesheets/stylesheet.css">
+    <link rel="stylesheet" type="text/css" media="screen" href="stylesheets/custom.css">
+
+    
+
+    <title>SimuLTE</title>
+  </head>
+
+  <body>
+
+    <!-- HEADER -->
+    <div id="header_wrap" class="outer">
+        <header class="inner_title">
+            <a id="forkme_banner" href="https://github.com/inet-framework/simulte">View on GitHub</a>   
+            <a id="title" href="index.html"><img src="images/logo.png" width="50%"/></a>
+            <h2 id="project_tagline">LTE User Plane Simulation Model for INET &amp; OMNeT++</h2>
+            
+            <section id="downloads">
+              <a class="zip_download_link" href="https://github.com/inet-framework/simulte/zipball/master">Download this project as a .zip file</a>
+              <a class="tar_download_link" href="https://github.com/inet-framework/simulte/tarball/master">Download this project as a tar.gz file</a>
+            </section>
+
+            <div id="menu">
+                <ul>
+                    <li><a href="index.html">Home</a></li>
+                    <li><a href="description.html">Description</a></li>
+                    <li><a href="guides.html">Guides</a></li>
+                    <li><a href="faq.html">FAQ</a></li>
+                    <li><a href="related.html">Publications</a></li>                    
+                    <li><a href="contacts.html">Contact us</a></li>
+                </ul>
+            </div>
+        </header>
+    </div>
+
+    <!-- MAIN CONTENT -->
+    <div id="main_content_wrap" class="outer">
+      <section id="main_content" class="inner">
+        <div id="txt">
+        
+            <h2>Description</h2>
+            SimuLTE models the data plane of the LTE/LTE-A Radio Access Network and Evolved Packet Core. It allows you to simulate LTE/LTE-A in Frequency Division Duplexing (FDD) mode, with etherogeneous eNBs (macro, micro, pico etc.), using both anisotropic and omnidirectional antennas. ENBs can be connected via <b>X2 interface</b>, and can communicate using both standard and user defined messages. 
+            <br>
+            <p>
+                A detailed description of SimuLTE is available in the paper <a href="publications/SimulTech14_20140625CR.pdf"> &quot;SimuLTE: A Modular System-level Simulator for LTE/LTE-A Networks based on OMNeT++&quot;</a> from the <a href="http://www.simultech.org/?y=2014">SimulTech 2014 </a> conference
+            </p>
+            <h4>Nodes</h4>
+            <b>UEs</b> and <b>eNBs</b> are implemented as compound modules. These can be connected with each other and with other nodes (e.g. routers, applications, etc.) in order to compose networks. The UEs and eNBs are further composed of modules: 
+            <ul>
+                <li><i>TCP</i> and <i>UDP</i> applications (any INET compatible application)</li>
+                <li><i>TCP</i> and <i>UDP</i> transport layers (from INET)</li>
+                <li><i>IP</i> layer (from INET)</li>
+                <li><i>LTE NIC</i> implementing the LTE stack</li>
+            </ul>  
+
+            <img src="images/architecture2.png" width="60%">
+
+            The <b>Binder</b> module is instead visible by every other node in the system and stores information about them, such as references to nodes. It is used, for instance, to locate the interfering eNBs in order to compute the inter-cell interference perceived by a UE in its serving cell.
+        </div>
+      </section>
+    </div>
+
+    <!-- FOOTER  -->
+    <div id="footer_wrap" class="outer">
+      <footer class="inner">
+        <p>Published with <a href="http://pages.github.com">GitHub Pages</a></p>
+      </footer>
+    </div>
+
+    
+
+  </body>
+</html>

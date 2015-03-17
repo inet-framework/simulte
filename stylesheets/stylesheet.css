@@ -139,13 +139,13 @@ img {
   max-width: 739px;
   padding: 5px;
   margin: 10px 0 10px 0;
-  border: 1px solid #ebebeb;
+/*   border: 1px solid #ebebeb; */
 
-  box-shadow: 0 0 5px #ebebeb;
+/*  box-shadow: 0 0 5px #ebebeb;
   -webkit-box-shadow: 0 0 5px #ebebeb;
   -moz-box-shadow: 0 0 5px #ebebeb;
   -o-box-shadow: 0 0 5px #ebebeb;
-  -ms-box-shadow: 0 0 5px #ebebeb;
+  -ms-box-shadow: 0 0 5px #ebebeb;*/
 }
 
 p img {
@@ -319,7 +319,7 @@ Full-Width Styles
   position: absolute;
   width: 210px;
   z-index: 10;
-  bottom: -40px;
+  bottom: -50px;
   right: 0;
   height: 70px;
   background: url('../images/icon_download.png') no-repeat 0% 90%;
@@ -358,6 +358,11 @@ Full-Width Styles
   background: #f2f2f2;
   border-top: 1px solid #111;
   border-bottom: 1px solid #111;
+  
+  text-align: justify;
+  text-justify: inter-word;
+  
+  min-height: 450px;
 }
 
 #main_content {

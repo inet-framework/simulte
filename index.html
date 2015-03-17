@@ -7,6 +7,7 @@
     <meta name="description" content="Simulte : SimuLTE -- LTE User Plane Simulation Model for INET &amp; OMNeT++">
 
     <link rel="stylesheet" type="text/css" media="screen" href="stylesheets/stylesheet.css">
+    <link rel="stylesheet" type="text/css" media="screen" href="stylesheets/custom.css">
 
     <title>SimuLTE</title>
   </head>
@@ -15,15 +16,27 @@
 
     <!-- HEADER -->
     <div id="header_wrap" class="outer">
-        <header class="inner">
+        <header class="inner_title">
           <a id="forkme_banner" href="https://github.com/inet-framework/simulte">View on GitHub</a>
-          <img src="images/logo.png" width="50%"/>
+          <a id="title" href="index.html"><img src="images/logo.png" width="50%"/></a>
           <h2 id="project_tagline">LTE User Plane Simulation Model for INET &amp; OMNeT++</h2>
 
             <section id="downloads">
               <a class="zip_download_link" href="https://github.com/inet-framework/simulte/zipball/master">Download this project as a .zip file</a>
               <a class="tar_download_link" href="https://github.com/inet-framework/simulte/tarball/master">Download this project as a tar.gz file</a>
             </section>
+
+            <div id="menu">
+                <ul>
+                    <li><a href="index.html">Home</a></li>
+                    <li><a href="description.html">Description</a></li>
+                    <li><a href="guides.html">Guides</a></li>
+                    <li><a href="faq.html">FAQ</a></li>
+                    <li><a href="related.html">Publications</a></li>                    
+                    <li><a href="contacts.html">Contact us</a></li>
+                </ul>
+            </div>
+
         </header>
     </div>
 
@@ -39,8 +52,10 @@ system level performance evaluation of LTE and LTE Advanced networks (3GPP Relea
 
 <p>SimuLTE is an open source project building on top of OMNeT++ and INET Framework. Participation and contributions are welcome.</p>
 
-<h3>Architecture</h3>
-<img src="images/architecture.png" width="100%">
+<h3>Using SimuLTE</h3>
+<p>The idea behind SimuLTE is to let researchers benchmark their solutions on an easy-to-use framwork. It borrows the concept of modularity from OMNeT++ thus it is easy-to-extend. Moreover it can be integrated with other modules from the INET Framwork.
+
+<h3>Main Features</h3>
 <table border="0" width="100%">
           <tr>
             <td width="33%"><b>APPS:</b><br>VoIP GSM AMR, Video Streaming H.264, Real-time gaming, FTP, etc.</td>
@@ -48,9 +63,9 @@ system level performance evaluation of LTE and LTE Advanced networks (3GPP Relea
             <td width="33%"><b>MAC:</b><br>Buffering, PDU concatenation, CQI reception, transport format selection and resource allocation, Coding designed to facilitate cross-layer analysis.</td>
           </tr>
           <tr>
-            <td><b>PHY:</b><br>2x2 MU-MIMO, S-MUX, transmit diversity using SINR curves.</td>
-            <td><b>User Terminals:</b><br>Mobility, Battery consumption, Interference, All types of traffic, Built-in applications: VoIP, gaming, VoD, web, etc.</td>
-            <td><b>E-NodeB:</b><br>Macro, micro, pico eNodeBs,Inter-eNB Coordination through X2 interface, Relay nodes, Distributed antennas,SU and MU-MIMO, Scheduling algorithms, Max C/I, Proportional Fair, Round Robin, etc.</td>
+            <td><b>PHY:</b><br>transmit diversity using SINR curves, channel feedback computation. Realistic Channel Model</td>
+            <td><b>User Terminals:</b><br>Mobility, Interference, All types of traffic, Built-in applications: VoIP, gaming, VoD, web, etc.</td>
+            <td><b>E-NodeB:</b><br>Macro, micro, pico eNodeBs, Inter-eNB Coordination through X2 interface, Scheduling algorithms, Max C/I, Proportional Fair, Round Robin, etc.</td>
           </tr>
 </table>
 
