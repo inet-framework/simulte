@@ -137,3 +137,8 @@ html
 {
     text-decoration: underline;
 }
+
+.next
+{
+    float:right; 
+}

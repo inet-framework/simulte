@@ -66,14 +66,13 @@ h1, h2, h3, h4, h5, h6 {
 }
 
 h1 {
-  font-size: 36px;
+  font-size: 30px;
   font-weight: 700;
+  background: url('../images/bg_hr.png') repeat-x bottom;
 }
 
 h2 {
-  padding-bottom: 10px;
-  font-size: 32px;
-  background: url('../images/bg_hr.png') repeat-x bottom;
+  font-size: 24px;  
 }
 
 h3 {
