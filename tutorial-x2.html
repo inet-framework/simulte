@@ -1,0 +1,120 @@
+ 
+ 
+<!DOCTYPE html>
+<html>
+
+  <head>
+    <meta charset='utf-8'>
+    <meta http-equiv="X-UA-Compatible" content="chrome=1">
+    <meta name="description" content="Simulte : SimuLTE -- LTE User Plane Simulation Model for INET &amp; OMNeT++">
+
+    <link rel="stylesheet" type="text/css" media="screen" href="stylesheets/stylesheet.css">
+    <link rel="stylesheet" type="text/css" media="screen" href="stylesheets/custom.css">
+
+    <script>
+    (function(i,s,o,g,r,a,m){i['GoogleAnalyticsObject']=r;i[r]=i[r]||function(){
+    (i[r].q=i[r].q||[]).push(arguments)},i[r].l=1*new Date();a=s.createElement(o),
+    m=s.getElementsByTagName(o)[0];a.async=1;a.src=g;m.parentNode.insertBefore(a,m)
+    })(window,document,'script','//www.google-analytics.com/analytics.js','ga');
+
+    ga('create', 'UA-39973809-2', 'auto');
+    ga('send', 'pageview');
+
+    </script>
+
+    <title>SimuLTE - LTE User Plane Simulation Model for INET</title>
+
+  </head>
+
+  <body>
+
+    <!-- HEADER -->
+    <div id="header_wrap" class="outer">
+        <header class="inner_title">
+            <a id="forkme_banner" href="https://github.com/inet-framework/simulte">View on GitHub</a>   
+            <a id="title" href="index.html"><img src="images/logo.png" width="50%"/></a>
+            <h2 id="project_tagline">LTE User Plane Simulation Model for INET &amp; OMNeT++</h2>
+            
+            <section id="downloads">
+              <a class="zip_download_link" href="https://github.com/inet-framework/simulte/zipball/master">Download this project as a .zip file</a>
+              <a class="tar_download_link" href="https://github.com/inet-framework/simulte/tarball/master">Download this project as a tar.gz file</a>
+            </section>
+
+            <div id="menu">
+                <ul>
+                    <li><a href="index.html">Home</a></li>
+                    <li><a href="description.html">Description</a></li>
+                    <li><a href="guides.html">Guides</a></li>
+                    <li><a href="faq.html">FAQ</a></li>
+                    <li><a href="related.html">Publications</a></li>                    
+                    <li><a href="contacts.html">Contact us</a></li>
+                </ul>
+            </div>
+        </header>
+    </div>
+
+    <!-- MAIN CONTENT -->
+    <div id="main_content_wrap" class="outer">
+      <section id="main_content" class="inner">
+
+        <h1>Using X2 interface</h1>
+        <p>Once we have built a network composed of a number of eNodeBs, it is likely that we are interested in allowing communication among the latters through the X2 interface. For the sake of clarity, you can find the example described in this section in a new directory, i.e. <i>simulations/x2</i>.<br>
+Let us consider a network with three eNodeBs. First of all, the <i>X2Enabled</i> flag must be set. In order to establish an X2 communication with a peer, the eNodeB must have one X2 application for each peer (two, in this case). Remember to assign different port numbers to different X2 applications. 
+<pre class="code"><span class="first">**.x2Enabled = ${x2=true}
+*.eNodeB*.numX2Apps = 2
+*.eNodeB*.x2App[*].server.localPort = 5000 + ancestorIndex(1)</span></pre>
+Note that an X2 application is composed of two independent modules: a server (sending messages) and a client (receiving messages). Thus, modules need to be configured separately (hence the <i>x2App[*].server</i> notation).<br>
+Since X2 applications run on top of the SCTP transport protocol, we may configure a couple of parameters of the latter. For example, we can disable the Nagle algorithm, which delays the transmissions of small packets (this could be an undesirable behaviour for the X2). In order to speed up the simulation, we could decide to disable the transmission of heartbeats packets (SCTP uses these messages to probe the reachability of an address).
+<pre class="code"><span class="first">**.sctp.nagleEnabled = false
+**.sctp.enableHeartbeats = false</span></pre>
+Now, we need to setup the client module of the X2 applications, i.e. destination address of the peering eNodeB. However, this depends on how the eNodeBs are connected to each other (are they connected through point-to-point links or are they connected to a backhaul network?). Let's see both cases.<br>
+</p>
+<h4>Star Topology</h4>
+<p>We create a configuration called <b>X2-StarTopology</b> where each eNodeB has only one X2 interface connected to a router. The latter acts as the star center. The network can be found in the <i>simulations/networks</i> directory.
+<pre class="code"><span class="first">[Config X2-StarTopology]
+network=lte.simulations.networks.MultiCell_X2Star
+
+*.eNodeB1.x2App[0].client.connectAddress = "eNodeB2%x2ppp0" 
+*.eNodeB1.x2App[1].client.connectAddress = "eNodeB3%x2ppp0"
+*.eNodeB2.x2App[0].client.connectAddress = "eNodeB1%x2ppp0" 
+*.eNodeB2.x2App[1].client.connectAddress = "eNodeB3%x2ppp0"
+*.eNodeB3.x2App[0].client.connectAddress = "eNodeB1%x2ppp0" 
+*.eNodeB3.x2App[1].client.connectAddress = "eNodeB2%x2ppp0"</span></pre>
+It is necessary to explicitly define the name of the interface where the client connects to (using the <i>%</i> notation): <i>x2ppp</i> is the name of the X2 gate vector, whereas the following number is the index of one gate inside that vector (here, it is always 0 because eNodeBs have only one X2 interface).<br>
+</p>
+<h4>Full Mesh Topology</h4>
+<p>We create a configuration called <b>X2-MeshTopology</b>, where each couple of eNodeBs is linked via PPP links. Again, the network definition is in the <i>simulations/networks</i> directory.
+<pre class="code"><span class="first">[Config X2-MeshTopology]
+network=lte.simulations.networks.MultiCell_X2Mesh
+
+*.eNodeB1.x2App[0].client.connectAddress = "eNodeB2%x2ppp0" 
+*.eNodeB1.x2App[1].client.connectAddress = "eNodeB3%x2ppp0"
+*.eNodeB2.x2App[0].client.connectAddress = "eNodeB1%x2ppp0" 
+*.eNodeB2.x2App[1].client.connectAddress = "eNodeB3%x2ppp1"
+*.eNodeB3.x2App[0].client.connectAddress = "eNodeB1%x2ppp1" 
+*.eNodeB3.x2App[1].client.connectAddress = "eNodeB2%x2ppp1"
+</span></pre>
+Connecting eNodeBs via a full-mesh topology is just a little more complex. In fact, each eNodeB has one X2 interface per peering eNodeB, thus we need to specify a different gate index for each connection. In this example, eNodeB2 connects to the gate 0 of eNodeB1 and to the gate 1 of eNodeB3.
+</p>
+<p>The X2 is now ready to transport every kind of message. As an example, we implemented a simple CoMP module that exploits X2 functionalities. Please refer to the readme file and to the code for further information.
+</p>
+
+        <span>Prev: <a href="tutorial-multicell.html">Simulating more than one cell</a></span>
+      
+       </section>
+    </div>
+
+    <!-- FOOTER  -->
+    <div id="footer_wrap" class="outer">
+      <footer class="inner">
+        <span>Published with <a href="http://pages.github.com">GitHub Pages</a></span>
+        <span id="webmaster">&copy; <a href="http://www.iet.unipi.it/a.virdis">Antonio Virdis</a> - <a href="http://www.iet.unipi.it/g.nardini/">Giovanni Nardini</a> - 2015</span>                
+      </footer>
+    </div>
+
+    
+
+  </body>
+</html>
+
+
