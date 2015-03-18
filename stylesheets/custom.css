@@ -60,11 +60,13 @@
 #title img:hover
 {
     border: 1px solid white;
+    width: 50%;
 }
 
 #title img
 {
     border: 1px solid #373737;
+    width: 50%;
 }
 
 
@@ -83,6 +85,17 @@
     border:solid gray;
     border-width:.1em .1em .1em .8em;
 /*     padding:.2em .6em;    */
+}
+
+#feat_table
+{
+    width: 100%; 
+    border: 0;
+}
+
+.feat_col
+{
+    width: 33%;   
 }
 
 .first

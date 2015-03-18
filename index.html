@@ -30,11 +30,11 @@
   <body>
 
     <!-- HEADER -->
-<span itemscope itemtype="http://schema.org/SoftwareApplication">
+<div itemscope itemtype="http://schema.org/SoftwareApplication">
     <div id="header_wrap" class="outer">
         <header class="inner_title">
           <a id="forkme_banner" href="https://github.com/inet-framework/simulte"><meta itemprop="downloadUrl" content="https://github.com/inet-framework/simulte">View on GitHub</a>
-          <a id="title" href="index.html"><img itemprop="image" src="images/logo.png" width="50%"/></a>
+          <a id="title" href="index.html"><img alt="cool SimuLTE logo" itemprop="image" src="images/logo.png"/></a>
           <h2 itemprop="name" id="project_tagline">LTE User Plane Simulation Model for INET &amp; OMNeT++</h2>
 
             <section id="downloads">
@@ -60,44 +60,45 @@
     <div id="main_content_wrap" class="outer">
       <section id="main_content" class="inner">
 
-<h1>What is SimuLTE: simulator for LTE networks</h1>
-<p itemprop="applicationCategory">SimuLTE is an innovative simulation tool enabling complex 
-system level performance evaluation of LTE and LTE Advanced networks (3GPP Release 8 and beyond) for the OMNeT++ framework. </p>
+        <h1>What is SimuLTE: simulator for LTE networks</h1>
+        <p itemprop="applicationCategory">SimuLTE is an innovative simulation tool enabling complex 
+        system level performance evaluation of LTE and LTE Advanced networks (3GPP Release 8 and beyond) for the OMNeT++ framework. </p>
 
-<p>SimuLTE is fully customizable with a simple pluggable interface. One can also develop new modules implementing new algorithms and protocols. </p>
+        <p>SimuLTE is fully customizable with a simple pluggable interface. One can also develop new modules implementing new algorithms and protocols. </p>
 
-<p>SimuLTE is an open source project building on top of OMNeT++ and INET Framework. Participation and contributions are welcome.</p>
+        <p>SimuLTE is an open source project building on top of OMNeT++ and INET Framework. Participation and contributions are welcome.</p>
 
-<h2>Using SimuLTE</h2>
-<p>The idea behind SimuLTE is to let researchers benchmark their solutions on an easy-to-use framwork. It borrows the concept of modularity from OMNeT++ thus it is easy to extend. Moreover it can be integrated with other modules from the INET Framwork.
+        <h2>Using SimuLTE</h2>
+        <p>The idea behind SimuLTE is to let researchers benchmark their solutions on an easy-to-use framwork. It borrows the concept of modularity from OMNeT++ thus it is easy to extend. Moreover it can be integrated with other modules from the INET Framwork.
 
-<h2>Main Features</h2>
-<table border="0" width="100%">
-          <tr>
-            <td width="33%"><b>APPS:</b><br>VoIP GSM AMR, Video Streaming H.264, Real-time gaming, FTP, etc.</td>
-            <td width="33%"><b>RLC:</b><br>UM and AM segmentation and reassembly retransmissions (AM only).</td>
-            <td width="33%"><b>MAC:</b><br>Buffering, PDU concatenation, CQI reception, transport format selection and resource allocation, Coding designed to facilitate cross-layer analysis.</td>
-          </tr>
-          <tr>
-            <td><b>PHY:</b><br>transmit diversity using SINR curves, channel feedback computation. Realistic Channel Model</td>
-            <td><b>User Terminals:</b><br>Mobility, Interference, All types of traffic, Built-in applications: VoIP, gaming, VoD, web, etc.</td>
-            <td><b>E-NodeB:</b><br>Macro, micro, pico eNodeBs, Inter-eNB Coordination through X2 interface, Scheduling algorithms, Max C/I, Proportional Fair, Round Robin, etc.</td>
-          </tr>
-</table>
-<hr>
-<h2>Core Contributors</h2>
-<span itemprop="author" itemscope itemtype="http://schema.org/Person">
-<span itemprop="name">SimuLTE is a project of the <a href="http://cng1.iet.unipi.it/wiki/index.php/Main_Page">Computer Networking Group</a> of the University of Pisa, Italy.
-<br> Responsible People: 
-<ul>
-    <li>Giovanni Nardini (<a href="http://www.iet.unipi.it/g.nardini">webpage</a>)</li>
-    <li>Giovanni Stea (<a href="http://info.iet.unipi.it/~stea/">webpage</a>)</i>
-    <li>Antonio Virdis (<a href="http://www.iet.unipi.it/a.virdis">webpage</a>)</li>    
-</ul></span></span>
-</div>
-
+        <h2>Main Features</h2>
+        <table id="feat_table">
+                <tr>
+                    <td class="feat_col" ><b>APPS:</b><br>VoIP GSM AMR, Video Streaming H.264, Real-time gaming, FTP, etc.</td>
+                    <td class="feat_col"><b>RLC:</b><br>UM and AM segmentation and reassembly retransmissions (AM only).</td>
+                    <td class="feat_col"><b>MAC:</b><br>Buffering, PDU concatenation, CQI reception, transport format selection and resource allocation, Coding designed to facilitate cross-layer analysis.</td>
+                </tr>
+                <tr>
+                    <td><b>PHY:</b><br>transmit diversity using SINR curves, channel feedback computation. Realistic Channel Model</td>
+                    <td><b>User Terminals:</b><br>Mobility, Interference, All types of traffic, Built-in applications: VoIP, gaming, VoD, web, etc.</td>
+                    <td><b>E-NodeB:</b><br>Macro, micro, pico eNodeBs, Inter-eNB Coordination through X2 interface, Scheduling algorithms, Max C/I, Proportional Fair, Round Robin, etc.</td>
+                </tr>
+        </table>
+        <hr>
+        <h2>Core Contributors</h2>
+        <div itemprop="author" itemscope itemtype="http://schema.org/Person">
+            <div itemprop="name">SimuLTE is a project of the <a href="http://cng1.iet.unipi.it/wiki/index.php/Main_Page">Computer Networking Group</a> of the University of Pisa, Italy.
+            <br> Responsible People: 
+            <ul>
+                <li>Giovanni Nardini (<a href="http://www.iet.unipi.it/g.nardini">webpage</a>)</li>
+                <li>Giovanni Stea (<a href="http://info.iet.unipi.it/~stea/">webpage</a>)</li>
+                <li>Antonio Virdis (<a href="http://www.iet.unipi.it/a.virdis">webpage</a>)</li>    
+            </ul>
+            </div>
+        </div>
       </section>
-    </div></span>
+    </div>
+</div> 
 
     <!-- FOOTER  -->
     <div id="footer_wrap" class="outer">
