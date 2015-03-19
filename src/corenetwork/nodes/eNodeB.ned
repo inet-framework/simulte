@@ -91,7 +91,7 @@ module eNodeB
         ppp: PPPInterface {
             @display("p=501,363");
         }
-        x2ppp[sizeof(x2)]: PPPInterface if x2Enabled {
+        x2ppp[sizeof(x2)]: PPPInterface {
             @display("p=683,363");
         }
 
@@ -149,10 +149,10 @@ module eNodeB
         //#
         //# X2 interface to network layer connections
         //#    
-        for i=0..sizeof(x2)-1, if x2Enabled {
+        for i=0..sizeof(x2)-1 {
             x2ppp[i].phys <--> x2[i];
-            x2ppp[i].upperLayerOut --> networkLayer.ifIn++;
-            x2ppp[i].upperLayerIn <-- networkLayer.ifOut++;
+            x2ppp[i].upperLayerOut --> networkLayer.ifIn++ if x2Enabled;
+            x2ppp[i].upperLayerIn <-- networkLayer.ifOut++ if x2Enabled;
         }
 
 		//# 
