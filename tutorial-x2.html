@@ -70,7 +70,8 @@ Since X2 applications run on top of the SCTP transport protocol, we may configur
 Now, we need to setup the client module of the X2 applications, i.e. destination address of the peering eNodeB. However, this depends on how the eNodeBs are connected to each other (are they connected through point-to-point links or are they connected to a backhaul network?). Let's see both cases.<br>
 </p>
 <h4>Star Topology</h4>
-<p>We create a configuration called <b>X2-StarTopology</b> where each eNodeB has only one X2 interface connected to a router. The latter acts as the star center. The network can be found in the <i>simulations/networks</i> directory.
+<p>We create a configuration called <b>X2-StarTopology</b> where each eNodeB has only one X2 interface connected to a router. The latter acts as the star center. The network can be found in the <i>simulations/networks</i> directory.<br>
+<img src="images/tutorial_X2Star.png" width="100%">
 <pre class="code"><span class="first">[Config X2-StarTopology]
 network=lte.simulations.networks.MultiCell_X2Star
 
@@ -83,7 +84,8 @@ network=lte.simulations.networks.MultiCell_X2Star
 It is necessary to explicitly define the name of the interface where the client connects to (using the <i>%</i> notation): <i>x2ppp</i> is the name of the X2 gate vector, whereas the following number is the index of one gate inside that vector (here, it is always 0 because eNodeBs have only one X2 interface).<br>
 </p>
 <h4>Full Mesh Topology</h4>
-<p>We create a configuration called <b>X2-MeshTopology</b>, where each couple of eNodeBs is linked via PPP links. Again, the network definition is in the <i>simulations/networks</i> directory.
+<p>We create a configuration called <b>X2-MeshTopology</b>, where each couple of eNodeBs is linked via PPP links. Again, the network definition is in the <i>simulations/networks</i> directory.<br>
+<img src="images/tutorial_X2Mesh.png" width="100%">
 <pre class="code"><span class="first">[Config X2-MeshTopology]
 network=lte.simulations.networks.MultiCell_X2Mesh
 
