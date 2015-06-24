@@ -18,6 +18,11 @@ void ExtCell::initialize()
     // get coord
     position_.x = par("position_x");
     position_.y = par("position_y");
+    if (ev.isGUI())
+    {
+        getDisplayString().setTagArg("p", 0, (long)position_.x);
+        getDisplayString().setTagArg("p", 1, (long)position_.y);
+    }
 
     txPower_ = par("txPower");
 
