@@ -59,18 +59,7 @@ class UserControlInfo : public UserControlInfo_Base
      * @param other source packet
      * @return reference to this packet
      */
-
-    UserControlInfo& operator=(const UserControlInfo& other)
-    {
-        if (&other == this)
-            return *this;
-
-        this->userTxParams = other.userTxParams;
-        this->grantedBlocks = other.grantedBlocks;
-        this->senderCoord = other.senderCoord;
-        UserControlInfo_Base::operator=(other);
-        return *this;
-    }
+    UserControlInfo& operator=(const UserControlInfo& other);
 
     /**
      * dup() : packet duplicate

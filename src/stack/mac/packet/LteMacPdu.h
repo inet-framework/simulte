@@ -14,6 +14,7 @@
 
 #include "LteMacPdu_m.h"
 #include "LteCommon.h"
+#include "LteControlInfo.h"
 
 /**
  * @class LteMacPdu
@@ -35,6 +36,14 @@ class LteMacPdu : public LteMacPdu_Base
     /// Length of the PDU
     int64 macPduLength_;
 
+    /**
+     * ID of the MAC PDU
+     * at the creation, the ID is set equal to cMessage::msgid. When the message is duplicated,
+     * the new message gets a different msgid. However, we need that multiple copies of the
+     * same PDU have the same PDU ID (for example, multiple copies of a broadcast transmission)
+     */
+    int64 macPduId_;
+
   public:
 
     /**
@@ -44,6 +53,7 @@ class LteMacPdu : public LteMacPdu_Base
         LteMacPdu_Base(name, kind)
     {
         macPduLength_ = 0;
+        macPduId_ = cMessage::getId();
     }
 
     /*
@@ -63,8 +73,48 @@ class LteMacPdu : public LteMacPdu_Base
         if (&other == this)
             return *this;
         LteMacPdu_Base::operator=(other);
-        sduList_ = other.sduList_;
-        ceList_ = other.ceList_;
+
+        // handle ownership of MAC SDUs
+        sduList_.clear();
+        MacSduList::const_iterator sit;
+        for (sit = other.sduList_.begin(); sit != other.sduList_.end(); ++sit)
+        {
+            cPacket* newPkt = (*sit)->dup();
+            // copy control info of each included SDU, if any
+            if ((*sit)->getControlInfo() != NULL)
+            {
+                if (newPkt->getControlInfo() != NULL)
+                    newPkt->removeControlInfo();
+
+                FlowControlInfo* info = check_and_cast<FlowControlInfo*>((*sit)->getControlInfo());
+                FlowControlInfo* info_dup = info->dup();
+                newPkt->setControlInfo(info_dup);
+            }
+            take(newPkt);
+            sduList_.push_back(newPkt);
+        }
+
+        ceList_.clear();
+        MacControlElementsList::const_iterator cit;
+        for (cit = other.ceList_.begin(); cit != other.ceList_.end(); ++cit)
+        {
+            MacControlElement* newCe = (*cit)->dup();
+            ceList_.push_back(newCe);
+        }
+
+        macPduLength_ = other.macPduLength_;
+        macPduId_ = other.macPduId_;
+
+        // copy control info of the PDU, if any
+        if (other.getControlInfo() != NULL)
+        {
+            if (this->getControlInfo() != NULL)
+                this->removeControlInfo();
+
+            UserControlInfo* info = check_and_cast<UserControlInfo*>(other.getControlInfo());
+            UserControlInfo* info_dup = info->dup();
+            this->setControlInfo(info_dup);
+        }
         return *this;
     }
 
@@ -208,6 +258,11 @@ class LteMacPdu : public LteMacPdu_Base
     int64 getBitLength() const
     {
         return (getByteLength() * 8);
+    }
+
+    long getId() const
+    {
+        return macPduId_;
     }
 };
 

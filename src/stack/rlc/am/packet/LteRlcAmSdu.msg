@@ -10,7 +10,7 @@
 //
 
 cplusplus {{
-    #include "LteRlcSdu_m.h"
+    #include "LteRlcSdu.h"
 }}
 
 packet LteRlcSdu;

@@ -97,7 +97,8 @@ LteMacPdu *LteHarqUnitTx::extractPdu()
     lteInfo->setTxNumber(transmissions_);
     lteInfo->setNdi((transmissions_ == 1) ? true : false);
     EV << "LteHarqUnitTx::extractPdu - ndi set to " << ((transmissions_ == 1) ? "true" : "false") << endl;
-    return pdu_;
+    LteMacPdu* extractedPdu = pdu_->dup();
+    return extractedPdu;
 }
 
 bool LteHarqUnitTx::pduFeedback(HarqAcknowledgment a)

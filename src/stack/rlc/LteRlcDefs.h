@@ -13,8 +13,8 @@
 #define _LTE_LTERLCDEFS_H_
 
 #include "LteControlInfo.h"
-#include "LteRlcPdu_m.h"
-#include "LteRlcSdu_m.h"
+#include "LteRlcPdu.h"
+#include "LteRlcSdu.h"
 #include "UmFragbuf.h"
 
 /*!

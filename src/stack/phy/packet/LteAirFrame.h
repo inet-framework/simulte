@@ -14,6 +14,7 @@
 
 #include "LteCommon.h"
 #include "LteAirFrame_m.h"
+#include "LteControlInfo.h"
 
 class LteAirFrame : public LteAirFrame_Base
 {
@@ -33,6 +34,14 @@ class LteAirFrame : public LteAirFrame_Base
     {
         LteAirFrame_Base::operator=(other);
         this->remoteUnitPhyDataVector = other.remoteUnitPhyDataVector;
+
+        // copy the attached control info, if any
+        if (other.getControlInfo() != NULL)
+        {
+            UserControlInfo* info = check_and_cast<UserControlInfo*>(other.getControlInfo());
+            UserControlInfo* info_dup = info->dup();
+            this->setControlInfo(info_dup);
+        }
         return *this;
     }
     virtual LteAirFrame *dup() const

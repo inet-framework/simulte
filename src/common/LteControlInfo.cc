@@ -25,6 +25,26 @@ UserControlInfo::UserControlInfo() :
     grantedBlocks.clear();
 }
 
+UserControlInfo& UserControlInfo::operator=(const UserControlInfo& other)
+{
+    if (&other == this)
+        return *this;
+
+    if (other.userTxParams != NULL)
+    {
+        const UserTxParams* txParams = check_and_cast<const UserTxParams*>(other.userTxParams);
+        this->userTxParams = txParams->dup();
+    }
+    else
+    {
+        this->userTxParams = 0;
+    }
+    this->grantedBlocks = other.grantedBlocks;
+    this->senderCoord = other.senderCoord;
+    UserControlInfo_Base::operator=(other);
+    return *this;
+}
+
 void UserControlInfo::setCoord(const Coord& coord)
 {
     senderCoord = coord;

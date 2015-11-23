@@ -279,7 +279,7 @@ void LteMacUe::macPduUnmake(cPacket* pkt)
         EV << "LteMacBase: pduUnmaker extracted SDU" << endl;
         sendUpperPackets(upPkt);
     }
-    //delete macPkt;
+    delete macPkt;
 }
 
 void LteMacUe::handleSelfMessage()
@@ -604,7 +604,10 @@ LteMacUe::updateUserTxParam(cPacket* pkt)
     if (lteInfo->getFrameType() != DATAPKT)
         return;
 
-    lteInfo->setUserTxParams(schedulingGrant_->getUserTxParams());
+    // get the old parameters and delete them, in order to avoid memory leaks
+    const UserTxParams* oldParams = lteInfo->getUserTxParams();
+    delete oldParams;
+    lteInfo->setUserTxParams(schedulingGrant_->getUserTxParams()->dup());
 
     lteInfo->setTxMode(schedulingGrant_->getUserTxParams()->readTxMode());
 

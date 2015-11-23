@@ -11,7 +11,7 @@
 
 
 cplusplus {{
-    #include "LteRlcPdu_m.h"
+    #include "LteRlcPdu.h"
 }}
 
 packet LteRlcPdu;

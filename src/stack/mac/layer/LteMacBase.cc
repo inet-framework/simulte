@@ -38,6 +38,13 @@ LteMacBase::~LteMacBase()
         delete vit->second;
     mbuf_.clear();
     macBuffers_.clear();
+
+    HarqTxBuffers::iterator htit;
+    HarqRxBuffers::iterator hrit;
+    for (htit = harqTxBuffers_.begin(); htit != harqTxBuffers_.end(); ++htit)
+        delete htit->second;
+    for (hrit = harqRxBuffers_.begin(); hrit != harqRxBuffers_.end(); ++hrit)
+        delete hrit->second;
     harqTxBuffers_.clear();
     harqRxBuffers_.clear();
 }

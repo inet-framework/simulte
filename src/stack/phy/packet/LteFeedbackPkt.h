@@ -36,6 +36,9 @@ class LteFeedbackPkt : public LteFeedbackPkt_Base
     }
     LteFeedbackPkt& operator=(const LteFeedbackPkt& other)
     {
+        lteFeedbackDoubleVectorDl_ = other.lteFeedbackDoubleVectorDl_;
+        lteFeedbackDoubleVectorUl_ = other.lteFeedbackDoubleVectorUl_;
+        sourceNodeId_ = other.sourceNodeId_;
         LteFeedbackPkt_Base::operator=(other);
         return *this;
     }

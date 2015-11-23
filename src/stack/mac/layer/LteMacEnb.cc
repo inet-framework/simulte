@@ -579,13 +579,12 @@ void LteMacEnb::macPduUnmake(cPacket* pkt)
         // Extract CE
         // TODO: vedere se bsr  per cid o lcid
         MacBsr* bsr = check_and_cast<MacBsr*>(macPkt->popCe());
-        UserControlInfo* lteInfo = check_and_cast<UserControlInfo*>(
-            macPkt->getControlInfo());
+        UserControlInfo* lteInfo = check_and_cast<UserControlInfo*>(macPkt->getControlInfo());
         MacCid cid = idToMacCid(lteInfo->getSourceId(), 0);
         bufferizeBsr(bsr, cid);
     }
 
-    //delete macPkt;
+    delete macPkt;
 }
 
 int LteMacEnb::getNumRbDl()

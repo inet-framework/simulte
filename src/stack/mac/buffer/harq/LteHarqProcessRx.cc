@@ -41,6 +41,10 @@ void LteHarqProcessRx::insertPdu(Codeword cw, LteMacPdu *pdu)
             "Trying to insert macPdu in non-empty rx harq process: Node %d acid %d, codeword %d, ndi %d, status %d",
             macOwner_->getMacNodeId(), acid_, cw, ndi, status_.at(cw));
 
+    // deallocate corrupted pdu received in previous transmissions
+    delete pdu_.at(cw);
+
+    // store new received pdu
     pdu_.at(cw) = pdu;
     result_.at(cw) = lteInfo->getDeciderResult();
     status_.at(cw) = RXHARQ_PDU_EVALUATING;
@@ -85,8 +89,8 @@ LteHarqFeedback *LteHarqProcessRx::createFeedback(Codeword cw)
         if (transmissions_ == (maxHarqRtx_ + 1))
         {
             EV << NOW << " LteHarqProcessRx::createFeedback - max number of tx reached for cw " << cw << ". Resetting cw" << endl;
-//            std::cout << NOW << " LteHarqProcessRx::createFeedback - max number of tx reached for cw " << cw << ". Resetting cw" << endl;
             resetCodeword(cw);
+            delete pdu_.at(cw);
         }
     }
     else

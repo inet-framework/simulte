@@ -9,10 +9,6 @@
 // and cannot be removed from it.
 //
 
-cplusplus {{
-    #include "LteRlcDefs.h"
-}};
-
 //
 // This is the RLC Pdu
 // flowing through LTE stack: basically
@@ -22,6 +18,7 @@ cplusplus {{
 //
 packet LteRlcPdu
 {
+    @customize(true);
     unsigned int totalFragments;    // Total number of fragments
     unsigned int snoFragment;        // Sequence number of this fragment
     unsigned int snoMainPacket;        // ID of packet (sequence number)

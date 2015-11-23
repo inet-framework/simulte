@@ -11,6 +11,7 @@
 
 #include "LteSchedulingGrant_m.h"
 #include "LteCommon.h"
+#include "UserTxParams.h"
 
 class UserTxParams;
 
@@ -39,6 +40,17 @@ class LteSchedulingGrant : public LteSchedulingGrant_Base
 
     LteSchedulingGrant& operator=(const LteSchedulingGrant& other)
     {
+        if (other.userTxParams != NULL)
+        {
+            const UserTxParams* txParams = check_and_cast<const UserTxParams*>(other.userTxParams);
+            userTxParams = txParams->dup();
+        }
+        else
+        {
+            userTxParams = 0;
+        }
+        grantedBlocks = other.grantedBlocks;
+        grantedCwBytes = other.grantedCwBytes;
         LteSchedulingGrant_Base::operator=(other);
         return *this;
     }

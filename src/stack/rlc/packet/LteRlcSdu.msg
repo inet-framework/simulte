@@ -16,5 +16,6 @@
 //
 packet LteRlcSdu
 {
+    @customize(true);
     unsigned int snoMainPacket;                        // ID of packet (sequence number)
 }

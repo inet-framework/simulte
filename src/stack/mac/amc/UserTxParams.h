@@ -67,10 +67,19 @@ class UserTxParams
     {
         operator=(other);
     }
+
+    virtual UserTxParams *dup() const
+    {
+        return new UserTxParams(*this);
+    }
+
     //! Default constructor. Initialize with default values.
     UserTxParams()
     {
         restoreDefaultValues();
+    }
+    virtual ~UserTxParams()
+    {
     }
     //! Reset to default values.
     void restoreDefaultValues()
