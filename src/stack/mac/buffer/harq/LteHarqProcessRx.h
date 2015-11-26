@@ -129,6 +129,11 @@ class LteHarqProcessRx
     /**
      * Purges a corrupted PDU that has been received on codeword <cw>
      */
+    void purgeCorruptedPdu(Codeword cw);
+
+    /**
+     * Resets the status of a codeword containing a corrupted PDU
+     */
     virtual void resetCodeword(Codeword cw);
 
     /**

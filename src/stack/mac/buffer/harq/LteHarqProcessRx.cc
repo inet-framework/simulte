@@ -81,14 +81,11 @@ LteHarqFeedback *LteHarqProcessRx::createFeedback(Codeword cw)
     {
         // NACK will be sent
         status_.at(cw) = RXHARQ_PDU_CORRUPTED;
-        //resetCodeword(cw);
 
         EV << "LteHarqProcessRx::createFeedback - tx number " << (unsigned int)transmissions_ << endl;
         if (transmissions_ == (maxHarqRtx_ + 1))
         {
             EV << NOW << " LteHarqProcessRx::createFeedback - max number of tx reached for cw " << cw << ". Resetting cw" << endl;
-            resetCodeword(cw);
-            delete pdu_.at(cw);
         }
     }
     else
@@ -123,6 +120,16 @@ int64_t LteHarqProcessRx::getByteLength(Codeword cw)
     }
     else
         return 0;
+}
+
+void LteHarqProcessRx::purgeCorruptedPdu(Codeword cw)
+{
+    // drop ownership
+    if (pdu_.at(cw) != NULL)
+        macOwner_->dropObj(pdu_.at(cw));
+
+    delete pdu_.at(cw);
+    pdu_.at(cw) = NULL;
 }
 
 void LteHarqProcessRx::resetCodeword(Codeword cw)

@@ -251,6 +251,10 @@ bool LteHarqProcessTx::isUnitMarked(Codeword cw)
 
 LteHarqProcessTx::~LteHarqProcessTx()
 {
+    UnitVector::iterator it = units_->begin();
+    for (; it != units_->end(); ++it)
+         delete *it;
+
     units_->clear();
     units_ = NULL;
     macOwner_ = NULL;

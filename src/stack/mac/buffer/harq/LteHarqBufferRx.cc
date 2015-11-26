@@ -102,6 +102,7 @@ unsigned int LteHarqBufferRx::purgeCorruptedPdus()
             {
                 EV << "LteHarqBufferRx::purgeCorruptedPdus - purged pdu with acid " << i << endl;
                 // purge PDU
+                processes_[i]->purgeCorruptedPdu(cw);
                 processes_[i]->resetCodeword(cw);
                 //increment purged PDUs counter
                 ++purged;

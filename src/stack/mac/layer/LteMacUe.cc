@@ -51,6 +51,12 @@ LteMacUe::LteMacUe() :
 LteMacUe::~LteMacUe()
 {
     delete lcgScheduler_;
+
+    if (schedulingGrant_!=NULL)
+    {
+        delete schedulingGrant_;
+        schedulingGrant_ = NULL;
+    }
 }
 
 void LteMacUe::initialize(int stage)
@@ -471,6 +477,7 @@ LteMacUe::macHandleGrant(cPacket* pkt)
     if (schedulingGrant_!=NULL)
     {
         delete schedulingGrant_;
+        schedulingGrant_ = NULL;
     }
 
     // store received grant

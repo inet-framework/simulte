@@ -315,6 +315,10 @@ LteHarqBufferTx::getSelectedProcess()
 
 LteHarqBufferTx::~LteHarqBufferTx()
 {
+    std::vector<LteHarqProcessTx *>::iterator it = processes_->begin();
+    for (; it != processes_->end(); ++it)
+        delete *it;
+
     processes_->clear();
     processes_ = NULL;
     macOwner_ = NULL;
