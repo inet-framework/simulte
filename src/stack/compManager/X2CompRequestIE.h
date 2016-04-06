@@ -7,26 +7,23 @@
 // and cannot be removed from it.
 //
 
-#ifndef _LTE_X2COMPREQUESTIE_H_
-#define _LTE_X2COMPREQUESTIE_H_
+#ifndef _LTE_X2COMPPROPORTIONALREQUESTIE_H_
+#define _LTE_X2COMPPROPORTIONALREQUESTIE_H_
 
 #include "X2InformationElement.h"
 
 //
 // X2CompRequestIE
+// Base class for CoMP request messages
 //
 class X2CompRequestIE : public X2InformationElement
 {
   protected:
 
-    // number of "ideally" required blocks to satisfy the queue of all UEs
-    unsigned int numBlocks_;
-
   public:
     X2CompRequestIE()
     {
         type_ = COMP_REQUEST_IE;
-        length_ = sizeof(unsigned int);
     }
     X2CompRequestIE(const X2CompRequestIE& other) :
         X2InformationElement()
@@ -46,11 +43,6 @@ class X2CompRequestIE : public X2InformationElement
         return new X2CompRequestIE(*this);
     }
     virtual ~X2CompRequestIE() {}
-
-    // getter/setter methods
-    void setNumBlocks(unsigned int numBlocks) { numBlocks_ = numBlocks; }
-    unsigned int getNumBlocks() { return numBlocks_; }
-
 };
 
 #endif

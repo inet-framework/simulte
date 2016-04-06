@@ -9,31 +9,39 @@
 
 package lte.stack.compManager;
 
+import lte.x2.X2User;
+
 //
-// LteCompManager
+// Interface for the Comp Manager
 //
-// This module implements a simple CoMP Coordinated Scheduling algorithm.
-// A CompManager module inside an eNodeB can be either a master or a slave. 
-// Slave nodes send to the master node the amount of RBs required to satisfy
-// their users' load. The master node partitions the bandwidth based on these
-// requests and sends back the indication of which RBs are available for 
-// transmission and which not.
-simple LteCompManager
+moduleinterface LteCompManager extends X2User {
+    parameters:
+        @display("i=block/cogwheel");
+}
+
+simple LteCompManagerBase like LteCompManager
 {
     parameters:
         @display("i=block/cogwheel");
-        string nodeType = default("COMP_SLAVE");  // one of COMP_MASTER, COMP_SLAVE
-        
-        //# COMP_SLAVE parameters
-        int masterId;							  // id of the master node
-        
-        //# COMP_MASTER-parameters
-        string slavesList = default("");          // list of ids of slave nodes, separated by blank spaces
- 
+        @class("LteCompManagerBase");
+        string compNodeType = default("COMP_CLIENT");  // one of COMP_CLIENT, COMP_CLIENT_COORDINATOR, COMP_COORDINATOR
+
         @statistic[compReservedBlocks](title="CoMP Reserved Blocks"; unit=""; source="compReservedBlocks"; record=mean, vector);
-        
     gates:
         //# connections to the X2 Manager
         input x2ManagerIn;
         output x2ManagerOut;
 }
+
+//
+// LteCompManagerFlex
+//
+// This module implements a the CoMP/CS algorithm of Flex5Gware
+//
+//simple LteCompManagerFlex extends LteCompManagerBase
+//{
+//    parameters:
+//        @display("i=block/cogwheel");
+//        @class("LteCompManagerFlex");
+//        
+//}

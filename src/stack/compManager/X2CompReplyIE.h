@@ -12,20 +12,14 @@
 
 #include "X2InformationElement.h"
 
-enum CompRbStatus
-{
-    AVAILABLE_RB, NOT_AVAILABLE_RB
-};
 
 //
 // X2CompReplyIE
+// Base class for CoMP reply messages
 //
 class X2CompReplyIE : public X2InformationElement
 {
   protected:
-
-    // for each block, it denotes whether the eNB can use that block
-    std::vector<CompRbStatus> allowedBlocksMap_;
 
   public:
     X2CompReplyIE()
@@ -51,14 +45,6 @@ class X2CompReplyIE : public X2InformationElement
         return new X2CompReplyIE(*this);
     }
     virtual ~X2CompReplyIE() {}
-
-    // getter/setter methods
-    void setAllowedBlocksMap(std::vector<CompRbStatus>& map)
-    {
-        allowedBlocksMap_ = map;
-        length_ += allowedBlocksMap_.size() * sizeof(CompRbStatus);
-    }
-    std::vector<CompRbStatus>& getAllowedBlocksMap() { return allowedBlocksMap_; }
 };
 
 #endif

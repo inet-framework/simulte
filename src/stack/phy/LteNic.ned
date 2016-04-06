@@ -143,6 +143,7 @@ module LteNicEnbX2 extends LteNicEnb
 {
     parameters:
         bool compEnabled = default(false);
+        string LteCompManagerType = default("LteCompManagerProportional");
         
     gates:
         inout x2[];
@@ -158,7 +159,7 @@ module LteNicEnbX2 extends LteNicEnb
         //#
         //# Modules exploiting X2 interface
         //#
-        compManager: LteCompManager if compEnabled {
+        compManager: <LteCompManagerType> like LteCompManager if compEnabled {
             @display("p=60,173,row");
         }
         
