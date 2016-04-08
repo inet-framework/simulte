@@ -7,7 +7,7 @@
 // and cannot be removed from it.
 //
 
-#ifndef _LTE_X2COMPREQUESTIE_H_
+#ifndef _LTE_X2COMPPROPORTIONALREQUESTIE_H_
 #define _LTE_X2COMPREQUESTIE_H_
 
 #include "X2CompRequestIE.h"

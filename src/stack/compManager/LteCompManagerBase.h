@@ -46,7 +46,10 @@ protected:
     // number of available bands
     int numBands_;
 
-    /// TTI self message
+    // period between two coordination instances
+    double coordinationPeriod_;
+
+    /// Self messages
     cMessage* compClientTick_;
     cMessage* compCoordinatorTick_;
 
@@ -58,7 +61,7 @@ protected:
 
 
     // ID of the coordinator
-    X2NodeId masterId_;
+    X2NodeId coordinatorId_;
 
     // IDs of the eNB that are slaves of this master node
     std::vector<X2NodeId> clientList_;

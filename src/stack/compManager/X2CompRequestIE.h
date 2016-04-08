@@ -7,8 +7,8 @@
 // and cannot be removed from it.
 //
 
-#ifndef _LTE_X2COMPPROPORTIONALREQUESTIE_H_
-#define _LTE_X2COMPPROPORTIONALREQUESTIE_H_
+#ifndef _LTE_X2COMPREQUESTIE_H_
+#define _LTE_X2COMPREQUESTIE_H_
 
 #include "X2InformationElement.h"
 
@@ -24,6 +24,7 @@ class X2CompRequestIE : public X2InformationElement
     X2CompRequestIE()
     {
         type_ = COMP_REQUEST_IE;
+        length_ = 0;
     }
     X2CompRequestIE(const X2CompRequestIE& other) :
         X2InformationElement()

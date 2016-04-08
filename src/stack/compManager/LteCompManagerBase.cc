@@ -45,15 +45,20 @@ void LteCompManagerBase::initialize()
     if (nodeType_ != COMP_CLIENT)
     {
         // get the list of slave nodes
-        std::vector<int> clients = cStringTokenizer(par("slavesList").stringValue()).asIntVector();
+        std::vector<int> clients = cStringTokenizer(par("clientList").stringValue()).asIntVector();
         clientList_.resize(clients.size());
         for (unsigned int i=0; i<clients.size(); i++)
             clientList_[i] = clients[i];
 
-        /* Start TTI tick */
+        // get coordination period
+        coordinationPeriod_ = par("coordinationPeriod").doubleValue();
+        if (coordinationPeriod_ < TTI)
+            coordinationPeriod_ = TTI;
+
+        /* Start coordinator tick */
         compCoordinatorTick_ = new cMessage("compCoordinatorTick_");
         compCoordinatorTick_->setSchedulingPriority(3);        // compCoordinatorTick_ after slaves' TTI TICK. TODO check if it must be done before or after..
-        scheduleAt(NOW + TTI, compCoordinatorTick_);           // TODO change TTI with coordination period
+        scheduleAt(NOW + coordinationPeriod_, compCoordinatorTick_);
     }
 
     if (nodeType_ != COMP_COORDINATOR)
@@ -61,7 +66,7 @@ void LteCompManagerBase::initialize()
         // statistics
         compReservedBlocks_ = registerSignal("compReservedBlocks");
 
-        masterId_ = par("masterId");
+        coordinatorId_ = par("coordinatorId");
 
         /* Start TTI tick */
         compClientTick_ = new cMessage("compClientTick_");
@@ -77,29 +82,29 @@ void LteCompManagerBase::handleMessage(cMessage *msg)
         if (strcmp(msg->getName(),"compClientTick_") == 0)
         {
             runClientOperations();
+            scheduleAt(NOW+TTI, msg);
         }
         else if (strcmp(msg->getName(),"compCoordinatorTick_") == 0)
         {
             runCoordinatorOperations();
+            scheduleAt(NOW+coordinationPeriod_, msg);
         }
         else
             throw cRuntimeError("LteCompManagerBase::handleMessage - Unrecognized self message %s", msg->getName());
-
-
-        scheduleAt(NOW+TTI, msg);
-        return;
-    }
-
-    cPacket* pkt = check_and_cast<cPacket*>(msg);
-    cGate* incoming = pkt->getArrivalGate();
-    if (incoming == x2Manager_[IN])
-    {
-        // incoming data from X2 Manager
-        EV << "LteCompManagerBase::handleMessage - Received message from X2 manager" << endl;
-        handleX2Message(pkt);
     }
     else
-        delete msg;
+    {
+        cPacket* pkt = check_and_cast<cPacket*>(msg);
+        cGate* incoming = pkt->getArrivalGate();
+        if (incoming == x2Manager_[IN])
+        {
+            // incoming data from X2 Manager
+            EV << "LteCompManagerBase::handleMessage - Received message from X2 manager" << endl;
+            handleX2Message(pkt);
+        }
+        else
+            delete msg;
+    }
 }
 
 void LteCompManagerBase::runClientOperations()
@@ -145,7 +150,7 @@ void LteCompManagerBase::handleX2Message(cPacket* pkt)
     else
     {
         // this is a reply from coordinator
-        if (sourceId != masterId_)
+        if (sourceId != coordinatorId_)
             throw cRuntimeError("LteCompManagerBase::handleX2Message - Sender is not the coordinator");
 
         handleCoordinatorReply(compMsg);
@@ -160,7 +165,7 @@ void LteCompManagerBase::sendClientRequest(X2CompRequestIE* requestIe)
     X2ControlInfo* ctrlInfo = new X2ControlInfo();
     ctrlInfo->setSourceId(nodeId_);
     DestinationIdList destList;
-    destList.push_back(masterId_);
+    destList.push_back(coordinatorId_);
     ctrlInfo->setDestIdList(destList);
 
     // build X2 Comp Msg

@@ -52,8 +52,7 @@ void LteCompManagerProportional::provisionalSchedule()
         provisionedBlocks_ += reqBlocks;
     }
 
-    EV << NOW << " LteCompManagerProportional::provisionalSchedule - End "
-              << endl;
+    EV << NOW << " LteCompManagerProportional::provisionalSchedule - End " << endl;
 }
 
 void LteCompManagerProportional::doCoordination()
@@ -61,6 +60,7 @@ void LteCompManagerProportional::doCoordination()
     EV << NOW << " LteCompManagerProportional::doCoordination - Start " << endl;
 
     partitioning_.clear();
+    offset_.clear();
 
     unsigned int requestsSum = 0;
     std::map<X2NodeId, unsigned int>::iterator it = reqBlocksMap_.begin();
@@ -71,7 +71,10 @@ void LteCompManagerProportional::doCoordination()
     unsigned int totalReservedBlocks = 0;
     std::vector<double> reservation;
     reservation.clear();
-    for (it = reqBlocksMap_.begin(); it != reqBlocksMap_.end(); ++it) {
+    for (it = reqBlocksMap_.begin(); it != reqBlocksMap_.end(); ++it)
+    {
+
+
         // requests from the current node
         unsigned int req = it->second;
 
@@ -90,6 +93,12 @@ void LteCompManagerProportional::doCoordination()
 
     // round vector to integer
     partitioning_ = roundVector(reservation, totalReservedBlocks);
+
+    offset_.push_back(0);
+    for (unsigned int i=0; i < partitioning_.size() - 1; i++)
+    {
+        offset_.push_back(partitioning_[i]);
+    }
 
     EV << NOW << " LteCompManagerProportional::doCoordination - End " << endl;
 }
@@ -119,15 +128,17 @@ X2CompProportionalReplyIE* LteCompManagerProportional::buildCoordinatorReply(X2N
         index++;
     }
 
-    unsigned int numBlocks;
-    if (!found)
-        numBlocks = 0;
-    else
+    unsigned int numBlocks = 0;
+    unsigned int band = 0;
+    if (found)
+    {
         numBlocks = partitioning_[index];
+        band = offset_[index];
+    }
 
     // build map for each node
     std::vector<CompRbStatus> allowedBlocks;
-    unsigned int band = 0;
+
     // set "numBlocks" contiguous blocks for this node
     allowedBlocks.clear();
     allowedBlocks.resize(numBands_, NOT_AVAILABLE_RB);
@@ -146,7 +157,8 @@ X2CompProportionalReplyIE* LteCompManagerProportional::buildCoordinatorReply(X2N
     return replyIe;
 }
 
-void LteCompManagerProportional::handleClientRequest(X2CompMsg* compMsg) {
+void LteCompManagerProportional::handleClientRequest(X2CompMsg* compMsg)
+{
     X2NodeId sourceId = compMsg->getSourceId();
     while (compMsg->hasIe())
     {
@@ -217,54 +229,56 @@ std::vector<unsigned int> LteCompManagerProportional::roundVector(std::vector<do
     std::vector<unsigned int> integerVec;
     integerVec.resize(len, 0);
 
-    // auxiliary vector
-    std::vector<unsigned int> auxVec;
-    auxVec.resize(len, 0);
-    for (unsigned int i = 0; i < auxVec.size(); i++)
-        auxVec[i] = i;
-
-    // sort vector in ascending order
-    bool swap = true;
-    while (swap)
+    if (len > 0)
     {
-        swap = false;
-        for (unsigned int i = 0; i < len - 1; i++)
+        // auxiliary vector
+        std::vector<unsigned int> auxVec;
+        auxVec.resize(len, 0);
+        for (unsigned int i = 0; i < auxVec.size(); i++)
+            auxVec[i] = i;
+
+        // sort vector in ascending order
+        bool swap = true;
+        while (swap)
         {
-            if (vec[i] > vec[i + 1])
+            swap = false;
+            for (unsigned int i = 0; i < len - 1; i++)
             {
-                double tmp = vec[i + 1];
-                vec[i + 1] = vec[i];
-                vec[i] = tmp;
+                if (vec[i] > vec[i + 1])
+                {
+                    double tmp = vec[i + 1];
+                    vec[i + 1] = vec[i];
+                    vec[i] = tmp;
 
-                unsigned int auxTmp = auxVec[i + 1];
-                auxVec[i + 1] = auxVec[i];
-                auxVec[i] = auxTmp;
+                    unsigned int auxTmp = auxVec[i + 1];
+                    auxVec[i + 1] = auxVec[i];
+                    auxVec[i] = auxTmp;
 
-                swap = true;
+                    swap = true;
+                }
             }
         }
+
+        // round vector (the sum of the elements is preserved)
+        int integerTot = 0;
+        double doubleTot = 0;
+        for (unsigned int i = 0; i < len; i++)
+        {
+            doubleTot += vec[i];
+            vec[i] = (int) (doubleTot - integerTot);
+            integerTot += vec[i];
+        }
+
+        // TODO -  check numerical errors
+    //    if (integerTot < sum)
+    //        vec[len-1]++;
+
+        // set the integer vector with the elements in their original positions
+        for (unsigned int i = 0; i < integerVec.size(); i++)
+        {
+            unsigned int index = auxVec[i];
+            integerVec[index] = vec[i];
+        }
     }
-
-    // round vector (the sum of the elements is preserved)
-    int integerTot = 0;
-    double doubleTot = 0;
-    for (unsigned int i = 0; i < len; i++)
-    {
-        doubleTot += vec[i];
-        vec[i] = (int) (doubleTot - integerTot);
-        integerTot += vec[i];
-    }
-
-    // TODO -  check numerical errors
-//    if (integerTot < sum)
-//        vec[len-1]++;
-
-    // set the integer vector with the elements in their original positions
-    for (unsigned int i = 0; i < integerVec.size(); i++)
-    {
-        unsigned int index = auxVec[i];
-        integerVec[index] = vec[i];
-    }
-
     return integerVec;
 }

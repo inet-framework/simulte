@@ -31,6 +31,7 @@ protected:
     std::map<X2NodeId, unsigned int> reqBlocksMap_;
     // frame partitioning
     std::vector<unsigned int> partitioning_;
+    std::vector<unsigned int> offset_;
 
     // utility function: convert a vector of double to a vector of integer, preserving the sum of the elements
     std::vector<unsigned int> roundVector(std::vector<double>& vec, int sum);

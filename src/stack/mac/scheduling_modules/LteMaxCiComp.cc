@@ -16,10 +16,10 @@ void LteMaxCiComp::getBandLimit(std::vector<BandLimit>* bandLimit, MacNodeId ueI
 
     // get usable bands for this user
     UsableBands* usableBands = eNbScheduler_->mac_->getAmc()->getPilotUsableBands(ueId);
-
     if (usableBands == NULL)
     {
-        bandLimit = NULL; // all bands available
+//        bandLimit = NULL; // all bands available
+        // leave the bandLimit empty
         return;
     }
 
@@ -118,7 +118,7 @@ void LteMaxCiComp::prepareSchedule()
         EV << NOW << " LteMaxCiComp::schedule computed for cid " << cid << " score of " << desc.score_ << endl;
     }
 
-    std::vector<BandLimit> bandLim;
+    std::vector<BandLimit> usableBands;
 
     // Schedule the connections in score order.
     while ( ! score.empty () )
@@ -127,7 +127,12 @@ void LteMaxCiComp::prepareSchedule()
         ScoreDesc current = score.top ();
 
         // Get the bandLimit for the current user
-        getBandLimit(&bandLim, MacCidToNodeId(current.x_));
+        std::vector<BandLimit>* bandLim;
+        getBandLimit(&usableBands, MacCidToNodeId(current.x_));
+        if (usableBands.empty())
+            bandLim = NULL;
+        else
+            bandLim = &usableBands;
 
         EV << NOW << " LteMaxCiComp::schedule scheduling connection " << current.x_ << " with score of " << current.score_ << endl;
 
@@ -135,7 +140,7 @@ void LteMaxCiComp::prepareSchedule()
         bool terminate = false;
         bool active = true;
         bool eligible = true;
-        unsigned int granted = requestGrant (current.x_, 4294967295U, terminate, active, eligible, &bandLim);
+        unsigned int granted = requestGrant (current.x_, 4294967295U, terminate, active, eligible, bandLim);
 
         EV << NOW << "LteMaxCiComp::schedule granted " << granted << " bytes to connection " << current.x_ << endl;
 

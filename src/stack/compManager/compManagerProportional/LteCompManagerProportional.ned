@@ -25,9 +25,4 @@ simple LteCompManagerProportional extends LteCompManagerBase
     parameters:
         @display("i=block/cogwheel");
         @class("LteCompManagerProportional");
-        
-        int masterId;							  // id of the master node
-        
-        string slavesList = default("");          // list of ids of slave nodes, separated by blank spaces
-        bool colocatedCompMaster = default(false);
 }
