@@ -45,7 +45,8 @@ simple LtePhyBase like LtePhy {
         @statistic[averageCqiDlvect](title="Average Cqi reported in DL"; unit="cqi"; source="averageCqiDlvect"; record=vector);
         @statistic[averageCqiUl](title="Average Cqi reported in UL"; unit="cqi"; source="averageCqiUl"; record=lteAvg);
         @statistic[averageCqiUlvect](title="Average Cqi reported in UL"; unit="cqi"; source="averageCqiUlvect"; record=vector);
-    
+        @statistic[averageCqiD2D](title="Average Cqi reported in D2D"; unit="cqi"; source="averageCqiD2D"; record=lteAvg);
+        @statistic[averageCqiD2Dvect](title="Average Cqi reported in D2D"; unit="cqi"; source="averageCqiD2Dvect"; record=vector);
         
     gates:
         input upperGateIn;       // from upper layer
@@ -64,11 +65,29 @@ simple LtePhyUe extends LtePhyBase {
 }
 
 // 
+// D2D-capable User Equipment LtePhy module of PHY Layer
+//
+simple LtePhyUeD2D extends LtePhyUe {
+     parameters:
+         @class("LtePhyUeD2D");
+         double d2dTxPower =default(26);
+}
+
+// 
 // eNodeB LtePhy module of PHY Layer
 //
 simple LtePhyEnb extends LtePhyBase {
     @class("LtePhyEnb");
     xml feedbackComputation;
+}
+
+// 
+// eNodeB LtePhy module of PHY Layer with support for D2D
+//
+simple LtePhyEnbD2D extends LtePhyEnb {
+    parameters:
+        @class("LtePhyEnbD2D");
+        bool enableD2DCqiReporting = default(false);
 }
 
 // 

@@ -19,7 +19,7 @@ class LtePhyEnb : public LtePhyBase
 {
     friend class DasFilter;
 
-  private:
+  protected:
     /** Broadcast messages interval (equal to updatePos interval for mobility) */
     double bdcUpdateInterval_;
 
@@ -35,15 +35,13 @@ class LtePhyEnb : public LtePhyBase
     //Used for PisaPhy feedback generator
     LteFeedbackDoubleVector fb_;
 
-  protected:
-
     virtual void initialize(int stage);
 
     void handleSelfMessage(cMessage *msg);
     void handleAirFrame(cMessage* msg);
     bool handleControlPkt(UserControlInfo* lteinfo, LteAirFrame* frame);
     void handleFeedbackPkt(UserControlInfo* lteinfo, LteAirFrame* frame);
-    void requestFeedback(UserControlInfo* lteinfo, LteAirFrame* frame, LteFeedbackPkt* pkt);
+    virtual void requestFeedback(UserControlInfo* lteinfo, LteAirFrame* frame, LteFeedbackPkt* pkt);
     /**
      * Getter for the Das Filter
      */

@@ -25,6 +25,7 @@ import inet.transport.sctp.SCTP;
 import lte.x2.LteX2App;
 import lte.stack.phy.LteNicEnb;
 import lte.stack.phy.LteNicEnbX2;
+import lte.stack.phy.LteNicEnbD2D;
 import lte.corenetwork.deployer.LteDeployer;
 
 // 
@@ -41,8 +42,9 @@ module eNodeB
         int macNodeId = default(0); // TODO: this is not a real parameter
         int macCellId = default(0);  // TODO: this is not a real parameter
         double txPower @unit(mw) = default(100mw);
+        bool d2dCapable = default(false);
         bool x2Enabled = default(false);
-
+        
         //# Num apps
         int numTcpApps = default(0);  // no of TCP apps. Specify the app types in INI file with tcpApp[0..1].typename="TCPEchoApp" syntax
         int numUdpApps = default(0);  // no of UDP apps. Specify the app types in INI file with udpApp[0..1].typename="UDPVideoStreamCli" syntax
@@ -78,11 +80,15 @@ module eNodeB
         //#
         // NOTE: instance must be named "nic"
         // TODO: rename to something like lte?
-        nic: LteNicEnb if !x2Enabled {
+        nic: LteNicEnbD2D if d2dCapable {
             nodeType = nodeType;
             @display("p=330,363");
         }
-        nic: LteNicEnbX2 if x2Enabled {
+        nic: LteNicEnb if !d2dCapable && !x2Enabled {
+            nodeType = nodeType;
+            @display("p=330,363");
+        }
+        nic: LteNicEnbX2 if !d2dCapable && x2Enabled {
             nodeType = nodeType;
             @display("p=330,363");
         }

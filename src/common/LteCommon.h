@@ -36,6 +36,7 @@ class LteBinder;
 class LteDeployer;
 class LteMacEnb;
 class LteMacBase;
+class LtePhyBase;
 class cXMLElement;
 class LteRealisticChannelModel;
 class LteControlInfo;
@@ -105,7 +106,7 @@ typedef unsigned short Codeword;
 /// Link Directions
 enum Direction
 {
-    DL, UL, UNKNOWN_DIRECTION
+    DL, UL, D2D, UNKNOWN_DIRECTION
 };
 
 /// Modulations
@@ -559,8 +560,14 @@ class X2InformationElement;
  */
 typedef std::list<X2InformationElement*> X2InformationElementsList;
 
-
-
+/*
+ * Types of BSR
+ * TODO add LONG/TRUNCATED BSR
+ */
+enum BsrType
+{
+    SHORT_BSR, D2D_SHORT_BSR
+};
 
 /**
  * The following structure specifies a band and a byte amount which limits the schedulable data
@@ -747,6 +754,17 @@ struct EnbInfo
     LteRealisticChannelModel * realChan;
     cModule * eNodeB;
     int x2;
+};
+
+struct UeInfo
+{
+    bool init;         // initialization flag
+    double txPwr;
+    MacNodeId id;
+    MacNodeId cellId;
+    LteRealisticChannelModel * realChan;
+    cModule * ue;
+    LtePhyBase* phy;
 };
 
 typedef std::vector<ExtCell*> ExtCellList;

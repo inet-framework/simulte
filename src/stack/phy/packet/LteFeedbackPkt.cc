@@ -17,6 +17,10 @@ LteFeedbackDoubleVector LteFeedbackPkt::getLteFeedbackDoubleVectorUl()
 {
     return lteFeedbackDoubleVectorUl_;
 }
+std::map<MacNodeId, LteFeedbackDoubleVector> LteFeedbackPkt::getLteFeedbackDoubleVectorD2D()
+{
+    return lteFeedbackMapDoubleVectorD2D_;
+}
 void LteFeedbackPkt::setLteFeedbackDoubleVectorDl(LteFeedbackDoubleVector lteFeedbackDoubleVector)
 {
     lteFeedbackDoubleVectorDl_ = lteFeedbackDoubleVector;
@@ -24,6 +28,10 @@ void LteFeedbackPkt::setLteFeedbackDoubleVectorDl(LteFeedbackDoubleVector lteFee
 void LteFeedbackPkt::setLteFeedbackDoubleVectorUl(LteFeedbackDoubleVector lteFeedbackDoubleVector)
 {
     lteFeedbackDoubleVectorUl_ = lteFeedbackDoubleVector;
+}
+void LteFeedbackPkt::setLteFeedbackDoubleVectorD2D(MacNodeId peerId, LteFeedbackDoubleVector lteFeedbackDoubleVector)
+{
+    lteFeedbackMapDoubleVectorD2D_[peerId] = lteFeedbackDoubleVector;
 }
 void LteFeedbackPkt::setSourceNodeId(MacNodeId id)
 {

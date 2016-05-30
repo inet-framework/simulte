@@ -155,7 +155,7 @@ LteSchedulerEnbDl::schedulePerAcidRtx(MacNodeId nodeId, Codeword cw, unsigned ch
             available = mac_->getAmc()->computeBytesOnNRbs(nodeId, b, remappedCw, b1, direction_);
         }
         else
-            available = availableBytes(nodeId, antenna, b, remappedCw, (limitBl) ? limit : -1);    // available space
+            available = availableBytes(nodeId, antenna, b, remappedCw, direction_, (limitBl) ? limit : -1);    // available space
 
         // use the provided limit as cap for available bytes, if it is not set to unlimited
         if (limit >= 0 && !limitBl)

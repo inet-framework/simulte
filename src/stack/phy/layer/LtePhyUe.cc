@@ -272,6 +272,26 @@ void LtePhyUe::handleUpperMessage(cMessage* msg)
         "of its master (" << masterId_ << ")" << endl;
         endSimulation();
     }
+
+    // Store the RBs used for transmission. For interference computation
+    RbMap rbMap = lteInfo->getGrantedBlocks();
+    UsedRBs info;
+    info.time_ = NOW;
+    info.rbMap_ = rbMap;
+
+    usedRbs_.push_back(info);
+
+    std::vector<UsedRBs>::iterator it = usedRbs_.begin();
+    while (it != usedRbs_.end())  // purge old allocations
+    {
+        if (it->time_ < NOW - 0.002)
+            it = usedRbs_.erase(it);
+        else
+            ++it;
+    }
+
+    lastActive_ = NOW;
+
     LtePhyBase::handleUpperMessage(msg);
 }
 

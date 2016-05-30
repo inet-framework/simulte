@@ -58,13 +58,16 @@ class LteHarqUnitTx
     /// TTI at which the pdu has been transmitted
     simtime_t txTime_;
 
+    // reference to the eNB module
+    cModule* nodeB_;
+
     LteMacBase *macOwner_;
     //used for statistics
     LteMacBase *dstMac_;
     //Maximum number of H-ARQ retransmission
     unsigned int maxHarqRtx_;
 
-    //Statistics
+    // Statistics
 
     simsignal_t macCellPacketLoss_;
     simsignal_t macPacketLoss_;
@@ -73,6 +76,15 @@ class LteHarqUnitTx
     simsignal_t harqErrorRate_2_;
     simsignal_t harqErrorRate_3_;
     simsignal_t harqErrorRate_4_;
+
+    // D2D Statistics
+    simsignal_t macCellPacketLossD2D_;
+    simsignal_t macPacketLossD2D_;
+    simsignal_t harqErrorRateD2D_;
+    simsignal_t harqErrorRateD2D_1_;
+    simsignal_t harqErrorRateD2D_2_;
+    simsignal_t harqErrorRateD2D_3_;
+    simsignal_t harqErrorRateD2D_4_;
 
   public:
     /**

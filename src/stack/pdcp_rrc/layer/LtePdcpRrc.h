@@ -18,6 +18,7 @@
 #include "LteIp.h"
 #include "LteControlInfo.h"
 #include "LtePdcpPdu_m.h"
+#include "LtePdcpEntity.h"
 
 /**
  * @class LtePdcp
@@ -158,7 +159,7 @@ class LtePdcpRrcBase : public cSimpleModule
      *
      * @param pkt incoming packet
      */
-    void fromDataPort(cPacket *pkt);
+    virtual void fromDataPort(cPacket *pkt);
 
     /**
      * handler for eutran port
@@ -245,6 +246,24 @@ class LtePdcpRrcBase : public cSimpleModule
     };
 
     std::map<MacCid, DropInfo> dropMap_;
+
+    /**
+     * The entities map associate each LCID with a PDCP Entity, identified by its ID
+     */
+    typedef std::map<LogicalCid, LtePdcpEntity*> PdcpEntities;
+    PdcpEntities entities_;
+
+    /**
+     * getEntity() is used to gather the PDCP entity
+     * for that LCID. If entity was already present, a reference
+     * is returned, otherwise a new entity is created,
+     * added to the entities map and a reference is returned as well.
+     *
+     * @param lcid Logical CID
+     * @return pointer to the PDCP entity for the LCID of the flow
+     *
+     */
+    LtePdcpEntity* getEntity(LogicalCid lcid);
 
     TaggedSample* tSample_;
 

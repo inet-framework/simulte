@@ -118,6 +118,7 @@ class UserControlInfo extends LteControlInfo {
     unsigned short txMode enum(TxMode);                // Traffic Type
     unsigned int frameType enum(LtePhyFrameType);    // Frame Type
     double txPower;                                    //Transmission Power
+    double d2dTxPower;                                 //D2D Transmission Power (used for feedback reporting of D2D links
     // blocks granted on all Remotes, all Bands
     unsigned int totalGrantedBlocks;
 

@@ -82,6 +82,9 @@ class LteSchedulerEnbUl : public LteSchedulerEnb
     virtual unsigned int schedulePerAcidRtx(MacNodeId nodeId, Codeword cw, unsigned char acid,
         std::vector<BandLimit>* bandLim = NULL, Remote antenna = MACRO, bool limitBl = false);
 
+    unsigned int schedulePerAcidRtxD2D(MacNodeId destId, MacNodeId senderId, Codeword cw, unsigned char acid,
+        std::vector<BandLimit>* bandLim = NULL, Remote antenna = MACRO, bool limitBl = false);
+
     virtual void initHarqStatus(MacNodeId id, unsigned char acid);
 };
 

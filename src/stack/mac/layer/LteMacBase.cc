@@ -189,9 +189,13 @@ bool LteMacBase::bufferizePacket(cPacket* pkt)
             {
                 emit(macBufferOverflowDl_,tSample_);
             }
-            else
+            else if (lteInfo->getDirection()==UL)
             {
                 emit(macBufferOverflowUl_,tSample_);
+            }
+            else // D2D
+            {
+                emit(macBufferOverflowD2D_,tSample_);
             }
 
             EV << "LteMacBuffers : Dropped packet: queue" << cid << " is full\n";
@@ -269,6 +273,8 @@ void LteMacBase::initialize(int stage)
         scheduleAt(NOW + TTI, ttiTick_);
         macBufferOverflowDl_ = registerSignal("macBufferOverflowDl");
         macBufferOverflowUl_ = registerSignal("macBufferOverflowUl");
+        if (isD2DCapable())
+            macBufferOverflowD2D_ = registerSignal("macBufferOverflowD2D");
         receivedPacketFromUpperLayer = registerSignal("receivedPacketFromUpperLayer");
         receivedPacketFromLowerLayer = registerSignal("receivedPacketFromLowerLayer");
         sentPacketToUpperLayer = registerSignal("sentPacketToUpperLayer");

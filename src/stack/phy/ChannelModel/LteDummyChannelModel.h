@@ -48,6 +48,14 @@ class LteDummyChannelModel : public LteChannelModel
      * @param lteinfo pointer to the user control info
      */
     virtual std::vector<double> getSINR(LteAirFrame *frame, UserControlInfo* lteInfo);
+    /*
+     * Compute FAKE sinr (D2D) for each band for user nodeId according to pathloss, shadowing (optional) and multipath fading
+     *
+     * @param frame pointer to the packet
+     * @param lteinfo pointer to the user control info
+     */
+    virtual std::vector<double> getSINR_D2D(LteAirFrame *frame, UserControlInfo* lteInfo_1, MacNodeId destId, Coord destCoord,MacNodeId enbId);
+
     //TODO
     virtual bool errorDas(LteAirFrame *frame, UserControlInfo* lteI)
     {

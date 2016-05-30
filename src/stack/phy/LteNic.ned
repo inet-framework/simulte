@@ -38,6 +38,7 @@ module LteNicBase like ILteNic
         string LteMacType;          // One of: "LteMacUe", "LteMacEnb", "LteMacRelayUe", "LteMacRelayEnb"
         string LtePhyType;
         string nodeType;
+        
     gates:
         //#
         //# Gates connecting UE/eNB and LTE Stack
@@ -120,6 +121,25 @@ module LteNicUe extends LteNicBase
 }
 
 //
+// D2D-capable User Equipment of LTE stack
+//
+module LteNicUeD2D extends LteNicBase
+{
+    parameters:
+        LtePdcpRrcType = "LtePdcpRrcUeD2D";
+        LteMacType = "LteMacUeD2D";
+        LtePhyType = "LtePhyUeD2D";
+        
+        string d2dPeerAddresses = default("");  // list of D2D peer UEs, separated by blank spaces
+        
+    submodules:
+        // Feedback generator submodule
+        dlFbGen: LteDlFeedbackGenerator {
+            @display("p=50,50;is=s");
+        }
+}
+
+//
 // eNodeB of LTE stack
 //
 module LteNicEnb extends LteNicBase
@@ -134,6 +154,18 @@ module LteNicEnb extends LteNicBase
         // ulFbGen: LteUlFeedbackGenerator {
         //     @display("p=200,100;is=s");
         // }
+}
+
+//
+// eNodeB of LTE stack with support for D2D-capable UEs
+//
+module LteNicEnbD2D extends LteNicBase
+{
+    parameters:
+        LtePdcpRrcType = "LtePdcpRrcEnb";
+        LteMacType = "LteMacEnbD2D";
+        LtePhyType = "LtePhyEnbD2D";
+
 }
 
 //

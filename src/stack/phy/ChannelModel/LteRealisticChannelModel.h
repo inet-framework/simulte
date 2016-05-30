@@ -45,9 +45,10 @@ class LteRealisticChannelModel : public LteChannelModel
     // enable/disable the shadowing
     bool shadowing_;
 
-    // enable/disable intercell interference computation
+    // enable/disable interference computation
     bool enableExtCellInterference_;
     bool enableMultiCellInterference_;
+    bool enableD2DInCellInterference_;
 
     typedef std::pair<simtime_t, Coord> Position;
 
@@ -150,6 +151,14 @@ class LteRealisticChannelModel : public LteChannelModel
      */
     virtual double getAttenuation(MacNodeId nodeId, Direction dir, Coord coord);
     /*
+     * Compute Attenuation for D2D caused by pathloss and shadowing (optional)
+     *
+     * @param nodeid mac node id of UE
+     * @param dir traffic direction
+     * @param coord position of end point comunication (if dir==UL is the position of UE else is the position of eNodeB)
+     */
+    virtual double getAttenuation_D2D(MacNodeId nodeId, Direction dir, Coord coord,MacNodeId node2_Id, Coord coord_2);
+    /*
      * Compute sir for each band for user nodeId according to multipath fading
      *
      * @param frame pointer to the packet
@@ -163,6 +172,14 @@ class LteRealisticChannelModel : public LteChannelModel
      * @param lteinfo pointer to the user control info
      */
     virtual std::vector<double> getSINR(LteAirFrame *frame, UserControlInfo* lteInfo);
+    /*
+     * Compute sinr (D2D) for each band for user nodeId according to pathloss, shadowing (optional) and multipath fading
+     *
+     * @param frame pointer to the packet
+     * @param lteinfo pointer to the user control info
+     */
+    virtual std::vector<double> getSINR_D2D(LteAirFrame *frame, UserControlInfo* lteInfo_1, MacNodeId destId, Coord destCoord,MacNodeId enbId);
+
     /*
      * Compute the error probability of the transmitted packet according to cqi used, txmode, and the received power
      * after that it throws a random number in order to check if this packet will be corrupted or not
@@ -274,6 +291,11 @@ class LteRealisticChannelModel : public LteChannelModel
      */
     bool computeMultiCellInterference(MacNodeId eNbId, MacNodeId ueId, Coord coord, bool isCqi,
         std::vector<double> * interference);
+
+    /*
+     * compute total interference due to D2D transmissions within the same cell
+     */
+    bool computeInCellD2DInterference(MacNodeId eNbId, MacNodeId senderId, Coord senderCoord, MacNodeId destId, Coord destCoord, bool isCqi,std::vector<double>* interference,Direction dir);
 
     /*
      * evaluates total intercell interference seen from the spot given by coord

@@ -93,6 +93,15 @@ class UmRxQueue : public cSimpleModule
     simsignal_t rlcThroughput_;
     simsignal_t rlcPduThroughput_;
 
+    simsignal_t rlcCellPacketLossD2D_;
+    simsignal_t rlcPacketLossD2D_;
+    simsignal_t rlcPduPacketLossD2D_;
+    simsignal_t rlcDelayD2D_;
+    simsignal_t rlcPduDelayD2D_;
+    simsignal_t rlcCellThroughputD2D_;
+    simsignal_t rlcThroughputD2D_;
+    simsignal_t rlcPduThroughputD2D_;
+
   private:
     /// Reception buffer
     UmFragbuf fragbuf_;
@@ -102,6 +111,12 @@ class UmRxQueue : public cSimpleModule
 
     /// Timeout for above timer
     double timeout_;
+
+    /// reference to the serving cell (for statistics purposes)
+    cModule* nodeB_;
+
+    /// reference to the ue (for statistics purposes)
+    cModule* ue_;
 };
 
 #endif

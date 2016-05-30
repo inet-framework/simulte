@@ -20,6 +20,7 @@ class LteSchedulingGrant : public LteSchedulingGrant_Base
     const UserTxParams* userTxParams;
     RbMap grantedBlocks;
     std::vector<unsigned int> grantedCwBytes;
+    Direction direction_;
 
   public:
 
@@ -49,6 +50,7 @@ class LteSchedulingGrant : public LteSchedulingGrant_Base
         }
         grantedBlocks = other.grantedBlocks;
         grantedCwBytes = other.grantedCwBytes;
+        direction_ = other.direction_;
         LteSchedulingGrant_Base::operator=(other);
         return *this;
     }
@@ -103,5 +105,13 @@ class LteSchedulingGrant : public LteSchedulingGrant_Base
     virtual void setGrantedCwBytes(unsigned int k, unsigned int grantedCwBytes_var)
     {
         grantedCwBytes[k] = grantedCwBytes_var;
+    }
+    void setDirection(Direction dir)
+    {
+        direction_ = dir;
+    }
+    Direction getDirection() const
+    {
+        return direction_;
     }
 };

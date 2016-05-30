@@ -122,10 +122,19 @@ void LtePdcpRrcBase::fromDataPort(cPacket *pkt)
     EV << "LteRrc : Assigned Lcid: " << mylcid << "\n";
     EV << "LteRrc : Assigned Node ID: " << nodeId_ << "\n";
 
+    // get the PDCP entity for this LCID
+    LtePdcpEntity* entity = getEntity(mylcid);
+
+    // get the sequence number for this PDCP SDU.
+    // Note that the numbering depends on the entity the packet is associated to.
+    unsigned int sno = entity->nextSequenceNumber();
+
+    // set sequence number
+    lteInfo->setSequenceNumber(sno);
     // NOTE setLcid and setSourceId have been anticipated for using in "ctrlInfoToMacCid" function
     lteInfo->setLcid(mylcid);
     lteInfo->setSourceId(nodeId_);
-    MacCid cid = ctrlInfoToMacCid(lteInfo);
+    lteInfo->setDestId(getDestId(lteInfo));
 
     // PDCP Packet creation
     LtePdcpPdu* pdcpPkt = new LtePdcpPdu("LtePdcpPdu");
@@ -278,6 +287,30 @@ void LtePdcpRrcBase::clearDrop(MacCid cid)
 {
     Enter_Method("clearDrop");
     dropMap_[cid].clear();
+}
+
+LtePdcpEntity* LtePdcpRrcBase::getEntity(LogicalCid lcid)
+{
+    // Find entity for this LCID
+    PdcpEntities::iterator it = entities_.find(lcid);
+    if (it == entities_.end())
+    {
+        // Not found: create
+        LtePdcpEntity* ent = new LtePdcpEntity();
+        entities_[lcid] = ent;    // Add to entities map
+
+        EV << "LtePdcpRrcBase::getEntity - Added new PdcpEntity for Lcid: " << lcid << "\n";
+
+        return ent;
+    }
+    else
+    {
+        // Found
+        EV << "LtePdcpRrcBase::getEntity - Using old PdcpEntity for Lcid: " << lcid << "\n";
+
+        return it->second;
+    }
+
 }
 
 void LtePdcpRrcBase::finish()

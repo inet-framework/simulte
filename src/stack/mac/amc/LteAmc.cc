@@ -12,6 +12,7 @@
 
 // NOTE: AMC Pilots header file inclusions must go here
 #include "AmcPilotAuto.h"
+#include "AmcPilotD2D.h"
 
 /*********************
  * PRIVATE FUNCTIONS
@@ -23,7 +24,8 @@ AmcPilot* LteAmc::getAmcPilot(cPar p)
     const char* s = p.stringValue();
     if(strcmp(s,"AUTO")==0)
     return new AmcPilotAuto(this);
-
+    if(strcmp(s,"D2D")==0)
+    return new AmcPilotD2D(this);
     throw cRuntimeError("Amc Pilot not recognized");
 }
 
@@ -150,6 +152,11 @@ void LteAmc::printTxParams(Direction dir)
         userInfo = &ulTxParams_;
         revIndex = &ulRevNodeIndex_;
     }
+    else if (dir == D2D)
+    {
+        userInfo = &d2dTxParams_;
+        revIndex = &d2dRevNodeIndex_;
+    }
     else
     {
         throw cRuntimeError("LteAmc::printTxParams(): Unrecognized direction");
@@ -177,6 +184,7 @@ void LteAmc::printMuMimoMatrix(const char* s)
 {
     muMimoDlMatrix_.print(s);
     muMimoUlMatrix_.print(s);
+    muMimoD2DMatrix_.print(s);
 }
 
 /********************
@@ -201,15 +209,18 @@ void LteAmc::initialize()
     /** Get deployed UEs maps from Binder **/
     dlConnectedUe_ = binder_->getDeployedUes(nodeId_, DL);
     ulConnectedUe_ = binder_->getDeployedUes(nodeId_, UL);
+    d2dConnectedUe_ = binder_->getDeployedUes(nodeId_, UL);
 
     /** Get parameters from Deployer **/
     numBands_ = deployer_->getNumBands();
     mcsScaleDl_ = deployer_->getMcsScaleDl();
     mcsScaleUl_ = deployer_->getMcsScaleUl();
+    mcsScaleD2D_ = deployer_->getMcsScaleUl();
 
     /** Get AMC parameters from MAC module NED **/
     fbhbCapacityDl_ = mac_->par("fbhbCapacityDl");
     fbhbCapacityUl_ = mac_->par("fbhbCapacityUl");
+    fbhbCapacityD2D_ = mac_->par("fbhbCapacityD2D");
     pmiComputationWeight_ = mac_->par("pmiWeight");
     cqiComputationWeight_ = mac_->par("cqiWeight");
     kCqi_ = mac_->par("kCqi");
@@ -225,6 +236,7 @@ void LteAmc::initialize()
     // Scale Mcs Tables
     dlMcsTable_.rescale(mcsScaleDl_);
     ulMcsTable_.rescale(mcsScaleUl_);
+    d2dMcsTable_.rescale(mcsScaleD2D_);
 
     // Initialize DAS structures
     for (int i = 0; i < numAntennas_; i++)
@@ -299,6 +311,33 @@ void LteAmc::initialize()
     // Initialize user transmission parameters structures
     ulTxParams_.resize(ulConnectedUe_.size(), UserTxParams());
 
+    /* D2D */
+    EV << "D2D CONNECTED: " << d2dConnectedUe_.size() << endl;
+
+    it = d2dConnectedUe_.begin();
+    et = d2dConnectedUe_.end();
+
+    for (; it != et; it++)  // For all UEs (UL)
+    {
+        MacNodeId nodeId = it->first;
+        d2dNodeIndex_[nodeId] = d2dRevNodeIndex_.size();
+        d2dRevNodeIndex_.push_back(nodeId);
+
+//        ait = remoteSet_.begin();
+//        aet = remoteSet_.end();
+//
+//        for (; ait != aet; ait++)
+//        {
+//            // initialize historical feedback base for this UE (index) for all tx modes and for all RUs
+//            d2dFeedbackHistory_[*ait].push_back(
+//                std::vector<LteSummaryBuffer>(UL_NUM_TXMODE,
+//                    LteSummaryBuffer(fbhbCapacityD2D_, MAXCW, numBands_, lb_, ub_)));
+//        }
+    }
+
+    // Initialize user transmission parameters structures
+    d2dTxParams_.resize(d2dConnectedUe_.size(), UserTxParams());
+
     //printFbhb(DL);
     //printFbhb(UL);
     //printTxParams(DL);
@@ -311,9 +350,12 @@ void LteAmc::rescaleMcs(double rePerRb, Direction dir)
     {
         dlMcsTable_.rescale(rePerRb);
     }
-    else
+    else if (dir == UL)
     {
         ulMcsTable_.rescale(rePerRb);
+    }
+    else if (dir == D2D) {
+        d2dMcsTable_.rescale(rePerRb);
     }
 }
 
@@ -361,6 +403,44 @@ void LteAmc::pushFeedback(MacNodeId id, Direction dir, LteFeedback fb)
 //    (*history)[antenna].at(index).at(txMode).get().print(0,id,dir,txMode,"LteAmc::pushFeedback");
 }
 
+void LteAmc::pushFeedbackD2D(MacNodeId id, LteFeedback fb, MacNodeId peerId)
+{
+    EV << "Feedback from MacNodeId " << id << " (direction D2D), peerId = " << peerId << endl;
+
+    std::map<MacNodeId, History_> *history = &d2dFeedbackHistory_;
+    std::map<MacNodeId, unsigned int> *nodeIndex = &d2dNodeIndex_;
+
+    // Put the feedback in the FBHB
+    Remote antenna = fb.getAntennaId();
+    TxMode txMode = fb.getTxMode();
+    int index = (*nodeIndex).at(id);
+
+    EV << "ID: " << id << endl;
+    EV << "index: " << index << endl;
+
+    if (history->find(peerId) == history->end())
+    {
+        // initialize new history for this peering UE
+        History_ newHist;
+
+        ConnectedUesMap::const_iterator it, et;
+        it = d2dConnectedUe_.begin();
+        et = d2dConnectedUe_.end();
+        for (; it != et; it++)  // For all UEs (D2D)
+        {
+            newHist[antenna].push_back(std::vector<LteSummaryBuffer>(UL_NUM_TXMODE, LteSummaryBuffer(fbhbCapacityD2D_, MAXCW, numBands_, lb_, ub_)));
+        }
+        (*history)[peerId] = newHist;
+    }
+    (*history)[peerId][antenna].at(index).at(txMode).put(fb);
+
+    // DEBUG
+    EV << "PeerId: " << peerId << ", Antenna: " << dasToA(antenna) << ", TxMode: " << txMode << ", Index: " << index << endl;
+    EV << "RECEIVED" << endl;
+    fb.print(0,id,D2D,"LteAmc::pushFeedbackD2D");
+}
+
+
 LteSummaryFeedback LteAmc::getFeedback(MacNodeId id, Remote antenna, TxMode txMode, const Direction dir)
 {
     MacNodeId nh = getNextHop(id);
@@ -378,6 +458,29 @@ LteSummaryFeedback LteAmc::getFeedback(MacNodeId id, Remote antenna, TxMode txMo
     }
 }
 
+LteSummaryFeedback LteAmc::getFeedbackD2D(MacNodeId id, Remote antenna, TxMode txMode, MacNodeId peerId)
+{
+    MacNodeId nh = getNextHop(id);
+    if (id != nh)
+        EV << NOW << " LteAmc::getFeedback detected " << nh << " as nexthop for " << id << "\n";
+    id = nh;
+
+    if (peerId == 0)
+    {
+        // we returns the first feedback stored  in the structure
+        std::map<MacNodeId, History_>::iterator it = d2dFeedbackHistory_.begin();
+        for (; it != d2dFeedbackHistory_.end(); ++it)
+        {
+            if (binder_->checkD2DCapability(id, it->first))
+            {
+                peerId = it->first;
+                break;
+            }
+        }
+    }
+    return d2dFeedbackHistory_.at(peerId).at(antenna).at(d2dNodeIndex_.at(id)).at(txMode).get();
+}
+
 /*******************************************
  *    Functions for MU-MIMO support       *
  *******************************************/
@@ -388,8 +491,14 @@ MacNodeId LteAmc::computeMuMimoPairing(const MacNodeId nodeId, Direction dir)
     {
         return muMimoDlMatrix_.getMuMimoPair(nodeId);
     }
-    else
+    else if (dir==UL)
+    {
         return muMimoUlMatrix_.getMuMimoPair(nodeId);
+    }
+    else if (dir == D2D)
+    {
+        return muMimoD2DMatrix_.getMuMimoPair(nodeId);
+    }
 }
 
 /********************************
@@ -407,6 +516,8 @@ bool LteAmc::existTxParams(MacNodeId id, const Direction dir)
         return dlTxParams_.at(dlNodeIndex_.at(id)).isSet();
     else if (dir == UL)
         return ulTxParams_.at(ulNodeIndex_.at(id)).isSet();
+    else if (dir == D2D)
+        return d2dTxParams_.at(d2dNodeIndex_.at(id)).isSet();
     else
     {
         throw cRuntimeError("LteAmc::existTxparams(): Unrecognized direction");
@@ -440,6 +551,8 @@ const UserTxParams& LteAmc::setTxParams(MacNodeId id, const Direction dir, UserT
         return (dlTxParams_.at(dlNodeIndex_.at(id)) = info);
     else if (dir == UL)
         return (ulTxParams_.at(ulNodeIndex_.at(id)) = info);
+    else if (dir == D2D)
+        return (d2dTxParams_.at(d2dNodeIndex_.at(id)) = info);
     else
     {
         throw cRuntimeError("LteAmc::setTxParams(): Unrecognized direction");
@@ -488,7 +601,13 @@ void LteAmc::cleanAmcStructures(Direction dir, ActiveSet aUser)
         std::vector<UserTxParams>::iterator it = ulTxParams_.begin();
         std::vector<UserTxParams>::iterator et = ulTxParams_.end();
         for(; it != et; ++it)
-        it->restoreDefaultValues();
+            it->restoreDefaultValues();
+
+        // clearing D2D assignments
+        it = d2dTxParams_.begin();
+        et = d2dTxParams_.end();
+        for(; it != et; ++it)
+            it->restoreDefaultValues();
     }
     else
     {
@@ -740,7 +859,7 @@ unsigned int LteAmc::getItbsPerCqi(Cqi cqi, const Direction dir)
     McsTable* mcsTable;
     if (dir == DL)
         mcsTable = &dlMcsTable_;
-    else if (dir == UL)
+    else if ((dir == UL) || (dir == D2D))
         mcsTable = &ulMcsTable_;
     else
     {
@@ -794,6 +913,8 @@ const UserTxParams& LteAmc::getTxParams(MacNodeId id, const Direction dir)
         return dlTxParams_.at(dlNodeIndex_.at(id));
     else if (dir == UL)
         return ulTxParams_.at(ulNodeIndex_.at(id));
+    else if (dir == D2D)
+        return d2dTxParams_.at(d2dNodeIndex_.at(id));
     else
         throw cRuntimeError("LteAmc::getTxParams(): Unrecognized direction");
 }

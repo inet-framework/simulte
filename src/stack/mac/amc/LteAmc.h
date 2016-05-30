@@ -53,32 +53,41 @@ class LteAmc
     MacCellId cellId_;
     McsTable dlMcsTable_;
     McsTable ulMcsTable_;
+    McsTable d2dMcsTable_;
     double mcsScaleDl_;
     double mcsScaleUl_;
+    double mcsScaleD2D_;
     int numAntennas_;
     RemoteSet remoteSet_;
     Cqi kCqi_;
     ConnectedUesMap dlConnectedUe_;
     ConnectedUesMap ulConnectedUe_;
+    ConnectedUesMap d2dConnectedUe_;
     std::map<MacNodeId, unsigned int> dlNodeIndex_;
     std::map<MacNodeId, unsigned int> ulNodeIndex_;
+    std::map<MacNodeId, unsigned int> d2dNodeIndex_;
     std::vector<MacNodeId> dlRevNodeIndex_;
     std::vector<MacNodeId> ulRevNodeIndex_;
+    std::vector<MacNodeId> d2dRevNodeIndex_;
     std::vector<UserTxParams> dlTxParams_;
     std::vector<UserTxParams> ulTxParams_;
+    std::vector<UserTxParams> d2dTxParams_;
     typedef std::map<Remote, std::vector<std::vector<LteSummaryBuffer> > > History_;
 
     int fType_; //CQI synchronization Debugging
     History_ dlFeedbackHistory_;
     History_ ulFeedbackHistory_;
+    std::map<MacNodeId, History_> d2dFeedbackHistory_;
     unsigned int fbhbCapacityDl_;
     unsigned int fbhbCapacityUl_;
+    unsigned int fbhbCapacityD2D_;
     simtime_t lb_;
     simtime_t ub_;
     double pmiComputationWeight_;
     double cqiComputationWeight_;
     LteMuMimoMatrix muMimoDlMatrix_;
     LteMuMimoMatrix muMimoUlMatrix_;
+    LteMuMimoMatrix muMimoD2DMatrix_;
     public:
     LteAmc(LteMacEnb *mac, LteBinder *binder, LteDeployer *deployer, int numAntennas);
     void initialize();
@@ -98,7 +107,10 @@ class LteAmc
     void rescaleMcs(double rePerRb, Direction dir = DL);
 
     void pushFeedback(MacNodeId id, Direction dir, LteFeedback fb);
+    void pushFeedbackD2D(MacNodeId id, LteFeedback fb, MacNodeId peerId);
     LteSummaryFeedback getFeedback(MacNodeId id, Remote antenna, TxMode txMode, const Direction dir);
+    LteSummaryFeedback getFeedbackD2D(MacNodeId id, Remote antenna, TxMode txMode, MacNodeId peerId);
+
     //used when is necessary to know if the requested feedback exists or not
     // LteSummaryFeedback getFeedback(MacNodeId id, Remote antenna, TxMode txMode, const Direction dir,bool& valid);
 
@@ -174,18 +186,24 @@ class LteAmc
     {
         if (dir == DL)
             muMimoDlMatrix_.initialize(nodeId);
-        else
+        else if (dir == UL)
             muMimoUlMatrix_.initialize(nodeId);
+        else if (dir == D2D)
+            muMimoD2DMatrix_.initialize(nodeId);
     }
     void addMuMimoPair(Direction dir, MacNodeId id1, MacNodeId id2)
     {
         if (dir == DL)
             muMimoDlMatrix_.addPair(id1, id2);
-        else
+        else if (dir == UL)
             muMimoUlMatrix_.addPair(id1, id2);
+        else if (dir == D2D)
+            muMimoD2DMatrix_.addPair(id1,id2);
     }
 
     std::vector<Cqi>  readMultiBandCqi(MacNodeId id, const Direction dir);
+
+    int getSystemNumBands() { return numBands_; }
 };
 
 #endif

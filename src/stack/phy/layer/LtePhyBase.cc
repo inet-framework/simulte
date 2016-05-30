@@ -50,9 +50,11 @@ void LtePhyBase::initialize(int stage)
             intuniform(1, binder_->phyPisaData.maxChannel2()));
         averageCqiDl_ = registerSignal("averageCqiDl");
         averageCqiUl_ = registerSignal("averageCqiUl");
+        averageCqiD2D_ = registerSignal("averageCqiD2D");
 
         averageCqiDlvect_ = registerSignal("averageCqiDlvect");
         averageCqiUlvect_ = registerSignal("averageCqiUlvect");
+        averageCqiD2Dvect_ = registerSignal("averageCqiD2Dvect");
 
         if (!hasListeners(averageCqiDl_))
             error("no phy listeners");

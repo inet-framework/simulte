@@ -22,10 +22,10 @@
  * This is an hash table used by the RRC layer
  * to assign CIDs to different connections.
  * The table is in the format:
- *  ______________________________________________
- * | srcAddr | dstAddr | srcPort | dstPort | LCID |
+ *  __________________________________________________________
+ * | srcAddr | dstAddr | srcPort | dstPort | Direction | LCID |
  *
- * A 4-tuple is used to check if connection was already
+ * A 4-tuple (plus direction) is used to check if connection was already
  * established and return the proper LCID, otherwise a
  * new entry is added to the table
  */
@@ -51,6 +51,22 @@ class ConnectionsTable
         uint16_t srcPort, uint16_t dstPort);
 
     /**
+     * find_entry() checks if an entry is in the
+     * table and returns a proper number.
+     *
+     * @param srcAddr part of 4-tuple
+     * @param dstAddr part of 4-tuple
+     * @param srcPort part of 4-tuple
+     * @param dstPort part of 4-tuple
+     * @param dir flow direction (DL/UL/D2D)
+     * @return value of LCID field in hash table:
+     *             - 0xFFFF if no entry was found
+     *             - LCID if it was found
+     */
+    LogicalCid find_entry(uint32_t srcAddr, uint32_t dstAddr,
+        uint16_t srcPort, uint16_t dstPort, uint16_t dir);
+
+    /**
      * create_entry() adds a new entry to the table
      *
      * @param srcAddr part of 4-tuple
@@ -61,6 +77,19 @@ class ConnectionsTable
      */
     void create_entry(uint32_t srcAddr, uint32_t dstAddr,
         uint16_t srcPort, uint16_t dstPort, LogicalCid lcid);
+
+    /**
+     * create_entry() adds a new entry to the table
+     *
+     * @param srcAddr part of 4-tuple
+     * @param dstAddr part of 4-tuple
+     * @param srcPort part of 4-tuple
+     * @param dstPort part of 4-tuple
+     * @param dir flow direction (DL/UL/D2D)
+     * @param LCID connection id to insert
+     */
+    void create_entry(uint32_t srcAddr, uint32_t dstAddr,
+        uint16_t srcPort, uint16_t dstPort, uint16_t dir, LogicalCid lcid);
 
   private:
     /**
@@ -75,6 +104,20 @@ class ConnectionsTable
      */
     unsigned int hash_func(uint32_t srcAddr, uint32_t dstAddr,
         uint16_t srcPort, uint16_t dstPort);
+
+    /**
+     * hash_func() calculates the hash function used
+     * by this structure. At the moment it's simply an OR
+     * operation between all fields of the 4-tuple
+     *
+     * @param srcAddr part of 4-tuple
+     * @param dstAddr part of 4-tuple
+     * @param srcPort part of 4-tuple
+     * @param dir flow direction (DL/UL/D2D)
+     * @param dstPort part of 4-tuple
+     */
+    unsigned int hash_func(uint32_t srcAddr, uint32_t dstAddr,
+        uint16_t srcPort, uint16_t dstPort, uint16_t dir);
 
     /*
      * Data Structures
@@ -95,6 +138,7 @@ class ConnectionsTable
         uint32_t dstAddr_;
         uint16_t srcPort_;
         uint16_t dstPort_;
+        uint16_t dir_;
         LogicalCid lcid_;
     };
     /// Hash table of size TABLE_SIZE

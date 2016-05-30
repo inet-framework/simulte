@@ -689,31 +689,50 @@ void LteBinder::registerNextHop(MacNodeId masterId, MacNodeId slaveId)
     nextHop_[slaveId] = masterId;
 }
 
-void LteBinder::initialize()
+void LteBinder::initialize(int stage)
 {
-    const char * stringa;
-
-    std::vector<int> apppriority;
-    std::vector<double> appdelay;
-    std::vector<double> applossrate;
-
-    stringa = par("priority");
-    apppriority = cStringTokenizer(stringa).asIntVector();
-    stringa = par("packetDelayBudget");
-    appdelay = cStringTokenizer(stringa).asDoubleVector();
-    stringa = par("packetErrorLossRate");
-    applossrate = cStringTokenizer(stringa).asDoubleVector();
-
-    for (int i = 0; i < LTE_QCI_CLASSES; i++)
+    if (stage == 0)
     {
-        QCIParam_[i].priority = apppriority[i];
-        QCIParam_[i].packetDelayBudget = appdelay[i];
-        QCIParam_[i].packetErrorLossRate = applossrate[i];
-    }
-    nodesConfigured_ = false;
+        const char * stringa;
 
-    // execute node creation and setup.
-    // nodesConfiguration();
+        std::vector<int> apppriority;
+        std::vector<double> appdelay;
+        std::vector<double> applossrate;
+
+        stringa = par("priority");
+        apppriority = cStringTokenizer(stringa).asIntVector();
+        stringa = par("packetDelayBudget");
+        appdelay = cStringTokenizer(stringa).asDoubleVector();
+        stringa = par("packetErrorLossRate");
+        applossrate = cStringTokenizer(stringa).asDoubleVector();
+
+        for (int i = 0; i < LTE_QCI_CLASSES; i++)
+        {
+            QCIParam_[i].priority = apppriority[i];
+            QCIParam_[i].packetDelayBudget = appdelay[i];
+            QCIParam_[i].packetErrorLossRate = applossrate[i];
+        }
+        nodesConfigured_ = false;
+
+        // execute node creation and setup.
+        // nodesConfiguration();
+    }
+    if (stage == 1)
+    {
+        // all UEs completed registration, so build the table of D2D capabilities
+
+        // build and initialize the matrix of D2D peering capabilities
+        MacNodeId maxUe = macNodeIdCounter_[2];
+        d2dPeeringCapability_ = new bool*[maxUe];
+        for (int i=0; i<maxUe; i++)
+        {
+            d2dPeeringCapability_[i] = new bool[maxUe];
+            for (int j=0; j<maxUe; j++)
+            {
+                d2dPeeringCapability_[i][j] = false;
+            }
+        }
+    }
 }
 
 std::string LteBinder::increment_address(const char* address_string)  //TODO unused function
@@ -796,4 +815,36 @@ int LteBinder::getX2Port(X2NodeId nodeId)
     return port;
 }
 
+Cqi LteBinder::meanCqi(std::vector<Cqi> bandCqi,MacNodeId id,Direction dir)
+{
+    std::vector<Cqi>::iterator it;
+    Cqi mean=0;
+    for (it=bandCqi.begin();it!=bandCqi.end();++it)
+    {
+        mean+=*it;
+    }
+    mean/=bandCqi.size();
+
+    if(mean==0)
+        mean = 1;
+
+    return mean;
+}
+
+void LteBinder::addD2DCapability(MacNodeId src, MacNodeId dst)
+{
+    if (src < UE_MIN_ID || src >= macNodeIdCounter_[2] || dst < UE_MIN_ID || dst >= macNodeIdCounter_[2])
+        throw cRuntimeError("LteBinder::addD2DCapability - Node Id not valid. Src %d Dst %d", src, dst);
+
+    d2dPeeringCapability_[src][dst] = true;
+    EV << "LteBinder::addD2DCapability - UE " << src << " may transmit to UE " << dst << " using D2D" << endl;
+}
+
+bool LteBinder::checkD2DCapability(MacNodeId src, MacNodeId dst)
+{
+    if (src < UE_MIN_ID || src >= macNodeIdCounter_[2] || dst < UE_MIN_ID || dst >= macNodeIdCounter_[2])
+        throw cRuntimeError("LteBinder::checkD2DCapability - Node Id not valid. Src %d Dst %d", src, dst);
+
+    return d2dPeeringCapability_[src][dst];
+}
 

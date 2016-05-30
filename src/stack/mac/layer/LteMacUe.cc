@@ -19,6 +19,7 @@
 #include "InterfaceTableAccess.h"
 #include "IPv4InterfaceData.h"
 #include "LteBinder.h"
+#include "LtePhyBase.h"
 
 Define_Module(LteMacUe);
 
@@ -64,6 +65,20 @@ void LteMacUe::initialize(int stage)
     LteMacBase::initialize(stage);
     if (stage == 0)
         lcgScheduler_ = new LteSchedulerUeUl(this);
+    else if (stage == 1)
+    {
+        /* Insert UeInfo in the Binder */
+        UeInfo* info = new UeInfo();
+        info->id = nodeId_;            // local mac ID
+        info->cellId = cellId_;        // cell ID
+        info->init = false;            // flag for phy initialization
+        info->ue = this->getParentModule()->getParentModule();  // reference to the UE module
+
+        // Get the Physical Channel reference of the node
+        info->phy = check_and_cast<LtePhyBase*>(info->ue->getSubmodule("nic")->getSubmodule("phy"));
+
+        binder_->addUeInfo(info);
+    }
     else if (stage == 3)
     {
         // find interface entry and use its address
@@ -111,6 +126,7 @@ void LteMacUe::macPduMake(LteMacScheduleList* scheduleList)
             uinfo->setDestId(destId);
             uinfo->setDirection(UL);
             uinfo->setUserTxParams(schedulingGrant_->getUserTxParams());
+            uinfo->setLcid(SHORT_BSR);
             macPkt = new LteMacPdu("LteMacPdu");
             macPkt->setHeaderLength(MAC_HEADER);
             macPkt->setControlInfo(uinfo);
@@ -468,10 +484,10 @@ void LteMacUe::handleSelfMessage()
 void
 LteMacUe::macHandleGrant(cPacket* pkt)
 {
-    EV << NOW << " LteMacUe::macHandleGrant - UE [" << nodeId_ << "] - Grant received " << endl;
+    EV << NOW << " LteMacUe::macHandleGrant - UE [" << nodeId_ << "] - Grant received" << endl;
     // delete old grant
     LteSchedulingGrant* grant = check_and_cast<LteSchedulingGrant*>(pkt);
-
+    EV << NOW << " LteMacUe::macHandleGrant - Direction: " << dirToA(grant->getDirection()) << endl;
     //Codeword cw = grant->getCodeword();
 
     if (schedulingGrant_!=NULL)

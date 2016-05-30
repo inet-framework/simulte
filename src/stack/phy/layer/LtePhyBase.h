@@ -114,15 +114,21 @@ class LtePhyBase : public ChannelAccess
     //Statistics
     simsignal_t averageCqiDl_;
     simsignal_t averageCqiUl_;
+    simsignal_t averageCqiD2D_;
 
     simsignal_t averageCqiDlvect_;
     simsignal_t averageCqiUlvect_;
+    simsignal_t averageCqiD2Dvect_;
 
     TaggedSample *tSample_;
 
     // User that are trasmitting (uplink)
     //receiveng(downlink) current packet
     MacNodeId connectedNodeId_;
+
+    // last time that the node has transmitted (currently, used only by UEs)
+    simtime_t lastActive_;
+
     public:
 
     /**
@@ -148,7 +154,7 @@ class LtePhyBase : public ChannelAccess
     {
         return eNodeBtxPower_;
     }
-    double getTxPwr()
+    virtual double getTxPwr(Direction dir = UNKNOWN_DIRECTION)
     {
         return txPower_;
     }
@@ -316,6 +322,16 @@ class LtePhyBase : public ChannelAccess
      * Returns the pointer to the AMC module, given a master ID (ENODEB or RELAY)
      */
     LteAmc *getAmcModule(MacNodeId id);
+
+  public:
+    /*
+     * Returns the current position of the node
+     */
+    const Coord& getCoord() { return getRadioPosition(); }
+    /*
+     * Returns the time of the last transmission performed
+     */
+    simtime_t getLastActive() { return lastActive_; }
 };
 
 #endif  /* _LTE_AIRPHYBASE_H_ */
