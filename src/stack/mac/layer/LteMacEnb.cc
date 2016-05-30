@@ -317,7 +317,10 @@ void LteMacEnb::sendGrants(LteMacScheduleList* scheduleList)
         Codeword cw = it->first.second;
         Codeword otherCw = MAX_CODEWORDS - cw;
 
-        MacNodeId nodeId = it->first.first;
+        MacCid cid = it->first.first;
+        LogicalCid lcid = MacCidToLcid(cid);
+        MacNodeId nodeId = MacCidToNodeId(cid);
+
         unsigned int granted = it->second;
         unsigned int codewords = 0;
 
@@ -356,6 +359,8 @@ void LteMacEnb::sendGrants(LteMacScheduleList* scheduleList)
         // TODO Grant is set aperiodic as default
         LteSchedulingGrant* grant = new LteSchedulingGrant("LteGrant");
 
+        grant->setDirection(UL);
+
         grant->setCodewords(codewords);
 
         // set total granted blocks
@@ -376,12 +381,11 @@ void LteMacEnb::sendGrants(LteMacScheduleList* scheduleList)
 
         // acquiring remote antennas set from user info
         const std::set<Remote>& antennas = ui.readAntennaSet();
-        std::set<Remote>::const_iterator antenna_it = antennas.begin(),
-        antenna_et = antennas.end();
+        std::set<Remote>::const_iterator antenna_it, antenna_et = antennas.end();
         const unsigned int logicalBands = deployer_->getNumBands();
 
         //  HANDLE MULTICW
-        for (; cw <= codewords; ++cw)
+        for (; cw < codewords; ++cw)
         {
             unsigned int grantedBytes = 0;
 
@@ -389,7 +393,7 @@ void LteMacEnb::sendGrants(LteMacScheduleList* scheduleList)
             {
                 unsigned int bandAllocatedBlocks = 0;
 
-                for (; antenna_it != antenna_et; ++antenna_it)
+                for (antenna_it = antennas.begin(); antenna_it != antenna_et; ++antenna_it)
                 {
                     bandAllocatedBlocks += enbSchedulerUl_->readPerUeAllocatedBlocks(nodeId,
                         *antenna_it, b);

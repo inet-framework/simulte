@@ -56,6 +56,9 @@ class LteBinder : public cSimpleModule
     // list of all eNBs. Used for inter-cell interference evaluation
     std::vector<EnbInfo*> enbList_;
 
+    // list of all UEs. Used for inter-cell interference evaluation
+    std::vector<UeInfo*> ueList_;
+
     MacNodeId macNodeIdCounter_[3]; // MacNodeId Counter
     DeployedUesMap dMap_; // DeployedUes --> Master Mapping
     QCIParameters QCIParam_[LTE_QCI_CLASSES];
@@ -70,10 +73,15 @@ class LteBinder : public cSimpleModule
     typedef std::map<X2NodeId, std::list<int> > X2ListeningPortMap;
     X2ListeningPortMap x2ListeningPorts_;
 
-  protected:
-    virtual void initialize();
+    /*
+     * D2D Support
+     */
+    bool **d2dPeeringCapability_;
 
-    //virtual int numInitStages() const { return 2; }
+  protected:
+    virtual void initialize(int stages);
+
+    virtual int numInitStages() const { return 2; }
 
     virtual void handleMessage(cMessage *msg)
     {
@@ -263,12 +271,29 @@ class LteBinder : public cSimpleModule
         return &enbList_;
     }
 
+    void addUeInfo(UeInfo* info)
+    {
+        ueList_.push_back(info);
+    }
+
+    std::vector<UeInfo*> * getUeList()
+    {
+        return &ueList_;
+    }
+
+    Cqi meanCqi(std::vector<Cqi> bandCqi,MacNodeId id,Direction dir);
+
     /*
      * X2 Support
      */
     void registerX2Port(X2NodeId nodeId, int port);
     int getX2Port(X2NodeId nodeId);
 
+    /*
+     * D2D Support
+     */
+    void addD2DCapability(MacNodeId src, MacNodeId dst);
+    bool checkD2DCapability(MacNodeId src, MacNodeId dst);
 };
 
 #endif

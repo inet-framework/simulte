@@ -56,6 +56,7 @@ class LteMacBase : public cSimpleModule
   protected:
     simsignal_t macBufferOverflowDl_;
     simsignal_t macBufferOverflowUl_;
+    simsignal_t macBufferOverflowD2D_;
     simsignal_t receivedPacketFromUpperLayer;
     simsignal_t receivedPacketFromLowerLayer;
     simsignal_t sentPacketToUpperLayer;
@@ -220,6 +221,11 @@ class LteMacBase : public cSimpleModule
     void emitItbs( unsigned int iTbs )
     {
         emit( measuredItbs_ , iTbs );
+    }
+
+    virtual bool isD2DCapable()
+    {
+        return false;
     }
 
   protected:

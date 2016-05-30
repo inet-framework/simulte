@@ -85,6 +85,8 @@ const std::string dirToA(Direction dir)
             return "DL";
         case UL:
             return "UL";
+        case D2D:
+            return "D2D";
         default:
             return "Unrecognized";
     }
@@ -434,6 +436,7 @@ MacCid ctrlInfoToMacCid(LteControlInfo * info)
      * ---------------------------
      *    DL     | eNb ---->  UE
      *    UL     | UE  ---->  eNb
+     *    D2D    | UE  ---->  UE
      *
      */
     unsigned int dir = info->getDirection();
@@ -442,7 +445,7 @@ MacCid ctrlInfoToMacCid(LteControlInfo * info)
 
     switch (dir)
     {
-        case DL:
+        case DL: case D2D:
             ueId = info->getDestId();
             break;
         case UL:
@@ -465,6 +468,7 @@ MacNodeId ctrlInfoToUeId(LteControlInfo * info)
      * ---------------------------
      *    DL     | eNb ---->  UE
      *    UL     | UE  ---->  eNb
+     *    D2D    | UE  ---->  UE
      *
      */
     unsigned int dir = info->getDirection();
@@ -472,7 +476,7 @@ MacNodeId ctrlInfoToUeId(LteControlInfo * info)
 
     switch (dir)
     {
-        case DL:
+        case DL: case D2D:
             ueId = info->getDestId();
             break;
         case UL:

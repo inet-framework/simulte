@@ -21,6 +21,12 @@ unsigned int ConnectionsTable::hash_func(uint32_t srcAddr, uint32_t dstAddr,
     return (srcPort | dstPort | srcAddr | dstAddr) % TABLE_SIZE;
 }
 
+unsigned int ConnectionsTable::hash_func(uint32_t srcAddr, uint32_t dstAddr,
+    uint16_t srcPort, uint16_t dstPort, uint16_t dir)
+{
+    return (srcPort | dstPort | srcAddr | dstAddr | dir) % TABLE_SIZE;
+}
+
 LogicalCid ConnectionsTable::find_entry(uint32_t srcAddr, uint32_t dstAddr,
     uint16_t srcPort, uint16_t dstPort)
 {
@@ -38,6 +44,24 @@ LogicalCid ConnectionsTable::find_entry(uint32_t srcAddr, uint32_t dstAddr,
     }
 }
 
+LogicalCid ConnectionsTable::find_entry(uint32_t srcAddr, uint32_t dstAddr,
+    uint16_t srcPort, uint16_t dstPort, uint16_t dir)
+{
+    int hashIndex = hash_func(srcAddr, dstAddr, srcPort, dstPort, dir);
+    while (1)
+    {
+        if (ht_[hashIndex].lcid_ == 0xFFFF)            // Entry not found
+            return 0xFFFF;
+        if (ht_[hashIndex].srcAddr_ == srcAddr &&
+            ht_[hashIndex].dstAddr_ == dstAddr &&
+            ht_[hashIndex].srcPort_ == srcPort &&
+            ht_[hashIndex].dstPort_ == dstPort &&
+            ht_[hashIndex].dir_ == dir)
+            return ht_[hashIndex].lcid_;                // Entry found
+        hashIndex = (hashIndex + 1) % TABLE_SIZE;    // Linear scanning of the hash table
+    }
+}
+
 void ConnectionsTable::create_entry(uint32_t srcAddr, uint32_t dstAddr,
     uint16_t srcPort, uint16_t dstPort, LogicalCid lcid)
 {
@@ -48,6 +72,21 @@ void ConnectionsTable::create_entry(uint32_t srcAddr, uint32_t dstAddr,
     ht_[hashIndex].dstAddr_ = dstAddr;
     ht_[hashIndex].srcPort_ = srcPort;
     ht_[hashIndex].dstPort_ = dstPort;
+    ht_[hashIndex].lcid_ = lcid;
+    return;
+}
+
+void ConnectionsTable::create_entry(uint32_t srcAddr, uint32_t dstAddr,
+    uint16_t srcPort, uint16_t dstPort, uint16_t dir, LogicalCid lcid)
+{
+    int hashIndex = hash_func(srcAddr, dstAddr, srcPort, dstPort, dir);
+    while (ht_[hashIndex].lcid_ != 0xFFFF)
+        hashIndex = (hashIndex + 1) % TABLE_SIZE;    // Linear scanning of the hash table
+    ht_[hashIndex].srcAddr_ = srcAddr;
+    ht_[hashIndex].dstAddr_ = dstAddr;
+    ht_[hashIndex].srcPort_ = srcPort;
+    ht_[hashIndex].dstPort_ = dstPort;
+    ht_[hashIndex].dir_ = dir;
     ht_[hashIndex].lcid_ = lcid;
     return;
 }

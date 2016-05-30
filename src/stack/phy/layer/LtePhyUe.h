@@ -19,7 +19,7 @@ class DasFilter;
 
 class LtePhyUe : public LtePhyBase
 {
-  private:
+  protected:
     /** Master MacNodeId */
     MacNodeId masterId_;
 
@@ -85,12 +85,19 @@ class LtePhyUe : public LtePhyBase
 
     simtime_t lastFeedback_;
 
-  protected:
+    // for UL interference management
+    // store the map of RBs used by the UE for transmission
+    struct UsedRBs
+    {
+        simtime_t time_;
+        RbMap rbMap_;
+    };
+    std::vector<UsedRBs> usedRbs_;
 
     virtual void initialize(int stage);
 
     void handleSelfMessage(cMessage *msg);
-    void handleAirFrame(cMessage* msg);
+    virtual void handleAirFrame(cMessage* msg);
 
     virtual void handleUpperMessage(cMessage* msg);
 
@@ -118,7 +125,7 @@ class LtePhyUe : public LtePhyBase
     /**
      * Send Feedback, called by feedback generator in DL
      */
-    void sendFeedback(LteFeedbackDoubleVector fbDl, LteFeedbackDoubleVector fbUl, FeedbackRequest req);
+    virtual void sendFeedback(LteFeedbackDoubleVector fbDl, LteFeedbackDoubleVector fbUl, FeedbackRequest req);
     MacNodeId getMasterId() const
     {
         return masterId_;
@@ -128,6 +135,26 @@ class LtePhyUe : public LtePhyBase
         double fd = (speed / SPEED_OF_LIGHT) * carrierFrequency_;
         return 0.1 / fd;
     }
+    unsigned int getUsedRbs(const Remote antenna, Band b)
+    {
+        std::vector<UsedRBs>::iterator it = usedRbs_.begin();
+        for (; it != usedRbs_.end(); ++it)
+        {
+            if (it->time_ == NOW)
+                return it->rbMap_[antenna][b];
+        }
+    }
+    unsigned int getPrevUsedRbs(const Remote antenna, Band b)
+    {
+        std::vector<UsedRBs>::iterator it = usedRbs_.begin();
+        for (; it != usedRbs_.end(); ++it)
+        {
+            if (it->time_ == NOW-0.001)
+                return it->rbMap_[antenna][b];
+        }
+        return 0;
+    }
+
 };
 
 #endif  /* _LTE_AIRPHYUE_H_ */

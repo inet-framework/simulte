@@ -53,6 +53,13 @@ class LteChannelModel
      * @param lteinfo pointer to the user control info
      */
     virtual std::vector<double> getSINR(LteAirFrame *frame, UserControlInfo* lteInfo)=0;
+    /*
+     * Compute sinr (D2D) for each band for user nodeId according to pathloss, shadowing (optional) and multipath fading
+     *
+     * @param frame pointer to the packet
+     * @param lteinfo pointer to the user control info
+     */
+    virtual std::vector<double> getSINR_D2D(LteAirFrame *frame, UserControlInfo* lteInfo,MacNodeId peerUeId,Coord peerUeCoord,MacNodeId enbId=0)=0;
 };
 
 #endif

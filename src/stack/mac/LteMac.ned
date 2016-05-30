@@ -53,24 +53,35 @@ simple LteMacBase like LteMac {
         @statistic[macThroughputDl](title="Throughput at the MAC layer DL"; unit="Bps"; source="macThroughputDl"; record=lteRate);
         @statistic[macDelayUl](title="Delay at the MAC layer UL"; unit="s"; source="macDelayUl"; record=lteAvg);
         @statistic[macThroughputUl](title="Throughput at the MAC layer UL"; unit="Bps"; source="macThroughputUl"; record=lteRate);
+        @statistic[macDelayD2D](title="Delay at the MAC layer D2D"; unit="s"; source="macDelayD2D"; record=lteAvg);
+        @statistic[macThroughputD2D](title="Throughput at the MAC layer D2D"; unit="Bps"; source="macThroughputD2D"; record=lteRate);
         @statistic[macCellThroughputUl](title="Cell Throughput at the MAC layer UL"; unit="Bps"; source="macCellThroughputUl"; record=lteRate);
         @statistic[macCellThroughputDl](title="Cell Throughput at the MAC layer DL"; unit="Bps"; source="macCellThroughputDl"; record=lteRate);
-        @statistic[macCellPacketLossDl](title="Mac Cell Packet Loss"; unit=""; source="macCellPacketLossDl"; record=mean);
-        @statistic[macCellPacketLossUl](title="Mac Cell Packet Loss"; unit=""; source="macCellPacketLossUl"; record=mean);
-        @statistic[macPacketLossUl](title="Mac Packet Loss"; unit=""; source="macPacketLossUl"; record=mean);
-        @statistic[macPacketLossDl](title="Mac Packet Loss"; unit=""; source="macPacketLossDl"; record=mean);
+        @statistic[macCellThroughputD2D](title="Cell Throughput at the MAC layer D2D"; unit="Bps"; source="macCellThroughputD2D"; record=lteRate);  
+        @statistic[macCellPacketLossDl](title="Mac Cell Packet Loss Dl"; unit=""; source="macCellPacketLossDl"; record=mean);
+        @statistic[macCellPacketLossUl](title="Mac Cell Packet Loss Ul"; unit=""; source="macCellPacketLossUl"; record=mean);
+        @statistic[macCellPacketLossD2D](title="Mac Cell Packet Loss D2D"; unit=""; source="macCellPacketLossD2D"; record=mean);
+        @statistic[macPacketLossUl](title="Mac Packet Loss Ul"; unit=""; source="macPacketLossUl"; record=mean);
+        @statistic[macPacketLossDl](title="Mac Packet Loss Dl"; unit=""; source="macPacketLossDl"; record=mean);
+        @statistic[macPacketLossD2D](title="Mac Packet Loss D2D"; unit=""; source="macPacketLossD2D"; record=mean);
         @statistic[macBufferOverFlowDl](title="Mac buffer overflow as function of time"; unit="Byte/s"; source="macBufferOverFlowDl"; record=lteRate);
         @statistic[macBufferOverFlowUl](title="Mac buffer overflow as function of time"; unit="Byte/s"; source="macBufferOverFlowUl"; record=lteRate);
-        @statistic[harqErrorRateUl](title="Harq Error Rate Dl"; unit=""; source="harqErrorRateUl"; record=mean);
+    	@statistic[macBufferOverFlowD2D](title="Mac buffer overflow as function of time"; unit="Byte/s"; source="macBufferOverFlowD2D"; record=lteRate);
+        @statistic[harqErrorRateUl](title="Harq Error Rate Ul"; unit=""; source="harqErrorRateUl"; record=mean);
         @statistic[harqErrorRateDl](title="Harq Error Rate Dl"; unit=""; source="harqErrorRateDl"; record=mean);
-        @statistic[harqErrorRate_1st_Ul](title="Harq Error Rate Dl"; unit=""; source="harqErrorRate_1st_Ul"; record=mean);
+        @statistic[harqErrorRateD2D](title="Harq Error Rate D2D"; unit=""; source="harqErrorRateD2D"; record=mean);
+        @statistic[harqErrorRate_1st_Ul](title="Harq Error Rate Ul"; unit=""; source="harqErrorRate_1st_Ul"; record=mean);
         @statistic[harqErrorRate_1st_Dl](title="Harq Error Rate Dl"; unit=""; source="harqErrorRate_1st_Dl"; record=mean);
-        @statistic[harqErrorRate_2nd_Ul](title="Harq Error Rate Dl"; unit=""; source="harqErrorRate_2nd_Ul"; record=mean);
+        @statistic[harqErrorRate_1st_D2D](title="Harq Error Rate D2D"; unit=""; source="harqErrorRate_1st_D2D"; record=mean);
+        @statistic[harqErrorRate_2nd_Ul](title="Harq Error Rate Ul"; unit=""; source="harqErrorRate_2nd_Ul"; record=mean);
         @statistic[harqErrorRate_2nd_Dl](title="Harq Error Rate Dl"; unit=""; source="harqErrorRate_2nd_Dl"; record=mean);
-        @statistic[harqErrorRate_3rd_Ul](title="Harq Error Rate Dl"; unit=""; source="harqErrorRate_3rd_Ul"; record=mean);
+        @statistic[harqErrorRate_2nd_D2D](title="Harq Error Rate D2D"; unit=""; source="harqErrorRate_2nd_D2D"; record=mean);
+        @statistic[harqErrorRate_3rd_Ul](title="Harq Error Rate Ul"; unit=""; source="harqErrorRate_3rd_Ul"; record=mean);
         @statistic[harqErrorRate_3rd_Dl](title="Harq Error Rate Dl"; unit=""; source="harqErrorRate_3rd_Dl"; record=mean);
-        @statistic[harqErrorRate_4th_Ul](title="Harq Error Rate Dl"; unit=""; source="harqErrorRate_4th_Ul"; record=mean);
+        @statistic[harqErrorRate_3rd_D2D](title="Harq Error Rate D2D"; unit=""; source="harqErrorRate_3rd_D2D"; record=mean);
+        @statistic[harqErrorRate_4th_Ul](title="Harq Error Rate Ul"; unit=""; source="harqErrorRate_4th_Ul"; record=mean);
         @statistic[harqErrorRate_4th_Dl](title="Harq Error Rate Dl"; unit=""; source="harqErrorRate_4th_Dl"; record=mean);
+        @statistic[harqErrorRate_4th_D2D](title="Harq Error Rate D2D"; unit=""; source="harqErrorRate_4th_D2D"; record=mean);
         @statistic[receivedPacketFromUpperLayer](source="receivedPacketFromUpperLayer"; record=count,"sum(packetBytes)","vector(packetBytes)"; interpolationmode=none);
         @statistic[receivedPacketFromLowerLayer](source="receivedPacketFromLowerLayer"; record=count,"sum(packetBytes)","vector(packetBytes)"; interpolationmode=none);
         @statistic[sentPacketToUpperLayer](source="sentPacketToUpperLayer"; record=count,"sum(packetBytes)","vector(packetBytes)"; interpolationmode=none);
@@ -101,6 +112,17 @@ simple LteMacBase like LteMac {
 //
 simple LteMacUe extends LteMacBase {
     @class("LteMacUe");
+}
+
+//
+// D2D-capable User Equipment MAC layer of LTE stack
+//
+simple LteMacUeD2D extends LteMacUe {
+    parameters:
+        @class("LteMacUeD2D");
+    
+        bool usePreconfiguredTxParams = default(true);
+        int d2dCqi = default(7);
 }
 
 //
@@ -139,6 +161,9 @@ simple LteMacEnb extends LteMacBase {
         // FeedBack Historical Base capacity in UL (number of stored feedback samples per UE)
         int fbhbCapacityUl = default(5);
 
+        // FeedBack Historical Base capacity in D2D (number of stored feedback samples per UE)
+        int fbhbCapacityD2D = default(5);
+        
         // wideband PMI generation parameter (0.0 means "use the mean value" )        
         double pmiWeight = default(0.0);
 
@@ -444,6 +469,21 @@ simple LteMacEnb extends LteMacBase {
         @statistic[cqiDlMuMimo3](title="Average cqi MuMimo band 3"; unit="cqi"; source="cqiDlMuMimo3"; record=lteAvg);
         @statistic[cqiDlMuMimo4](title="Average cqi MuMimo band 4"; unit="cqi"; source="cqiDlMuMimo4"; record=lteAvg);    
 }    
+
+//
+// eNodeB MAC layer of LTE stack with support for D2D-capable UEs
+//
+simple LteMacEnbD2D extends LteMacEnb 
+{
+    parameters:
+        @class("LteMacEnbD2D"); 
+        
+        bool usePreconfiguredTxParams = default(true);
+        int d2dCqi = default(7);
+        
+      
+}
+
 //
 // Relay (UE side) MAC layer of LTE stack
 // Connection: eNodeB <--> Relay

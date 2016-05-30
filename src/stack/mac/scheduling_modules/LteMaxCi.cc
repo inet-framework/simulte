@@ -47,7 +47,6 @@ void LteMaxCi::prepareSchedule()
 ////        int status = cplexTest_.init(activeConnectionTempSet_.size() , bpb , totalRbs);
 //    }
     // ==========================
-
     for ( ActiveSet::iterator it1 = activeConnectionTempSet_.begin ();it1 != activeConnectionTempSet_.end (); ++it1 )
     {
         // Current connection.
@@ -55,8 +54,13 @@ void LteMaxCi::prepareSchedule()
 
         MacNodeId nodeId = MacCidToNodeId(cid);
 
+        // if we are allocating the UL subframe, this connection may be either UL or D2D
+        Direction dir;
+        if (direction_ == UL)
+            dir = (MacCidToLcid(cid) == D2D_SHORT_BSR) ? D2D : direction_;
+
         // compute available blocks for the current user
-        const UserTxParams& info = eNbScheduler_->mac_->getAmc()->computeTxParams(nodeId,direction_);
+        const UserTxParams& info = eNbScheduler_->mac_->getAmc()->computeTxParams(nodeId,dir);
         const std::set<Band>& bands = info.readBands();
         std::set<Band>::const_iterator it = bands.begin(),et=bands.end();
         unsigned int codeword=info.getLayers().size();
@@ -84,7 +88,7 @@ void LteMaxCi::prepareSchedule()
             for (;it!=et;++it)
             {
                 availableBlocks += eNbScheduler_->readAvailableRbs(nodeId,*antennaIt,*it);
-                availableBytes += eNbScheduler_->mac_->getAmc()->computeBytesOnNRbs(nodeId,*it, availableBlocks, direction_);
+                availableBytes += eNbScheduler_->mac_->getAmc()->computeBytesOnNRbs(nodeId,*it, availableBlocks, dir);
             }
         }
 

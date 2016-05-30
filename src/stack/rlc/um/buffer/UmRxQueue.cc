@@ -47,39 +47,36 @@ bool UmRxQueue::defragment(cPacket* pkt)
 
     EV << "UmRxBuffer : Processing fragment " << fragSno << "(size " << fragSize
        << ")" << " of packet " << pktId << " with LCID: " << lcid << " [src=" << srcId << "]-[dst=" << dstId << "]\n";
-//    std::cout << "UmRxBuffer : Processing fragment " << fragSno << "(size " << fragSize
-//            << ")" << " of packet " << pktId << " with LCID: " << lcid << " [src=" << srcId << "]-[dst=" << dstId << "]\n";
 
     pduDelay = (NOW - pkt->getCreationTime()).dbl();
     bool first = fragbuf_.insert(pktId, totFrag, fragSno, fragSize, lteInfo);
     tSample_->sample_ = pkt->getByteLength();
 
-    cModule* nodeb = NULL;
-    cModule* ue = NULL;
-
-    if (dir == DL)
+    MacNodeId ueId = ctrlInfoToUeId(lteInfo);
+    if (ue_ == NULL)
     {
-        tSampleCell_->id_ = srcId;
-        tSample_->id_ = dstId;
-        nodeb = getRlcByMacNodeId(srcId, UM);
-        ue = getRlcByMacNodeId(dstId, UM);
+        ue_ = getRlcByMacNodeId(ueId, UM);
     }
-    else if (dir == UL)
+    tSample_->id_ = ueId;
+    tSample_->module_=ue_;
+
+    if (lteInfo->getDirection() != D2D)
     {
-        tSampleCell_->id_ = dstId;
-        tSample_->id_ = srcId;
-        nodeb = getRlcByMacNodeId(dstId, UM);
-        ue = getRlcByMacNodeId(srcId, UM);
+        ue_->emit(rlcPduThroughput_, tSample_);
+        tSample_->sample_ = pduDelay;
+        ue_->emit(rlcPduDelay_, tSample_);
+        tSample_->sample_ = 0;
+        ue_->emit(rlcPduPacketLoss_, tSample_);
+    }
+    else
+    {
+        ue_->emit(rlcPduThroughputD2D_, tSample_);
+        tSample_->sample_ = pduDelay;
+        ue_->emit(rlcPduDelayD2D_, tSample_);
+        tSample_->sample_ = 0;
+        ue_->emit(rlcPduPacketLossD2D_, tSample_);
     }
 
-    tSampleCell_->module_=nodeb;
-    tSample_->module_=ue;
-
-    ue->emit(rlcPduThroughput_, tSample_);
-    tSample_->sample_ = pduDelay;
-    ue->emit(rlcPduDelay_, tSample_);
-    tSample_->sample_ = 0;
-    ue->emit(rlcPduPacketLoss_, tSample_);
 
     // Insert and check if all fragments have been gathered
     if (first)
@@ -122,16 +119,32 @@ bool UmRxQueue::defragment(cPacket* pkt)
     tSample_->sample_ = size;
     tSampleCell_->sample_ = size;
 
-    nodeb->emit(rlcCellThroughput_, tSampleCell_);
-    ue->emit(rlcThroughput_, tSample_);
+    if (lteInfo->getDirection() != D2D)
+    {
+        nodeB_->emit(rlcCellThroughput_, tSampleCell_);
+        ue_->emit(rlcThroughput_, tSample_);
 
-    tSample_->sample_ = delay;
-    ue->emit(rlcDelay_, tSample_);
+        tSample_->sample_ = delay;
+        ue_->emit(rlcDelay_, tSample_);
 
-    tSample_->sample_ = 0;
-    tSampleCell_->sample_ = 0;
-    ue->emit(rlcPacketLoss_, tSample_);
-    nodeb->emit(rlcCellPacketLoss_, tSampleCell_);
+        tSample_->sample_ = 0;
+        tSampleCell_->sample_ = 0;
+        ue_->emit(rlcPacketLoss_, tSample_);
+        nodeB_->emit(rlcCellPacketLoss_, tSampleCell_);
+    }
+    else
+    {
+        nodeB_->emit(rlcCellThroughputD2D_, tSampleCell_);
+        ue_->emit(rlcThroughputD2D_, tSample_);
+
+        tSample_->sample_ = delay;
+        ue_->emit(rlcDelayD2D_, tSample_);
+
+        tSample_->sample_ = 0;
+        tSampleCell_->sample_ = 0;
+        ue_->emit(rlcPacketLossD2D_, tSample_);
+        nodeB_->emit(rlcCellPacketLossD2D_, tSampleCell_);
+    }
 
     EV << "UmRxBuffer : Reassembled packet " << pktId << " with LCID: " << lcid
        << "\n";
@@ -154,8 +167,15 @@ void UmRxQueue::initialize()
     LteMacBase* mac = check_and_cast<LteMacBase*>(
         getParentModule()->getParentModule()->getSubmodule("mac"));
 
+    nodeB_ = getRlcByMacNodeId(mac->getMacCellId(), UM);
+
+    tSampleCell_->id_ = mac->getMacCellId();
+    tSampleCell_->module_ = nodeB_;
+
     if (mac->getNodeType() == ENODEB)
     {
+        ue_ = NULL;
+
         rlcCellPacketLoss_ = parent->registerSignal("rlcCellPacketLossUl");
         rlcPacketLoss_ = parent->registerSignal("rlcPacketLossUl");
         rlcPduPacketLoss_ = parent->registerSignal("rlcPduPacketLossUl");
@@ -167,7 +187,7 @@ void UmRxQueue::initialize()
     }
     else
     {
-        cModule* nodeB = getRlcByMacNodeId(mac->getMacCellId(), UM);
+        ue_ = parent;
 
         rlcPacketLoss_ = parent->registerSignal("rlcPacketLossDl");
         rlcPduPacketLoss_ = parent->registerSignal("rlcPduPacketLossDl");
@@ -176,8 +196,21 @@ void UmRxQueue::initialize()
         rlcPduDelay_ = parent->registerSignal("rlcPduDelayDl");
         rlcPduThroughput_ = parent->registerSignal("rlcPduThroughputDl");
 
-        rlcCellThroughput_ = nodeB->registerSignal("rlcCellThroughputDl");
-        rlcCellPacketLoss_ = nodeB->registerSignal("rlcCellPacketLossDl");
+        rlcCellThroughput_ = nodeB_->registerSignal("rlcCellThroughputDl");
+        rlcCellPacketLoss_ = nodeB_->registerSignal("rlcCellPacketLossDl");
+
+        if (mac->isD2DCapable())
+        {
+            rlcPacketLossD2D_ = parent->registerSignal("rlcPacketLossD2D");
+            rlcPduPacketLossD2D_ = parent->registerSignal("rlcPduPacketLossD2D");
+            rlcDelayD2D_ = parent->registerSignal("rlcDelayD2D");
+            rlcThroughputD2D_ = parent->registerSignal("rlcThroughputD2D");
+            rlcPduDelayD2D_ = parent->registerSignal("rlcPduDelayD2D");
+            rlcPduThroughputD2D_ = parent->registerSignal("rlcPduThroughputD2D");
+
+            rlcCellThroughputD2D_ = nodeB_->registerSignal("rlcCellThroughputD2D");
+            rlcCellPacketLossD2D_ = nodeB_->registerSignal("rlcCellPacketLossD2D");
+        }
     }
 
     WATCH(timeout_);
@@ -194,33 +227,47 @@ void UmRxQueue::handleMessage(cMessage* msg)
            << tmsg->getEvent() << endl;
 
         FlowControlInfo* lteInfo = fragbuf_.getLteInfo(tmsg->getEvent());
-        MacNodeId srcId = lteInfo->getSourceId();
-        MacNodeId dstId = lteInfo->getDestId();
+//        MacNodeId srcId = lteInfo->getSourceId();
+//        MacNodeId dstId = lteInfo->getDestId();
         unsigned short dir = lteInfo->getDirection();
         tSample_->sample_ = 1;
         tSampleCell_->sample_ = 1;
 
-        if (dir == DL)
+//        if (dir == DL)
+//        {
+//            tSample_->id_ = dstId;
+//            tSampleCell_->id_ = srcId;
+//        }
+//        else if (dir == UL)
+//        {
+//            tSample_->id_ = srcId;
+//            tSampleCell_->id_ = dstId;
+//        }
+
+
+        MacNodeId ueId = ctrlInfoToUeId(lteInfo);
+        if (ue_ == NULL)
         {
-            tSample_->id_ = dstId;
-            tSampleCell_->id_ = srcId;
+            ue_ = getRlcByMacNodeId(ueId, UM);
         }
-        else if (dir == UL)
+        tSampleCell_->module_ = nodeB_;
+        tSample_->id_ = ueId;
+        tSample_->module_ = ue_;
+
+        if (dir != D2D)
         {
-            tSample_->id_ = srcId;
-            tSampleCell_->id_ = dstId;
+            ue_->emit(rlcPacketLoss_, tSample_);
+            nodeB_->emit(rlcCellPacketLoss_, tSampleCell_);
         }
-
-        // UE module
-        cModule* ue = getRlcByMacNodeId((dir == DL ? dstId : srcId), UM);
-        // NODEB
-        cModule* nodeb = getRlcByMacNodeId((dir == DL ? srcId : dstId), UM);
-
-        tSampleCell_->module_ = nodeb;
-        tSample_->module_ = ue;
-
-        ue->emit(rlcPacketLoss_, tSample_);
-        nodeb->emit(rlcCellPacketLoss_, tSampleCell_);
+        else
+        {
+            ue_->emit(rlcPacketLossD2D_, tSample_);
+            nodeB_->emit(rlcCellPacketLossD2D_, tSampleCell_);
+        }
+//        // UE module
+//        cModule* ue = getRlcByMacNodeId((dir == DL ? dstId : srcId), UM);
+//        // NODEB
+//        cModule* nodeb = getRlcByMacNodeId((dir == DL ? srcId : dstId), UM);
 
         fragbuf_.remove(tmsg->getEvent());
         timer_.handle(tmsg->getEvent()); // Stop timer

@@ -22,7 +22,7 @@ LcgScheduler::~LcgScheduler()
 }
 
 ScheduleList&
-LcgScheduler::schedule(unsigned int availableBytes)
+LcgScheduler::schedule(unsigned int availableBytes, Direction grantDir)
 {
     /* clean up old schedule decisions
      for each cid, this map will store the the amount of sent data (in SDUs)
@@ -84,6 +84,13 @@ LcgScheduler::schedule(unsigned int availableBytes)
 
             // get the Flow descriptor
             FlowControlInfo connDesc = mac_->getConnDesc().at(cid);
+
+            if (connDesc.getDirection() != grantDir)  // if the connection has different direction from the grant direction, skip it
+            {
+                EV << NOW << " LteSchedulerUeUl::schedule - Connection " << cid << " is " << dirToA((Direction)connDesc.getDirection()) << " whereas grant is " << dirToA(grantDir) << ". Skip. " << endl;
+                continue;
+            }
+
             // TODO get the QoS parameters
 
 //            // get a pointer to the appropriate status element: we need a tracing element

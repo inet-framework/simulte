@@ -20,7 +20,7 @@ import inet.nodes.inet.NetworkLayer;
 import inet.transport.tcp.TCP;
 import inet.transport.udp.UDP;
 import lte.stack.phy.LteNicUe;
-
+import lte.stack.phy.LteNicUeD2D;
 
 // 
 // User Equipment Module
@@ -43,6 +43,9 @@ module Ue
         int masterId;
         int macNodeId = default(0); // TODO: this is not a real parameter
         int macCellId = default(0); // TODO: this is not a real parameter
+        
+        //# D2D capability
+        bool d2dCapable = default(false);
 
     gates:
         input radioIn @directIn;     // connection to master
@@ -73,7 +76,12 @@ module Ue
             @display("p=325,150");
         }
         // NOTE: instance must be named "nic"
-        nic: LteNicUe {
+        nic: LteNicUe if !d2dCapable {
+            nodeType = nodeType;
+            @display("p=250,407");
+        }
+        // NOTE: instance must be named "nic"
+        nic: LteNicUeD2D if d2dCapable {
             nodeType = nodeType;
             @display("p=250,407");
         }

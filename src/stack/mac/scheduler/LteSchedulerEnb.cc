@@ -158,9 +158,17 @@ unsigned int LteSchedulerEnb::scheduleGrant(MacCid cid, unsigned int bytes,
     // Get the node ID and logical connection ID
     MacNodeId nodeId = MacCidToNodeId(cid);
     LogicalCid flowId = MacCidToLcid(cid);
+
+    Direction dir = direction_;
+    if (dir == UL)
+    {
+        // check if this connection is a D2D connection
+        if (flowId == D2D_SHORT_BSR)
+            dir = D2D;     // if yes, change direction
+    }
+
     // Get user transmission parameters
-    const UserTxParams& txParams = mac_->getAmc()->computeTxParams(nodeId,
-        direction_);
+    const UserTxParams& txParams = mac_->getAmc()->computeTxParams(nodeId, dir);
     //get the number of codewords
     unsigned int numCodewords = txParams.getLayers().size();
 
@@ -201,7 +209,7 @@ unsigned int LteSchedulerEnb::scheduleGrant(MacCid cid, unsigned int bytes,
     // Perform normal operation for grant
 
     // Get virtual buffer reference
-    LteMacBuffer* conn = ((direction_ == DL) ? vbuf_->at(cid) : bsrbuf_->at(cid));
+    LteMacBuffer* conn = ((dir == DL) ? vbuf_->at(cid) : bsrbuf_->at(cid));
 
     EV << "LteSchedulerEnb::grant --------------------::[ START GRANT ]::--------------------" << endl;
     EV << "LteSchedulerEnb::grant Cell: " << mac_->getMacCellId() << endl;
@@ -211,7 +219,7 @@ unsigned int LteSchedulerEnb::scheduleGrant(MacCid cid, unsigned int bytes,
     if (mac_->muMimo() && (txParams.readTxMode() == MULTI_USER))
     {
         // request AMC for MU_MIMO pairing
-        MacNodeId peer = mac_->getAmc()->computeMuMimoPairing(nodeId, direction_);
+        MacNodeId peer = mac_->getAmc()->computeMuMimoPairing(nodeId, dir);
         if (peer != nodeId)
         {
             // this user has a valid pairing
@@ -353,12 +361,12 @@ unsigned int LteSchedulerEnb::scheduleGrant(MacCid cid, unsigned int bytes,
 
                 //    bandAvailableBlocks=b1;
 
-                bandAvailableBytes = mac_->getAmc()->computeBytesOnNRbs(nodeId, b, cw, bandAvailableBlocks, direction_);
+                bandAvailableBytes = mac_->getAmc()->computeBytesOnNRbs(nodeId, b, cw, bandAvailableBlocks, dir);
             }
             // if limit is expressed in blocks, limit value must be passed to availableBytes function
             else
             {
-                bandAvailableBytes = availableBytes(nodeId, antenna, b, cw, (limitBl) ? limit : -1); // available space (in bytes)
+                bandAvailableBytes = availableBytes(nodeId, antenna, b, cw, dir, (limitBl) ? limit : -1); // available space (in bytes)
                 bandAvailableBlocks = allocator_->availableBlocks(nodeId, antenna, b);
             }
 
@@ -422,7 +430,7 @@ unsigned int LteSchedulerEnb::scheduleGrant(MacCid cid, unsigned int bytes,
                 if (((vQueueFrontSize + totalAllocatedBytes + cwAllocatedBytes + bandAllocatedBytes) > bytes)
                     && bytes != 0)
                 {
-                    if (direction_ == DL)
+                    if (dir == DL)
                     {
                         // can't schedule partial SDUs
                         EV << "LteSchedulerEnb::grant available grant is  :  " << bytes - (totalAllocatedBytes + cwAllocatedBytes + bandAllocatedBytes) << ", insufficient for SDU size : " << vQueueFrontSize << endl;
@@ -449,12 +457,13 @@ unsigned int LteSchedulerEnb::scheduleGrant(MacCid cid, unsigned int bytes,
                     EV << "LteSchedulerEnb::grant Band " << li->b_ << " can contribute with " << li->bytes_ << " of booked resources " << endl;
                 }
 
-                    // The current SDU may have a size greater than available space
-
-                if (toServe > (bandAvailableBytes + totalBooked))
+                // The current SDU may have a size greater than available space. In this case, book the band.
+                // During UL/D2D scheduling, if this is the last band, it means that there is no more space
+                // for booking resources, thus we allocate partial BSR
+                if (toServe > (bandAvailableBytes + totalBooked) && (direction_ == DL || ((direction_ == UL || direction_ == D2D) && b < size-1)))
                 {
-                    unsigned int blocksAdded = mac_->getAmc()->computeReqRbs(nodeId, b, cw, bandAllocatedBytes,
-                        direction_);
+                    unsigned int blocksAdded = mac_->getAmc()->computeReqRbs(nodeId, b, cw, bandAllocatedBytes,        // substitute bandAllocatedBytes
+                        dir);
 
                     if (blocksAdded > bandAvailableBlocks)
                         throw cRuntimeError("band %d GRANT allocation overflow : avail. blocks %d alloc. blocks %d", b,
@@ -489,7 +498,7 @@ unsigned int LteSchedulerEnb::scheduleGrant(MacCid cid, unsigned int bytes,
                             bookedUsed+= uBytes;
                             cwAllocatedBytes+=uBytes;
 
-                            unsigned int uBlocks = mac_->getAmc()->computeReqRbs(nodeId,u, cw, uBytes, direction_);
+                            unsigned int uBlocks = mac_->getAmc()->computeReqRbs(nodeId,u, cw, uBytes, dir);
 
                             if (uBlocks <= li->blocks_)
                             {
@@ -520,6 +529,8 @@ unsigned int LteSchedulerEnb::scheduleGrant(MacCid cid, unsigned int bytes,
                             {
                                 // mark here allocation
                                 allocator_->addBlocks(antenna,u,nodeId,uBlocks,uBytes);
+                                cwAllocatedBlocks += uBlocks;
+                                totalAllocatedBlocks += uBlocks;
                             }
 
                             // update reserved status
@@ -545,6 +556,13 @@ unsigned int LteSchedulerEnb::scheduleGrant(MacCid cid, unsigned int bytes,
                     EV << "LteSchedulerEnb::grant band " << (unsigned short)b << " scheduled  " << toServe << " bytes " << " using " << bookedUsed << " resources on other bands and "
                        << (toServe-bookedUsed) << " on its own space which was " << bandAvailableBytes << endl;
 
+                    if (direction_ == UL || direction_ == D2D)
+                    {
+                        // in UL/D2D, serve what it is possible to serve
+                        if ((toServe-bookedUsed)>bandAvailableBytes)
+                            toServe = bookedUsed + bandAvailableBytes;
+                    }
+
                     if ((toServe-bookedUsed)>bandAvailableBytes)
                     throw cRuntimeError(" Booked resources allocation exited in an abnormal state ");
 
@@ -558,11 +576,23 @@ unsigned int LteSchedulerEnb::scheduleGrant(MacCid cid, unsigned int bytes,
                     // consume one virtual SDU
 
                     // check if we are granting less than a full BSR |
-                    if (direction_==UL && (toServe<vQueueFrontSize))
+                    if ((dir==UL || dir==D2D) && (toServe<vQueueFrontSize))
                     {
                         // update the virtual queue
 
-                        conn->front().first = (vQueueFrontSize-toServe);
+//                        conn->front().first = (vQueueFrontSize-toServe);
+
+                        // just decrementing the first element is not correct because the queueOccupancy would not be updated
+                        // we need to pop the element from the queue and then push it again with a new value
+                        unsigned int newSize = conn->front().first - toServe;
+                        PacketInfo info = conn->popFront();
+
+                        // push the element only if the size is > 0
+                        if (newSize > 0)
+                        {
+                            info.first = newSize;
+                            conn->pushFront(info);
+                        }
                     }
                     else
                     {
@@ -572,6 +602,13 @@ unsigned int LteSchedulerEnb::scheduleGrant(MacCid cid, unsigned int bytes,
                     vQueueItemCounter++;
 
                     EV << "LteSchedulerEnb::grant Consumed: " << vQueueItemCounter << " MAC-SDU (" << vQueueFrontSize << " bytes) [Available: " << bandAvailableBytes << " bytes] [Allocated: " << bandAllocatedBytes << " bytes]" << endl;
+
+                    // if there are no more bands available for UL/D2D scheduling
+                    if ((direction_ == UL || direction_ == D2D) && b == size-1)
+                    {
+                        stop = true;
+                        break;
+                    }
 
                     if(bytes == 0 && vQueueItemCounter>0)
                     {
@@ -587,7 +624,7 @@ unsigned int LteSchedulerEnb::scheduleGrant(MacCid cid, unsigned int bytes,
 
             if (bandAllocatedBytes > 0)
             {
-                unsigned int blocksAdded = mac_->getAmc()->computeReqRbs(nodeId, b, cw, bandAllocatedBytes, direction_);
+                unsigned int blocksAdded = mac_->getAmc()->computeReqRbs(nodeId, b, cw, bandAllocatedBytes, dir);
 
                 if (blocksAdded > bandAvailableBlocks)
                     throw cRuntimeError("band %d GRANT allocation overflow: avail. blocks %d alloc. blocks %d", b,
@@ -648,14 +685,7 @@ unsigned int LteSchedulerEnb::scheduleGrant(MacCid cid, unsigned int bytes,
             totalAllocatedBytes += cwAllocatedBytes;
 
             std::pair<unsigned int, Codeword> scListId;
-            if (direction_ == DL)
-            {
-                scListId.first = cid;
-            }
-            else //if  (direction_==UL )
-            {
-                scListId.first = nodeId;
-            }
+            scListId.first = cid;
             scListId.second = cw;
 
             if (scheduleList_.find(scListId) == scheduleList_.end())
@@ -663,7 +693,7 @@ unsigned int LteSchedulerEnb::scheduleGrant(MacCid cid, unsigned int bytes,
 
             // if direction is DL , then schedule list contains number of to-be-trasmitted SDUs ,
             // otherwise it contains number of granted blocks
-            scheduleList_[scListId] += ((direction_ == DL) ? vQueueItemCounter : cwAllocatedBlocks);
+            scheduleList_[scListId] += ((dir == DL) ? vQueueItemCounter : cwAllocatedBlocks);
 
             EV << "LteSchedulerEnb::grant CODEWORD IS NOW BUSY: GO TO NEXT CODEWORD." << endl;
             if (allocatedCws_.at(nodeId) == MAX_CODEWORDS)
@@ -743,7 +773,7 @@ void LteSchedulerEnb::initAndResetAllocator()
 }
 
 unsigned int LteSchedulerEnb::availableBytes(const MacNodeId id,
-    Remote antenna, Band b, Codeword cw, int limit)
+    Remote antenna, Band b, Codeword cw, Direction dir, int limit)
 {
     EV << "LteSchedulerEnb::availableBytes MacNodeId " << id << " Antenna " << dasToA(antenna) << " band " << b << " cw " << cw << endl;
     // Retrieving this user available resource blocks
@@ -754,7 +784,7 @@ unsigned int LteSchedulerEnb::availableBytes(const MacNodeId id,
 
     if (limit!=-1)
     blocks=(blocks>limit)?limit:blocks;
-    unsigned int bytes = mac_->getAmc()->computeBytesOnNRbs(id, b, cw, blocks, direction_);
+    unsigned int bytes = mac_->getAmc()->computeBytesOnNRbs(id, b, cw, blocks, dir);
     EV << "LteSchedulerEnb::availableBytes MacNodeId " << id << " blocks [" << blocks << "], bytes [" << bytes << "]" << endl;
 
     return bytes;

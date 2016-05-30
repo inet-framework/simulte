@@ -26,6 +26,7 @@ LteHarqUnitTx::LteHarqUnitTx(unsigned char acid, Codeword cw,
 
     if (macOwner_->getNodeType() == ENODEB)
     {
+        nodeB_ = macOwner_;
         macPacketLoss_ = dstMac_->registerSignal("macPacketLossDl");
         macCellPacketLoss_ = macOwner_->registerSignal("macCellPacketLossDl");
         harqErrorRate_ = dstMac_->registerSignal("harqErrorRateDl");
@@ -34,16 +35,29 @@ LteHarqUnitTx::LteHarqUnitTx(unsigned char acid, Codeword cw,
         harqErrorRate_3_ = dstMac_->registerSignal("harqErrorRate_3rd_Dl");
         harqErrorRate_4_ = dstMac_->registerSignal("harqErrorRate_4th_Dl");
     }
-    else
+    else  // UE
     {
-        cModule* nodeB = getMacByMacNodeId(macOwner_->getMacCellId());
-        macPacketLoss_ = macOwner_->registerSignal("macPacketLossUl");
-        macCellPacketLoss_ = nodeB->registerSignal("macCellPacketLossUl");
-        harqErrorRate_ = macOwner_->registerSignal("harqErrorRateUl");
-        harqErrorRate_1_ = macOwner_->registerSignal("harqErrorRate_1st_Ul");
-        harqErrorRate_2_ = macOwner_->registerSignal("harqErrorRate_2nd_Ul");
-        harqErrorRate_3_ = macOwner_->registerSignal("harqErrorRate_3rd_Ul");
-        harqErrorRate_4_ = macOwner_->registerSignal("harqErrorRate_4th_Ul");
+        nodeB_ = getMacByMacNodeId(macOwner_->getMacCellId());
+        if (dstMac_ == nodeB_)  // UL
+        {
+            macPacketLoss_ = macOwner_->registerSignal("macPacketLossUl");
+            macCellPacketLoss_ = nodeB_->registerSignal("macCellPacketLossUl");
+            harqErrorRate_ = macOwner_->registerSignal("harqErrorRateUl");
+            harqErrorRate_1_ = macOwner_->registerSignal("harqErrorRate_1st_Ul");
+            harqErrorRate_2_ = macOwner_->registerSignal("harqErrorRate_2nd_Ul");
+            harqErrorRate_3_ = macOwner_->registerSignal("harqErrorRate_3rd_Ul");
+            harqErrorRate_4_ = macOwner_->registerSignal("harqErrorRate_4th_Ul");
+        }
+        else  // D2D
+        {
+            macPacketLossD2D_ = macOwner_->registerSignal("macPacketLossUlD2D");
+            macCellPacketLossD2D_ = nodeB_->registerSignal("macCellPacketLossUlD2D");
+            harqErrorRateD2D_ = dstMac_->registerSignal("harqErrorRateD2D");
+            harqErrorRateD2D_1_ = dstMac_->registerSignal("harqErrorRate_1st_D2D");
+            harqErrorRateD2D_2_ = dstMac_->registerSignal("harqErrorRate_2nd_D2D");
+            harqErrorRateD2D_3_ = dstMac_->registerSignal("harqErrorRate_3rd_D2D");
+            harqErrorRateD2D_4_ = dstMac_->registerSignal("harqErrorRate_4th_D2D");
+        }
     }
 }
 
@@ -149,47 +163,78 @@ bool LteHarqUnitTx::pduFeedback(HarqAcknowledgment a)
         throw cRuntimeError("LteHarqUnitTx::pduFeedback unknown feedback received from process %d , Codeword %d", acid_, cw_);
     }
 
-    LteMacBase *ue, *eNodeB;
-    if (dir == DL)
+    LteMacBase* ue;
+    if (dir == DL || dir == D2D)
     {
         ue = dstMac_;
-        eNodeB = macOwner_;
     }
     else if (dir == UL)
     {
         ue = macOwner_;
-        eNodeB = dstMac_;
     }
     else
     {
         throw cRuntimeError("LteHarqUnitTx::pduFeedback(): unknown direction");
     }
 
-    switch (ntx)
+    // emit H-ARQ statistics
+    if (dir == D2D)
     {
-        case 1:
-        ue->emit(harqErrorRate_1_, sample);
-        break;
-        case 2:
-        ue->emit(harqErrorRate_2_, sample);
-        break;
-        case 3:
-        ue->emit(harqErrorRate_3_, sample);
-        break;
-        case 4:
-        ue->emit(harqErrorRate_4_, sample);
-        break;
-        default:
-        break;
+        switch (ntx)
+        {
+            case 1:
+            ue->emit(harqErrorRateD2D_1_, sample);
+            break;
+            case 2:
+            ue->emit(harqErrorRateD2D_2_, sample);
+            break;
+            case 3:
+            ue->emit(harqErrorRateD2D_3_, sample);
+            break;
+            case 4:
+            ue->emit(harqErrorRateD2D_4_, sample);
+            break;
+            default:
+            break;
+        }
+
+        ue->emit(harqErrorRateD2D_, sample);
+
+        if (reset)
+        {
+            ue->emit(macPacketLossD2D_, sample);
+            nodeB_->emit(macCellPacketLossD2D_, sample);
+        }
+    }
+    else
+    {
+        switch (ntx)
+        {
+            case 1:
+            ue->emit(harqErrorRate_1_, sample);
+            break;
+            case 2:
+            ue->emit(harqErrorRate_2_, sample);
+            break;
+            case 3:
+            ue->emit(harqErrorRate_3_, sample);
+            break;
+            case 4:
+            ue->emit(harqErrorRate_4_, sample);
+            break;
+            default:
+            break;
+        }
+
+        ue->emit(harqErrorRate_, sample);
+
+        if (reset)
+        {
+            ue->emit(macPacketLoss_, sample);
+            nodeB_->emit(macCellPacketLoss_, sample);
+        }
     }
 
-    ue->emit(harqErrorRate_, sample);
-
-    if (reset)
-    {
-        ue->emit(macPacketLoss_, sample);
-        eNodeB->emit(macCellPacketLoss_, sample);
-    }
     return reset;
 }
 

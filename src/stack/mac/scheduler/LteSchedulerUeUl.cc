@@ -30,6 +30,8 @@ LteSchedulerUeUl::schedule()
 
     // get the grant
     const LteSchedulingGrant* grant = mac_->getSchedulingGrant();
+    Direction dir = grant->getDirection();
+
     // get the nodeId of the mac owner node
     MacNodeId nodeId = mac_->getMacNodeId();
 
@@ -59,7 +61,7 @@ LteSchedulerUeUl::schedule()
 
         // invoke the schedule() method of the attached LCP scheduler in order to schedule
         // the connections provided
-        std::map<MacCid, unsigned int>& sdus = lcgScheduler_->schedule(availableBytes);
+        std::map<MacCid, unsigned int>& sdus = lcgScheduler_->schedule(availableBytes, dir);
 
         // TODO check if this jump is ok
         if (sdus.empty())

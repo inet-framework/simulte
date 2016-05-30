@@ -32,23 +32,30 @@ LteHarqBufferRx::LteHarqBufferRx(unsigned int num, LteMacBase *owner,
 
     if (macOwner_->getNodeType() == ENODEB)
     {
+        nodeB_ = macOwner_;
         macDelay_ = macOwner_->registerSignal("macDelayUl");
-        macThroughput_ = getMacByMacNodeId(nodeId_)->registerSignal(
-            "macThroughputUl");
+        macThroughput_ = getMacByMacNodeId(nodeId_)->registerSignal("macThroughputUl");
         macCellThroughput_ = macOwner_->registerSignal("macCellThroughputUl");
 
         tSampleCell_->module_ = check_and_cast<cComponent*>(macOwner_);
-        tSample_->module_ = check_and_cast<cComponent*>(
-            getMacByMacNodeId(nodeId_));
+        tSample_->module_ = check_and_cast<cComponent*>(getMacByMacNodeId(nodeId_));
     }
     else if (macOwner_->getNodeType() == UE)
     {
-        cModule* nodeB = getMacByMacNodeId(macOwner_->getMacCellId());
+        nodeB_ = getMacByMacNodeId(macOwner_->getMacCellId());
         macThroughput_ = macOwner_->registerSignal("macThroughputDl");
-        macCellThroughput_ = nodeB->registerSignal("macCellThroughputDl");
+        macCellThroughput_ = nodeB_->registerSignal("macCellThroughputDl");
         macDelay_ = macOwner_->registerSignal("macDelayDl");
 
-        tSampleCell_->module_ = nodeB;
+        // if D2D is enabled, register also D2D statistics
+        if (macOwner_->isD2DCapable())
+        {
+            macThroughputD2D_ = macOwner_->registerSignal("macThroughputD2D");
+            macCellThroughputD2D_ = nodeB_->registerSignal("macCellThroughputD2D");
+            macDelayD2D_ = macOwner_->registerSignal("macDelayD2D");
+        }
+
+        tSampleCell_->module_ = nodeB_;
         tSample_->module_ = macOwner_;
     }
 }
@@ -131,7 +138,7 @@ std::list<LteMacPdu *> LteHarqBufferRx::extractCorrectPdus()
                 // Calculate delay by subtracting the arrival time
                 // to the MAC packet creation time
                 tSample_->sample_ = (NOW - temp->getCreationTime()).dbl();
-                if (info->getDirection() == DL)
+                if (info->getDirection() == DL || info->getDirection() == D2D)
                 {
                     tSample_->id_ = info->getDestId();
                 }
@@ -141,25 +148,29 @@ std::list<LteMacPdu *> LteHarqBufferRx::extractCorrectPdus()
                 }
                 else
                 {
-                    throw cRuntimeError("LteHarqBufferRx::extractCorrectPdus(): unknown direction %d",
-                        (int) info->getDirection());
+                    throw cRuntimeError("LteHarqBufferRx::extractCorrectPdus(): unknown direction %d",(int) info->getDirection());
                 }
-                macOwner_->emit(macDelay_, tSample_);
+
+                // emit delay statistic
+                if (info->getDirection() == D2D)
+                {
+                    macOwner_->emit(macDelayD2D_, tSample_);
+                }
+                else
+                {
+                    macOwner_->emit(macDelay_, tSample_);
+                }
 
                 // Calculate Throughput by sending the number of bits for this packet
                 tSample_->sample_ = size;
                 tSampleCell_->sample_ = size;
-                cModule* nodeb = NULL;
                 if (macOwner_->getNodeType() == UE)
                 {
-                    nodeb = getMacByMacNodeId(macOwner_->getMacCellId());
-
                     tSample_->id_ = info->getDestId();
-                    tSampleCell_->id_ = info->getSourceId();
+                    tSampleCell_->id_ = macOwner_->getMacCellId();
                 }
                 else if (macOwner_->getNodeType() == ENODEB)
                 {
-                    nodeb = macOwner_;
                     tSample_->id_ = info->getSourceId();
                     tSampleCell_->id_ = info->getDestId();
                 }
@@ -168,8 +179,18 @@ std::list<LteMacPdu *> LteHarqBufferRx::extractCorrectPdus()
                     throw cRuntimeError("LteHarqBufferRx::extractCorrectPdus(): unknown nodeType %d",
                         (int) macOwner_->getNodeType());
                 }
-                nodeb->emit(macCellThroughput_, tSampleCell_);
-                macOwner_->emit(macThroughput_, tSample_);
+
+                // emit throughput statistics
+                if (info->getDirection() == D2D)
+                {
+                    nodeB_->emit(macCellThroughputD2D_, tSampleCell_);
+                    macOwner_->emit(macThroughputD2D_, tSample_);
+                }
+                else
+                {
+                    nodeB_->emit(macCellThroughput_, tSampleCell_);
+                    macOwner_->emit(macThroughput_, tSample_);
+                }
 
                 ret.push_back(temp);
                 acid = i;
