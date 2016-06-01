@@ -122,8 +122,8 @@ class LtePhyBase : public ChannelAccess
 
     TaggedSample *tSample_;
 
-    // User that are trasmitting (uplink)
-    //receiveng(downlink) current packet
+    // User that are transmitting (uplink)
+    //receiving (downlink) current packet
     MacNodeId connectedNodeId_;
 
     // last time that the node has transmitted (currently, used only by UEs)
