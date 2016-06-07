@@ -139,8 +139,8 @@ void LteMacEnbD2D::macPduUnmake(cPacket* pkt)
                                                                // obtain two different CIDs. With the inverse operation, you can get
                                                                // the LCID and discover if the connection is UL or D2D
         bufferizeBsr(bsr, cid);
+        delete bsr;
     }
-
     delete macPkt;
 }
 

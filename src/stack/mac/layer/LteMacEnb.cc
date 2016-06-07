@@ -584,6 +584,7 @@ void LteMacEnb::macPduUnmake(cPacket* pkt)
         UserControlInfo* lteInfo = check_and_cast<UserControlInfo*>(macPkt->getControlInfo());
         MacCid cid = idToMacCid(lteInfo->getSourceId(), 0);
         bufferizeBsr(bsr, cid);
+        delete bsr;
     }
 
     delete macPkt;

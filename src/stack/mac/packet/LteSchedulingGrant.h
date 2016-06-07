@@ -31,6 +31,15 @@ class LteSchedulingGrant : public LteSchedulingGrant_Base
         grantedCwBytes.resize(MAX_CODEWORDS);
     }
 
+    ~LteSchedulingGrant()
+    {
+        if (userTxParams != NULL)
+        {
+            delete userTxParams;
+            userTxParams = NULL;
+        }
+    }
+
     LteSchedulingGrant(const LteSchedulingGrant& other) :
         LteSchedulingGrant_Base(other.getName())
     {

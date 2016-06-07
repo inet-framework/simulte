@@ -539,7 +539,7 @@ LteMacPdu* LteMacUeD2D::makeBsr(int size)
     uinfo->setSourceId(getMacNodeId());
     uinfo->setDestId(getMacCellId());
     uinfo->setDirection(UL);
-    uinfo->setUserTxParams(schedulingGrant_->getUserTxParams());
+    uinfo->setUserTxParams(schedulingGrant_->getUserTxParams()->dup());
     LteMacPdu* macPkt = new LteMacPdu("LteMacPdu");
     macPkt->setHeaderLength(MAC_HEADER);
     macPkt->setControlInfo(uinfo);

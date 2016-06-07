@@ -125,7 +125,7 @@ void LteMacUe::macPduMake(LteMacScheduleList* scheduleList)
             uinfo->setSourceId(getMacNodeId());
             uinfo->setDestId(destId);
             uinfo->setDirection(UL);
-            uinfo->setUserTxParams(schedulingGrant_->getUserTxParams());
+            uinfo->setUserTxParams(schedulingGrant_->getUserTxParams()->dup());
             uinfo->setLcid(SHORT_BSR);
             macPkt = new LteMacPdu("LteMacPdu");
             macPkt->setHeaderLength(MAC_HEADER);
@@ -488,6 +488,7 @@ LteMacUe::macHandleGrant(cPacket* pkt)
     // delete old grant
     LteSchedulingGrant* grant = check_and_cast<LteSchedulingGrant*>(pkt);
     EV << NOW << " LteMacUe::macHandleGrant - Direction: " << dirToA(grant->getDirection()) << endl;
+
     //Codeword cw = grant->getCodeword();
 
     if (schedulingGrant_!=NULL)

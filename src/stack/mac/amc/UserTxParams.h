@@ -51,6 +51,7 @@ class UserTxParams
         this->txMode_ = other.txMode_;
         this->ri_ = other.ri_;
         this->cqiVector_ = other.cqiVector_;
+        this->pmi_ = other.pmi_;
         this->allowedBands_ = other.allowedBands_;
         this->isValid_ = other.isValid_;
         this->antennaSet_ = other.antennaSet_;

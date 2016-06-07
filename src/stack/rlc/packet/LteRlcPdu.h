@@ -15,13 +15,20 @@
 
 class LteRlcPdu : public LteRlcPdu_Base {
    private:
-     void copy(const LteRlcPdu& other) {
+     void copy(const LteRlcPdu& other)
+     {
          this->totalFragments_var = other.totalFragments_var;
          this->snoFragment_var = other.snoFragment_var;
          this->snoMainPacket_var = other.snoMainPacket_var;
          // copy the attached control info, if any
          if (other.getControlInfo() != NULL)
          {
+             if (this->getControlInfo() != NULL)
+             {
+                 FlowControlInfo* info = check_and_cast<FlowControlInfo*>(this->removeControlInfo());
+                 delete info;
+             }
+
              FlowControlInfo* info = check_and_cast<FlowControlInfo*>(other.getControlInfo());
              FlowControlInfo* info_dup = info->dup();
              this->setControlInfo(info_dup);
@@ -32,7 +39,8 @@ class LteRlcPdu : public LteRlcPdu_Base {
      LteRlcPdu(const char *name=NULL, int kind=0) : LteRlcPdu_Base(name,kind) {}
      LteRlcPdu(const LteRlcPdu& other) : LteRlcPdu_Base(other) {copy(other);}
 
-     LteRlcPdu& operator=(const LteRlcPdu& other) {
+     LteRlcPdu& operator=(const LteRlcPdu& other)
+     {
          if (this==&other)
              return *this;
          LteRlcPdu_Base::operator=(other);
