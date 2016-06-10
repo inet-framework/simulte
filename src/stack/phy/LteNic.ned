@@ -18,6 +18,7 @@ import lte.stack.rlc.LteRlc;
 import lte.corenetwork.lteip.IP2lte;
 import lte.x2.LteX2Manager;
 import lte.stack.compManager.LteCompManager;
+import lte.stack.d2dModeSelection.D2DModeSelection;
 
 // 
 // Interface for the LTE Stack.
@@ -38,7 +39,7 @@ module LteNicBase like ILteNic
         string LteMacType;          // One of: "LteMacUe", "LteMacEnb", "LteMacRelayUe", "LteMacRelayEnb"
         string LtePhyType;
         string nodeType;
-        
+
     gates:
         //#
         //# Gates connecting UE/eNB and LTE Stack
@@ -129,9 +130,9 @@ module LteNicUeD2D extends LteNicBase
         LtePdcpRrcType = "LtePdcpRrcUeD2D";
         LteMacType = "LteMacUeD2D";
         LtePhyType = "LtePhyUeD2D";
-        
+
         string d2dPeerAddresses = default("");  // list of D2D peer UEs, separated by blank spaces
-        
+
     submodules:
         // Feedback generator submodule
         dlFbGen: LteDlFeedbackGenerator {
@@ -166,6 +167,13 @@ module LteNicEnbD2D extends LteNicBase
         LteMacType = "LteMacEnbD2D";
         LtePhyType = "LtePhyEnbD2D";
 
+        bool d2dModeSelection = default(false);
+        string d2dModeSelectionType = default("D2DModeSelectionBestCqi");
+
+    submodules:
+        d2dModeSelection: <d2dModeSelectionType> like D2DModeSelection if d2dModeSelection {
+            @display("p=60,315,row");
+        }
 }
 
 //
@@ -176,7 +184,7 @@ module LteNicEnbX2 extends LteNicEnb
     parameters:
         bool compEnabled = default(false);
         string LteCompManagerType = default("LteCompManagerProportional");
-        
+
     gates:
         inout x2[];
 
@@ -194,7 +202,7 @@ module LteNicEnbX2 extends LteNicEnb
         compManager: <LteCompManagerType> like LteCompManager if compEnabled {
             @display("p=60,173,row");
         }
-        
+
     connections:
         //# connections between X2 Manager and its users
         compManager.x2ManagerIn <-- x2Manager.dataPort$o++ if compEnabled;

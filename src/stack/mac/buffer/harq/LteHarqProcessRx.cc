@@ -86,6 +86,10 @@ LteHarqFeedback *LteHarqProcessRx::createFeedback(Codeword cw)
         if (transmissions_ == (maxHarqRtx_ + 1))
         {
             EV << NOW << " LteHarqProcessRx::createFeedback - max number of tx reached for cw " << cw << ". Resetting cw" << endl;
+
+            // purge PDU
+            purgeCorruptedPdu(cw);
+            resetCodeword(cw);
         }
     }
     else

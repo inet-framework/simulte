@@ -76,7 +76,10 @@ class LteBinder : public cSimpleModule
     /*
      * D2D Support
      */
+    // determines if two UEs can communicate using D2D
     bool **d2dPeeringCapability_;
+    // determines if two D2D-capable UEs are communicating in D2D mode or Infrastructure Mode
+    std::map<MacNodeId, std::map<MacNodeId, LteD2DMode> > d2dPeeringMode_;
 
   protected:
     virtual void initialize(int stages);
@@ -294,6 +297,9 @@ class LteBinder : public cSimpleModule
      */
     void addD2DCapability(MacNodeId src, MacNodeId dst);
     bool checkD2DCapability(MacNodeId src, MacNodeId dst);
+    std::map<MacNodeId, std::map<MacNodeId, LteD2DMode> >* getD2DPeeringModeMap();
+    void setD2DMode(MacNodeId src, MacNodeId dst, LteD2DMode mode);
+    LteD2DMode getD2DMode(MacNodeId src, MacNodeId dst);
 };
 
 #endif

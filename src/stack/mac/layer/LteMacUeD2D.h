@@ -25,7 +25,7 @@ class LteMacUeD2D : public LteMacUe
     UserTxParams* preconfiguredTxParams_;
     UserTxParams* getPreconfiguredTxParams();  // build and return new user tx params
 
-    virtual int numInitStages() const { return 5; }
+    virtual int numInitStages() const { return 4; }
 
     /**
      * Reads MAC parameters for ue and performs initialization.
@@ -36,6 +36,12 @@ class LteMacUeD2D : public LteMacUe
      * Main loop
      */
     virtual void handleSelfMessage();
+
+    /**
+     * Analyze gate of incoming packet
+     * and call proper handler
+     */
+    virtual void handleMessage(cMessage *msg);
 
     /**
      * macPduMake() creates MAC PDUs (one for each CID)
@@ -53,6 +59,8 @@ class LteMacUeD2D : public LteMacUe
      * of D2D connections
      */
     LteMacPdu* makeBsr(int size);
+
+    void macHandleD2DModeSwitch(cPacket* pkt);
 
   public:
     LteMacUeD2D();

@@ -17,6 +17,7 @@ Main features are listed below:
 - Modification of channel model (getSinr() and error() functions) so as to support D2D transmissions
 - New MAC- and RLC-level statistics for D2D flows
 - Modification of MaxCI and PF schedulers for supporting D2D flows
+- *** NEW *** Dynamic switching from cellular(infrastructure) mode to D2D mode and vice versa.
 
 This is an experimental version for D2D communications. Any feedback and/or suggestion is highly appreciated.
 
@@ -70,8 +71,20 @@ The AmcPilot is the module that is responsible for selecting transmission parame
 A new AmcPilot module has been added to select transmission parameter of D2D links. 
 You need to explicitly specify it in the ini file as follows:
     **.amcMode = "D2D"
-
-
+    
+    
+=== Dynamic Mode Switching === *** NEW ***
+The "D2DModeSelection" module, located at the eNodeB, is responsible to periodically select the communication mode for
+each pair of D2D peering UEs, according to the implemented policy. To enable dynamic mode selection:
+    *.eNodeB.nic.d2dModeSelection = true
+A simple policy that selects the mode having the best channel quality is implemented by the "D2DModeSelectionBestCqi"
+module. The latter is obtained by extending the "D2DModeSelection" module. You can always add your own policy by
+extending the "D2DModeSelection" module. You can select the policy for the current simulation in the ini as follows:
+    *.eNodeB.nic.d2dModeSelectionType = "D2DModeSelectionBestCqi"
+where you need to indicate the name of your new module.    
+When the eNodeB trigeers a mode switch for a given flow, it sends a notification to the transmitting endpoint of that 
+flow. The message traverses the whole protocol stack up to the PDCP layer. At each layer, it is possible to define 
+specific behavior for the switch handler.
 
 **************************
 * D2D Simulation folder  *
@@ -88,11 +101,12 @@ The "simulations/d2d" folder contains some examples to test D2D communications (
     b) "MultiplePairs-UDP-D2D"
     c) "MultiplePairs-TCP-Infra"
     d) "MultiplePairs-TCP-D2D"
-
+3) Dynamic Mode Switching
+    a) "SinglePair-modeSwitching-UDP"
+    b) "SinglePair-modeSwitching-TCP"        
 
 
 ***************
 * Coming soon *
 ***************
-- Dynamic switching from cellular(infrastructure) mode to D2D mode and vice versa.
 - Support for one-to-many D2D communications

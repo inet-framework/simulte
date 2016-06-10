@@ -59,7 +59,7 @@ void LtePhyUeD2D::handleAirFrame(cMessage* msg)
     }
 
     // send H-ARQ feedback up
-    if (lteInfo->getFrameType() == HARQPKT || lteInfo->getFrameType() == GRANTPKT || lteInfo->getFrameType() == RACPKT)
+    if (lteInfo->getFrameType() == HARQPKT || lteInfo->getFrameType() == GRANTPKT || lteInfo->getFrameType() == RACPKT || lteInfo->getFrameType() == D2DMODESWITCHPKT)
     {
         handleControlMsg(frame, lteInfo);
         return;

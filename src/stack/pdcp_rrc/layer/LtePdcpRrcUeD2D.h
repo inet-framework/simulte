@@ -22,10 +22,12 @@
  */
 class LtePdcpRrcUeD2D : public LtePdcpRrcUe
 {
+//    std::map<MacNodeId, LteD2DMode> peeringMap_;
 
   protected:
 
-    virtual void initialize();
+    virtual void initialize(int stage);
+    virtual int numInitStages() const { return 5; }
     virtual void handleMessage(cMessage *msg);
 
     void handleControlInfo(cPacket* upPkt, FlowControlInfo* lteInfo)
@@ -41,7 +43,7 @@ class LtePdcpRrcUeD2D : public LtePdcpRrcUe
 
     Direction getDirection(MacNodeId destId)
     {
-        if (binder_->checkD2DCapability(nodeId_, destId))
+        if (binder_->checkD2DCapability(nodeId_, destId) && binder_->getD2DMode(nodeId_, destId) == DM)
             return D2D;
         return UL;
     }
@@ -51,6 +53,9 @@ class LtePdcpRrcUeD2D : public LtePdcpRrcUe
      * @param pkt incoming packet
      */
     virtual void fromDataPort(cPacket *pkt);
+
+    // handler for mode switch signal
+    void pdcpHandleD2DModeSwitch(MacNodeId peerId, LteD2DMode newMode);
 
   public:
 

@@ -180,6 +180,7 @@ UnitList LteHarqBufferTx::getEmptyUnits(unsigned char acid)
 void LteHarqBufferTx::receiveHarqFeedback(LteHarqFeedback *fbpkt)
 {
     EV << "LteHarqBufferTx::receiveHarqFeedback - start" << endl;
+
     bool result = fbpkt->getResult();
     HarqAcknowledgment harqResult = result ? HARQACK : HARQNACK;
     Codeword cw = fbpkt->getCw();
@@ -205,7 +206,6 @@ void LteHarqBufferTx::receiveHarqFeedback(LteHarqFeedback *fbpkt)
     const char *ack = result ? "ACK" : "NACK";
     EV << "H-ARQ TX: feedback received for process " << (int)acid << " codeword " << (int)cw << ""
     " result is " << ack << endl;
-
     delete fbpkt;
 }
 

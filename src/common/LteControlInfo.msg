@@ -49,9 +49,10 @@ enum LteTrafficClass;
 class LteControlInfo {
     //# Information shared between FlowControlInfo and UserControlInfo
 
-    uint16 sourceId;                                    // Source MacNodeId
-    uint16 destId;                                        // Destination MacNodeId
-    unsigned short direction enum(Direction);            // Traffic Direction (UL, DL)
+    uint16 sourceId;                                     // Source MacNodeId
+    uint16 destId;                                       // Destination MacNodeId
+    unsigned short direction enum(Direction);            // Traffic Direction (UL, DL, D2D)
+    uint16 d2dPeerId;
 
     //# Traffic Control Information
 

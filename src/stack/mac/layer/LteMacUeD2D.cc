@@ -16,7 +16,7 @@
 #include "LteHarqBufferRx.h"
 #include "LteHarqBufferRxMirror.h"
 #include "LteDeployer.h"
-#include "IPvXAddressResolver.h"
+#include "D2DModeSwitchNotification_m.h"
 
 Define_Module(LteMacUeD2D);
 
@@ -41,20 +41,6 @@ void LteMacUeD2D::initialize(int stage)
 
         // get the reference to the eNB
         enb_ = check_and_cast<LteMacEnbD2D*>( simulation.getModule(binder_->getOmnetId(getMacCellId()))->getSubmodule("nic")->getSubmodule("mac"));
-    }
-    if (stage == 4)
-    {
-        // inform the Binder about the D2D capabilities of this node
-        // i.e. the (possibly) D2D peering UEs
-        const char *d2dPeerAddresses = getAncestorPar("d2dPeerAddresses");
-        cStringTokenizer tokenizer(d2dPeerAddresses);
-        const char *token;
-        while ((token = tokenizer.nextToken()) != NULL)
-        {
-            IPv4Address d2dPeerAddr = IPvXAddressResolver().resolve(token).get4();
-            MacNodeId d2dPeerId = binder_->getMacNodeId(d2dPeerAddr);
-            binder_->addD2DCapability(nodeId_, d2dPeerId);
-        }
     }
 }
 
@@ -82,6 +68,38 @@ UserTxParams* LteMacUeD2D::getPreconfiguredTxParams()
     txParams->writeAntennas(antennas);
 
     return txParams;
+}
+
+void LteMacUeD2D::handleMessage(cMessage* msg)
+{
+    if (msg->isSelfMessage())
+    {
+        LteMacUe::handleMessage(msg);
+        return;
+    }
+
+    cPacket* pkt = check_and_cast<cPacket *>(msg);
+    cGate* incoming = pkt->getArrivalGate();
+
+    if (incoming == down_[IN])
+    {
+        UserControlInfo *userInfo = check_and_cast<UserControlInfo *>(pkt->getControlInfo());
+        if (userInfo->getFrameType() == D2DMODESWITCHPKT)
+        {
+            EV << "LteMacUeD2D::handleMessage - Received packet " << pkt->getName() <<
+            " from port " << pkt->getArrivalGate()->getName() << endl;
+
+            // message from PHY_to_MAC gate (from lower layer)
+            emit(receivedPacketFromLowerLayer, pkt);
+
+            // handle D2D Mode Switch packet
+            macHandleD2DModeSwitch(pkt);
+
+            return;
+        }
+    }
+
+    LteMacUe::handleMessage(msg);
 }
 
 void LteMacUeD2D::handleSelfMessage()
@@ -213,19 +231,20 @@ void LteMacUeD2D::handleSelfMessage()
             currHarq = it2->second;
 
             // check if the current process has unit ready for retx
-            retx = currHarq->getProcess(currentHarq_)->hasReadyUnits();
+            bool ready = currHarq->getProcess(currentHarq_)->hasReadyUnits();
             CwList cwListRetx = currHarq->getProcess(currentHarq_)->readyUnitsIds();
 
             EV << "\t [process=" << (unsigned int)currentHarq_ << "] , [retx=" << ((retx)?"true":"false")
                << "] , [n=" << cwListRetx.size() << "]" << endl;
 
             // if a retransmission is needed
-            if(retx)
+            if(ready)
             {
                 UnitList signal;
                 signal.first=currentHarq_;
                 signal.second = cwListRetx;
                 currHarq->markSelected(signal,schedulingGrant_->getUserTxParams()->getLayers().size());
+                retx = true;
             }
         }
         // if no retx is needed, proceed with normal scheduling
@@ -273,7 +292,7 @@ void LteMacUeD2D::handleSelfMessage()
     // purge from corrupted PDUs all Rx H-HARQ buffers
     for (hit= harqRxBuffers_.begin(); hit != het; ++hit)
     {
-        // purge corrupted PDUs only if this buffer is for an DL transmission. Otherwise, if you
+        // purge corrupted PDUs only if this buffer is for a DL transmission. Otherwise, if you
         // purge PDUs for D2D communication, also "mirror" buffers will be purged
         if (hit->first == cellId_)
             purged += hit->second->purgeCorruptedPdus();
@@ -551,5 +570,66 @@ LteMacPdu* LteMacUeD2D::makeBsr(int size)
     bsrTriggered_ = false;
     EV << "LteMacUeD2D::makeBsr() - BSR with size " << size << "created" << endl;
     return macPkt;
+}
+
+void LteMacUeD2D::macHandleD2DModeSwitch(cPacket* pkt)
+{
+    EV << NOW << " LteMacUeD2D::macHandleD2DModeSwitch - Start" << endl;
+
+    // add here specific behavior for handling mode switch at the MAC layer
+
+    // here, all data in the MAC buffers of the connection to be switched are deleted
+
+    D2DModeSwitchNotification* switchPkt = check_and_cast<D2DModeSwitchNotification*>(pkt);
+    MacNodeId peerId = switchPkt->getPeerId();
+    LteD2DMode newMode = switchPkt->getNewMode();
+    LteD2DMode oldMode = switchPkt->getOldMode();
+    Direction newDirection = (newMode == DM) ? D2D : UL;
+    Direction oldDirection = (oldMode == DM) ? D2D : UL;
+
+    UserControlInfo* uInfo = check_and_cast<UserControlInfo*>(pkt->removeControlInfo());
+
+    // find the correct connection involved in the mode switch
+    MacCid cid;
+    FlowControlInfo* lteInfo = NULL;
+    std::map<MacCid, FlowControlInfo>::iterator it = connDesc_.begin();
+    for (; it != connDesc_.end(); ++it)
+    {
+        cid = it->first;
+        lteInfo = check_and_cast<FlowControlInfo*>(&(it->second));
+        if (lteInfo->getD2dPeerId() == peerId && (Direction)lteInfo->getDirection() == oldDirection)
+        {
+            EV << NOW << " LteMacUeD2D::macHandleD2DModeSwitch - found connection with cid " << cid << ", erasing buffered data" << endl;
+            if (oldDirection != newDirection)
+            {
+                // empty virtual buffer for the selected cid
+                if (macBuffers_.find(cid) != macBuffers_.end())
+                {
+                    LteMacBuffer* vQueue = macBuffers_.at(cid);
+                    while (!vQueue->isEmpty())
+                        vQueue->popFront();
+                }
+
+                // empty real buffer for the selected cid (they should be already empty)
+                if (mbuf_.find(cid) != mbuf_.end())
+                {
+                    LteMacQueue* buf = mbuf_.at(cid);
+                    while (buf->getQueueLength() > 0)
+                    {
+                        cPacket* pdu = buf->popFront();
+                        delete pdu;
+                    }
+                }
+            }
+
+            pkt->setControlInfo(lteInfo->dup());
+            sendUpperPackets(pkt->dup());
+
+            EV << NOW << " LteMacUeD2D::macHandleD2DModeSwitch - send switch signal to the RLC TX entity corresponding to the old mode, cid " << cid << endl;
+        }
+    }
+
+    delete uInfo;
+    delete pkt;
 }
 

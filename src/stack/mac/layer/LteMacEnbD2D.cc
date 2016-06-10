@@ -21,6 +21,7 @@
 #include "LteRac_m.h"
 #include "LteCommon.h"
 #include "AmcPilotD2D.h"
+#include "D2DModeSwitchNotification_m.h"
 
 Define_Module( LteMacEnbD2D);
 
@@ -269,5 +270,24 @@ void LteMacEnbD2D::storeRxHarqBufferMirror(MacNodeId id, LteHarqBufferRxMirror* 
 HarqRxBuffersMirror* LteMacEnbD2D::getRxHarqBufferMirror()
 {
     return &harqRxBuffersD2DMirror_;
+}
+
+void LteMacEnbD2D::sendModeSwitchNotification(MacNodeId srcId, MacNodeId dstId, LteD2DMode oldMode, LteD2DMode newMode)
+{
+    Enter_Method("sendModeSwitchNotification");
+
+    D2DModeSwitchNotification* switchPkt = new D2DModeSwitchNotification("D2DModeSwitchNotification");
+    switchPkt->setPeerId(dstId);
+    switchPkt->setOldMode(oldMode);
+    switchPkt->setNewMode(newMode);
+
+    UserControlInfo* uinfo = new UserControlInfo();
+    uinfo->setSourceId(nodeId_);
+    uinfo->setDestId(srcId);
+    uinfo->setFrameType(D2DMODESWITCHPKT);
+    switchPkt->setControlInfo(uinfo);
+
+    // send pkt to PHY layer
+    sendLowerPackets(switchPkt);
 }
 

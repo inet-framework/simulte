@@ -8,6 +8,7 @@
 //
 
 #include "LteRlcUm.h"
+#include "D2DModeSwitchNotification_m.h"
 
 Define_Module(LteRlcUm);
 
@@ -111,14 +112,25 @@ void LteRlcUm::handleUpperMessage(cPacket *pkt)
 
 void LteRlcUm::handleLowerMessage(cPacket *pkt)
 {
-    // Extract informations from fragment
-    FlowControlInfo* lteInfo = check_and_cast<FlowControlInfo*>(pkt->getControlInfo());
-//    UmRxQueue* rxbuf = getRxBuffer(lteInfo->getDestId(),lteInfo->getLcid());
-    UmRxQueue* rxbuf = getRxBuffer(ctrlInfoToUeId(lteInfo), lteInfo->getLcid());
-    drop(pkt);
+    if (strcmp(pkt->getName(), "D2DModeSwitchNotification") == 0)
+    {
+        EV << NOW << " LteRlcUm::handleLowerMessage - Received packet " << pkt->getName() << " from lower layer\n";
+        // add here specific behavior for handling mode switch at the RLC layer
 
-    // Defragment packet
-    rxbuf->defragment(pkt);
+        // forward packet to PDCP
+        EV << "LteRlcUm::handleLowerMessage - Sending packet " << pkt->getName() << " to port UM_Sap_up$o\n";
+        send(pkt, up_[OUT]);
+    }
+    else
+    {
+        // Extract informations from fragment
+        FlowControlInfo* lteInfo = check_and_cast<FlowControlInfo*>(pkt->getControlInfo());
+        UmRxQueue* rxbuf = getRxBuffer(ctrlInfoToUeId(lteInfo), lteInfo->getLcid());
+        drop(pkt);
+
+        // Defragment packet
+        rxbuf->defragment(pkt);
+    }
 }
 
 void LteRlcUm::deleteQueues(MacNodeId nodeId)

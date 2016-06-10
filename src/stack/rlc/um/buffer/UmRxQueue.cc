@@ -227,23 +227,9 @@ void UmRxQueue::handleMessage(cMessage* msg)
            << tmsg->getEvent() << endl;
 
         FlowControlInfo* lteInfo = fragbuf_.getLteInfo(tmsg->getEvent());
-//        MacNodeId srcId = lteInfo->getSourceId();
-//        MacNodeId dstId = lteInfo->getDestId();
         unsigned short dir = lteInfo->getDirection();
         tSample_->sample_ = 1;
         tSampleCell_->sample_ = 1;
-
-//        if (dir == DL)
-//        {
-//            tSample_->id_ = dstId;
-//            tSampleCell_->id_ = srcId;
-//        }
-//        else if (dir == UL)
-//        {
-//            tSample_->id_ = srcId;
-//            tSampleCell_->id_ = dstId;
-//        }
-
 
         MacNodeId ueId = ctrlInfoToUeId(lteInfo);
         if (ue_ == NULL)
@@ -264,10 +250,6 @@ void UmRxQueue::handleMessage(cMessage* msg)
             ue_->emit(rlcPacketLossD2D_, tSample_);
             nodeB_->emit(rlcCellPacketLossD2D_, tSampleCell_);
         }
-//        // UE module
-//        cModule* ue = getRlcByMacNodeId((dir == DL ? dstId : srcId), UM);
-//        // NODEB
-//        cModule* nodeb = getRlcByMacNodeId((dir == DL ? srcId : dstId), UM);
 
         fragbuf_.remove(tmsg->getEvent());
         timer_.handle(tmsg->getEvent()); // Stop timer

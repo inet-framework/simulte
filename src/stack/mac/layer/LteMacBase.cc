@@ -114,6 +114,7 @@ void LteMacBase::fromPhy(cPacket *pkt)
     {
         // data packet: insert in proper rx buffer
         EV << NOW << "Mac::fromPhy: node " << nodeId_ << " Received DATA packet" << endl;
+
         LteMacPdu *pdu = check_and_cast<LteMacPdu *>(pkt);
         Codeword cw = userInfo->getCw();
         HarqRxBuffers::iterator hrit = harqRxBuffers_.find(src);

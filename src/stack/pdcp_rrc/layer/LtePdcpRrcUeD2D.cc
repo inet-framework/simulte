@@ -9,6 +9,7 @@
 
 #include "LtePdcpRrcUeD2D.h"
 #include "IPvXAddressResolver.h"
+#include "D2DModeSwitchNotification_m.h"
 
 Define_Module(LtePdcpRrcUeD2D);
 
@@ -31,6 +32,15 @@ void LtePdcpRrcUeD2D::fromDataPort(cPacket *pkt)
     // set direction based on the destination Id. If the destination can be reached
     // using D2D, set D2D direction. Otherwise, set UL direction
     lteInfo->setDirection(getDirection(destId));
+
+    if (binder_->checkD2DCapability(nodeId_, destId))
+    {
+        // this way, we record the ID of the endpoint even if the connection is in IM
+        // this is useful for mode switching
+        lteInfo->setD2dPeerId(destId);
+    }
+    else
+        lteInfo->setD2dPeerId(0);
 
     // Cid Request
     EV << NOW << " LtePdcpRrcUeD2D : Received CID request for Traffic [ " << "Source: "
@@ -96,13 +106,53 @@ void LtePdcpRrcUeD2D::fromDataPort(cPacket *pkt)
     emit(sentPacketToLowerLayer, pdcpPkt);
 }
 
-void LtePdcpRrcUeD2D::initialize()
+void LtePdcpRrcUeD2D::initialize(int stage)
 {
-    EV << "LtePdcpRrcUeD2D::initialize()" << endl;
-    LtePdcpRrcBase::initialize();
+    EV << "LtePdcpRrcUeD2D::initialize() - stage " << stage << endl;
+    if (stage == 0)
+        LtePdcpRrcBase::initialize();
+    if (stage == 4)
+    {
+        // inform the Binder about the D2D capabilities of this node
+        // i.e. the (possibly) D2D peering UEs
+        const char *d2dPeerAddresses = getAncestorPar("d2dPeerAddresses");
+        cStringTokenizer tokenizer(d2dPeerAddresses);
+        const char *token;
+        while ((token = tokenizer.nextToken()) != NULL)
+        {
+            IPv4Address d2dPeerAddr = IPvXAddressResolver().resolve(token).get4();
+            MacNodeId d2dPeerId = binder_->getMacNodeId(d2dPeerAddr);
+            binder_->addD2DCapability(nodeId_, d2dPeerId);
+        }
+    }
 }
 
 void LtePdcpRrcUeD2D::handleMessage(cMessage* msg)
 {
-    LtePdcpRrcBase::handleMessage(msg);
+    cPacket* pkt = check_and_cast<cPacket *>(msg);
+
+    // check whether the message is a notification for mode switch
+    if (strcmp(pkt->getName(),"D2DModeSwitchNotification") == 0)
+    {
+        EV << "LtePdcpRrcUeD2D::handleMessage - Received packet " << pkt->getName() << " from port " << pkt->getArrivalGate()->getName() << endl;
+
+        D2DModeSwitchNotification* switchPkt = check_and_cast<D2DModeSwitchNotification*>(pkt);
+
+        // call handler
+        pdcpHandleD2DModeSwitch(switchPkt->getPeerId(), switchPkt->getNewMode());
+
+        delete pkt;
+    }
+    else
+    {
+        LtePdcpRrcBase::handleMessage(msg);
+    }
 }
+
+void LtePdcpRrcUeD2D::pdcpHandleD2DModeSwitch(MacNodeId peerId, LteD2DMode newMode)
+{
+    EV << NOW << " LtePdcpRrcUeD2D::pdcpHandleD2DModeSwitch - peering with UE " << peerId << " set to " << d2dModeToA(newMode) << endl;
+
+    // add here specific behavior for handling mode switch at the PDCP layer
+}
+

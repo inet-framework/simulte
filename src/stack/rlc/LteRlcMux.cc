@@ -29,10 +29,23 @@ void LteRlcMux::rlc2mac(cPacket *pkt)
 
 void LteRlcMux::mac2rlc(cPacket *pkt)
 {
-    FlowControlInfo* lteInfo = check_and_cast<FlowControlInfo*>(pkt->getControlInfo());
-    switch (lteInfo->getRlcType())
+    cObject* ctrlInfo = pkt->getControlInfo();
+    if (ctrlInfo == NULL)
     {
-        case TM:
+        if (strcmp(pkt->getName(), "D2DModeSwitchNotification") == 0)
+        {
+            EV << "LteRlcMux : Sending packet " << pkt->getName() << " to port UM_Sap$o\n";
+            send(pkt,umSap_[OUT]);
+        }
+        else
+            throw cRuntimeError("LteRlcMux: attached control info is NULL");
+    }
+    else
+    {
+        FlowControlInfo* lteInfo = check_and_cast<FlowControlInfo*>(pkt->getControlInfo());
+        switch (lteInfo->getRlcType())
+        {
+            case TM:
             EV << "LteRlcMux : Sending packet " << pkt->getName() << " to port TM_Sap$o\n";
             send(pkt,tmSap_[OUT]);
             break;
@@ -48,7 +61,7 @@ void LteRlcMux::mac2rlc(cPacket *pkt)
             throw cRuntimeError("LteRlcMux: wrong traffic type %d", lteInfo->getRlcType());
         }
     }
-
+}
             /*
              * Main functions
              */

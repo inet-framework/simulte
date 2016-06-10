@@ -92,6 +92,20 @@ const std::string dirToA(Direction dir)
     }
 }
 
+const std::string d2dModeToA(LteD2DMode mode)
+{
+    switch (mode)
+    {
+        case IM:
+            return "IM";
+        case DM:
+            return "DM";
+        default:
+            return "Unrecognized";
+    }
+}
+
+
 const std::string allocationTypeToA(RbAllocationType type)
 {
     switch (type)

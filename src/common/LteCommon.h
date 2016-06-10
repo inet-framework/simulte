@@ -172,6 +172,14 @@ enum LteRlcType
 // Attenuation vector for analogue models
 typedef std::vector<double> AttenuationVector;
 
+/// D2D Modes
+// IM = Infastructure Mode
+// DM = Direct (D2D) Mode
+enum LteD2DMode
+{
+    IM, DM
+};
+
 /*************************
  *     Applications      *
  *************************/
@@ -446,6 +454,7 @@ enum LtePhyFrameType
     HARQPKT,
     GRANTPKT,
     RACPKT,
+    D2DMODESWITCHPKT,
     UNKNOWN_TYPE
 };
 
@@ -461,6 +470,7 @@ const LtePhyFrameTable phytypes[] = {
     ELEM(FEEDBACKPKT),
     ELEM(HANDOVERPKT),
     ELEM(GRANTPKT),
+    ELEM(D2DMODESWITCHPKT),
     ELEM(UNKNOWN_TYPE)
 };
 
@@ -802,6 +812,7 @@ typedef std::map<std::string, cMsgPar> ParameterMap;
  *********************/
 
 const std::string dirToA(Direction dir);
+const std::string d2dModeToA(LteD2DMode mode);
 const std::string allocationTypeToA(RbAllocationType type);
 const std::string modToA(LteMod mod);
 const std::string periodicityToA(FbPeriodicity per);
