@@ -839,7 +839,8 @@ void LteBinder::addD2DCapability(MacNodeId src, MacNodeId dst)
     d2dPeeringCapability_[src][dst] = true;
 
     // insert initial communication mode
-    d2dPeeringMode_[src][dst] = IM;
+    // TODO make it configurable from NED
+    d2dPeeringMode_[src][dst] = DM;
 
     EV << "LteBinder::addD2DCapability - UE " << src << " may transmit to UE " << dst << " using D2D" << endl;
 }
