@@ -12,6 +12,7 @@
 
 #include "LteMacUe.h"
 #include "LteMacEnbD2D.h"
+#include "LteHarqBufferTxD2D.h"
 
 class LteMacUeD2D : public LteMacUe
 {

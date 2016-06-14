@@ -258,7 +258,7 @@ void LteMacEnbD2D::sendGrants(LteMacScheduleList* scheduleList)
     }
 }
 
-void LteMacEnbD2D::storeRxHarqBufferMirror(MacNodeId id, LteHarqBufferRxMirror* mirbuff)
+void LteMacEnbD2D::storeRxHarqBufferMirror(MacNodeId id, LteHarqBufferRxD2DMirror* mirbuff)
 {
     // TODO optimize
 

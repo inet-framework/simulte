@@ -10,6 +10,7 @@
 
 #include "LteMacBase.h"
 #include "LteHarqBufferTx.h"
+#include "LteHarqBufferRxD2D.h"
 #include "LteHarqBufferRx.h"
 #include "LteMacPdu.h"
 #include "LteMacQueue.h"
@@ -125,7 +126,12 @@ void LteMacBase::fromPhy(cPacket *pkt)
         else
         {
             // FIXME: possible memory leak
-            LteHarqBufferRx *hrb = new LteHarqBufferRx(ENB_RX_HARQ_PROCESSES, this,src);
+            LteHarqBufferRx *hrb;
+            if (userInfo->getDirection() == DL || userInfo->getDirection() == UL)
+                hrb = new LteHarqBufferRx(ENB_RX_HARQ_PROCESSES, this,src);
+            else // D2D
+                hrb = new LteHarqBufferRxD2D(ENB_RX_HARQ_PROCESSES, this,src);
+
             harqRxBuffers_[src] = hrb;
             hrb->insertPdu(cw,pdu);
         }

@@ -32,6 +32,11 @@ class LteHarqBufferTx
 
   public:
 
+    /*
+     * Default Constructor
+     */
+    LteHarqBufferTx() {}
+
     /**
      * Constructor.
      *

@@ -7,10 +7,10 @@
 // and cannot be removed from it.
 //
 
-#ifndef _LTE_LTEHARQBUFFERRXMIRROR_H_
-#define _LTE_LTEHARQBUFFERRXMIRROR_H_
+#ifndef _LTE_LTEHARQBUFFERRXD2DMIRROR_H_
+#define _LTE_LTEHARQBUFFERRXD2DMIRROR_H_
 
-#include "LteHarqProcessRxMirror.h"
+#include "LteHarqProcessRxD2DMirror.h"
 
 class LteHarqBufferRx;
 
@@ -24,7 +24,7 @@ class LteHarqBufferRx;
  * done in the extractCorrectPdu mehtod which must be called at every tti (it must be part
  * of the mac main loop).
  */
-class LteHarqBufferRxMirror
+class LteHarqBufferRxD2DMirror
 {
   public:
 
@@ -35,16 +35,16 @@ class LteHarqBufferRxMirror
     MacNodeId peerId_; //UE ID of the owner peer
 
     /// processes vector
-    std::vector<LteHarqProcessRxMirror*> processes_;
+    std::vector<LteHarqProcessRxD2DMirror*> processes_;
 
     //Max number of harq retransmission
     unsigned char maxHarqRtx_;
     //LteHarqBufferRxMirror();
   public:
-    LteHarqBufferRxMirror(LteHarqBufferRx* harqBuffer,unsigned char maxHarqRtx,MacNodeId peer);
-    ~LteHarqBufferRxMirror();
+    LteHarqBufferRxD2DMirror(LteHarqBufferRx* harqBuffer,unsigned char maxHarqRtx,MacNodeId peer);
+    ~LteHarqBufferRxD2DMirror();
     void checkCorrupted();
-    LteHarqProcessRxMirror* getProcess(int proc) { return processes_[proc]; }
+    LteHarqProcessRxD2DMirror* getProcess(int proc) { return processes_[proc]; }
     unsigned int getProcesses() { return numHarqProcesses_; }
 };
 

@@ -6,9 +6,9 @@
 // The above file and the present reference are part of the software itself,
 // and cannot be removed from it.
 //
-#include "LteHarqProcessRxMirror.h"
+#include "LteHarqProcessRxD2DMirror.h"
 
-LteHarqProcessRxMirror::LteHarqProcessRxMirror(unsigned char acid,unsigned char maxharq){
+LteHarqProcessRxD2DMirror::LteHarqProcessRxD2DMirror(unsigned char acid,unsigned char maxharq){
     pdu_length_.resize(MAX_CODEWORDS,0);
     status_.resize(MAX_CODEWORDS, RXHARQ_PDU_EMPTY);
     acid_ = acid;
@@ -16,7 +16,7 @@ LteHarqProcessRxMirror::LteHarqProcessRxMirror(unsigned char acid,unsigned char 
     maxHarqRtx_ = maxharq;
 };
 
-std::vector<RxUnitStatus> LteHarqProcessRxMirror::getProcessStatus()
+std::vector<RxUnitStatus> LteHarqProcessRxD2DMirror::getProcessStatus()
 {
     std::vector<RxUnitStatus> ret(MAX_CODEWORDS);
 

@@ -7,11 +7,11 @@
 // and cannot be removed from it.
 //
 
-#include "LteHarqBufferRxMirror.h"
+#include "LteHarqBufferRxD2DMirror.h"
 #include "LteHarqBufferRx.h"
 #include "LteCommon.h"
 
-LteHarqBufferRxMirror::LteHarqBufferRxMirror(LteHarqBufferRx* harqBuffer,unsigned char maxHarqRtx,MacNodeId peer)
+LteHarqBufferRxD2DMirror::LteHarqBufferRxD2DMirror(LteHarqBufferRx* harqBuffer,unsigned char maxHarqRtx,MacNodeId peer)
 {
     peerId_ = peer;
     numHarqProcesses_ = harqBuffer->getProcesses();
@@ -19,7 +19,7 @@ LteHarqBufferRxMirror::LteHarqBufferRxMirror(LteHarqBufferRx* harqBuffer,unsigne
     maxHarqRtx_ = maxHarqRtx;
     for(unsigned int j=0;j<numHarqProcesses_;++j)
     {
-        processes_[j] = new LteHarqProcessRxMirror(j,maxHarqRtx);
+        processes_[j] = new LteHarqProcessRxD2DMirror(j,maxHarqRtx);
         for(Codeword cw = 0; cw < MAX_CODEWORDS; ++cw)
         {
            processes_[j]->status_.at(cw) = harqBuffer->getProcess(j)->getUnitStatus(cw);
@@ -29,9 +29,9 @@ LteHarqBufferRxMirror::LteHarqBufferRxMirror(LteHarqBufferRx* harqBuffer,unsigne
 
 }
 
-LteHarqBufferRxMirror::~LteHarqBufferRxMirror()
+LteHarqBufferRxD2DMirror::~LteHarqBufferRxD2DMirror()
 {
-    std::vector<LteHarqProcessRxMirror*>::iterator it = processes_.begin();
+    std::vector<LteHarqProcessRxD2DMirror*>::iterator it = processes_.begin();
     for(;it!=processes_.end();++it)
     {
         delete *it;
@@ -39,7 +39,7 @@ LteHarqBufferRxMirror::~LteHarqBufferRxMirror()
 }
 
 
-void LteHarqBufferRxMirror::checkCorrupted()
+void LteHarqBufferRxD2DMirror::checkCorrupted()
 {
     for (unsigned int i = 0; i < numHarqProcesses_; i++)
     {

@@ -52,6 +52,11 @@ class LteHarqProcessTx
 
   public:
 
+    /*
+     * Default Constructor
+     */
+    LteHarqProcessTx() {}
+
     /**
      * Crates a new H-ARQ process, which is a container of H-ARQ units.
      *

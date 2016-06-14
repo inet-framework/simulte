@@ -11,7 +11,7 @@
 #include "LteMacEnb.h"
 #include "LteMacEnbD2D.h"
 #include "LteHarqBufferRx.h"
-#include "LteHarqBufferRxMirror.h"
+#include "LteHarqBufferRxD2DMirror.h"
 #include "LteAllocationModule.h"
 
 // TODO
@@ -212,7 +212,7 @@ LteSchedulerEnbUl::rtxschedule()
                 // check whether the UE has a H-ARQ process waiting for retransmission. If not, skip UE.
                 bool skip = true;
                 unsigned char acid = (currentAcid + 2) % (it_d2d->second->getProcesses());
-                LteHarqProcessRxMirror* currentProcess = it_d2d->second->getProcess(acid);
+                LteHarqProcessRxD2DMirror* currentProcess = it_d2d->second->getProcess(acid);
                 std::vector<RxUnitStatus> procStatus = currentProcess->getProcessStatus();
                 std::vector<RxUnitStatus>::iterator pit = procStatus.begin();
                 for (; pit != procStatus.end(); ++pit )
@@ -489,7 +489,7 @@ LteSchedulerEnbUl::schedulePerAcidRtxD2D(MacNodeId destId,MacNodeId senderId, Co
         unsigned char currentAcid = (harqStatus_.at(senderId) + 2) % (harqRxBuffersD2DMirror->at(destId)->numHarqProcesses_);
         EV << "\t the acid that should be considered is " << (unsigned int)currentAcid << endl;
 
-        LteHarqProcessRxMirror* currentProcess = harqRxBuffersD2DMirror->at(destId)->processes_[currentAcid];
+        LteHarqProcessRxD2DMirror* currentProcess = harqRxBuffersD2DMirror->at(destId)->processes_[currentAcid];
         if (currentProcess->status_.at(cw) != RXHARQ_PDU_CORRUPTED)
         {
             // exit if the current active HARQ process is not ready for retransmission

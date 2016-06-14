@@ -7,11 +7,10 @@
 // and cannot be removed from it.
 //
 
-#ifndef _LTE_LTEHARQPROCESSRXMIRROR_H_
-#define _LTE_LTEHARQPROCESSRXMIRROR_H_
+#ifndef _LTE_LTEHARQPROCESSRXD2DMIRROR_H_
+#define _LTE_LTEHARQPROCESSRXD2DMIRROR_H_
 
 #include <omnetpp.h>
-
 #include "LteCommon.h"
 
 /**
@@ -27,7 +26,7 @@
 
 typedef std::pair<unsigned char, RxHarqPduStatus> RxUnitStatus;
 
-class LteHarqProcessRxMirror
+class LteHarqProcessRxD2DMirror
 {
   public:
     /// bytelength of contained pdus
@@ -44,7 +43,7 @@ class LteHarqProcessRxMirror
     /// current status for each codeword
     std::vector<RxHarqPduStatus> status_;
     //LteHarqProcessRxMirror();
-    LteHarqProcessRxMirror(unsigned char acid,unsigned char maxharq);
+    LteHarqProcessRxD2DMirror(unsigned char acid,unsigned char maxharq);
 
     //virtual ~LteHarqProcessRxMirror();
 

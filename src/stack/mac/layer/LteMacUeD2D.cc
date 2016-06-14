@@ -14,7 +14,7 @@
 #include "UserTxParams.h"
 #include "LteSchedulerUeUl.h"
 #include "LteHarqBufferRx.h"
-#include "LteHarqBufferRxMirror.h"
+#include "LteHarqBufferRxD2DMirror.h"
 #include "LteDeployer.h"
 #include "D2DModeSwitchNotification_m.h"
 
@@ -135,10 +135,10 @@ void LteMacUeD2D::handleSelfMessage()
         if (senderId == cellId_)
             continue;
 
-        //The constructor "extracts" all the useful information from the harqRxBuffer and put them in a LteHarqBufferRxMirror object
+        //The constructor "extracts" all the useful information from the harqRxBuffer and put them in a LteHarqBufferRxD2DMirror object
         //That object resides in enB. Because this operation is done after the enb main loop the enb is 1 TTI backward respect to the Receiver
         //This means that enb will check the buffer for retransmission 3 TTI before
-        LteHarqBufferRxMirror* mirbuff = new LteHarqBufferRxMirror(buff, (unsigned char)this->par("maxHarqRtx"), senderId);
+        LteHarqBufferRxD2DMirror* mirbuff = new LteHarqBufferRxD2DMirror(buff, (unsigned char)this->par("maxHarqRtx"), senderId);
         enb_->storeRxHarqBufferMirror(nodeId_, mirbuff);
     }
 
@@ -441,8 +441,13 @@ void LteMacUeD2D::macPduMake(LteMacScheduleList* scheduleList)
         {
             // the tx buffer does not exist yet for this mac node id, create one
             // FIXME: hb is never deleted
-            LteHarqBufferTx* hb = new LteHarqBufferTx((unsigned int) ENB_TX_HARQ_PROCESSES, this,
-                (LteMacBase*) getMacByMacNodeId(destId));
+            LteHarqBufferTx* hb;
+            UserControlInfo* info = check_and_cast<UserControlInfo*>(pit->second->getControlInfo());
+            if (info->getDirection() == UL)
+                hb = new LteHarqBufferTx((unsigned int) ENB_TX_HARQ_PROCESSES, this, (LteMacBase*) getMacByMacNodeId(destId));
+            else // D2D
+                hb = new LteHarqBufferTxD2D((unsigned int) ENB_TX_HARQ_PROCESSES, this, (LteMacBase*) getMacByMacNodeId(destId));
+
             harqTxBuffers_[destId] = hb;
             txBuf = hb;
         }

@@ -11,9 +11,9 @@
 #define _LTE_LTEMACENBD2D_H_
 
 #include "LteMacEnb.h"
-#include "LteHarqBufferRxMirror.h"
+#include "LteHarqBufferRxD2DMirror.h"
 
-typedef std::map<MacNodeId, LteHarqBufferRxMirror*> HarqRxBuffersMirror;
+typedef std::map<MacNodeId, LteHarqBufferRxD2DMirror*> HarqRxBuffersMirror;
 
 class LteMacEnbD2D : public LteMacEnb
 {
@@ -80,7 +80,7 @@ class LteMacEnbD2D : public LteMacEnb
     }
 
     // update the status of the "mirror" RX-Harq Buffer for this node
-    void storeRxHarqBufferMirror(MacNodeId id, LteHarqBufferRxMirror* mirbuff);
+    void storeRxHarqBufferMirror(MacNodeId id, LteHarqBufferRxD2DMirror* mirbuff);
     // get the reference to the "mirror" buffers
     HarqRxBuffersMirror* getRxHarqBufferMirror();
     // send the D2D Mode Switch signal to the transmitter of the given flow

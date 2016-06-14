@@ -46,11 +46,6 @@ class LteHarqBufferRx
     simsignal_t macCellThroughput_;
     simsignal_t macThroughput_;
 
-    // D2D Statistics
-    simsignal_t macDelayD2D_;
-    simsignal_t macCellThroughputD2D_;
-    simsignal_t macThroughputD2D_;
-
     // reference to the eNB module
     cModule* nodeB_;
 
@@ -58,6 +53,7 @@ class LteHarqBufferRx
     TaggedSample *tSampleCell_;
 
   public:
+    LteHarqBufferRx() {}
     LteHarqBufferRx(unsigned int num, LteMacBase *owner, MacNodeId nodeId);
 
     /**
@@ -74,7 +70,7 @@ class LteHarqBufferRx
      *
      * @return uncorrupted pdus or empty list if none
      */
-    std::list<LteMacPdu*> extractCorrectPdus();
+    virtual std::list<LteMacPdu*> extractCorrectPdus();
 
     /**
      * Purges PDUs in corrupted state (if any)
