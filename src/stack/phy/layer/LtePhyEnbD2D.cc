@@ -136,3 +136,99 @@ void LtePhyEnbD2D::requestFeedback(UserControlInfo* lteinfo, LteAirFrame* frame,
        << nodeId_ << " with generator type "
        << fbGeneratorTypeToA(req.genType) << " Fb size: " << fb_.size() << endl;
 }
+
+void LtePhyEnbD2D::handleAirFrame(cMessage* msg)
+{
+    UserControlInfo* lteInfo = check_and_cast<UserControlInfo*>(msg->removeControlInfo());
+    LteAirFrame* frame = static_cast<LteAirFrame*>(msg);
+
+    EV << "LtePhyEnbD2D::handleAirFrame - received new LteAirFrame with ID " << frame->getId() << " from channel" << endl;
+    // Check if the frame is for us ( MacNodeId matches or - if this is a multicast communication - enrolled in multicast group)
+    if (lteInfo->getDestId() != nodeId_)
+    {
+        EV << "ERROR: Frame is not for us. Delete it." << endl;
+        EV << "Packet Type: " << phyFrameTypeToA((LtePhyFrameType)lteInfo->getFrameType()) << endl;
+        EV << "Frame MacNodeId: " << lteInfo->getDestId() << endl;
+        EV << "Local MacNodeId: " << nodeId_ << endl;
+        delete lteInfo;
+        delete frame;
+        return;
+    }
+
+    if (lteInfo->getMulticastGroupId() != -1 && !(binder_->isInMulticastGroup(nodeId_, lteInfo->getMulticastGroupId())))
+    {
+        EV << "Frame is for a multicast group, but we do not belong to that group. Delete the frame." << endl;
+        EV << "Packet Type: " << phyFrameTypeToA((LtePhyFrameType)lteInfo->getFrameType()) << endl;
+        EV << "Frame MacNodeId: " << lteInfo->getDestId() << endl;
+        EV << "Local MacNodeId: " << nodeId_ << endl;
+        delete lteInfo;
+        delete frame;
+        return;
+    }
+
+    connectedNodeId_ = lteInfo->getSourceId();
+    //handle all control pkt
+    if (handleControlPkt(lteInfo, frame))
+        return; // If frame contain a control pkt no further action is needed
+
+    if ((lteInfo->getUserTxParams()) != NULL)
+    {
+        double cqi = lteInfo->getUserTxParams()->readCqiVector()[lteInfo->getCw()];
+        tSample_->sample_ = cqi;
+        tSample_->id_ = lteInfo->getSourceId();
+        tSample_->module_ = getMacByMacNodeId(lteInfo->getSourceId());
+        emit(averageCqiUl_, tSample_);
+        emit(averageCqiUlvect_,cqi);
+    }
+    bool result = true;
+    RemoteSet r = lteInfo->getUserTxParams()->readAntennaSet();
+    if (r.size() > 1)
+    {
+        // Use DAS
+        // Message from ue
+        for (RemoteSet::iterator it = r.begin(); it != r.end(); it++)
+        {
+            EV << "LtePhy: Receiving Packet from antenna " << (*it) << "\n";
+
+            /*
+             * On eNodeB set the current position
+             * to the receiving das antenna
+             */
+            //move.setStart(
+            cc->setRadioPosition(myRadioRef, das_->getAntennaCoord(*it));
+
+            RemoteUnitPhyData data;
+            data.txPower = lteInfo->getTxPower();
+            data.m = getRadioPosition();
+            frame->addRemoteUnitPhyDataVector(data);
+        }
+        result = channelModel_->errorDas(frame, lteInfo);
+    }
+    else
+    {
+        result = channelModel_->error(frame, lteInfo);
+    }
+    if (result)
+        numAirFrameReceived_++;
+    else
+        numAirFrameNotReceived_++;
+
+    EV << "Handled LteAirframe with ID " << frame->getId() << " with result "
+       << (result ? "RECEIVED" : "NOT RECEIVED") << endl;
+
+    cPacket* pkt = frame->decapsulate();
+
+    // here frame has to be destroyed since it is no more useful
+    delete frame;
+
+    // attach the decider result to the packet as control info
+    lteInfo->setDeciderResult(result);
+    pkt->setControlInfo(lteInfo);
+
+    // send decapsulated message along with result control info to upperGateOut_
+    send(pkt, upperGateOut_);
+
+    if (ev.isGUI())
+    updateDisplayString();
+}
+

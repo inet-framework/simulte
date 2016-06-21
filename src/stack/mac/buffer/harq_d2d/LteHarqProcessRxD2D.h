@@ -32,6 +32,14 @@ class LteHarqProcessRxD2D : public LteHarqProcessRx
      * @param
      */
     LteHarqProcessRxD2D(unsigned char acid, LteMacBase *owner);
+
+    /**
+     * Creates a feedback message based on the evaluation result for this pdu.
+     *
+     * @return feedback message to be sent.
+     */
+    virtual LteHarqFeedback *createFeedback(Codeword cw);
+
     virtual ~LteHarqProcessRxD2D();
 };
 

@@ -865,3 +865,27 @@ LteD2DMode LteBinder::getD2DMode(MacNodeId src, MacNodeId dst)
 
     return d2dPeeringMode_[src][dst];
 }
+
+void LteBinder::registerMulticastGroup(MacNodeId nodeId, int32 groupId)
+{
+    if (multicastGroupMap_.find(nodeId) == multicastGroupMap_.end())
+    {
+        MulticastGroupIdSet newSet;
+        newSet.insert(groupId);
+        multicastGroupMap_[nodeId] = newSet;
+    }
+    else
+    {
+        multicastGroupMap_[nodeId].insert(groupId);
+    }
+}
+
+bool LteBinder::isInMulticastGroup(MacNodeId nodeId, int32 groupId)
+{
+    if (multicastGroupMap_.find(nodeId) == multicastGroupMap_.end())
+        return false;   // the node is not enrolled in any group
+    if (multicastGroupMap_[nodeId].find(groupId) == multicastGroupMap_[nodeId].end())
+        return false;   // the node is not enrolled in the given group
+
+    return true;
+}

@@ -54,6 +54,15 @@ class LteHarqUnitTxD2D : public LteHarqUnitTx
      */
     virtual bool pduFeedback(HarqAcknowledgment fb);
 
+    /**
+     * Returns the macPdu to be sent and increments transmissions_ counter.
+     *
+     * The H-ARQ process containing this unit, must call this method in order
+     * to extract the pdu the Mac layer will send.
+     * Before extraction, control info is updated with transmission counter and ndi.
+     */
+    virtual LteMacPdu *extractPdu();
+
     virtual ~LteHarqUnitTxD2D();
 };
 

@@ -48,7 +48,23 @@ std::vector<double> LteDummyChannelModel::getSINR(LteAirFrame *frame, UserContro
     return tmp;
 }
 
+std::vector<double> LteDummyChannelModel::getRSRP_D2D(LteAirFrame *frame, UserControlInfo* lteInfo_1, MacNodeId destId, Coord destCoord)
+{
+    std::vector<double> tmp;
+    tmp.push_back(10000);
+    return tmp;
+}
+
 std::vector<double> LteDummyChannelModel::getSINR_D2D(LteAirFrame *frame, UserControlInfo* lteInfo_1, MacNodeId destId, Coord destCoord,MacNodeId enbId)
+{
+    std::vector<double> tmp;
+    tmp.push_back(10000);
+    // fake SINR is needed by das (to decide which antenna set are used by the terminal)
+    // and handhover function to decide if the terminal should trigger the hanhover
+    return tmp;
+}
+
+std::vector<double> LteDummyChannelModel::getSINR_D2D(LteAirFrame *frame, UserControlInfo* lteInfo_1, MacNodeId destId, Coord destCoord,MacNodeId enbId,std::vector<double> rsrpVector)
 {
     std::vector<double> tmp;
     tmp.push_back(10000);
@@ -67,6 +83,33 @@ std::vector<double> LteDummyChannelModel::getSIR(LteAirFrame *frame, UserControl
 }
 
 bool LteDummyChannelModel::error(LteAirFrame *frame, UserControlInfo* lteInfo)
+{
+    // Number of RTX
+    unsigned char nTx = lteInfo->getTxNumber();
+    //Consistency check
+    if (nTx == 0)
+        throw cRuntimeError("Number of tx should not be 0");
+
+    // compute packet error rate according to number of retransmission
+    // and the harq reduction parameter
+    double totalPer = per_ * pow(harqReduction_, nTx - 1);
+    //Throw random variable
+    double er = uniform(0.0, 1.0);
+
+    if (er <= totalPer)
+    {
+        EV << "This is NOT your lucky day (" << er << " < " << totalPer
+           << ") -> do not receive." << endl;
+        // Signal too weak, we can't receive it
+        return false;
+    }
+        // Signal is strong enough, receive this Signal
+    EV << "This is your lucky day (" << er << " > " << totalPer
+       << ") -> Receive AirFrame." << endl;
+    return true;
+}
+
+bool LteDummyChannelModel::error_D2D(LteAirFrame *frame, UserControlInfo* lteInfo,std::vector<double> rsrpVector)
 {
     // Number of RTX
     unsigned char nTx = lteInfo->getTxNumber();

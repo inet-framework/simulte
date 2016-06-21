@@ -52,6 +52,7 @@ class LteMacBase : public cSimpleModule
 {
     friend class LteHarqBufferTx;
     friend class LteHarqBufferRx;
+    friend class LteHarqBufferRxD2D;
 
   protected:
     simsignal_t macBufferOverflowDl_;

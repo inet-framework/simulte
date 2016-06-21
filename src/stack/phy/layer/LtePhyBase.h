@@ -221,7 +221,7 @@ class LtePhyBase : public ChannelAccess
      *
      * @param msg packet received from LteStack
      */
-    void handleUpperMessage(cMessage* msg);
+    virtual void handleUpperMessage(cMessage* msg);
 
     /**
      * Processes messages received from the wireless channel.

@@ -19,8 +19,25 @@ class LtePhyUeD2D : public LtePhyUe
     // D2D Tx Power
     double d2dTxPower_;
 
+    /*
+     * Capture Effect for D2D Multicast communications
+     */
+    bool d2dMulticastEnableCaptureEffect_;
+    double nearestDistance_;
+    std::vector<double> bestRsrpVector_;
+    double bestRsrpMean_;
+    std::vector<LteAirFrame*> d2dReceivedFrames_; // airframes received in the current TTI. Only one will be decoded
+    cMessage* d2dDecodingTimer_;                  // timer for triggering decoding at the end of the TTI. Started
+                                                  // when the first airframe is received
+    void storeAirFrame(LteAirFrame* newFrame);
+    LteAirFrame* extractAirFrame();
+    void decodeAirFrame(LteAirFrame* frame, UserControlInfo* lteInfo);
+    // ---------------------------------------------------------------- //
+
     virtual void initialize(int stage);
     virtual void handleAirFrame(cMessage* msg);
+    virtual void handleUpperMessage(cMessage* msg);
+    virtual void handleSelfMessage(cMessage *msg);
 
   public:
     LtePhyUeD2D();

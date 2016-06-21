@@ -28,6 +28,10 @@ LteHarqUnitTxD2D::LteHarqUnitTxD2D(unsigned char acid, Codeword cw, LteMacBase *
     }
 }
 
+LteHarqUnitTxD2D::~LteHarqUnitTxD2D()
+{
+}
+
 bool LteHarqUnitTxD2D::pduFeedback(HarqAcknowledgment a)
 {
     EV << "LteHarqUnitTxD2D::pduFeedback - Welcome!" << endl;
@@ -151,6 +155,30 @@ bool LteHarqUnitTxD2D::pduFeedback(HarqAcknowledgment a)
     return reset;
 }
 
-LteHarqUnitTxD2D::~LteHarqUnitTxD2D()
+LteMacPdu *LteHarqUnitTxD2D::extractPdu()
 {
+    if (!(status_ == TXHARQ_PDU_SELECTED))
+        throw cRuntimeError("Trying to extract macPdu from not selected H-ARQ unit");
+
+    txTime_ = NOW;
+    transmissions_++;
+    status_ = TXHARQ_PDU_WAITING; // waiting for feedback
+    UserControlInfo *lteInfo = check_and_cast<UserControlInfo *>(
+        pdu_->getControlInfo());
+    lteInfo->setTxNumber(transmissions_);
+    lteInfo->setNdi((transmissions_ == 1) ? true : false);
+    EV << "LteHarqUnitTxD2D::extractPdu - ndi set to " << ((transmissions_ == 1) ? "true" : "false") << endl;
+
+    LteMacPdu* extractedPdu = pdu_->dup();
+    if (lteInfo->getDirection() == D2D_MULTI)
+    {
+        // for multicast, there is no feedback to wait, so reset the unit.
+        EV << NOW << " LteHarqUnitTxD2D::extractPdu - the extracted pdu belongs to a multicast/broadcast connection. "
+                << "Since the feedback is not expected, reset the unit. " << endl;
+        delete pdu_;
+        resetUnit();
+    }
+
+    return extractedPdu;
 }
+

@@ -106,7 +106,7 @@ typedef unsigned short Codeword;
 /// Link Directions
 enum Direction
 {
-    DL, UL, D2D, UNKNOWN_DIRECTION
+    DL, UL, D2D, D2D_MULTI, UNKNOWN_DIRECTION
 };
 
 /// Modulations
@@ -576,7 +576,7 @@ typedef std::list<X2InformationElement*> X2InformationElementsList;
  */
 enum BsrType
 {
-    SHORT_BSR, D2D_SHORT_BSR
+    SHORT_BSR, D2D_SHORT_BSR, D2D_MULTI_SHORT_BSR
 };
 
 /**
@@ -855,6 +855,7 @@ LteSubFrameType aToSubFrameType(std::string s);
 const std::string SubFrameTypeToA(const LteSubFrameType r);
 const std::string DeploymentScenarioToA(DeploymentScenario type);
 DeploymentScenario aToDeploymentScenario(std::string s);
+bool isMulticastConnection(LteControlInfo* lteInfo);
 
 /**
  * Utility function that reads the parameters of an XML element

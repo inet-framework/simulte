@@ -233,7 +233,8 @@ void LtePhyBase::updateDisplayString()
 
 void LtePhyBase::sendBroadcast(LteAirFrame *airFrame)
 {
-    //TODO
+    // delegate the ChannelControl to send the airframe
+    sendToChannel(airFrame);
 
 //    const ChannelControl::RadioRefVector& gateList = cc->getNeighbors(myRadioRef);
 //    ChannelControl::radioRefVector::const_iterator i = gateList.begin();
@@ -272,7 +273,6 @@ void LtePhyBase::sendBroadcast(LteAirFrame *airFrame)
 //        EV << "NIC is not connected to any gates!" << endl;
 //        delete airFrame;
 //    }
-    error("sendBroadcast is not implemented!");
 }
 
 LteAmc *LtePhyBase::getAmcModule(MacNodeId id)

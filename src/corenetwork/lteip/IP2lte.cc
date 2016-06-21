@@ -18,36 +18,45 @@
 #include "InterfaceTableAccess.h"
 #include "IPv4InterfaceData.h"
 #include "InterfaceEntry.h"
+#include "RoutingTableAccess.h"
+#include "LteMacBase.h"
 
 using namespace std;
 
 Define_Module(IP2lte);
 
-void IP2lte::initialize()
+void IP2lte::initialize(int stage)
 {
-    stackGateOut_ = gate("stackLte$o");
-    ipGateOut_ = gate("upperLayerOut");
-
-    setNodeType(par("nodeType").stdstringValue());
-
-    seqNum_ = 0;
-
-    if (nodeType_ == UE)
+    if (stage == 0)
     {
-        // TODO not so elegant
-        cModule *ue = getParentModule()->getParentModule();
-        getBinder()->registerNode(ue, nodeType_, ue->par("masterId"));
-    }
-    else if (nodeType_ == ENODEB)
-    {
-        // TODO not so elegant
-        cModule *enodeb = getParentModule()->getParentModule();
-        MacNodeId cellId = getBinder()->registerNode(enodeb, nodeType_);
-        LteDeployer * deployer = check_and_cast<LteDeployer*>(enodeb->getSubmodule("deployer"));
-        getBinder()->registerDeployer(deployer, cellId);
-    }
+        stackGateOut_ = gate("stackLte$o");
+        ipGateOut_ = gate("upperLayerOut");
 
-    registerInterface();
+        setNodeType(par("nodeType").stdstringValue());
+
+        seqNum_ = 0;
+
+        if (nodeType_ == UE)
+        {
+            // TODO not so elegant
+            cModule *ue = getParentModule()->getParentModule();
+            getBinder()->registerNode(ue, nodeType_, ue->par("masterId"));
+        }
+        else if (nodeType_ == ENODEB)
+        {
+            // TODO not so elegant
+            cModule *enodeb = getParentModule()->getParentModule();
+            MacNodeId cellId = getBinder()->registerNode(enodeb, nodeType_);
+            LteDeployer * deployer = check_and_cast<LteDeployer*>(enodeb->getSubmodule("deployer"));
+            getBinder()->registerDeployer(deployer, cellId);
+        }
+
+        registerInterface();
+    }
+    else if (stage == 3)
+    {
+        registerMulticastGroups();
+    }
 }
 
 void IP2lte::handleMessage(cMessage *msg)
@@ -245,6 +254,35 @@ void IP2lte::registerInterface()
     interfaceEntry->setName("wlan");
     // TODO configure MTE size from NED
     interfaceEntry->setMtu(1500);
+    // enable broadcast/multicast
+    interfaceEntry->setBroadcast(true);
+    interfaceEntry->setMulticast(true);
     ift->addInterface(interfaceEntry);
+}
+
+void IP2lte::registerMulticastGroups()
+{
+    MacNodeId nodeId = check_and_cast<LteMacBase*>(getParentModule()->getSubmodule("mac"))->getMacNodeId();
+
+    // get all the multicast addresses where the node is enrolled
+    InterfaceEntry * interfaceEntry;
+    IInterfaceTable *ift = InterfaceTableAccess().getIfExists();
+    if (!ift)
+        return;
+    interfaceEntry = ift->getInterfaceByName("wlan");
+    unsigned int numOfAddresses = interfaceEntry->ipv4Data()->getJoinedMulticastGroups().size();
+    if (numOfAddresses > 0)
+    {
+        const IPv4InterfaceData::IPv4AddressVector &addresses = interfaceEntry->ipv4Data()->getJoinedMulticastGroups();
+        IPv4InterfaceData::IPv4AddressVector::const_iterator it = addresses.begin(), et = addresses.end();
+        for (; it != et; ++it)
+        {
+            // get the group id and add it to the binder
+            uint32 address = IPv4Address((*it)).getInt();
+            uint32 mask = ~((uint32)255 << 28);      // 0000 1111 1111 1111
+            uint32 groupId = address & mask;
+            getBinder()->registerMulticastGroup(nodeId, groupId);
+        }
+    }
 }
 

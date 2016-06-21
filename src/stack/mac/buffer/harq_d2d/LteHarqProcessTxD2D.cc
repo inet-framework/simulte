@@ -29,3 +29,18 @@ LteHarqProcessTxD2D::LteHarqProcessTxD2D(unsigned char acid, unsigned int numUni
 LteHarqProcessTxD2D::~LteHarqProcessTxD2D()
 {
 }
+
+LteMacPdu *LteHarqProcessTxD2D::extractPdu(Codeword cw)
+{
+    if (numSelected_ == 0)
+        throw cRuntimeError("H-ARQ TX process: cannot extract pdu: numSelected = 0 ");
+
+    numSelected_--;
+    LteMacPdu *pdu = (*units_)[cw]->extractPdu();
+    if (check_and_cast<LteControlInfo*>(pdu->getControlInfo())->getDirection() == D2D_MULTI)
+    {
+        // if the pdu is for a multicast/broadcast connection, the selected unit has been emptied
+        numEmptyUnits_++;
+    }
+    return pdu;
+}

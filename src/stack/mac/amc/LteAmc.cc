@@ -584,6 +584,7 @@ const UserTxParams& LteAmc::computeTxParams(MacNodeId id, const Direction dir)
 void LteAmc::cleanAmcStructures(Direction dir, ActiveSet aUser)
 {
     EV << NOW << " LteAmc::cleanAmcStructures. Direction " << dirToA(dir) << endl;
+
     //Convert from active cid to active users
     //Update active user for TMS algorithms
     pilot_->updateActiveUsers(aUser,dir);
@@ -859,11 +860,11 @@ unsigned int LteAmc::getItbsPerCqi(Cqi cqi, const Direction dir)
     McsTable* mcsTable;
     if (dir == DL)
         mcsTable = &dlMcsTable_;
-    else if ((dir == UL) || (dir == D2D))
+    else if ((dir == UL) || (dir == D2D) || (dir == D2D_MULTI))
         mcsTable = &ulMcsTable_;
     else
     {
-        throw cRuntimeError("LteAmc::cleanAmcStructures(): Unrecognized direction");
+        throw cRuntimeError("LteAmc::getItbsPerCqi(): Unrecognized direction");
     }
     CQIelem entry = cqiTable[cqi];
     LteMod mod = entry.mod_;

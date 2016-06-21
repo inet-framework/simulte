@@ -22,6 +22,7 @@ class LtePhyEnbD2D : public LtePhyEnb
 
     virtual void initialize(int stage);
     virtual void requestFeedback(UserControlInfo* lteinfo, LteAirFrame* frame, LteFeedbackPkt* pkt);
+    virtual void handleAirFrame(cMessage* msg);
 
   public:
     LtePhyEnbD2D();

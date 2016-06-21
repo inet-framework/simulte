@@ -81,6 +81,13 @@ class LteBinder : public cSimpleModule
     // determines if two D2D-capable UEs are communicating in D2D mode or Infrastructure Mode
     std::map<MacNodeId, std::map<MacNodeId, LteD2DMode> > d2dPeeringMode_;
 
+    /*
+     * Multicast support
+     */
+    // register here the IDs of the multicast group where UEs participate
+    typedef std::set<uint32> MulticastGroupIdSet;
+    std::map<MacNodeId, MulticastGroupIdSet> multicastGroupMap_;
+
   protected:
     virtual void initialize(int stages);
 
@@ -300,6 +307,14 @@ class LteBinder : public cSimpleModule
     std::map<MacNodeId, std::map<MacNodeId, LteD2DMode> >* getD2DPeeringModeMap();
     void setD2DMode(MacNodeId src, MacNodeId dst, LteD2DMode mode);
     LteD2DMode getD2DMode(MacNodeId src, MacNodeId dst);
+
+    /*
+     * Multicast Support
+     */
+    // add the group to the set of multicast group of nodeId
+    void registerMulticastGroup(MacNodeId nodeId, int32 groupId);
+    // check if the node is enrolled in the group
+    bool isInMulticastGroup(MacNodeId nodeId, int32 groupId);
 };
 
 #endif

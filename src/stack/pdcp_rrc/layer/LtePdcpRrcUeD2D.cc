@@ -27,20 +27,39 @@ void LtePdcpRrcUeD2D::fromDataPort(cPacket *pkt)
 
     // get destination info
     IPv4Address destAddr = IPv4Address(lteInfo->getDstAddr());
-    MacNodeId destId = binder_->getMacNodeId(destAddr);
+    MacNodeId destId;
 
-    // set direction based on the destination Id. If the destination can be reached
-    // using D2D, set D2D direction. Otherwise, set UL direction
-    lteInfo->setDirection(getDirection(destId));
-
-    if (binder_->checkD2DCapability(nodeId_, destId))
+    // the direction of the incoming connection is a D2D_MULTI one if the application is of the same type,
+    // else the direction will be selected according to the current status of the UE, i.e. D2D or UL
+    if (destAddr.isMulticast())
     {
-        // this way, we record the ID of the endpoint even if the connection is in IM
-        // this is useful for mode switching
-        lteInfo->setD2dPeerId(destId);
+        lteInfo->setDirection(D2D_MULTI);
+
+        // assign a multicast group id
+        // multicast IP addresses are 224.0.0.0/4.
+        // We consider the host part of the IP address (the remaining 28 bits) as identifier of the group,
+        // so as it is univocally determined for the whole network
+        uint32 address = IPv4Address(lteInfo->getDstAddr()).getInt();
+        uint32 mask = ~((uint32)255 << 28);      // 0000 1111 1111 1111
+        uint32 groupId = address & mask;
+        lteInfo->setMulticastGroupId((int32)groupId);
     }
     else
-        lteInfo->setD2dPeerId(0);
+    {
+        // set direction based on the destination Id. If the destination can be reached
+        // using D2D, set D2D direction. Otherwise, set UL direction
+        destId = binder_->getMacNodeId(destAddr);
+        lteInfo->setDirection(getDirection(destId));
+
+        if (binder_->checkD2DCapability(nodeId_, destId))
+        {
+            // this way, we record the ID of the endpoint even if the connection is in IM
+            // this is useful for mode switching
+            lteInfo->setD2dPeerId(destId);
+        }
+        else
+            lteInfo->setD2dPeerId(0);
+    }
 
     // Cid Request
     EV << NOW << " LtePdcpRrcUeD2D : Received CID request for Traffic [ " << "Source: "
@@ -85,6 +104,8 @@ void LtePdcpRrcUeD2D::fromDataPort(cPacket *pkt)
     lteInfo->setSourceId(nodeId_);
     if (lteInfo->getDirection() == D2D)
         lteInfo->setDestId(destId);
+    else if (lteInfo->getDirection() == D2D_MULTI)
+        lteInfo->setDestId(nodeId_);             // destId is meaningless for multicast D2D (we use the id of the source for statistic purposes at lower levels)
     else // UL
         lteInfo->setDestId(getDestId(lteInfo));
 

@@ -37,8 +37,8 @@ class LtePhyEnb : public LtePhyBase
 
     virtual void initialize(int stage);
 
-    void handleSelfMessage(cMessage *msg);
-    void handleAirFrame(cMessage* msg);
+    virtual void handleSelfMessage(cMessage *msg);
+    virtual void handleAirFrame(cMessage* msg);
     bool handleControlPkt(UserControlInfo* lteinfo, LteAirFrame* frame);
     void handleFeedbackPkt(UserControlInfo* lteinfo, LteAirFrame* frame);
     virtual void requestFeedback(UserControlInfo* lteinfo, LteAirFrame* frame, LteFeedbackPkt* pkt);

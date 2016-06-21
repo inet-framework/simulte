@@ -87,6 +87,8 @@ const std::string dirToA(Direction dir)
             return "UL";
         case D2D:
             return "D2D";
+        case D2D_MULTI:
+            return "D2D_MULTI";
         default:
             return "Unrecognized";
     }
@@ -432,6 +434,11 @@ DeploymentScenario aToDeploymentScenario(std::string s)
     return UNKNOW_SCENARIO;
 }
 
+bool isMulticastConnection(LteControlInfo* lteInfo)
+{
+    return (lteInfo->getMulticastGroupId() >= 0);
+}
+
 MacCid idToMacCid(MacNodeId nodeId, LogicalCid lcid)
 {
     return (((MacCid) nodeId << 16) | lcid);
@@ -462,7 +469,7 @@ MacCid ctrlInfoToMacCid(LteControlInfo * info)
         case DL: case D2D:
             ueId = info->getDestId();
             break;
-        case UL:
+        case UL: case D2D_MULTI:  // D2D_MULTI goes here, since the destination id is meaningless in that context
             ueId = info->getSourceId();
             break;
         default:
@@ -493,7 +500,7 @@ MacNodeId ctrlInfoToUeId(LteControlInfo * info)
         case DL: case D2D:
             ueId = info->getDestId();
             break;
-        case UL:
+        case UL: case D2D_MULTI: // D2D_MULTI goes here, since the destination id is meaningless in that context
             ueId = info->getSourceId();
             break;
         default:

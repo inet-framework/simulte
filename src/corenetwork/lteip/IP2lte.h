@@ -55,8 +55,10 @@ class IP2lte : public cSimpleModule
      */
     void printControlInfo(FlowControlInfo* ci);
     void registerInterface();
+    void registerMulticastGroups();
   protected:
-    virtual void initialize();
+    virtual void initialize(int stage);
+    virtual int numInitStages() const { return 4; }
     virtual void handleMessage(cMessage *msg);
 
 };

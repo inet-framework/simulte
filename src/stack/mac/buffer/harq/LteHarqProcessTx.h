@@ -78,7 +78,7 @@ class LteHarqProcessTx
 
     void markSelected(Codeword cw);
 
-    LteMacPdu *extractPdu(Codeword cw);
+    virtual LteMacPdu *extractPdu(Codeword cw);
 
     bool pduFeedback(HarqAcknowledgment fb, Codeword cw);
 

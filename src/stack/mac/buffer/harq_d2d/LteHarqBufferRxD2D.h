@@ -35,6 +35,12 @@ class LteHarqBufferRxD2D : public LteHarqBufferRx
     simsignal_t macCellThroughputD2D_;
     simsignal_t macThroughputD2D_;
 
+    /**
+     * Checks for all processes if the pdu has been evaluated and sends
+     * feedback if affirmative.
+     */
+    virtual void sendFeedback();
+
   public:
     LteHarqBufferRxD2D(unsigned int num, LteMacBase *owner, MacNodeId nodeId);
 

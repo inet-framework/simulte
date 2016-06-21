@@ -48,7 +48,6 @@ class LteMacUe : public LteMacBase
     unsigned int raRespWinStart_;
 
     // BSR handling
-
     bool bsrTriggered_;
 
     virtual int numInitStages() const { return 4; }

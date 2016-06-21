@@ -164,7 +164,9 @@ unsigned int LteSchedulerEnb::scheduleGrant(MacCid cid, unsigned int bytes,
     {
         // check if this connection is a D2D connection
         if (flowId == D2D_SHORT_BSR)
-            dir = D2D;     // if yes, change direction
+            dir = D2D;           // if yes, change direction
+        if (flowId == D2D_MULTI_SHORT_BSR)
+            dir = D2D_MULTI;     // if yes, change direction
     }
 
     // Get user transmission parameters
@@ -460,7 +462,7 @@ unsigned int LteSchedulerEnb::scheduleGrant(MacCid cid, unsigned int bytes,
                 // The current SDU may have a size greater than available space. In this case, book the band.
                 // During UL/D2D scheduling, if this is the last band, it means that there is no more space
                 // for booking resources, thus we allocate partial BSR
-                if (toServe > (bandAvailableBytes + totalBooked) && (direction_ == DL || ((direction_ == UL || direction_ == D2D) && b < size-1)))
+                if (toServe > (bandAvailableBytes + totalBooked) && (direction_ == DL || ((direction_ == UL || direction_ == D2D || direction_ == D2D_MULTI) && b < size-1)))
                 {
                     unsigned int blocksAdded = mac_->getAmc()->computeReqRbs(nodeId, b, cw, bandAllocatedBytes,        // substitute bandAllocatedBytes
                         dir);
@@ -556,7 +558,7 @@ unsigned int LteSchedulerEnb::scheduleGrant(MacCid cid, unsigned int bytes,
                     EV << "LteSchedulerEnb::grant band " << (unsigned short)b << " scheduled  " << toServe << " bytes " << " using " << bookedUsed << " resources on other bands and "
                        << (toServe-bookedUsed) << " on its own space which was " << bandAvailableBytes << endl;
 
-                    if (direction_ == UL || direction_ == D2D)
+                    if (direction_ == UL || direction_ == D2D || direction_ == D2D_MULTI)
                     {
                         // in UL/D2D, serve what it is possible to serve
                         if ((toServe-bookedUsed)>bandAvailableBytes)
@@ -576,7 +578,7 @@ unsigned int LteSchedulerEnb::scheduleGrant(MacCid cid, unsigned int bytes,
                     // consume one virtual SDU
 
                     // check if we are granting less than a full BSR |
-                    if ((dir==UL || dir==D2D) && (toServe<vQueueFrontSize))
+                    if ((dir==UL || dir==D2D || dir==D2D_MULTI) && (toServe<vQueueFrontSize))
                     {
                         // update the virtual queue
 
@@ -604,7 +606,7 @@ unsigned int LteSchedulerEnb::scheduleGrant(MacCid cid, unsigned int bytes,
                     EV << "LteSchedulerEnb::grant Consumed: " << vQueueItemCounter << " MAC-SDU (" << vQueueFrontSize << " bytes) [Available: " << bandAvailableBytes << " bytes] [Allocated: " << bandAllocatedBytes << " bytes]" << endl;
 
                     // if there are no more bands available for UL/D2D scheduling
-                    if ((direction_ == UL || direction_ == D2D) && b == size-1)
+                    if ((direction_ == UL || direction_ == D2D || direction_ == D2D_MULTI) && b == size-1)
                     {
                         stop = true;
                         break;

@@ -39,7 +39,7 @@ const UserTxParams& AmcPilotD2D::computeTxParams(MacNodeId id, const Direction d
 {
     EV << NOW << " AmcPilot" << getName() << "::computeTxParams for UE " << id << ", direction " << dirToA(dir) << endl;
 
-    if (dir == D2D && usePreconfiguredTxParams_)
+    if ((dir == D2D || dir == D2D_MULTI) && usePreconfiguredTxParams_)
     {
         EV << NOW << " AmcPilot" << getName() << "::computeTxParams Use preconfigured Tx params for D2D connections\n";
         return *preconfiguredTxParams_;

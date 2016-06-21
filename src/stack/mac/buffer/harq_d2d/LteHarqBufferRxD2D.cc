@@ -59,6 +59,36 @@ LteHarqBufferRxD2D::LteHarqBufferRxD2D(unsigned int num, LteMacBase *owner, MacN
     }
 }
 
+void LteHarqBufferRxD2D::sendFeedback()
+{
+    for (unsigned int i = 0; i < numHarqProcesses_; i++)
+    {
+        for (Codeword cw = 0; cw < MAX_CODEWORDS; ++cw)
+        {
+            if (processes_[i]->isEvaluated(cw))
+            {
+                LteHarqFeedback *hfb = processes_[i]->createFeedback(cw);
+                if (hfb == NULL)
+                {
+                    EV<<NOW<<"LteHarqBufferRxD2D::sendFeedback - cw "<< cw << " of process " << i
+                            << " contains a pdu belonging to a multicast/broadcast connection. Don't send feedback." << endl;
+                    continue;
+                }
+
+                // debug output:
+                const char *r = hfb->getResult() ? "ACK" : "NACK";
+                EV << "H-ARQ RX: feedback sent to TX process "
+                   << (int) hfb->getAcid() << " Codeword  " << (int) cw
+                   << "of node with id "
+                   << check_and_cast<UserControlInfo *>(
+                    hfb->getControlInfo())->getDestId()
+                   << " result: " << r << endl;
+
+                macOwner_->sendLowerPackets(hfb);
+            }
+        }
+    }
+}
 
 std::list<LteMacPdu *> LteHarqBufferRxD2D::extractCorrectPdus()
 {
@@ -79,7 +109,7 @@ std::list<LteMacPdu *> LteHarqBufferRxD2D::extractCorrectPdus()
                 // Calculate delay by subtracting the arrival time
                 // to the MAC packet creation time
                 tSample_->sample_ = (NOW - temp->getCreationTime()).dbl();
-                if (info->getDirection() == DL || info->getDirection() == D2D)
+                if (info->getDirection() == DL || info->getDirection() == D2D || info->getDirection() == D2D_MULTI)
                 {
                     tSample_->id_ = info->getDestId();
                 }

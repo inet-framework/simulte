@@ -26,6 +26,11 @@ class LteMacUeD2D : public LteMacUe
     UserTxParams* preconfiguredTxParams_;
     UserTxParams* getPreconfiguredTxParams();  // build and return new user tx params
 
+    // RAC Handling variables
+    bool racD2DMulticastRequested_;
+    // Multicast D2D BSR handling
+    bool bsrD2DMulticastTriggered_;
+
     virtual int numInitStages() const { return 4; }
 
     /**
@@ -60,6 +65,21 @@ class LteMacUeD2D : public LteMacUe
      * of D2D connections
      */
     LteMacPdu* makeBsr(int size);
+
+    /*
+     * Receives and handles scheduling grants
+     */
+    virtual void macHandleGrant(cPacket* pkt);
+
+    /*
+     * Checks RAC status
+     */
+    virtual void checkRAC();
+
+    /*
+     * Receives and handles RAC responses
+     */
+    virtual void macHandleRac(cPacket* pkt);
 
     void macHandleD2DModeSwitch(cPacket* pkt);
 

@@ -136,8 +136,8 @@ void LteMacEnbD2D::macPduUnmake(cPacket* pkt)
         MacBsr* bsr = check_and_cast<MacBsr*>(macPkt->popCe());
         UserControlInfo* lteInfo = check_and_cast<UserControlInfo*>(macPkt->getControlInfo());
         LogicalCid lcid = lteInfo->getLcid();
-        MacCid cid = idToMacCid(lteInfo->getSourceId(), lcid); // this way, two connections from the same UE (one UL and one D2D)
-                                                               // obtain two different CIDs. With the inverse operation, you can get
+        MacCid cid = idToMacCid(lteInfo->getSourceId(), lcid); // this way, different connections from the same UE (e.g. one UL and one D2D)
+                                                               // obtain different CIDs. With the inverse operation, you can get
                                                                // the LCID and discover if the connection is UL or D2D
         bufferizeBsr(bsr, cid);
         delete bsr;
@@ -190,10 +190,10 @@ void LteMacEnbD2D::sendGrants(LteMacScheduleList* scheduleList)
         }
 
         if (granted == 0)
-        continue; // avoiding transmission of 0 grant (0 grant should not be created)
+            continue; // avoiding transmission of 0 grant (0 grant should not be created)
 
         // get the direction of the grant, depending on which connection has been scheduled by the eNB
-        Direction dir = (lcid == D2D_SHORT_BSR) ? D2D : UL;
+        Direction dir = (lcid == D2D_MULTI_SHORT_BSR) ? D2D_MULTI : ((lcid == D2D_SHORT_BSR) ? D2D : UL);
 
         EV << NOW << " LteMacEnbD2D::sendGrants Node[" << getMacNodeId() << "] - "
            << granted << " blocks to grant for user " << nodeId << " on "
