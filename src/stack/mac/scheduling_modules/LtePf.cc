@@ -36,6 +36,8 @@ void LtePf::prepareSchedule()
         Direction dir;
         if (direction_ == UL)
             dir = (MacCidToLcid(cid) == D2D_SHORT_BSR) ? D2D : direction_;
+        else
+            dir = DL;
 
         // compute available blocks for the current user
         const UserTxParams& info = eNbScheduler_->mac_->getAmc()->computeTxParams(nodeId,dir);
