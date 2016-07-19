@@ -10,14 +10,15 @@ package lte.simulations.networks;
 
 import inet.networklayer.autorouting.ipv4.IPv4NetworkConfigurator;
 import inet.networklayer.ipv4.RoutingTableRecorder;
-import inet.nodes.ethernet.Eth10M;
+import inet.nodes.ethernet.Eth10G;
 import inet.nodes.inet.Router;
 import inet.nodes.inet.StandardHost;
-import inet.world.radio.ChannelControl;
+import lte.stack.phy.ChannelControl.LteChannelControl;
 import lte.corenetwork.binder.LteBinder;
 import lte.corenetwork.nodes.eNodeB;
 import lte.corenetwork.nodes.Ue;
 import lte.corenetwork.nodes.ExtCell;
+import lte.epc.PgwStandardSimplified;
 
 
 network MultiCell_X2Star
@@ -29,7 +30,7 @@ network MultiCell_X2Star
         int numExtCells = default(0);
         @display("i=block/network2;bgb=710,558;bgi=background/budapest");
     submodules:
-        channelControl: ChannelControl {
+        channelControl: LteChannelControl {
             @display("p=50,25;is=s");
         }
         routingRecorder: RoutingTableRecorder {
@@ -37,7 +38,7 @@ network MultiCell_X2Star
         }
         configurator: IPv4NetworkConfigurator {
             @display("p=50,125");
-            config = xmldoc("multi.xml");
+            config = xmldoc("demo.xml");
         }
         binder: LteBinder {
             @display("p=50,175;is=s");
@@ -45,8 +46,12 @@ network MultiCell_X2Star
         server: StandardHost {
             @display("p=173,48;is=n;i=device/server");
         }
+        pgw: PgwStandardSimplified {
+            nodeType = "PGW";
+            @display("p=172,287;is=l");
+        }
         router1: Router {
-            @display("p=173,281;i=device/smallrouter");
+            @display("p=251,286;i=device/smallrouter");
         }
         router2: Router {
             @display("p=276,123;i=device/smallrouter");
@@ -80,15 +85,16 @@ network MultiCell_X2Star
         }
     connections:
 
-        server.pppg++ <--> Eth10M <--> router1.pppg++;
-        router1.pppg++ <--> Eth10M <--> router2.pppg++;
-        router1.pppg++ <--> Eth10M <--> router3.pppg++;
-        router1.pppg++ <--> Eth10M <--> eNodeB1.ppp;
-        router2.pppg++ <--> Eth10M <--> eNodeB2.ppp;
-        router3.pppg++ <--> Eth10M <--> eNodeB3.ppp;
+        server.pppg++ <--> Eth10G <--> pgw.filterGate;
+        pgw.pppg++ <--> Eth10G <--> router1.pppg++;
+        pgw.pppg++ <--> Eth10G <--> router2.pppg++;
+        pgw.pppg++ <--> Eth10G <--> router3.pppg++;
+        router1.pppg++ <--> Eth10G <--> eNodeB1.ppp;
+        router2.pppg++ <--> Eth10G <--> eNodeB2.ppp;
+        router3.pppg++ <--> Eth10G <--> eNodeB3.ppp;
 
         //# X2 connections
-        eNodeB1.x2++ <--> Eth10M <--> routerX2.pppg++;
-        eNodeB2.x2++ <--> Eth10M <--> routerX2.pppg++;
-        eNodeB3.x2++ <--> Eth10M <--> routerX2.pppg++;
+        eNodeB1.x2++ <--> Eth10G <--> routerX2.pppg++;
+        eNodeB2.x2++ <--> Eth10G <--> routerX2.pppg++;
+        eNodeB3.x2++ <--> Eth10G <--> routerX2.pppg++;
 }

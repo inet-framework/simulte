@@ -18,9 +18,21 @@ simple TrafficFlowFilter
         @display("i=block/filter");
 
         string filterFileName;
-        string ownerType; // must be one between ENB or PGW
+        string ownerType; // must be one between ENODEB or PGW
     gates:
         input internetFilterGateIn;
 
         output gtpUserGateOut;
+}
+
+simple TrafficFlowFilterSimplified
+{
+    parameters:
+        @display("i=block/filter");
+
+        string ownerType; // must be one between ENODEB or GW
+        bool fastForwarding = default(true);
+    gates:
+        input internetFilterGateIn;
+        output gtpUserGateOut;    
 }

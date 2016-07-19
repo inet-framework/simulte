@@ -14,10 +14,11 @@ import inet.nodes.ethernet.Eth10G;
 import inet.nodes.ethernet.Eth10M;
 import inet.nodes.inet.Router;
 import inet.nodes.inet.StandardHost;
-import inet.world.radio.ChannelControl;
+import lte.stack.phy.ChannelControl.LteChannelControl;
 import lte.corenetwork.binder.LteBinder;
 import lte.corenetwork.nodes.Ue;
 import lte.corenetwork.nodes.eNodeB;
+import lte.epc.PgwStandardSimplified;
 
 
 network SingleCell_D2D
@@ -28,7 +29,7 @@ network SingleCell_D2D
         int numUeD2DRx = default(0);
         @display("i=block/network2;bgb=991,558;bgi=background/budapest");
     submodules:
-        channelControl: ChannelControl {
+        channelControl: LteChannelControl {
             @display("p=50,25;is=s");
         }
         routingRecorder: RoutingTableRecorder {
@@ -47,6 +48,10 @@ network SingleCell_D2D
         router: Router {
             @display("p=321,136;i=device/smallrouter");
         }
+        pgw: PgwStandardSimplified {
+            nodeType = "PGW";
+            @display("p=519,175;is=l");
+        }
         eNodeB: eNodeB {
             @display("p=391,259;is=vl");
         }
@@ -61,5 +66,6 @@ network SingleCell_D2D
         }
     connections:
         server.pppg++ <--> Eth10G <--> router.pppg++;
-        router.pppg++ <--> Eth10G <--> eNodeB.ppp;
+        router.pppg++ <--> Eth10G <--> pgw.filterGate;
+        pgw.pppg++ <--> Eth10G <--> eNodeB.ppp;
 }

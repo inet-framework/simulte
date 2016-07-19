@@ -784,6 +784,20 @@ MacNodeId LteBinder::getNextHop(MacNodeId slaveId)
     return nextHop_[slaveId];
 }
 
+void LteBinder::registerName(MacNodeId nodeId, const char* moduleName)
+{
+    int len = strlen(moduleName);
+    macNodeIdToModuleName_[nodeId] = new char[len+1];
+    strcpy(macNodeIdToModuleName_[nodeId], moduleName);
+}
+
+const char* LteBinder::getModuleNameByMacNodeId(MacNodeId nodeId)
+{
+    if (macNodeIdToModuleName_.find(nodeId) == macNodeIdToModuleName_.end())
+        throw cRuntimeError("LteBinder::getModuleNameByMacNodeId - node ID not found");
+    return macNodeIdToModuleName_[nodeId];
+}
+
 ConnectedUesMap LteBinder::getDeployedUes(MacNodeId localId, Direction dir)
 {
     Enter_Method("getDeployedUes");

@@ -27,13 +27,11 @@ import lte.stack.phy.LteNicEnb;
 import lte.stack.phy.LteNicEnbX2;
 import lte.stack.phy.LteNicEnbD2D;
 import lte.corenetwork.deployer.LteDeployer;
-import lte.epc.gtp.GtpUserSimplified;
-import lte.epc.TrafficFlowFilterSimplified;
 
 // 
 // eNodeB Module
 //
-module eNodeB
+module eNodeB_Old
 {
     parameters:
         @node();
@@ -46,7 +44,7 @@ module eNodeB
         double txPower @unit(mw) = default(100mw);
         bool d2dCapable = default(false);
         bool x2Enabled = default(false);
-
+        
         //# Num apps
         int numTcpApps = default(0);  // no of TCP apps. Specify the app types in INI file with tcpApp[0..1].typename="TCPEchoApp" syntax
         int numUdpApps = default(0);  // no of UDP apps. Specify the app types in INI file with udpApp[0..1].typename="UDPVideoStreamCli" syntax
@@ -114,7 +112,7 @@ module eNodeB
         //#
 		// =============== UDP ============== //
         udpApp[numUdpApps]: <> like IUDPApp {
-            @display("p=555,48,row");
+            @display("p=501,48,row");
         }
         udp: UDP {
             @display("p=501,148");
@@ -130,36 +128,20 @@ module eNodeB
 
 	    // =============== X2AP ============== //
         x2App[numX2Apps]: LteX2App if x2Enabled {
-            @display("p=155,48,row");
+            @display("p=206,56,row");
         }
         sctp: SCTP if x2Enabled {
-            @display("p=275,148");
-        }
-
-        //# 
-        //# Simplified EPC
-        //# 
-        trafficFlowFilter: TrafficFlowFilterSimplified {
-            ownerType = nodeType;
-            @display("p=330,48");
-        }
-        gtpUser: GtpUserSimplified {
-            @display("p=462,48");
+            @display("p=330,148");
         }
 
     connections allowunconnected:
 
         //#
-        //# LTE stack to PHY and network layer
+        //# LTE stack to PHY, network layer and X2 connections
         //#        
         nic.radioIn <-- radioIn;
-        nic.upperLayerOut --> trafficFlowFilter.internetFilterGateIn;
-        nic.upperLayerIn <-- gtpUser.pppGate;
-        trafficFlowFilter.gtpUserGateOut --> gtpUser.trafficFlowFilterGate;
-        gtpUser.udpOut --> udp.appIn++;
-        gtpUser.udpIn <-- udp.appOut++;
-        udp.ipOut --> networkLayer.transportIn++;
-        udp.ipIn <-- networkLayer.transportOut++;
+        nic.upperLayerOut --> networkLayer.ifIn++;
+        nic.upperLayerIn <-- networkLayer.ifOut++;
 
         //#
         //# PPP interface to network layer connections
@@ -203,8 +185,8 @@ module eNodeB
 		//#
         tcp.ipOut --> networkLayer.transportIn++ if numTcpApps>0;
         tcp.ipIn <-- networkLayer.transportOut++ if numTcpApps>0;
-        //udp.ipOut --> networkLayer.transportIn++ if numUdpApps>0;
-        //udp.ipIn <-- networkLayer.transportOut++ if numUdpApps>0;
+        udp.ipOut --> networkLayer.transportIn++ if numUdpApps>0;
+        udp.ipIn <-- networkLayer.transportOut++ if numUdpApps>0;
         sctp.to_ip --> networkLayer.transportIn++ if (x2Enabled && numX2Apps>0);
         sctp.from_ip <-- networkLayer.transportOut++ if (x2Enabled && numX2Apps>0);
 }

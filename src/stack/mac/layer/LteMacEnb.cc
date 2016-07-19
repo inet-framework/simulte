@@ -270,6 +270,10 @@ void LteMacEnb::initialize(int stage)
         info->init = false;            // flag for phy initialization
         info->eNodeB = this->getParentModule()->getParentModule();  // reference to the eNodeB module
         binder_->addEnbInfo(info);
+
+        // register the pair <id,name> to the binder
+        const char* moduleName = getParentModule()->getParentModule()->getName();
+        binder_->registerName(nodeId_, moduleName);
     }
 }
 

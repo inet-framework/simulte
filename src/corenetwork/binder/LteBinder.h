@@ -45,7 +45,7 @@ class LteBinder : public cSimpleModule
     typedef std::map<MacCellId, LteDeployer*> DeployerList;
 
     std::map<IPv4Address, MacNodeId> macNodeIdToIPAddress_;
-
+    std::map<MacNodeId, char*> macNodeIdToModuleName_;
     DeployerList deployersMap_;
     std::vector<MacNodeId> nextHop_; // MacNodeIdMaster --> MacNodeIdSlave
     std::vector<OmnetId> nodeIds_; // MacNodeId --> OmnetId
@@ -221,6 +221,8 @@ class LteBinder : public cSimpleModule
      */
     MacNodeId getMacNodeId(IPv4Address address)
     {
+        if (macNodeIdToIPAddress_.find(address) == macNodeIdToIPAddress_.end())
+            return 0;
         return macNodeIdToIPAddress_[address];
     }
 
@@ -253,6 +255,15 @@ class LteBinder : public cSimpleModule
     {
         setMacNodeId(address, nodeId);
     }
+    /**
+     * Associates the given MAC node ID to the name of the module
+     */
+    void registerName(MacNodeId nodeId, const char* moduleName);
+    /**
+     * Returns the module name for the given MAC node ID
+     */
+    const char* getModuleNameByMacNodeId(MacNodeId nodeId);
+
     /*
      * getDeployedUes() returns the affiliates
      * of a given eNodeB
