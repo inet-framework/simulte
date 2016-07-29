@@ -24,7 +24,6 @@ import inet.transport.tcp.TCP;
 import inet.transport.sctp.SCTP;
 import lte.x2.LteX2App;
 import lte.stack.phy.LteNicEnb;
-import lte.stack.phy.LteNicEnbX2;
 import lte.stack.phy.LteNicEnbD2D;
 import lte.corenetwork.deployer.LteDeployer;
 
@@ -84,11 +83,7 @@ module eNodeB_Old
             nodeType = nodeType;
             @display("p=330,363");
         }
-        nic: LteNicEnb if !d2dCapable && !x2Enabled {
-            nodeType = nodeType;
-            @display("p=330,363");
-        }
-        nic: LteNicEnbX2 if !d2dCapable && x2Enabled {
+        nic: LteNicEnb if !d2dCapable {
             nodeType = nodeType;
             @display("p=330,363");
         }
@@ -127,10 +122,10 @@ module eNodeB_Old
         }
 
 	    // =============== X2AP ============== //
-        x2App[numX2Apps]: LteX2App if x2Enabled {
+        x2App[numX2Apps]: LteX2App {
             @display("p=206,56,row");
         }
-        sctp: SCTP if x2Enabled {
+        sctp: SCTP {
             @display("p=330,148");
         }
 
@@ -155,8 +150,8 @@ module eNodeB_Old
         //#    
         for i=0..sizeof(x2)-1 {
             x2ppp[i].phys <--> x2[i];
-            x2ppp[i].upperLayerOut --> networkLayer.ifIn++ if x2Enabled;
-            x2ppp[i].upperLayerIn <-- networkLayer.ifOut++ if x2Enabled;
+            x2ppp[i].upperLayerOut --> networkLayer.ifIn++;
+            x2ppp[i].upperLayerIn <-- networkLayer.ifOut++;
         }
 
 		//# 
@@ -170,7 +165,7 @@ module eNodeB_Old
             udpApp[i].udpOut --> udp.appIn++;
             udpApp[i].udpIn <-- udp.appOut++;
         }
-        for i=0..numX2Apps-1, if x2Enabled {
+        for i=0..numX2Apps-1 {
             x2App[i].sctpOut[0] --> sctp.from_appl++;
             x2App[i].sctpIn[0] <-- sctp.to_appl++;
 
@@ -187,6 +182,6 @@ module eNodeB_Old
         tcp.ipIn <-- networkLayer.transportOut++ if numTcpApps>0;
         udp.ipOut --> networkLayer.transportIn++ if numUdpApps>0;
         udp.ipIn <-- networkLayer.transportOut++ if numUdpApps>0;
-        sctp.to_ip --> networkLayer.transportIn++ if (x2Enabled && numX2Apps>0);
-        sctp.from_ip <-- networkLayer.transportOut++ if (x2Enabled && numX2Apps>0);
+        sctp.to_ip --> networkLayer.transportIn++ if numX2Apps>0;
+        sctp.from_ip <-- networkLayer.transportOut++ if numX2Apps>0;
 }

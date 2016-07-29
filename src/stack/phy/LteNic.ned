@@ -149,12 +149,35 @@ module LteNicEnb extends LteNicBase
         LtePdcpRrcType = "LtePdcpRrcEnb";
         LteMacType = "LteMacEnb";
         LtePhyType = "LtePhyEnb";
+        bool compEnabled = default(false);
+        string LteCompManagerType = default("LteCompManagerProportional");
+    gates:
+        inout x2[];
 
     submodules:
-        // TODO Feedback generator submodule
-        // ulFbGen: LteUlFeedbackGenerator {
-        //     @display("p=200,100;is=s");
-        // }
+        //#
+        //# X2 manager
+        //#       
+        x2Manager: LteX2Manager {
+            @display("p=60,227,row");
+        }
+
+        //#
+        //# Modules exploiting X2 interface
+        //#
+        compManager: <LteCompManagerType> like LteCompManager if compEnabled {
+            @display("p=60,315,row");
+        }
+
+    connections:
+        //# connections between X2 Manager and its users
+        compManager.x2ManagerIn <-- x2Manager.dataPort$o++ if compEnabled;
+        compManager.x2ManagerOut --> x2Manager.dataPort$i++ if compEnabled;
+        //# connections between X2 Manager and the outer world
+        for i=0..sizeof(x2)-1 {
+            x2$i[i] --> x2Manager.x2$i++;
+            x2$o[i] <-- x2Manager.x2$o++;
+        }
 }
 
 //
@@ -166,24 +189,11 @@ module LteNicEnbD2D extends LteNicBase
         LtePdcpRrcType = "LtePdcpRrcEnb";
         LteMacType = "LteMacEnbD2D";
         LtePhyType = "LtePhyEnbD2D";
+        bool compEnabled = default(false);
+        string LteCompManagerType = default("LteCompManagerProportional");
 
         bool d2dModeSelection = default(false);
         string d2dModeSelectionType = default("D2DModeSelectionBestCqi");
-
-    submodules:
-        d2dModeSelection: <d2dModeSelectionType> like D2DModeSelection if d2dModeSelection {
-            @display("p=60,315,row");
-        }
-}
-
-//
-// eNodeB of LTE stack, with X2 and X2 user modules
-//
-module LteNicEnbX2 extends LteNicEnb
-{
-    parameters:
-        bool compEnabled = default(false);
-        string LteCompManagerType = default("LteCompManagerProportional");
 
     gates:
         inout x2[];
@@ -193,16 +203,18 @@ module LteNicEnbX2 extends LteNicEnb
         //# X2 manager
         //#       
         x2Manager: LteX2Manager {
-            @display("p=60,276,row");
+            @display("p=60,227,row");
         }
 
         //#
         //# Modules exploiting X2 interface
         //#
         compManager: <LteCompManagerType> like LteCompManager if compEnabled {
-            @display("p=60,173,row");
+            @display("p=60,315,row");
         }
-
+        d2dModeSelection: <d2dModeSelectionType> like D2DModeSelection if d2dModeSelection {
+            @display("p=60,68,row");
+        }
     connections:
         //# connections between X2 Manager and its users
         compManager.x2ManagerIn <-- x2Manager.dataPort$o++ if compEnabled;

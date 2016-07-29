@@ -24,11 +24,11 @@ import inet.transport.tcp.TCP;
 import inet.transport.sctp.SCTP;
 import lte.x2.LteX2App;
 import lte.stack.phy.LteNicEnb;
-import lte.stack.phy.LteNicEnbX2;
 import lte.stack.phy.LteNicEnbD2D;
 import lte.corenetwork.deployer.LteDeployer;
 import lte.epc.gtp.GtpUserSimplified;
 import lte.epc.TrafficFlowFilterSimplified;
+import lte.epc.gtp.GtpUserX2;
 
 // 
 // eNodeB Module
@@ -45,7 +45,6 @@ module eNodeB
         int macCellId = default(0);  // TODO: this is not a real parameter
         double txPower @unit(mw) = default(100mw);
         bool d2dCapable = default(false);
-        bool x2Enabled = default(false);
 
         //# Num apps
         int numTcpApps = default(0);  // no of TCP apps. Specify the app types in INI file with tcpApp[0..1].typename="TCPEchoApp" syntax
@@ -86,11 +85,7 @@ module eNodeB
             nodeType = nodeType;
             @display("p=330,363");
         }
-        nic: LteNicEnb if !d2dCapable && !x2Enabled {
-            nodeType = nodeType;
-            @display("p=330,363");
-        }
-        nic: LteNicEnbX2 if !d2dCapable && x2Enabled {
+        nic: LteNicEnb if !d2dCapable {
             nodeType = nodeType;
             @display("p=330,363");
         }
@@ -129,10 +124,10 @@ module eNodeB
         }
 
 	    // =============== X2AP ============== //
-        x2App[numX2Apps]: LteX2App if x2Enabled {
+        x2App[numX2Apps]: LteX2App {
             @display("p=155,48,row");
         }
-        sctp: SCTP if x2Enabled {
+        sctp: SCTP {
             @display("p=275,148");
         }
 
@@ -147,6 +142,10 @@ module eNodeB
             @display("p=462,48");
         }
 
+        gtpUserX2: GtpUserX2 {
+            @display("p=410,363");
+        }
+
     connections allowunconnected:
 
         //#
@@ -158,8 +157,7 @@ module eNodeB
         trafficFlowFilter.gtpUserGateOut --> gtpUser.trafficFlowFilterGate;
         gtpUser.udpOut --> udp.appIn++;
         gtpUser.udpIn <-- udp.appOut++;
-        udp.ipOut --> networkLayer.transportIn++;
-        udp.ipIn <-- networkLayer.transportOut++;
+
 
         //#
         //# PPP interface to network layer connections
@@ -168,15 +166,21 @@ module eNodeB
         ppp.upperLayerOut --> networkLayer.ifIn++;
         ppp.upperLayerIn <-- networkLayer.ifOut++;
 
+
+        gtpUserX2.lteStackOut --> nic.x2$i++;
+        gtpUserX2.lteStackIn <-- nic.x2$o++;
+        gtpUserX2.udpOut --> udp.appIn++;
+        gtpUserX2.udpIn <-- udp.appOut++;
+        
         //#
         //# X2 interface to network layer connections
         //#    
         for i=0..sizeof(x2)-1 {
             x2ppp[i].phys <--> x2[i];
-            x2ppp[i].upperLayerOut --> networkLayer.ifIn++ if x2Enabled;
-            x2ppp[i].upperLayerIn <-- networkLayer.ifOut++ if x2Enabled;
+            x2ppp[i].upperLayerOut --> networkLayer.ifIn++;
+            x2ppp[i].upperLayerIn <-- networkLayer.ifOut++;
         }
-
+        
 		//# 
 		//# Apps to transport layer connections
 		//#
@@ -188,7 +192,7 @@ module eNodeB
             udpApp[i].udpOut --> udp.appIn++;
             udpApp[i].udpIn <-- udp.appOut++;
         }
-        for i=0..numX2Apps-1, if x2Enabled {
+        for i=0..numX2Apps-1 {
             x2App[i].sctpOut[0] --> sctp.from_appl++;
             x2App[i].sctpIn[0] <-- sctp.to_appl++;
 
@@ -201,10 +205,10 @@ module eNodeB
 		//# 
 		//# Transport layer to network layer connections
 		//#
+		udp.ipOut --> networkLayer.transportIn++;
+        udp.ipIn <-- networkLayer.transportOut++;
         tcp.ipOut --> networkLayer.transportIn++ if numTcpApps>0;
         tcp.ipIn <-- networkLayer.transportOut++ if numTcpApps>0;
-        //udp.ipOut --> networkLayer.transportIn++ if numUdpApps>0;
-        //udp.ipIn <-- networkLayer.transportOut++ if numUdpApps>0;
-        sctp.to_ip --> networkLayer.transportIn++ if (x2Enabled && numX2Apps>0);
-        sctp.from_ip <-- networkLayer.transportOut++ if (x2Enabled && numX2Apps>0);
+        sctp.to_ip --> networkLayer.transportIn++ if numX2Apps>0;
+        sctp.from_ip <-- networkLayer.transportOut++ if numX2Apps>0;
 }
