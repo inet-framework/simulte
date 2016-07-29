@@ -69,14 +69,11 @@ void LtePhyEnb::initialize(int stage)
         }
 
         bdcUpdateInterval_ = deployer_->par("broadcastMessageInterval");
-
-        // TODO: add a parameter not to generate broadcasts (no handovers scenario)
-        // e.g.: if (bdcUpdateInterval_ != 0 && !!doHandovers)
-//        if (bdcUpdateInterval_ != 0) {
-//            // self message provoking the generation of a broadcast message
-//            bdcStarter_ = new cMessage("bdcStarter");
-//            scheduleAt(NOW, bdcStarter_);
-//        }
+        if (bdcUpdateInterval_ != 0 && par("enableHandover").boolValue()) {
+            // self message provoking the generation of a broadcast message
+            bdcStarter_ = new cMessage("bdcStarter");
+            scheduleAt(NOW, bdcStarter_);
+        }
     }
 }
 
