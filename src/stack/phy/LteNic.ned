@@ -19,6 +19,7 @@ import lte.corenetwork.lteip.IP2lte;
 import lte.x2.LteX2Manager;
 import lte.stack.compManager.LteCompManager;
 import lte.stack.d2dModeSelection.D2DModeSelection;
+import lte.stack.handoverManager.LteHandoverManager;
 
 // 
 // Interface for the LTE Stack.
@@ -151,6 +152,7 @@ module LteNicEnb extends LteNicBase
         LtePhyType = "LtePhyEnb";
         bool compEnabled = default(false);
         string LteCompManagerType = default("LteCompManagerProportional");
+
     gates:
         inout x2[];
 
@@ -168,13 +170,23 @@ module LteNicEnb extends LteNicBase
         compManager: <LteCompManagerType> like LteCompManager if compEnabled {
             @display("p=60,315,row");
         }
+        handoverManager: LteHandoverManager {
+            @display("p=60,142,row");
+        }
 
     connections:
         //# connections between X2 Manager and its users
         compManager.x2ManagerIn <-- x2Manager.dataPort$o++ if compEnabled;
         compManager.x2ManagerOut --> x2Manager.dataPort$i++ if compEnabled;
+        handoverManager.x2ManagerIn <-- x2Manager.dataPort$o++;
+        handoverManager.x2ManagerOut --> x2Manager.dataPort$i++;
+
+        //# connections between X2 Manager and GTP (for handover)
+        x2$i[0] --> x2Manager.x2Gtp$i;
+        x2$o[0] <-- x2Manager.x2Gtp$o;
+
         //# connections between X2 Manager and the outer world
-        for i=0..sizeof(x2)-1 {
+        for i=1..sizeof(x2)-1 {
             x2$i[i] --> x2Manager.x2$i++;
             x2$o[i] <-- x2Manager.x2$o++;
         }
@@ -191,7 +203,6 @@ module LteNicEnbD2D extends LteNicBase
         LtePhyType = "LtePhyEnbD2D";
         bool compEnabled = default(false);
         string LteCompManagerType = default("LteCompManagerProportional");
-
         bool d2dModeSelection = default(false);
         string d2dModeSelectionType = default("D2DModeSelectionBestCqi");
 
@@ -212,6 +223,9 @@ module LteNicEnbD2D extends LteNicBase
         compManager: <LteCompManagerType> like LteCompManager if compEnabled {
             @display("p=60,315,row");
         }
+        handoverManager: LteHandoverManager {
+            @display("p=60,142,row");
+        }
         d2dModeSelection: <d2dModeSelectionType> like D2DModeSelection if d2dModeSelection {
             @display("p=60,68,row");
         }
@@ -219,9 +233,15 @@ module LteNicEnbD2D extends LteNicBase
         //# connections between X2 Manager and its users
         compManager.x2ManagerIn <-- x2Manager.dataPort$o++ if compEnabled;
         compManager.x2ManagerOut --> x2Manager.dataPort$i++ if compEnabled;
+        handoverManager.x2ManagerIn <-- x2Manager.dataPort$o++;
+        handoverManager.x2ManagerOut --> x2Manager.dataPort$i++;
+
+        //# connections between X2 Manager and GTP (for handover)
+        x2$i[0] --> x2Manager.x2Gtp$i;
+        x2$o[0] <-- x2Manager.x2Gtp$o;
 
         //# connections between X2 Manager and the outer world
-        for i=0..sizeof(x2)-1 {
+        for i=1..sizeof(x2)-1 {
             x2$i[i] --> x2Manager.x2$i++;
             x2$o[i] <-- x2Manager.x2$o++;
         }

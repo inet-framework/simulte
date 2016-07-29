@@ -53,3 +53,21 @@ simple GtpUserSimplified
         output pppGate;
 }
 
+//
+// Implements a simplified version of the GTP-U protocol for tunneling packets over X2 (for handover)
+//
+simple GtpUserX2
+{
+    parameters:
+        int localPort = default(32);
+        int tunnelPeerPort = default(32);
+        
+        @display("i=block/tunnel");
+
+    gates:
+        output udpOut;
+        input udpIn;
+
+        output lteStackOut;
+        input lteStackIn;
+}

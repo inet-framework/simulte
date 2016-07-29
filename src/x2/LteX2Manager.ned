@@ -26,4 +26,5 @@ simple LteX2Manager
     gates:
         inout dataPort[]; // connection to X2 user modules
         inout x2[];       // connections to X2App modules
+        inout x2Gtp;      // connections to GtpUserX2 module
 }

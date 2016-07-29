@@ -83,6 +83,8 @@ class LteMacEnbD2D : public LteMacEnb
     void storeRxHarqBufferMirror(MacNodeId id, LteHarqBufferRxD2DMirror* mirbuff);
     // get the reference to the "mirror" buffers
     HarqRxBuffersMirror* getRxHarqBufferMirror();
+    // delete the "mirror" RX-Harq Buffer for this node (useful at mode switch)
+    void deleteRxHarqBufferMirror(MacNodeId id);
     // send the D2D Mode Switch signal to the transmitter of the given flow
     void sendModeSwitchNotification(MacNodeId srcId, MacNodeId dst, LteD2DMode oldMode, LteD2DMode newMode);
 };

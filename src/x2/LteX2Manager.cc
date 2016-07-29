@@ -113,23 +113,44 @@ void LteX2Manager::fromStack(cPacket* pkt)
         return;
     }
 
-    DestinationIdList destList = x2Info->getDestIdList();
-    DestinationIdList::iterator it = destList.begin();
-    for (; it != destList.end(); ++it)
+    // If the message is a HandoverDataMsg, send to the GTPUserX2 module
+    if (x2msg->getType() == X2_HANDOVER_DATA_MSG)
     {
-        // send a X2 message to each destination eNodeB
-        LteX2Message* x2msg_dup = x2msg->dup();
-        x2msg_dup->setSourceId(nodeId_);
-        x2msg_dup->setDestinationId(*it);
+        // GTPUserX2 module will tunnel this datagram towards the target eNB
+        DestinationIdList destList = x2Info->getDestIdList();
+        DestinationIdList::iterator it = destList.begin();
+        for (; it != destList.end(); ++it)
+        {
+            X2NodeId targetEnb = *it;
+            x2msg->setSourceId(nodeId_);
+            x2msg->setDestinationId(targetEnb);
 
-        // select the index for the output gate (it belongs to a vector)
-        int gateIndex = x2InterfaceTable_[*it];
-        cGate* outputGate = gate("x2$o",gateIndex);
-        send(x2msg_dup, outputGate);
+            // send to the gate connected to the GTPUser module
+            cGate* outputGate = gate("x2Gtp$o");
+            send(x2msg, outputGate);
+        }
+        delete x2Info;
+    }
+    else  // X2 control messages
+    {
+        DestinationIdList destList = x2Info->getDestIdList();
+        DestinationIdList::iterator it = destList.begin();
+        for (; it != destList.end(); ++it)
+        {
+            // send a X2 message to each destination eNodeB
+            LteX2Message* x2msg_dup = x2msg->dup();
+            x2msg_dup->setSourceId(nodeId_);
+            x2msg_dup->setDestinationId(*it);
+
+            // select the index for the output gate (it belongs to a vector)
+            int gateIndex = x2InterfaceTable_[*it];
+            cGate* outputGate = gate("x2$o",gateIndex);
+            send(x2msg_dup, outputGate);
+        }
+        delete x2Info;
+        delete x2msg;
     }
 
-    delete x2Info;
-    delete x2msg;
 }
 
 void LteX2Manager::fromX2(cPacket* pkt)

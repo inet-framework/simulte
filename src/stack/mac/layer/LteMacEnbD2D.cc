@@ -272,6 +272,27 @@ HarqRxBuffersMirror* LteMacEnbD2D::getRxHarqBufferMirror()
     return &harqRxBuffersD2DMirror_;
 }
 
+void LteMacEnbD2D::deleteRxHarqBufferMirror(MacNodeId id)
+{
+    HarqRxBuffersMirror::iterator it = harqRxBuffersD2DMirror_.begin() , et=harqRxBuffersD2DMirror_.end();
+    for(; it != et;)
+    {
+        // get current nodeIDs
+        MacNodeId senderId = it->second->peerId_; // Transmitter
+        MacNodeId destId = it->first;             // Receiver
+
+        if (senderId == id || destId == id)
+        {
+            it = harqRxBuffersD2DMirror_.erase(it);
+        }
+        else
+        {
+            ++it;
+        }
+    }
+
+}
+
 void LteMacEnbD2D::sendModeSwitchNotification(MacNodeId srcId, MacNodeId dstId, LteD2DMode oldMode, LteD2DMode newMode)
 {
     Enter_Method("sendModeSwitchNotification");
@@ -290,4 +311,3 @@ void LteMacEnbD2D::sendModeSwitchNotification(MacNodeId srcId, MacNodeId dstId, 
     // send pkt to PHY layer
     sendLowerPackets(switchPkt);
 }
-

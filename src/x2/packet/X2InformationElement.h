@@ -16,8 +16,9 @@
 // add here new IE types
 enum X2InformationElementType
 {
-    COMP_REQUEST_IE,  // CoMP slave -> master
-    COMP_REPLY_IE     // CoMP master -> slave
+    COMP_REQUEST_IE,    // CoMP slave -> master
+    COMP_REPLY_IE,      // CoMP master -> slave
+    X2_HANDOVER_CMD_IE  // HO command source eNB -> target eNB
 };
 
 //

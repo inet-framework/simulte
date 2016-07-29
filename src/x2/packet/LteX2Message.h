@@ -17,7 +17,7 @@
 // add here new X2 message types
 enum LteX2MessageType
 {
-    X2_COMP_MSG, X2_UNKNOWN_MSG
+    X2_COMP_MSG, X2_HANDOVER_CONTROL_MSG, X2_HANDOVER_DATA_MSG, X2_UNKNOWN_MSG
 };
 
 /**
