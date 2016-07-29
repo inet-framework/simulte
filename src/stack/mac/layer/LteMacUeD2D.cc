@@ -624,7 +624,7 @@ void LteMacUeD2D::macHandleD2DModeSwitch(cPacket* pkt)
     MacCid cid;
     FlowControlInfo* lteInfo = NULL;
     std::map<MacCid, FlowControlInfo>::iterator it = connDesc_.begin();
-    for (; it != connDesc_.end(); ++it)
+    for (; it != connDesc_.end(); )
     {
         cid = it->first;
         lteInfo = check_and_cast<FlowControlInfo*>(&(it->second));
@@ -651,12 +651,70 @@ void LteMacUeD2D::macHandleD2DModeSwitch(cPacket* pkt)
                         delete pdu;
                     }
                 }
+
+                // delete H-ARQ buffers
+                HarqTxBuffers::iterator hit;
+                for (hit = harqTxBuffers_.begin(); hit != harqTxBuffers_.end(); )
+                {
+                    if (hit->first == peerId)
+                    {
+                        delete hit->second; // Delete Queue
+                        hit = harqTxBuffers_.erase(hit); // Delete Elem
+                    }
+                    else
+                    {
+                        ++hit;
+                    }
+                }
+                HarqRxBuffers::iterator hit2;
+                for (hit2 = harqRxBuffers_.begin(); hit2 != harqRxBuffers_.end();)
+                {
+                     if (hit2->first == peerId)
+                     {
+                         delete hit2->second; // Delete Queue
+                         hit2 = harqRxBuffers_.erase(hit2); // Delete Elem
+                     }
+                     else
+                     {
+                         ++hit2;
+                     }
+                }
+
+                enb_->deleteRxHarqBufferMirror(nodeId_);
             }
 
             pkt->setControlInfo(lteInfo->dup());
             sendUpperPackets(pkt->dup());
 
+            if (oldDirection != newDirection)
+            {
+                // remove connection descriptor
+                it = connDesc_.erase(it);
+
+                // remove entry from lcgMap
+                LcgMap::iterator lt = lcgMap_.begin();
+                for (; lt != lcgMap_.end(); )
+                {
+                    if (lt->second.first == cid)
+                    {
+                        lt = lcgMap_.erase(lt);
+                    }
+                    else
+                    {
+                        ++lt;
+                    }
+                }
+            }
+            else
+            {
+                ++it;
+            }
+
             EV << NOW << " LteMacUeD2D::macHandleD2DModeSwitch - send switch signal to the RLC TX entity corresponding to the old mode, cid " << cid << endl;
+        }
+        else
+        {
+            ++it;
         }
     }
 

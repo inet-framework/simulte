@@ -197,6 +197,7 @@ LcgScheduler::schedule(unsigned int availableBytes, Direction grantDir)
                     elem->occupancy_ = vQueue->getQueueOccupancy();
                     elem->sentData_ += sduSize;
                     elem->sentSdus_++;
+
 //
                     EV << NOW << " LteSchedulerUeUl::schedule - Node " << mac_->getMacNodeId() << ",  SDU of size " << sduSize << " selected for transmission" << endl;
                     EV << NOW << " LteSchedulerUeUl::schedule - Node " << mac_->getMacNodeId() << ", remaining grant: " << availableBytes << " bytes" << endl;

@@ -1254,6 +1254,7 @@ void LteAmc::detachUser(MacNodeId nodeId, Direction dir)
         ConnectedUesMap *connectedUe;
         std::vector<UserTxParams> *userInfoVec;
         History_ *history;
+        std::map<MacNodeId, History_>* d2dHistory;
         unsigned int nodeIndex;
 
         if(dir==DL)
@@ -1270,6 +1271,13 @@ void LteAmc::detachUser(MacNodeId nodeId, Direction dir)
             history = &ulFeedbackHistory_;
             nodeIndex = ulNodeIndex_.at(nodeId);
         }
+        else if(dir==D2D)
+        {
+            connectedUe = &d2dConnectedUe_;
+            userInfoVec = &d2dTxParams_;
+            d2dHistory = &d2dFeedbackHistory_;
+            nodeIndex = d2dNodeIndex_.at(nodeId);
+        }
         else
         {
             throw cRuntimeError("LteAmc::detachUser(): Unrecognized direction");
@@ -1278,13 +1286,29 @@ void LteAmc::detachUser(MacNodeId nodeId, Direction dir)
         (*connectedUe).at(nodeId) = false;
 
         // clear feedback data from history
-        RemoteSet::iterator it = remoteSet_.begin();
-        RemoteSet::iterator et = remoteSet_.end();
-        for(; it!=et; it++ )
+        if (dir == UL || dir == DL)
         {
-            (*history).at(*it).at(nodeIndex).clear();
+            RemoteSet::iterator it = remoteSet_.begin();
+            RemoteSet::iterator et = remoteSet_.end();
+            for(; it!=et; it++ )
+            {
+                (*history).at(*it).at(nodeIndex).clear();
+            }
         }
-
+        else   // D2D
+        {
+            std::map<MacNodeId, History_>::iterator ht =  d2dHistory->begin();
+            for (; ht != d2dHistory->end(); ++ht)
+            {
+                history = &(ht->second);
+                RemoteSet::iterator it = remoteSet_.begin();
+                RemoteSet::iterator et = remoteSet_.end();
+                for(; it!=et; it++ )
+                {
+                    (*history).at(*it).at(nodeIndex).clear();
+                }
+            }
+        }
         // clear user transmission parameters for this UE
         (*userInfoVec).at(nodeIndex).restoreDefaultValues();
     }
@@ -1305,6 +1329,7 @@ void LteAmc::attachUser(MacNodeId nodeId, Direction dir)
     std::vector<MacNodeId> *revIndexVec;
     std::vector<UserTxParams> *userInfoVec;
     History_ *history;
+    std::map<MacNodeId, History_>* d2dHistory;
     unsigned int nodeIndex;
     unsigned int fbhbCapacity;
     unsigned int numTxModes;
@@ -1327,6 +1352,16 @@ void LteAmc::attachUser(MacNodeId nodeId, Direction dir)
         userInfoVec = &ulTxParams_;
         history = &ulFeedbackHistory_;
         fbhbCapacity = fbhbCapacityUl_;
+        numTxModes = UL_NUM_TXMODE;
+    }
+    else if(dir==D2D)
+    {
+        connectedUe = &d2dConnectedUe_;
+        nodeIndexMap = &d2dNodeIndex_;
+        revIndexVec = &d2dRevNodeIndex_;
+        userInfoVec = &d2dTxParams_;
+        d2dHistory = &d2dFeedbackHistory_;
+        fbhbCapacity = fbhbCapacityD2D_;
         numTxModes = UL_NUM_TXMODE;
     }
     else
@@ -1352,9 +1387,26 @@ void LteAmc::attachUser(MacNodeId nodeId, Direction dir)
         (*userInfoVec).at(nodeIndex).restoreDefaultValues();
 
         // initialize empty feedback structures
-        for(; it!=et; it++ )
+        if (dir == UL || dir == DL)
         {
-            (*history)[*it].at(nodeIndex) = v;
+            for(; it!=et; it++ )
+            {
+                (*history)[*it].at(nodeIndex) = v;
+            }
+        }
+        else // D2D
+        {
+            std::map<MacNodeId, History_>::iterator ht = d2dHistory->begin();
+            for (; ht != d2dHistory->end(); ++ht)
+            {
+                history = &(ht->second);
+                RemoteSet::iterator it = remoteSet_.begin();
+                RemoteSet::iterator et = remoteSet_.end();
+                for(; it!=et; it++ )
+                {
+                    (*history)[*it].at(nodeIndex) = v;
+                }
+            }
         }
     }
     else
@@ -1370,9 +1422,26 @@ void LteAmc::attachUser(MacNodeId nodeId, Direction dir)
         nodeIndex = (*nodeIndexMap).at(nodeId);
 
         // initialize empty feedback structures
-        for(; it!=et; it++ )
+        if (dir == UL || dir == DL)
         {
-            (*history)[*it].push_back(v); // XXX DEBUG THIS!!
+            for(; it!=et; it++ )
+            {
+                (*history)[*it].push_back(v); // XXX DEBUG THIS!!
+            }
+        }
+        else // D2D
+        {
+            std::map<MacNodeId, History_>::iterator ht =  d2dHistory->begin();
+            for (; ht != d2dHistory->end(); ++ht)
+            {
+                history = &(ht->second);
+                RemoteSet::iterator it = remoteSet_.begin();
+                RemoteSet::iterator et = remoteSet_.end();
+                for(; it!=et; it++ )
+                {
+                    (*history)[*it].push_back(v); // XXX DEBUG THIS!!
+                }
+            }
         }
     }
     // Operation done in any case: use [] because new elements may be created
@@ -1389,6 +1458,7 @@ void LteAmc::testUe(MacNodeId nodeId, Direction dir)
     std::vector<MacNodeId> *revIndexVec;
     std::vector<UserTxParams> *userInfoVec;
     History_ *history;
+    std::map<MacNodeId, History_>* d2dHistory;
     int numTxModes;
 
     if(dir==DL)
@@ -1407,6 +1477,15 @@ void LteAmc::testUe(MacNodeId nodeId, Direction dir)
         revIndexVec = &ulRevNodeIndex_;
         userInfoVec = &ulTxParams_;
         history = &ulFeedbackHistory_;
+        numTxModes = UL_NUM_TXMODE;
+    }
+    else if(dir==D2D)
+    {
+        connectedUe = &d2dConnectedUe_;
+        nodeIndexMap = &d2dNodeIndex_;
+        revIndexVec = &d2dRevNodeIndex_;
+        userInfoVec = &d2dTxParams_;
+        d2dHistory = &d2dFeedbackHistory_;
         numTxModes = UL_NUM_TXMODE;
     }
     else
@@ -1432,23 +1511,53 @@ void LteAmc::testUe(MacNodeId nodeId, Direction dir)
     EV << "UserTxParams" << endl;
     info.print("LteAmc::testUe");
 
-    RemoteSet::iterator it = remoteSet_.begin();
-    RemoteSet::iterator et = remoteSet_.end();
-    std::vector<LteSummaryBuffer> feedback;
-
-    EV << "History" << endl;
-    for(; it!=et; it++ )
+    if (dir == UL || dir == DL)
     {
-        EV << "Remote: " << dasToA(*it) << endl;
-        feedback = (*history).at(*it).at(nodeIndex);
-        for(int i=0; i<numTxModes; i++)
-        {
-            // Print only non empty feedback summary! (all cqi are != NOSIGNALCQI)
-            Cqi testCqi = (feedback.at(i).get()).getCqi(Codeword(0),Band(0));
-            if(testCqi==NOSIGNALCQI)
-            continue;
+        RemoteSet::iterator it = remoteSet_.begin();
+        RemoteSet::iterator et = remoteSet_.end();
+        std::vector<LteSummaryBuffer> feedback;
 
-            feedback.at(i).get().print(0,nodeId,dir,TxMode(i),"LteAmc::testUe");
+        EV << "History" << endl;
+        for(; it!=et; it++ )
+        {
+            EV << "Remote: " << dasToA(*it) << endl;
+            feedback = (*history).at(*it).at(nodeIndex);
+            for(int i=0; i<numTxModes; i++)
+            {
+                // Print only non empty feedback summary! (all cqi are != NOSIGNALCQI)
+                Cqi testCqi = (feedback.at(i).get()).getCqi(Codeword(0),Band(0));
+                if(testCqi==NOSIGNALCQI)
+                continue;
+
+                feedback.at(i).get().print(0,nodeId,dir,TxMode(i),"LteAmc::testUe");
+            }
+        }
+    }
+    else // D2D
+    {
+        std::map<MacNodeId, History_>::iterator ht =  d2dHistory->begin();
+        for (; ht != d2dHistory->end(); ++ht)
+        {
+            history = &(ht->second);
+            RemoteSet::iterator it = remoteSet_.begin();
+            RemoteSet::iterator et = remoteSet_.end();
+            std::vector<LteSummaryBuffer> feedback;
+
+            EV << "History" << endl;
+            for(; it!=et; it++ )
+            {
+                EV << "Remote: " << dasToA(*it) << endl;
+                feedback = (*history).at(*it).at(nodeIndex);
+                for(int i=0; i<numTxModes; i++)
+                {
+                    // Print only non empty feedback summary! (all cqi are != NOSIGNALCQI)
+                    Cqi testCqi = (feedback.at(i).get()).getCqi(Codeword(0),Band(0));
+                    if(testCqi==NOSIGNALCQI)
+                    continue;
+
+                    feedback.at(i).get().print(0,nodeId,dir,TxMode(i),"LteAmc::testUe");
+                }
+            }
         }
     }
     EV << "##################################" << endl;

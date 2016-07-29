@@ -22,35 +22,12 @@ void LteMaxCi::prepareSchedule()
     unsigned int blocks =0;
     unsigned int byPs = 0;
 
-
-    // ==========================
-
-//    MacCid ueCid = 0;
-//    unsigned int totalRbs = eNbScheduler_->readTotalAvailableRbs();
-//    unsigned int totUes = activeConnectionTempSet_.size();
-//    if( totUes> 0 )
-//    {
-//        int * bpb = new int[totUes];
-//        int i= 0;
-//
-//        for ( ActiveSet::iterator ueIt = activeConnectionTempSet_.begin ();ueIt != activeConnectionTempSet_.end (); ++ueIt )
-//        {
-//            // Current connection.
-//            ueCid = *ueIt;
-//
-//            MacNodeId nodeId = MacCidToNodeId(ueCid);
-//
-//            bpb[i] = eNbScheduler_->mac_->getAmc()->computeBytesOnNRbs(nodeId,0,1, DL);
-//
-//            ++i;
-//        }
-////        int status = cplexTest_.init(activeConnectionTempSet_.size() , bpb , totalRbs);
-//    }
-    // ==========================
-    for ( ActiveSet::iterator it1 = activeConnectionTempSet_.begin ();it1 != activeConnectionTempSet_.end (); ++it1 )
+    for ( ActiveSet::iterator it1 = activeConnectionTempSet_.begin ();it1 != activeConnectionTempSet_.end (); )
     {
         // Current connection.
         cid = *it1;
+
+        ++it1;
 
         MacNodeId nodeId = MacCidToNodeId(cid);
 

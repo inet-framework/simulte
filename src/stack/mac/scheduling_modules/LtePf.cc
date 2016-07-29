@@ -27,9 +27,10 @@ void LtePf::prepareSchedule()
     ActiveSet::iterator cidIt = activeConnectionTempSet_.begin();
     ActiveSet::iterator cidEt = activeConnectionTempSet_.end();
 
-    for(; cidIt != cidEt; ++cidIt)
+    for(; cidIt != cidEt; )
     {
         MacCid cid = *cidIt;
+        ++cidIt;
         MacNodeId nodeId = MacCidToNodeId(cid);
 
         // if we are allocating the UL subframe, this connection may be either UL or D2D
