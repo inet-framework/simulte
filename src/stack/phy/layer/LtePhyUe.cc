@@ -258,8 +258,6 @@ void LtePhyUe::doHandover()
     if (ev.isGUI())
         getParentModule()->getParentModule()->bubble("Handover complete!");
 
-    std::cout << NOW << " LtePhyUe::doHandover - UE " << nodeId_ << " has completed handover to eNB " << masterId_ << "... " << endl;
-
     EV << NOW << " LtePhyUe::doHandover - UE " << nodeId_ << " has completed handover to eNB " << masterId_ << "... " << endl;
     binder_->removeUeHandoverTriggered(nodeId_);
 

@@ -64,7 +64,6 @@ void GtpUserX2::handleFromStack(LteX2Message* x2Msg)
 
     // get the IP address of the destination X2 interface from the Binder
     IPvXAddress peerAddress = binder_->getX2PeerAddress(srcId, destId);
-    std::cout << NOW << " GtpUserX2::handleFromStack - " << peerAddress << endl;
     socket_.sendTo(gtpMsg, peerAddress, tunnelPeerPort_);
 }
 
