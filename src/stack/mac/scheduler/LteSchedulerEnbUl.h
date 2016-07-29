@@ -86,6 +86,8 @@ class LteSchedulerEnbUl : public LteSchedulerEnb
         std::vector<BandLimit>* bandLim = NULL, Remote antenna = MACRO, bool limitBl = false);
 
     virtual void initHarqStatus(MacNodeId id, unsigned char acid);
+
+    void removePendingRac(MacNodeId nodeId);
 };
 
 #endif // _LTE_LTE_SCHEDULER_ENB_UL_H_

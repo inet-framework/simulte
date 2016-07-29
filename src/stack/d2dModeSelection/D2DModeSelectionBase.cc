@@ -58,6 +58,48 @@ void D2DModeSelectionBase::handleMessage(cMessage *msg)
     }
 }
 
+void D2DModeSelectionBase::doModeSwitchAtHandover(MacNodeId nodeId)
+{
+    EV << NOW << " D2DModeSelectionBase::doModeSwitchAtHandover - Force mode switching for UE " << nodeId << " (handover)" << endl;
+
+    switchList_.clear();
+    std::map<MacNodeId, std::map<MacNodeId, LteD2DMode> >::iterator it = peeringModeMap_->begin();
+    for (; it != peeringModeMap_->end(); ++it)
+    {
+        MacNodeId srcId = it->first;
+        std::map<MacNodeId, LteD2DMode>::iterator jt = it->second.begin();
+        for (; jt != it->second.end(); ++jt)
+        {
+            MacNodeId dstId = jt->first;
+            if (srcId != nodeId && dstId != nodeId)
+                continue;
+
+            LteD2DMode oldMode = jt->second;
+            if (oldMode == IM)
+                continue;
+
+            LteD2DMode newMode = IM;
+
+            // add this flow to the list of flows to be switched
+            FlowId p(srcId, dstId);
+            FlowModeInfo info;
+            info.flow = p;
+            info.oldMode = oldMode;
+            info.newMode = newMode;
+            switchList_.push_back(info);
+
+            // update peering map
+            jt->second = newMode;
+
+            EV << NOW << " D2DModeSelectionBase::doModeSwitchAtHandover - Flow: " << srcId << " --> " << dstId << " [" << d2dModeToA(newMode) << "]" << endl;
+        }
+    }
+
+    // send switching command
+    sendModeSwitchNotifications();
+}
+
+
 void D2DModeSelectionBase::sendModeSwitchNotifications()
 {
     SwitchList::iterator it = switchList_.begin();

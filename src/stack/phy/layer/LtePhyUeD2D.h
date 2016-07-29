@@ -39,6 +39,9 @@ class LtePhyUeD2D : public LtePhyUe
     virtual void handleUpperMessage(cMessage* msg);
     virtual void handleSelfMessage(cMessage *msg);
 
+    virtual void triggerHandover();
+    virtual void doHandover();
+
   public:
     LtePhyUeD2D();
     virtual ~LtePhyUeD2D();

@@ -36,6 +36,9 @@ void IP2lte::initialize(int stage)
 
         seqNum_ = 0;
 
+        hoManager_ = NULL;
+
+        binder_ = getBinder();
         if (nodeType_ == UE)
         {
             // TODO not so elegant
@@ -48,7 +51,7 @@ void IP2lte::initialize(int stage)
             cModule *enodeb = getParentModule()->getParentModule();
             MacNodeId cellId = getBinder()->registerNode(enodeb, nodeType_);
             LteDeployer * deployer = check_and_cast<LteDeployer*>(enodeb->getSubmodule("deployer"));
-            getBinder()->registerDeployer(deployer, cellId);
+            binder_->registerDeployer(deployer, cellId);
         }
 
         registerInterface();
@@ -177,6 +180,44 @@ void IP2lte::fromIpEnb(IPv4Datagram * datagram)
     // Remove control info from IP datagram
     delete(datagram->removeControlInfo());
 
+    // TODO Add support to IPv6
+    IPv4Address destAddr = datagram->getDestAddress();
+
+    // handle "forwarding" of packets during handover
+    MacNodeId destId = binder_->getMacNodeId(destAddr);
+    if (hoForwarding_.find(destId) != hoForwarding_.end())
+    {
+        // data packet must be forwarded (via X2) to another eNB
+        MacNodeId targetEnb = hoForwarding_.at(destId);
+        sendTunneledPacketOnHandover(datagram, targetEnb);
+        return;
+    }
+
+    // handle incoming packets destined to UEs that is completing handover
+    if (hoHolding_.find(destId) != hoHolding_.end())
+    {
+        // hold packets until handover is complete
+        if (hoFromIp_.find(destId) == hoFromIp_.end())
+        {
+            IpDatagramQueue queue;
+            hoFromIp_[destId] = queue;
+        }
+
+        hoFromIp_[destId].push_back(datagram);
+        return;
+    }
+
+    toStackEnb(datagram);
+}
+
+void IP2lte::toIpEnb(cMessage * msg)
+{
+    EV << "IP2lte::toIpEnb - message from stack: send to IP layer" << endl;
+    send(msg,ipGateOut_);
+}
+
+void IP2lte::toStackEnb(IPv4Datagram* datagram)
+{
     // obtain the encapsulated transport packet
     cPacket * transportPacket = datagram->getEncapsulatedPacket();
 
@@ -184,10 +225,9 @@ void IP2lte::fromIpEnb(IPv4Datagram * datagram)
     unsigned short srcPort = 0;
     unsigned short dstPort = 0;
     int transportProtocol = datagram->getTransportProtocol();
-    // TODO Add support to IPv6
     IPv4Address srcAddr  = datagram->getSrcAddress() ,
                 destAddr = datagram->getDestAddress();
-
+    MacNodeId destId = binder_->getMacNodeId(destAddr);
     int headerSize = 0;
 
     switch(transportProtocol)
@@ -217,8 +257,7 @@ void IP2lte::fromIpEnb(IPv4Datagram * datagram)
     controlInfo->setHeaderSize(headerSize);
 
     // TODO Relay management should be placed here
-    MacNodeId destId = getBinder()->getMacNodeId(IPv4Address(controlInfo->getDstAddr()));
-    MacNodeId master = getBinder()->getNextHop(destId);
+    MacNodeId master = binder_->getNextHop(destId);
 
     controlInfo->setDestId(master);
     printControlInfo(controlInfo);
@@ -227,11 +266,6 @@ void IP2lte::fromIpEnb(IPv4Datagram * datagram)
     send(datagram,stackGateOut_);
 }
 
-void IP2lte::toIpEnb(cMessage * msg)
-{
-    EV << "IP2lte::toIpEnb - message from stack: send to IP layer" << endl;
-    send(msg,ipGateOut_);
-}
 
 void IP2lte::printControlInfo(FlowControlInfo* ci)
 {
@@ -281,8 +315,126 @@ void IP2lte::registerMulticastGroups()
             uint32 address = IPv4Address((*it)).getInt();
             uint32 mask = ~((uint32)255 << 28);      // 0000 1111 1111 1111
             uint32 groupId = address & mask;
-            getBinder()->registerMulticastGroup(nodeId, groupId);
+            binder_->registerMulticastGroup(nodeId, groupId);
         }
     }
 }
 
+void IP2lte::triggerHandoverSource(MacNodeId ueId, MacNodeId targetEnb)
+{
+    EV << NOW << " IP2lte::triggerHandoverSource - start tunneling of packets destined to " << ueId << " towards eNB " << targetEnb << endl;
+
+    hoForwarding_[ueId] = targetEnb;
+
+    if (hoManager_ == NULL)
+        hoManager_ = check_and_cast<LteHandoverManager*>(getParentModule()->getSubmodule("handoverManager"));
+    hoManager_->sendHandoverCommand(ueId, targetEnb, true);
+}
+
+void IP2lte::triggerHandoverTarget(MacNodeId ueId, MacNodeId sourceEnb)
+{
+    EV << NOW << " IP2lte::triggerHandoverTarget - start holding packets destined to " << ueId << endl;
+
+    // reception of handover command from X2
+    hoHolding_.insert(ueId);
+}
+
+
+void IP2lte::sendTunneledPacketOnHandover(IPv4Datagram* datagram, MacNodeId targetEnb)
+{
+    EV << "IP2lte::sendTunneledPacketOnHandover - destination is handing over to eNB " << targetEnb << ". Forward packet via X2." << endl;
+    if (hoManager_ == NULL)
+        hoManager_ = check_and_cast<LteHandoverManager*>(getParentModule()->getSubmodule("handoverManager"));
+    hoManager_->forwardDataToTargetEnb(datagram, targetEnb);
+}
+
+void IP2lte::receiveTunneledPacketOnHandover(IPv4Datagram* datagram, MacNodeId sourceEnb)
+{
+    EV << "IP2lte::receiveTunneledPacketOnHandover - received packet via X2 from " << sourceEnb << endl;
+    IPv4Address destAddr = datagram->getDestAddress();
+    MacNodeId destId = binder_->getMacNodeId(destAddr);
+    if (hoFromX2_.find(destId) == hoFromX2_.end())
+    {
+        IpDatagramQueue queue;
+        hoFromX2_[destId] = queue;
+    }
+
+    hoFromX2_[destId].push_back(datagram);
+}
+
+void IP2lte::signalHandoverCompleteSource(MacNodeId ueId, MacNodeId targetEnb)
+{
+    EV << NOW << " IP2lte::signalHandoverCompleteSource - handover of UE " << ueId << " to eNB " << targetEnb << " completed!" << endl;
+    hoForwarding_.erase(ueId);
+}
+
+void IP2lte::signalHandoverCompleteTarget(MacNodeId ueId, MacNodeId sourceEnb)
+{
+    Enter_Method("signalHandoverCompleteTarget");
+
+    // signal the event to the source eNB
+    if (hoManager_ == NULL)
+        hoManager_ = check_and_cast<LteHandoverManager*>(getParentModule()->getSubmodule("handoverManager"));
+    hoManager_->sendHandoverCommand(ueId, sourceEnb, false);
+
+    // TODO start a timer (there may be in-flight packets)
+    // send down buffered packets in the following order:
+    // 1) packets received from X2
+    // 2) packets received from IP
+//    cMessage* handoverFinish = new cMessage("handoverFinish");
+//    scheduleAt(NOW + 0.005, handoverFinish);   // TODO check delay
+
+    std::map<MacNodeId, IpDatagramQueue>::iterator it;
+    for (it = hoFromX2_.begin(); it != hoFromX2_.end(); ++it)
+    {
+        while (!it->second.empty())
+        {
+            IPv4Datagram* pkt = it->second.front();
+            it->second.pop_front();
+
+            // send pkt down
+            take(pkt);
+            toStackEnb(pkt);
+        }
+    }
+
+    for (it = hoFromIp_.begin(); it != hoFromIp_.end(); ++it)
+    {
+        while (!it->second.empty())
+        {
+            IPv4Datagram* pkt = it->second.front();
+            it->second.pop_front();
+
+            // send pkt down
+            take(pkt);
+            toStackEnb(pkt);
+        }
+    }
+
+    hoHolding_.erase(ueId);
+
+}
+
+IP2lte::~IP2lte()
+{
+    std::map<MacNodeId, IpDatagramQueue>::iterator it;
+    for (it = hoFromX2_.begin(); it != hoFromX2_.end(); ++it)
+    {
+        while (!it->second.empty())
+        {
+            IPv4Datagram* pkt = it->second.front();
+            it->second.pop_front();
+            delete pkt;
+        }
+    }
+
+    for (it = hoFromIp_.begin(); it != hoFromIp_.end(); ++it)
+    {
+        while (!it->second.empty())
+        {
+            IPv4Datagram* pkt = it->second.front();
+            it->second.pop_front();
+            delete pkt;
+        }
+    }
+}

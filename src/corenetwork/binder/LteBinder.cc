@@ -903,3 +903,33 @@ bool LteBinder::isInMulticastGroup(MacNodeId nodeId, int32 groupId)
 
     return true;
 }
+
+void LteBinder::updateUeInfoCellId(MacNodeId id, MacCellId newCellId)
+{
+    std::vector<UeInfo*>::iterator it = ueList_.begin();
+    for (; it != ueList_.end(); ++it)
+    {
+        if ((*it)->id == id)
+        {
+            (*it)->cellId = newCellId;
+            return;
+        }
+    }
+}
+
+void LteBinder::addUeHandoverTriggered(MacNodeId nodeId)
+{
+    ueHandoverTriggered_.insert(nodeId);
+}
+
+bool LteBinder::hasUeHandoverTriggered(MacNodeId nodeId)
+{
+    if (ueHandoverTriggered_.find(nodeId) == ueHandoverTriggered_.end())
+        return false;
+    return true;
+}
+
+void LteBinder::removeUeHandoverTriggered(MacNodeId nodeId)
+{
+    ueHandoverTriggered_.erase(nodeId);
+}

@@ -76,4 +76,7 @@ network MultiCell
         router.pppg++ <--> Eth1G <--> pgw.filterGate;
         pgw.pppg++ <--> Eth1G <--> eNodeB1.ppp;
         pgw.pppg++ <--> Eth1G <--> eNodeB2.ppp;
+        
+        //# X2 connections
+        eNodeB1.x2++ <--> Eth1G <--> eNodeB2.x2++;
 }

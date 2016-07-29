@@ -63,6 +63,8 @@ public:
     virtual void initialize(int stage);
     virtual int numInitStages() const { return 2; }
     virtual void handleMessage(cMessage *msg);
+
+    void doModeSwitchAtHandover(MacNodeId nodeId);
 };
 
 #endif /* LTE_D2DMODESELECTIONBASE_H_ */

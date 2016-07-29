@@ -440,6 +440,9 @@ class LteDeployer : public cSimpleModule
     }
     //---------------------------------------------------------------
 
+    void detachUser(MacNodeId nodeId);
+    void attachUser(MacNodeId nodeId);
+
     ~LteDeployer();
 };
 

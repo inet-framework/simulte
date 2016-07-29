@@ -10,7 +10,7 @@
 
 #include "X2AppClient.h"
 #include "LteBinder.h"
-
+#include "LteMacEnb.h"
 #include "IPvXAddressResolver.h"
 #include "SCTPAssociation.h"
 #include "SCTPCommand_m.h"
@@ -40,6 +40,9 @@ void X2AppClient::initialize(int stage)
         // get the connectAddress and the corresponding X2 id
         IPvXAddress addr = IPvXAddressResolver().resolve(par("connectAddress").stringValue());
         X2NodeId peerId = getBinder()->getX2NodeId(addr.get4());
+
+        X2NodeId nodeId = check_and_cast<LteMacEnb*>(getParentModule()->getParentModule()->getSubmodule("nic")->getSubmodule("mac"))->getMacCellId();
+        getBinder()->setX2PeerAddress(nodeId, peerId, addr);
 
         // set the connect port
         int connectPort = getBinder()->getX2Port(peerId);

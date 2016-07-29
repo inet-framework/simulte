@@ -338,3 +338,25 @@ void LteDeployer::createAntennaCwMap()
  * distinzione fra applicazioni dl e ul, con contatori da passare ad amc
  * che distinguono fra numero di app ul e dl (al momento il contatore e' globale)
  */
+
+void LteDeployer::detachUser(MacNodeId nodeId)
+{
+    // remove UE from deployer's structures
+
+    std::map<MacNodeId, Coord>::iterator pt = uePosition.find(nodeId);
+    if (pt != uePosition.end())
+        uePosition.erase(pt);
+
+    std::map<MacNodeId, Lambda>::iterator lt = lambdaMap_.find(nodeId);
+    if (lt != lambdaMap_.end())
+        lambdaMap_.erase(lt);
+}
+
+void LteDeployer::attachUser(MacNodeId nodeId)
+{
+    // add UE to deployer's structures (lambda maps)
+    // position will be added by the eNB while computing feedback
+
+    int index = intuniform(0, binder_->phyPisaData.maxChannel() - 1);
+    lambdaInit(nodeId, index);
+}

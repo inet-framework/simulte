@@ -91,7 +91,7 @@ class LteMacUeD2D : public LteMacUe
     {
         return true;
     }
-
+    virtual void doHandover(MacNodeId targetEnb);
 };
 
 #endif

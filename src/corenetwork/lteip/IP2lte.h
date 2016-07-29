@@ -14,7 +14,10 @@
 #include "LteControlInfo.h"
 #include "LteControlInfo.h"
 #include "IPv4Datagram.h"
+#include "LteHandoverManager.h"
+#include "LteBinder.h"
 
+class LteHandoverManager;
 
 /**
  *
@@ -26,6 +29,24 @@ class IP2lte : public cSimpleModule
     LteNodeType nodeType_;      // node type: can be ENODEB, UE
 
     unsigned int seqNum_;       // datagram sequence number (RLC fragmentation needs it)
+
+    // reference to the binder
+    LteBinder* binder_;
+
+    /*
+     * Handover support
+     */
+
+    // manager for the handover
+    LteHandoverManager* hoManager_;
+    // store the pair <ue,target_enb> for temporary forwarding of data during handover
+    std::map<MacNodeId, MacNodeId> hoForwarding_;
+    // store the UEs for temporary holding of data received over X2 during handover
+    std::set<MacNodeId> hoHolding_;
+
+    typedef std::list<IPv4Datagram*> IpDatagramQueue;
+    std::map<MacNodeId, IpDatagramQueue> hoFromX2_;
+    std::map<MacNodeId, IpDatagramQueue> hoFromIp_;
 
     /**
      * Handle packets from transport layer and forward them to the stack
@@ -40,6 +61,7 @@ class IP2lte : public cSimpleModule
 
     void fromIpEnb(IPv4Datagram * datagram);
     void toIpEnb(cMessage * msg);
+    void toStackEnb(IPv4Datagram* datagram);
 
     /**
      * utility: set nodeType_ field
@@ -60,6 +82,14 @@ class IP2lte : public cSimpleModule
     virtual void initialize(int stage);
     virtual int numInitStages() const { return 4; }
     virtual void handleMessage(cMessage *msg);
+  public:
+    void triggerHandoverSource(MacNodeId ueId, MacNodeId targetEnb);
+    void triggerHandoverTarget(MacNodeId ueId, MacNodeId sourceEnb);
+    void sendTunneledPacketOnHandover(IPv4Datagram* datagram, MacNodeId targetEnb);
+    void receiveTunneledPacketOnHandover(IPv4Datagram* datagram, MacNodeId sourceEnb);
+    void signalHandoverCompleteSource(MacNodeId ueId, MacNodeId targetEnb);
+    void signalHandoverCompleteTarget(MacNodeId ueId, MacNodeId sourceEnb);
+    virtual ~IP2lte();
 
 };
 

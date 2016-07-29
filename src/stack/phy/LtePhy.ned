@@ -39,7 +39,11 @@ simple LtePhyBase like LtePhy {
         double microTxPower =default(30);
         string txDirection = default("OMNI");
         double txAngle = default(0);       
-             
+        
+        // switch for handover messages handling on UEs
+        bool enableHandover = default(false);
+        double handoverLatency @unit(s) = default(0.05s);
+        
         //# CQI statistics
         @statistic[averageCqiDl](title="Average Cqi reported in DL"; unit="cqi"; source="averageCqiDl"; record=lteAvg);
         @statistic[averageCqiDlvect](title="Average Cqi reported in DL"; unit="cqi"; source="averageCqiDlvect"; record=vector);
@@ -60,8 +64,7 @@ simple LtePhyBase like LtePhy {
 simple LtePhyUe extends LtePhyBase {
      parameters:
          @class("LtePhyUe");
-         // switch for handover messages handling on UEs
-         bool enableHandover = default(false);
+         @statistic[servingCell](title="ID of the serving eNodeB for the UE"; unit=""; source="servingCell"; record=vector);
 }
 
 // 

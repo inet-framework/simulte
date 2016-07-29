@@ -635,3 +635,7 @@ void LteSchedulerEnbUl::initHarqStatus(MacNodeId id, unsigned char acid)
     harqStatus_[id]=acid;
 }
 
+void LteSchedulerEnbUl::removePendingRac(MacNodeId nodeId)
+{
+    racStatus_.erase(nodeId);
+}

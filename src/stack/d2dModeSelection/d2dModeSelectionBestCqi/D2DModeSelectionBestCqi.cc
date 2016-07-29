@@ -25,11 +25,24 @@ void D2DModeSelectionBestCqi::doModeSelection()
     for (; it != peeringModeMap_->end(); ++it)
     {
         MacNodeId srcId = it->first;
+
+        // consider only UEs within this cell
+        if (binder_->getNextHop(srcId) != mac_->getMacCellId())
+            continue;
+
         std::map<MacNodeId, LteD2DMode>::iterator jt = it->second.begin();
         for (; jt != it->second.end(); ++jt)
         {
             MacNodeId dstId = jt->first;   // since the D2D CQI is the same for all D2D connections,
                                             // the mode will be the same for all destinations
+
+            // consider only UEs within this cell
+            if (binder_->getNextHop(dstId) != mac_->getMacCellId())
+                continue;
+
+            // skip UEs that are performing handover
+            if (binder_->hasUeHandoverTriggered(dstId) || binder_->hasUeHandoverTriggered(srcId))
+                continue;
 
             LteD2DMode oldMode = jt->second;
 

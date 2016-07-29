@@ -189,14 +189,29 @@ void LteMacEnb::deleteQueues(MacNodeId nodeId)
     LteMacBase::deleteQueues(nodeId);
 
     LteMacBufferMap::iterator bit;
-    for (bit = bsrbuf_.begin(); bit != bsrbuf_.end(); bit++)
+    for (bit = bsrbuf_.begin(); bit != bsrbuf_.end();)
     {
         if (MacCidToNodeId(bit->first) == nodeId)
         {
             delete bit->second; // Delete Queue
-            bsrbuf_.erase(bit); // Delete Elem
+            bit = bsrbuf_.erase(bit); // Delete Elem
+        }
+        else
+        {
+            ++bit;
         }
     }
+
+    //update harq status in schedulers
+//    enbSchedulerDl_->updateHarqDescs();
+//    enbSchedulerUl_->updateHarqDescs();
+
+    // remove active connections from the schedulers
+    enbSchedulerDl_->removeActiveConnections(nodeId);
+    enbSchedulerUl_->removeActiveConnections(nodeId);
+
+    // remove pending RAC requests
+    enbSchedulerUl_->removePendingRac(nodeId);
 }
 
 void LteMacEnb::initialize(int stage)

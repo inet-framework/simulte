@@ -145,7 +145,7 @@ class LteMacBase : public cSimpleModule
      *
      * @param nodeId Id of the node whose queues are deleted
      */
-    void deleteQueues(MacNodeId nodeId);
+    virtual void deleteQueues(MacNodeId nodeId);
 
     //* public utility function - drops ownership of an object
     void dropObj(cOwnedObject* obj)

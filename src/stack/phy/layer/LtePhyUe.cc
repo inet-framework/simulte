@@ -10,12 +10,14 @@
 #include <assert.h>
 #include "LtePhyUe.h"
 #include "LteFeedbackPkt.h"
+#include "IP2lte.h"
 
 Define_Module(LtePhyUe);
 
 LtePhyUe::LtePhyUe()
 {
     handoverStarter_ = NULL;
+    handoverTrigger_ = NULL;
 }
 
 LtePhyUe::~LtePhyUe()
@@ -42,15 +44,19 @@ void LtePhyUe::initialize(int stage)
         hysteresisTh_ = 0;
         hysteresisFactor_ = 10;
         handoverDelta_ = 0.00001;
+        handoverLatency_ = par("handoverLatency").doubleValue();
 
         // disabled
         useBattery_ = false;
 
+        enableHandover_ = par("enableHandover");
         enableHandover_ = par("enableHandover"); // TODO : USE IT
         int index = intuniform(0, binder_->phyPisaData.maxChannel() - 1);
         //int index2=intuniform(0,binder_->phyPisaData.maxChannel2()-1);
         deployer_->lambdaInit(nodeId_, index);
         //deployer_->channelUpdate(nodeId_,index2);
+//        servingCell_ = registerSignal("servingCell");
+//        emit(servingCell_, (long)masterId_);
         WATCH(nodeType_);
         WATCH(masterId_);
         WATCH(candidateMasterId_);
@@ -94,46 +100,176 @@ void LtePhyUe::initialize(int stage)
 void LtePhyUe::handleSelfMessage(cMessage *msg)
 {
     if (msg->isName("handoverStarter"))
+        triggerHandover();
+    else if (msg->isName("handoverTrigger"))
     {
-        // TODO: remove asserts after testing
-        assert(masterId_ != candidateMasterId_);
-
-        EV << "####Handover starting:####" << endl;
-        EV << "current master: " << masterId_ << endl;
-        EV << "current rssi: " << currentMasterRssi_ << endl;
-        EV << "candidate master: " << candidateMasterId_ << endl;
-        EV << "candidate rssi: " << candidateMasterRssi_ << endl;
-        EV << "############" << endl;
-
-        // Delete Old Buffers
-        deleteOldBuffers(masterId_);
-
-        // amc calls
-        LteAmc *oldAmc = getAmcModule(masterId_);
-        LteAmc *newAmc = getAmcModule(candidateMasterId_);
-
-        // TODO verify the amc is the relay one and remove after tests
-        assert(newAmc != NULL);
-
-        oldAmc->detachUser(nodeId_, UL);
-        oldAmc->detachUser(nodeId_, DL);
-        newAmc->attachUser(nodeId_, UL);
-        newAmc->attachUser(nodeId_, DL);
-
-        // binder calls
-        binder_->unregisterNextHop(masterId_, nodeId_);
-        binder_->registerNextHop(candidateMasterId_, nodeId_);
-        das_->setMasterRuSet(candidateMasterId_);
-
-        masterId_ = candidateMasterId_;
-        currentMasterRssi_ = candidateMasterRssi_;
-        hysteresisTh_ = updateHysteresisTh(currentMasterRssi_);
-
-        // TODO: transfer buffers, delete MAC buffer
-        // TODO: add delay to simulate handover
-        // TODO: ensure everywhere masterId is updated for UEs!!! (pdcp done)
+        doHandover();
+        delete msg;
+        handoverTrigger_ = NULL;
     }
 }
+
+void LtePhyUe::handoverHandler(LteAirFrame* frame, UserControlInfo* lteInfo)
+{
+    lteInfo->setDestId(nodeId_);
+    if (!enableHandover_)
+    {
+        // Even if handover is not enabled, this call is necessary
+        // to allow Reporting Set computation.
+        if (getNodeTypeById(lteInfo->getSourceId()) == ENODEB && lteInfo->getSourceId() == masterId_)
+        {
+            // Broadcast message from my master enb
+            das_->receiveBroadcast(frame, lteInfo);
+        }
+
+        delete frame;
+        delete lteInfo;
+        return;
+    }
+
+    frame->setControlInfo(lteInfo);
+    double rssi;
+
+    if (getNodeTypeById(lteInfo->getSourceId()) == ENODEB && lteInfo->getSourceId() == masterId_)
+    {
+        // Broadcast message from my master enb
+        rssi = das_->receiveBroadcast(frame, lteInfo);
+    }
+    else
+    {
+        // Broadcast message from relay or not-master enb
+        std::vector<double>::iterator it;
+        rssi = 0;
+        std::vector<double> rssiV = channelModel_->getSINR(frame, lteInfo);
+        for (it = rssiV.begin(); it != rssiV.end(); ++it)
+            rssi += *it;
+        rssi /= rssiV.size();
+    }
+
+    EV << "UE " << nodeId_ << " broadcast frame from " << lteInfo->getSourceId() << " with RSSI: " << rssi << " at " << simTime() << endl;
+
+    if (rssi > candidateMasterRssi_ + hysteresisTh_)
+    {
+        if (lteInfo->getSourceId() == masterId_)
+        {
+            // receiving even stronger broadcast from current master
+            currentMasterRssi_ = rssi;
+            candidateMasterId_ = masterId_;
+            candidateMasterRssi_ = rssi;
+            hysteresisTh_ = updateHysteresisTh(currentMasterRssi_);
+            cancelEvent(handoverStarter_);
+        }
+        else
+        {
+            // broadcast from another master with higher rssi
+            candidateMasterId_ = lteInfo->getSourceId();
+            candidateMasterRssi_ = rssi;
+            hysteresisTh_ = updateHysteresisTh(rssi);
+            // schedule self message to evaluate handover parameters after
+            // all broadcast messages are arrived
+            if (!handoverStarter_->isScheduled())
+            {
+                // all broadcast messages are scheduled at the very same time, a small delta
+                // guarantees the ones belonging to the same turn have been received
+                scheduleAt(simTime() + handoverDelta_, handoverStarter_);
+            }
+        }
+    }
+    else
+    {
+        if (lteInfo->getSourceId() == masterId_)
+        {
+            currentMasterRssi_ = rssi;
+            candidateMasterRssi_ = rssi;
+            hysteresisTh_ = updateHysteresisTh(rssi);
+        }
+    }
+
+    delete frame;
+}
+
+void LtePhyUe::triggerHandover()
+{
+    // TODO: remove asserts after testing
+    assert(masterId_ != candidateMasterId_);
+
+    EV << "####Handover starting:####" << endl;
+    EV << "current master: " << masterId_ << endl;
+    EV << "current rssi: " << currentMasterRssi_ << endl;
+    EV << "candidate master: " << candidateMasterId_ << endl;
+    EV << "candidate rssi: " << candidateMasterRssi_ << endl;
+    EV << "############" << endl;
+
+    EV << NOW << " LtePhyUe::triggerHandover - UE " << nodeId_ << " is starting handover to eNB " << candidateMasterId_ << "... " << endl;
+
+    binder_->addUeHandoverTriggered(nodeId_);
+
+    // inform the eNB's IP2lte module to forward data to the target eNB
+    IP2lte* enbIp2lte =  check_and_cast<IP2lte*>(simulation.getModule(binder_->getOmnetId(masterId_))->getSubmodule("nic")->getSubmodule("ip2lte"));
+    enbIp2lte->triggerHandoverSource(nodeId_,candidateMasterId_);
+
+    handoverTrigger_ = new cMessage("handoverTrigger");
+    scheduleAt(simTime() + handoverLatency_, handoverTrigger_);
+
+    if (ev.isGUI())
+        getParentModule()->getParentModule()->bubble("Starting handover");
+}
+
+void LtePhyUe::doHandover()
+{
+    // Delete Old Buffers
+    deleteOldBuffers(masterId_);
+
+    // amc calls
+    LteAmc *oldAmc = getAmcModule(masterId_);
+    LteAmc *newAmc = getAmcModule(candidateMasterId_);
+
+    // TODO verify the amc is the relay one and remove after tests
+    assert(newAmc != NULL);
+
+    oldAmc->detachUser(nodeId_, UL);
+    oldAmc->detachUser(nodeId_, DL);
+    newAmc->attachUser(nodeId_, UL);
+    newAmc->attachUser(nodeId_, DL);
+
+    // binder calls
+    binder_->unregisterNextHop(masterId_, nodeId_);
+    binder_->registerNextHop(candidateMasterId_, nodeId_);
+    binder_->updateUeInfoCellId(nodeId_,candidateMasterId_);
+    das_->setMasterRuSet(candidateMasterId_);
+
+    // change masterId and notify handover to the MAC layer
+    MacNodeId oldMaster = masterId_;
+    masterId_ = candidateMasterId_;
+    mac_->doHandover(candidateMasterId_);  // do MAC operations for handover
+    currentMasterRssi_ = candidateMasterRssi_;
+    hysteresisTh_ = updateHysteresisTh(currentMasterRssi_);
+
+    // update deployer
+    LteMacEnb* newMacEnb =  check_and_cast<LteMacEnb*>(simulation.getModule(binder_->getOmnetId(candidateMasterId_))->getSubmodule("nic")->getSubmodule("mac"));
+    LteDeployer* newDeployer = newMacEnb->getDeployer();
+    deployer_->detachUser(nodeId_);
+    newDeployer->attachUser(nodeId_);
+    deployer_ = newDeployer;
+
+    // collect stat
+    emit(servingCell_, (long)masterId_);
+
+    if (ev.isGUI())
+        getParentModule()->getParentModule()->bubble("Handover complete!");
+
+    std::cout << NOW << " LtePhyUe::doHandover - UE " << nodeId_ << " has completed handover to eNB " << masterId_ << "... " << endl;
+
+    EV << NOW << " LtePhyUe::doHandover - UE " << nodeId_ << " has completed handover to eNB " << masterId_ << "... " << endl;
+    binder_->removeUeHandoverTriggered(nodeId_);
+
+    // inform the eNB's IP2lte module to forward data to the target eNB
+    IP2lte* enbIp2lte =  check_and_cast<IP2lte*>(simulation.getModule(binder_->getOmnetId(masterId_))->getSubmodule("nic")->getSubmodule("ip2lte"));
+    enbIp2lte->signalHandoverCompleteTarget(nodeId_,oldMaster);
+
+    // TODO: transfer buffers
+}
+
 
 // TODO: ***reorganize*** method
 void LtePhyUe::handleAirFrame(cMessage* msg)
@@ -151,6 +287,14 @@ void LtePhyUe::handleAirFrame(cMessage* msg)
     //Update coordinates of this user
     if (lteInfo->getFrameType() == HANDOVERPKT)
     {
+        // check if handover is already in process
+        if (handoverTrigger_ != NULL && handoverTrigger_->isScheduled())
+        {
+            delete lteInfo;
+            delete frame;
+            return;
+        }
+
         handoverHandler(frame, lteInfo);
         return;
     }
@@ -323,89 +467,6 @@ double LtePhyUe::updateHysteresisTh(double v)
         return 0;
     else
         return v / hysteresisFactor_;
-}
-
-void LtePhyUe::handoverHandler(LteAirFrame* frame, UserControlInfo* lteInfo)
-{
-    lteInfo->setDestId(nodeId_);
-    if (!enableHandover_)
-    {
-        // Even if handover is not enabled, this call is necessary
-        // to allow Reporting Set computation.
-        if (getNodeTypeById(lteInfo->getSourceId()) == ENODEB && lteInfo->getSourceId() == masterId_)
-        {
-            // Broadcast message from my master enb
-            das_->receiveBroadcast(frame, lteInfo);
-        }
-
-        delete frame;
-        delete lteInfo;
-        return;
-    }
-
-    frame->setControlInfo(lteInfo);
-    double rssi;
-
-    if (getNodeTypeById(lteInfo->getSourceId()) == ENODEB &&
-        lteInfo->getSourceId() == masterId_)
-    {
-        // Broadcast message from my master enb
-        rssi = das_->receiveBroadcast(frame, lteInfo);
-    }
-    else
-    {
-        // Broadcast message from relay or not-master enb
-        std::vector<double>::iterator it;
-        rssi = 0;
-        std::vector<double> rssiV = channelModel_->getSINR(frame, lteInfo);
-        for (it = rssiV.begin(); it != rssiV.end(); ++it)
-            rssi += *it;
-        rssi /= rssiV.size();
-    }
-
-    EV << "UE " << nodeId_ << " broadcast frame from " << lteInfo->getSourceId() << " with "
-    "RSSI: " << rssi << " at " << simTime() << endl;
-
-    if (rssi > candidateMasterRssi_ + hysteresisTh_)
-    {
-        if (lteInfo->getSourceId() == masterId_)
-        {
-            // receiving even stronger broadcast from current master
-            currentMasterRssi_ = rssi;
-            candidateMasterId_ = masterId_;
-            candidateMasterRssi_ = rssi;
-            hysteresisTh_ = updateHysteresisTh(currentMasterRssi_);
-            cancelEvent(handoverStarter_);
-        }
-        else
-        {
-            // broadcast from another master with higher rssi
-            candidateMasterId_ = lteInfo->getSourceId();
-            candidateMasterRssi_ = rssi;
-            hysteresisTh_ = updateHysteresisTh(rssi);
-            // schedule self message to evaluate handover parameters after
-            // all broadcast messages are arrived
-            if (!handoverStarter_->isScheduled())
-            {
-                // all broadcast messages are scheduled at the very same time, a small delta
-                // guarantees the ones belonging to the same turn have been received
-                scheduleAt(simTime() + handoverDelta_, handoverStarter_);
-            }
-        }
-    }
-    else
-    {
-        if (lteInfo->getSourceId() == masterId_)
-        {
-            currentMasterRssi_ = rssi;
-            candidateMasterRssi_ = rssi;
-            hysteresisTh_ = updateHysteresisTh(rssi);
-        }
-    }
-
-    delete frame;
-
-    return;
 }
 
 void LtePhyUe::deleteOldBuffers(MacNodeId masterId)

@@ -23,8 +23,14 @@ class LtePhyUe : public LtePhyBase
     /** Master MacNodeId */
     MacNodeId masterId_;
 
+    /** Statistic for serving cell */
+    simsignal_t servingCell_;
+
     /** Self message to trigger handover procedure evaluation */
     cMessage *handoverStarter_;
+
+    /** Self message to start the handover procedure */
+    cMessage *handoverTrigger_;
 
     /** RSSI received from the current serving node */
     double currentMasterRssi_;
@@ -58,6 +64,9 @@ class LtePhyUe : public LtePhyBase
      */
     // TODO: bring it to ned par!
     double handoverDelta_;
+
+    // time for completion of the handover procedure
+    double handoverLatency_;
 
     /**
      * Handover switch
@@ -95,7 +104,6 @@ class LtePhyUe : public LtePhyBase
     std::vector<UsedRBs> usedRbs_;
 
     virtual void initialize(int stage);
-
     virtual void handleSelfMessage(cMessage *msg);
     virtual void handleAirFrame(cMessage* msg);
 
@@ -117,6 +125,9 @@ class LtePhyUe : public LtePhyBase
     void handoverHandler(LteAirFrame* frame, UserControlInfo* lteInfo);
 
     void deleteOldBuffers(MacNodeId masterId);
+
+    virtual void triggerHandover();
+    virtual void doHandover();
 
   public:
     LtePhyUe();

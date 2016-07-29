@@ -14,6 +14,7 @@
 #include <string>
 #include "LteCommon.h"
 #include "IPv4Address.h"
+#include "IPvXAddress.h"
 #include "PhyPisaData.h"
 #include "ExtCell.h"
 
@@ -73,6 +74,8 @@ class LteBinder : public cSimpleModule
     typedef std::map<X2NodeId, std::list<int> > X2ListeningPortMap;
     X2ListeningPortMap x2ListeningPorts_;
 
+    std::map<MacNodeId, std::map<MacNodeId, IPvXAddress> > x2PeerAddress_;
+
     /*
      * D2D Support
      */
@@ -88,6 +91,11 @@ class LteBinder : public cSimpleModule
     typedef std::set<uint32> MulticastGroupIdSet;
     std::map<MacNodeId, MulticastGroupIdSet> multicastGroupMap_;
 
+    /*
+     * Handover support
+     */
+    // store the id of the UEs that are performing handover
+    std::set<MacNodeId> ueHandoverTriggered_;
   protected:
     virtual void initialize(int stages);
 
@@ -255,6 +263,15 @@ class LteBinder : public cSimpleModule
     {
         setMacNodeId(address, nodeId);
     }
+    IPvXAddress getX2PeerAddress(X2NodeId srcId, X2NodeId destId)
+    {
+        return x2PeerAddress_[srcId][destId];
+    }
+    void setX2PeerAddress(X2NodeId srcId, X2NodeId destId, IPvXAddress interfAddr)
+    {
+        std::pair<X2NodeId, IPvXAddress> p(destId, interfAddr);
+        x2PeerAddress_[srcId].insert(p);
+    }
     /**
      * Associates the given MAC node ID to the name of the module
      */
@@ -326,6 +343,14 @@ class LteBinder : public cSimpleModule
     void registerMulticastGroup(MacNodeId nodeId, int32 groupId);
     // check if the node is enrolled in the group
     bool isInMulticastGroup(MacNodeId nodeId, int32 groupId);
+
+    /*
+     *  Handover support
+     */
+    void addUeHandoverTriggered(MacNodeId nodeId);
+    bool hasUeHandoverTriggered(MacNodeId nodeId);
+    void removeUeHandoverTriggered(MacNodeId nodeId);
+    void updateUeInfoCellId(MacNodeId nodeId, MacCellId cellId);
 };
 
 #endif

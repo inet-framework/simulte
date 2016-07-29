@@ -88,12 +88,16 @@ void LteMacBase::fromPhy(cPacket *pkt)
     {
         // H-ARQ feedback, send it to TX buffer of source
         HarqTxBuffers::iterator htit = harqTxBuffers_.find(src);
-        EV << NOW << "Mac::fromPhy: node " << nodeId_ << " Received HARQ Feeback pkt" << endl;
+        EV << NOW << "Mac::fromPhy: node " << nodeId_ << " Received HARQ Feedback pkt" << endl;
         if (htit == harqTxBuffers_.end())
         {
-            // if a feeback arrives, a tx buffer must exists (unless it is an handover scenario
+            // if a feedback arrives, a tx buffer must exists (unless it is an handover scenario
             // where the harq buffer was deleted but a feedback was in transit)
             // this case must be taken care of
+
+            if (binder_->hasUeHandoverTriggered(nodeId_) || binder_->hasUeHandoverTriggered(src))
+                return;
+
             throw cRuntimeError("Mac::fromPhy(): Received feedback for an unexisting H-ARQ tx buffer");
         }
         LteHarqFeedback *hfbpkt = check_and_cast<LteHarqFeedback *>(pkt);
@@ -224,20 +228,63 @@ void LteMacBase::deleteQueues(MacNodeId nodeId)
 {
     LteMacBuffers::iterator mit;
     LteMacBufferMap::iterator vit;
-    for (mit = mbuf_.begin(); mit != mbuf_.end(); mit++)
+    for (mit = mbuf_.begin(); mit != mbuf_.end(); )
     {
         if (MacCidToNodeId(mit->first) == nodeId)
         {
+            while (!mit->second->empty())
+            {
+                cPacket* pkt = mit->second->popFront();
+                delete pkt;
+            }
             delete mit->second;        // Delete Queue
-            mbuf_.erase(mit);        // Delete Elem
+            mit = mbuf_.erase(mit);        // Delete Elem
+        }
+        else
+        {
+            ++mit;
         }
     }
-    for (vit = macBuffers_.begin(); vit != macBuffers_.end(); vit++)
+    for (vit = macBuffers_.begin(); vit != macBuffers_.end(); )
     {
         if (MacCidToNodeId(vit->first) == nodeId)
         {
+            while (!vit->second->isEmpty())
+                vit->second->popFront();
             delete vit->second;        // Delete Queue
-            macBuffers_.erase(vit);        // Delete Elem
+            vit = macBuffers_.erase(vit);        // Delete Elem
+        }
+        else
+        {
+            ++vit;
+        }
+    }
+
+    // delete H-ARQ buffers
+    HarqTxBuffers::iterator hit;
+    for (hit = harqTxBuffers_.begin(); hit != harqTxBuffers_.end(); )
+    {
+        if (hit->first == nodeId)
+        {
+            delete hit->second; // Delete Queue
+            hit = harqTxBuffers_.erase(hit); // Delete Elem
+        }
+        else
+        {
+            ++hit;
+        }
+    }
+    HarqRxBuffers::iterator hit2;
+    for (hit2 = harqRxBuffers_.begin(); hit2 != harqRxBuffers_.end();)
+    {
+        if (hit2->first == nodeId)
+        {
+            delete hit2->second; // Delete Queue
+            hit2 = harqRxBuffers_.erase(hit2); // Delete Elem
+        }
+        else
+        {
+            ++hit2;
         }
     }
 

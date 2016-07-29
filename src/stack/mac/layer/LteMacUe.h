@@ -132,6 +132,17 @@ class LteMacUe : public LteMacBase
      */
     bool getHighestBackloggedFlow(MacCid& cid, unsigned int& priority);
     bool getLowestBackloggedFlow(MacCid& cid, unsigned int& priority);
+
+    /**
+     * deleteQueues() must be called on handover
+     * to delete queues for a given user
+     *
+     * @param nodeId Id of the node whose queues are deleted
+     */
+    virtual void deleteQueues(MacNodeId nodeId);
+
+    // update ID of the serving cell during handover
+    virtual void doHandover(MacNodeId targetEnb);
 };
 
 #endif

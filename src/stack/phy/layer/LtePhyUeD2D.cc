@@ -10,11 +10,14 @@
 #include <assert.h>
 #include "LtePhyUeD2D.h"
 #include "LteFeedbackPkt.h"
+#include "D2DModeSelectionBase.h"
 
 Define_Module(LtePhyUeD2D);
 
 LtePhyUeD2D::LtePhyUeD2D()
 {
+    handoverStarter_ = NULL;
+    handoverTrigger_ = NULL;
 }
 
 LtePhyUeD2D::~LtePhyUeD2D()
@@ -73,6 +76,14 @@ void LtePhyUeD2D::handleAirFrame(cMessage* msg)
     //Update coordinates of this user
     if (lteInfo->getFrameType() == HANDOVERPKT)
     {
+        // check if handover is already in process
+        if (handoverTrigger_ != NULL && handoverTrigger_->isScheduled())
+        {
+            delete lteInfo;
+            delete frame;
+            return;
+        }
+
         handoverHandler(frame, lteInfo);
         return;
     }
@@ -199,6 +210,29 @@ void LtePhyUeD2D::handleAirFrame(cMessage* msg)
 
     if (ev.isGUI())
         updateDisplayString();
+}
+
+void LtePhyUeD2D::triggerHandover()
+{
+    // stop active D2D flows (go back to Infrastructure mode)
+
+    // trigger D2D mode switch
+    D2DModeSelectionBase *d2dModeSelection = check_and_cast<D2DModeSelectionBase*>(simulation.getModule(binder_->getOmnetId(masterId_))->getSubmodule("nic")->getSubmodule("d2dModeSelection"));
+    d2dModeSelection->doModeSwitchAtHandover(nodeId_);
+
+    LtePhyUe::triggerHandover();
+}
+
+void LtePhyUeD2D::doHandover()
+{
+    // amc calls
+    LteAmc *oldAmc = getAmcModule(masterId_);
+    LteAmc *newAmc = getAmcModule(candidateMasterId_);
+    assert(newAmc != NULL);
+    oldAmc->detachUser(nodeId_, D2D);
+    newAmc->attachUser(nodeId_, D2D);
+
+    LtePhyUe::doHandover();
 }
 
 void LtePhyUeD2D::handleUpperMessage(cMessage* msg)

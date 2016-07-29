@@ -89,6 +89,10 @@ void LtePhyEnb::handleSelfMessage(cMessage *msg)
         sendBroadcast(f);
         scheduleAt(NOW + bdcUpdateInterval_, msg);
     }
+    else
+    {
+        delete msg;
+    }
 }
 
 bool LtePhyEnb::handleControlPkt(UserControlInfo* lteinfo, LteAirFrame* frame)
@@ -119,12 +123,38 @@ bool LtePhyEnb::handleControlPkt(UserControlInfo* lteinfo, LteAirFrame* frame)
 
 void LtePhyEnb::handleAirFrame(cMessage* msg)
 {
-    UserControlInfo* lteInfo = check_and_cast<UserControlInfo*>(
-        msg->removeControlInfo());
+    UserControlInfo* lteInfo = check_and_cast<UserControlInfo*>(msg->removeControlInfo());
     LteAirFrame* frame = static_cast<LteAirFrame*>(msg);
 
-    EV << "LtePhy: received new LteAirFrame with ID " << frame->getId()
-       << " from channel" << endl;
+    EV << "LtePhy: received new LteAirFrame with ID " << frame->getId() << " from channel" << endl;
+
+    // handle broadcast packet sent by another eNB
+    if (lteInfo->getFrameType() == HANDOVERPKT)
+    {
+        EV << "LtePhyEnb::handleAirFrame - received handover packet from another eNodeB. Ignore it." << endl;
+        delete lteInfo;
+        delete frame;
+        return;
+    }
+
+    /*
+     * This could happen if the ue associates with a new master while it has
+     * already scheduled a packet for the old master: the packet is in the air
+     * while the ue changes master.
+     * Event timing:      TTI x: packet scheduled and sent by the UE (tx time = 1ms)
+     *                     TTI x+0.1: ue changes master
+     *                     TTI x+1: packet from UE arrives at the old master
+     */
+    if (binder_->getNextHop(lteInfo->getSourceId()) != nodeId_)
+    {
+        EV << "WARNING: frame from a UE that is leaving this cell (handover): deleted " << endl;
+        EV << "Source MacNodeId: " << lteInfo->getSourceId() << endl;
+        EV << "Master MacNodeId: " << nodeId_ << endl;
+        delete lteInfo;
+        delete frame;
+        return;
+    }
+
     connectedNodeId_ = lteInfo->getSourceId();
     //handle all control pkt
     if (handleControlPkt(lteInfo, frame))

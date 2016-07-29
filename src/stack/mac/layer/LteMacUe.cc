@@ -677,3 +677,49 @@ LteMacUe::getLowestBackloggedFlow(MacCid& cid, unsigned int& priority)
 
     return false;
 }
+
+void LteMacUe::doHandover(MacNodeId targetEnb)
+{
+    cellId_ = targetEnb;
+}
+
+void LteMacUe::deleteQueues(MacNodeId nodeId)
+{
+    LteMacBuffers::iterator mit;
+    LteMacBufferMap::iterator vit;
+    for (mit = mbuf_.begin(); mit != mbuf_.end(); )
+    {
+        while (!mit->second->empty())
+        {
+            cPacket* pkt = mit->second->popFront();
+            delete pkt;
+        }
+        delete mit->second;        // Delete Queue
+        mit = mbuf_.erase(mit);        // Delete Elem
+    }
+    for (vit = macBuffers_.begin(); vit != macBuffers_.end(); )
+    {
+        while (!vit->second->isEmpty())
+            vit->second->popFront();
+        delete vit->second;                  // Delete Queue
+        vit = macBuffers_.erase(vit);        // Delete Elem
+    }
+
+    // delete H-ARQ buffers
+    HarqTxBuffers::iterator hit;
+    for (hit = harqTxBuffers_.begin(); hit != harqTxBuffers_.end(); )
+    {
+        delete hit->second; // Delete Queue
+        hit = harqTxBuffers_.erase(hit); // Delete Elem
+    }
+    HarqRxBuffers::iterator hit2;
+    for (hit2 = harqRxBuffers_.begin(); hit2 != harqRxBuffers_.end();)
+    {
+         delete hit2->second; // Delete Queue
+         hit2 = harqRxBuffers_.erase(hit2); // Delete Elem
+    }
+
+    // remove traffic descriptor and lcg entry
+    lcgMap_.clear();
+    connDesc_.clear();
+}

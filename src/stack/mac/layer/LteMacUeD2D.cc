@@ -319,6 +319,7 @@ void LteMacUeD2D::macPduMake(LteMacScheduleList* scheduleList)
     macPduList_.clear();
 
     bool bsrAlreadyMade = false;
+
     //TODO add a parameter for discriminates if the UE is actually making or not a D2D communication
     if((bsrTriggered_ || bsrD2DMulticastTriggered_) && schedulingGrant_->getDirection() == UL && scheduleList->empty())
     {
@@ -843,5 +844,11 @@ void LteMacUeD2D::macHandleRac(cPacket* pkt)
         }
     }
     delete racPkt;
+}
+
+void LteMacUeD2D::doHandover(MacNodeId targetEnb)
+{
+    enb_ = check_and_cast<LteMacEnbD2D*>(getMacByMacNodeId(targetEnb));
+    LteMacUe::doHandover(targetEnb);
 }
 
