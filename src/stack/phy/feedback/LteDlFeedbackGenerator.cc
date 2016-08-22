@@ -402,3 +402,11 @@ void LteDlFeedbackGenerator::initializeFeedbackComputation(
 
     EV << "Feedback Computation \"" << name << "\" loaded." << endl;
 }
+
+void LteDlFeedbackGenerator::handleHandover(MacCellId newEnbId)
+{
+    masterId_ = newEnbId;
+    deployer_ = getDeployer(masterId_);
+
+    EV << NOW << " LteDlFeedbackGenerator::handleHandover - Master ID updated to " << masterId_ << endl;
+}

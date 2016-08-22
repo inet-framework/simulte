@@ -11,6 +11,7 @@
 #include "LtePhyUe.h"
 #include "LteFeedbackPkt.h"
 #include "IP2lte.h"
+#include "LteDlFeedbackGenerator.h"
 
 Define_Module(LtePhyUe);
 
@@ -251,6 +252,10 @@ void LtePhyUe::doHandover()
     deployer_->detachUser(nodeId_);
     newDeployer->attachUser(nodeId_);
     deployer_ = newDeployer;
+
+    // update DL feedback generator
+    LteDlFeedbackGenerator* fbGen = check_and_cast<LteDlFeedbackGenerator*>(getParentModule()->getSubmodule("dlFbGen"));
+    fbGen->handleHandover(masterId_);
 
     // collect stat
     emit(servingCell_, (long)masterId_);

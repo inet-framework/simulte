@@ -136,6 +136,12 @@ class LteDlFeedbackGenerator : public cSimpleModule
      * @param newTxMode new transmission mode
      */
     void setTxMode(TxMode newTxMode);
+
+    /*
+     * Perform handover-related operations
+     * Update cell id and the reference to the deployer
+     */
+    void handleHandover(MacCellId newEnbId);
 };
 
 #endif
