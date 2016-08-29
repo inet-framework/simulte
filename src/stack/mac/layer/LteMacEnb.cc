@@ -230,13 +230,18 @@ void LteMacEnb::initialize(int stage)
         numAntennas_ = getNumAntennas();
 
         /* Create and initialize MAC Downlink scheduler */
-        enbSchedulerDl_ = new LteSchedulerEnbDl();
-        enbSchedulerDl_->initialize(DL, this);
+        if (enbSchedulerDl_ == NULL)
+        {
+            enbSchedulerDl_ = new LteSchedulerEnbDl();
+            enbSchedulerDl_->initialize(DL, this);
+        }
 
         /* Create and initialize MAC Uplink scheduler */
-        enbSchedulerUl_ = new LteSchedulerEnbUl();
-        enbSchedulerUl_->initialize(UL, this);
-
+        if (enbSchedulerUl_ == NULL)
+        {
+            enbSchedulerUl_ = new LteSchedulerEnbUl();
+            enbSchedulerUl_->initialize(UL, this);
+        }
         //Initialize the current sub frame type with the first subframe of the MBSFN pattern
         currentSubFrameType_ = NORMAL_FRAME_TYPE;
 

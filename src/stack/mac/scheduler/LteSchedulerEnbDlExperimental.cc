@@ -321,6 +321,8 @@ unsigned int LteSchedulerEnbDlExperimental::scheduleGrant(MacCid cid, unsigned i
             if (toBook == 0)
             {
                 // all bytes booked, go to allocation
+                stop = true;
+                active = false;
                 break;
             }
             // else continue booking (if there are available bands)
@@ -418,6 +420,7 @@ unsigned int LteSchedulerEnbDlExperimental::scheduleGrant(MacCid cid, unsigned i
                     EV << "LteSchedulerEnbDlExperimental::grant band " << (unsigned short)u << " depleted all its booked resources " << endl;
                 }
             }
+            vQueueItemCounter++;
         }
 
         // update virtual buffer
@@ -431,13 +434,10 @@ unsigned int LteSchedulerEnbDlExperimental::scheduleGrant(MacCid cid, unsigned i
         while (!conn->isEmpty() && alloc > 0)
         {
             unsigned int vPktSize = conn->front().first;
-            if (vPktSize <= toServe)
+            if (vPktSize <= alloc)
             {
                 // serve the entire vPkt
                 conn->popFront();
-
-                vQueueItemCounter++;
-
                 alloc -= vPktSize;
             }
             else
@@ -448,9 +448,6 @@ unsigned int LteSchedulerEnbDlExperimental::scheduleGrant(MacCid cid, unsigned i
                 PacketInfo newPktInfo = conn->popFront();
                 newPktInfo.first = newPktInfo.first - alloc;
                 conn->pushFront(newPktInfo);
-
-                vQueueItemCounter++;
-
                 alloc = 0;
             }
         }
@@ -472,14 +469,7 @@ unsigned int LteSchedulerEnbDlExperimental::scheduleGrant(MacCid cid, unsigned i
             totalAllocatedBytes += cwAllocatedBytes;
 
             std::pair<unsigned int, Codeword> scListId;
-            if (direction_ == DL)
-            {
-                scListId.first = cid;
-            }
-            else //if  (direction_==UL )
-            {
-                scListId.first = nodeId;
-            }
+            scListId.first = cid;
             scListId.second = cw;
 
             if (scheduleList_.find(scListId) == scheduleList_.end())

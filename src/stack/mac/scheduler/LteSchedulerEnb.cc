@@ -425,7 +425,7 @@ unsigned int LteSchedulerEnb::scheduleGrant(MacCid cid, unsigned int bytes,
                 if (firstSdu)
                 {
                     toServe += MAC_HEADER;
-                    firstSdu = false;
+//                    firstSdu = false;
                 }
 
                 //   Check if the flow will overflow its request by adding an entire SDU
@@ -578,7 +578,7 @@ unsigned int LteSchedulerEnb::scheduleGrant(MacCid cid, unsigned int bytes,
                     // consume one virtual SDU
 
                     // check if we are granting less than a full BSR |
-                    if ((dir==UL || dir==D2D || dir==D2D_MULTI) && (toServe<vQueueFrontSize))
+                    if ((dir==UL || dir==D2D || dir==D2D_MULTI) && (toServe-MAC_HEADER-RLC_HEADER_UM<vQueueFrontSize))
                     {
                         // update the virtual queue
 
@@ -586,7 +586,7 @@ unsigned int LteSchedulerEnb::scheduleGrant(MacCid cid, unsigned int bytes,
 
                         // just decrementing the first element is not correct because the queueOccupancy would not be updated
                         // we need to pop the element from the queue and then push it again with a new value
-                        unsigned int newSize = conn->front().first - toServe;
+                        unsigned int newSize = conn->front().first - (toServe-MAC_HEADER-RLC_HEADER_UM);
                         PacketInfo info = conn->popFront();
 
                         // push the element only if the size is > 0
@@ -618,6 +618,11 @@ unsigned int LteSchedulerEnb::scheduleGrant(MacCid cid, unsigned int bytes,
                         EV << "LteSchedulerEnb::grant ONLY ONE VQUEUE ITEM TO ALLOCATE" << endl;
                         stop = true;
                         break;
+                    }
+
+                    if (firstSdu)
+                    {
+                        firstSdu = false;
                     }
                 }
             }

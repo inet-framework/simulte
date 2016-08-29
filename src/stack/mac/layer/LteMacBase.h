@@ -115,10 +115,15 @@ class LteMacBase : public cSimpleModule
     /// Harq Rx Buffers
     HarqRxBuffers harqRxBuffers_;
 
-    /* Connection Descriptors TODO : delete/update entries on hand-over
+    /* Connection Descriptors
      * Holds flow related infos
      */
     std::map<MacCid, FlowControlInfo> connDesc_;
+
+    /* Incoming Connection Descriptors:
+     * a connection is stored at the first MAC SDU delivered to the RLC
+     */
+    std::map<MacCid, FlowControlInfo> connDescIn_;
 
     /* LCG to CID and buffers map - used for supporting LCG - based scheduler operations
      * TODO : delete/update entries on hand-over

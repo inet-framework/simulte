@@ -100,6 +100,7 @@ void LteRlcUmExperimental::handleUpperMessage(cPacket *pkt)
     // Create a new RLC packet
     LteRlcSdu* rlcPkt = new LteRlcSdu("rlcUmPkt");
     rlcPkt->setSnoMainPacket(lteInfo->getSequenceNumber());
+    rlcPkt->setLengthMainPacket(pkt->getByteLength());
     rlcPkt->encapsulate(pkt);
 
     // create a message so as to notify the MAC layer that the queue contains new data

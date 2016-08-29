@@ -46,6 +46,24 @@ class LteMacSduRequest : public LteMacSduRequest_Base
     {
     }
 
+    LteMacSduRequest(const LteMacSduRequest& other) :
+        LteMacSduRequest_Base()
+    {
+        operator=(other);
+    }
+
+    LteMacSduRequest& operator=(const LteMacSduRequest& other)
+    {
+        if (&other == this)
+            return *this;
+        LteMacSduRequest_Base::operator=(other);
+        return *this;
+    }
+
+    virtual LteMacSduRequest *dup() const
+    {
+        return new LteMacSduRequest(*this);
+    }
     MacNodeId getUeId() { return ueId_; }
     void setUeId(MacNodeId ueId) { ueId_ = ueId; }
 

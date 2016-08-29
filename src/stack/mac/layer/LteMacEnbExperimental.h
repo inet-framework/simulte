@@ -43,7 +43,7 @@ class LteMacEnbExperimental : public LteMacEnb
      * to the Schedule List (stored after scheduling).
      * It sends them to H-ARQ
      */
-    virtual void macPduMake();
+    virtual void macPduMake(MacCid cid);
 
 
     /**

@@ -298,6 +298,9 @@ void LteMacUeExperimental::macPduMake()
 
 bool LteMacUeExperimental::bufferizePacket(cPacket* pkt)
 {
+    if (pkt->getByteLength() == 0)
+        return false;
+
     pkt->setTimestamp();        // Add timestamp with current time to packet
 
     FlowControlInfo* lteInfo = check_and_cast<FlowControlInfo*>(pkt->getControlInfo());
@@ -402,9 +405,14 @@ void LteMacUeExperimental::handleUpperMessage(cPacket* pkt)
     if (strcmp(pkt->getName(), "lteRlcFragment") == 0)
     {
         // new MAC SDU has been received
+        if (pkt->getByteLength() == 0)
+            delete pkt;
 
         // creates pdus from schedule list and puts them in harq buffers
         macPduMake();
+
+        EV << NOW << " LteMacUeExperimental::handleUpperMessage - incrementing counter for HARQ processes " << (unsigned int)currentHarq_ << " --> " << (currentHarq_+1)%harqProcesses_ << endl;
+        currentHarq_ = (currentHarq_+1)%harqProcesses_;
     }
     else
     {

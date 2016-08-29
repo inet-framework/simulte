@@ -177,14 +177,20 @@ struct RlcUmRxWindowDesc
     //! Size of the reception window
     unsigned int windowSize_;
 
+    void clear(unsigned int i=0)
+    {
+        firstSno_ = i;
+        firstSnoForReordering_ = i;
+        reorderingSno_ = i;
+        highestReceivedSno_ = i;
+    }
+
     RlcUmRxWindowDesc()
     {
-        firstSno_ = 0;
-        firstSnoForReordering_ = 0;
-        reorderingSno_ = 0;
-        highestReceivedSno_ = 0;
-        windowSize_ = 0;
+        windowSize_ = 0;  // the window size must not be cleared
+        clear();
     }
+
 };
 
 enum RlcUmTimerType

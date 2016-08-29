@@ -56,8 +56,6 @@ class LteMacPdu : public LteMacPdu_Base
 
     /*
      * Copy constructors
-     * FIXME Copy constructors do not preserve ownership
-     * Here I should iterate on the list and set all ownerships
      */
 
     LteMacPdu(const LteMacPdu& other) :
@@ -78,6 +76,13 @@ class LteMacPdu : public LteMacPdu_Base
         for (sit = other.sduList_.begin(); sit != other.sduList_.end(); ++sit)
         {
             cPacket* newPkt = (*sit)->dup();
+            // copy control info of each included SDU, if any
+            if ((*sit)->getControlInfo() != NULL && newPkt->getControlInfo() == NULL)
+            {
+                FlowControlInfo* info = check_and_cast<FlowControlInfo*>((*sit)->getControlInfo());
+                FlowControlInfo* info_dup = info->dup();
+                newPkt->setControlInfo(info_dup);
+            }
             take(newPkt);
             sduList_.push_back(newPkt);
         }
@@ -96,16 +101,11 @@ class LteMacPdu : public LteMacPdu_Base
         // copy control info of the PDU, if any
         if (other.getControlInfo() != NULL)
         {
-            if (this->getControlInfo() != NULL)
-            {
-                UserControlInfo* info = check_and_cast<UserControlInfo*>(this->removeControlInfo());
-                delete info;
-            }
-
             UserControlInfo* info = check_and_cast<UserControlInfo*>(other.getControlInfo());
             UserControlInfo* info_dup = info->dup();
             this->setControlInfo(info_dup);
         }
+
         return *this;
     }
 

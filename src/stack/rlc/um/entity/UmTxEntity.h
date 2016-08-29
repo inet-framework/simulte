@@ -61,10 +61,16 @@ class UmTxEntity : public cSimpleModule
      *
      * @param size of a pdu
      */
-    void rlcPduMake(unsigned int pduSize);
+    void rlcPduMake(int pduSize);
 
     void setFlowControlInfo(FlowControlInfo* lteInfo) { flowControlInfo_ = lteInfo; }
     FlowControlInfo* getFlowControlInfo() { return flowControlInfo_; }
+
+    // force the sequence number to assume the sno passed as argument
+    void setNextSequenceNumber(unsigned int nextSno) { sno_ = nextSno; }
+
+    // remove the last SDU from the queue
+    void removeDataFromQueue();
 
   protected:
 

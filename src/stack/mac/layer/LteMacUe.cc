@@ -297,6 +297,15 @@ void LteMacUe::macPduUnmake(cPacket* pkt)
 
         /* TODO: upPkt->info() */
         EV << "LteMacBase: pduUnmaker extracted SDU" << endl;
+
+        // store descriptor for the incoming connection, if not already stored
+        FlowControlInfo* lteInfo = check_and_cast<FlowControlInfo*>(upPkt->getControlInfo());
+        MacCid cid = ctrlInfoToMacCid(lteInfo);
+        if (connDescIn_.find(cid) == connDescIn_.end())
+        {
+            FlowControlInfo toStore(*lteInfo);
+            connDescIn_[cid] = toStore;
+        }
         sendUpperPackets(upPkt);
     }
     delete macPkt;

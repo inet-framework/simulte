@@ -77,6 +77,16 @@ class LteRlcUm : public cSimpleModule
      */
     virtual void deleteQueues(MacNodeId nodeId);
 
+    /**
+     * sendToLowerLayer() is identical to sendFragmented(), but it is invoked
+     * by TxEntity instead of TxBuffer (hence it is for RlcUmExperimental) and
+     * it is a virtual function (for example, RlcUmExperimental needs to
+     * redefine the behaviour of this function)
+     *
+     * @param pkt packet to forward
+     */
+    virtual void sendToLowerLayer(cPacket *pkt);
+
   protected:
 
     cGate* up_[2];

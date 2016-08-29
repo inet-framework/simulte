@@ -66,10 +66,25 @@ class UmRxEntity : public cSimpleModule
     simsignal_t rlcThroughput_;
     simsignal_t rlcPduThroughput_;
 
+    // statistics for D2D
+    simsignal_t rlcPacketLossD2D_;
+    simsignal_t rlcPduPacketLossD2D_;
+    simsignal_t rlcDelayD2D_;
+    simsignal_t rlcPduDelayD2D_;
+    simsignal_t rlcThroughputD2D_;
+    simsignal_t rlcPduThroughputD2D_;
+
+    simsignal_t rlcPacketLossTotal_;
+
   private:
+
+    LteBinder* binder_;
 
     // reference to eNB for statistic purpose
     cModule* nodeB_;
+
+    // Node id of the owner module
+    MacNodeId ownerNodeId_;
 
     /*
      * Flow-related info.
@@ -100,6 +115,13 @@ class UmRxEntity : public cSimpleModule
 
     // Sequence number of the last correctly reassembled PDU
     unsigned int lastPduReassembled_;
+
+    bool init_;
+
+    // If true, the next PDU and the corresponding SDUs are considered in order
+    // (modify the lastPduReassembled_ and lastSnoDelivered_ counters)
+    // useful for D2D after a mode switch
+    bool resetFlag_;
 
     // move forward the reordering window
     void moveRxWindow(const int pos);

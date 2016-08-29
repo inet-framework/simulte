@@ -92,6 +92,14 @@ void LteRlcUm::sendFragmented(cPacket *pkt)
     send(pkt, down_[OUT]);
 }
 
+void LteRlcUm::sendToLowerLayer(cPacket *pkt)
+{
+    Enter_Method("sendToLowerLayer()");                            // Direct Method Call
+    take(pkt);                                                    // Take ownership
+    EV << "LteRlcUm : Sending packet " << pkt->getName() << " to port UM_Sap_down$o\n";
+    send(pkt, down_[OUT]);
+}
+
 void LteRlcUm::handleUpperMessage(cPacket *pkt)
 {
     FlowControlInfo* lteInfo = check_and_cast<FlowControlInfo*>(pkt->removeControlInfo());

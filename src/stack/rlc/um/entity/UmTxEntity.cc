@@ -28,7 +28,7 @@ void UmTxEntity::enque(cPacket* pkt)
     sduQueue_.insert(pkt);
 }
 
-void UmTxEntity::rlcPduMake(unsigned int pduLength)
+void UmTxEntity::rlcPduMake(int pduLength)
 {
     EV << NOW << " UmTxEntity::rlcPduMake - PDU with size " << pduLength << " requested from MAC"<< endl;
 
@@ -38,7 +38,7 @@ void UmTxEntity::rlcPduMake(unsigned int pduLength)
     // the request from MAC takes into account also the size of the RLC header
     pduLength -= RLC_HEADER_UM;
 
-    unsigned int len = 0;
+    int len = 0;
 
     bool startFrag = firstIsFragment_;
     bool endFrag = false;
@@ -50,7 +50,7 @@ void UmTxEntity::rlcPduMake(unsigned int pduLength)
         LteRlcSdu* rlcSdu = check_and_cast<LteRlcSdu*>(pkt);
 
         unsigned int sduSequenceNumber = rlcSdu->getSnoMainPacket();
-        unsigned int sduLength = rlcSdu->getByteLength();
+        int sduLength = rlcSdu->getByteLength();
 
         EV << NOW << " UmTxEntity::rlcPduMake - Next data chunk from the queue, sduSno[" << sduSequenceNumber
                 << "], length[" << sduLength << "]"<< endl;
@@ -89,7 +89,7 @@ void UmTxEntity::rlcPduMake(unsigned int pduLength)
             endFrag = true;
 
             // update SDU in the buffer
-            unsigned int newLength = sduLength - pduLength;
+            int newLength = sduLength - pduLength;
             pkt->setByteLength(newLength);
 
             EV << NOW << " UmTxEntity::rlcPduMake - Data chunk in the queue is now " << newLength << " bytes, sduSno[" << sduSequenceNumber << "]" << endl;
@@ -106,34 +106,48 @@ void UmTxEntity::rlcPduMake(unsigned int pduLength)
 
     if (len == 0)
     {
-        EV << NOW << " UmTxEntity::rlcPduMake - No data to send" << endl;
-        delete rlcPdu;
-        return;
+        // send an empty message to notify the MAC that there is not enough space to send RLC PDU
+        rlcPdu->setControlInfo(flowControlInfo_->dup());
+        rlcPdu->setByteLength(len);
     }
-
-    // compute FI
-    // the meaning of this field is specified in 3GPP TS 36.322
-    FramingInfo fi = 0;
-    unsigned short int mask;
-    if (endFrag)
+    else
     {
-        mask = 1;   // 01
-        fi |= mask;
-    }
-    if (startFrag)
-    {
-        mask = 2;   // 10
-        fi |= mask;
-    }
+        // compute FI
+        // the meaning of this field is specified in 3GPP TS 36.322
+        FramingInfo fi = 0;
+        unsigned short int mask;
+        if (endFrag)
+        {
+            mask = 1;   // 01
+            fi |= mask;
+        }
+        if (startFrag)
+        {
+            mask = 2;   // 10
+            fi |= mask;
+        }
 
-    rlcPdu->setFramingInfo(fi);
-    rlcPdu->setPduSequenceNumber(sno_++);
-    rlcPdu->setControlInfo(flowControlInfo_->dup());
-    rlcPdu->setByteLength(RLC_HEADER_UM + len);  // add the header size
+        rlcPdu->setFramingInfo(fi);
+        rlcPdu->setPduSequenceNumber(sno_++);
+        rlcPdu->setControlInfo(flowControlInfo_->dup());
+        rlcPdu->setByteLength(RLC_HEADER_UM + len);  // add the header size
+    }
 
     // send to MAC layer
     EV << NOW << " UmTxEntity::rlcPduMake - send PDU " << rlcPdu->getPduSequenceNumber() << " with size " << rlcPdu->getByteLength() << " bytes to lower layer" << endl;
 
     LteRlcUm* lteRlc = check_and_cast<LteRlcUm *>(getParentModule()->getSubmodule("um"));
-    lteRlc->sendFragmented(rlcPdu);
+    lteRlc->sendToLowerLayer(rlcPdu);
+}
+
+void UmTxEntity::removeDataFromQueue()
+{
+    EV << NOW << " UmTxEntity::removeDataFromQueue - removed SDU " << endl;
+
+    // get the last packet...
+    cPacket* pkt = sduQueue_.back();
+
+    // ...and remove it
+    cPacket* retPkt = sduQueue_.remove(pkt);
+    delete retPkt;
 }

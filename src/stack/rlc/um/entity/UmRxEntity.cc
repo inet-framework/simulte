@@ -22,6 +22,7 @@ UmRxEntity::UmRxEntity() :
     lastSnoDelivered_ = 0;
     lastPduReassembled_ = 0;
     nodeB_ = NULL;
+    init_ = false;
 }
 
 UmRxEntity::~UmRxEntity()
@@ -35,16 +36,27 @@ UmRxEntity::~UmRxEntity()
 void UmRxEntity::enque(cPacket* pkt)
 {
     Enter_Method("enque()");
-
     EV << NOW << " UmRxEntity::enque - buffering new PDU" << endl;
 
     LteRlcUmDataPdu* pdu = check_and_cast<LteRlcUmDataPdu*>(pkt);
+    FlowControlInfo* lteInfo = check_and_cast<FlowControlInfo*>(pdu->getControlInfo());
 
     // Get the RLC PDU Transmission sequence number (x)
     unsigned int tsn = pdu->getPduSequenceNumber();
 
+    if (!init_ && lteInfo->getDirection() == D2D_MULTI)
+    {
+        // for D2D multicast connections, the first received PDU must be considered as the first valid PDU
+        rxWindowDesc_.clear(tsn);
+        // setting the window size to 1 lets the entity to deliver immediately out-of-sequence SDU,
+        // since reordering is not applicable for D2D multicast communications
+        rxWindowDesc_.windowSize_ = 1;
+        init_ = true;
+    }
+
     // get the position in the buffer
     int index = tsn - rxWindowDesc_.firstSno_;
+
     EV << NOW << " UmRxEntity::enque - tsn " << tsn << ", the corresponding index in the buffer is " << index << endl;
 
     // x was already received
@@ -81,14 +93,22 @@ void UmRxEntity::enque(cPacket* pkt)
         if (rxWindowDesc_.firstSno_ + rxWindowDesc_.windowSize_ < rxWindowDesc_.highestReceivedSno_)
         {
             int shift = rxWindowDesc_.highestReceivedSno_ - old;
-            for (int i=0; i < shift; i++)
+            while (shift > 0)
             {
-                // try to reassemble the PDU
-                reassemble(i);
-            }
+                // if "shift" is greater than the window size, we advance the window in several steps
 
-            // move the window (update buffer and firstSno)
-            moveRxWindow(shift);
+                int p = (shift < rxWindowDesc_.windowSize_) ? shift : rxWindowDesc_.windowSize_;
+
+                for (int i=0; i < p; i++)
+                {
+                    // try to reassemble the PDU
+                    reassemble(i);
+                }
+
+                // move the window (update buffer and firstSno)
+                moveRxWindow(p);
+                shift -= p;
+            }
 
             // check whether firstSnoForReordering_ falls out the window
             if (rxWindowDesc_.firstSnoForReordering_ < rxWindowDesc_.firstSno_)
@@ -97,6 +117,8 @@ void UmRxEntity::enque(cPacket* pkt)
             }
         }
     }
+
+
     // buffer the received PDU at the correct position in the buffer
     // get the position in the buffer (the buffer may has been shifted)
     index = tsn - rxWindowDesc_.firstSno_;
@@ -104,26 +126,41 @@ void UmRxEntity::enque(cPacket* pkt)
     received_.at(index) = true;
 
     // emit statistics
-    FlowControlInfo* lteInfo = check_and_cast<FlowControlInfo*>(pdu->getControlInfo());
     MacNodeId ueId;
-    if (lteInfo->getDirection() == DL)
-        ueId = lteInfo->getDestId();
-    else if (lteInfo->getDirection() == UL)
+    if (lteInfo->getDirection() == DL || lteInfo->getDirection() == D2D || lteInfo->getDirection() == D2D_MULTI)   // This module is at a UE
+        ueId = ownerNodeId_;
+    else  // UL. This module is at the eNB: get the node id of the sender
         ueId = lteInfo->getSourceId();
+
+    cModule* ue = getRlcByMacNodeId(ueId, UM);
     tSample_->id_ = ueId;
-    tSample_->module_ = getRlcByMacNodeId(ueId, UM);
-    tSample_->sample_ = pdu->getByteLength();
-    emit(rlcPduThroughput_, tSample_);
-    tSample_->sample_ = (NOW - pdu->getCreationTime()).dbl();
-    emit(rlcPduDelay_, tSample_);
+    tSample_->module_ = ue;
+    if (lteInfo->getDirection() != D2D && lteInfo->getDirection() != D2D_MULTI)  // UE in IM
+    {
+        tSample_->sample_ = pdu->getByteLength();
+        ue->emit(rlcPduThroughput_, tSample_);
+        tSample_->sample_ = (NOW - pdu->getCreationTime()).dbl();
+        ue->emit(rlcPduDelay_, tSample_);
+    }
+    else // UE in DM
+    {
+        tSample_->sample_ = pdu->getByteLength();
+        ue->emit(rlcPduThroughputD2D_, tSample_);
+        tSample_->sample_ = (NOW - pdu->getCreationTime()).dbl();
+        ue->emit(rlcPduDelayD2D_, tSample_);
+    }
 
     EV << NOW << " UmRxEntity::enque - tsn " << tsn << ", the corresponding index after shift in the buffer is " << index << endl;
     EV << NOW << " UmRxEntity::enque - firstSnoReordering " << rxWindowDesc_.firstSnoForReordering_ << endl;
+
+    index = rxWindowDesc_.firstSnoForReordering_-rxWindowDesc_.firstSno_; //
 
     // D
     if (received_.at(rxWindowDesc_.firstSnoForReordering_-rxWindowDesc_.firstSno_) == true)
     {
         unsigned int old = rxWindowDesc_.firstSnoForReordering_;
+
+        index = rxWindowDesc_.firstSnoForReordering_-rxWindowDesc_.firstSno_; //
 
         // move to the first missing SN
         while (received_.at(rxWindowDesc_.firstSnoForReordering_-rxWindowDesc_.firstSno_) == true)
@@ -161,7 +198,6 @@ void UmRxEntity::enque(cPacket* pkt)
             rxWindowDesc_.reorderingSno_ = rxWindowDesc_.highestReceivedSno_;
         }
     }
-
 }
 
 void UmRxEntity::moveRxWindow(const int pos)
@@ -206,15 +242,14 @@ void UmRxEntity::toPdcp(LteRlcSdu* rlcSdu)
     // create a PDCP PDU and send it to the upper layer
     LtePdcpPdu* pdcpPdu = check_and_cast<LtePdcpPdu*>(rlcSdu->decapsulate());
     pdcpPdu->setControlInfo(lteInfo->dup());
-
     // emit statistics
-    cModule* ue = NULL;
     MacNodeId ueId;
-    if (lteInfo->getDirection() == DL)
-        ueId = lteInfo->getDestId();
-    else if (lteInfo->getDirection() == UL)
+    if (lteInfo->getDirection() == DL || lteInfo->getDirection() == D2D || lteInfo->getDirection() == D2D_MULTI)   // This module is at a UE
+        ueId = ownerNodeId_;
+    else  // UL. This module is at the eNB: get the node id of the sender
         ueId = lteInfo->getSourceId();
-    ue = getRlcByMacNodeId(ueId, UM);
+
+    cModule* ue = getRlcByMacNodeId(ueId, UM);
     tSample_->id_ = ueId;
     tSample_->module_ = ue;
 
@@ -223,13 +258,18 @@ void UmRxEntity::toPdcp(LteRlcSdu* rlcSdu)
     {
         // emit statistic: packet loss
         tSample_->sample_ = 1;
+        if (lteInfo->getDirection() != D2D && lteInfo->getDirection() != D2D_MULTI)
+            ue->emit(rlcPacketLoss_, tSample_);
+        else
+            ue->emit(rlcPacketLossD2D_, tSample_);
+
+        ue->emit(rlcPacketLossTotal_, tSample_);
+
         tSampleCell_->sample_ = 1;
         nodeB_->emit(rlcCellPacketLoss_, tSampleCell_);
-        ue->emit(rlcPacketLoss_, tSample_);
 
         lastSnoDelivered_++;
     }
-
     // update the last sno delivered to the current sno
     lastSnoDelivered_ = sno;
 
@@ -237,15 +277,35 @@ void UmRxEntity::toPdcp(LteRlcSdu* rlcSdu)
     tSample_->sample_ = length;
     tSampleCell_->sample_ = length;
     nodeB_->emit(rlcCellThroughput_, tSampleCell_);
-    ue->emit(rlcThroughput_, tSample_);
+    if (lteInfo->getDirection() != D2D && lteInfo->getDirection() != D2D_MULTI)  // UE in IM
+    {
+        ue->emit(rlcThroughput_, tSample_);
+    }
+    else
+    {
+        ue->emit(rlcThroughputD2D_, tSample_);
+    }
+
     // emit statistic: packet loss
     tSample_->sample_ = 0;
     tSampleCell_->sample_ = 0;
     nodeB_->emit(rlcCellPacketLoss_, tSampleCell_);
-    ue->emit(rlcPacketLoss_, tSample_);
-    // emit statistic: delay
-    tSample_->sample_ = (NOW - ts).dbl();
-    ue->emit(rlcDelay_, tSample_);
+    if (lteInfo->getDirection() != D2D && lteInfo->getDirection() != D2D_MULTI)  // UE in IM
+    {
+        ue->emit(rlcPacketLoss_, tSample_);
+        ue->emit(rlcPacketLossTotal_, tSample_);
+        // emit statistic: delay
+        tSample_->sample_ = (NOW - ts).dbl();
+        ue->emit(rlcDelay_, tSample_);
+    }
+    else
+    {
+        ue->emit(rlcPacketLossD2D_, tSample_);
+        ue->emit(rlcPacketLossTotal_, tSample_);
+        // emit statistic: delay
+        tSample_->sample_ = (NOW - ts).dbl();
+        ue->emit(rlcDelayD2D_, tSample_);
+    }
 
     EV << NOW << " UmRxEntity::toPdcp Created PDCP PDU with length " <<  pdcpPdu->getByteLength() << " bytes" << endl;
     EV << NOW << " UmRxEntity::toPdcp Send packet to upper layer" << endl;
@@ -260,7 +320,6 @@ void UmRxEntity::reassemble(unsigned int index)
     {
         // consider the case when a PDU is missing or already delivered
         EV << NOW << " UmRxEntity::reassemble PDU at index " << index << " has not been received or already delivered" << endl;
-
         return;
     }
     EV << NOW << " UmRxEntity::reassemble Consider PDU at index " << index << " for reassembly" << endl;
@@ -270,6 +329,13 @@ void UmRxEntity::reassemble(unsigned int index)
 
     // get PDU seq number
     unsigned int pduSno = pdu->getPduSequenceNumber();
+
+    if (resetFlag_)
+    {
+        // by doing this, the arrived PDU will be considered in order. For example, when D2D is enabled,
+        // this helps to retrieve the synchronization between SNs at the tx and rx after a mode switch
+        lastPduReassembled_ = pduSno-1;
+    }
 
     // get framing info
     FramingInfo fi = pdu->getFramingInfo();
@@ -282,17 +348,28 @@ void UmRxEntity::reassemble(unsigned int index)
     {
         LteRlcSdu* rlcSdu = check_and_cast<LteRlcSdu*>(pdu->popSdu());
         unsigned int sduSno = rlcSdu->getSnoMainPacket();
+        unsigned int sduWholeLength = rlcSdu->getLengthMainPacket(); // the length of the whole sdu
         unsigned int sduLength = rlcSdu->getByteLength();
 
         if (i==0) // first SDU
         {
-            if (i == numSdu-1) // there is only one SDU in this PDU
+            if (resetFlag_)
+            {
+                // by doing this, the first extracted SDU will be considered in order. For example, when D2D is enabled,
+                // this helps to retrieve the synchronization between SNs at the tx and rx after a mode switch
+                lastSnoDelivered_ = sduSno-1;
+                resetFlag_ = false;
+            }
+
+            if (i == numSdu-1) // there is only one SDU iOT_n this PDU
             {
                 // read the FI field
                 switch(fi)
                 {
                     case 0: {  // FI=00
                         EV << NOW << " UmRxEntity::reassemble The PDU includes one whole SDU [sno=" << sduSno << "]" << endl;
+                        if (sduLength != sduWholeLength)
+                            throw cRuntimeError("UmRxEntity::reassemble(): failed reassembly, the reassembled SDU has size %d B, while the original SDU had size %d B",sduLength,sduWholeLength);
 
                         toPdcp(rlcSdu);
 
@@ -307,6 +384,12 @@ void UmRxEntity::reassemble(unsigned int index)
                     case 1: {  // FI=01
                         EV << NOW << " UmRxEntity::reassemble The PDU includes the first part [" << sduLength <<" B] of a SDU [sno=" << sduSno << "]" << endl;
 
+                        if (buffered_ != NULL)
+                        {
+                            delete buffered_;
+                            buffered_ = NULL;
+                        }
+
                         // buffer the SDU and wait for the missing portion
                         buffered_ = rlcSdu->dup();
 
@@ -319,7 +402,7 @@ void UmRxEntity::reassemble(unsigned int index)
                         EV << NOW << " UmRxEntity::reassemble The PDU includes the last part [" << sduLength <<" B] of a SDU [sno=" << sduSno << "]" << endl;
 
                         // check SDU SN
-                        if (rlcSdu->getSnoMainPacket() != buffered_->getSnoMainPacket())
+                        if (buffered_ == NULL || (rlcSdu->getSnoMainPacket() != buffered_->getSnoMainPacket()))
                         {
                             if (buffered_ != NULL)
                             {
@@ -328,12 +411,36 @@ void UmRxEntity::reassemble(unsigned int index)
                             }
 
                             EV << NOW << " UmRxEntity::reassemble The SDU cannot be reassembled, first part missing" << endl;
+
+                            delete rlcSdu;
+
                             continue;
                         }
 
                         EV << NOW << " UmRxEntity::reassemble The waiting SDU has size " <<  buffered_->getByteLength() << " bytes" << endl;
 
-                        rlcSdu->setByteLength(buffered_->getByteLength() + rlcSdu->getByteLength());
+                        unsigned int reassembledLength = buffered_->getByteLength() + rlcSdu->getByteLength();
+                        if (reassembledLength < sduWholeLength)
+                        {
+                            if (buffered_ != NULL)
+                            {
+                                delete buffered_;
+                                buffered_ = NULL;
+                            }
+
+                            EV << NOW << " UmRxEntity::reassemble The SDU cannot be reassembled, mid part missing" << endl;
+
+                            delete rlcSdu;
+
+                            continue;
+                        }
+                        else if (reassembledLength > sduWholeLength)
+                        {
+                            throw cRuntimeError("UmRxEntity::reassemble(): failed reassembly, the reassembled SDU has size %d B, while the original SDU had size %d B",sduLength,sduWholeLength);
+                        }
+                        rlcSdu->setByteLength(reassembledLength);
+//                        rlcSdu->setByteLength(buffered_->getByteLength() + rlcSdu->getByteLength());
+
                         toPdcp(rlcSdu);
 
                         if (buffered_ != NULL)
@@ -348,10 +455,8 @@ void UmRxEntity::reassemble(unsigned int index)
                         // add the length of this SDU to the awaiting SDU and wait for the missing portion
                         EV << NOW << " UmRxEntity::reassemble The PDU includes the mid part [" << sduLength <<" B] of a SDU [sno=" << sduSno << "]" << endl;
 
-                        buffered_->setByteLength(buffered_->getByteLength() + rlcSdu->getByteLength());
-
                         // check SDU SN
-                        if (rlcSdu->getSnoMainPacket() != buffered_->getSnoMainPacket())
+                        if (buffered_ == NULL || (rlcSdu->getSnoMainPacket() != buffered_->getSnoMainPacket()))
                         {
                             if (buffered_ != NULL)
                             {
@@ -360,8 +465,13 @@ void UmRxEntity::reassemble(unsigned int index)
                             }
 
                             EV << NOW << " UmRxEntity::reassemble The SDU cannot be reassembled, first part missing" << endl;
+
+                            delete rlcSdu;
+
                             continue;
                         }
+
+                        buffered_->setByteLength(buffered_->getByteLength() + rlcSdu->getByteLength());
 
                         EV << NOW << " UmRxEntity::reassemble The waiting SDU has size " << buffered_->getByteLength() << " bytes, was " <<  buffered_->getByteLength() - sduLength << " bytes" << endl;
                         EV << NOW << " UmRxEntity::reassemble Wait for the missing part..." << endl;
@@ -383,6 +493,8 @@ void UmRxEntity::reassemble(unsigned int index)
                         // it is a whole SDU, send the sdu to the PDCP
 
                         EV << NOW << " UmRxEntity::reassemble This is a whole SDU [sno=" << sduSno << "]" << endl;
+                        if (sduLength != sduWholeLength)
+                            throw cRuntimeError("UmRxEntity::reassemble(): failed reassembly, the reassembled SDU has size %d B, while the original SDU had size %d B",sduLength,sduWholeLength);
 
                         toPdcp(rlcSdu);
 
@@ -399,7 +511,7 @@ void UmRxEntity::reassemble(unsigned int index)
                         EV << NOW << " UmRxEntity::reassemble This is the last part [" << sduLength <<" B] of a SDU [sno=" << sduSno << "]" << endl;
 
                         // check SDU SN
-                        if (rlcSdu->getSnoMainPacket() != buffered_->getSnoMainPacket())
+                        if (buffered_ == NULL || (rlcSdu->getSnoMainPacket() != buffered_->getSnoMainPacket()))
                         {
                             if (buffered_ != NULL)
                             {
@@ -408,12 +520,36 @@ void UmRxEntity::reassemble(unsigned int index)
                             }
 
                             EV << NOW << " UmRxEntity::reassemble The SDU cannot be reassembled, first part missing" << endl;
+
+                            delete rlcSdu;
+
                             continue;
                         }
 
                         EV << NOW << " UmRxEntity::reassemble The waiting SDU has size " <<  buffered_->getByteLength() << " bytes" << endl;
 
-                        rlcSdu->setByteLength(buffered_->getByteLength() + rlcSdu->getByteLength());
+                        unsigned int reassembledLength = buffered_->getByteLength() + rlcSdu->getByteLength();
+                        if (reassembledLength < sduWholeLength)
+                        {
+                            if (buffered_ != NULL)
+                            {
+                                delete buffered_;
+                                buffered_ = NULL;
+                            }
+
+                            EV << NOW << " UmRxEntity::reassemble The SDU cannot be reassembled, mid part missing" << endl;
+
+                            delete rlcSdu;
+
+                            continue;
+                        }
+                        else if (reassembledLength > sduWholeLength)
+                        {
+                            throw cRuntimeError("UmRxEntity::reassemble(): failed reassembly, the reassembled SDU has size %d B, while the original SDU had size %d B",sduLength,sduWholeLength);
+                        }
+                        rlcSdu->setByteLength(reassembledLength);
+//                        rlcSdu->setByteLength(buffered_->getByteLength() + rlcSdu->getByteLength());
+
                         toPdcp(rlcSdu);
 
                         if (buffered_ != NULL)
@@ -436,6 +572,8 @@ void UmRxEntity::reassemble(unsigned int index)
                 case 0: case 2: {  // FI=00 or FI=10
                     // it is a whole SDU, send the sdu to the PDCP
                     EV << NOW << " UmRxEntity::reassemble This is a whole SDU [sno=" << sduSno << "]" << endl;
+                    if (sduLength != sduWholeLength)
+                        throw cRuntimeError("UmRxEntity::reassemble(): failed reassembly, the reassembled SDU has size %d B, while the original SDU had size %d B",sduLength,sduWholeLength);
 
                     toPdcp(rlcSdu);
 
@@ -451,6 +589,12 @@ void UmRxEntity::reassemble(unsigned int index)
                     // it is the first portion of a SDU, bufferize it
                     EV << NOW << " UmRxEntity::reassemble The PDU includes the first part [" << sduLength <<" B] of a SDU [sno=" << sduSno << "]" << endl;
 
+                    if (buffered_ != NULL)
+                    {
+                        delete buffered_;
+                        buffered_ = NULL;
+                    }
+
                     buffered_ = rlcSdu->dup();
 
                     EV << NOW << " UmRxEntity::reassemble Wait for the missing part..." << endl;
@@ -464,6 +608,8 @@ void UmRxEntity::reassemble(unsigned int index)
         {
             // it is a whole SDU, send to the PDCP
             EV << NOW << " UmRxEntity::reassemble This is a whole SDU [sno=" << sduSno << "]" << endl;
+            if (sduLength != sduWholeLength)
+                throw cRuntimeError("UmRxEntity::reassemble(): failed reassembly, the reassembled SDU has size %d B, while the original SDU had size %d B",sduLength,sduWholeLength);
 
             toPdcp(rlcSdu);
 
@@ -483,13 +629,13 @@ void UmRxEntity::reassemble(unsigned int index)
     EV << NOW << " UmRxEntity::reassemble Removed PDU from position " << index << endl;
 
     // emit statistics
-    cModule* ue = NULL;
     MacNodeId ueId;
-    if (lteInfo->getDirection() == DL)
-        ueId = lteInfo->getDestId();
-    else if (lteInfo->getDirection() == UL)
+    if (lteInfo->getDirection() == DL || lteInfo->getDirection() == D2D || lteInfo->getDirection() == D2D_MULTI)   // This module is at a UE
+        ueId = ownerNodeId_;
+    else  // UL. This module is at the eNB: get the node id of the sender
         ueId = lteInfo->getSourceId();
-    ue = getRlcByMacNodeId(ueId, UM);
+
+    cModule* ue = getRlcByMacNodeId(ueId, UM);
     tSample_->id_ = ueId;
     tSample_->module_ = ue;
 
@@ -498,7 +644,14 @@ void UmRxEntity::reassemble(unsigned int index)
     {
         // emit statistic: packet loss
         tSample_->sample_ = 1;
-        ue->emit(rlcPduPacketLoss_, tSample_);
+        if (lteInfo->getDirection() != D2D && lteInfo->getDirection() != D2D_MULTI)  // UE in IM
+        {
+            ue->emit(rlcPduPacketLoss_, tSample_);
+        }
+        else
+        {
+            ue->emit(rlcPduPacketLossD2D_, tSample_);
+        }
 
         lastPduReassembled_++;
     }
@@ -508,7 +661,14 @@ void UmRxEntity::reassemble(unsigned int index)
 
     // emit statistic: packet loss
     tSample_->sample_ = 0;
-    ue->emit(rlcPduPacketLoss_, tSample_);
+    if (lteInfo->getDirection() != D2D && lteInfo->getDirection() != D2D_MULTI)  // UE in IM
+    {
+        ue->emit(rlcPduPacketLoss_, tSample_);
+    }
+    else
+    {
+        ue->emit(rlcPduPacketLossD2D_, tSample_);
+    }
 
     delete lteInfo;
     delete pdu;
@@ -520,7 +680,9 @@ void UmRxEntity::reassemble(unsigned int index)
 
 void UmRxEntity::initialize()
 {
+    binder_ = getBinder();
     timeout_ = par("timeout").doubleValue();
+    rxWindowDesc_.clear();
     rxWindowDesc_.windowSize_ = par("rxWindowSize");
     received_.resize(rxWindowDesc_.windowSize_);
 
@@ -536,6 +698,8 @@ void UmRxEntity::initialize()
     tSampleCell_->id_ = mac->getMacCellId();
     tSampleCell_->module_ = nodeB_;
 
+    resetFlag_ = false;
+
     if (mac->getNodeType() == ENODEB)
     {
         rlcCellPacketLoss_ = parent->registerSignal("rlcCellPacketLossUl");
@@ -546,6 +710,7 @@ void UmRxEntity::initialize()
         rlcPduDelay_ = parent->registerSignal("rlcPduDelayUl");
         rlcPduThroughput_ = parent->registerSignal("rlcPduThroughputUl");
         rlcCellThroughput_ = parent->registerSignal("rlcCellThroughputUl");
+        rlcPacketLossTotal_ = parent->registerSignal("rlcPacketLossTotal");
     }
     else // UE
     {
@@ -558,7 +723,21 @@ void UmRxEntity::initialize()
 
         rlcCellThroughput_ = nodeB_->registerSignal("rlcCellThroughputDl");
         rlcCellPacketLoss_ = nodeB_->registerSignal("rlcCellPacketLossDl");
+
+
     }
+
+    rlcPacketLossD2D_ = parent->registerSignal("rlcPacketLossD2D");
+    rlcPduPacketLossD2D_ = parent->registerSignal("rlcPduPacketLossD2D");
+    rlcDelayD2D_ = parent->registerSignal("rlcDelayD2D");
+    rlcThroughputD2D_ = parent->registerSignal("rlcThroughputD2D");
+    rlcPduDelayD2D_ = parent->registerSignal("rlcPduDelayD2D");
+    rlcPduThroughputD2D_ = parent->registerSignal("rlcPduThroughputD2D");
+
+    rlcPacketLossTotal_ = parent->registerSignal("rlcPacketLossTotal");
+
+    // store the node id of the owner module (useful for statistics)
+    ownerNodeId_ = mac->getMacNodeId();
 
     WATCH(timeout_);
 }

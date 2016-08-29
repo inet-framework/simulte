@@ -45,7 +45,6 @@ LteMacEnbExperimental::~LteMacEnbExperimental()
 
 void LteMacEnbExperimental::initialize(int stage)
 {
-    LteMacBase::initialize(stage);
     if (stage == 0)
     {
         // check the RLC module type: if it is not "experimental", abort simulation
@@ -54,16 +53,6 @@ void LteMacEnbExperimental::initialize(int stage)
         if (rlcUmType.compare("LteRlcUmExperimental") != 0)
             throw cRuntimeError("LteMacEnbExperimental::initialize - %s module found, must be LteRlcUmExperimental. Aborting", rlcUmType.c_str());
 
-        // TODO: read NED parameters, when will be present
-        deployer_ = getDeployer();
-        /* Get num RB Dl */
-        numRbDl_ = deployer_->getNumRbDl();
-        /* Get num RB Ul */
-        numRbUl_ = deployer_->getNumRbUl();
-
-        /* Get number of antennas */
-        numAntennas_ = getNumAntennas();
-
         /* Create and initialize MAC Downlink scheduler */
         enbSchedulerDl_ = new LteSchedulerEnbDlExperimental();
         enbSchedulerDl_->initialize(DL, this);
@@ -71,56 +60,8 @@ void LteMacEnbExperimental::initialize(int stage)
         /* Create and initialize MAC Uplink scheduler */
         enbSchedulerUl_ = new LteSchedulerEnbUl();
         enbSchedulerUl_->initialize(UL, this);
-
-        //Initialize the current sub frame type with the first subframe of the MBSFN pattern
-        currentSubFrameType_ = NORMAL_FRAME_TYPE;
-
-        tSample_ = new TaggedSample();
-        activatedFrames_ = registerSignal("activatedFrames");
-        sleepFrames_ = registerSignal("sleepFrames");
-        wastedFrames_ = registerSignal("wastedFrames");
-        cqiDlMuMimo0_ = registerSignal("cqiDlMuMimo0");
-        cqiDlMuMimo1_ = registerSignal("cqiDlMuMimo1");
-        cqiDlMuMimo2_ = registerSignal("cqiDlMuMimo2");
-        cqiDlMuMimo3_ = registerSignal("cqiDlMuMimo3");
-        cqiDlMuMimo4_ = registerSignal("cqiDlMuMimo4");
-
-        cqiDlTxDiv0_ = registerSignal("cqiDlTxDiv0");
-        cqiDlTxDiv1_ = registerSignal("cqiDlTxDiv1");
-        cqiDlTxDiv2_ = registerSignal("cqiDlTxDiv2");
-        cqiDlTxDiv3_ = registerSignal("cqiDlTxDiv3");
-        cqiDlTxDiv4_ = registerSignal("cqiDlTxDiv4");
-
-        cqiDlSpmux0_ = registerSignal("cqiDlSpmux0");
-        cqiDlSpmux1_ = registerSignal("cqiDlSpmux1");
-        cqiDlSpmux2_ = registerSignal("cqiDlSpmux2");
-        cqiDlSpmux3_ = registerSignal("cqiDlSpmux3");
-        cqiDlSpmux4_ = registerSignal("cqiDlSpmux4");
-
-        cqiDlSiso0_ = registerSignal("cqiDlSiso0");
-        cqiDlSiso1_ = registerSignal("cqiDlSiso1");
-        cqiDlSiso2_ = registerSignal("cqiDlSiso2");
-        cqiDlSiso3_ = registerSignal("cqiDlSiso3");
-        cqiDlSiso4_ = registerSignal("cqiDlSiso4");
-
-        tSample_->module_ = check_and_cast<cComponent*>(this);
-        tSample_->id_ = nodeId_;
-        WATCH(numAntennas_);
-        WATCH_MAP(bsrbuf_);
     }
-    else if (stage == 1)
-    {
-        /* Create and initialize AMC module */
-        amc_ = new LteAmc(this, binder_, deployer_, numAntennas_);
-
-        /* Insert EnbInfo in the Binder */
-        EnbInfo* info = new EnbInfo();
-        info->id = nodeId_;            // local mac ID
-        info->type = MACRO_ENB;        // eNb Type
-        info->init = false;            // flag for phy initialization
-        info->eNodeB = this->getParentModule()->getParentModule();  // reference to the eNodeB module
-        binder_->addEnbInfo(info);
-    }
+    LteMacEnb::initialize(stage);
 }
 
 void LteMacEnbExperimental::handleMessage(cMessage* msg)
@@ -172,7 +113,7 @@ void LteMacEnbExperimental::macSduRequest()
     EV << "------ END LteMacEnbExperimental::macSduRequest ------\n";
 }
 
-void LteMacEnbExperimental::macPduMake()
+void LteMacEnbExperimental::macPduMake(MacCid cid)
 {
     EV << "----- START LteMacEnbExperimental::macPduMake -----\n";
     // Finalizes the scheduling decisions according to the schedule list,
@@ -187,10 +128,18 @@ void LteMacEnbExperimental::macPduMake()
         LteMacPdu* macPkt;
         cPacket* pkt;
         MacCid destCid = it->first.first;
+
+        if (destCid != cid)
+            continue;
+
+        // check whether the RLC has sent some data. If not, skip
+        // (e.g. because the size of the MAC PDU would contain only MAC header - MAC SDU requested size = 0B)
+        if (mbuf_[destCid]->getQueueLength() == 0)
+            break;
+
         Codeword cw = it->first.second;
         MacNodeId destId = MacCidToNodeId(destCid);
-        std::pair<MacNodeId, Codeword> pktId = std::pair<MacNodeId, Codeword>(
-            destId, cw);
+        std::pair<MacNodeId, Codeword> pktId = std::pair<MacNodeId, Codeword>(destId, cw);
         unsigned int sduPerCid = it->second;
         unsigned int grantedBlocks = 0;
         TxMode txmode;
@@ -299,6 +248,9 @@ void LteMacEnbExperimental::macPduMake()
 
 bool LteMacEnbExperimental::bufferizePacket(cPacket* pkt)
 {
+    if (pkt->getByteLength() == 0)
+        return false;
+
     pkt->setTimestamp();        // Add timestamp with current time to packet
 
     FlowControlInfo* lteInfo = check_and_cast<FlowControlInfo*>(pkt->getControlInfo());
@@ -397,8 +349,6 @@ void LteMacEnbExperimental::handleUpperMessage(cPacket* pkt)
     FlowControlInfo* lteInfo = check_and_cast<FlowControlInfo*>(pkt->getControlInfo());
     MacCid cid = idToMacCid(lteInfo->getDestId(), lteInfo->getLcid());
 
-    bool ret = false;
-
     if (bufferizePacket(pkt))
     {
         enbSchedulerDl_->backlog(cid);
@@ -407,9 +357,10 @@ void LteMacEnbExperimental::handleUpperMessage(cPacket* pkt)
     if (strcmp(pkt->getName(), "lteRlcFragment") == 0)
     {
         // new MAC SDU has been received
-
-        // creates pdus from schedule list and puts them in harq buffers
-        macPduMake();
+        if (pkt->getByteLength() == 0)
+            delete pkt;
+        else         // creates pdus from schedule list and puts them in harq buffers
+            macPduMake(cid);
     }
     else
     {

@@ -61,6 +61,38 @@ public:
             dropAndDelete(*sit);
     }
 
+    LteRlcDataPdu(const LteRlcDataPdu& other) : LteRlcDataPdu_Base()
+    {
+        operator=(other);
+    }
+
+    LteRlcDataPdu& operator=(const LteRlcDataPdu& other)
+    {
+        if (&other == this)
+            return *this;
+        LteRlcDataPdu_Base::operator=(other);
+
+        // "the copy constructor of a container should dup() the owned objects and take() the copies"
+        sduList_.clear();
+        RlcSduList::const_iterator sit;
+        for (sit = other.sduList_.begin(); sit != other.sduList_.end(); ++sit)
+        {
+            cPacket* newPkt = (*sit)->dup();
+            take(newPkt);
+            sduList_.push_back(newPkt);
+        }
+        numSdu_ = other.numSdu_;
+        fi_ = other.fi_;
+        pduSequenceNumber_ = other.pduSequenceNumber_;
+        rlcPduLength_ = other.rlcPduLength_;
+        return *this;
+    }
+
+    virtual LteRlcDataPdu *dup() const
+    {
+        return new LteRlcDataPdu(*this);
+    }
+
     void setPduSequenceNumber(unsigned int sno);
     unsigned int getPduSequenceNumber();
 
@@ -119,6 +151,24 @@ public:
     }
 
     virtual ~LteRlcUmDataPdu() {}
+
+    LteRlcUmDataPdu(const LteRlcUmDataPdu& other) : LteRlcDataPdu()
+    {
+        operator=(other);
+    }
+
+    LteRlcUmDataPdu& operator=(const LteRlcUmDataPdu& other)
+    {
+        if (&other == this)
+            return *this;
+        LteRlcDataPdu::operator=(other);
+        return *this;
+    }
+
+    virtual LteRlcUmDataPdu *dup() const
+    {
+        return new LteRlcUmDataPdu(*this);
+    }
 };
 
 /**
