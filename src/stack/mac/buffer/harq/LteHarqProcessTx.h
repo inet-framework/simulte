@@ -50,6 +50,10 @@ class LteHarqProcessTx
     /// Number of selected units inside this process
     unsigned int numSelected_;
 
+    /// Set this flag when a handover or a D2D switch occurs, so that the HARQ process was interrupted.
+    /// This is useful in case the process receives a feedback after reset.
+    bool dropped_;
+
   public:
 
     /*
@@ -169,7 +173,7 @@ class LteHarqProcessTx
     int64 getPduLength(Codeword cw);
     simtime_t getTxTime(Codeword cw);
     bool isUnitMarked(Codeword cw);
-
+    bool isDropped();
     virtual ~LteHarqProcessTx();
 
   protected:

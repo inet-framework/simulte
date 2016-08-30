@@ -278,10 +278,9 @@ void LteMacEnbD2D::deleteRxHarqBufferMirror(MacNodeId id)
     for(; it != et;)
     {
         // get current nodeIDs
-        MacNodeId senderId = it->second->peerId_; // Transmitter
         MacNodeId destId = it->first;             // Receiver
 
-        if (senderId == id || destId == id)
+        if (destId == id)
         {
             it = harqRxBuffersD2DMirror_.erase(it);
         }
@@ -297,17 +296,33 @@ void LteMacEnbD2D::sendModeSwitchNotification(MacNodeId srcId, MacNodeId dstId, 
 {
     Enter_Method("sendModeSwitchNotification");
 
-    D2DModeSwitchNotification* switchPkt = new D2DModeSwitchNotification("D2DModeSwitchNotification");
-    switchPkt->setPeerId(dstId);
-    switchPkt->setOldMode(oldMode);
-    switchPkt->setNewMode(newMode);
+    // send switch notification to both the tx and rx side of the flow
 
-    UserControlInfo* uinfo = new UserControlInfo();
-    uinfo->setSourceId(nodeId_);
-    uinfo->setDestId(srcId);
-    uinfo->setFrameType(D2DMODESWITCHPKT);
-    switchPkt->setControlInfo(uinfo);
+    D2DModeSwitchNotification* switchPktTx = new D2DModeSwitchNotification("D2DModeSwitchNotification");
+    switchPktTx->setTxSide(true);
+    switchPktTx->setPeerId(dstId);
+    switchPktTx->setOldMode(oldMode);
+    switchPktTx->setNewMode(newMode);
+
+    D2DModeSwitchNotification* switchPktRx = new D2DModeSwitchNotification("D2DModeSwitchNotification");
+    switchPktRx->setTxSide(false);
+    switchPktRx->setPeerId(srcId);
+    switchPktRx->setOldMode(oldMode);
+    switchPktRx->setNewMode(newMode);
+
+    UserControlInfo* uinfoTx = new UserControlInfo();
+    uinfoTx->setSourceId(nodeId_);
+    uinfoTx->setDestId(srcId);
+    uinfoTx->setFrameType(D2DMODESWITCHPKT);
+    switchPktTx->setControlInfo(uinfoTx);
+
+    UserControlInfo* uinfoRx = new UserControlInfo();
+    uinfoRx->setSourceId(nodeId_);
+    uinfoRx->setDestId(dstId);
+    uinfoRx->setFrameType(D2DMODESWITCHPKT);
+    switchPktRx->setControlInfo(uinfoRx);
 
     // send pkt to PHY layer
-    sendLowerPackets(switchPkt);
+    sendLowerPackets(switchPktTx);
+    sendLowerPackets(switchPktRx);
 }

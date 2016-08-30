@@ -16,6 +16,7 @@ class noncobject LteD2DMode;
 packet D2DModeSwitchNotification
 {
     unsigned int peerId;
+    bool txSide;
     LteD2DMode oldMode;
     LteD2DMode newMode;
 }

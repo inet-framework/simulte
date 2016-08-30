@@ -19,6 +19,7 @@ LteHarqProcessTx::LteHarqProcessTx(unsigned char acid, unsigned int numUnits, un
     numProcesses_ = numProcesses;
     numEmptyUnits_ = numUnits; //++ @ insert, -- @ unit reset (ack or fourth nack)
     numSelected_ = 0; //++ @ markSelected and insert, -- @ extract/sendDown
+    dropped_ = false;
 
     // H-ARQ unit istances
     for (unsigned int i = 0; i < numHarqUnits_; i++)
@@ -45,6 +46,7 @@ void LteHarqProcessTx::insertPdu(LteMacPdu *pdu, Codeword cw)
     numEmptyUnits_--;
     numSelected_++;
     (*units_)[cw]->insertPdu(pdu);
+    dropped_ = false;
 }
 
 void LteHarqProcessTx::markSelected(Codeword cw)
@@ -194,6 +196,7 @@ void LteHarqProcessTx::forceDropProcess()
     }
     numEmptyUnits_ = numHarqUnits_;
     numSelected_ = 0;
+    dropped_ = true;
 }
 
 bool LteHarqProcessTx::forceDropUnit(Codeword cw)
@@ -247,6 +250,11 @@ simtime_t LteHarqProcessTx::getTxTime(Codeword cw)
 bool LteHarqProcessTx::isUnitMarked(Codeword cw)
 {
     return (*units_)[cw]->isMarked();
+}
+
+bool LteHarqProcessTx::isDropped()
+{
+    return dropped_;
 }
 
 LteHarqProcessTx::~LteHarqProcessTx()

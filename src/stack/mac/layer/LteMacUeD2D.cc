@@ -613,6 +613,7 @@ void LteMacUeD2D::macHandleD2DModeSwitch(cPacket* pkt)
     // here, all data in the MAC buffers of the connection to be switched are deleted
 
     D2DModeSwitchNotification* switchPkt = check_and_cast<D2DModeSwitchNotification*>(pkt);
+    bool txSide = switchPkt->getTxSide();
     MacNodeId peerId = switchPkt->getPeerId();
     LteD2DMode newMode = switchPkt->getNewMode();
     LteD2DMode oldMode = switchPkt->getOldMode();
@@ -621,102 +622,106 @@ void LteMacUeD2D::macHandleD2DModeSwitch(cPacket* pkt)
 
     UserControlInfo* uInfo = check_and_cast<UserControlInfo*>(pkt->removeControlInfo());
 
-    // find the correct connection involved in the mode switch
-    MacCid cid;
-    FlowControlInfo* lteInfo = NULL;
-    std::map<MacCid, FlowControlInfo>::iterator it = connDesc_.begin();
-    for (; it != connDesc_.end(); )
+    if (txSide)
     {
-        cid = it->first;
-        lteInfo = check_and_cast<FlowControlInfo*>(&(it->second));
-        if (lteInfo->getD2dPeerId() == peerId && (Direction)lteInfo->getDirection() == oldDirection)
+        // find the correct connection involved in the mode switch
+        MacCid cid;
+        FlowControlInfo* lteInfo = NULL;
+        std::map<MacCid, FlowControlInfo>::iterator it = connDesc_.begin();
+        for (; it != connDesc_.end(); )
         {
-            EV << NOW << " LteMacUeD2D::macHandleD2DModeSwitch - found connection with cid " << cid << ", erasing buffered data" << endl;
-            if (oldDirection != newDirection)
+            cid = it->first;
+            lteInfo = check_and_cast<FlowControlInfo*>(&(it->second));
+            if (lteInfo->getD2dPeerId() == peerId && (Direction)lteInfo->getDirection() == oldDirection)
             {
-                // empty virtual buffer for the selected cid
-                if (macBuffers_.find(cid) != macBuffers_.end())
+                EV << NOW << " LteMacUeD2D::macHandleD2DModeSwitch - found connection with cid " << cid << ", erasing buffered data" << endl;
+                if (oldDirection != newDirection)
                 {
-                    LteMacBuffer* vQueue = macBuffers_.at(cid);
-                    while (!vQueue->isEmpty())
-                        vQueue->popFront();
-                }
-
-                // empty real buffer for the selected cid (they should be already empty)
-                if (mbuf_.find(cid) != mbuf_.end())
-                {
-                    LteMacQueue* buf = mbuf_.at(cid);
-                    while (buf->getQueueLength() > 0)
+                    // empty virtual buffer for the selected cid
+                    LteMacBufferMap::iterator macBuff_it = macBuffers_.find(cid);
+                    if (macBuff_it != macBuffers_.end())
                     {
-                        cPacket* pdu = buf->popFront();
-                        delete pdu;
+                        while (!(macBuff_it->second->isEmpty()))
+                            macBuff_it->second->popFront();
+                        macBuffers_.erase(macBuff_it);
+                    }
+
+                    // empty real buffer for the selected cid (they should be already empty)
+                    LteMacBuffers::iterator mBuf_it = mbuf_.find(cid);
+                    if (mBuf_it != mbuf_.end())
+                    {
+                        while (mBuf_it->second->getQueueLength() > 0)
+                        {
+                            cPacket* pdu = mBuf_it->second->popFront();
+                            delete pdu;
+                        }
+                        delete mBuf_it->second;
+                        mbuf_.erase(mBuf_it);
+                    }
+
+                    // interrupt H-ARQ processes
+                    HarqTxBuffers::iterator hit = harqTxBuffers_.find(peerId);
+                    if (hit != harqTxBuffers_.end())
+                    {
+                        for (int proc = 0; proc < (unsigned int) UE_TX_HARQ_PROCESSES; proc++)
+                        {
+                            hit->second->forceDropProcess(proc);
+                        }
                     }
                 }
 
-                // delete H-ARQ buffers
-                HarqTxBuffers::iterator hit;
-                for (hit = harqTxBuffers_.begin(); hit != harqTxBuffers_.end(); )
+                pkt->setControlInfo(lteInfo->dup());
+                sendUpperPackets(pkt->dup());
+
+                if (oldDirection != newDirection)
                 {
-                    if (hit->first == peerId)
+                    // remove connection descriptor
+                    it = connDesc_.erase(it);
+
+                    // remove entry from lcgMap
+                    LcgMap::iterator lt = lcgMap_.begin();
+                    for (; lt != lcgMap_.end(); )
                     {
-                        delete hit->second; // Delete Queue
-                        hit = harqTxBuffers_.erase(hit); // Delete Elem
-                    }
-                    else
-                    {
-                        ++hit;
+                        if (lt->second.first == cid)
+                        {
+                            lt = lcgMap_.erase(lt);
+                        }
+                        else
+                        {
+                            ++lt;
+                        }
                     }
                 }
-                HarqRxBuffers::iterator hit2;
-                for (hit2 = harqRxBuffers_.begin(); hit2 != harqRxBuffers_.end();)
+                else
                 {
-                     if (hit2->first == peerId)
-                     {
-                         delete hit2->second; // Delete Queue
-                         hit2 = harqRxBuffers_.erase(hit2); // Delete Elem
-                     }
-                     else
-                     {
-                         ++hit2;
-                     }
+                    ++it;
                 }
 
-                enb_->deleteRxHarqBufferMirror(nodeId_);
-            }
-
-            pkt->setControlInfo(lteInfo->dup());
-            sendUpperPackets(pkt->dup());
-
-            if (oldDirection != newDirection)
-            {
-                // remove connection descriptor
-                it = connDesc_.erase(it);
-
-                // remove entry from lcgMap
-                LcgMap::iterator lt = lcgMap_.begin();
-                for (; lt != lcgMap_.end(); )
-                {
-                    if (lt->second.first == cid)
-                    {
-                        lt = lcgMap_.erase(lt);
-                    }
-                    else
-                    {
-                        ++lt;
-                    }
-                }
+                EV << NOW << " LteMacUeD2D::macHandleD2DModeSwitch - send switch signal to the RLC TX entity corresponding to the old mode, cid " << cid << endl;
             }
             else
             {
                 ++it;
             }
-
-            EV << NOW << " LteMacUeD2D::macHandleD2DModeSwitch - send switch signal to the RLC TX entity corresponding to the old mode, cid " << cid << endl;
         }
-        else
+    }
+    else   // rx side
+    {
+        // interrupt H-ARQ processes
+        HarqRxBuffers::iterator hit = harqRxBuffers_.find(peerId);
+        if (hit != harqRxBuffers_.end())
         {
-            ++it;
+            for (unsigned int proc = 0; proc < (unsigned int) UE_RX_HARQ_PROCESSES; proc++)
+            {
+                unsigned int numUnits = hit->second->getProcess(proc)->getNumHarqUnits();
+                for (unsigned int i=0; i < numUnits; i++)
+                {
+                    hit->second->getProcess(proc)->purgeCorruptedPdu(i); // delete contained PDU
+                    hit->second->getProcess(proc)->resetCodeword(i);     // reset unit
+                }
+            }
         }
+        enb_->deleteRxHarqBufferMirror(nodeId_);
     }
 
     delete uInfo;
