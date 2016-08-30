@@ -165,6 +165,16 @@ simple LteRlcUmExperimental extends LteRlcUm{
 }
 
 // 
+// UM Module (experimental) for the RLC layer of LTE Stack (with D2D).
+//
+simple LteRlcUmExperimentalD2D extends LteRlcUm
+{
+    parameters:
+        @class("LteRlcUmExperimentalD2D");
+        @display("i=block/wheelbarrow");
+}
+
+// 
 // AM Module for the RLC layer of LTE Stack.
 //
 simple LteRlcAm {

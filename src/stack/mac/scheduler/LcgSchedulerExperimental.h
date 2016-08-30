@@ -34,8 +34,7 @@ class LcgSchedulerExperimental : public LcgScheduler
      * @param availableBytes
      * @return # of scheduled sdus per cid
      */
-    virtual ScheduleList& schedule(unsigned int availableBytes);
-
+    virtual ScheduleList& schedule(unsigned int availableBytes, Direction grantDir = UL);
 };
 #endif
 

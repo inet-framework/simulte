@@ -50,7 +50,8 @@ void LteMacEnbExperimental::initialize(int stage)
         // check the RLC module type: if it is not "experimental", abort simulation
         // TODO do the same for RLC AM
         std::string rlcUmType = getParentModule()->getSubmodule("rlc")->par("LteRlcUmType").stdstringValue();
-        if (rlcUmType.compare("LteRlcUmExperimental") != 0)
+        std::string macType = getParentModule()->par("LteMacType").stdstringValue();
+        if (macType.compare("LteMacEnbExperimental") == 0 && rlcUmType.compare("LteRlcUmExperimental") != 0)
             throw cRuntimeError("LteMacEnbExperimental::initialize - %s module found, must be LteRlcUmExperimental. Aborting", rlcUmType.c_str());
 
         /* Create and initialize MAC Downlink scheduler */

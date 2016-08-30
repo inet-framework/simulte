@@ -70,8 +70,6 @@ class LteRlcUmExperimental : public LteRlcUm
     {
     }
 
-  private:
-
     /**
      * getTxBuffer() is used by the sender to gather the TXBuffer
      * for that CID. If TXBuffer was already present, a reference

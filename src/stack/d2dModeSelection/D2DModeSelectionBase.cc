@@ -44,7 +44,7 @@ void D2DModeSelectionBase::handleMessage(cMessage *msg)
             // run mode selection algorithm
             doModeSelection();
 
-            // send switch notifications to selected flows (to the transmitter of the flow)
+            // send switch notifications to selected flows
             sendModeSwitchNotifications();
 
             scheduleAt(NOW+modeSelectionPeriod_, msg);

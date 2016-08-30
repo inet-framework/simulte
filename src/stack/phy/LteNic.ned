@@ -129,7 +129,7 @@ module LteNicUeD2D extends LteNicBase
 {
     parameters:
         LtePdcpRrcType = "LtePdcpRrcUeD2D";
-        LteMacType = "LteMacUeD2D";
+        LteMacType = default("LteMacUeD2D");
         LtePhyType = "LtePhyUeD2D";
 
         string d2dPeerAddresses = default("");  // list of D2D peer UEs, separated by blank spaces
@@ -199,7 +199,7 @@ module LteNicEnbD2D extends LteNicBase
 {
     parameters:
         LtePdcpRrcType = "LtePdcpRrcEnb";
-        LteMacType = "LteMacEnbD2D";
+        LteMacType = default("LteMacEnbD2D");
         LtePhyType = "LtePhyEnbD2D";
         bool compEnabled = default(false);
         string LteCompManagerType = default("LteCompManagerProportional");

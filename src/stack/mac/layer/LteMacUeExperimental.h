@@ -43,7 +43,7 @@ class LteMacUeExperimental : public LteMacUe
      * requesting MAC SDUs (one for each CID),
      * according to the Schedule List.
      */
-    virtual void macSduRequest();
+    virtual bool macSduRequest();
 
     /**
      * macPduMake() creates MAC PDUs (one for each CID)

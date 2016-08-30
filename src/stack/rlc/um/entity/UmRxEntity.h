@@ -45,6 +45,9 @@ class UmRxEntity : public cSimpleModule
     void setFlowControlInfo(FlowControlInfo* lteInfo) { flowControlInfo_ = lteInfo; }
     FlowControlInfo* getFlowControlInfo() { return flowControlInfo_; }
 
+    // called when a D2D mode switch is triggered
+    void rlcHandleD2DModeSwitch();
+
   protected:
 
     /**

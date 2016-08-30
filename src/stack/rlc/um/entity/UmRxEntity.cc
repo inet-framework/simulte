@@ -778,3 +778,34 @@ void UmRxEntity::handleMessage(cMessage* msg)
 
     }
 }
+
+void UmRxEntity::rlcHandleD2DModeSwitch()
+{
+    EV << NOW << " UmRxEntity::rlcHandleD2DModeSwitch - clear RX buffer of the RLC entity associated to the old mode" << endl;
+
+    for (unsigned int i = 0; i < rxWindowDesc_.windowSize_; i++)
+    {
+        // try to reassemble
+        reassemble(i);
+    }
+
+    // clear the buffer
+    pduBuffer_.clear();
+
+    for (unsigned int i=0; i<received_.size(); i++)
+    {
+        received_[i] = false;
+    }
+
+    if (buffered_ != NULL)
+    {
+        delete buffered_;
+        buffered_ = NULL;
+    }
+
+    // stop the timer
+    if (t_reordering_.busy())
+        t_reordering_.stop();
+
+    // do not reset the descriptor of the rx window
+}

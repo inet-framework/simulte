@@ -22,7 +22,7 @@ LcgSchedulerExperimental::~LcgSchedulerExperimental()
 }
 
 ScheduleList&
-LcgSchedulerExperimental::schedule(unsigned int availableBytes)
+LcgSchedulerExperimental::schedule(unsigned int availableBytes, Direction grantDir)
 {
     /* clean up old schedule decisions
      for each cid, this map will store the the amount of sent data (in SDUs)
@@ -89,11 +89,15 @@ LcgSchedulerExperimental::schedule(unsigned int availableBytes)
             FlowControlInfo connDesc = mac_->getConnDesc().at(cid);
             // TODO get the QoS parameters
 
+            // connection must have the same direction of the grant
+            if (connDesc.getDirection() != grantDir)
+                continue;
+
             unsigned int toServe = queueLength;
             // Check whether the virtual buffer is empty
             if (queueLength == 0)
             {
-                EV << "LcgSchedulerExperimentalExperimental::schedule scheduled connection is no more active " << endl;
+                EV << "LcgSchedulerExperimental::schedule scheduled connection is no more active " << endl;
                 continue; // go to next connection
             }
             else
@@ -205,9 +209,26 @@ LcgSchedulerExperimental::schedule(unsigned int availableBytes)
                     // update the tracing element
                     elem->occupancy_ = vQueue->getQueueOccupancy();
                     elem->sentData_ += toServe;
-                    elem->sentSdus_++;
+
+                    // check if there is space for a SDU
+                    int alloc = toServe;
+                    alloc -= MAC_HEADER;
+                    if (connDesc.getRlcType() == UM)
+                        alloc -= RLC_HEADER_UM;
+                    else if (connDesc.getRlcType() == AM)
+                        alloc -= RLC_HEADER_AM;
+
+                    if (alloc > 0)
+                        elem->sentSdus_++;
 
                     availableBytes -= toServe;
+
+                    while (!vQueue->isEmpty())
+                    {
+                        // remove SDUs from virtual buffer
+                        vQueue->popFront();
+                    }
+
                     toServe = 0;
 
                     EV << NOW << " LcgSchedulerExperimental::schedule - Node " << mac_->getMacNodeId() << ",  SDU of size " << elem->sentData_ << " selected for transmission" << endl;
@@ -228,15 +249,38 @@ LcgSchedulerExperimental::schedule(unsigned int availableBytes)
                     // update the tracing element
                     elem->occupancy_ = vQueue->getQueueOccupancy();
                     elem->sentData_ += availableBytes;
-                    elem->sentSdus_++;
+
+                    int alloc = availableBytes;
+                    alloc -= MAC_HEADER;
+                    if (connDesc.getRlcType() == UM)
+                        alloc -= RLC_HEADER_UM;
+                    else if (connDesc.getRlcType() == AM)
+                        alloc -= RLC_HEADER_AM;
+
+                    // check if there is space for a SDU
+                    if (alloc > 0)
+                        elem->sentSdus_++;
+
+                    // update buffer
+                    while (alloc > 0)
+                    {
+                        // update pkt info
+                        PacketInfo newPktInfo = vQueue->popFront();
+                        if (newPktInfo.first > alloc)
+                        {
+                            newPktInfo.first = newPktInfo.first - alloc;
+                            vQueue->pushFront(newPktInfo);
+                            alloc = 0;
+                        }
+                        else
+                        {
+                            alloc -= newPktInfo.first;
+                        }
+
+                    }
 
                     toServe -= availableBytes;
                     availableBytes = 0;
-
-                    // update pkt info
-                    PacketInfo newPktInfo = vQueue->popFront();
-                    newPktInfo.first = newPktInfo.first - availableBytes;
-                    vQueue->pushFront(newPktInfo);
 
                     EV << NOW << " LcgSchedulerExperimental::schedule - Node " << mac_->getMacNodeId() << ",  SDU of size " << elem->sentData_ << " selected for transmission" << endl;
                     EV << NOW << " LcgSchedulerExperimental::schedule - Node " << mac_->getMacNodeId() << ", remaining grant: " << availableBytes << " bytes" << endl;

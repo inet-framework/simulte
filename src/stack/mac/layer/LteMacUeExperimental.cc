@@ -36,24 +36,15 @@ LteMacUeExperimental::~LteMacUeExperimental()
 
 void LteMacUeExperimental::initialize(int stage)
 {
-    LteMacBase::initialize(stage);
+    LteMacUe::initialize(stage);
     if (stage == 0)
     {
         // check the RLC module type: if it is not "experimental", abort simulation
         // TODO do the same for RLC AM
         std::string rlcUmType = getParentModule()->getSubmodule("rlc")->par("LteRlcUmType").stdstringValue();
-        if (rlcUmType.compare("LteRlcUmExperimental") != 0)
+        std::string macType = getParentModule()->par("LteMacType").stdstringValue();
+        if (macType.compare("LteMacUeExperimental") == 0 &&  rlcUmType.compare("LteRlcUmExperimental") != 0)
             throw cRuntimeError("LteMacUeExperimental::initialize - %s module found, must be LteRlcUmExperimental. Aborting", rlcUmType.c_str());
-
-        lcgScheduler_ = new LteSchedulerUeUl(this);
-    }
-    else if (stage == 3)
-    {
-        // find interface entry and use its address
-        IInterfaceTable *interfaceTable = InterfaceTableAccess().get();
-        // TODO: how do we find the LTE interface?
-        InterfaceEntry * interfaceEntry = interfaceTable->getInterfaceByName("wlan");
-        binder_->setMacNodeId(interfaceEntry->ipv4Data()->getIPAddress(), nodeId_);
     }
 }
 
@@ -72,10 +63,10 @@ void LteMacUeExperimental::handleMessage(cMessage* msg)
     LteMacBase::handleMessage(msg);
 }
 
-void LteMacUeExperimental::macSduRequest()
+bool LteMacUeExperimental::macSduRequest()
 {
     EV << "----- START LteMacUeExperimental::macSduRequest -----\n";
-
+    bool sent = false;
     // Ask for a MAC sdu for each scheduled user on each codeword
     LteMacScheduleList::const_iterator it;
     for (it = scheduleList_->begin(); it != scheduleList_->end(); it++)
@@ -94,9 +85,12 @@ void LteMacUeExperimental::macSduRequest()
         macSduRequest->setSduSize(allocatedBytes - MAC_HEADER);    // do not consider MAC header size
         macSduRequest->setControlInfo((&connDesc_[destCid])->dup());
         sendUpperPackets(macSduRequest);
+
+        sent = true;
     }
 
     EV << "------ END LteMacUeExperimental::macSduRequest ------\n";
+    return sent;
 }
 
 void LteMacUeExperimental::macPduMake()
@@ -387,7 +381,7 @@ bool LteMacUeExperimental::bufferizePacket(cPacket* pkt)
         }
 
         EV << "LteMacBuffers : Using old buffer on node: " <<
-        MacCidToNodeId(cid) << " for Lcid: " << MacCidToLcid(cid) << ", Space left in the Queue: " <<
+        MacCidToNodeId(cid) << " for Lcid: " << MacCidToLcid(cid) << "(cid: " << cid << "), Space left in the Queue: " <<
         queue->getQueueSize() - queue->getByteLength() << "\n";
     }
 
@@ -483,6 +477,7 @@ void LteMacUeExperimental::handleSelfMessage()
         }
     }
 
+    bool requestSdu = false;
     if (schedulingGrant_!=NULL) // if a grant is configured
     {
         if(!firstTx)
@@ -547,7 +542,15 @@ void LteMacUeExperimental::handleSelfMessage()
         if(!retx)
         {
             scheduleList_ = lcgScheduler_->schedule();
-            macSduRequest();
+            bool sent = macSduRequest();
+
+            if (!sent)
+            {
+                // no data to send, but if bsrTriggered is set, send a BSR
+                macPduMake();
+            }
+
+            requestSdu = sent;
         }
 
         // Message that triggers flushing of Tx H-ARQ buffers for all users
@@ -596,8 +599,11 @@ void LteMacUeExperimental::handleSelfMessage()
     }
     EV << NOW << " LteMacUeExperimental::handleSelfMessage Purged " << purged << " PDUS" << endl;
 
-    // update current harq process id
-    currentHarq_ = (currentHarq_+1) % harqProcesses_;
+    if (!requestSdu)
+    {
+        // update current harq process id
+        currentHarq_ = (currentHarq_+1) % harqProcesses_;
+    }
 
     EV << "--- END UE MAIN LOOP ---" << endl;
 }

@@ -462,7 +462,7 @@ LteSummaryFeedback LteAmc::getFeedbackD2D(MacNodeId id, Remote antenna, TxMode t
 {
     MacNodeId nh = getNextHop(id);
     if (id != nh)
-        EV << NOW << " LteAmc::getFeedback detected " << nh << " as nexthop for " << id << "\n";
+        EV << NOW << " LteAmc::getFeedbackD2D detected " << nh << " as nexthop for " << id << "\n";
     id = nh;
 
     if (peerId == 0)

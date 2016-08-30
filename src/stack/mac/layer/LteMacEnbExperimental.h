@@ -73,6 +73,11 @@ class LteMacEnbExperimental : public LteMacEnb
     LteMacEnbExperimental();
     virtual ~LteMacEnbExperimental();
 
+    virtual bool isD2DCapable()
+    {
+        return false;
+    }
+
 };
 
 #endif

@@ -133,6 +133,19 @@ simple LteMacUeExperimental extends LteMacUe {
 }
 
 //
+// D2D-capable User Equipment MAC layer of LTE stack (Experimental)
+//
+simple LteMacUeExperimentalD2D extends LteMacUeExperimental
+{
+  parameters:
+    
+    @class("LteMacUeExperimentalD2D"); 
+    
+    bool usePreconfiguredTxParams = default(false);
+    int d2dCqi = default(7);
+}
+
+//
 // eNodeB MAC layer of LTE stack
 //
 simple LteMacEnb extends LteMacBase {
@@ -489,11 +502,24 @@ simple LteMacEnbD2D extends LteMacEnb
         int d2dCqi = default(7);
 }
       
-
+//
 // eNodeB MAC layer of LTE stack (Experimental)
 //
 simple LteMacEnbExperimental extends LteMacEnb {
     @class("LteMacEnbExperimental");
+}
+
+//
+// eNodeB MAC layer of LTE stack (Experimental) with support for D2D-capable UEs
+//
+simple LteMacEnbExperimentalD2D extends LteMacEnbExperimental
+{
+    parameters:
+        
+	@class("LteMacEnbExperimentalD2D");
+	
+	bool usePreconfiguredTxParams = default(false);
+    int d2dCqi = default(7);
 }
 
 //
