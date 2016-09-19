@@ -55,10 +55,14 @@ void LtePdcpRrcUeD2D::fromDataPort(cPacket *pkt)
         {
             // this way, we record the ID of the endpoint even if the connection is in IM
             // this is useful for mode switching
-            lteInfo->setD2dPeerId(destId);
+            lteInfo->setD2dTxPeerId(nodeId_);
+            lteInfo->setD2dRxPeerId(destId);
         }
         else
-            lteInfo->setD2dPeerId(0);
+        {
+            lteInfo->setD2dTxPeerId(0);
+            lteInfo->setD2dRxPeerId(0);
+        }
     }
 
     // Cid Request

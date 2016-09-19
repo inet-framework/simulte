@@ -12,14 +12,17 @@
 
 UserControlInfo::~UserControlInfo()
 {
-    if (userTxParams != 0)
+    if (userTxParams != NULL)
+    {
         delete userTxParams;
+        userTxParams = NULL;
+    }
 }
 
 UserControlInfo::UserControlInfo() :
     UserControlInfo_Base()
 {
-    userTxParams = 0;
+    userTxParams = NULL;
     grantedBlocks.clear();
 }
 
@@ -35,7 +38,7 @@ UserControlInfo& UserControlInfo::operator=(const UserControlInfo& other)
     }
     else
     {
-        this->userTxParams = 0;
+        this->userTxParams = NULL;
     }
     this->grantedBlocks = other.grantedBlocks;
     this->senderCoord = other.senderCoord;

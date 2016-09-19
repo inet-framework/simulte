@@ -52,7 +52,8 @@ class LteControlInfo {
     uint16 sourceId;                                     // Source MacNodeId
     uint16 destId;                                       // Destination MacNodeId
     unsigned short direction enum(Direction);            // Traffic Direction (UL, DL, D2D)
-    uint16 d2dPeerId;
+    uint16 d2dTxPeerId;
+    uint16 d2dRxPeerId;
 
     //# Traffic Control Information
 

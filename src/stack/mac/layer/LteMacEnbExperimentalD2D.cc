@@ -105,7 +105,9 @@ void LteMacEnbExperimentalD2D::macPduUnmake(cPacket* pkt)
 
         // store descriptor for the incoming connection, if not already stored
         FlowControlInfo* lteInfo = check_and_cast<FlowControlInfo*>(upPkt->getControlInfo());
-        MacCid cid = ctrlInfoToMacCid(lteInfo);
+        MacNodeId senderId = lteInfo->getSourceId();
+        LogicalCid lcid = lteInfo->getLcid();
+        MacCid cid = idToMacCid(senderId, lcid);
         if (connDescIn_.find(cid) == connDescIn_.end())
         {
             FlowControlInfo toStore(*lteInfo);
@@ -305,17 +307,51 @@ void LteMacEnbExperimentalD2D::sendModeSwitchNotification(MacNodeId srcId, MacNo
 {
     Enter_Method("sendModeSwitchNotification");
 
-    D2DModeSwitchNotification* switchPkt = new D2DModeSwitchNotification("D2DModeSwitchNotification");
-    switchPkt->setPeerId(dstId);
-    switchPkt->setOldMode(oldMode);
-    switchPkt->setNewMode(newMode);
+    // send switch notification to both the tx and rx side of the flow
+    D2DModeSwitchNotification* switchPktTx = new D2DModeSwitchNotification("D2DModeSwitchNotification");
+    switchPktTx->setTxSide(true);
+    switchPktTx->setPeerId(dstId);
+    switchPktTx->setOldMode(oldMode);
+    switchPktTx->setNewMode(newMode);
+    UserControlInfo* uinfoTx = new UserControlInfo();
+    uinfoTx->setSourceId(nodeId_);
+    uinfoTx->setDestId(srcId);
+    uinfoTx->setFrameType(D2DMODESWITCHPKT);
+    switchPktTx->setControlInfo(uinfoTx);
+    sendLowerPackets(switchPktTx);
 
-    UserControlInfo* uinfo = new UserControlInfo();
-    uinfo->setSourceId(nodeId_);
-    uinfo->setDestId(srcId);
-    uinfo->setFrameType(D2DMODESWITCHPKT);
-    switchPkt->setControlInfo(uinfo);
+    D2DModeSwitchNotification* switchPktRx = new D2DModeSwitchNotification("D2DModeSwitchNotification");
+    switchPktRx->setTxSide(false);
+    switchPktRx->setPeerId(srcId);
+    switchPktRx->setOldMode(oldMode);
+    switchPktRx->setNewMode(newMode);
+    UserControlInfo* uinfoRx = new UserControlInfo();
+    uinfoRx->setSourceId(nodeId_);
+    uinfoRx->setDestId(dstId);
+    uinfoRx->setFrameType(D2DMODESWITCHPKT);
+    switchPktRx->setControlInfo(uinfoRx);
+    sendLowerPackets(switchPktRx);
 
-    // send pkt to PHY layer
-    sendLowerPackets(switchPkt);
+    if (oldMode == IM)
+    {
+        // send signal also to the upper layers in the eNB
+
+        // get the incoming connection corresponding to the UL connection for the TX endpoint of the D2D flow
+        FlowControlInfo* lteInfo = NULL;
+        MacCid cid;
+        std::map<MacCid, FlowControlInfo>::iterator jt = connDescIn_.begin();
+        for (; jt != connDescIn_.end(); ++jt)
+        {
+            cid = jt->first;
+            lteInfo = check_and_cast<FlowControlInfo*>(&(jt->second));
+            if (MacCidToNodeId(cid) == srcId)
+            {
+                EV << NOW << " LteMacEnbExperimentalD2D::sendModeSwitchNotification - send signal for RX entity to upper layers in the eNB (cid=" << cid << ")" << endl;
+                D2DModeSwitchNotification* switchPkt = switchPktTx->dup();
+                switchPkt->setControlInfo(lteInfo->dup());
+                sendUpperPackets(switchPkt);
+                break;
+            }
+        }
+    }
 }

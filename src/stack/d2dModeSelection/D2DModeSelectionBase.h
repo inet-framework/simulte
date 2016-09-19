@@ -10,7 +10,7 @@
 #ifndef LTE_D2DMODESELECTIONBASE_H_
 #define LTE_D2DMODESELECTIONBASE_H_
 
-#include "LteMacEnbD2D.h"
+#include "LteMacEnb.h"
 
 //
 // D2DModeSelectionBase
@@ -37,7 +37,7 @@ protected:
     std::map<MacNodeId, std::map<MacNodeId, LteD2DMode> >* peeringModeMap_;
 
     // reference to the MAC layer
-    LteMacEnbD2D* mac_;
+    LteMacEnb* mac_;
 
     // reference to the binder
     LteBinder* binder_;

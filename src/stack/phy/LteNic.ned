@@ -198,7 +198,7 @@ module LteNicEnb extends LteNicBase
 module LteNicEnbD2D extends LteNicBase
 {
     parameters:
-        LtePdcpRrcType = "LtePdcpRrcEnb";
+        LtePdcpRrcType = "LtePdcpRrcEnbD2D";
         LteMacType = default("LteMacEnbD2D");
         LtePhyType = "LtePhyEnbD2D";
         bool compEnabled = default(false);

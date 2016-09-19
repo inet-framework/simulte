@@ -151,3 +151,15 @@ void UmTxEntity::removeDataFromQueue()
     cPacket* retPkt = sduQueue_.remove(pkt);
     delete retPkt;
 }
+
+void UmTxEntity::rlcHandleD2DModeSwitch()
+{
+    EV << NOW << " UmTxEntity::rlcHandleD2DModeSwitch - clear TX buffer of the RLC entity associated to the old mode" << endl;
+
+    // empty buffer
+    while (!sduQueue_.isEmpty())
+        delete sduQueue_.pop();
+
+    // reset variables except for sequence number
+    firstIsFragment_ = false;
+}

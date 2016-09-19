@@ -119,6 +119,7 @@ bool LteHarqUnitTx::pduFeedback(HarqAcknowledgment a)
     {
         // pdu_ has been sent and received correctly
         EV << "\t pdu_ has been sent and received correctly " << endl;
+        pdu_->removeControlInfo();
         delete pdu_;
         resetUnit();
         reset = true;
@@ -133,6 +134,7 @@ bool LteHarqUnitTx::pduFeedback(HarqAcknowledgment a)
             EV << NOW << " LteHarqUnitTx::pduFeedback H-ARQ process  " << (unsigned int)acid_ << " Codeword " << cw_ << " PDU "
                << pdu_->getId() << " discarded "
             "(max retransmissions reached) : " << maxHarqRtx_ << endl;
+            pdu_->removeControlInfo();
             delete pdu_;
             resetUnit();
             reset = true;

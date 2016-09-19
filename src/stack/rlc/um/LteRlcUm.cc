@@ -133,7 +133,8 @@ void LteRlcUm::handleLowerMessage(cPacket *pkt)
     {
         // Extract informations from fragment
         FlowControlInfo* lteInfo = check_and_cast<FlowControlInfo*>(pkt->getControlInfo());
-        UmRxQueue* rxbuf = getRxBuffer(ctrlInfoToUeId(lteInfo), lteInfo->getLcid());
+        MacNodeId nodeId = (lteInfo->getDirection() == DL) ? lteInfo->getDestId() : lteInfo->getSourceId();
+        UmRxQueue* rxbuf = getRxBuffer(nodeId, lteInfo->getLcid());
         drop(pkt);
 
         // Defragment packet

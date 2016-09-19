@@ -95,6 +95,13 @@ simple LtePdcpRrcEnb extends LtePdcpRrcBase {
 }
 
 //
+// D2D-capable eNodeB PDCP/RRC layer of LTE stack
+//
+simple LtePdcpRrcEnbD2D extends LtePdcpRrcEnb {
+    @class("LtePdcpRrcEnbD2D");
+}
+
+//
 // Relay (UE side) PDCP/RRC layer of LTE stack
 // Connection: eNodeB <--> Relay
 //

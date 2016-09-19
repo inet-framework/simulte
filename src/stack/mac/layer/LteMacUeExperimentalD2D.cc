@@ -168,7 +168,6 @@ void LteMacUeExperimentalD2D::macPduMake()
                 uinfo->setDestId(destId);
                 uinfo->setLcid(MacCidToLcid(destCid));
                 uinfo->setDirection(dir);
-                uinfo->setUserTxParams(schedulingGrant_->getUserTxParams());
                 uinfo->setLcid(MacCidToLcid(SHORT_BSR));
                 if (usePreconfiguredTxParams_)
                     uinfo->setUserTxParams(preconfiguredTxParams_->dup());
@@ -550,19 +549,20 @@ void LteMacUeExperimentalD2D::handleSelfMessage()
             currHarq = it2->second;
 
             // check if the current process has unit ready for retx
-            retx = currHarq->getProcess(currentHarq_)->hasReadyUnits();
+            bool ready = currHarq->getProcess(currentHarq_)->hasReadyUnits();
             CwList cwListRetx = currHarq->getProcess(currentHarq_)->readyUnitsIds();
 
             EV << "\t [process=" << (unsigned int)currentHarq_ << "] , [retx=" << ((retx)?"true":"false")
                << "] , [n=" << cwListRetx.size() << "]" << endl;
 
             // if a retransmission is needed
-            if(retx)
+            if(ready)
             {
                 UnitList signal;
                 signal.first=currentHarq_;
                 signal.second = cwListRetx;
                 currHarq->markSelected(signal,schedulingGrant_->getUserTxParams()->getLayers().size());
+                retx = true;
             }
         }
         // if no retx is needed, proceed with normal scheduling
@@ -668,7 +668,8 @@ void LteMacUeExperimentalD2D::updateUserTxParam(cPacket* pkt)
 
         // get the old parameters and delete them, in order to avoid memory leaks
         const UserTxParams* oldParams = lteInfo->getUserTxParams();
-        delete oldParams;
+        if (oldParams != NULL)
+            delete oldParams;
         lteInfo->setUserTxParams(schedulingGrant_->getUserTxParams()->dup());
 
         // set tx mode and granted blocks
@@ -683,116 +684,152 @@ void LteMacUeExperimentalD2D::updateUserTxParam(cPacket* pkt)
 
 void LteMacUeExperimentalD2D::macHandleD2DModeSwitch(cPacket* pkt)
 {
-    EV << NOW << " LteMacUeD2D::macHandleD2DModeSwitch - Start" << endl;
+    EV << NOW << " LteMacUeExperimentalD2D::macHandleD2DModeSwitch - Start" << endl;
 
-    // add here specific behavior for handling mode switch at the MAC layer
-
-    // here, all data in the MAC buffers of the connection to be switched are deleted
+    // all data in the MAC buffers of the connection to be switched are deleted
 
     D2DModeSwitchNotification* switchPkt = check_and_cast<D2DModeSwitchNotification*>(pkt);
+    bool txSide = switchPkt->getTxSide();
     MacNodeId peerId = switchPkt->getPeerId();
     LteD2DMode newMode = switchPkt->getNewMode();
     LteD2DMode oldMode = switchPkt->getOldMode();
-    Direction newDirection = (newMode == DM) ? D2D : UL;
-    Direction oldDirection = (oldMode == DM) ? D2D : UL;
-
     UserControlInfo* uInfo = check_and_cast<UserControlInfo*>(pkt->removeControlInfo());
 
-    // find the correct connection involved in the mode switch
-    MacCid cid;
-    FlowControlInfo* lteInfo = NULL;
-    std::map<MacCid, FlowControlInfo>::iterator it = connDesc_.begin();
-    for (; it != connDesc_.end(); )
+    if (txSide)
     {
-        cid = it->first;
-        lteInfo = check_and_cast<FlowControlInfo*>(&(it->second));
-        if (lteInfo->getD2dPeerId() == peerId && (Direction)lteInfo->getDirection() == oldDirection)
+        Direction newDirection = (newMode == DM) ? D2D : UL;
+        Direction oldDirection = (oldMode == DM) ? D2D : UL;
+
+        // find the correct connection involved in the mode switch
+        MacCid cid;
+        FlowControlInfo* lteInfo = NULL;
+        std::map<MacCid, FlowControlInfo>::iterator it = connDesc_.begin();
+        for (; it != connDesc_.end(); )
         {
-            EV << NOW << " LteMacUeD2D::macHandleD2DModeSwitch - found connection with cid " << cid << ", erasing buffered data" << endl;
-            if (oldDirection != newDirection)
+            cid = it->first;
+            lteInfo = check_and_cast<FlowControlInfo*>(&(it->second));
+            if (lteInfo->getD2dRxPeerId() == peerId && (Direction)lteInfo->getDirection() == oldDirection)
             {
-                // empty virtual buffer for the selected cid
-                if (macBuffers_.find(cid) != macBuffers_.end())
+                EV << NOW << " LteMacUeExperimentalD2D::macHandleD2DModeSwitch - found connection with cid " << cid << ", erasing buffered data" << endl;
+                if (oldDirection != newDirection)
                 {
-                    LteMacBuffer* vQueue = macBuffers_.at(cid);
-                    while (!vQueue->isEmpty())
-                        vQueue->popFront();
-                }
-
-                // empty real buffer for the selected cid (they should be already empty)
-                if (mbuf_.find(cid) != mbuf_.end())
-                {
-                    LteMacQueue* buf = mbuf_.at(cid);
-                    while (buf->getQueueLength() > 0)
+                    // empty virtual buffer for the selected cid
+                    LteMacBufferMap::iterator macBuff_it = macBuffers_.find(cid);
+                    if (macBuff_it != macBuffers_.end())
                     {
-                        cPacket* pdu = buf->popFront();
-                        delete pdu;
+                        while (!(macBuff_it->second->isEmpty()))
+                            macBuff_it->second->popFront();
+                        macBuffers_.erase(macBuff_it);
+                    }
+
+                    // empty real buffer for the selected cid (they should be already empty)
+                    LteMacBuffers::iterator mBuf_it = mbuf_.find(cid);
+                    if (mBuf_it != mbuf_.end())
+                    {
+                        while (mBuf_it->second->getQueueLength() > 0)
+                        {
+                            cPacket* pdu = mBuf_it->second->popFront();
+                            delete pdu;
+                        }
+                        delete mBuf_it->second;
+                        mbuf_.erase(mBuf_it);
+                    }
+
+                    // interrupt H-ARQ processes
+                    HarqTxBuffers::iterator hit = harqTxBuffers_.find(peerId);
+                    if (hit != harqTxBuffers_.end())
+                    {
+                        for (int proc = 0; proc < (unsigned int) UE_TX_HARQ_PROCESSES; proc++)
+                        {
+                            hit->second->forceDropProcess(proc);
+                        }
                     }
                 }
 
-                // delete H-ARQ buffers
-                HarqTxBuffers::iterator hit;
-                for (hit = harqTxBuffers_.begin(); hit != harqTxBuffers_.end(); )
+                D2DModeSwitchNotification* switchPkt_dup = switchPkt->dup();
+                switchPkt_dup->setControlInfo(lteInfo->dup());
+                sendUpperPackets(switchPkt_dup);
+
+                if (oldDirection != newDirection)
                 {
-                    if (hit->first == peerId)
+                    // remove connection descriptor
+                    it = connDesc_.erase(it);
+
+                    // remove entry from lcgMap
+                    LcgMap::iterator lt = lcgMap_.begin();
+                    for (; lt != lcgMap_.end(); )
                     {
-                        delete hit->second; // Delete Queue
-                        hit = harqTxBuffers_.erase(hit); // Delete Elem
-                    }
-                    else
-                    {
-                        ++hit;
+                        if (lt->second.first == cid)
+                        {
+                            lt = lcgMap_.erase(lt);
+                        }
+                        else
+                        {
+                            ++lt;
+                        }
                     }
                 }
-                HarqRxBuffers::iterator hit2;
-                for (hit2 = harqRxBuffers_.begin(); hit2 != harqRxBuffers_.end();)
+                else
                 {
-                     if (hit2->first == peerId)
-                     {
-                         delete hit2->second; // Delete Queue
-                         hit2 = harqRxBuffers_.erase(hit2); // Delete Elem
-                     }
-                     else
-                     {
-                         ++hit2;
-                     }
+                    ++it;
                 }
-
-                enb_->deleteRxHarqBufferMirror(nodeId_);
-            }
-
-            pkt->setControlInfo(lteInfo->dup());
-            sendUpperPackets(pkt->dup());
-
-            if (oldDirection != newDirection)
-            {
-                // remove connection descriptor
-                it = connDesc_.erase(it);
-
-                // remove entry from lcgMap
-                LcgMap::iterator lt = lcgMap_.begin();
-                for (; lt != lcgMap_.end(); )
-                {
-                    if (lt->second.first == cid)
-                    {
-                        lt = lcgMap_.erase(lt);
-                    }
-                    else
-                    {
-                        ++lt;
-                    }
-                }
+                EV << NOW << " LteMacUeExperimentalD2D::macHandleD2DModeSwitch - send switch signal to the RLC TX entity corresponding to the old mode, cid " << cid << endl;
             }
             else
             {
                 ++it;
             }
-
-            EV << NOW << " LteMacUeD2D::macHandleD2DModeSwitch - send switch signal to the RLC TX entity corresponding to the old mode, cid " << cid << endl;
         }
-        else
+    }
+    else   // rx side
+    {
+        Direction newDirection = (newMode == DM) ? D2D : DL;
+        Direction oldDirection = (oldMode == DM) ? D2D : DL;
+
+        // find the correct connection involved in the mode switch
+        MacCid cid;
+        FlowControlInfo* lteInfo = NULL;
+        std::map<MacCid, FlowControlInfo>::iterator it = connDescIn_.begin();
+        for (; it != connDescIn_.end(); )
         {
-            ++it;
+            cid = it->first;
+            lteInfo = check_and_cast<FlowControlInfo*>(&(it->second));
+            if (lteInfo->getD2dTxPeerId() == peerId && (Direction)lteInfo->getDirection() == oldDirection)
+            {
+                EV << NOW << " LteMacUeExperimentalD2D::macHandleD2DModeSwitch - found connection with cid " << cid << ", send signal to the RLC RX entity" << endl;
+                if (oldDirection != newDirection)
+                {
+                    // interrupt H-ARQ processes
+                    HarqRxBuffers::iterator hit = harqRxBuffers_.find(peerId);
+                    if (hit != harqRxBuffers_.end())
+                    {
+                        for (unsigned int proc = 0; proc < (unsigned int) UE_RX_HARQ_PROCESSES; proc++)
+                        {
+                            unsigned int numUnits = hit->second->getProcess(proc)->getNumHarqUnits();
+                            for (unsigned int i=0; i < numUnits; i++)
+                            {
+                                hit->second->getProcess(proc)->purgeCorruptedPdu(i); // delete contained PDU
+                                hit->second->getProcess(proc)->resetCodeword(i);     // reset unit
+                            }
+                        }
+                    }
+                    enb_->deleteRxHarqBufferMirror(nodeId_);
+                }
+            }
+
+            D2DModeSwitchNotification* switchPkt_dup = switchPkt->dup();
+            switchPkt_dup->setControlInfo(lteInfo->dup());
+            sendUpperPackets(switchPkt_dup);
+
+            if (oldDirection != newDirection)
+            {
+                // remove connection descriptor
+                it = connDescIn_.erase(it);
+            }
+            else
+            {
+                ++it;
+            }
         }
     }
 

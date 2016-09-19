@@ -55,7 +55,11 @@ UmTxEntity* LteRlcUmExperimental::getTxBuffer(FlowControlInfo* lteInfo)
 
 UmRxEntity* LteRlcUmExperimental::getRxBuffer(FlowControlInfo* lteInfo)
 {
-    MacNodeId nodeId = ctrlInfoToUeId(lteInfo);
+    MacNodeId nodeId;
+    if (lteInfo->getDirection() == DL)
+        nodeId = lteInfo->getDestId();
+    else
+        nodeId = lteInfo->getSourceId();
     LogicalCid lcid = lteInfo->getLcid();
 
     // Find RXBuffer for this CID

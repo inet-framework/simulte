@@ -8,6 +8,8 @@
 //
 
 #include "D2DModeSelectionBase.h"
+#include "LteMacEnbD2D.h"
+#include "LteMacEnbExperimentalD2D.h"
 
 void D2DModeSelectionBase::initialize(int stage)
 {
@@ -17,7 +19,7 @@ void D2DModeSelectionBase::initialize(int stage)
     switchList_.clear();
 
     // get reference to mac layer
-    mac_ = check_and_cast<LteMacEnbD2D*>(getParentModule()->getSubmodule("mac"));
+    mac_ = check_and_cast<LteMacEnb*>(getParentModule()->getSubmodule("mac"));
 
     // get reference to the binder
     binder_ = getBinder();
@@ -110,6 +112,11 @@ void D2DModeSelectionBase::sendModeSwitchNotifications()
         LteD2DMode oldMode = it->oldMode;
         LteD2DMode newMode = it->newMode;
 
-        mac_->sendModeSwitchNotification(srcId, dstId, oldMode, newMode);
+        if (strcmp(mac_->getClassName(), "LteMacEnbD2D") == 0)
+            check_and_cast<LteMacEnbD2D*>(mac_)->sendModeSwitchNotification(srcId, dstId, oldMode, newMode);
+        else if (strcmp(mac_->getClassName(), "LteMacEnbExperimentalD2D") == 0)
+            check_and_cast<LteMacEnbExperimentalD2D*>(mac_)->sendModeSwitchNotification(srcId, dstId, oldMode, newMode);
+        else
+            throw cRuntimeError("D2DModeSelectionBase::sendModeSwitchNotifications - unrecognized MAC type %s", mac_->getClassName());
     }
 }

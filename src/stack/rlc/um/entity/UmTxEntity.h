@@ -72,6 +72,9 @@ class UmTxEntity : public cSimpleModule
     // remove the last SDU from the queue
     void removeDataFromQueue();
 
+    // called when a D2D mode switch is triggered
+    void rlcHandleD2DModeSwitch();
+
   protected:
 
     /*

@@ -300,7 +300,9 @@ void LteMacUe::macPduUnmake(cPacket* pkt)
 
         // store descriptor for the incoming connection, if not already stored
         FlowControlInfo* lteInfo = check_and_cast<FlowControlInfo*>(upPkt->getControlInfo());
-        MacCid cid = ctrlInfoToMacCid(lteInfo);
+        MacNodeId senderId = lteInfo->getSourceId();
+        LogicalCid lcid = lteInfo->getLcid();
+        MacCid cid = idToMacCid(senderId, lcid);
         if (connDescIn_.find(cid) == connDescIn_.end())
         {
             FlowControlInfo toStore(*lteInfo);

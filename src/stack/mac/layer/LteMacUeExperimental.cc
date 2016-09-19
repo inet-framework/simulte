@@ -129,7 +129,7 @@ void LteMacUeExperimental::macPduMake()
             uinfo->setSourceId(getMacNodeId());
             uinfo->setDestId(destId);
             uinfo->setDirection(UL);
-            uinfo->setUserTxParams(schedulingGrant_->getUserTxParams());
+            uinfo->setUserTxParams(schedulingGrant_->getUserTxParams()->dup());
             macPkt = new LteMacPdu("LteMacPdu");
             macPkt->setHeaderLength(MAC_HEADER);
             macPkt->setControlInfo(uinfo);
@@ -616,7 +616,7 @@ void LteMacUeExperimental::flushHarqBuffers()
         it2->second->sendSelectedDown();
 
     // deleting non-periodic grant
-    if (!schedulingGrant_->getPeriodic())
+    if (schedulingGrant_ != NULL && !schedulingGrant_->getPeriodic())
     {
         delete schedulingGrant_;
         schedulingGrant_=NULL;
