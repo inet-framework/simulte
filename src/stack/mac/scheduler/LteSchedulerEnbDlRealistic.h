@@ -8,20 +8,20 @@
 //
 
 
-#ifndef _LTE_LTESCHEDULERENBDLEXPERIMENTAL_H_
-#define _LTE_LTESCHEDULERENBDLEXPERIMENTAL_H_
+#ifndef _LTE_LTESCHEDULERENBDLREALISTIC_H_
+#define _LTE_LTESCHEDULERENBDLREALISTIC_H_
 
 #include "LteSchedulerEnbDl.h"
 #include "LteCommon.h"
 #include "LteAmc.h"
 #include "UserTxParams.h"
 
-class LteSchedulerEnbDlExperimental : public LteSchedulerEnbDl
+class LteSchedulerEnbDlRealistic : public LteSchedulerEnbDl
 {
 
 public:
-    LteSchedulerEnbDlExperimental();
-    virtual ~LteSchedulerEnbDlExperimental();
+    LteSchedulerEnbDlRealistic();
+    virtual ~LteSchedulerEnbDlRealistic();
 
     /**
      * Schedules capacity for a given connection without effectively perform the operation on the
@@ -45,4 +45,4 @@ public:
         std::vector<BandLimit>* bandLim = NULL, Remote antenna = MACRO, bool limitBl = false);
 };
 
-#endif /* _LTE_LTESCHEDULERENBDLEXPERIMENTAL_H_ */
+#endif /* _LTE_LTESCHEDULERENBDLREALISTIC_H_ */

@@ -79,8 +79,8 @@ class LteRlcUm : public cSimpleModule
 
     /**
      * sendToLowerLayer() is identical to sendFragmented(), but it is invoked
-     * by TxEntity instead of TxBuffer (hence it is for RlcUmExperimental) and
-     * it is a virtual function (for example, RlcUmExperimental needs to
+     * by TxEntity instead of TxBuffer (hence it is for RlcUmRealistic) and
+     * it is a virtual function (for example, RlcUmRealistic needs to
      * redefine the behaviour of this function)
      *
      * @param pkt packet to forward

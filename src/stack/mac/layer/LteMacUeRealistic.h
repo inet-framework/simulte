@@ -1,6 +1,5 @@
 //
 //                           SimuLTE
-// Copyright (C) 2015 Giovanni Nardini
 //
 // This file is part of a software released under the license included in file
 // "license.pdf". This license can be also found at http://www.ltesimulator.com/
@@ -8,8 +7,8 @@
 // and cannot be removed from it.
 //
 
-#ifndef _LTE_LTEMACUEEXPERIMENTAL_H_
-#define _LTE_LTEMACUEEXPERIMENTAL_H_
+#ifndef _LTE_LTEMACUEREALISTIC_H_
+#define _LTE_LTEMACUEREALISTIC_H_
 
 #include "LteMacUe.h"
 #include "LteHarqBufferTx.h"
@@ -18,7 +17,7 @@ class LteSchedulingGrant;
 class LteSchedulerUeUl;
 class LteBinder;
 
-class LteMacUeExperimental : public LteMacUe
+class LteMacUeRealistic : public LteMacUe
 {
   protected:
 
@@ -79,8 +78,8 @@ class LteMacUeExperimental : public LteMacUe
     virtual void flushHarqBuffers();
 
   public:
-    LteMacUeExperimental();
-    virtual ~LteMacUeExperimental();
+    LteMacUeRealistic();
+    virtual ~LteMacUeRealistic();
 };
 
 #endif

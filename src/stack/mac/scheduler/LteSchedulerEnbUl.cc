@@ -10,7 +10,7 @@
 #include "LteSchedulerEnbUl.h"
 #include "LteMacEnb.h"
 #include "LteMacEnbD2D.h"
-#include "LteMacEnbExperimentalD2D.h"
+#include "LteMacEnbRealisticD2D.h"
 #include "LteHarqBufferRx.h"
 #include "LteHarqBufferRxD2DMirror.h"
 #include "LteAllocationModule.h"
@@ -201,8 +201,8 @@ LteSchedulerEnbUl::rtxschedule()
             HarqRxBuffersMirror* harqRxBuffersD2DMirror;
             if (strcmp(mac_->getClassName(), "LteMacEnbD2D") == 0)
                 harqRxBuffersD2DMirror = check_and_cast<LteMacEnbD2D*>(mac_)->getRxHarqBufferMirror();
-            else if (strcmp(mac_->getClassName(), "LteMacEnbExperimentalD2D") == 0)
-                harqRxBuffersD2DMirror = check_and_cast<LteMacEnbExperimentalD2D*>(mac_)->getRxHarqBufferMirror();
+            else if (strcmp(mac_->getClassName(), "LteMacEnbRealisticD2D") == 0)
+                harqRxBuffersD2DMirror = check_and_cast<LteMacEnbRealisticD2D*>(mac_)->getRxHarqBufferMirror();
             else
                 throw cRuntimeError("LteSchedulerEnbUl::rtxschedule - unrecognized MAC type %s", mac_->getClassName());
             HarqRxBuffersMirror::iterator it_d2d = harqRxBuffersD2DMirror->begin() , et_d2d=harqRxBuffersD2DMirror->end();
@@ -495,8 +495,8 @@ LteSchedulerEnbUl::schedulePerAcidRtxD2D(MacNodeId destId,MacNodeId senderId, Co
         HarqRxBuffersMirror* harqRxBuffersD2DMirror;
         if (strcmp(mac_->getClassName(), "LteMacEnbD2D") == 0)
             harqRxBuffersD2DMirror = check_and_cast<LteMacEnbD2D*>(mac_)->getRxHarqBufferMirror();
-        else if (strcmp(mac_->getClassName(), "LteMacEnbExperimentalD2D") == 0)
-            harqRxBuffersD2DMirror = check_and_cast<LteMacEnbExperimentalD2D*>(mac_)->getRxHarqBufferMirror();
+        else if (strcmp(mac_->getClassName(), "LteMacEnbRealisticD2D") == 0)
+            harqRxBuffersD2DMirror = check_and_cast<LteMacEnbRealisticD2D*>(mac_)->getRxHarqBufferMirror();
         else
             throw cRuntimeError("LteSchedulerEnbUl::rtxschedule - unrecognized MAC type %s", mac_->getClassName());
         unsigned char currentAcid = (harqStatus_.at(senderId) + 2) % (harqRxBuffersD2DMirror->at(destId)->numHarqProcesses_);

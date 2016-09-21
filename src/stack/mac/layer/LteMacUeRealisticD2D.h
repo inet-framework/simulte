@@ -7,21 +7,21 @@
 // and cannot be removed from it.
 //
 
-#ifndef _LTE_LTEMACUEEXPERIMENTALD2D_H_
-#define _LTE_LTEMACUEEXPERIMENTALD2D_H_
+#ifndef _LTE_LTEMACUEREALISTICD2D_H_
+#define _LTE_LTEMACUEREALISTICD2D_H_
 
-#include "LteMacUeExperimental.h"
-#include "LteMacEnbExperimentalD2D.h"
+#include "LteMacUeRealistic.h"
+#include "LteMacEnbRealisticD2D.h"
 #include "LteHarqBufferTxD2D.h"
 
 class LteSchedulingGrant;
 class LteSchedulerUeUl;
 class LteBinder;
 
-class LteMacUeExperimentalD2D : public LteMacUeExperimental
+class LteMacUeRealisticD2D : public LteMacUeRealistic
 {
     // reference to the eNB
-    LteMacEnbExperimentalD2D* enb_;
+    LteMacEnbRealisticD2D* enb_;
 
     // RAC Handling variables
     bool racD2DMulticastRequested_;
@@ -72,8 +72,8 @@ class LteMacUeExperimentalD2D : public LteMacUeExperimental
     virtual void updateUserTxParam(cPacket* pkt);
 
   public:
-    LteMacUeExperimentalD2D();
-    virtual ~LteMacUeExperimentalD2D();
+    LteMacUeRealisticD2D();
+    virtual ~LteMacUeRealisticD2D();
 
     virtual bool isD2DCapable()
     {

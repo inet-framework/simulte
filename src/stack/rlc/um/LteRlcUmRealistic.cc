@@ -7,12 +7,12 @@
 // and cannot be removed from it.
 //
 
-#include "LteRlcUmExperimental.h"
+#include "LteRlcUmRealistic.h"
 #include "LteMacSduRequest.h"
 
-Define_Module(LteRlcUmExperimental);
+Define_Module(LteRlcUmRealistic);
 
-UmTxEntity* LteRlcUmExperimental::getTxBuffer(FlowControlInfo* lteInfo)
+UmTxEntity* LteRlcUmRealistic::getTxBuffer(FlowControlInfo* lteInfo)
 {
     MacNodeId nodeId = ctrlInfoToUeId(lteInfo);
     LogicalCid lcid = lteInfo->getLcid();
@@ -37,7 +37,7 @@ UmTxEntity* LteRlcUmExperimental::getTxBuffer(FlowControlInfo* lteInfo)
             txEnt->setFlowControlInfo(lteInfo->dup());
         }
 
-        EV << "LteRlcUmExperimental : Added new UmTxEntity: " << txEnt->getId() <<
+        EV << "LteRlcUmRealistic : Added new UmTxEntity: " << txEnt->getId() <<
         " for node: " << nodeId << " for Lcid: " << lcid << "\n";
 
         return txEnt;
@@ -45,7 +45,7 @@ UmTxEntity* LteRlcUmExperimental::getTxBuffer(FlowControlInfo* lteInfo)
     else
     {
         // Found
-        EV << "LteRlcUmExperimental : Using old UmTxBuffer: " << it->second->getId() <<
+        EV << "LteRlcUmRealistic : Using old UmTxBuffer: " << it->second->getId() <<
         " for node: " << nodeId << " for Lcid: " << lcid << "\n";
 
         return it->second;
@@ -53,7 +53,7 @@ UmTxEntity* LteRlcUmExperimental::getTxBuffer(FlowControlInfo* lteInfo)
 }
 
 
-UmRxEntity* LteRlcUmExperimental::getRxBuffer(FlowControlInfo* lteInfo)
+UmRxEntity* LteRlcUmRealistic::getRxBuffer(FlowControlInfo* lteInfo)
 {
     MacNodeId nodeId;
     if (lteInfo->getDirection() == DL)
@@ -78,7 +78,7 @@ UmRxEntity* LteRlcUmExperimental::getRxBuffer(FlowControlInfo* lteInfo)
         // store control info for this flow
         rxEnt->setFlowControlInfo(lteInfo->dup());
 
-        EV << "LteRlcUmExperimental : Added new UmRxEntity: " << rxEnt->getId() <<
+        EV << "LteRlcUmRealistic : Added new UmRxEntity: " << rxEnt->getId() <<
         " for node: " << nodeId << " for Lcid: " << lcid << "\n";
 
         return rxEnt;
@@ -86,16 +86,16 @@ UmRxEntity* LteRlcUmExperimental::getRxBuffer(FlowControlInfo* lteInfo)
     else
     {
         // Found
-        EV << "LteRlcUmExperimental : Using old UmRxEntity: " << it->second->getId() <<
+        EV << "LteRlcUmRealistic : Using old UmRxEntity: " << it->second->getId() <<
         " for node: " << nodeId << " for Lcid: " << lcid << "\n";
 
         return it->second;
     }
 }
 
-void LteRlcUmExperimental::handleUpperMessage(cPacket *pkt)
+void LteRlcUmRealistic::handleUpperMessage(cPacket *pkt)
 {
-    EV << "LteRlcUmExperimental::handleUpperMessage - Received packet " << pkt->getName() << " from upper layer, size " << pkt->getByteLength() << "\n";
+    EV << "LteRlcUmRealistic::handleUpperMessage - Received packet " << pkt->getName() << " from upper layer, size " << pkt->getByteLength() << "\n";
 
     FlowControlInfo* lteInfo = check_and_cast<FlowControlInfo*>(pkt->removeControlInfo());
 
@@ -115,7 +115,7 @@ void LteRlcUmExperimental::handleUpperMessage(cPacket *pkt)
     newDataPkt->encapsulate(rlcPktDup);
     newDataPkt->setControlInfo(lteInfo->dup());
 
-    EV << "LteRlcUmExperimental::handleUpperMessage - Sending message " << newDataPkt->getName() << " to port UM_Sap_down$o\n";
+    EV << "LteRlcUmRealistic::handleUpperMessage - Sending message " << newDataPkt->getName() << " to port UM_Sap_down$o\n";
     send(newDataPkt, down_[OUT]);
 
     rlcPkt->setControlInfo(lteInfo);
@@ -123,13 +123,13 @@ void LteRlcUmExperimental::handleUpperMessage(cPacket *pkt)
     drop(rlcPkt);
 
     // Bufferize RLC SDU
-    EV << "LteRlcUmExperimental::handleUpperMessage - Enque packet " << rlcPkt->getName() << " into the Tx Buffer\n";
+    EV << "LteRlcUmRealistic::handleUpperMessage - Enque packet " << rlcPkt->getName() << " into the Tx Buffer\n";
     txbuf->enque(rlcPkt);
 }
 
-void LteRlcUmExperimental::handleLowerMessage(cPacket *pkt)
+void LteRlcUmRealistic::handleLowerMessage(cPacket *pkt)
 {
-    EV << "LteRlcUmExperimental::handleLowerMessage - Received packet " << pkt->getName() << " from lower layer\n";
+    EV << "LteRlcUmRealistic::handleLowerMessage - Received packet " << pkt->getName() << " from lower layer\n";
 
     FlowControlInfo* lteInfo = check_and_cast<FlowControlInfo*>(pkt->getControlInfo());
 
@@ -155,12 +155,12 @@ void LteRlcUmExperimental::handleLowerMessage(cPacket *pkt)
         drop(pkt);
 
         // Bufferize PDU
-        EV << "LteRlcUmExperimental::handleLowerMessage - Enque packet " << pkt->getName() << " into the Rx Buffer\n";
+        EV << "LteRlcUmRealistic::handleLowerMessage - Enque packet " << pkt->getName() << " into the Rx Buffer\n";
         rxbuf->enque(pkt);
     }
 }
 
-void LteRlcUmExperimental::deleteQueues(MacNodeId nodeId)
+void LteRlcUmRealistic::deleteQueues(MacNodeId nodeId)
 {
     UmTxEntities::iterator tit;
     UmRxEntities::iterator rit;
@@ -187,21 +187,21 @@ void LteRlcUmExperimental::deleteQueues(MacNodeId nodeId)
  * Main functions
  */
 
-void LteRlcUmExperimental::initialize()
+void LteRlcUmRealistic::initialize()
 {
-    // check the MAC module type: if it is not "experimental", abort simulation
+    // check the MAC module type: if it is not "realistic", abort simulation
     std::string nodeType = getParentModule()->getParentModule()->par("nodeType").stdstringValue();
     std::string macType = getParentModule()->getParentModule()->par("LteMacType").stdstringValue();
 
     if (nodeType.compare("ENODEB") == 0)
     {
-        if (macType.compare("LteMacEnbExperimental") != 0)
-            throw cRuntimeError("LteRlcUmExperimental::initialize - %s module found, must be LteMacEnbExperimental. Aborting", macType.c_str());
+        if (macType.compare("LteMacEnbRealistic") != 0)
+            throw cRuntimeError("LteRlcUmRealistic::initialize - %s module found, must be LteMacEnbRealistic. Aborting", macType.c_str());
     }
     else if (nodeType.compare("UE") == 0)
     {
-        if (macType.compare("LteMacUeExperimental") != 0)
-            throw cRuntimeError("LteRlcUmExperimental::initialize - %s module found, must be LteMacUeExperimental. Aborting", macType.c_str());
+        if (macType.compare("LteMacUeRealistic") != 0)
+            throw cRuntimeError("LteRlcUmRealistic::initialize - %s module found, must be LteMacUeRealistic. Aborting", macType.c_str());
     }
 
     up_[IN] = gate("UM_Sap_up$i");

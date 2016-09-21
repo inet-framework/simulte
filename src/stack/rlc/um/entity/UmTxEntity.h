@@ -11,7 +11,7 @@
 #define _LTE_UMTXENTITY_H_
 
 #include <omnetpp.h>
-#include "LteRlcUmExperimental.h"
+#include "LteRlcUmRealistic.h"
 #include "LteRlcDefs.h"
 
 /**

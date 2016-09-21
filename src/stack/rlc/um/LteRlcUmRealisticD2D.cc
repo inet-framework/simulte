@@ -7,21 +7,21 @@
 // and cannot be removed from it.
 //
 
-#include "LteRlcUmExperimentalD2D.h"
+#include "LteRlcUmRealisticD2D.h"
 #include "D2DModeSwitchNotification_m.h"
 
-Define_Module(LteRlcUmExperimentalD2D);
+Define_Module(LteRlcUmRealisticD2D);
 
-void LteRlcUmExperimentalD2D::handleMessage(cMessage *msg)
+void LteRlcUmRealisticD2D::handleMessage(cMessage *msg)
 {
-    LteRlcUmExperimental::handleMessage(msg);
+    LteRlcUmRealistic::handleMessage(msg);
 }
 
-void LteRlcUmExperimentalD2D::handleLowerMessage(cPacket *pkt)
+void LteRlcUmRealisticD2D::handleLowerMessage(cPacket *pkt)
 {
     if (strcmp(pkt->getName(), "D2DModeSwitchNotification") == 0)
     {
-        EV << NOW << " LteRlcUmExperimentalD2D::handleLowerMessage - Received packet " << pkt->getName() << " from lower layer\n";
+        EV << NOW << " LteRlcUmRealisticD2D::handleLowerMessage - Received packet " << pkt->getName() << " from lower layer\n";
 
         // add here specific behavior for handling mode switch at the RLC layer
         D2DModeSwitchNotification* switchPkt = check_and_cast<D2DModeSwitchNotification*>(pkt);
@@ -42,18 +42,18 @@ void LteRlcUmExperimentalD2D::handleLowerMessage(cPacket *pkt)
         }
 
         // forward packet to PDCP
-        EV << "LteRlcUmExperimentalD2D::handleLowerMessage - Sending packet " << pkt->getName() << " to port UM_Sap_up$o\n";
+        EV << "LteRlcUmRealisticD2D::handleLowerMessage - Sending packet " << pkt->getName() << " to port UM_Sap_up$o\n";
         send(pkt, up_[OUT]);
     }
     else
-        LteRlcUmExperimental::handleLowerMessage(pkt);
+        LteRlcUmRealistic::handleLowerMessage(pkt);
 }
 
-void LteRlcUmExperimentalD2D::initialize(int stage)
+void LteRlcUmRealisticD2D::initialize(int stage)
 {
     if (stage == 0)
     {
-        // check the MAC module type: if it is not "ExperimentalD2D", abort simulation
+        // check the MAC module type: if it is not "RealisticD2D", abort simulation
         std::string nodeType = getParentModule()->getParentModule()->par("nodeType").stdstringValue();
         std::string macType = getParentModule()->getParentModule()->par("LteMacType").stdstringValue();
         std::string pdcpType = getParentModule()->getParentModule()->par("LtePdcpRrcType").stdstringValue();
@@ -61,18 +61,18 @@ void LteRlcUmExperimentalD2D::initialize(int stage)
         if (nodeType.compare("ENODEB") == 0)
         {
             nodeType_ = ENODEB;
-            if (macType.compare("LteMacEnbExperimentalD2D") != 0)
-                throw cRuntimeError("LteRlcUmExperimentalD2D::initialize - %s module found, must be LteMacEnbExperimentalD2D. Aborting", macType.c_str());
+            if (macType.compare("LteMacEnbRealisticD2D") != 0)
+                throw cRuntimeError("LteRlcUmRealisticD2D::initialize - %s module found, must be LteMacEnbRealisticD2D. Aborting", macType.c_str());
             if (pdcpType.compare("LtePdcpRrcEnbD2D") != 0)
-                throw cRuntimeError("LteRlcUmExperimentalD2D::initialize - %s module found, must be LtePdcpRrcEnbD2D. Aborting", pdcpType.c_str());
+                throw cRuntimeError("LteRlcUmRealisticD2D::initialize - %s module found, must be LtePdcpRrcEnbD2D. Aborting", pdcpType.c_str());
         }
         else if (nodeType.compare("UE") == 0)
         {
             nodeType_ = UE;
-            if (macType.compare("LteMacUeExperimentalD2D") != 0)
-                throw cRuntimeError("LteRlcUmExperimentalD2D::initialize - %s module found, must be LteMacUeExperimentalD2D. Aborting", macType.c_str());
+            if (macType.compare("LteMacUeRealisticD2D") != 0)
+                throw cRuntimeError("LteRlcUmRealisticD2D::initialize - %s module found, must be LteMacUeRealisticD2D. Aborting", macType.c_str());
             if (pdcpType.compare("LtePdcpRrcUeD2D") != 0)
-                throw cRuntimeError("LteRlcUmExperimentalD2D::initialize - %s module found, must be LtePdcpRrcUeD2D. Aborting", pdcpType.c_str());
+                throw cRuntimeError("LteRlcUmRealisticD2D::initialize - %s module found, must be LtePdcpRrcUeD2D. Aborting", pdcpType.c_str());
         }
 
         up_[IN] = gate("UM_Sap_up$i");

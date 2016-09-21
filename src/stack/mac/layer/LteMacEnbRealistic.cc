@@ -7,13 +7,13 @@
 // and cannot be removed from it.
 //
 
-#include "LteMacEnbExperimental.h"
+#include "LteMacEnbRealistic.h"
 #include "LteHarqBufferRx.h"
 #include "LteMacBuffer.h"
 #include "LteMacQueue.h"
 #include "LteFeedbackPkt.h"
 #include "LteSchedulerEnbDl.h"
-#include "LteSchedulerEnbDlExperimental.h"
+#include "LteSchedulerEnbDlRealistic.h"
 #include "LteSchedulerEnbUl.h"
 #include "LteSchedulingGrant.h"
 #include "LteAllocationModule.h"
@@ -23,19 +23,19 @@
 #include "LteCommon.h"
 #include "LteMacSduRequest.h"
 
-Define_Module( LteMacEnbExperimental);
+Define_Module( LteMacEnbRealistic);
 
 /*********************
  * PUBLIC FUNCTIONS
  *********************/
 
-LteMacEnbExperimental::LteMacEnbExperimental() :
+LteMacEnbRealistic::LteMacEnbRealistic() :
     LteMacEnb()
 {
     scheduleListDl_ = NULL;
 }
 
-LteMacEnbExperimental::~LteMacEnbExperimental()
+LteMacEnbRealistic::~LteMacEnbRealistic()
 {
 }
 
@@ -43,19 +43,19 @@ LteMacEnbExperimental::~LteMacEnbExperimental()
  * PROTECTED FUNCTIONS
  ***********************/
 
-void LteMacEnbExperimental::initialize(int stage)
+void LteMacEnbRealistic::initialize(int stage)
 {
     if (stage == 0)
     {
-        // check the RLC module type: if it is not "experimental", abort simulation
+        // check the RLC module type: if it is not "realistic", abort simulation
         // TODO do the same for RLC AM
         std::string rlcUmType = getParentModule()->getSubmodule("rlc")->par("LteRlcUmType").stdstringValue();
         std::string macType = getParentModule()->par("LteMacType").stdstringValue();
-        if (macType.compare("LteMacEnbExperimental") == 0 && rlcUmType.compare("LteRlcUmExperimental") != 0)
-            throw cRuntimeError("LteMacEnbExperimental::initialize - %s module found, must be LteRlcUmExperimental. Aborting", rlcUmType.c_str());
+        if (macType.compare("LteMacEnbRealistic") == 0 && rlcUmType.compare("LteRlcUmRealistic") != 0)
+            throw cRuntimeError("LteMacEnbRealistic::initialize - %s module found, must be LteRlcUmRealistic. Aborting", rlcUmType.c_str());
 
         /* Create and initialize MAC Downlink scheduler */
-        enbSchedulerDl_ = new LteSchedulerEnbDlExperimental();
+        enbSchedulerDl_ = new LteSchedulerEnbDlRealistic();
         enbSchedulerDl_->initialize(DL, this);
 
         /* Create and initialize MAC Uplink scheduler */
@@ -65,7 +65,7 @@ void LteMacEnbExperimental::initialize(int stage)
     LteMacEnb::initialize(stage);
 }
 
-void LteMacEnbExperimental::handleMessage(cMessage* msg)
+void LteMacEnbRealistic::handleMessage(cMessage* msg)
 {
     if (msg->isSelfMessage())
     {
@@ -80,9 +80,9 @@ void LteMacEnbExperimental::handleMessage(cMessage* msg)
     LteMacBase::handleMessage(msg);
 }
 
-void LteMacEnbExperimental::macSduRequest()
+void LteMacEnbRealistic::macSduRequest()
 {
-    EV << "----- START LteMacEnbExperimental::macSduRequest -----\n";
+    EV << "----- START LteMacEnbRealistic::macSduRequest -----\n";
 
     // Ask for a MAC sdu for each scheduled user on each codeword
     LteMacScheduleList::const_iterator it;
@@ -111,12 +111,12 @@ void LteMacEnbExperimental::macSduRequest()
         sendUpperPackets(macSduRequest);
     }
 
-    EV << "------ END LteMacEnbExperimental::macSduRequest ------\n";
+    EV << "------ END LteMacEnbRealistic::macSduRequest ------\n";
 }
 
-void LteMacEnbExperimental::macPduMake(MacCid cid)
+void LteMacEnbRealistic::macPduMake(MacCid cid)
 {
-    EV << "----- START LteMacEnbExperimental::macPduMake -----\n";
+    EV << "----- START LteMacEnbRealistic::macPduMake -----\n";
     // Finalizes the scheduling decisions according to the schedule list,
     // detaching sdus from real buffers.
 
@@ -244,10 +244,10 @@ void LteMacEnbExperimental::macPduMake(MacCid cid)
             txBuf->insertPdu(txList.first, cw, macPkt);
         }
     }
-    EV << "------ END LteMacEnbExperimental::macPduMake ------\n";
+    EV << "------ END LteMacEnbRealistic::macPduMake ------\n";
 }
 
-bool LteMacEnbExperimental::bufferizePacket(cPacket* pkt)
+bool LteMacEnbRealistic::bufferizePacket(cPacket* pkt)
 {
     if (pkt->getByteLength() == 0)
         return false;
@@ -345,7 +345,7 @@ bool LteMacEnbExperimental::bufferizePacket(cPacket* pkt)
     return false; // do not need to notify the activation of the connection (already done when received newDataPkt)
 }
 
-void LteMacEnbExperimental::handleUpperMessage(cPacket* pkt)
+void LteMacEnbRealistic::handleUpperMessage(cPacket* pkt)
 {
     FlowControlInfo* lteInfo = check_and_cast<FlowControlInfo*>(pkt->getControlInfo());
     MacCid cid = idToMacCid(lteInfo->getDestId(), lteInfo->getLcid());
@@ -369,7 +369,7 @@ void LteMacEnbExperimental::handleUpperMessage(cPacket* pkt)
     }
 }
 
-void LteMacEnbExperimental::handleSelfMessage()
+void LteMacEnbRealistic::handleSelfMessage()
 {
     /***************
      *  MAIN LOOP  *
@@ -450,7 +450,7 @@ void LteMacEnbExperimental::handleSelfMessage()
     EV << "--- END " << ((nodeType==MACRO_ENB)?"MACRO":"MICRO") << " ENB MAIN LOOP ---" << endl;
 }
 
-void LteMacEnbExperimental::flushHarqBuffers()
+void LteMacEnbRealistic::flushHarqBuffers()
 {
     HarqTxBuffers::iterator it;
     for (it = harqTxBuffers_.begin(); it != harqTxBuffers_.end(); it++)

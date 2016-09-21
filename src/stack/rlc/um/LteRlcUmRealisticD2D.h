@@ -7,25 +7,25 @@
 // and cannot be removed from it.
 //
 
-#ifndef _LTE_LTERLCUMEXPERIMENTALD2D_H_
-#define _LTE_LTERLCUMEXPERIMENTALD2D_H_
+#ifndef _LTE_LTERLCUMREALISTICD2D_H_
+#define _LTE_LTERLCUMREALISTICD2D_H_
 
-#include "LteRlcUmExperimental.h"
+#include "LteRlcUmRealistic.h"
 
 /**
- * @class LteRlcUmExperimentalD2D
+ * @class LteRlcUmRealisticD2D
  * @brief UM Module
  *
  * This is the UM Module of RLC (with support for D2D)
  *
  */
-class LteRlcUmExperimentalD2D : public LteRlcUmExperimental
+class LteRlcUmRealisticD2D : public LteRlcUmRealistic
 {
   public:
-    LteRlcUmExperimentalD2D()
+    LteRlcUmRealisticD2D()
     {
     }
-    virtual ~LteRlcUmExperimentalD2D()
+    virtual ~LteRlcUmRealisticD2D()
     {
     }
 

@@ -7,40 +7,40 @@
 // and cannot be removed from it.
 //
 
-#include "LteMacUeExperimentalD2D.h"
+#include "LteMacUeRealisticD2D.h"
 #include "LteHarqBufferRx.h"
 #include "LteMacQueue.h"
 #include "LteSchedulingGrant.h"
 #include "LteSchedulerUeUl.h"
-#include "LteMacEnbExperimental.h"
+#include "LteMacEnbRealistic.h"
 #include "LteHarqBufferRxD2DMirror.h"
 #include "D2DModeSwitchNotification_m.h"
 
-Define_Module(LteMacUeExperimentalD2D);
+Define_Module(LteMacUeRealisticD2D);
 
-LteMacUeExperimentalD2D::LteMacUeExperimentalD2D() :
-    LteMacUeExperimental()
+LteMacUeRealisticD2D::LteMacUeRealisticD2D() :
+    LteMacUeRealistic()
 {
     racD2DMulticastRequested_ = false;
     bsrD2DMulticastTriggered_ = false;
 }
 
-LteMacUeExperimentalD2D::~LteMacUeExperimentalD2D()
+LteMacUeRealisticD2D::~LteMacUeRealisticD2D()
 {
 }
 
-void LteMacUeExperimentalD2D::initialize(int stage)
+void LteMacUeRealisticD2D::initialize(int stage)
 {
-    LteMacUeExperimental::initialize(stage);
+    LteMacUeRealistic::initialize(stage);
     if (stage == 0)
     {
-        // check the RLC module type: if it is not "ExperimentalD2D", abort simulation
+        // check the RLC module type: if it is not "RealisticD2D", abort simulation
         std::string pdcpType = getParentModule()->par("LtePdcpRrcType").stdstringValue();
         std::string rlcUmType = getParentModule()->getSubmodule("rlc")->par("LteRlcUmType").stdstringValue();
-        if (rlcUmType.compare("LteRlcUmExperimentalD2D") != 0 )
-            throw cRuntimeError("LteMacUeExperimentalD2D::initialize - %s module found, must be LteRlcUmExperimentalD2D. Aborting", rlcUmType.c_str());
+        if (rlcUmType.compare("LteRlcUmRealisticD2D") != 0 )
+            throw cRuntimeError("LteMacUeRealisticD2D::initialize - %s module found, must be LteRlcUmRealisticD2D. Aborting", rlcUmType.c_str());
         if (pdcpType.compare("LtePdcpRrcUeD2D") != 0)
-            throw cRuntimeError("LteMacUeExperimentalD2D::initialize - %s module found, must be LtePdcpRrcUeD2D. Aborting", pdcpType.c_str());
+            throw cRuntimeError("LteMacUeRealisticD2D::initialize - %s module found, must be LtePdcpRrcUeD2D. Aborting", pdcpType.c_str());
     }
     if (stage == 1)
     {
@@ -49,12 +49,12 @@ void LteMacUeExperimentalD2D::initialize(int stage)
         preconfiguredTxParams_ = getPreconfiguredTxParams();
 
         // get the reference to the eNB
-        enb_ = check_and_cast<LteMacEnbExperimentalD2D*>( simulation.getModule(binder_->getOmnetId(getMacCellId()))->getSubmodule("nic")->getSubmodule("mac"));
+        enb_ = check_and_cast<LteMacEnbRealisticD2D*>( simulation.getModule(binder_->getOmnetId(getMacCellId()))->getSubmodule("nic")->getSubmodule("mac"));
     }
 }
 
 //Function for create only a BSR for the eNB
-LteMacPdu* LteMacUeExperimentalD2D::makeBsr(int size){
+LteMacPdu* LteMacUeRealisticD2D::makeBsr(int size){
 
     UserControlInfo* uinfo = new UserControlInfo();
     uinfo->setSourceId(getMacNodeId());
@@ -70,11 +70,11 @@ LteMacPdu* LteMacUeExperimentalD2D::makeBsr(int size){
     bsr->setSize(size);
     macPkt->pushCe(bsr);
     bsrTriggered_ = false;
-    EV << "LteMacUeExperimentalD2D::makeBsr() - BSR with size " << size << "created" << endl;
+    EV << "LteMacUeRealisticD2D::makeBsr() - BSR with size " << size << "created" << endl;
     return macPkt;
 }
 
-void LteMacUeExperimentalD2D::macPduMake()
+void LteMacUeRealisticD2D::macPduMake()
 {
     int64 size = 0;
 
@@ -126,7 +126,7 @@ void LteMacUeExperimentalD2D::macPduMake()
         {
            macPduList_[ std::pair<MacNodeId, Codeword>( getMacCellId(), 0) ] = macPktBsr;
            bsrAlreadyMade = true;
-           EV << "LteMacUeExperimentalD2D::macPduMake - BSR D2D created with size " << sizeBsr << "created" << endl;
+           EV << "LteMacUeRealisticD2D::macPduMake - BSR D2D created with size " << sizeBsr << "created" << endl;
         }
     }
 
@@ -255,7 +255,7 @@ void LteMacUeExperimentalD2D::macPduMake()
 
         // search for an empty unit within current harq process
         UnitList txList = txBuf->getEmptyUnits(currentHarq_);
-        EV << "LteMacUeExperimentalD2D::macPduMake - [Used Acid=" << (unsigned int)txList.first << "] , [curr=" << (unsigned int)currentHarq_ << "]" << endl;
+        EV << "LteMacUeRealisticD2D::macPduMake - [Used Acid=" << (unsigned int)txList.first << "] , [curr=" << (unsigned int)currentHarq_ << "]" << endl;
 
         //Get a reference of the LteMacPdu from pit pointer (extract Pdu from the MAP)
         LteMacPdu* macPkt = pit->second;
@@ -337,17 +337,17 @@ void LteMacUeExperimentalD2D::macPduMake()
             macPkt->pushCe(bsr);
             bsrTriggered_ = false;
             bsrD2DMulticastTriggered_ = false;
-            EV << "LteMacUeExperimentalD2D::macPduMake - BSR created with size " << size << endl;
+            EV << "LteMacUeRealisticD2D::macPduMake - BSR created with size " << size << endl;
         }
 
-        EV << "LteMacUeExperimentalD2D: pduMaker created PDU: " << macPkt->info() << endl;
+        EV << "LteMacUeRealisticD2D: pduMaker created PDU: " << macPkt->info() << endl;
 
         // TODO: harq test
         // pdu transmission here (if any)
         // txAcid has HARQ_NONE for non-fillable codeword, acid otherwise
         if (txList.second.empty())
         {
-            EV << "LteMacUeExperimentalD2D() : no available process for this MAC pdu in TxHarqBuffer" << endl;
+            EV << "LteMacUeRealisticD2D() : no available process for this MAC pdu in TxHarqBuffer" << endl;
             delete macPkt;
         }
         else
@@ -359,11 +359,11 @@ void LteMacUeExperimentalD2D::macPduMake()
     }
 }
 
-void LteMacUeExperimentalD2D::handleMessage(cMessage* msg)
+void LteMacUeRealisticD2D::handleMessage(cMessage* msg)
 {
     if (msg->isSelfMessage())
     {
-        LteMacUeExperimental::handleMessage(msg);
+        LteMacUeRealistic::handleMessage(msg);
         return;
     }
 
@@ -375,7 +375,7 @@ void LteMacUeExperimentalD2D::handleMessage(cMessage* msg)
         UserControlInfo *userInfo = check_and_cast<UserControlInfo *>(pkt->getControlInfo());
         if (userInfo->getFrameType() == D2DMODESWITCHPKT)
         {
-            EV << "LteMacUeExperimentalD2D::handleMessage - Received packet " << pkt->getName() <<
+            EV << "LteMacUeRealisticD2D::handleMessage - Received packet " << pkt->getName() <<
             " from port " << pkt->getArrivalGate()->getName() << endl;
 
             // message from PHY_to_MAC gate (from lower layer)
@@ -388,13 +388,13 @@ void LteMacUeExperimentalD2D::handleMessage(cMessage* msg)
         }
     }
 
-    LteMacUeExperimental::handleMessage(msg);
+    LteMacUeRealistic::handleMessage(msg);
 }
 
 void
-LteMacUeExperimentalD2D::macHandleGrant(cPacket* pkt)
+LteMacUeRealisticD2D::macHandleGrant(cPacket* pkt)
 {
-    EV << NOW << " LteMacUeExperimentalD2D::macHandleGrant - UE [" << nodeId_ << "] - Grant received " << endl;
+    EV << NOW << " LteMacUeRealisticD2D::macHandleGrant - UE [" << nodeId_ << "] - Grant received " << endl;
 
     // delete old grant
     LteSchedulingGrant* grant = check_and_cast<LteSchedulingGrant*>(pkt);
@@ -423,7 +423,7 @@ LteMacUeExperimentalD2D::macHandleGrant(cPacket* pkt)
     racRequested_=false;
 }
 
-void LteMacUeExperimentalD2D::handleSelfMessage()
+void LteMacUeRealisticD2D::handleSelfMessage()
 {
     EV << "----- UE MAIN LOOP -----" << endl;
 
@@ -465,7 +465,7 @@ void LteMacUeExperimentalD2D::handleSelfMessage()
         enb_->storeRxHarqBufferMirror(nodeId_, mirbuff);
     }
 
-    EV << NOW << "LteMacUeExperimentalD2D::handleSelfMessage " << nodeId_ << " - HARQ process " << (unsigned int)currentHarq_ << endl;
+    EV << NOW << "LteMacUeRealisticD2D::handleSelfMessage " << nodeId_ << " - HARQ process " << (unsigned int)currentHarq_ << endl;
     // updating current HARQ process for next TTI
 
     //unsigned char currentHarq = currentHarq_;
@@ -475,7 +475,7 @@ void LteMacUeExperimentalD2D::handleSelfMessage()
 
     if (schedulingGrant_==NULL)
     {
-        EV << NOW << " LteMacUeExperimentalD2D::handleSelfMessage " << nodeId_ << " NO configured grant" << endl;
+        EV << NOW << " LteMacUeRealisticD2D::handleSelfMessage " << nodeId_ << " NO configured grant" << endl;
 
         // if necessary, a RAC request will be sent to obtain a grant
         checkRAC();
@@ -530,14 +530,14 @@ void LteMacUeExperimentalD2D::handleSelfMessage()
         // TODO check if current grant is "NEW TRANSMISSION" or "RETRANSMIT" (periodic grants shall always be "newtx"
 //        if ( false/*!grant_->isNewTx() && harqQueue_->rtx(currentHarq) */)
 //        {
-        //        if ( LteDebug:r:trace("LteMacUeExperimentalD2D::newSubFrame") )
+        //        if ( LteDebug:r:trace("LteMacUeRealisticD2D::newSubFrame") )
         //            fprintf (stderr,"%.9f UE: [%d] Triggering retransmission for acid %d\n",NOW,nodeId_,currentHarq);
         //        // triggering retransmission --- nothing to do here, really!
 //        } else {
         // buffer drop should occour here.
 //        scheduleList = ueScheduler_->buildSchedList();
 
-        EV << NOW << " LteMacUeExperimentalD2D::handleSelfMessage " << nodeId_ << " entered scheduling" << endl;
+        EV << NOW << " LteMacUeRealisticD2D::handleSelfMessage " << nodeId_ << " entered scheduling" << endl;
 
         bool retx = false;
 
@@ -619,7 +619,7 @@ void LteMacUeExperimentalD2D::handleSelfMessage()
         if (hit->first == cellId_)
             purged += hit->second->purgeCorruptedPdus();
     }
-    EV << NOW << " LteMacUeExperimentalD2D::handleSelfMessage Purged " << purged << " PDUS" << endl;
+    EV << NOW << " LteMacUeRealisticD2D::handleSelfMessage Purged " << purged << " PDUS" << endl;
 
     if (requestSdu == false)
     {
@@ -631,7 +631,7 @@ void LteMacUeExperimentalD2D::handleSelfMessage()
 }
 
 
-UserTxParams* LteMacUeExperimentalD2D::getPreconfiguredTxParams()
+UserTxParams* LteMacUeRealisticD2D::getPreconfiguredTxParams()
 {
     UserTxParams* txParams = new UserTxParams();
 
@@ -644,7 +644,7 @@ UserTxParams* LteMacUeExperimentalD2D::getPreconfiguredTxParams()
 
     Cqi cqi = par("d2dCqi");
     if (cqi < 0 || cqi > 15)
-        throw cRuntimeError("LteMacUeExperimentalD2D::getPreconfiguredTxParams - CQI %s is not a valid value. Aborting", cqi);
+        throw cRuntimeError("LteMacUeRealisticD2D::getPreconfiguredTxParams - CQI %s is not a valid value. Aborting", cqi);
     txParams->writeCqi(std::vector<Cqi>(1,cqi));
 
     BandSet b;
@@ -657,7 +657,7 @@ UserTxParams* LteMacUeExperimentalD2D::getPreconfiguredTxParams()
     return txParams;
 }
 
-void LteMacUeExperimentalD2D::updateUserTxParam(cPacket* pkt)
+void LteMacUeRealisticD2D::updateUserTxParam(cPacket* pkt)
 {
     UserControlInfo *lteInfo = check_and_cast<UserControlInfo *>(pkt->getControlInfo());
     if (usePreconfiguredTxParams_ || lteInfo->getDirection() == D2D_MULTI)
@@ -682,9 +682,9 @@ void LteMacUeExperimentalD2D::updateUserTxParam(cPacket* pkt)
         LteMacUe::updateUserTxParam(pkt);
 }
 
-void LteMacUeExperimentalD2D::macHandleD2DModeSwitch(cPacket* pkt)
+void LteMacUeRealisticD2D::macHandleD2DModeSwitch(cPacket* pkt)
 {
-    EV << NOW << " LteMacUeExperimentalD2D::macHandleD2DModeSwitch - Start" << endl;
+    EV << NOW << " LteMacUeRealisticD2D::macHandleD2DModeSwitch - Start" << endl;
 
     // all data in the MAC buffers of the connection to be switched are deleted
 
@@ -710,7 +710,7 @@ void LteMacUeExperimentalD2D::macHandleD2DModeSwitch(cPacket* pkt)
             lteInfo = check_and_cast<FlowControlInfo*>(&(it->second));
             if (lteInfo->getD2dRxPeerId() == peerId && (Direction)lteInfo->getDirection() == oldDirection)
             {
-                EV << NOW << " LteMacUeExperimentalD2D::macHandleD2DModeSwitch - found connection with cid " << cid << ", erasing buffered data" << endl;
+                EV << NOW << " LteMacUeRealisticD2D::macHandleD2DModeSwitch - found connection with cid " << cid << ", erasing buffered data" << endl;
                 if (oldDirection != newDirection)
                 {
                     // empty virtual buffer for the selected cid
@@ -773,7 +773,7 @@ void LteMacUeExperimentalD2D::macHandleD2DModeSwitch(cPacket* pkt)
                 {
                     ++it;
                 }
-                EV << NOW << " LteMacUeExperimentalD2D::macHandleD2DModeSwitch - send switch signal to the RLC TX entity corresponding to the old mode, cid " << cid << endl;
+                EV << NOW << " LteMacUeRealisticD2D::macHandleD2DModeSwitch - send switch signal to the RLC TX entity corresponding to the old mode, cid " << cid << endl;
             }
             else
             {
@@ -796,7 +796,7 @@ void LteMacUeExperimentalD2D::macHandleD2DModeSwitch(cPacket* pkt)
             lteInfo = check_and_cast<FlowControlInfo*>(&(it->second));
             if (lteInfo->getD2dTxPeerId() == peerId && (Direction)lteInfo->getDirection() == oldDirection)
             {
-                EV << NOW << " LteMacUeExperimentalD2D::macHandleD2DModeSwitch - found connection with cid " << cid << ", send signal to the RLC RX entity" << endl;
+                EV << NOW << " LteMacUeRealisticD2D::macHandleD2DModeSwitch - found connection with cid " << cid << ", send signal to the RLC RX entity" << endl;
                 if (oldDirection != newDirection)
                 {
                     // interrupt H-ARQ processes

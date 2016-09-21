@@ -9,7 +9,7 @@
 
 #include "D2DModeSelectionBase.h"
 #include "LteMacEnbD2D.h"
-#include "LteMacEnbExperimentalD2D.h"
+#include "LteMacEnbRealisticD2D.h"
 
 void D2DModeSelectionBase::initialize(int stage)
 {
@@ -114,8 +114,8 @@ void D2DModeSelectionBase::sendModeSwitchNotifications()
 
         if (strcmp(mac_->getClassName(), "LteMacEnbD2D") == 0)
             check_and_cast<LteMacEnbD2D*>(mac_)->sendModeSwitchNotification(srcId, dstId, oldMode, newMode);
-        else if (strcmp(mac_->getClassName(), "LteMacEnbExperimentalD2D") == 0)
-            check_and_cast<LteMacEnbExperimentalD2D*>(mac_)->sendModeSwitchNotification(srcId, dstId, oldMode, newMode);
+        else if (strcmp(mac_->getClassName(), "LteMacEnbRealisticD2D") == 0)
+            check_and_cast<LteMacEnbRealisticD2D*>(mac_)->sendModeSwitchNotification(srcId, dstId, oldMode, newMode);
         else
             throw cRuntimeError("D2DModeSelectionBase::sendModeSwitchNotifications - unrecognized MAC type %s", mac_->getClassName());
     }

@@ -1,6 +1,5 @@
 //
 //                           SimuLTE
-// Copyright (C) 2015 Giovanni Nardini.
 //
 // This file is part of a software released under the license included in file
 // "license.pdf". This license can be also found at http://www.ltesimulator.com/
@@ -8,7 +7,7 @@
 // and cannot be removed from it.
 //
 
-#include "LteMacUeExperimental.h"
+#include "LteMacUeRealistic.h"
 #include "LteHarqBufferRx.h"
 #include "LteMacQueue.h"
 #include "LteSchedulingGrant.h"
@@ -22,33 +21,33 @@
 #include "LteBinder.h"
 #include "LteMacSduRequest.h"
 
-Define_Module(LteMacUeExperimental);
+Define_Module(LteMacUeRealistic);
 
-LteMacUeExperimental::LteMacUeExperimental() :
+LteMacUeRealistic::LteMacUeRealistic() :
     LteMacUe()
 {
     scheduleList_ = NULL;
 }
 
-LteMacUeExperimental::~LteMacUeExperimental()
+LteMacUeRealistic::~LteMacUeRealistic()
 {
 }
 
-void LteMacUeExperimental::initialize(int stage)
+void LteMacUeRealistic::initialize(int stage)
 {
     LteMacUe::initialize(stage);
     if (stage == 0)
     {
-        // check the RLC module type: if it is not "experimental", abort simulation
+        // check the RLC module type: if it is not "realistic", abort simulation
         // TODO do the same for RLC AM
         std::string rlcUmType = getParentModule()->getSubmodule("rlc")->par("LteRlcUmType").stdstringValue();
         std::string macType = getParentModule()->par("LteMacType").stdstringValue();
-        if (macType.compare("LteMacUeExperimental") == 0 &&  rlcUmType.compare("LteRlcUmExperimental") != 0)
-            throw cRuntimeError("LteMacUeExperimental::initialize - %s module found, must be LteRlcUmExperimental. Aborting", rlcUmType.c_str());
+        if (macType.compare("LteMacUeRealistic") == 0 &&  rlcUmType.compare("LteRlcUmRealistic") != 0)
+            throw cRuntimeError("LteMacUeRealistic::initialize - %s module found, must be LteRlcUmRealistic. Aborting", rlcUmType.c_str());
     }
 }
 
-void LteMacUeExperimental::handleMessage(cMessage* msg)
+void LteMacUeRealistic::handleMessage(cMessage* msg)
 {
     if (msg->isSelfMessage())
     {
@@ -63,9 +62,9 @@ void LteMacUeExperimental::handleMessage(cMessage* msg)
     LteMacBase::handleMessage(msg);
 }
 
-bool LteMacUeExperimental::macSduRequest()
+bool LteMacUeRealistic::macSduRequest()
 {
-    EV << "----- START LteMacUeExperimental::macSduRequest -----\n";
+    EV << "----- START LteMacUeRealistic::macSduRequest -----\n";
     bool sent = false;
     // Ask for a MAC sdu for each scheduled user on each codeword
     LteMacScheduleList::const_iterator it;
@@ -89,11 +88,11 @@ bool LteMacUeExperimental::macSduRequest()
         sent = true;
     }
 
-    EV << "------ END LteMacUeExperimental::macSduRequest ------\n";
+    EV << "------ END LteMacUeRealistic::macSduRequest ------\n";
     return sent;
 }
 
-void LteMacUeExperimental::macPduMake()
+void LteMacUeRealistic::macPduMake()
 {
     int64 size = 0;
 
@@ -191,7 +190,7 @@ void LteMacUeExperimental::macPduMake()
 
         // search for an empty unit within current harq process
         UnitList txList = txBuf->getEmptyUnits(currentHarq_);
-//        EV << "LteMacUeExperimental::macPduMake - [Used Acid=" << (unsigned int)txList.first << "] , [curr=" << (unsigned int)currentHarq_ << "]" << endl;
+//        EV << "LteMacUeRealistic::macPduMake - [Used Acid=" << (unsigned int)txList.first << "] , [curr=" << (unsigned int)currentHarq_ << "]" << endl;
 
         LteMacPdu* macPkt = pit->second;
 
@@ -270,7 +269,7 @@ void LteMacUeExperimental::macPduMake()
             bsr->setSize(size);
             macPkt->pushCe(bsr);
             bsrTriggered_ = false;
-            EV << "LteMacUeExperimental::macPduMake - BSR with size " << size << "created" << endl;
+            EV << "LteMacUeRealistic::macPduMake - BSR with size " << size << "created" << endl;
         }
 
         EV << "LteMacBase: pduMaker created PDU: " << macPkt->info() << endl;
@@ -290,7 +289,7 @@ void LteMacUeExperimental::macPduMake()
     }
 }
 
-bool LteMacUeExperimental::bufferizePacket(cPacket* pkt)
+bool LteMacUeRealistic::bufferizePacket(cPacket* pkt)
 {
     if (pkt->getByteLength() == 0)
         return false;
@@ -388,7 +387,7 @@ bool LteMacUeExperimental::bufferizePacket(cPacket* pkt)
     return false; // do not need to notify the activation of the connection (already done when received newDataPkt)
 }
 
-void LteMacUeExperimental::handleUpperMessage(cPacket* pkt)
+void LteMacUeRealistic::handleUpperMessage(cPacket* pkt)
 {
     FlowControlInfo* lteInfo = check_and_cast<FlowControlInfo*>(pkt->getControlInfo());
     MacCid cid = idToMacCid(lteInfo->getDestId(), lteInfo->getLcid());
@@ -405,7 +404,7 @@ void LteMacUeExperimental::handleUpperMessage(cPacket* pkt)
         // creates pdus from schedule list and puts them in harq buffers
         macPduMake();
 
-        EV << NOW << " LteMacUeExperimental::handleUpperMessage - incrementing counter for HARQ processes " << (unsigned int)currentHarq_ << " --> " << (currentHarq_+1)%harqProcesses_ << endl;
+        EV << NOW << " LteMacUeRealistic::handleUpperMessage - incrementing counter for HARQ processes " << (unsigned int)currentHarq_ << " --> " << (currentHarq_+1)%harqProcesses_ << endl;
         currentHarq_ = (currentHarq_+1)%harqProcesses_;
     }
     else
@@ -413,7 +412,7 @@ void LteMacUeExperimental::handleUpperMessage(cPacket* pkt)
         delete pkt;
     }
 }
-void LteMacUeExperimental::handleSelfMessage()
+void LteMacUeRealistic::handleSelfMessage()
 {
     EV << "----- UE MAIN LOOP -----" << endl;
 
@@ -434,7 +433,7 @@ void LteMacUeExperimental::handleSelfMessage()
         }
     }
 
-    EV << NOW << "LteMacUeExperimental::handleSelfMessage " << nodeId_ << " - HARQ process " << (unsigned int)currentHarq_ << endl;
+    EV << NOW << "LteMacUeRealistic::handleSelfMessage " << nodeId_ << " - HARQ process " << (unsigned int)currentHarq_ << endl;
     // updating current HARQ process for next TTI
 
     //unsigned char currentHarq = currentHarq_;
@@ -444,7 +443,7 @@ void LteMacUeExperimental::handleSelfMessage()
 
     if (schedulingGrant_==NULL)
     {
-        EV << NOW << " LteMacUeExperimental::handleSelfMessage " << nodeId_ << " NO configured grant" << endl;
+        EV << NOW << " LteMacUeRealistic::handleSelfMessage " << nodeId_ << " NO configured grant" << endl;
 
 //        if (!bsrTriggered_)
 //        {
@@ -504,14 +503,14 @@ void LteMacUeExperimental::handleSelfMessage()
         // TODO check if current grant is "NEW TRANSMISSION" or "RETRANSMIT" (periodic grants shall always be "newtx"
 //        if ( false/*!grant_->isNewTx() && harqQueue_->rtx(currentHarq) */)
 //        {
-        //        if ( LteDebug:r:trace("LteMacUeExperimental::newSubFrame") )
+        //        if ( LteDebug:r:trace("LteMacUeRealistic::newSubFrame") )
         //            fprintf (stderr,"%.9f UE: [%d] Triggering retransmission for acid %d\n",NOW,nodeId_,currentHarq);
         //        // triggering retransmission --- nothing to do here, really!
 //        } else {
         // buffer drop should occour here.
 //        scheduleList = ueScheduler_->buildSchedList();
 
-        EV << NOW << " LteMacUeExperimental::handleSelfMessage " << nodeId_ << " entered scheduling" << endl;
+        EV << NOW << " LteMacUeRealistic::handleSelfMessage " << nodeId_ << " entered scheduling" << endl;
 
         bool retx = false;
 
@@ -597,7 +596,7 @@ void LteMacUeExperimental::handleSelfMessage()
     {
         purged += hit->second->purgeCorruptedPdus();
     }
-    EV << NOW << " LteMacUeExperimental::handleSelfMessage Purged " << purged << " PDUS" << endl;
+    EV << NOW << " LteMacUeRealistic::handleSelfMessage Purged " << purged << " PDUS" << endl;
 
     if (!requestSdu)
     {
@@ -608,7 +607,7 @@ void LteMacUeExperimental::handleSelfMessage()
     EV << "--- END UE MAIN LOOP ---" << endl;
 }
 
-void LteMacUeExperimental::flushHarqBuffers()
+void LteMacUeRealistic::flushHarqBuffers()
 {
     // send the selected units to lower layers
     HarqTxBuffers::iterator it2;

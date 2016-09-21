@@ -7,33 +7,33 @@
 // and cannot be removed from it.
 //
 
-#include "LteMacEnbExperimentalD2D.h"
+#include "LteMacEnbRealisticD2D.h"
 #include "LteFeedbackPkt.h"
-#include "LteMacUeExperimentalD2D.h"
+#include "LteMacUeRealisticD2D.h"
 #include "LteHarqBufferRx.h"
 #include "AmcPilotD2D.h"
 #include "LteSchedulerEnbUl.h"
 #include "LteSchedulingGrant.h"
 
-Define_Module(LteMacEnbExperimentalD2D);
+Define_Module(LteMacEnbRealisticD2D);
 
-LteMacEnbExperimentalD2D::LteMacEnbExperimentalD2D() :
-    LteMacEnbExperimental()
+LteMacEnbRealisticD2D::LteMacEnbRealisticD2D() :
+    LteMacEnbRealistic()
 {
 }
 
-LteMacEnbExperimentalD2D::~LteMacEnbExperimentalD2D()
+LteMacEnbRealisticD2D::~LteMacEnbRealisticD2D()
 {
 }
 
-void LteMacEnbExperimentalD2D::initialize(int stage)
+void LteMacEnbRealisticD2D::initialize(int stage)
 {
-    LteMacEnbExperimental::initialize(stage);
+    LteMacEnbRealistic::initialize(stage);
     if (stage == 0)
     {
         std::string rlcUmType = getParentModule()->getSubmodule("rlc")->par("LteRlcUmType").stdstringValue();
-        if (rlcUmType.compare("LteRlcUmExperimentalD2D") != 0)
-            throw cRuntimeError("LteMacEnbExperimentalD2D::initialize - %s module found, must be LteRlcUmExperimentalD2D. Aborting", rlcUmType.c_str());
+        if (rlcUmType.compare("LteRlcUmRealisticD2D") != 0)
+            throw cRuntimeError("LteMacEnbRealisticD2D::initialize - %s module found, must be LteRlcUmRealisticD2D. Aborting", rlcUmType.c_str());
     }
     if (stage == 1)
     {
@@ -44,7 +44,7 @@ void LteMacEnbExperimentalD2D::initialize(int stage)
     }
 }
 
-void LteMacEnbExperimentalD2D::macHandleFeedbackPkt(cPacket *pkt)
+void LteMacEnbRealisticD2D::macHandleFeedbackPkt(cPacket *pkt)
 {
     LteFeedbackPkt* fb = check_and_cast<LteFeedbackPkt*>(pkt);
     std::map<MacNodeId, LteFeedbackDoubleVector> fbMapD2D = fb->getLteFeedbackDoubleVectorD2D();
@@ -77,21 +77,21 @@ void LteMacEnbExperimentalD2D::macHandleFeedbackPkt(cPacket *pkt)
     LteMacEnb::macHandleFeedbackPkt(pkt);
 }
 
-void LteMacEnbExperimentalD2D::handleMessage(cMessage* msg)
+void LteMacEnbRealisticD2D::handleMessage(cMessage* msg)
 {
-    LteMacEnbExperimental::handleMessage(msg);
+    LteMacEnbRealistic::handleMessage(msg);
 }
 
 
-void LteMacEnbExperimentalD2D::handleSelfMessage()
+void LteMacEnbRealisticD2D::handleSelfMessage()
 {
     // TODO compute conflict graph for resource allocation
 
     // Call the eNodeB main loop
-    LteMacEnbExperimental::handleSelfMessage();
+    LteMacEnbRealistic::handleSelfMessage();
 }
 
-void LteMacEnbExperimentalD2D::macPduUnmake(cPacket* pkt)
+void LteMacEnbRealisticD2D::macPduUnmake(cPacket* pkt)
 {
     LteMacPdu* macPkt = check_and_cast<LteMacPdu*>(pkt);
     while (macPkt->hasSdu())
@@ -134,9 +134,9 @@ void LteMacEnbExperimentalD2D::macPduUnmake(cPacket* pkt)
     delete macPkt;
 }
 
-void LteMacEnbExperimentalD2D::sendGrants(LteMacScheduleList* scheduleList)
+void LteMacEnbRealisticD2D::sendGrants(LteMacScheduleList* scheduleList)
 {
-    EV << NOW << "LteMacEnbExperimentalD2D::sendGrants " << endl;
+    EV << NOW << "LteMacEnbRealisticD2D::sendGrants " << endl;
 
     while (!scheduleList->empty())
     {
@@ -181,7 +181,7 @@ void LteMacEnbExperimentalD2D::sendGrants(LteMacScheduleList* scheduleList)
         if (granted == 0)
             continue; // avoiding transmission of 0 grant (0 grant should not be created)
 
-        EV << NOW << " LteMacEnbExperimentalD2D::sendGrants Node[" << getMacNodeId() << "] - "
+        EV << NOW << " LteMacEnbRealisticD2D::sendGrants Node[" << getMacNodeId() << "] - "
            << granted << " blocks to grant for user " << nodeId << " on "
            << codewords << " codewords. CW[" << cw << "\\" << otherCw << "]" << endl;
 
@@ -230,7 +230,7 @@ void LteMacEnbExperimentalD2D::sendGrants(LteMacScheduleList* scheduleList)
             }
 
             grant->setGrantedCwBytes(cw, grantedBytes);
-            EV << NOW << " LteMacEnbExperimentalD2D::sendGrants - granting " << grantedBytes << " on cw " << cw << endl;
+            EV << NOW << " LteMacEnbRealisticD2D::sendGrants - granting " << grantedBytes << " on cw " << cw << endl;
         }
         RbMap map;
 
@@ -242,9 +242,9 @@ void LteMacEnbExperimentalD2D::sendGrants(LteMacScheduleList* scheduleList)
     }
 }
 
-void LteMacEnbExperimentalD2D::clearBsrBuffers(MacNodeId ueId)
+void LteMacEnbRealisticD2D::clearBsrBuffers(MacNodeId ueId)
 {
-    EV << NOW << "LteMacEnbExperimentalD2D::clearBsrBuffers - Clear BSR buffers of UE " << ueId << endl;
+    EV << NOW << "LteMacEnbRealisticD2D::clearBsrBuffers - Clear BSR buffers of UE " << ueId << endl;
 
     // empty all BSR buffers belonging to the UE
     LteMacBufferMap::iterator vit = bsrbuf_.begin();
@@ -255,21 +255,21 @@ void LteMacEnbExperimentalD2D::clearBsrBuffers(MacNodeId ueId)
         if (MacCidToNodeId(cid) != ueId)
             continue;
 
-        EV << NOW << "LteMacEnbExperimentalD2D::clearBsrBuffers - Clear BSR buffer for cid " << cid << endl;
+        EV << NOW << "LteMacEnbRealisticD2D::clearBsrBuffers - Clear BSR buffer for cid " << cid << endl;
 
         // empty its BSR buffer
         LteMacBuffer* buf = vit->second;
-        EV << NOW << "LteMacEnbExperimentalD2D::clearBsrBuffers - Length was " << buf->getQueueOccupancy() << endl;
+        EV << NOW << "LteMacEnbRealisticD2D::clearBsrBuffers - Length was " << buf->getQueueOccupancy() << endl;
 
         while (!buf->isEmpty())
             buf->popFront();
 
-        EV << NOW << "LteMacEnbExperimentalD2D::clearBsrBuffers - New length is " << buf->getQueueOccupancy() << endl;
+        EV << NOW << "LteMacEnbRealisticD2D::clearBsrBuffers - New length is " << buf->getQueueOccupancy() << endl;
 
     }
 }
 
-void LteMacEnbExperimentalD2D::storeRxHarqBufferMirror(MacNodeId id, LteHarqBufferRxD2DMirror* mirbuff)
+void LteMacEnbRealisticD2D::storeRxHarqBufferMirror(MacNodeId id, LteHarqBufferRxD2DMirror* mirbuff)
 {
     // TODO optimize
 
@@ -278,12 +278,12 @@ void LteMacEnbExperimentalD2D::storeRxHarqBufferMirror(MacNodeId id, LteHarqBuff
     harqRxBuffersD2DMirror_[id] = mirbuff;
 }
 
-HarqRxBuffersMirror* LteMacEnbExperimentalD2D::getRxHarqBufferMirror()
+HarqRxBuffersMirror* LteMacEnbRealisticD2D::getRxHarqBufferMirror()
 {
     return &harqRxBuffersD2DMirror_;
 }
 
-void LteMacEnbExperimentalD2D::deleteRxHarqBufferMirror(MacNodeId id)
+void LteMacEnbRealisticD2D::deleteRxHarqBufferMirror(MacNodeId id)
 {
     HarqRxBuffersMirror::iterator it = harqRxBuffersD2DMirror_.begin() , et=harqRxBuffersD2DMirror_.end();
     for(; it != et;)
@@ -303,7 +303,7 @@ void LteMacEnbExperimentalD2D::deleteRxHarqBufferMirror(MacNodeId id)
     }
 }
 
-void LteMacEnbExperimentalD2D::sendModeSwitchNotification(MacNodeId srcId, MacNodeId dstId, LteD2DMode oldMode, LteD2DMode newMode)
+void LteMacEnbRealisticD2D::sendModeSwitchNotification(MacNodeId srcId, MacNodeId dstId, LteD2DMode oldMode, LteD2DMode newMode)
 {
     Enter_Method("sendModeSwitchNotification");
 
@@ -346,7 +346,7 @@ void LteMacEnbExperimentalD2D::sendModeSwitchNotification(MacNodeId srcId, MacNo
             lteInfo = check_and_cast<FlowControlInfo*>(&(jt->second));
             if (MacCidToNodeId(cid) == srcId)
             {
-                EV << NOW << " LteMacEnbExperimentalD2D::sendModeSwitchNotification - send signal for RX entity to upper layers in the eNB (cid=" << cid << ")" << endl;
+                EV << NOW << " LteMacEnbRealisticD2D::sendModeSwitchNotification - send signal for RX entity to upper layers in the eNB (cid=" << cid << ")" << endl;
                 D2DModeSwitchNotification* switchPkt = switchPktTx->dup();
                 switchPkt->setControlInfo(lteInfo->dup());
                 sendUpperPackets(switchPkt);

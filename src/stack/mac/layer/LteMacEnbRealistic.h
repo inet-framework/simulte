@@ -7,12 +7,12 @@
 // and cannot be removed from it.
 //
 
-#ifndef _LTE_LTEMACENBEXPERIMENTAL_H_
-#define _LTE_LTEMACENBEXPERIMENTAL_H_
+#ifndef _LTE_LTEMACENBREALISTIC_H_
+#define _LTE_LTEMACENBREALISTIC_H_
 
 #include "LteMacEnb.h"
 
-class LteMacEnbExperimental : public LteMacEnb
+class LteMacEnbRealistic : public LteMacEnb
 {
   protected:
 
@@ -70,8 +70,8 @@ class LteMacEnbExperimental : public LteMacEnb
 
   public:
 
-    LteMacEnbExperimental();
-    virtual ~LteMacEnbExperimental();
+    LteMacEnbRealistic();
+    virtual ~LteMacEnbRealistic();
 
     virtual bool isD2DCapable()
     {

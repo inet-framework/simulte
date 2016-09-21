@@ -8,27 +8,27 @@
 // and cannot be removed from it.
 //
 
-#ifndef _LTE_LCGSCHEDULEREXPERIMENTAL_H_
-#define _LTE_LCGSCHEDULEREXPERIMENTAL_H_
+#ifndef _LTE_LCGSCHEDULERREALISTIC_H_
+#define _LTE_LCGSCHEDULERREALISTIC_H_
 
 #include "LcgScheduler.h"
 
 /**
- * @class LcgSchedulerExperimental
+ * @class LcgSchedulerRealistic
  */
-class LcgSchedulerExperimental : public LcgScheduler
+class LcgSchedulerRealistic : public LcgScheduler
 {
   public:
 
     /**
      * Default constructor.
      */
-    LcgSchedulerExperimental(LteMacUe * mac);
+    LcgSchedulerRealistic(LteMacUe * mac);
 
     /**
      * Destructor.
      */
-    virtual ~LcgSchedulerExperimental();
+    virtual ~LcgSchedulerRealistic();
 
     /* Executes the LCG scheduling algorithm
      * @param availableBytes

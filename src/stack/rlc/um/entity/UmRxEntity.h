@@ -11,7 +11,7 @@
 #define _LTE_UMRXENTITY_H_
 
 #include <omnetpp.h>
-#include "LteRlcUmExperimental.h"
+#include "LteRlcUmRealistic.h"
 #include "TTimer.h"
 #include "LteControlInfo.h"
 #include "LtePdcpPdu_m.h"

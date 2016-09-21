@@ -75,7 +75,7 @@ LteSchedulerEnbDl::schedulePerAcidRtx(MacNodeId nodeId, Codeword cw, unsigned ch
         }
     }
     EV << NOW << "LteSchedulerEnbDl::rtxAcid - Node [" << mac_->getMacNodeId() << "], User[" << nodeId << "],  Codeword [" << cw << "]  of [" << codewords << "] , ACID [" << (int)acid << "] " << endl;
-    //! \test EXPERIMENTAL!!!  Multi User MIMO support
+    //! \test REALISTIC!!!  Multi User MIMO support
     if (mac_->muMimo() && (txParams.readTxMode() == MULTI_USER))
     {
         // request amc for MU_MIMO pairing

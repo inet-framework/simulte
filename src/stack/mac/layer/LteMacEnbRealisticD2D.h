@@ -7,17 +7,17 @@
 // and cannot be removed from it.
 //
 
-#ifndef _LTE_LTEMACENBEXPERIMENTALD2D_H_
-#define _LTE_LTEMACENBEXPERIMENTALD2D_H_
+#ifndef _LTE_LTEMACENBREALISTICD2D_H_
+#define _LTE_LTEMACENBREALISTICD2D_H_
 
-#include "LteMacEnbExperimental.h"
+#include "LteMacEnbRealistic.h"
 #include "LteMacBuffer.h"
 #include "LteHarqBufferRxD2DMirror.h"
 #include "D2DModeSwitchNotification_m.h"
 
 typedef std::map<MacNodeId, LteHarqBufferRxD2DMirror*> HarqRxBuffersMirror;
 
-class LteMacEnbExperimentalD2D : public LteMacEnbExperimental
+class LteMacEnbRealisticD2D : public LteMacEnbRealistic
 {
   protected:
 
@@ -55,8 +55,8 @@ class LteMacEnbExperimentalD2D : public LteMacEnbExperimental
 
   public:
 
-    LteMacEnbExperimentalD2D();
-    virtual ~LteMacEnbExperimentalD2D();
+    LteMacEnbRealisticD2D();
+    virtual ~LteMacEnbRealisticD2D();
 
     /**
      * Reads MAC parameters for ue and performs initialization.

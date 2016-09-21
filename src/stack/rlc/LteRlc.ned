@@ -17,7 +17,7 @@ module LteRlc {
     parameters:
         @display("i=block/transport");
         
-        string LteRlcUmType = default("LteRlcUm");          // One of: "LteRlcUm", "LteRlcUmExperimental"
+        string LteRlcUmType = default("LteRlcUmRealistic");          // One of: "LteRlcUm", "LteRlcUmRealistic"    
         
         @statistic[rlcDelayDl](title="Delay at the rlc layer UL"; unit="s"; source="rlcDelayDl"; record=lteAvg);
         @statistic[rlcThroughputDl](title="Throughput at the rlc layer DL"; unit="Bps"; source="rlcThroughputDl"; record=lteRate);
@@ -66,8 +66,8 @@ module LteRlc {
             @display("p=100,100;");
         }
         
-        // UM Module
-        um: <LteRlcUmType> like ILteRlcUm {
+        // UM Module        
+        um: <LteRlcUmType> like ILteRlcUm  {
             @display("p=200,100;");
         }
         
@@ -121,7 +121,6 @@ simple LteRlcTm {
         inout TM_Sap_down;    // Gate to RLC Mux
 }
 
-// 
 // UM Module Interface for the RLC layer of LTE Stack.
 //
 moduleinterface ILteRlcUm {
@@ -156,21 +155,19 @@ simple LteRlcUm like ILteRlcUm {
 // 
 // UM Module (experimental) for the RLC layer of LTE Stack.
 //
-simple LteRlcUmExperimental extends LteRlcUm{
+simple LteRlcUmRealistic extends LteRlcUm {
     parameters:
-        @class("LteRlcUmExperimental");
-        
+        @class("LteRlcUmRealistic");
         @display("i=block/wheelbarrow");
-
 }
 
 // 
-// UM Module (experimental) for the RLC layer of LTE Stack (with D2D).
+// UM Module (realistic) for the RLC layer of LTE Stack (with D2D).
 //
-simple LteRlcUmExperimentalD2D extends LteRlcUm
+simple LteRlcUmRealisticD2D extends LteRlcUm
 {
     parameters:
-        @class("LteRlcUmExperimentalD2D");
+        @class("LteRlcUmRealisticD2D");
         @display("i=block/wheelbarrow");
 }
 
@@ -260,7 +257,7 @@ simple AmRxQueue {
 }
 
 //
-// Entities for the RLC Experimental module
+// Entities for the RLC Realistic module
 //
 
 // 

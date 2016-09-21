@@ -126,20 +126,20 @@ simple LteMacUeD2D extends LteMacUe {
 }
 
 //
-// User Equipment MAC layer of LTE stack (Experimental)
+// User Equipment MAC layer of LTE stack (Realistic)
 //
-simple LteMacUeExperimental extends LteMacUe {
-    @class("LteMacUeExperimental");
+simple LteMacUeRealistic extends LteMacUe {
+    @class("LteMacUeRealistic");
 }
 
 //
-// D2D-capable User Equipment MAC layer of LTE stack (Experimental)
+// D2D-capable User Equipment MAC layer of LTE stack (Realistic)
 //
-simple LteMacUeExperimentalD2D extends LteMacUeExperimental
+simple LteMacUeRealisticD2D extends LteMacUeRealistic
 {
   parameters:
     
-    @class("LteMacUeExperimentalD2D"); 
+    @class("LteMacUeRealisticD2D"); 
     
     bool usePreconfiguredTxParams = default(false);
     int d2dCqi = default(7);
@@ -503,20 +503,20 @@ simple LteMacEnbD2D extends LteMacEnb
 }
       
 //
-// eNodeB MAC layer of LTE stack (Experimental)
+// eNodeB MAC layer of LTE stack (Realistic)
 //
-simple LteMacEnbExperimental extends LteMacEnb {
-    @class("LteMacEnbExperimental");
+simple LteMacEnbRealistic extends LteMacEnb {
+    @class("LteMacEnbRealistic");
 }
 
 //
-// eNodeB MAC layer of LTE stack (Experimental) with support for D2D-capable UEs
+// eNodeB MAC layer of LTE stack (Realistic) with support for D2D-capable UEs
 //
-simple LteMacEnbExperimentalD2D extends LteMacEnbExperimental
+simple LteMacEnbRealisticD2D extends LteMacEnbRealistic
 {
     parameters:
         
-	@class("LteMacEnbExperimentalD2D");
+	@class("LteMacEnbRealisticD2D");
 	
 	bool usePreconfiguredTxParams = default(false);
     int d2dCqi = default(7);

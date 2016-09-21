@@ -7,8 +7,8 @@
 // and cannot be removed from it.
 //
 
-#ifndef _LTE_LTERLCUMEXPERIMENTAL_H_
-#define _LTE_LTERLCUMEXPERIMENTAL_H_
+#ifndef _LTE_LTERLCUMREALISTIC_H_
+#define _LTE_LTERLCUMREALISTIC_H_
 
 #include <omnetpp.h>
 #include "LteRlcUm.h"
@@ -21,7 +21,7 @@ class UmTxEntity;
 class UmRxEntity;
 
 /**
- * @class LteRlcUmExperimental
+ * @class LteRlcUmRealistic
  * @brief UM Module
  *
  * This is the UM Module of RLC.
@@ -41,13 +41,13 @@ class UmRxEntity;
  *   of this header is fixed to 2 bytes.
  *
  */
-class LteRlcUmExperimental : public LteRlcUm
+class LteRlcUmRealistic : public LteRlcUm
 {
   public:
-    LteRlcUmExperimental()
+    LteRlcUmRealistic()
     {
     }
-    virtual ~LteRlcUmExperimental()
+    virtual ~LteRlcUmRealistic()
     {
     }
 

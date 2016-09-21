@@ -8,21 +8,21 @@
 // and cannot be removed from it.
 //
 
-#include "LcgSchedulerExperimental.h"
+#include "LcgSchedulerRealistic.h"
 #include "LteMacBuffer.h"
 
-LcgSchedulerExperimental::LcgSchedulerExperimental(LteMacUe* mac)
+LcgSchedulerRealistic::LcgSchedulerRealistic(LteMacUe* mac)
     :LcgScheduler(mac)
 {
 }
 
-LcgSchedulerExperimental::~LcgSchedulerExperimental()
+LcgSchedulerRealistic::~LcgSchedulerRealistic()
 {
     // TODO Auto-generated destructor stub
 }
 
 ScheduleList&
-LcgSchedulerExperimental::schedule(unsigned int availableBytes, Direction grantDir)
+LcgSchedulerRealistic::schedule(unsigned int availableBytes, Direction grantDir)
 {
     /* clean up old schedule decisions
      for each cid, this map will store the the amount of sent data (in SDUs)
@@ -69,7 +69,7 @@ LcgSchedulerExperimental::schedule(unsigned int availableBytes, Direction grantD
         it_pair = lcgMap.equal_range((LteTrafficClass) i);
         LcgMap::iterator it = it_pair.first, et = it_pair.second;
 
-        EV << NOW << " LcgSchedulerExperimental::schedule - Node  " << mac_->getMacNodeId() << ", Starting priority service for traffic class " << i << endl;
+        EV << NOW << " LcgSchedulerRealistic::schedule - Node  " << mac_->getMacNodeId() << ", Starting priority service for traffic class " << i << endl;
 
         //! FIXME Allocation of the same resource to flows with same priority not implemented - not suitable with relays
         for (; it != et; ++it)
@@ -97,7 +97,7 @@ LcgSchedulerExperimental::schedule(unsigned int availableBytes, Direction grantD
             // Check whether the virtual buffer is empty
             if (queueLength == 0)
             {
-                EV << "LcgSchedulerExperimental::schedule scheduled connection is no more active " << endl;
+                EV << "LcgSchedulerRealistic::schedule scheduled connection is no more active " << endl;
                 continue; // go to next connection
             }
             else
@@ -130,7 +130,7 @@ LcgSchedulerExperimental::schedule(unsigned int availableBytes, Direction grantD
                 elem = &statusMap_[cid];
             }
 
-            EV << NOW << " LcgSchedulerExperimental::schedule Node " << mac_->getMacNodeId() << " , Parameters:" << endl;
+            EV << NOW << " LcgSchedulerRealistic::schedule Node " << mac_->getMacNodeId() << " , Parameters:" << endl;
             EV << "\t Logical Channel ID: " << MacCidToLcid(cid) << endl;
             EV << "\t CID: " << cid << endl;
 //                fprintf(stderr, "\tGroup ID: %d\n", desc->parameters_.groupId_);
@@ -146,7 +146,7 @@ LcgSchedulerExperimental::schedule(unsigned int availableBytes, Direction grantD
                 double bucket = elem->bucket_; // TODO parameters -> bucket ;
                 double maximumBucketSize = 10000.0; // TODO  parameters -> maxBurst;
 
-                EV << NOW << " LcgSchedulerExperimental::schedule Bucket size: " << bucket << " bytes (max size " << maximumBucketSize << " bytes) - BEFORE SERVICE " << endl;
+                EV << NOW << " LcgSchedulerRealistic::schedule Bucket size: " << bucket << " bytes (max size " << maximumBucketSize << " bytes) - BEFORE SERVICE " << endl;
 
                 // if the connection started before last scheduling event , use the
                 // global time interval
@@ -174,11 +174,11 @@ LcgSchedulerExperimental::schedule(unsigned int availableBytes, Direction grantD
 
                 // update the tracing element accordingly
                 elem->bucket_ = 100.0; // TODO desc->parameters_.bucket_;
-                EV << NOW << " LcgSchedulerExperimental::schedule Bucket size: " << bucket << " bytes (max size " << maximumBucketSize << " bytes) - AFTER SERVICE " << endl;
+                EV << NOW << " LcgSchedulerRealistic::schedule Bucket size: " << bucket << " bytes (max size " << maximumBucketSize << " bytes) - AFTER SERVICE " << endl;
             }
 
-            EV << NOW << " LcgSchedulerExperimental::schedule - Node " << mac_->getMacNodeId() << ", remaining grant: " << availableBytes << " bytes " << endl;
-            EV << NOW << " LcgSchedulerExperimental::schedule - Node " << mac_->getMacNodeId() << " buffer Size: " << toServe << " bytes " << endl;
+            EV << NOW << " LcgSchedulerRealistic::schedule - Node " << mac_->getMacNodeId() << ", remaining grant: " << availableBytes << " bytes " << endl;
+            EV << NOW << " LcgSchedulerRealistic::schedule - Node " << mac_->getMacNodeId() << " buffer Size: " << toServe << " bytes " << endl;
 
 
             // If priority service: (availableBytes>0) && (desc->buffer_.occupancy() > 0) && (desc->parameters_.bucket_ > 0)
@@ -231,9 +231,9 @@ LcgSchedulerExperimental::schedule(unsigned int availableBytes, Direction grantD
 
                     toServe = 0;
 
-                    EV << NOW << " LcgSchedulerExperimental::schedule - Node " << mac_->getMacNodeId() << ",  SDU of size " << elem->sentData_ << " selected for transmission" << endl;
-                    EV << NOW << " LcgSchedulerExperimental::schedule - Node " << mac_->getMacNodeId() << ", remaining grant: " << availableBytes << " bytes" << endl;
-                    EV << NOW << " LcgSchedulerExperimental::schedule - Node " << mac_->getMacNodeId() << " buffer Size: " << toServe << " bytes" << endl;
+                    EV << NOW << " LcgSchedulerRealistic::schedule - Node " << mac_->getMacNodeId() << ",  SDU of size " << elem->sentData_ << " selected for transmission" << endl;
+                    EV << NOW << " LcgSchedulerRealistic::schedule - Node " << mac_->getMacNodeId() << ", remaining grant: " << availableBytes << " bytes" << endl;
+                    EV << NOW << " LcgSchedulerRealistic::schedule - Node " << mac_->getMacNodeId() << " buffer Size: " << toServe << " bytes" << endl;
                 }
                 else
                 {
@@ -282,9 +282,9 @@ LcgSchedulerExperimental::schedule(unsigned int availableBytes, Direction grantD
                     toServe -= availableBytes;
                     availableBytes = 0;
 
-                    EV << NOW << " LcgSchedulerExperimental::schedule - Node " << mac_->getMacNodeId() << ",  SDU of size " << elem->sentData_ << " selected for transmission" << endl;
-                    EV << NOW << " LcgSchedulerExperimental::schedule - Node " << mac_->getMacNodeId() << ", remaining grant: " << availableBytes << " bytes" << endl;
-                    EV << NOW << " LcgSchedulerExperimental::schedule - Node " << mac_->getMacNodeId() << " buffer Size: " << toServe << " bytes" << endl;
+                    EV << NOW << " LcgSchedulerRealistic::schedule - Node " << mac_->getMacNodeId() << ",  SDU of size " << elem->sentData_ << " selected for transmission" << endl;
+                    EV << NOW << " LcgSchedulerRealistic::schedule - Node " << mac_->getMacNodeId() << ", remaining grant: " << availableBytes << " bytes" << endl;
+                    EV << NOW << " LcgSchedulerRealistic::schedule - Node " << mac_->getMacNodeId() << " buffer Size: " << toServe << " bytes" << endl;
                 }
             }
 
@@ -296,8 +296,8 @@ LcgSchedulerExperimental::schedule(unsigned int availableBytes, Direction grantD
 //
 //                if ( desc->parameters_.priority_ >= lowestBackloggedPriority_ ) {
 //
-//                    if(LteDebug::trace("LcgSchedulerExperimental::schedule"))
-//                        fprintf(stderr,"%.9f LcgSchedulerExperimental::schedule - Node %d, this flow priority: %u (old lowest priority %u) - LOWEST FOR NOW\n", NOW, nodeId_, desc->parameters_.priority_, lowestBackloggedPriority_);
+//                    if(LteDebug::trace("LcgSchedulerRealistic::schedule"))
+//                        fprintf(stderr,"%.9f LcgSchedulerRealistic::schedule - Node %d, this flow priority: %u (old lowest priority %u) - LOWEST FOR NOW\n", NOW, nodeId_, desc->parameters_.priority_, lowestBackloggedPriority_);
 //
 //                    // store the new lowest backlogged flow and its priority
 //                    lowestBackloggedFlow_ = fid;
@@ -307,8 +307,8 @@ LcgSchedulerExperimental::schedule(unsigned int availableBytes, Direction grantD
 //
 //                if ( highestBackloggedPriority_ == -1 || desc->parameters_.priority_ <= highestBackloggedPriority_ ) {
 //
-//                    if(LteDebug::trace("LcgSchedulerExperimental::schedule"))
-//                        fprintf(stderr,"%.9f LcgSchedulerExperimental::schedule - Node %d, this flow priority: %u (old highest priority %u) - HIGHEST FOR NOW\n", NOW, nodeId_, desc->parameters_.priority_, highestBackloggedPriority_);
+//                    if(LteDebug::trace("LcgSchedulerRealistic::schedule"))
+//                        fprintf(stderr,"%.9f LcgSchedulerRealistic::schedule - Node %d, this flow priority: %u (old highest priority %u) - HIGHEST FOR NOW\n", NOW, nodeId_, desc->parameters_.priority_, highestBackloggedPriority_);
 //
 //                    // store the new highest backlogged flow and its priority
 //                    highestBackloggedFlow_ = fid;
@@ -343,7 +343,7 @@ LcgSchedulerExperimental::schedule(unsigned int availableBytes, Direction grantD
                 priorityService = false;
                 //  reset traffic class
                 i = 0;
-                EV << "LcgSchedulerExperimental::schedule - Node" << mac_->getMacNodeId() << ", Starting best effort service" << endl;
+                EV << "LcgSchedulerRealistic::schedule - Node" << mac_->getMacNodeId() << ", Starting best effort service" << endl;
             }
         } // END of connections cycle
     } // END of Traffic Classes cycle
