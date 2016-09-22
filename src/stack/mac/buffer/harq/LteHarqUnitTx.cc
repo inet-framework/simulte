@@ -232,7 +232,7 @@ void LteHarqUnitTx::dropPdu()
 
 void LteHarqUnitTx::forceDropUnit()
 {
-    if (status_ == TXHARQ_PDU_BUFFERED || status_ == TXHARQ_PDU_SELECTED)
+    if (status_ == TXHARQ_PDU_BUFFERED || status_ == TXHARQ_PDU_SELECTED || status_ == TXHARQ_PDU_WAITING)
     {
         delete pdu_;
     }

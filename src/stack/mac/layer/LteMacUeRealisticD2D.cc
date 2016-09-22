@@ -721,6 +721,7 @@ void LteMacUeRealisticD2D::macHandleD2DModeSwitch(cPacket* pkt)
                     {
                         while (!(macBuff_it->second->isEmpty()))
                             macBuff_it->second->popFront();
+                        delete macBuff_it->second;
                         macBuffers_.erase(macBuff_it);
                     }
 
