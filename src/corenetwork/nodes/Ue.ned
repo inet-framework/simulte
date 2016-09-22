@@ -78,11 +78,13 @@ module Ue
         // NOTE: instance must be named "nic"
         nic: LteNicUe if !d2dCapable {
             nodeType = nodeType;
+            d2dCapable = d2dCapable;
             @display("p=250,407");
         }
         // NOTE: instance must be named "nic"
         nic: LteNicUeD2D if d2dCapable {
             nodeType = nodeType;
+            d2dCapable = d2dCapable;
             @display("p=250,407");
         }
         networkLayer: NetworkLayer {

@@ -40,7 +40,8 @@ module LteNicBase like ILteNic
         string LteMacType;          // One of: "LteMacUe", "LteMacEnb", "LteMacEnbExperimental", "LteMacRelayUe", "LteMacRelayEnb"
         string LtePhyType;
         string nodeType;
-
+        bool d2dCapable;            // inherit the value from the parent module
+        
     gates:
         //#
         //# Gates connecting UE/eNB and LTE Stack
@@ -64,6 +65,7 @@ module LteNicBase like ILteNic
         // RLC Layer
         rlc: LteRlc {
             @display("p=150,227");
+            d2dCapable = d2dCapable;
         }
         // MAC Layer
         mac: <LteMacType> like LteMac {
@@ -112,7 +114,7 @@ module LteNicUe extends LteNicBase
 {
     parameters:
         LtePdcpRrcType = "LtePdcpRrcUe";
-        LteMacType = default("LteMacUe");
+        LteMacType = default("LteMacUeRealistic");
         LtePhyType = "LtePhyUe";
 
     submodules:
@@ -129,7 +131,7 @@ module LteNicUeD2D extends LteNicBase
 {
     parameters:
         LtePdcpRrcType = "LtePdcpRrcUeD2D";
-        LteMacType = default("LteMacUeD2D");
+        LteMacType = default("LteMacUeRealisticD2D");
         LtePhyType = "LtePhyUeD2D";
 
         string d2dPeerAddresses = default("");  // list of D2D peer UEs, separated by blank spaces
@@ -148,7 +150,7 @@ module LteNicEnb extends LteNicBase
 {
     parameters:
         LtePdcpRrcType = "LtePdcpRrcEnb";
-        LteMacType = default("LteMacEnb");
+        LteMacType = default("LteMacEnbRealistic");
         LtePhyType = "LtePhyEnb";
         bool compEnabled = default(false);
         string LteCompManagerType = default("LteCompManagerProportional");
@@ -199,7 +201,7 @@ module LteNicEnbD2D extends LteNicBase
 {
     parameters:
         LtePdcpRrcType = "LtePdcpRrcEnbD2D";
-        LteMacType = default("LteMacEnbD2D");
+        LteMacType = default("LteMacEnbRealisticD2D");
         LtePhyType = "LtePhyEnbD2D";
         bool compEnabled = default(false);
         string LteCompManagerType = default("LteCompManagerProportional");

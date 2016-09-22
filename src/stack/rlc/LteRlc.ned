@@ -17,7 +17,8 @@ module LteRlc {
     parameters:
         @display("i=block/transport");
         
-        string LteRlcUmType = default("LteRlcUmRealistic");          // One of: "LteRlcUm", "LteRlcUmRealistic"    
+        string LteRlcUmType = default("LteRlcUmRealistic");          // One of: "LteRlcUm", "LteRlcUmRealistic", "LteRlcUmRealisticD2D"      
+        bool d2dCapable;                                             // inherit the value from the parent module
         
         @statistic[rlcDelayDl](title="Delay at the rlc layer UL"; unit="s"; source="rlcDelayDl"; record=lteAvg);
         @statistic[rlcThroughputDl](title="Throughput at the rlc layer DL"; unit="Bps"; source="rlcThroughputDl"; record=lteRate);
@@ -67,7 +68,13 @@ module LteRlc {
         }
         
         // UM Module        
-        um: <LteRlcUmType> like ILteRlcUm  {
+        um: LteRlcUm if (LteRlcUmType=="LteRlcUm") {
+            @display("p=200,100;");
+        }
+        um: LteRlcUmRealistic if (LteRlcUmType=="LteRlcUmRealistic" && !d2dCapable) {
+            @display("p=200,100;");
+        }
+        um: LteRlcUmRealisticD2D if (LteRlcUmType=="LteRlcUmRealistic" && d2dCapable) {
             @display("p=200,100;");
         }
         
@@ -121,24 +128,10 @@ simple LteRlcTm {
         inout TM_Sap_down;    // Gate to RLC Mux
 }
 
-// UM Module Interface for the RLC layer of LTE Stack.
-//
-moduleinterface ILteRlcUm {
-    parameters:
-        @display("i=block/wheelbarrow");
-        
-    gates:
-        //# 
-        //# Gates connecting RLC and UM
-        //# 
-        inout UM_Sap_up;    // Gate to PDCP
-        inout UM_Sap_down;    // Gate to RLC Mux
-}
-
 // 
 // UM Module for the RLC layer of LTE Stack.
 //
-simple LteRlcUm like ILteRlcUm {
+simple LteRlcUm {
     parameters:
         @class("LteRlcUm");
         
@@ -153,7 +146,7 @@ simple LteRlcUm like ILteRlcUm {
 }
 
 // 
-// UM Module (experimental) for the RLC layer of LTE Stack.
+// UM Module (realistic) for the RLC layer of LTE Stack.
 //
 simple LteRlcUmRealistic extends LteRlcUm {
     parameters:

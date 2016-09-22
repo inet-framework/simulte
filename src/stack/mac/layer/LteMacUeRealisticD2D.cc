@@ -36,8 +36,10 @@ void LteMacUeRealisticD2D::initialize(int stage)
     {
         // check the RLC module type: if it is not "RealisticD2D", abort simulation
         std::string pdcpType = getParentModule()->par("LtePdcpRrcType").stdstringValue();
-        std::string rlcUmType = getParentModule()->getSubmodule("rlc")->par("LteRlcUmType").stdstringValue();
-        if (rlcUmType.compare("LteRlcUmRealisticD2D") != 0 )
+        cModule* rlc = getParentModule()->getSubmodule("rlc");
+        std::string rlcUmType = rlc->par("LteRlcUmType").stdstringValue();
+        bool rlcD2dCapable = rlc->par("d2dCapable").boolValue();
+        if (rlcUmType.compare("LteRlcUmRealistic") != 0 || !rlcD2dCapable)
             throw cRuntimeError("LteMacUeRealisticD2D::initialize - %s module found, must be LteRlcUmRealisticD2D. Aborting", rlcUmType.c_str());
         if (pdcpType.compare("LtePdcpRrcUeD2D") != 0)
             throw cRuntimeError("LteMacUeRealisticD2D::initialize - %s module found, must be LtePdcpRrcUeD2D. Aborting", pdcpType.c_str());

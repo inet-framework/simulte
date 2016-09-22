@@ -83,10 +83,12 @@ module eNodeB
         // TODO: rename to something like lte?
         nic: LteNicEnbD2D if d2dCapable {
             nodeType = nodeType;
+            d2dCapable = d2dCapable;
             @display("p=330,363");
         }
         nic: LteNicEnb if !d2dCapable {
             nodeType = nodeType;
+            d2dCapable = d2dCapable;
             @display("p=330,363");
         }
         ppp: PPPInterface {
@@ -139,7 +141,7 @@ module eNodeB
             @display("p=330,48");
         }
         gtpUser: GtpUserSimplified {
-            @display("p=462,48");
+            @display("p=434,48");
         }
 
         gtpUserX2: GtpUserX2 {
@@ -171,7 +173,7 @@ module eNodeB
         gtpUserX2.lteStackIn <-- nic.x2$o++;
         gtpUserX2.udpOut --> udp.appIn++;
         gtpUserX2.udpIn <-- udp.appOut++;
-        
+
         //#
         //# X2 interface to network layer connections
         //#    
@@ -180,7 +182,7 @@ module eNodeB
             x2ppp[i].upperLayerOut --> networkLayer.ifIn++;
             x2ppp[i].upperLayerIn <-- networkLayer.ifOut++;
         }
-        
+
 		//# 
 		//# Apps to transport layer connections
 		//#
@@ -202,10 +204,10 @@ module eNodeB
             x2App[i].x2ManagerOut --> nic.x2$i++;
         }
 
-		//# 
-		//# Transport layer to network layer connections
-		//#
-		udp.ipOut --> networkLayer.transportIn++;
+        //# 
+        //# Transport layer to network layer connections
+        //#
+        udp.ipOut --> networkLayer.transportIn++;
         udp.ipIn <-- networkLayer.transportOut++;
         tcp.ipOut --> networkLayer.transportIn++ if numTcpApps>0;
         tcp.ipIn <-- networkLayer.transportOut++ if numTcpApps>0;
