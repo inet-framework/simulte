@@ -19,6 +19,10 @@ void UmTxEntity::initialize()
 {
     sno_ = 0;
     firstIsFragment_ = false;
+
+    // store the node id of the owner module
+    LteMacBase* mac = check_and_cast<LteMacBase*>(getParentModule()->getParentModule()->getSubmodule("mac"));
+    ownerNodeId_ = mac->getMacNodeId();
 }
 
 void UmTxEntity::enque(cPacket* pkt)
@@ -152,14 +156,28 @@ void UmTxEntity::removeDataFromQueue()
     delete retPkt;
 }
 
-void UmTxEntity::rlcHandleD2DModeSwitch()
+void UmTxEntity::rlcHandleD2DModeSwitch(bool oldConnection)
 {
-    EV << NOW << " UmTxEntity::rlcHandleD2DModeSwitch - clear TX buffer of the RLC entity associated to the old mode" << endl;
+    if (oldConnection)
+    {
+        if (getNodeTypeById(ownerNodeId_) == ENODEB)
+        {
+            EV << NOW << " UmRxEntity::rlcHandleD2DModeSwitch - nothing to do on DL leg of IM flow" << endl;
+            return;
+        }
 
-    // empty buffer
-    while (!sduQueue_.isEmpty())
-        delete sduQueue_.pop();
+        EV << NOW << " UmTxEntity::rlcHandleD2DModeSwitch - clear TX buffer of the RLC entity associated to the old mode" << endl;
 
-    // reset variables except for sequence number
-    firstIsFragment_ = false;
+        // empty buffer
+        while (!sduQueue_.isEmpty())
+            delete sduQueue_.pop();
+
+        // reset variables except for sequence number
+        firstIsFragment_ = false;
+    }
+    else
+    {
+        EV << " UmTxEntity::rlcHandleD2DModeSwitch - reset numbering of the RLC TX entity corresponding to the new mode" << endl;
+        sno_ = 0;
+    }
 }

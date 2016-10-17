@@ -52,6 +52,7 @@ class LteMacBase : public cSimpleModule
 {
     friend class LteHarqBufferTx;
     friend class LteHarqBufferRx;
+    friend class LteHarqBufferTxD2D;
     friend class LteHarqBufferRxD2D;
 
   protected:
@@ -131,6 +132,9 @@ class LteMacBase : public cSimpleModule
     LcgMap lcgMap_;
     // Node Type;
     LteNodeType nodeType_;
+
+    // record the last TTI that HARQ processes for a given UE have been aborted (useful for D2D switching)
+    std::map<MacNodeId, simtime_t> resetHarq_;
 
   public:
 
@@ -231,6 +235,17 @@ class LteMacBase : public cSimpleModule
 
     virtual bool isD2DCapable()
     {
+        return false;
+    }
+
+    // check whether HARQ processes have been aborted during this TTI
+    bool isHarqReset(MacNodeId srcId)
+    {
+        if (resetHarq_.find(srcId) != resetHarq_.end())
+        {
+            if (resetHarq_[srcId] == NOW)
+                return true;
+        }
         return false;
     }
 

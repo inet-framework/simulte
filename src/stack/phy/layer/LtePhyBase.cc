@@ -138,7 +138,8 @@ void LtePhyBase::handleUpperMessage(cMessage* msg)
 
     if (lteInfo->getFrameType() == HARQPKT
         || lteInfo->getFrameType() == GRANTPKT
-        || lteInfo->getFrameType() == RACPKT)
+        || lteInfo->getFrameType() == RACPKT
+        || lteInfo->getFrameType() == D2DMODESWITCHPKT)
     {
         frame = new LteAirFrame("harqFeedback-grant");
     }
@@ -152,7 +153,10 @@ void LtePhyBase::handleUpperMessage(cMessage* msg)
 
     // initialize frame fields
 
-    frame->setSchedulingPriority(airFramePriority_);
+    if (lteInfo->getFrameType() == D2DMODESWITCHPKT)
+        frame->setSchedulingPriority(-1);
+    else
+        frame->setSchedulingPriority(airFramePriority_);
     frame->setDuration(TTI);
     // set current position
     lteInfo->setCoord(getRadioPosition());

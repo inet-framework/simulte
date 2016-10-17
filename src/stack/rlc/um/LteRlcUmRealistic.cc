@@ -165,20 +165,29 @@ void LteRlcUmRealistic::deleteQueues(MacNodeId nodeId)
     UmTxEntities::iterator tit;
     UmRxEntities::iterator rit;
 
+    LteNodeType nodeType;
+    std::string nodeTypePar = getAncestorPar("nodeType").stdstringValue();
+    if (strcmp(nodeTypePar.c_str(), "ENODEB") == 0)
+        nodeType = ENODEB;
+    else
+        nodeType = UE;
+
+    // at the UE, delete all connections
+    // at the eNB, delete connections related to the given UE
     for (tit = txEntities_.begin(); tit != txEntities_.end(); tit++)
     {
-        if (MacCidToNodeId(tit->first) == nodeId)
+        if (nodeType == UE || (nodeType == ENODEB && MacCidToNodeId(tit->first) == nodeId))
         {
             delete tit->second;        // Delete Entity
-            txEntities_.erase(tit);        // Delete Elem
+            txEntities_.erase(tit);    // Delete Elem
         }
     }
     for (rit = rxEntities_.begin(); rit != rxEntities_.end(); rit++)
     {
-        if (MacCidToNodeId(rit->first) == nodeId)
+        if (nodeType == UE || (nodeType == ENODEB && MacCidToNodeId(rit->first) == nodeId))
         {
             delete rit->second;        // Delete Entity
-            rxEntities_.erase(rit);        // Delete Elem
+            rxEntities_.erase(rit);    // Delete Elem
         }
     }
 }

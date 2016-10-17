@@ -19,4 +19,5 @@ packet D2DModeSwitchNotification
     bool txSide;
     LteD2DMode oldMode;
     LteD2DMode newMode;
+    bool oldConnection;
 }

@@ -32,6 +32,15 @@ class LteHarqBufferTxD2D : public LteHarqBufferTx
      * @param nodeId UE nodeId for which this buffer has been created
      */
     LteHarqBufferTxD2D(unsigned int numProc, LteMacBase *owner, LteMacBase *dstMac);
+
+    /**
+     * Manages H-ARQ feedback sent to a certain H-ARQ unit and checks if
+     * the corresponding process becomes empty.
+     *
+     * @param fbpkt received feedback packet
+     */
+    virtual void receiveHarqFeedback(LteHarqFeedback *fbpkt);
+
     virtual ~LteHarqBufferTxD2D();
 };
 

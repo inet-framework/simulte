@@ -53,6 +53,8 @@ class LteMacEnbRealisticD2D : public LteMacEnbRealistic
      */
     virtual void sendGrants(LteMacScheduleList* scheduleList);
 
+    void macHandleD2DModeSwitch(cPacket* pkt);
+
   public:
 
     LteMacEnbRealisticD2D();

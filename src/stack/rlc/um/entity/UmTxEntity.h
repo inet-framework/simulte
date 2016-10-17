@@ -73,7 +73,7 @@ class UmTxEntity : public cSimpleModule
     void removeDataFromQueue();
 
     // called when a D2D mode switch is triggered
-    void rlcHandleD2DModeSwitch();
+    void rlcHandleD2DModeSwitch(bool oldConnection);
 
   protected:
 
@@ -100,6 +100,9 @@ class UmTxEntity : public cSimpleModule
     virtual void initialize();
 
   private:
+
+    // Node id of the owner module
+    MacNodeId ownerNodeId_;
 
     /// Next PDU sequence number to be assigned
     unsigned int sno_;

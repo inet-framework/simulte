@@ -779,30 +779,50 @@ void UmRxEntity::handleMessage(cMessage* msg)
     }
 }
 
-void UmRxEntity::rlcHandleD2DModeSwitch()
+void UmRxEntity::rlcHandleD2DModeSwitch(bool oldConnection, bool oldMode)
 {
-    EV << NOW << " UmRxEntity::rlcHandleD2DModeSwitch - clear RX buffer of the RLC entity associated to the old mode" << endl;
-    for (unsigned int i = 0; i < rxWindowDesc_.windowSize_; i++)
+    if (oldConnection)
     {
-        // try to reassemble
-        reassemble(i);
+        if (getNodeTypeById(ownerNodeId_) == UE && oldMode == IM)
+        {
+            EV << NOW << " UmRxEntity::rlcHandleD2DModeSwitch - nothing to do on DL leg of IM flow" << endl;
+            return;
+        }
+
+        EV << NOW << " UmRxEntity::rlcHandleD2DModeSwitch - clear RX buffer of the RLC entity associated to the old mode" << endl;
+        for (unsigned int i = 0; i < rxWindowDesc_.windowSize_; i++)
+        {
+            // try to reassemble
+            reassemble(i);
+        }
+
+        // clear the buffer
+        pduBuffer_.clear();
+
+        for (unsigned int i=0; i<received_.size(); i++)
+        {
+            received_[i] = false;
+        }
+
+        if (buffered_ != NULL)
+        {
+            delete buffered_;
+            buffered_ = NULL;
+        }
+
+        // stop the timer
+        if (t_reordering_.busy())
+            t_reordering_.stop();
     }
-
-    // clear the buffer
-    pduBuffer_.clear();
-
-    for (unsigned int i=0; i<received_.size(); i++)
+    else
     {
-        received_[i] = false;
-    }
+        EV << NOW << " UmRxEntity::rlcHandleD2DModeSwitch - handle numbering of the RLC entity associated to the new selected mode" << endl;
 
-    if (buffered_ != NULL)
-    {
-        delete buffered_;
-        buffered_ = NULL;
-    }
+        // reset sequence numbering
+        rxWindowDesc_.clear();
 
-    // stop the timer
-    if (t_reordering_.busy())
-        t_reordering_.stop();
+        // reset counters
+        lastPduReassembled_ = 0;
+        lastSnoDelivered_ = 0;
+    }
 }

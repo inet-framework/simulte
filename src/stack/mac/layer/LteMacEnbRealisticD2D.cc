@@ -81,7 +81,14 @@ void LteMacEnbRealisticD2D::macHandleFeedbackPkt(cPacket *pkt)
 
 void LteMacEnbRealisticD2D::handleMessage(cMessage* msg)
 {
-    LteMacEnbRealistic::handleMessage(msg);
+    if (msg->isSelfMessage() && msg->isName("D2DModeSwitchNotification"))
+    {
+        cPacket* pkt = check_and_cast<cPacket*>(msg);
+        macHandleD2DModeSwitch(pkt);
+        delete pkt;
+    }
+    else
+        LteMacEnbRealistic::handleMessage(msg);
 }
 
 
@@ -334,24 +341,85 @@ void LteMacEnbRealisticD2D::sendModeSwitchNotification(MacNodeId srcId, MacNodeI
     switchPktRx->setControlInfo(uinfoRx);
     sendLowerPackets(switchPktRx);
 
-    if (oldMode == IM)
+    // schedule handling of the mode switch at the eNodeB (in one TTI)
+    D2DModeSwitchNotification* switchPktTx_local = switchPktTx->dup();
+    D2DModeSwitchNotification* switchPktRx_local = switchPktRx->dup();
+    switchPktTx_local->setControlInfo(uinfoTx->dup());
+    switchPktRx_local->setControlInfo(uinfoRx->dup());
+    scheduleAt(NOW+TTI, switchPktTx_local);
+    scheduleAt(NOW+TTI, switchPktRx_local);
+}
+
+void LteMacEnbRealisticD2D::macHandleD2DModeSwitch(cPacket* pkt)
+{
+    D2DModeSwitchNotification* switchPkt = check_and_cast<D2DModeSwitchNotification*>(pkt);
+    UserControlInfo* uinfo = check_and_cast<UserControlInfo*>(switchPkt->getControlInfo());
+    MacNodeId nodeId = uinfo->getDestId();
+    LteD2DMode oldMode = switchPkt->getOldMode();
+
+    if (!switchPkt->getTxSide())   // address the receiving endpoint of the D2D flow (tx entities at the eNB)
     {
-        // send signal also to the upper layers in the eNB
+        // get the outgoing connection corresponding to the DL connection for the RX endpoint of the D2D flow
+        std::map<MacCid, FlowControlInfo>::iterator jt = connDesc_.begin();
+        for (; jt != connDesc_.end(); ++jt)
+        {
+            MacCid cid = jt->first;
+            FlowControlInfo* lteInfo = check_and_cast<FlowControlInfo*>(&(jt->second));
+            if (MacCidToNodeId(cid) == nodeId)
+            {
+                EV << NOW << " LteMacEnbRealisticD2D::sendModeSwitchNotification - send signal for TX entity to upper layers in the eNB (cid=" << cid << ")" << endl;
+                D2DModeSwitchNotification* switchPktTx = switchPkt->dup();
+                switchPktTx->setTxSide(true);
+                if (oldMode == IM)
+                    switchPktTx->setOldConnection(true);
+                else
+                    switchPktTx->setOldConnection(false);
+                switchPktTx->setControlInfo(lteInfo->dup());
+                sendUpperPackets(switchPktTx);
+                break;
+            }
+        }
+    }
+    else   // tx side: address the transmitting endpoint of the D2D flow (rx entities at the eNB)
+    {
+        // clear BSR buffers for the UE
+        clearBsrBuffers(nodeId);
 
         // get the incoming connection corresponding to the UL connection for the TX endpoint of the D2D flow
-        FlowControlInfo* lteInfo = NULL;
-        MacCid cid;
         std::map<MacCid, FlowControlInfo>::iterator jt = connDescIn_.begin();
         for (; jt != connDescIn_.end(); ++jt)
         {
-            cid = jt->first;
-            lteInfo = check_and_cast<FlowControlInfo*>(&(jt->second));
-            if (MacCidToNodeId(cid) == srcId)
+            MacCid cid = jt->first;
+            FlowControlInfo* lteInfo = check_and_cast<FlowControlInfo*>(&(jt->second));
+            if (MacCidToNodeId(cid) == nodeId)
             {
+                // interrupt H-ARQ processes for UL
+                HarqRxBuffers::iterator hit = harqRxBuffers_.find(nodeId);
+                if (hit != harqRxBuffers_.end())
+                {
+                    for (unsigned int proc = 0; proc < (unsigned int) ENB_RX_HARQ_PROCESSES; proc++)
+                    {
+                        unsigned int numUnits = hit->second->getProcess(proc)->getNumHarqUnits();
+                        for (unsigned int i=0; i < numUnits; i++)
+                        {
+                            hit->second->getProcess(proc)->purgeCorruptedPdu(i); // delete contained PDU
+                            hit->second->getProcess(proc)->resetCodeword(i);     // reset unit
+                        }
+                    }
+                }
+
+                // notify that this UE is switching during this TTI
+                resetHarq_[nodeId] = NOW;
+
                 EV << NOW << " LteMacEnbRealisticD2D::sendModeSwitchNotification - send signal for RX entity to upper layers in the eNB (cid=" << cid << ")" << endl;
-                D2DModeSwitchNotification* switchPkt = switchPktTx->dup();
-                switchPkt->setControlInfo(lteInfo->dup());
-                sendUpperPackets(switchPkt);
+                D2DModeSwitchNotification* switchPktRx = switchPkt->dup();
+                switchPktRx->setTxSide(false);
+                if (oldMode == IM)
+                    switchPktRx->setOldConnection(true);
+                else
+                    switchPktRx->setOldConnection(false);
+                switchPktRx->setControlInfo(lteInfo->dup());
+                sendUpperPackets(switchPktRx);
                 break;
             }
         }

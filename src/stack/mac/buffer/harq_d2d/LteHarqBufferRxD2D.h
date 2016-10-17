@@ -44,6 +44,14 @@ class LteHarqBufferRxD2D : public LteHarqBufferRx
   public:
     LteHarqBufferRxD2D(unsigned int num, LteMacBase *owner, MacNodeId nodeId);
 
+    /*
+     * Insertion of a new pdu coming from phy layer into
+     * RX H-ARQ buffer.
+     *
+     * @param pdu to be inserted
+     */
+    virtual void insertPdu(Codeword cw, LteMacPdu *pdu);
+
     /**
      * Sends feedback for all processes which are older than
      * HARQ_FB_EVALUATION_INTERVAL, then extract the pdu in correct state (if any)

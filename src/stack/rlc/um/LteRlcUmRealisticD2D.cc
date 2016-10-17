@@ -26,24 +26,25 @@ void LteRlcUmRealisticD2D::handleLowerMessage(cPacket *pkt)
         // add here specific behavior for handling mode switch at the RLC layer
         D2DModeSwitchNotification* switchPkt = check_and_cast<D2DModeSwitchNotification*>(pkt);
         FlowControlInfo* lteInfo = check_and_cast<FlowControlInfo*>(switchPkt->getControlInfo());
-        bool txSide = switchPkt->getTxSide();
 
-        if (txSide)
+        if (switchPkt->getTxSide())
         {
             // get the corresponding Rx buffer & call handler
             UmTxEntity* txbuf = getTxBuffer(lteInfo);
-            txbuf->rlcHandleD2DModeSwitch();
+            txbuf->rlcHandleD2DModeSwitch(switchPkt->getOldConnection());
+
+            // forward packet to PDCP
+            EV << "LteRlcUmRealisticD2D::handleLowerMessage - Sending packet " << pkt->getName() << " to port UM_Sap_up$o\n";
+            send(pkt, up_[OUT]);
         }
         else  // rx side
         {
             // get the corresponding Rx buffer & call handler
             UmRxEntity* rxbuf = getRxBuffer(lteInfo);
-            rxbuf->rlcHandleD2DModeSwitch();
-        }
+            rxbuf->rlcHandleD2DModeSwitch(switchPkt->getOldConnection(), switchPkt->getOldMode());
 
-        // forward packet to PDCP
-        EV << "LteRlcUmRealisticD2D::handleLowerMessage - Sending packet " << pkt->getName() << " to port UM_Sap_up$o\n";
-        send(pkt, up_[OUT]);
+            delete switchPkt;
+        }
     }
     else
         LteRlcUmRealistic::handleLowerMessage(pkt);

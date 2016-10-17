@@ -23,6 +23,13 @@ LtePdcpRrcBase::LtePdcpRrcBase()
 LtePdcpRrcBase::~LtePdcpRrcBase()
 {
     delete ht_;
+
+    PdcpEntities::iterator it = entities_.begin();
+    for (; it != entities_.end(); ++it)
+    {
+        delete it->second;
+    }
+    entities_.clear();
 }
 
 void LtePdcpRrcBase::headerCompress(cPacket* pkt, int headerSize)

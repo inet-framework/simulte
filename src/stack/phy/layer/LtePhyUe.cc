@@ -494,7 +494,7 @@ void LtePhyUe::deleteOldBuffers(MacNodeId masterId)
     masterRlcUm->deleteQueues(nodeId_);
 
     // delete queues for master at this ue
-    rlcUm_->deleteQueues(masterId_);
+    rlcUm_->deleteQueues(nodeId_);
 }
 
 DasFilter* LtePhyUe::getDasFilter()

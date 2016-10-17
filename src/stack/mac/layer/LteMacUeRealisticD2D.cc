@@ -112,23 +112,31 @@ void LteMacUeRealisticD2D::macPduMake()
             }
         }
 
-        // Call the appropriate function for make a BSR for a D2D communication
-        LteMacPdu* macPktBsr = makeBsr(sizeBsr);
-        UserControlInfo* info = check_and_cast<UserControlInfo*>(macPktBsr->getControlInfo());
-        if (bsrD2DMulticastTriggered_)
+        if (sizeBsr > 0)
         {
-            info->setLcid(D2D_MULTI_SHORT_BSR);
-            bsrD2DMulticastTriggered_ = false;
+            // Call the appropriate function for make a BSR for a D2D communication
+            LteMacPdu* macPktBsr = makeBsr(sizeBsr);
+            UserControlInfo* info = check_and_cast<UserControlInfo*>(macPktBsr->getControlInfo());
+            if (bsrD2DMulticastTriggered_)
+            {
+                info->setLcid(D2D_MULTI_SHORT_BSR);
+                bsrD2DMulticastTriggered_ = false;
+            }
+            else
+                info->setLcid(D2D_SHORT_BSR);
+
+            // Add the created BSR to the PDU List
+            if( macPktBsr != NULL )
+            {
+               macPduList_[ std::pair<MacNodeId, Codeword>( getMacCellId(), 0) ] = macPktBsr;
+               bsrAlreadyMade = true;
+               EV << "LteMacUeRealisticD2D::macPduMake - BSR D2D created with size " << sizeBsr << "created" << endl;
+            }
         }
         else
-            info->setLcid(D2D_SHORT_BSR);
-
-        // Add the created BSR to the PDU List
-        if( macPktBsr != NULL )
         {
-           macPduList_[ std::pair<MacNodeId, Codeword>( getMacCellId(), 0) ] = macPktBsr;
-           bsrAlreadyMade = true;
-           EV << "LteMacUeRealisticD2D::macPduMake - BSR D2D created with size " << sizeBsr << "created" << endl;
+            bsrD2DMulticastTriggered_ = false;
+            bsrTriggered_ = false;
         }
     }
 
@@ -706,13 +714,14 @@ void LteMacUeRealisticD2D::macHandleD2DModeSwitch(cPacket* pkt)
         MacCid cid;
         FlowControlInfo* lteInfo = NULL;
         std::map<MacCid, FlowControlInfo>::iterator it = connDesc_.begin();
-        for (; it != connDesc_.end(); )
+        for (; it != connDesc_.end(); ++it)
         {
             cid = it->first;
             lteInfo = check_and_cast<FlowControlInfo*>(&(it->second));
+
             if (lteInfo->getD2dRxPeerId() == peerId && (Direction)lteInfo->getDirection() == oldDirection)
             {
-                EV << NOW << " LteMacUeRealisticD2D::macHandleD2DModeSwitch - found connection with cid " << cid << ", erasing buffered data" << endl;
+                EV << NOW << " LteMacUeRealisticD2D::macHandleD2DModeSwitch - found old connection with cid " << cid << ", erasing buffered data" << endl;
                 if (oldDirection != newDirection)
                 {
                     // empty virtual buffer for the selected cid
@@ -738,8 +747,20 @@ void LteMacUeRealisticD2D::macHandleD2DModeSwitch(cPacket* pkt)
                         mbuf_.erase(mBuf_it);
                     }
 
-                    // interrupt H-ARQ processes
-                    HarqTxBuffers::iterator hit = harqTxBuffers_.find(peerId);
+                    // interrupt H-ARQ processes for SL
+                    unsigned int id = peerId;
+                    HarqTxBuffers::iterator hit = harqTxBuffers_.find(id);
+                    if (hit != harqTxBuffers_.end())
+                    {
+                        for (int proc = 0; proc < (unsigned int) UE_TX_HARQ_PROCESSES; proc++)
+                        {
+                            hit->second->forceDropProcess(proc);
+                        }
+                    }
+
+                    // interrupt H-ARQ processes for UL
+                    id = getMacCellId();
+                    hit = harqTxBuffers_.find(id);
                     if (hit != harqTxBuffers_.end())
                     {
                         for (int proc = 0; proc < (unsigned int) UE_TX_HARQ_PROCESSES; proc++)
@@ -749,15 +770,16 @@ void LteMacUeRealisticD2D::macHandleD2DModeSwitch(cPacket* pkt)
                     }
                 }
 
+                // abort BSR requests
+                bsrTriggered_ = false;
+
                 D2DModeSwitchNotification* switchPkt_dup = switchPkt->dup();
                 switchPkt_dup->setControlInfo(lteInfo->dup());
+                switchPkt_dup->setOldConnection(true);
                 sendUpperPackets(switchPkt_dup);
 
                 if (oldDirection != newDirection)
                 {
-                    // remove connection descriptor
-                    it = connDesc_.erase(it);
-
                     // remove entry from lcgMap
                     LcgMap::iterator lt = lcgMap_.begin();
                     for (; lt != lcgMap_.end(); )
@@ -772,15 +794,18 @@ void LteMacUeRealisticD2D::macHandleD2DModeSwitch(cPacket* pkt)
                         }
                     }
                 }
-                else
-                {
-                    ++it;
-                }
                 EV << NOW << " LteMacUeRealisticD2D::macHandleD2DModeSwitch - send switch signal to the RLC TX entity corresponding to the old mode, cid " << cid << endl;
             }
-            else
+            else if (lteInfo->getD2dRxPeerId() == peerId && (Direction)lteInfo->getDirection() == newDirection)
             {
-                ++it;
+                EV << NOW << " LteMacUeRealisticD2D::macHandleD2DModeSwitch - send switch signal to the RLC TX entity corresponding to the new mode, cid " << cid << endl;
+                if (oldDirection != newDirection)
+                {
+                    D2DModeSwitchNotification* switchPkt_dup = switchPkt->dup();
+                    switchPkt_dup->setOldConnection(false);
+                    switchPkt_dup->setControlInfo(lteInfo->dup());
+                    sendUpperPackets(switchPkt_dup);
+                }
             }
         }
     }
@@ -793,17 +818,18 @@ void LteMacUeRealisticD2D::macHandleD2DModeSwitch(cPacket* pkt)
         MacCid cid;
         FlowControlInfo* lteInfo = NULL;
         std::map<MacCid, FlowControlInfo>::iterator it = connDescIn_.begin();
-        for (; it != connDescIn_.end(); )
+        for (; it != connDescIn_.end(); ++it)
         {
             cid = it->first;
             lteInfo = check_and_cast<FlowControlInfo*>(&(it->second));
             if (lteInfo->getD2dTxPeerId() == peerId && (Direction)lteInfo->getDirection() == oldDirection)
             {
-                EV << NOW << " LteMacUeRealisticD2D::macHandleD2DModeSwitch - found connection with cid " << cid << ", send signal to the RLC RX entity" << endl;
+                EV << NOW << " LteMacUeRealisticD2D::macHandleD2DModeSwitch - found old connection with cid " << cid << ", send signal to the RLC RX entity" << endl;
                 if (oldDirection != newDirection)
                 {
-                    // interrupt H-ARQ processes
-                    HarqRxBuffers::iterator hit = harqRxBuffers_.find(peerId);
+                    // interrupt H-ARQ processes for SL
+                    unsigned int id = peerId;
+                    HarqRxBuffers::iterator hit = harqRxBuffers_.find(id);
                     if (hit != harqRxBuffers_.end())
                     {
                         for (unsigned int proc = 0; proc < (unsigned int) UE_RX_HARQ_PROCESSES; proc++)
@@ -811,31 +837,36 @@ void LteMacUeRealisticD2D::macHandleD2DModeSwitch(cPacket* pkt)
                             unsigned int numUnits = hit->second->getProcess(proc)->getNumHarqUnits();
                             for (unsigned int i=0; i < numUnits; i++)
                             {
+
                                 hit->second->getProcess(proc)->purgeCorruptedPdu(i); // delete contained PDU
                                 hit->second->getProcess(proc)->resetCodeword(i);     // reset unit
                             }
                         }
                     }
                     enb_->deleteRxHarqBufferMirror(nodeId_);
+
+                    // notify that this UE is switching during this TTI
+                    resetHarq_[peerId] = NOW;
+
+                    D2DModeSwitchNotification* switchPkt_dup = switchPkt->dup();
+                    switchPkt_dup->setControlInfo(lteInfo->dup());
+                    switchPkt_dup->setOldConnection(true);
+                    sendUpperPackets(switchPkt_dup);
                 }
             }
-
-            D2DModeSwitchNotification* switchPkt_dup = switchPkt->dup();
-            switchPkt_dup->setControlInfo(lteInfo->dup());
-            sendUpperPackets(switchPkt_dup);
-
-            if (oldDirection != newDirection)
+            else if (lteInfo->getD2dTxPeerId() == peerId && (Direction)lteInfo->getDirection() == newDirection)
             {
-                // remove connection descriptor
-                it = connDescIn_.erase(it);
-            }
-            else
-            {
-                ++it;
+                EV << NOW << " LteMacUeRealisticD2D::macHandleD2DModeSwitch - found new connection with cid " << cid << ", send signal to the RLC RX entity" << endl;
+                if (oldDirection != newDirection)
+                {
+                    D2DModeSwitchNotification* switchPkt_dup = switchPkt->dup();
+                    switchPkt_dup->setOldConnection(false);
+                    switchPkt_dup->setControlInfo(lteInfo->dup());
+                    sendUpperPackets(switchPkt_dup);
+                }
             }
         }
     }
-
     delete uInfo;
     delete pkt;
 }

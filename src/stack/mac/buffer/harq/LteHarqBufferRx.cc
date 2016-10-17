@@ -54,8 +54,15 @@ LteHarqBufferRx::LteHarqBufferRx(unsigned int num, LteMacBase *owner,
 
 void LteHarqBufferRx::insertPdu(Codeword cw, LteMacPdu *pdu)
 {
-    UserControlInfo *uInfo = check_and_cast<UserControlInfo *>(
-        pdu->getControlInfo());
+    UserControlInfo *uInfo = check_and_cast<UserControlInfo *>(pdu->getControlInfo());
+    MacNodeId srcId = uInfo->getSourceId();
+    if (macOwner_->isHarqReset(srcId))
+    {
+        // if the HARQ processes have been aborted during this TTI (e.g. due to a D2D mode switch),
+        // incoming packets should not be accepted
+        delete pdu;
+        return;
+    }
     unsigned char acid = uInfo->getAcid();
     // TODO add codeword to inserPdu
     processes_[acid]->insertPdu(cw, pdu);
