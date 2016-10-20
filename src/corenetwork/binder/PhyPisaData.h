@@ -21,7 +21,7 @@ class PhyPisaData
     public:
     PhyPisaData();
     virtual ~PhyPisaData();
-    double getBler(int i, int j, int k){if (j==0) return 1; else return blerCurves_[i][j][k-1];}
+    double getBler(int i, int j, int k){if (j<0) return 1; else return blerCurves_[i][j][k-1];}
     double getLambda(int i, int j){return lambdaTable_[i][j];}
     int nTxMode(){return 3;}
     int nMcs(){return 15;}
