@@ -786,7 +786,7 @@ void LteMacUeRealisticD2D::macHandleD2DModeSwitch(cPacket* pkt)
                     {
                         if (lt->second.first == cid)
                         {
-                            lt = lcgMap_.erase(lt);
+                            lcgMap_.erase(lt++);
                         }
                         else
                         {

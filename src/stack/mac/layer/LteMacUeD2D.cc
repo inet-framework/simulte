@@ -677,7 +677,7 @@ void LteMacUeD2D::macHandleD2DModeSwitch(cPacket* pkt)
                 if (oldDirection != newDirection)
                 {
                     // remove connection descriptor
-                    it = connDesc_.erase(it);
+                    connDesc_.erase(it++);
 
                     // remove entry from lcgMap
                     LcgMap::iterator lt = lcgMap_.begin();
@@ -685,7 +685,7 @@ void LteMacUeD2D::macHandleD2DModeSwitch(cPacket* pkt)
                     {
                         if (lt->second.first == cid)
                         {
-                            lt = lcgMap_.erase(lt);
+                            lcgMap_.erase(lt++);
                         }
                         else
                         {
@@ -742,7 +742,7 @@ void LteMacUeD2D::macHandleD2DModeSwitch(cPacket* pkt)
 
                     EV << NOW << " LteMacUeD2D::macHandleD2DModeSwitch - Remove connection descriptor for RX flow" << endl;
                     // remove connection descriptor
-                    it = connDescIn_.erase(it);
+                    connDescIn_.erase(it++);
                 }
                 else
                 {

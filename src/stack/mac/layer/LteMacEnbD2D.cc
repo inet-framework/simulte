@@ -282,7 +282,7 @@ void LteMacEnbD2D::deleteRxHarqBufferMirror(MacNodeId id)
 
         if (destId == id)
         {
-            it = harqRxBuffersD2DMirror_.erase(it);
+            harqRxBuffersD2DMirror_.erase(it++);
         }
         else
         {

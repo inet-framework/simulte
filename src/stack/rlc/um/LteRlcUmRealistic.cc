@@ -174,20 +174,28 @@ void LteRlcUmRealistic::deleteQueues(MacNodeId nodeId)
 
     // at the UE, delete all connections
     // at the eNB, delete connections related to the given UE
-    for (tit = txEntities_.begin(); tit != txEntities_.end(); tit++)
+    for (tit = txEntities_.begin(); tit != txEntities_.end(); )
     {
         if (nodeType == UE || (nodeType == ENODEB && MacCidToNodeId(tit->first) == nodeId))
         {
             delete tit->second;        // Delete Entity
-            txEntities_.erase(tit);    // Delete Elem
+            txEntities_.erase(tit++);    // Delete Elem
+        }
+        else
+        {
+            ++tit;
         }
     }
-    for (rit = rxEntities_.begin(); rit != rxEntities_.end(); rit++)
+    for (rit = rxEntities_.begin(); rit != rxEntities_.end(); )
     {
         if (nodeType == UE || (nodeType == ENODEB && MacCidToNodeId(rit->first) == nodeId))
         {
             delete rit->second;        // Delete Entity
-            rxEntities_.erase(rit);    // Delete Elem
+            rxEntities_.erase(rit++);    // Delete Elem
+        }
+        else
+        {
+            ++rit;
         }
     }
 }

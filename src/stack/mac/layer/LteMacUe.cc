@@ -706,14 +706,14 @@ void LteMacUe::deleteQueues(MacNodeId nodeId)
             delete pkt;
         }
         delete mit->second;        // Delete Queue
-        mit = mbuf_.erase(mit);        // Delete Elem
+        mbuf_.erase(mit++);        // Delete Elem
     }
     for (vit = macBuffers_.begin(); vit != macBuffers_.end(); )
     {
         while (!vit->second->isEmpty())
             vit->second->popFront();
         delete vit->second;                  // Delete Queue
-        vit = macBuffers_.erase(vit);        // Delete Elem
+        macBuffers_.erase(vit++);           // Delete Elem
     }
 
     // delete H-ARQ buffers
@@ -721,13 +721,13 @@ void LteMacUe::deleteQueues(MacNodeId nodeId)
     for (hit = harqTxBuffers_.begin(); hit != harqTxBuffers_.end(); )
     {
         delete hit->second; // Delete Queue
-        hit = harqTxBuffers_.erase(hit); // Delete Elem
+        harqTxBuffers_.erase(hit++); // Delete Elem
     }
     HarqRxBuffers::iterator hit2;
     for (hit2 = harqRxBuffers_.begin(); hit2 != harqRxBuffers_.end();)
     {
          delete hit2->second; // Delete Queue
-         hit2 = harqRxBuffers_.erase(hit2); // Delete Elem
+         harqRxBuffers_.erase(hit2++); // Delete Elem
     }
 
     // remove traffic descriptor and lcg entry

@@ -255,7 +255,7 @@ void LtePhyUeD2D::handleUpperMessage(cMessage* msg)
     while (it != usedRbs_.end())  // purge old allocations
     {
         if (it->time_ < NOW - 0.002)
-            it = usedRbs_.erase(it);
+            usedRbs_.erase(it++);
         else
             ++it;
     }
