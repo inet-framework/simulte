@@ -9,15 +9,17 @@
 
 package lte.apps.alert;
 
-import inet.applications.IUDPApp;
+import inet.applications.contract.IUDPApp;
 
 
 simple AlertReceiver like IUDPApp
 {
     parameters:
         int localPort = default(3000);
-
-        @statistic[alertDelay](title="Alert Message Delay"; unit="s"; source="alertDelay"; record=mean,vector);     
+        string interfaceTableModule;
+        @signal[alertDelay];
+        @statistic[alertDelay](title="Alert Message Delay"; unit="s"; source="alertDelay"; record=mean,vector);    
+        @signal[alertRcvdMsg]; 
         @statistic[alertRcvdMsg](title="Alert Messages Received"; unit="s"; source="alertRcvdMsg"; record=sum,vector);         
         @display("i=block/source");
     gates:

@@ -45,7 +45,7 @@ class LteRealisticChannelModel : public LteChannelModel
     // enable/disable the shadowing
     bool shadowing_;
 
-    // enable/disable interference computation
+    // enable/disable intercell interference computation
     bool enableExtCellInterference_;
     bool enableMultiCellInterference_;
     bool enableD2DInCellInterference_;
@@ -109,6 +109,8 @@ class LteRealisticChannelModel : public LteChannelModel
 
     //avg delay spred in jakes fading
     double delayRMS_;
+
+    bool tolerateMaxDistViolation_;
 
     //Struct used to store information about jakes fading
     struct JakesFadingData
@@ -209,7 +211,7 @@ class LteRealisticChannelModel : public LteChannelModel
      */
     virtual bool errorDas(LteAirFrame *frame, UserControlInfo* lteI)
     {
-        opp_error("DAS PHY LAYER TO BE IMPLEMENTED");
+        throw cRuntimeError("DAS PHY LAYER TO BE IMPLEMENTED");
         return -1;
     }
     /*

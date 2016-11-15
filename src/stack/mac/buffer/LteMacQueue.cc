@@ -7,12 +7,14 @@
 // and cannot be removed from it.
 //
 
+#include <climits>
 #include "LteMacQueue.h"
 
 LteMacQueue::LteMacQueue(int queueSize) :
     cPacketQueue("LteMacQueue")
 {
     queueSize_ = queueSize;
+    lastUnenqueueableMainSno = UINT_MAX;
 }
 
 LteMacQueue::LteMacQueue(const LteMacQueue& queue)
@@ -35,8 +37,8 @@ LteMacQueue* LteMacQueue::dup() const
 // ENQUEUE
 bool LteMacQueue::pushBack(cPacket *pkt)
 {
-    if (getByteLength() + pkt->getByteLength() > queueSize_ && queueSize_ != 0)
-        return false;  // Packet Queue Full
+    if (!isEnqueueablePacket(pkt))
+         return false; // packet queue full or we have discarded fragments for this main packet
 
     cPacketQueue::insert(pkt);
     return true;
@@ -44,8 +46,8 @@ bool LteMacQueue::pushBack(cPacket *pkt)
 
 bool LteMacQueue::pushFront(cPacket *pkt)
 {
-    if (getByteLength() + pkt->getByteLength() > queueSize_ && queueSize_ != 0)
-        return false; // Packet Queue Full
+    if (!isEnqueueablePacket(pkt))
+        return false; // packet queue full or we have discarded fragments for this main packet
 
     cPacketQueue::insertBefore(cPacketQueue::front(), pkt);
     return true;
@@ -74,6 +76,31 @@ int64_t LteMacQueue::getQueueOccupancy() const
 int64_t LteMacQueue::getQueueSize() const
 {
     return queueSize_;
+}
+
+bool LteMacQueue::isEnqueueablePacket(cPacket* pkt){
+    LteRlcPdu_Base* pdu = dynamic_cast<LteRlcPdu_Base *>(pkt);
+    if(queueSize_ == 0){
+        // unlimited queue size -- nothing to check for
+        return true;
+    }
+    if(pdu != NULL){
+        if(pdu->getTotalFragments() > 1) {
+            bool allFragsWillFit = ((pdu->getTotalFragments()-pdu->getSnoFragment())*pdu->getByteLength() + getByteLength() < queueSize_);
+            bool enqueable = (pdu->getSnoMainPacket() != lastUnenqueueableMainSno) && allFragsWillFit;
+            if(allFragsWillFit && !enqueable){
+                EV_DEBUG << "PDU would fit but discarded frags before - rejecting fragment: " << pdu->getSnoMainPacket() << ":" << pdu->getSnoFragment() << std::endl;
+            }
+            if(!enqueable){
+                lastUnenqueueableMainSno = pdu->getSnoMainPacket();
+            }
+            return enqueable;
+        }
+    } else {
+        EV_WARN << "LteMacQueue: cannot estimate remaining fragments - unknown packet type " << pkt->getFullName() << std::endl;
+    }
+    // no fragments or unknown type -- can always be enqueued if there is enough space in the queue
+    return (pkt->getByteLength() + getByteLength() < queueSize_);
 }
 
 int LteMacQueue::getQueueLength() const

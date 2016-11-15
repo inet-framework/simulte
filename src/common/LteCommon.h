@@ -32,15 +32,19 @@
 #include <algorithm>
 #include "lterecorder.h"
 
+using namespace omnetpp;
+
 class LteBinder;
 class LteDeployer;
 class LteMacEnb;
 class LteMacBase;
 class LtePhyBase;
-class cXMLElement;
+//class cXMLElement;
 class LteRealisticChannelModel;
 class LteControlInfo;
 class ExtCell;
+
+
 
 /**
  * TODO
@@ -676,7 +680,7 @@ typedef std::list<cPacket*> RlcSduList;
  * The Mac Sdu List, a list of MAC SDUs
  * contained inside a MAC PDU
  */
-typedef std::list<cPacket*> MacSduList;
+typedef cPacketQueue MacSduList;
 
 /**
  * The Mac Control Elements List, a list
@@ -738,7 +742,7 @@ enum RxHarqPduStatus
 struct RemoteUnitPhyData
 {
     int txPower;
-    Coord m;
+    inet::Coord m;
 };
 
 // Codeword List - returned by Harq functions

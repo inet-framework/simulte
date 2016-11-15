@@ -79,6 +79,7 @@ class UserTxParams
     }
     virtual ~UserTxParams()
     {
+        allowedBands_.clear();
     }
     //! Reset to default values.
     void restoreDefaultValues()

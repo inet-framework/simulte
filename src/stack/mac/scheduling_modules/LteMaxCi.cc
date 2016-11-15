@@ -30,6 +30,13 @@ void LteMaxCi::prepareSchedule()
         ++it1;
 
         MacNodeId nodeId = MacCidToNodeId(cid);
+        OmnetId id = getBinder()->getOmnetId(nodeId);
+        if(nodeId == 0 || id == 0){
+                // node has left the simulation - erase corresponding CIDs
+                activeConnectionSet_.erase(cid);
+                activeConnectionTempSet_.erase(cid);
+                continue;
+        }
 
         // if we are allocating the UL subframe, this connection may be either UL or D2D
         Direction dir;

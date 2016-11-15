@@ -18,9 +18,10 @@
 #include "VoDPacket_m.h"
 #include "M1Message_m.h"
 #include "UDPSocket.h"
-#include "IPvXAddressResolver.h"
+#include "L3AddressResolver.h"
 
 using namespace std;
+using namespace inet;
 
 class VoDUDPServer : public cSimpleModule
 {
@@ -46,7 +47,7 @@ class VoDUDPServer : public cSimpleModule
     std::vector<int> vclientsPort;
     std::vector<double> vclientsStartStreamTime;
     std::vector<double> vclientsReqTime;
-    std::vector<IPvXAddress> clientAddr;
+    std::vector<L3Address> clientAddr;
 
     /* Statistics */
 
@@ -87,7 +88,7 @@ class VoDUDPServer : public cSimpleModule
   protected:
 
     void initialize(int stage);
-    virtual int numInitStages() const { return 4; }
+    virtual int numInitStages() const { return inet::NUM_INIT_STAGES; }
     virtual void finish();
     virtual void handleMessage(cMessage*);
     virtual void handleNS2Message(cMessage*);

@@ -8,17 +8,17 @@
 // 
 package lte.simulations.networks;
 
-import inet.networklayer.autorouting.ipv4.IPv4NetworkConfigurator;
+import inet.networklayer.configurator.ipv4.IPv4NetworkConfigurator;
 import inet.networklayer.ipv4.RoutingTableRecorder;
-import inet.nodes.ethernet.Eth1G;
-import inet.nodes.inet.Router;
-import inet.nodes.inet.StandardHost;
-import lte.stack.phy.ChannelControl.LteChannelControl;
+import inet.node.ethernet.Eth10G;
+import inet.node.inet.Router;
+import inet.node.inet.StandardHost;
 import lte.corenetwork.binder.LteBinder;
 import lte.corenetwork.nodes.Ue;
 import lte.corenetwork.nodes.eNodeB;
 import lte.corenetwork.nodes.ExtCell;
 import lte.epc.PgwStandardSimplified;
+import lte.world.radio.LteChannelControl;
 
 
 network MultiCell
@@ -43,12 +43,12 @@ network MultiCell
         server: StandardHost {
             @display("p=212,118;is=n;i=device/server");
         }
-        router: Router {
-            @display("p=321,136;i=device/smallrouter");
-        }
         pgw: PgwStandardSimplified {
             nodeType = "PGW";
-            @display("p=519,175;is=l");
+            @display("p=172,287;is=l");
+        }
+        router: Router {
+            @display("p=321,136;i=device/smallrouter");
         }
         eNodeB1: eNodeB {
             @display("p=391,259;is=vl");
@@ -72,11 +72,11 @@ network MultiCell
             @display("p=100,480;is=vl");
         }
     connections:
-        server.pppg++ <--> Eth1G <--> router.pppg++;
-        router.pppg++ <--> Eth1G <--> pgw.filterGate;
-        pgw.pppg++ <--> Eth1G <--> eNodeB1.ppp;
-        pgw.pppg++ <--> Eth1G <--> eNodeB2.ppp;
+        server.pppg++ <--> Eth10G <--> router.pppg++;
+        router.pppg++ <--> Eth10G <--> pgw.filterGate;
+        pgw.pppg++ <--> Eth10G <--> eNodeB1.ppp;
+        pgw.pppg++ <--> Eth10G <--> eNodeB2.ppp;
         
         //# X2 connections
-        eNodeB1.x2++ <--> Eth1G <--> eNodeB2.x2++;
+        eNodeB1.x2++ <--> Eth10G <--> eNodeB2.x2++;
 }

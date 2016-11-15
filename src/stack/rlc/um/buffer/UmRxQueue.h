@@ -81,8 +81,8 @@ class UmRxQueue : public cSimpleModule
     virtual void handleMessage(cMessage* msg);
 
     //Statistics
-    TaggedSample *tSample_;
-    TaggedSample *tSampleCell_;
+    TaggedSample *tSample_ = NULL;
+    TaggedSample *tSampleCell_ = NULL;
 
     simsignal_t rlcCellPacketLoss_;
     simsignal_t rlcPacketLoss_;

@@ -14,6 +14,8 @@
 #include "LteCommon.h"
 #include "X2InformationElement.h"
 
+using namespace omnetpp;
+
 // add here new X2 message types
 enum LteX2MessageType
 {
@@ -40,7 +42,7 @@ class LteX2Message : public LteX2Message_Base
     X2InformationElementsList ieList_;
 
     /// Size of the X2 message
-    int64 msgLength_;
+    int64_t msgLength_;
 
   public:
 
@@ -133,12 +135,12 @@ class LteX2Message : public LteX2Message_Base
         return (!ieList_.empty());
     }
 
-    int64 getByteLength() const
+    int64_t getByteLength() const
     {
         return msgLength_;
     }
 
-    int64 getBitLength() const
+    int64_t getBitLength() const
     {
         return (getByteLength() * 8);
     }

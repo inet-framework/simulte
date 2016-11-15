@@ -40,7 +40,10 @@ void LteHarqProcessRx::insertPdu(Codeword cw, LteMacPdu *pdu)
             macOwner_->getMacNodeId(), acid_, cw, ndi, status_.at(cw));
 
     // deallocate corrupted pdu received in previous transmissions
-    delete pdu_.at(cw);
+    if (pdu_.at(cw) != NULL){
+            macOwner_->dropObj(pdu_.at(cw));
+            delete pdu_.at(cw);
+    }
 
     // store new received pdu
     pdu_.at(cw) = pdu;
@@ -69,7 +72,7 @@ LteHarqFeedback *LteHarqProcessRx::createFeedback(Codeword cw)
     fb->setAcid(acid_);
     fb->setCw(cw);
     fb->setResult(result_.at(cw));
-    fb->setPduId(pdu_.at(cw)->getId());
+    fb->setFbMacPduId(pdu_.at(cw)->getMacPduId());
     fb->setByteLength(0);
     UserControlInfo *fbInfo = new UserControlInfo();
     fbInfo->setSourceId(pduInfo->getDestId());
@@ -112,6 +115,7 @@ LteMacPdu* LteHarqProcessRx::extractPdu(Codeword cw)
 
     // temporary copy of pdu pointer because reset NULLs it, and I need to return it
     LteMacPdu *pdu = pdu_.at(cw);
+    pdu_.at(cw) = NULL;
     resetCodeword(cw);
     return pdu;
 }
@@ -139,8 +143,10 @@ void LteHarqProcessRx::purgeCorruptedPdu(Codeword cw)
 void LteHarqProcessRx::resetCodeword(Codeword cw)
 {
     // drop ownership
-    if (pdu_.at(cw) != NULL)
+    if (pdu_.at(cw) != NULL){
         macOwner_->dropObj(pdu_.at(cw));
+        delete pdu_.at(cw);
+    }
 
     pdu_.at(cw) = NULL;
     status_.at(cw) = RXHARQ_PDU_EMPTY;

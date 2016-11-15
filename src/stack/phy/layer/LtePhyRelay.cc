@@ -33,7 +33,7 @@ void LtePhyRelay::initialize(int stage)
         // deployer is on DeNB
         txPower_ = relayTxPower_;
         OmnetId masterOmnetId = binder_->getOmnetId(masterId_);
-        bdcUpdateInterval_ = simulation.getModule(masterOmnetId)->
+        bdcUpdateInterval_ = getSimulation()->getModule(masterOmnetId)->
         getSubmodule("deployer")->
         par("positionUpdateInterval");
         // TODO: add a parameter not to generate broadcasts (no handovers scenario)
@@ -102,7 +102,7 @@ void LtePhyRelay::handleAirFrame(cMessage* msg)
     // send decapsulated message along with result control info to upperGateOut_
     send(pkt, upperGateOut_);
 
-    if (ev.isGUI())
+    if (getEnvir()->isGUI())
     updateDisplayString();
 }
 

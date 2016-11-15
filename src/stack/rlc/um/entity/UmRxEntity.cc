@@ -95,9 +95,15 @@ void UmRxEntity::enque(cPacket* pkt)
             int shift = rxWindowDesc_.highestReceivedSno_ - old;
             while (shift > 0)
             {
+
                 // if "shift" is greater than the window size, we advance the window in several steps
 
                 int p = (shift < rxWindowDesc_.windowSize_) ? shift : rxWindowDesc_.windowSize_;
+                shift -= p;
+                if (rxWindowDesc_.firstSno_ + p > tsn)  // HACK to avoid that the window go ahead of the received tsn
+                {
+                    p = tsn-rxWindowDesc_.firstSno_;
+                }
 
                 for (int i=0; i < p; i++)
                 {
@@ -107,7 +113,6 @@ void UmRxEntity::enque(cPacket* pkt)
 
                 // move the window (update buffer and firstSno)
                 moveRxWindow(p);
-                shift -= p;
             }
 
             // check whether firstSnoForReordering_ falls out the window

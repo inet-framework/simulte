@@ -47,3 +47,4 @@ ui/com.simulte.configeditor/bin/
 /simulations/*/*/*/results*/
 /simulations/*/scenario*/
 /simulations/*/eval*/
+/simulations/*/.cmdenv-log

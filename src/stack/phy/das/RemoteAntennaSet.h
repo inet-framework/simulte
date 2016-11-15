@@ -13,6 +13,8 @@
 #include <vector>
 #include "Coord.h"
 
+using namespace inet;
+
 /**
  * @class RemoteAntennaSet
  * @brief Class containing all physical antenna infos

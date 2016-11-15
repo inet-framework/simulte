@@ -30,7 +30,7 @@ class LteHarqProcessRxD2DMirror
 {
   public:
     /// bytelength of contained pdus
-    std::vector<int64> pdu_length_;
+    std::vector<int64_t> pdu_length_;
 
     /// H-ARQ process identifier
     unsigned char acid_;

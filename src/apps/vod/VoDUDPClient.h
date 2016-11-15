@@ -18,14 +18,14 @@
 #include "VoDUDPStruct.h"
 #include "UDPControlInfo_m.h"
 #include "UDPSocket.h"
-#include "IPvXAddressResolver.h"
+#include "L3AddressResolver.h"
 #include "lterecorder.h"
 
 using namespace std;
 
 class VoDUDPClient : public cSimpleModule
 {
-    UDPSocket socket;
+    inet::UDPSocket socket;
     fstream outfile;
 
   public:
@@ -42,7 +42,7 @@ class VoDUDPClient : public cSimpleModule
   protected:
 
     virtual void initialize(int stage);
-    virtual int numInitStages() const { return 4; }
+    virtual int numInitStages() const { return inet::NUM_INIT_STAGES; }
     virtual void finish();
     virtual void handleMessage(cMessage *msg);
     virtual void receiveStream(VoDPacket *msg);

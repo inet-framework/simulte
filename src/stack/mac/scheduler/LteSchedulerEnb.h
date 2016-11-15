@@ -122,9 +122,7 @@ class LteSchedulerEnb
     /**
      * Destructor.
      */
-    virtual ~LteSchedulerEnb()
-    {
-    }
+    virtual ~LteSchedulerEnb();
 
     /**
      * Set Direction and bind the internal pointers to the MAC objects.

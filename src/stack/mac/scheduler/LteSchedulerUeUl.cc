@@ -27,6 +27,11 @@ LteSchedulerUeUl::LteSchedulerUeUl(LteMacUe * mac)
         lcgScheduler_ = new LcgScheduler(mac);
 }
 
+LteSchedulerUeUl::~LteSchedulerUeUl()
+{
+    delete lcgScheduler_;
+}
+
 LteMacScheduleList*
 LteSchedulerUeUl::schedule()
 {

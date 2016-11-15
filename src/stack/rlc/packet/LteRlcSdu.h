@@ -17,9 +17,10 @@ class LteRlcSdu : public LteRlcSdu_Base
 {
 
   private:
-    void copy(const LteRlcSdu& other) {
-        this->snoMainPacket_var = other.snoMainPacket_var;
-        this->lengthMainPacket_var = other.lengthMainPacket_var;
+    void copy(const LteRlcSdu& other)
+    {
+        this->snoMainPacket = other.snoMainPacket;
+
         // copy the attached control info, if any
         if (other.getControlInfo() != NULL)
         {

@@ -37,6 +37,11 @@ class UmFragbuf
     }
     virtual ~UmFragbuf()
     {
+        // iterate over all fragments and delete corresponding LteInfo
+        for (auto it=frags_.begin(); it!=frags_.end(); ++it){
+            delete it->second.lteInfo_;
+        }
+        frags_.clear();
     }
 
     /**

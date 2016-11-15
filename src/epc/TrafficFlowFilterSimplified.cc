@@ -10,14 +10,14 @@
 #include "TrafficFlowFilterSimplified.h"
 #include "IPv4ControlInfo.h"
 #include "IPv4Datagram.h"
-#include "IPvXAddressResolver.h"
+#include "L3AddressResolver.h"
 
 Define_Module(TrafficFlowFilterSimplified);
 
 void TrafficFlowFilterSimplified::initialize(int stage)
 {
     // wait until all the IP addresses are configured
-    if (stage != 3)
+    if (stage != inet::INITSTAGE_NETWORK_LAYER)
         return;
 
     // get reference to the binder
@@ -71,10 +71,9 @@ void TrafficFlowFilterSimplified::handleMessage(cMessage *msg)
     send(datagram,"gtpUserGateOut");
 }
 
-TrafficFlowTemplateId TrafficFlowFilterSimplified::findTrafficFlow(IPvXAddress srcAddress, IPvXAddress destAddress)
+TrafficFlowTemplateId TrafficFlowFilterSimplified::findTrafficFlow(L3Address srcAddress, L3Address destAddress)
 {
-
-    MacNodeId destId = binder_->getMacNodeId(destAddress.get4());
+    MacNodeId destId = binder_->getMacNodeId(destAddress.toIPv4());
     if (destId == 0)
         return -1;   // the destination is outside the LTE network, so send the packet to the PGW
 
@@ -82,7 +81,7 @@ TrafficFlowTemplateId TrafficFlowFilterSimplified::findTrafficFlow(IPvXAddress s
 
     if (ownerType_ == ENB)
     {
-        MacNodeId srcMaster = binder_->getNextHop(binder_->getMacNodeId(srcAddress.get4()));
+        MacNodeId srcMaster = binder_->getNextHop(binder_->getMacNodeId(srcAddress.toIPv4()));
         if (fastForwarding_ && srcMaster == destMaster)
             return 0;                 // local delivery
         return -1;   // send the packet to the PGW

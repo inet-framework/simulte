@@ -16,5 +16,5 @@ packet LteHarqFeedback
     // H-ARQ feedback: true for ACK, false for NACK
     bool result;
     // Id of the pdu to which the feedback is addressed
-    long pduId;
+    long fbMacPduId;
 }

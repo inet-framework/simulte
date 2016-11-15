@@ -94,7 +94,7 @@ bool LteDummyChannelModel::error(LteAirFrame *frame, UserControlInfo* lteInfo)
     // and the harq reduction parameter
     double totalPer = per_ * pow(harqReduction_, nTx - 1);
     //Throw random variable
-    double er = uniform(0.0, 1.0);
+    double er = uniform(getEnvir()->getRNG(0),0.0, 1.0);
 
     if (er <= totalPer)
     {
@@ -121,7 +121,7 @@ bool LteDummyChannelModel::error_D2D(LteAirFrame *frame, UserControlInfo* lteInf
     // and the harq reduction parameter
     double totalPer = per_ * pow(harqReduction_, nTx - 1);
     //Throw random variable
-    double er = uniform(0.0, 1.0);
+    double er = uniform(getEnvir()->getRNG(0),0.0, 1.0);
 
     if (er <= totalPer)
     {

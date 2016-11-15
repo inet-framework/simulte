@@ -9,7 +9,7 @@
 
 #include <cmath>
 #include "AlertSender.h"
-#include "InterfaceTableAccess.h"  // for multicast support
+#include "ModuleAccess.h"  // for multicast support
 
 #define round(x) floor((x) + 0.5)
 
@@ -30,8 +30,10 @@ void AlertSender::initialize(int stage)
 {
     EV << "AlertSender::initialize - stage " << stage << endl;
 
+    cSimpleModule::initialize(stage);
+
     // avoid multiple initializations
-    if (stage!=3)
+    if (stage!=inet::INITSTAGE_APPLICATION_LAYER)
         return;
 
     selfSender_ = new cMessage("selfSender");
@@ -40,15 +42,16 @@ void AlertSender::initialize(int stage)
     period_ = par("period");
     localPort_ = par("localPort");
     destPort_ = par("destPort");
-    destAddress_ = IPvXAddressResolver().resolve(par("destAddress").stringValue());
+    destAddress_ = inet::L3AddressResolver().resolve(par("destAddress").stringValue());
 
     socket.setOutputGate(gate("udpOut"));
     socket.bind(localPort_);
 
     // for multicast support
-    socket.joinLocalMulticastGroups();
-    IInterfaceTable *ift = InterfaceTableAccess().get(this);
-    InterfaceEntry *ie = ift->getInterfaceByName("wlan");
+    inet::IInterfaceTable *ift = inet::getModuleFromPar< inet::IInterfaceTable >(par("interfaceTableModule"), this);
+    inet::MulticastGroupList mgl = ift->collectMulticastGroups();
+    socket.joinLocalMulticastGroups(mgl);
+    inet::InterfaceEntry *ie = ift->getInterfaceByName("wlan");
     if (!ie)
         throw cRuntimeError("Wrong multicastInterface setting: no interface named wlan");
     socket.setMulticastOutputInterface(ie->getInterfaceId());

@@ -88,7 +88,7 @@ class IP2lte : public cSimpleModule
     void registerMulticastGroups();
   protected:
     virtual void initialize(int stage);
-    virtual int numInitStages() const { return 4; }
+    virtual int numInitStages() const { return INITSTAGE_LAST; }
     virtual void handleMessage(cMessage *msg);
   public:
     void triggerHandoverSource(MacNodeId ueId, MacNodeId targetEnb);

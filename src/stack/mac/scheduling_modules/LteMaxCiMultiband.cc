@@ -30,7 +30,7 @@ void LteMaxCiMultiband::prepareSchedule()
     unsigned int totAvailableBytes    = 0;
     unsigned int totAvailableBytes_MB = 0;
 
-    UsableBands * usableBands;
+    // UsableBands * usableBands;
     if(debug)
         cout << NOW << " LteMaxCiMultiband::prepareSchedule - Tot Active Connections:"<< activeConnectionTempSet_.size() << endl;
     for ( ActiveSet::iterator it1 = activeConnectionTempSet_.begin ();it1 != activeConnectionTempSet_.end (); ++it1 )

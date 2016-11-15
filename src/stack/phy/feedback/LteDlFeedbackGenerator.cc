@@ -161,7 +161,7 @@ void LteDlFeedbackGenerator::initialize(int stage)
         WATCH(numPreferredBands_);
         if (usePeriodic_)
         {
-            tPeriodicSensing_->start(NOW);
+            tPeriodicSensing_->start(0);
         }
     }
 }

@@ -29,7 +29,7 @@ VoIPReceiver::~VoIPReceiver()
 
 void VoIPReceiver::initialize(int stage)
 {
-    if (stage != 3)
+    if (stage != inet::INITSTAGE_APPLICATION_LAYER)
         return;
 
     emodel_Ie_ = par("emodel_Ie_");
@@ -90,7 +90,7 @@ void VoIPReceiver::handleMessage(cMessage *msg)
 
     //emit(mFrameLossSignal,1.0);
 
-    EV << "VoIPReceiver::handleMessage - Packet received: TALK[" << pPacket->getIDtalk() << "] - FRAME[" << pPacket->getIDframe() << "]\n";
+    EV << "VoIPReceiver::handleMessage - Packet received: TALK[" << pPacket->getIDtalk() << "] - FRAME[" << pPacket->getIDframe() << " size: " << (int)pPacket->getByteLength() << " bytes]\n";
 
     TaggedSample t;
     t.id_ = 0;
@@ -99,9 +99,6 @@ void VoIPReceiver::handleMessage(cMessage *msg)
 
     emit(voipReceivedThroughtput_, (int)pPacket->getByteLength() );
     emit(voipReceivedThroughtput_lte_, &t );
-
-
-//    std::cout << simTime() << "received " << (int)pPacket->getByteLength() << endl;
 
     pPacket->setArrivalTime(simTime());
     mPacketsList_.push_back(pPacket);

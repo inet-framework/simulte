@@ -9,17 +9,17 @@
 
 package lte.simulations.networks;
 
-import inet.networklayer.autorouting.ipv4.IPv4NetworkConfigurator;
+import inet.networklayer.configurator.ipv4.IPv4NetworkConfigurator;
 import inet.networklayer.ipv4.RoutingTableRecorder;
-import inet.nodes.inet.Router;
-import inet.nodes.inet.StandardHost;
-import inet.util.ThruputMeteringChannel;
-import inet.world.radio.ChannelControl;
+import inet.node.inet.Router;
+import inet.node.inet.StandardHost;
+import inet.common.misc.ThruputMeteringChannel;
 import lte.corenetwork.binder.LteBinder;
 import lte.corenetwork.nodes.Ue;
 import lte.corenetwork.nodes.eNBpp;
 import lte.epc.PgwStandard;
 import lte.epc.SgwStandard;
+import lte.world.radio.LteChannelControl;
 
 
 network eutran_epcNetwork
@@ -35,11 +35,11 @@ network eutran_epcNetwork
             thruputDisplayFormat = "u";
         }
     submodules:
-        channelControl: ChannelControl {
-            @display("p=50,25;is=s");
-        }
         routingRecorder: RoutingTableRecorder {
             @display("p=434,25;is=s");
+        }
+        channelControl: LteChannelControl {
+            @display("p=50,25;is=s");
         }
         configurator: IPv4NetworkConfigurator {
             @display("p=183,25");

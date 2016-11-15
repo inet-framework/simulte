@@ -13,13 +13,7 @@
 #include "TTimerMsg_m.h"
 #include "TMultiTimerMsg_m.h"
 
-/**
- * Timer type
- */
-enum TTimerType
-{
-    TTSIMPLE, TTMULTI
-};
+using namespace omnetpp;
 
 //! Generic timer interface
 class TTimer : public cObject

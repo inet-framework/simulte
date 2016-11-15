@@ -14,6 +14,8 @@
 #include "LteCommon.h"
 #include "LteBinder.h"
 
+using namespace inet;
+
 typedef std::vector<int> BandStatus;
 
 /* The allocation type defines the interference produced by the ext cell

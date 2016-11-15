@@ -18,7 +18,7 @@ Define_Module(X2AppServer);
 void X2AppServer::initialize(int stage)
 {
     SCTPServer::initialize(stage);
-    if (stage==0)
+    if (stage==inet::INITSTAGE_LOCAL)
     {
         x2ManagerIn_ = gate("x2ManagerIn");
 
@@ -48,7 +48,7 @@ void X2AppServer::generateAndSend(cPacket* pkt)
 
     msg->setBitLength(numBytes * 8);
     cmsg->encapsulate(msg);
-    SCTPSendCommand *cmd = new SCTPSendCommand("Send1");
+    SCTPSendInfo *cmd = new SCTPSendInfo("Send1");
     cmd->setAssocId(assocId);
     cmd->setSendUnordered(ordered ? COMPLETE_MESG_ORDERED : COMPLETE_MESG_UNORDERED);
     lastStream = (lastStream+1)%outboundStreams;

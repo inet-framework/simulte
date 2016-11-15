@@ -12,7 +12,10 @@
 
 #include "LteControlInfo_m.h"
 #include <vector>
+
 class UserTxParams;
+
+using namespace inet;
 
 /**
  * @class UserControlInfo
@@ -42,6 +45,14 @@ class UserControlInfo : public UserControlInfo_Base
      */
     UserControlInfo();
     virtual ~UserControlInfo();
+
+    /*
+     * Operator = : packet copy
+     * @param other source packet
+     * @return reference to this packet
+     */
+    UserControlInfo& operator=(const UserControlInfo& other);
+
     /**
      * Copy constructor: packet copy
      * @param other source packet
@@ -53,13 +64,6 @@ class UserControlInfo : public UserControlInfo_Base
     }
 
     /**
-     * Operator = : packet copy
-     * @param other source packet
-     * @return reference to this packet
-     */
-    UserControlInfo& operator=(const UserControlInfo& other);
-
-    /**
      * dup() : packet duplicate
      * @return pointer to duplicate packet
      */
@@ -68,10 +72,7 @@ class UserControlInfo : public UserControlInfo_Base
         return new UserControlInfo(*this);
     }
 
-    void setUserTxParams(const UserTxParams* arg)
-    {
-        userTxParams = arg;
-    }
+    void setUserTxParams(const UserTxParams* arg);
 
     const UserTxParams* getUserTxParams() const
     {

@@ -75,7 +75,7 @@ void InternetQueue::handleMessage(cMessage *msg)
         // Transmission finished, we can start next one.
         numSent_++;
         EV << "Transmission finished" << endl;
-        if (!txQueue_.empty())
+        if (!txQueue_.isEmpty())
         {
             cPacket *pk = (cPacket *) txQueue_.pop();
             startTransmitting(pk);
@@ -109,7 +109,7 @@ void InternetQueue::handleMessage(cMessage *msg)
         }
     }
 
-    if (ev.isGUI())
+    if (getEnvir()->isGUI())
     updateDisplayString();
 }
 

@@ -15,7 +15,7 @@
 #include <iostream>
 #include <omnetpp.h>
 
-#include "ChannelAccess.h"
+#include "world/radio/ChannelAccess.h"
 #include "ChannelControl.h"
 #include "LteCommon.h"
 #include "LteControlInfo.h"
@@ -183,7 +183,9 @@ class LtePhyBase : public ChannelAccess
      */
     virtual void initialize(int stage);
 
-    virtual int numInitStages() { return 3; }
+    virtual int numInitStages() const {
+        return std::max(INITSTAGE_PHYSICAL_LAYER + 1, ChannelAccess::numInitStages());
+    }
 
     /**
      * Processes messages received from #radioInGate_ or from the stack (#upperGateIn_).

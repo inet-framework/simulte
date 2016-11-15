@@ -7,11 +7,11 @@
 // and cannot be removed from it.
 //
 
-#include "InterfaceTableAccess.h"
 #include "IPv4InterfaceData.h"
 #include "LteIp.h"
 #include "LteBinder.h"
 #include "LteDeployer.h"
+#include "ModuleAccess.h"
 
 Define_Module(LteIp);
 
@@ -100,14 +100,14 @@ void LteIp::endService(cPacket *msg)
             switch(ipDatagram->getTransportProtocol())
             {
                 case IP_PROT_TCP:
-                TCPSegment* tcpseg;
-                tcpseg = check_and_cast<TCPSegment*>(transportPacket);
+                inet::tcp::TCPSegment* tcpseg;
+                tcpseg = check_and_cast<inet::tcp::TCPSegment*>(transportPacket);
                 srcPort = tcpseg->getSrcPort();
                 dstPort = tcpseg->getDestPort();
                 headerSize += tcpseg->getHeaderLength();
                 break;
                 case IP_PROT_UDP:
-                UDPPacket* udppacket;
+                inet::UDPPacket* udppacket;
                 udppacket = check_and_cast<UDPPacket*>(transportPacket);
                 srcPort = (unsigned short)udppacket->getSourcePort();
                 dstPort = (unsigned short)udppacket->getDestinationPort();
@@ -175,7 +175,7 @@ void LteIp::endService(cPacket *msg)
         }
     }
 
-    if (ev.isGUI())
+    if (getEnvir()->isGUI())
     updateDisplayString();
 }
 
@@ -201,7 +201,7 @@ void LteIp::fromTransport(cPacket * transportPacket, cGate *outputgate)
     if (src.isUnspecified())
     {
         // find interface entry and use its address
-        IInterfaceTable *interfaceTable = InterfaceTableAccess().get();
+        IInterfaceTable *interfaceTable = getModuleFromPar<IInterfaceTable>(par("interfaceTableModule"), this);
         // TODO: how do we find the LTE interface?
         src = interfaceTable->getInterfaceByName("wlan")->ipv4Data()->getIPAddress();
         EV << "Local address used: " << src << endl;
@@ -234,15 +234,15 @@ void LteIp::fromTransport(cPacket * transportPacket, cGate *outputgate)
     switch (ipControlInfo->getProtocol())
     {
         case IP_PROT_TCP:
-            TCPSegment* tcpseg;
-            tcpseg = check_and_cast<TCPSegment*>(transportPacket);
+            inet::tcp::TCPSegment* tcpseg;
+            tcpseg = check_and_cast<inet::tcp::TCPSegment*>(transportPacket);
             srcPort = tcpseg->getSrcPort();
             dstPort = tcpseg->getDestPort();
             headerSize += tcpseg->getHeaderLength();
             break;
         case IP_PROT_UDP:
-            UDPPacket* udppacket;
-            udppacket = check_and_cast<UDPPacket*>(transportPacket);
+            inet::UDPPacket* udppacket;
+            udppacket = check_and_cast<inet::UDPPacket*>(transportPacket);
             srcPort = (unsigned short) udppacket->getSourcePort();
             dstPort = (unsigned short) udppacket->getDestinationPort();
             headerSize += UDP_HEADER_BYTES;

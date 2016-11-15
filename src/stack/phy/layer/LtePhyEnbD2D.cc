@@ -256,7 +256,7 @@ void LtePhyEnbD2D::handleAirFrame(cMessage* msg)
     // send decapsulated message along with result control info to upperGateOut_
     send(pkt, upperGateOut_);
 
-    if (ev.isGUI())
-    updateDisplayString();
+    if (getEnvir()->isGUI())
+        updateDisplayString();
 }
 

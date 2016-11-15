@@ -11,9 +11,9 @@ package lte.epc;
 import lte.epc.gtp.GtpUser;
 import lte.epc.gtp.GtpUserSimplified;
 import inet.linklayer.ppp.PPPInterface;
-import inet.nodes.inet.NodeBase;
+import inet.node.inet.NodeBase;
 import lte.epc.TrafficFlowFilter;
-import inet.transport.udp.UDP;
+import inet.transportlayer.udp.UDP;
 
 //
 // Implements an EPC PDN Gateway (P-GW)

@@ -9,7 +9,7 @@
 
 package lte.apps.alert;
 
-import inet.applications.IUDPApp;
+import inet.applications.contract.IUDPApp;
 
 simple AlertSender like IUDPApp
 {
@@ -20,7 +20,9 @@ simple AlertSender like IUDPApp
         int packetSize = default(10);
         double period @unit("s") = default(0.02s);
         double startTime @unit("s") = default(0s);
+        string interfaceTableModule;
                
+        @signal[alertSentMsg];
         @statistic[alertSentMsg](title="Alert messages sent"; unit=""; source="alertSentMsg"; record=sum,vector);
 
         @display("i=block/source");

@@ -60,6 +60,12 @@ class AmcPilot
         amc_ = amc;
         name_ = "NONE";
     }
+    /**
+     * Destructor
+     */
+    virtual ~AmcPilot(){
+
+    }
 
     /**
      * Assign logical bands for given nodeId and direction.

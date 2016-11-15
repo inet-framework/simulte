@@ -20,6 +20,7 @@ simple IP2lte
 {
     parameters:
         string nodeType;    
+        string interfaceTableModule;
         @display("i=block/layer");
     gates:
         // connection to network layer.

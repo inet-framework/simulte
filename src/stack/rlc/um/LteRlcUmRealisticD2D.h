@@ -33,7 +33,7 @@ class LteRlcUmRealisticD2D : public LteRlcUmRealistic
 
     LteNodeType nodeType_;
 
-    virtual int numInitStages() const { return 2; }
+    virtual int numInitStages() const { return inet::NUM_INIT_STAGES; }
     virtual void initialize(int stage);
     virtual void handleMessage(cMessage *msg);
 

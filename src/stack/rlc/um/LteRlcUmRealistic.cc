@@ -64,6 +64,9 @@ UmRxEntity* LteRlcUmRealistic::getRxBuffer(FlowControlInfo* lteInfo)
 
     // Find RXBuffer for this CID
     MacCid cid = idToMacCid(nodeId, lcid);
+
+
+
     UmRxEntities::iterator it = rxEntities_.find(cid);
     if (it == rxEntities_.end())
     {

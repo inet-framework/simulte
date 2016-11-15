@@ -13,6 +13,8 @@
 #include <string.h>
 #include <vector>
 
+using namespace omnetpp;
+
 class PhyPisaData
 {
     double lambdaTable_[10000][3];

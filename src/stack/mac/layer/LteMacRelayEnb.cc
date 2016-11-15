@@ -25,7 +25,7 @@ LteDeployer* LteMacRelayEnb::getDeployer()
 {
     MacNodeId masterId = getAncestorPar("masterId");
     OmnetId masterOmnetId = binder_->getOmnetId(masterId);
-    return check_and_cast<LteDeployer *>(simulation.getModule(masterOmnetId)->getSubmodule("deployer"));
+    return check_and_cast<LteDeployer *>(getSimulation()->getModule(masterOmnetId)->getSubmodule("deployer"));
 }
 
 int LteMacRelayEnb::getNumAntennas()

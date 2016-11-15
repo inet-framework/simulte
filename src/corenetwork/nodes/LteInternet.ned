@@ -10,15 +10,15 @@
 
 package lte.corenetwork.nodes;
 
-import inet.base.NotificationBoard;
 import inet.linklayer.ppp.PPP;
 import inet.networklayer.common.InterfaceTable;
 import lte.corenetwork.lteip.LteIp;
 import lte.corenetwork.lteip.InternetQueue;
-import inet.transport.udp.UDP;
-import inet.transport.tcp.TCP;
+import inet.transportlayer.udp.UDP;
+import inet.transportlayer.tcp.TCP;
 
 //
+
 // Node representing the Internet in the Lte network model.
 // It has TCP/UDP transport layer and related applications.
 // It contains an LteIp module to connect the INTERNET 
@@ -63,9 +63,7 @@ module LteInternet
         interfaceTable: InterfaceTable {
             @display("p=45,121");
         }
-        notificationBoard: NotificationBoard {
-            @display("p=45,187");
-        }
+
     connections allowunconnected:
 
 

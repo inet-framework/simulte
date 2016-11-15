@@ -30,6 +30,8 @@ class LteMacEnb : public LteMacBase
 
     /// Number of antennas (MACRO included)
     int numAntennas_;
+
+    int eNodeBCount;
     //Statistics
     simsignal_t activatedFrames_;
     simsignal_t sleepFrames_;

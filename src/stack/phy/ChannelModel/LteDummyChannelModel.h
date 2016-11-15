@@ -72,7 +72,7 @@ class LteDummyChannelModel : public LteChannelModel
     //TODO
     virtual bool errorDas(LteAirFrame *frame, UserControlInfo* lteI)
     {
-        opp_error("DAS PHY LAYER TO BE IMPLEMENTED");
+        throw cRuntimeError("DAS PHY LAYER TO BE IMPLEMENTED");
         return false;
     }
 };

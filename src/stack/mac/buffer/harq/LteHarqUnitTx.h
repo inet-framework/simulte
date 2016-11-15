@@ -38,6 +38,7 @@ class LteHarqUnitTx
 
     /// Carried sub-burst
     LteMacPdu *pdu_;
+
     /// Omnet ID of the pdu
     long pduId_;
 
@@ -189,7 +190,7 @@ class LteHarqUnitTx
         return (status_ == TXHARQ_PDU_SELECTED);
     }
 
-    virtual long getPduId()
+    virtual long getMacPduId()
     {
         return pduId_;
     }

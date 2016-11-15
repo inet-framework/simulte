@@ -267,6 +267,16 @@ LteSchedulerEnbDl::rtxschedule()
     {
         // For each UE
         MacNodeId nodeId = it->first;
+
+        OmnetId id = getBinder()->getOmnetId(nodeId);
+        if(id == 0){
+            // UE has left the simulation, erase HARQ-queue
+            it = harqQueues->erase(it);
+            if(it == et)
+                break;
+            else
+                continue;
+        }
         LteHarqBufferTx* currHarq = it->second;
 
         // get harq status vector

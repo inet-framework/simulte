@@ -12,7 +12,7 @@
 
 #include <omnetpp.h>
 #include "UDPSocket.h"
-#include "IPvXAddressResolver.h"
+#include "L3AddressResolver.h"
 #include "IPv4Datagram.h"
 #include "TftControlInfo.h"
 #include "GtpUserMsg_m.h"
@@ -44,7 +44,7 @@ class GtpUserSimplified : public cSimpleModule
     unsigned int tunnelPeerPort_;
 
     // IP address of the PGW
-    IPvXAddress pgwAddress_;
+    L3Address pgwAddress_;
 
     // specifies the type of the node that contains this filter (it can be ENB or PGW)
     EpcNodeType ownerType_;
@@ -53,7 +53,7 @@ class GtpUserSimplified : public cSimpleModule
 
   protected:
 
-    virtual int numInitStages() const { return 4; }
+    virtual int numInitStages() const { return inet::NUM_INIT_STAGES; }
     virtual void initialize(int stage);
     virtual void handleMessage(cMessage *msg);
 

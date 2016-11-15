@@ -15,10 +15,9 @@
 #include "UDP.h"
 #include <iostream>
 
-#include "InterfaceTableAccess.h"
+#include "ModuleAccess.h"
 #include "IPv4InterfaceData.h"
 #include "InterfaceEntry.h"
-#include "RoutingTableAccess.h"
 #include "LteMacBase.h"
 
 using namespace std;
@@ -27,7 +26,7 @@ Define_Module(IP2lte);
 
 void IP2lte::initialize(int stage)
 {
-    if (stage == 0)
+    if (stage == inet::INITSTAGE_LOCAL)
     {
         stackGateOut_ = gate("stackLte$o");
         ipGateOut_ = gate("upperLayerOut");
@@ -56,7 +55,7 @@ void IP2lte::initialize(int stage)
 
         registerInterface();
     }
-    else if (stage == 3)
+    else if (stage == inet::INITSTAGE_NETWORK_LAYER_3)
     {
         registerMulticastGroups();
     }
@@ -146,8 +145,8 @@ void IP2lte::fromIpUe(IPv4Datagram * datagram)
     switch (transportProtocol)
     {
         case IP_PROT_TCP:
-            TCPSegment* tcpseg;
-            tcpseg = check_and_cast<TCPSegment*>(transportPacket);
+            inet::tcp::TCPSegment* tcpseg;
+            tcpseg = check_and_cast<inet::tcp::TCPSegment*>(transportPacket);
             srcPort = tcpseg->getSrcPort();
             dstPort = tcpseg->getDestPort();
             headerSize += tcpseg->getHeaderLength();
@@ -251,15 +250,15 @@ void IP2lte::toStackEnb(IPv4Datagram* datagram)
     switch(transportProtocol)
     {
         case IP_PROT_TCP:
-        TCPSegment* tcpseg;
-        tcpseg = check_and_cast<TCPSegment*>(transportPacket);
+        inet::tcp::TCPSegment* tcpseg;
+        tcpseg = check_and_cast<inet::tcp::TCPSegment*>(transportPacket);
         srcPort = tcpseg->getSrcPort();
         dstPort = tcpseg->getDestPort();
         headerSize += tcpseg->getHeaderLength();
         break;
         case IP_PROT_UDP:
-        UDPPacket* udppacket;
-        udppacket = check_and_cast<UDPPacket*>(transportPacket);
+        inet::UDPPacket* udppacket;
+        udppacket = check_and_cast<inet::UDPPacket*>(transportPacket);
         srcPort = udppacket->getSourcePort();
         dstPort = udppacket->getDestinationPort();
         headerSize += UDP_HEADER_BYTES;
@@ -300,7 +299,7 @@ void IP2lte::printControlInfo(FlowControlInfo* ci)
 void IP2lte::registerInterface()
 {
     InterfaceEntry * interfaceEntry;
-    IInterfaceTable *ift = InterfaceTableAccess().getIfExists();
+    IInterfaceTable *ift = getModuleFromPar<IInterfaceTable>(par("interfaceTableModule"), this);
     if (!ift)
         return;
     interfaceEntry = new InterfaceEntry(this);
@@ -309,6 +308,9 @@ void IP2lte::registerInterface()
     interfaceEntry->setMtu(1500);
     // enable broadcast/multicast
     interfaceEntry->setBroadcast(true);
+    // FIXME: this is a hack required to work with the HostAutoConfigurator in INET 3
+    // since the HostAutoConfigurator tries to add us to all default multicast groups.
+    // once this problem has been fixed, we should set multicast to false here
     interfaceEntry->setMulticast(true);
     ift->addInterface(interfaceEntry);
 }
@@ -319,23 +321,19 @@ void IP2lte::registerMulticastGroups()
 
     // get all the multicast addresses where the node is enrolled
     InterfaceEntry * interfaceEntry;
-    IInterfaceTable *ift = InterfaceTableAccess().getIfExists();
+    IInterfaceTable *ift = getModuleFromPar<IInterfaceTable>(par("interfaceTableModule"), this);
     if (!ift)
         return;
     interfaceEntry = ift->getInterfaceByName("wlan");
-    unsigned int numOfAddresses = interfaceEntry->ipv4Data()->getJoinedMulticastGroups().size();
-    if (numOfAddresses > 0)
+    unsigned int numOfAddresses = interfaceEntry->ipv4Data()->getNumOfJoinedMulticastGroups();
+    for (unsigned int i=0; i<numOfAddresses; ++i)
     {
-        const IPv4InterfaceData::IPv4AddressVector &addresses = interfaceEntry->ipv4Data()->getJoinedMulticastGroups();
-        IPv4InterfaceData::IPv4AddressVector::const_iterator it = addresses.begin(), et = addresses.end();
-        for (; it != et; ++it)
-        {
-            // get the group id and add it to the binder
-            uint32 address = IPv4Address((*it)).getInt();
-            uint32 mask = ~((uint32)255 << 28);      // 0000 1111 1111 1111
-            uint32 groupId = address & mask;
-            binder_->registerMulticastGroup(nodeId, groupId);
-        }
+        IPv4Address addr = interfaceEntry->ipv4Data()->getJoinedMulticastGroup(i);
+        // get the group id and add it to the binder
+        uint32 address = addr.getInt();
+        uint32 mask = ~((uint32)255 << 28);      // 0000 1111 1111 1111
+        uint32 groupId = address & mask;
+        binder_->registerMulticastGroup(nodeId, groupId);
     }
 }
 

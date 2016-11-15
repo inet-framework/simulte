@@ -14,6 +14,11 @@
 #include "AmcPilotAuto.h"
 #include "AmcPilotD2D.h"
 
+LteAmc::~LteAmc()
+{
+    delete pilot_;
+}
+
 /*********************
  * PRIVATE FUNCTIONS
  *********************/
@@ -165,14 +170,14 @@ void LteAmc::printTxParams(Direction dir)
     it = userInfo->begin();
     et = userInfo->end();
 
-    Cqi testCqi=0;
+    // Cqi testCqi=0;
     int index = 0;
     for(; it!=et; it++)
     {
         EV << "Ue index: " << index << ", MacNodeId: " << (*revIndex)[index] << endl;
 
         // Print only non empty user transmission parameters
-        testCqi = (*it).readCqiVector().at(0);
+        // testCqi = (*it).readCqiVector().at(0);
         //if(testCqi!=0)
         (*it).print("info");
 
@@ -388,6 +393,10 @@ void LteAmc::pushFeedback(MacNodeId id, Direction dir, LteFeedback fb)
     // Put the feedback in the FBHB
     Remote antenna = fb.getAntennaId();
     TxMode txMode = fb.getTxMode();
+    if (nodeIndex->find(id) == nodeIndex->end())
+    {
+        return;
+    }
     int index = (*nodeIndex).at(id);
 
     EV << "ID: " << id << endl;
@@ -847,6 +856,7 @@ unsigned int LteAmc::computeBitsOnNRbs_MB(MacNodeId id, Band b,  unsigned int bl
 bool LteAmc::setPilotUsableBands(MacNodeId id , std::vector<unsigned short>  usableBands)
 {
     pilot_->setUsableBands(id,usableBands);
+    return true;
 }
 
 std::vector<unsigned short>* LteAmc::getPilotUsableBands(MacNodeId id)

@@ -165,7 +165,6 @@ class LtePhyUe : public LtePhyBase
         }
         return 0;
     }
-
 };
 
 #endif  /* _LTE_AIRPHYUE_H_ */

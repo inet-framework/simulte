@@ -41,7 +41,7 @@ LteHarqFeedback *LteHarqProcessRxD2D::createFeedback(Codeword cw)
         fb->setAcid(acid_);
         fb->setCw(cw);
         fb->setResult(result_.at(cw));
-        fb->setPduId(pdu_.at(cw)->getId());
+        fb->setFbMacPduId(pdu_.at(cw)->getId());
         fb->setByteLength(0);
         UserControlInfo *fbInfo = new UserControlInfo();
         fbInfo->setSourceId(pduInfo->getDestId());

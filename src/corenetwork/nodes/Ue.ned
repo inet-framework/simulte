@@ -10,15 +10,14 @@
 
 package lte.corenetwork.nodes;
 
-import inet.applications.ITCPApp;
-import inet.applications.IUDPApp;
-import inet.base.NotificationBoard;
+import inet.applications.contract.ITCPApp;
+import inet.applications.contract.IUDPApp;
 import inet.mobility.contract.IMobility;
 import inet.networklayer.common.InterfaceTable;
-import inet.networklayer.ipv4.RoutingTable;
-import inet.nodes.inet.NetworkLayer;
-import inet.transport.tcp.TCP;
-import inet.transport.udp.UDP;
+import inet.networklayer.contract.IRoutingTable;
+import inet.networklayer.contract.INetworkLayer;
+import inet.transportlayer.tcp.TCP;
+import inet.transportlayer.udp.UDP;
 import lte.stack.phy.LteNicUe;
 import lte.stack.phy.LteNicUeD2D;
 
@@ -28,7 +27,7 @@ import lte.stack.phy.LteNicUeD2D;
 module Ue
 {
     parameters:
-        @node();
+        @networkNode();
         @display("i=device/pocketpc;bgb=400,518");
 
         //# Mobility
@@ -47,18 +46,23 @@ module Ue
         //# D2D capability
         bool d2dCapable = default(false);
 
+        //# Network Layer specs
+        string networkLayerType = default("IPv4NetworkLayer");
+        string routingTableType = default("IPv4RoutingTable");
+        *.interfaceTableModule = default(absPath(".interfaceTable"));
+        *.routingTableModule = default(absPath(".routingTable"));
+
     gates:
         input radioIn @directIn;     // connection to master
 
     submodules:
-        notificationBoard: NotificationBoard {
-            @display("p=50,25;is=s");
-        }
         interfaceTable: InterfaceTable {
             @display("p=50,75;is=s");
         }
-        routingTable: RoutingTable {
-            @display("p=50,125;is=s");
+        // routing table
+        routingTable: <routingTableType> like IRoutingTable if routingTableType != "" {
+            parameters:
+                @display("p=50,125;is=s");
         }
         mobility: <mobilityType> like IMobility {
             @display("p=50,175;is=s");
@@ -87,8 +91,10 @@ module Ue
             d2dCapable = d2dCapable;
             @display("p=250,407");
         }
-        networkLayer: NetworkLayer {
-            @display("p=250,258");
+        // network layer
+        networkLayer: <networkLayerType> like INetworkLayer {
+            parameters:
+                @display("p=250,258");
         }
     connections allowunconnected:
         //# 

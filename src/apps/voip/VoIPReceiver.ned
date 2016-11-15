@@ -9,7 +9,7 @@
 
 package lte.apps.voip;
 
-import inet.applications.IUDPApp;
+import inet.applications.contract.IUDPApp;
 
 
 simple VoIPReceiver like IUDPApp
@@ -24,15 +24,24 @@ simple VoIPReceiver like IUDPApp
         int dim_buffer = default(20);
         double sampling_time @unit("s") = default(0.02s);
 
+		@signal[voIPFrameLoss];
         @statistic[voIPFrameLoss](title="VoIP Frame Loss"; unit="ratio"; source="voIPFrameLoss"; record=mean,vector);
+        @signal[voIPFrameDelay];
         @statistic[voIPFrameDelay](title="VoIP Frame Delay"; unit="s"; source="voIPFrameDelay"; record=mean,vector);
+        @signal[voIPPlayoutDelay];
         @statistic[voIPPlayoutDelay](title="VoIP Playout Delay"; unit="s"; source="voIPPlayoutDelay"; record=mean,vector);
+        @signal[voIPPlayoutLoss];
         @statistic[voIPPlayoutLoss](title="VoIP Playout Loss"; unit="ratio"; source="voIPPlayoutLoss"; record=mean,vector);
+        @signal[voIPJitter];
         @statistic[voIPJitter](title="VoIP Playout Loss"; unit="s"; source="voIPJitter"; record=mean,vector);
+        @signal[voIPMos];
         @statistic[voIPMos](title="VoIP Mos Signal"; unit="MOS"; source="voIPMos"; record=mean,vector);
+        @signal[voIPTaildropLoss];
         @statistic[voIPTaildropLoss](title="VoIP Tail Drop Loss"; unit="ratio"; source="voIPTaildropLoss"; record=mean,vector);
         
+        @signal[voipReceivedThroughtput_lte];
         @statistic[voipReceivedThroughtput_lte](title="Throughput received at the application level"; unit="Bps"; source="voipReceivedThroughtput_lte"; record=lteRate);
+        @signal[voipReceivedThroughtput];
         @statistic[voipReceivedThroughtput](title="Throughput received at the application level"; unit="Bps"; source="voipReceivedThroughtput"; record=timeavg,mean,vector,sum);
         @display("i=block/source");
     gates:

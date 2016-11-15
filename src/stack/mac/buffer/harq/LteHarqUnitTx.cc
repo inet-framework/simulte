@@ -9,6 +9,7 @@
 
 #include "LteHarqUnitTx.h"
 #include "LteMacEnb.h"
+#include <omnetpp.h>
 
 LteHarqUnitTx::LteHarqUnitTx(unsigned char acid, Codeword cw,
     LteMacBase *macOwner, LteMacBase *dstMac)
@@ -62,6 +63,8 @@ void LteHarqUnitTx::insertPdu(LteMacPdu *pdu)
 
     pdu_ = pdu;
     pduId_ = pdu->getId();
+    // as unique MacPDUId the OMNET id is used (need separate member since it must not be changed by dup())
+    pdu->setMacPduId(pdu->getId());
     transmissions_ = 0;
     status_ = TXHARQ_PDU_SELECTED;
     pduLength_ = pdu_->getByteLength();
@@ -99,7 +102,9 @@ LteMacPdu *LteHarqUnitTx::extractPdu()
     lteInfo->setTxNumber(transmissions_);
     lteInfo->setNdi((transmissions_ == 1) ? true : false);
     EV << "LteHarqUnitTx::extractPdu - ndi set to " << ((transmissions_ == 1) ? "true" : "false") << endl;
+
     LteMacPdu* extractedPdu = pdu_->dup();
+    macOwner_->takeObj(extractedPdu);
     return extractedPdu;
 }
 
@@ -119,8 +124,6 @@ bool LteHarqUnitTx::pduFeedback(HarqAcknowledgment a)
     {
         // pdu_ has been sent and received correctly
         EV << "\t pdu_ has been sent and received correctly " << endl;
-        pdu_->removeControlInfo();
-        delete pdu_;
         resetUnit();
         reset = true;
         sample = 0;
@@ -134,8 +137,6 @@ bool LteHarqUnitTx::pduFeedback(HarqAcknowledgment a)
             EV << NOW << " LteHarqUnitTx::pduFeedback H-ARQ process  " << (unsigned int)acid_ << " Codeword " << cw_ << " PDU "
                << pdu_->getId() << " discarded "
             "(max retransmissions reached) : " << maxHarqRtx_ << endl;
-            pdu_->removeControlInfo();
-            delete pdu_;
             resetUnit();
             reset = true;
         }
@@ -235,6 +236,7 @@ void LteHarqUnitTx::forceDropUnit()
     if (status_ == TXHARQ_PDU_BUFFERED || status_ == TXHARQ_PDU_SELECTED || status_ == TXHARQ_PDU_WAITING)
     {
         delete pdu_;
+        pdu_ = NULL;
     }
     resetUnit();
 }
@@ -246,23 +248,18 @@ LteMacPdu *LteHarqUnitTx::getPdu()
 
 LteHarqUnitTx::~LteHarqUnitTx()
 {
-//    if (status_ == TXHARQ_PDU_BUFFERED || status_ == TXHARQ_PDU_SELECTED) {
-    if (pdu_ != NULL)
-    {
-        cObject *mac = macOwner_;
-        if (pdu_->getOwner() == mac)
-        {
-            delete pdu_;
-        }
-    }
-    pdu_ = NULL;
+    resetUnit();
 }
 
 void LteHarqUnitTx::resetUnit()
 {
     transmissions_ = 0;
-    pdu_ = NULL;
     pduId_ = -1;
+    if(pdu_ != NULL){
+        delete pdu_;
+        pdu_ = NULL;
+    }
+
     status_ = TXHARQ_PDU_EMPTY;
     pduLength_ = 0;
 }

@@ -44,10 +44,10 @@ void UmTxQueue::fragment(cPacket* pkt)
     // Send all fragments except the last one
     for (fragmentSeqNum = 0; fragmentSeqNum < totalFragments - 1; fragmentSeqNum++)
     {
-        // FIXME: possible memory leak
+        // FIXME: possible memory leak?
         LteRlcPdu* newFrag = fragment->dup();
         newFrag->setSnoFragment(fragmentSeqNum);
-        newFrag->setControlInfo(lteInfo->dup());    // FIXME REFERENCE COPIED!!
+        newFrag->setControlInfo(lteInfo->dup());
         drop(newFrag);        // Drop ownership before sending through direct method call
         lteRlc->sendFragmented(newFrag);
     }

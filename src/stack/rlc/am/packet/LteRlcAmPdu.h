@@ -25,11 +25,13 @@ class LteRlcAmPdu : public LteRlcAmPdu_Base
     LteRlcAmPdu(const LteRlcAmPdu& other) :
         LteRlcAmPdu_Base(other)
     {
+        operator=(other);
     }
 
     LteRlcAmPdu& operator=(const LteRlcAmPdu& other)
     {
         LteRlcAmPdu_Base::operator=(other);
+	bitmap_ = other.bitmap_;
         return *this;
     }
 

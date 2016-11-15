@@ -73,7 +73,7 @@ LteFeedbackDoubleVector LteFeedbackComputationDummy::computeFeedback(FeedbackTyp
             //set the remote
             fb.setAntenna((Remote) j);
             //set the pmi
-            fb.setWideBandPmi(intuniform(1, pow(lastRank_, (double) 2)));
+            fb.setWideBandPmi(intuniform(getEnvir()->getRNG(0), 1, pow(lastRank_, (double) 2)));
 
             //generate feedback for txmode z
             generateBaseFeedback(numBands_, numPreferredBands, fb, fbType, antennaCws[(Remote) j], rbAllocationType,
@@ -119,7 +119,7 @@ LteFeedbackVector LteFeedbackComputationDummy::computeFeedback(const Remote remo
         //set the remote
         fb.setAntenna(remote);
         //set the pmi
-        fb.setWideBandPmi(intuniform(1, pow(lastRank_, (double) 2)));
+        fb.setWideBandPmi(intuniform(getEnvir()->getRNG(0), 1, pow(lastRank_, (double) 2)));
         //set the rank
         fb.setRankIndicator(lastRank_);
         //generate feedback for txmode z
@@ -156,7 +156,7 @@ LteFeedback LteFeedbackComputationDummy::computeFeedback(const Remote remote, Tx
     if (txmode == CL_SPATIAL_MULTIPLEXING || txmode == MULTI_USER)
     {
         //Set PMI
-        fb.setWideBandPmi(intuniform(1, pow(lastRank_, (double) 2)));
+        fb.setWideBandPmi(intuniform(getEnvir()->getRNG(0), 1, pow(lastRank_, (double) 2)));
     }
     return fb;
 }
@@ -164,12 +164,12 @@ LteFeedback LteFeedbackComputationDummy::computeFeedback(const Remote remote, Tx
 void LteFeedbackComputationDummy::throwRank()
 {
     // rank selection
-    double rankVariation = uniform(0.0, 1.0);
+    double rankVariation = uniform(getEnvir()->getRNG(0), 0.0, 1.0);
     int newrank;
     //Test if we should change rank
     if (rankVariation <= rankVariationProb_)
     {
-        newrank = intuniform(1, 2);
+        newrank = intuniform(getEnvir()->getRNG(0), 1, 2);
         //if Rank was 1 then new rank will be 2 or 4
         if (lastRank_ == 1)
             lastRank_ = newrank * 2;
@@ -197,12 +197,12 @@ void LteFeedbackComputationDummy::throwCqi(FeedbackType fbType, int numBands_)
     // we generate a cqi for each band
     for (int i = 0; i < numBands_; i++)
     {
-        channelVariation = uniform(0.0, 1.0);
+        channelVariation = uniform(getEnvir()->getRNG(0), 0.0, 1.0);
         // The channel will change
         if (channelVariation < channelVariationProb_)
         {
             // the channel will change according to the ned parameters
-            int shift = intuniform((channelVariationStep_ * (-1)), channelVariationStep_);
+            int shift = intuniform(getEnvir()->getRNG(0), (channelVariationStep_ * (-1)), channelVariationStep_);
             if ((int) lastCqi_[i] + shift > 15)
                 lastCqi_[i] = 15;
             else if ((int) lastCqi_[i] + shift < 0)
@@ -241,7 +241,7 @@ void LteFeedbackComputationDummy::generateBaseFeedback(int numBands, int numPref
                 // recompute the cqi variation according to the txmode used
                 if (txmode == TRANSMIT_DIVERSITY)
                 {
-                    newCqi[j] = intuniform(txDivMin_, txDivMax_);
+                    newCqi[j] = intuniform(getEnvir()->getRNG(0), txDivMin_, txDivMax_);
                 }
                 else if (txmode == SINGLE_ANTENNA_PORT0)
                 {
@@ -249,21 +249,21 @@ void LteFeedbackComputationDummy::generateBaseFeedback(int numBands, int numPref
                 }
                 else if (txmode == CL_SPATIAL_MULTIPLEXING)
                 {
-                    cc = intuniform(sMuxMin_, sMuxMax_);
+                    cc = intuniform(getEnvir()->getRNG(0), sMuxMin_, sMuxMax_);
                     if (j == 1)
                         newCqi[j] = newCqi[0];
                     newCqi[j] = cc * -1;
                 }
                 else if (txmode == OL_SPATIAL_MULTIPLEXING)
                 {
-                    cc = intuniform(sMuxMin_, sMuxMax_);
+                    cc = intuniform(getEnvir()->getRNG(0), sMuxMin_, sMuxMax_);
                     if (j == 1)
                         newCqi[j] = newCqi[0];
                     newCqi[j] = cc * -1;
                 }
                 else if (txmode == MULTI_USER)
                 {
-                    cc = intuniform(muMimoMin_, muMimoMax_);
+                    cc = intuniform(getEnvir()->getRNG(0), muMimoMin_, muMimoMax_);
                     newCqi[j] = cc;
                 }
                 else if (txmode == SINGLE_ANTENNA_PORT5)

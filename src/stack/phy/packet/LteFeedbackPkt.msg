@@ -7,7 +7,6 @@
 // and cannot be removed from it.
 //
 
-
 packet LteFeedbackPkt {
     @customize(true);  // see the generated C++ header for more info
 }

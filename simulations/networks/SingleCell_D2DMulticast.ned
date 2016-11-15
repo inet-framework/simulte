@@ -8,18 +8,19 @@
 // 
 package lte.simulations.networks;
 
-import inet.networklayer.autorouting.ipv4.IPv4NetworkConfigurator;
+import inet.networklayer.configurator.ipv4.IPv4NetworkConfigurator;
 import inet.networklayer.ipv4.RoutingTableRecorder;
-import inet.nodes.ethernet.Eth10G;
-import inet.nodes.ethernet.Eth10M;
-import inet.nodes.inet.Router;
-import inet.nodes.inet.StandardHost;
-import inet.world.radio.ChannelControl;
+import inet.node.ethernet.Eth10G;
+import inet.node.ethernet.Eth10M;
+import inet.node.inet.Router;
+import inet.node.inet.StandardHost;
+import lte.world.radio.ChannelControl;
 import lte.corenetwork.binder.LteBinder;
 import lte.corenetwork.nodes.Ue;
 import lte.corenetwork.nodes.eNodeB;
-import lte.stack.phy.ChannelControl.LteChannelControl;
+import lte.world.radio.LteChannelControl;
 import lte.epc.PgwStandardSimplified;
+
 
 network SingleCell_D2DMulticast
 {

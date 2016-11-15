@@ -534,7 +534,7 @@ void LteMaxCiOptMB::readSolution()
 
     }
 
-    int totUes = cidList_.size();
+    // int totUes = cidList_.size();
     int ueId;
 
     UsableBandList::iterator itUsable = usableBands_.begin(),

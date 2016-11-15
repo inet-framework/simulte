@@ -25,12 +25,12 @@ LteX2Manager::~LteX2Manager() {
 
 void LteX2Manager::initialize(int stage)
 {
-    if (stage == 0)
+    if (stage == inet::INITSTAGE_LOCAL)
     {
         // get the node id
         nodeId_ = getAncestorPar("macCellId");
     }
-    else if (stage == 3)
+    else if (stage == inet::INITSTAGE_NETWORK_LAYER_3)
     {
         // find x2ppp interface entries and register their IP addresses to the binder
         // IP addresses will be used in the next init stage to get the X2 id of the peer
@@ -48,7 +48,7 @@ void LteX2Manager::initialize(int stage)
             }
         }
     }
-    else if (stage == 4)
+    else if (stage == inet::INITSTAGE_NETWORK_LAYER_3+1)
     {
         // for each X2App, get the client submodule and set connection parameters (connectPort)
         for (int i=0; i<gateSize("x2$i"); i++)
@@ -61,8 +61,8 @@ void LteX2Manager::initialize(int stage)
             X2AppClient* client = check_and_cast<X2AppClient*>(inGate->getPathStartGate()->getOwnerModule());
 
             // get the connectAddress for the X2App client and the corresponding X2 id
-            IPvXAddress addr = IPvXAddressResolver().resolve(client->par("connectAddress").stringValue());
-            X2NodeId peerId = getBinder()->getX2NodeId(addr.get4());
+            L3Address addr = L3AddressResolver().resolve(client->par("connectAddress").stringValue());
+            X2NodeId peerId = getBinder()->getX2NodeId(addr.toIPv4());
 
             // bind the peerId to the output gate
             x2InterfaceTable_[peerId] = i;

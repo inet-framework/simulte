@@ -15,6 +15,8 @@
 #include "TftControlInfo.h"
 #include "gtp_common.h"
 
+using namespace inet;
+
 /**
  * Objective of the Traffic Flow Filter is mapping IP 4-Tuples to TFT identifiers. This commonly means identifying a bearer and
  * associating it to an ID that will be recognized by the first GTP-U entity
@@ -72,15 +74,15 @@ class TrafficFlowFilter : public cSimpleModule
 
     EpcNodeType selectOwnerType(const char * type);
     protected:
-    virtual int numInitStages() const { return 4; }
+    virtual int numInitStages() const { return inet::NUM_INIT_STAGES; }
     virtual void initialize(int stage);
 
     // TrafficFlowFilter module may receive messages only from the input interface of its compound module
     virtual void handleMessage(cMessage *msg);
 
     // functions for managing filter tables
-    TrafficFlowTemplateId findTrafficFlow(IPvXAddress firstKey, TrafficFlowTemplate secondKey);
-    bool addTrafficFlow(IPvXAddress firstKey, TrafficFlowTemplate tft);
+    TrafficFlowTemplateId findTrafficFlow(L3Address firstKey, TrafficFlowTemplate secondKey);
+    bool addTrafficFlow(L3Address firstKey, TrafficFlowTemplate tft);
 };
 
 #endif

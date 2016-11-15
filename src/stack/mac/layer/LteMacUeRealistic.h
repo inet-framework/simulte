@@ -24,8 +24,6 @@ class LteMacUeRealistic : public LteMacUe
     /// List of scheduled connection for this UE
     LteMacScheduleList* scheduleList_;
 
-    virtual int numInitStages() const { return 4; }
-
     /**
      * Reads MAC parameters for ue and performs initialization.
      */

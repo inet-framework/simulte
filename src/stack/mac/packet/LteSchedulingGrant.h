@@ -71,6 +71,9 @@ class LteSchedulingGrant : public LteSchedulingGrant_Base
 
     void setUserTxParams(const UserTxParams* arg)
     {
+        if(userTxParams){
+            delete userTxParams;
+        }
         userTxParams = arg;
     }
 

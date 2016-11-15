@@ -185,7 +185,7 @@ void LteHarqBufferTx::receiveHarqFeedback(LteHarqFeedback *fbpkt)
     HarqAcknowledgment harqResult = result ? HARQACK : HARQNACK;
     Codeword cw = fbpkt->getCw();
     unsigned char acid = fbpkt->getAcid();
-    long fbPduId = fbpkt->getPduId(); // id of the pdu that should receive this fb
+    long fbPduId = fbpkt->getFbMacPduId(); // id of the pdu that should receive this fb
     long unitPduId = (*processes_)[acid]->getPduId(cw);
 
     // After handover or a D2D mode switch, the process nay have been dropped. The received feedback must be ignored.
@@ -215,6 +215,8 @@ void LteHarqBufferTx::receiveHarqFeedback(LteHarqFeedback *fbpkt)
     const char *ack = result ? "ACK" : "NACK";
     EV << "H-ARQ TX: feedback received for process " << (int)acid << " codeword " << (int)cw << ""
     " result is " << ack << endl;
+
+    ASSERT(fbpkt->getOwner() == this->macOwner_);
     delete fbpkt;
 }
 
@@ -329,6 +331,7 @@ LteHarqBufferTx::~LteHarqBufferTx()
         delete *it;
 
     processes_->clear();
+    delete processes_;
     processes_ = NULL;
     macOwner_ = NULL;
 }

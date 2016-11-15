@@ -9,15 +9,17 @@
 
 #include "GtpUserSimplified.h"
 #include "IPv4ControlInfo.h"
-#include "IPvXAddressResolver.h"
+#include "L3AddressResolver.h"
 #include <iostream>
 
 Define_Module(GtpUserSimplified);
 
 void GtpUserSimplified::initialize(int stage)
 {
+    cSimpleModule::initialize(stage);
+
     // wait until all the IP addresses are configured
-    if (stage != 3)
+    if (stage != inet::INITSTAGE_APPLICATION_LAYER)
         return;
     localPort_ = par("localPort");
 
@@ -30,7 +32,7 @@ void GtpUserSimplified::initialize(int stage)
     tunnelPeerPort_ = par("tunnelPeerPort");
 
     // get the address of the PGW
-    pgwAddress_ = IPvXAddressResolver().resolve("pgw");
+    pgwAddress_ = L3AddressResolver().resolve("pgw");
 
     ownerType_ = selectOwnerType(getAncestorPar("nodeType"));
 }
@@ -88,7 +90,7 @@ void GtpUserSimplified::handleFromTrafficFlowFilter(IPv4Datagram * datagram)
         // encapsulate the datagram within the GtpUserSimplifiedMessage
         gtpMsg->encapsulate(datagram);
 
-        IPvXAddress tunnelPeerAddress;
+        L3Address tunnelPeerAddress;
         if (flowId == -1) // send to the PGW
         {
             tunnelPeerAddress = pgwAddress_;
@@ -98,7 +100,7 @@ void GtpUserSimplified::handleFromTrafficFlowFilter(IPv4Datagram * datagram)
             // get the symbolic IP address of the tunnel destination ID
             // then obtain the address via IPvXAddressResolver
             const char* symbolicName = binder_->getModuleNameByMacNodeId(flowId);
-            tunnelPeerAddress = IPvXAddressResolver().resolve(symbolicName);
+            tunnelPeerAddress = L3AddressResolver().resolve(symbolicName);
         }
         socket_.sendTo(gtpMsg, tunnelPeerAddress, tunnelPeerPort_);
     }
@@ -127,7 +129,7 @@ void GtpUserSimplified::handleFromUdp(GtpUserMsg * gtpMsg)
 
              MacNodeId destMaster = binder_->getNextHop(destId);
              const char* symbolicName = binder_->getModuleNameByMacNodeId(destMaster);
-             IPvXAddress tunnelPeerAddress = IPvXAddressResolver().resolve(symbolicName);
+             L3Address tunnelPeerAddress = L3AddressResolver().resolve(symbolicName);
              socket_.sendTo(gtpMsg, tunnelPeerAddress, tunnelPeerPort_);
              return;
         }

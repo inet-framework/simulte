@@ -45,11 +45,17 @@ simple LtePhyBase like LtePhy {
         double handoverLatency @unit(s) = default(0.05s);
         
         //# CQI statistics
+        @signal[averageCqiDl];
         @statistic[averageCqiDl](title="Average Cqi reported in DL"; unit="cqi"; source="averageCqiDl"; record=lteAvg);
+        @signal[averageCqiDlvect];
         @statistic[averageCqiDlvect](title="Average Cqi reported in DL"; unit="cqi"; source="averageCqiDlvect"; record=vector);
+        @signal[averageCqiUl];
         @statistic[averageCqiUl](title="Average Cqi reported in UL"; unit="cqi"; source="averageCqiUl"; record=lteAvg);
+        @signal[averageCqiUlvect];
         @statistic[averageCqiUlvect](title="Average Cqi reported in UL"; unit="cqi"; source="averageCqiUlvect"; record=vector);
+        @signal[averageCqiD2D];
         @statistic[averageCqiD2D](title="Average Cqi reported in D2D"; unit="cqi"; source="averageCqiD2D"; record=lteAvg);
+        @signal[averageCqiD2Dvect];
         @statistic[averageCqiD2Dvect](title="Average Cqi reported in D2D"; unit="cqi"; source="averageCqiD2Dvect"; record=vector);
         
     gates:

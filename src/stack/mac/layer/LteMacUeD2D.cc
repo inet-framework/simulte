@@ -43,7 +43,7 @@ void LteMacUeD2D::initialize(int stage)
             preconfiguredTxParams_ = NULL;
 
         // get the reference to the eNB
-        enb_ = check_and_cast<LteMacEnbD2D*>( simulation.getModule(binder_->getOmnetId(getMacCellId()))->getSubmodule("nic")->getSubmodule("mac"));
+        enb_ = check_and_cast<LteMacEnbD2D*>(getSimulation()->getModule(binder_->getOmnetId(getMacCellId()))->getSubmodule("nic")->getSubmodule("mac"));
     }
 }
 
@@ -854,6 +854,7 @@ void LteMacUeD2D::macHandleRac(cPacket* pkt)
         }
         else
             bsrTriggered_ = true;
+
 
         // reset RAC counter
         currentRacTry_=0;

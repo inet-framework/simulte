@@ -10,8 +10,8 @@ package lte.epc;
 
 import lte.epc.gtp.GtpUser;
 import inet.linklayer.ppp.PPPInterface;
-import inet.nodes.inet.NodeBase;
-import inet.transport.udp.UDP;
+import inet.node.inet.NodeBase;
+import inet.transportlayer.udp.UDP;
 
 //
 // Implements an EPC Serving Gateway (S-GW)

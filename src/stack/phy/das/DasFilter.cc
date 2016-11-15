@@ -25,7 +25,7 @@ DasFilter::~DasFilter()
 
 void DasFilter::setMasterRuSet(MacNodeId masterId)
 {
-    cModule* module = simulation.getModule(binder_->getOmnetId(masterId));
+    cModule* module = getSimulation()->getModule(binder_->getOmnetId(masterId));
     if (getNodeTypeById(masterId) == ENODEB)
     {
         das_ = check_and_cast<LtePhyEnb*>(module->getSubmodule("nic")->

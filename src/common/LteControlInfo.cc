@@ -51,6 +51,15 @@ void UserControlInfo::setCoord(const Coord& coord)
     senderCoord = coord;
 }
 
+void UserControlInfo::setUserTxParams(const UserTxParams *newParams)
+{
+    if(userTxParams){
+        delete userTxParams;
+    }
+    userTxParams = newParams;
+}
+
+
 Coord UserControlInfo::getCoord() const
 {
     return senderCoord;

@@ -14,9 +14,11 @@
 #include <string>
 #include "LteCommon.h"
 #include "IPv4Address.h"
-#include "IPvXAddress.h"
+#include "L3Address.h"
 #include "PhyPisaData.h"
 #include "ExtCell.h"
+
+using namespace inet;
 
 /**
  * The LTE Binder module has one instance in the whole network.
@@ -49,7 +51,7 @@ class LteBinder : public cSimpleModule
     std::map<MacNodeId, char*> macNodeIdToModuleName_;
     DeployerList deployersMap_;
     std::vector<MacNodeId> nextHop_; // MacNodeIdMaster --> MacNodeIdSlave
-    std::vector<OmnetId> nodeIds_; // MacNodeId --> OmnetId
+    std::map<int, OmnetId> nodeIds_;
 
     // list of static external cells. Used for intercell interference evaluation
     ExtCellList extCellList_;
@@ -74,7 +76,7 @@ class LteBinder : public cSimpleModule
     typedef std::map<X2NodeId, std::list<int> > X2ListeningPortMap;
     X2ListeningPortMap x2ListeningPorts_;
 
-    std::map<MacNodeId, std::map<MacNodeId, IPvXAddress> > x2PeerAddress_;
+    std::map<MacNodeId, std::map<MacNodeId, L3Address> > x2PeerAddress_;
 
     /*
      * D2D Support
@@ -99,7 +101,7 @@ class LteBinder : public cSimpleModule
   protected:
     virtual void initialize(int stages);
 
-    virtual int numInitStages() const { return 2; }
+    virtual int numInitStages() const { return INITSTAGE_LAST; }
 
     virtual void handleMessage(cMessage *msg)
     {
@@ -152,6 +154,10 @@ class LteBinder : public cSimpleModule
 
     virtual ~LteBinder()
     {
+        while(enbList_.size() > 0){
+            delete enbList_.back();
+            enbList_.pop_back();
+        }
     }
     int getQCIPriority(int);
     double getPacketDelayBudget(int);
@@ -179,6 +185,8 @@ class LteBinder : public cSimpleModule
      * @return macNodeId assigned to the module
      */
     MacNodeId registerNode(cModule *module, LteNodeType type, MacNodeId masterId = 0);
+
+    void unregisterNode(MacNodeId id);
 
     /**
      * registerNextHop() is called by LteDeployer at network startup
@@ -211,6 +219,9 @@ class LteBinder : public cSimpleModule
      * @return OmnetId of the module
      */
     OmnetId getOmnetId(MacNodeId nodeId);
+
+
+    MacNodeId getMacNodeIdFromOmnetId(OmnetId id);
 
     /**
      * getNextHop() returns the master of
@@ -263,13 +274,13 @@ class LteBinder : public cSimpleModule
     {
         setMacNodeId(address, nodeId);
     }
-    IPvXAddress getX2PeerAddress(X2NodeId srcId, X2NodeId destId)
+    L3Address getX2PeerAddress(X2NodeId srcId, X2NodeId destId)
     {
         return x2PeerAddress_[srcId][destId];
     }
-    void setX2PeerAddress(X2NodeId srcId, X2NodeId destId, IPvXAddress interfAddr)
+    void setX2PeerAddress(X2NodeId srcId, X2NodeId destId, L3Address interfAddr)
     {
-        std::pair<X2NodeId, IPvXAddress> p(destId, interfAddr);
+        std::pair<X2NodeId, L3Address> p(destId, interfAddr);
         x2PeerAddress_[srcId].insert(p);
     }
     /**
@@ -287,6 +298,10 @@ class LteBinder : public cSimpleModule
      */
     ConnectedUesMap getDeployedUes(MacNodeId localId, Direction dir);
     PhyPisaData phyPisaData;
+
+    int getNodeCount(){
+        return nodeIds_.size();
+    }
 
     int addExtCell(ExtCell* extCell)
     {

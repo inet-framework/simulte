@@ -2651,8 +2651,8 @@ PhyPisaData::PhyPisaData()
     double x, y;
     for (int i = 0; i < 1000; i++)
     {
-        x = normal(0, 0.5);
-        y = normal(0, 0.5);
+        x = normal(getEnvir()->getRNG(0), 0, 0.5);
+        y = normal(getEnvir()->getRNG(0), 0, 0.5);
         channel_[i] = (x * x) + (y * y);
     }
 }

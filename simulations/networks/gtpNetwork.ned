@@ -9,11 +9,12 @@
 
 package lte.simulations.networks;
 
-import inet.networklayer.autorouting.ipv4.IPv4NetworkConfigurator;
-import inet.nodes.inet.Router;
-import inet.nodes.inet.StandardHost;
-import inet.util.ThruputMeteringChannel;
+import inet.networklayer.configurator.ipv4.IPv4NetworkConfigurator;
+import inet.node.inet.Router;
+import inet.node.inet.StandardHost;
+import inet.common.misc.ThruputMeteringChannel;
 import lte.epc.PgwStandard;
+import lte.world.radio.LteChannelControl;
 
 
 //
@@ -35,6 +36,9 @@ network GtpNetwork
         }
         router3: Router {
             @display("p=551,262");
+        }
+        channelControl: LteChannelControl {
+            @display("p=50,25;is=s");
         }
         configurator: IPv4NetworkConfigurator {
             @display("p=95,42");

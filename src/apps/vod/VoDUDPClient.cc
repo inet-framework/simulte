@@ -16,7 +16,7 @@ Define_Module(VoDUDPClient);
 
 void VoDUDPClient::initialize(int stage)
 {
-    if (stage != 3)
+    if (stage != inet::INITSTAGE_APPLICATION_LAYER)
         return;
     /* Get parameters from INI file */
     EV << "VoD Client initialize: stage " << stage << endl;
@@ -115,7 +115,6 @@ void VoDUDPClient::finish()
         }
     }
     chdir("../workspace/lte/simulations/dynamicnetwork");
-    ev << "FINITO" << endl;
 }
 
 void VoDUDPClient::handleMessage(cMessage* msg)

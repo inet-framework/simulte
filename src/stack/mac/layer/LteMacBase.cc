@@ -46,6 +46,8 @@ LteMacBase::~LteMacBase()
         delete hrit->second;
     harqTxBuffers_.clear();
     harqRxBuffers_.clear();
+
+    delete tSample_;
 }
 
 void LteMacBase::sendUpperPackets(cPacket* pkt)
@@ -168,6 +170,7 @@ bool LteMacBase::bufferizePacket(cPacket* pkt)
     {
         // Queue not found for this cid: create
         LteMacQueue* queue = new LteMacQueue(queueSize_);
+        take(queue);
         LteMacBuffer* vqueue = new LteMacBuffer();
 
         queue->pushBack(pkt);
@@ -297,7 +300,7 @@ void LteMacBase::deleteQueues(MacNodeId nodeId)
  */
 void LteMacBase::initialize(int stage)
 {
-    if (stage == 0)
+    if (stage == inet::INITSTAGE_LOCAL)
     {
         /* Gates initialization */
         up_[IN] = gate("RLC_to_MAC");
@@ -351,7 +354,7 @@ void LteMacBase::handleMessage(cMessage* msg)
     if (msg->isSelfMessage())
     {
         handleSelfMessage();
-        scheduleAt(NOW + TTI, msg);
+        scheduleAt(NOW + TTI, ttiTick_);
         return;
     }
 
@@ -378,6 +381,12 @@ void LteMacBase::handleMessage(cMessage* msg)
 
 void LteMacBase::finish()
 {
-    // TODO make-finish
+    EV_DEBUG << "LteMacBase - finishing.";
+}
+
+void LteMacBase::deleteModule(){
+    EV_DEBUG << "LteMacBase - module deleted.";
+    cancelAndDelete(ttiTick_);
+    cSimpleModule::deleteModule();
 }
 

@@ -10,13 +10,13 @@
 
 package lte.corenetwork.nodes;
 
-import inet.base.NotificationBoard;
 import inet.linklayer.ppp.PPPInterface;
 import inet.mobility.static.StationaryMobility;
 import inet.networklayer.common.InterfaceTable;
-import inet.networklayer.ipv4.RoutingTable;
-import inet.nodes.inet.NetworkLayer;
-import inet.transport.udp.UDP;
+import inet.networklayer.ipv4.IPv4RoutingTable;
+import inet.networklayer.contract.IRoutingTable;
+import inet.networklayer.contract.INetworkLayer;
+import inet.transportlayer.udp.UDP;
 import lte.corenetwork.deployer.LteDeployer;
 import lte.epc.TrafficFlowFilter;
 import lte.epc.gtp.GtpUser;
@@ -29,7 +29,7 @@ import lte.stack.phy.LteNicEnb;
 module eNBpp
 {
     parameters:
-        @node();
+        @networkNode();
         @display("i=device/antennatower;bgb=751,360");
 
         //# Node specs
@@ -38,20 +38,25 @@ module eNBpp
         int macCellId = default(0);  // TODO: this is not a real parameter
         double txPower @unit(mw) = default(100mw);
 
+        //# Network Layer specs
+        string networkLayerType = default("IPv4NetworkLayer");
+        string routingTableType = default("IPv4RoutingTable");
+        *.interfaceTableModule = default(absPath(".interfaceTable"));
+        *.routingTableModule = default(routingTableType != "" ? absPath(".routingTable") : "");
+
     gates:
         inout ppp;     // connection to LteIP peer
         input radioIn @directIn;  // connection to slave
 
     submodules:
-        notificationBoard: NotificationBoard {
-            @display("p=50,25;is=s");
-        }
         interfaceTable: InterfaceTable {
             @display("p=50,75;is=s");
         }
         // TODO: should not include a routing table
-        routingTable: RoutingTable {
-            @display("p=50,125;is=s");
+        // routing table
+        routingTable: <routingTableType> like IRoutingTable if routingTableType != "" {
+            parameters:
+                @display("p=50,125;is=s");
         }
         mobility: StationaryMobility {
             @display("p=50,175;is=s");
@@ -79,8 +84,10 @@ module eNBpp
         udp: UDP {
             @display("p=569,144");
         }
-        networkLayer: NetworkLayer {
-            @display("p=569,225");
+        // network layer
+        networkLayer: <networkLayerType> like INetworkLayer {
+            parameters:
+                @display("p=501,269;q=queue");
         }
     connections allowunconnected:
         //#

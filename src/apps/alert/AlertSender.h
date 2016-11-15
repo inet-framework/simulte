@@ -13,12 +13,13 @@
 #include <string.h>
 #include <omnetpp.h>
 #include "UDPSocket.h"
-#include "IPvXAddressResolver.h"
+#include "L3Address.h"
+#include "L3AddressResolver.h"
 #include "AlertPacket_m.h"
 
 class AlertSender : public cSimpleModule
 {
-    UDPSocket socket;
+    inet::UDPSocket socket;
 
     //sender
     int nextSno_;
@@ -32,7 +33,7 @@ class AlertSender : public cSimpleModule
 
     int localPort_;
     int destPort_;
-    IPvXAddress destAddress_;
+    inet::L3Address destAddress_;
 
     void sendAlertPacket();
 
@@ -42,7 +43,7 @@ class AlertSender : public cSimpleModule
 
   protected:
 
-    virtual int numInitStages() const { return 4; }
+    virtual int numInitStages() const { return inet::NUM_INIT_STAGES; }
     void initialize(int stage);
     void handleMessage(cMessage *msg);
 };

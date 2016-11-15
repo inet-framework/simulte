@@ -13,7 +13,7 @@
 #include "LteCommon.h"
 #include "LteX2Message.h"
 #include "X2ControlInfo_m.h"
-#include "IPvXAddressResolver.h"
+#include "L3AddressResolver.h"
 #include "X2AppClient.h"
 #include "LteBinder.h"
 
@@ -35,7 +35,7 @@ class LteX2Manager : public cSimpleModule {
 protected:
 
     void initialize(int stage);
-    virtual int numInitStages() const { return 5; }
+    virtual int numInitStages() const { return inet::NUM_INIT_STAGES; }
     void handleMessage(cMessage *msg);
 
     virtual void fromStack(cPacket* pkt);

@@ -17,8 +17,8 @@ LteHarqUnitTxD2D::LteHarqUnitTxD2D(unsigned char acid, Codeword cw, LteMacBase *
     {
         if (dstMac_ != nodeB_)  // D2D
         {
-            macPacketLossD2D_ = macOwner_->registerSignal("macPacketLossUlD2D");
-            macCellPacketLossD2D_ = nodeB_->registerSignal("macCellPacketLossUlD2D");
+            macPacketLossD2D_ = macOwner_->registerSignal("macPacketLossD2D");
+            macCellPacketLossD2D_ = nodeB_->registerSignal("macCellPacketLossD2D");
             harqErrorRateD2D_ = dstMac_->registerSignal("harqErrorRateD2D");
             harqErrorRateD2D_1_ = dstMac_->registerSignal("harqErrorRate_1st_D2D");
             harqErrorRateD2D_2_ = dstMac_->registerSignal("harqErrorRate_2nd_D2D");
@@ -49,7 +49,6 @@ bool LteHarqUnitTxD2D::pduFeedback(HarqAcknowledgment a)
         // pdu_ has been sent and received correctly
         EV << "\t pdu_ has been sent and received correctly " << endl;
         pdu_->removeControlInfo();
-        delete pdu_;
         resetUnit();
         reset = true;
         sample = 0;
@@ -64,7 +63,6 @@ bool LteHarqUnitTxD2D::pduFeedback(HarqAcknowledgment a)
                << pdu_->getId() << " discarded "
             "(max retransmissions reached) : " << maxHarqRtx_ << endl;
             pdu_->removeControlInfo();
-            delete pdu_;
             resetUnit();
             reset = true;
         }
@@ -177,7 +175,6 @@ LteMacPdu *LteHarqUnitTxD2D::extractPdu()
         // for multicast, there is no feedback to wait, so reset the unit.
         EV << NOW << " LteHarqUnitTxD2D::extractPdu - the extracted pdu belongs to a multicast/broadcast connection. "
                 << "Since the feedback is not expected, reset the unit. " << endl;
-        delete pdu_;
         resetUnit();
     }
 

@@ -9,6 +9,7 @@
 //
 
 #include "lterecorder.h"
+#include "LteBinder.h"
 
 /*
  * Register recorders
@@ -40,8 +41,14 @@ void LteStatisticsRecorder::finish(cResultFilter *prev)
     std::map<unsigned int, cStatistic*>::iterator it;
     for (it = stats_.begin(); it != stats_.end(); it++)
     {
+        // UE might have left the simulation, in this case,
+        // finish has already been called
+        int id = getBinder()->getOmnetId(it->first);
+        if(id == 0){
+                continue;
+        }
         // Record metrics for all IDs
-        ev.recordStatistic(moduleMap_[it->first], /*metricName*/ getResultName().c_str(), it->second, &attributes);
+        getEnvir()->recordStatistic(moduleMap_[it->first], /*metricName*/ getResultName().c_str(), it->second, &attributes);
     }
 }
 
@@ -91,10 +98,10 @@ void LteVectorRecorder::subscribedTo(cResultFilter *prev)
     opp_string_map attributes = getStatisticAttributes();
 
     // register global vector handle
-    handle_[0] = ev.registerOutputVector(getComponent()->getFullPath().c_str(), getResultName().c_str());
+    handle_[0] = getEnvir()->registerOutputVector(getComponent()->getFullPath().c_str(), getResultName().c_str());
     ASSERT(handle_[0] != NULL);
     for (opp_string_map::iterator it = attributes.begin(); it != attributes.end(); ++it)
-        ev.setVectorAttribute(handle_[0], it->first.c_str(), it->second.c_str());
+        getEnvir()->setVectorAttribute(handle_[0], it->first.c_str(), it->second.c_str());
     }
 
 void LteVectorRecorder::collect(simtime_t t, double value, unsigned int id, cComponent* module)
@@ -116,13 +123,13 @@ void LteVectorRecorder::collect(simtime_t t, double value, unsigned int id, cCom
         char metricName[50];
         sprintf(metricName, "%s:id=%d", getResultName().c_str(), id);
 
-        handle_[id] = ev.registerOutputVector(moduleMap_[id]->getFullPath().c_str(), metricName);
+        handle_[id] = getEnvir()->registerOutputVector(moduleMap_[id]->getFullPath().c_str(), metricName);
         ASSERT(handle_[id] != NULL);
         for (opp_string_map::iterator it = attributes.begin(); it != attributes.end(); ++it)
-            ev.setVectorAttribute(handle_[id], it->first.c_str(), it->second.c_str());
+            getEnvir()->setVectorAttribute(handle_[id], it->first.c_str(), it->second.c_str());
         }
 
-    ev.recordInOutputVector(handle_[id], t, value);        // Local Recording
+    getEnvir()->recordInOutputVector(handle_[id], t, value);        // Local Recording
 }
 
 /*
@@ -145,8 +152,13 @@ void LteAvgRecorder::finish(cResultFilter *prev)
     for (it = vals_.begin(); it != vals_.end(); it++)
     {
         // Record metrics for all IDs
+        int id = getBinder()->getOmnetId(it->first);
+        if(id == 0){
+                // UE had left the simulation before
+                continue;
+        }
         totalSum += (it->second.sum_ / it->second.count_);
-        ev.recordScalar(moduleMap_[it->first], getResultName().c_str(),
+        getEnvir()->recordScalar(moduleMap_[it->first], getResultName().c_str(),
             it->second.sum_/it->second.count_, &attributes);
     }
 }
@@ -177,7 +189,12 @@ void LteRateRecorder::finish(cResultFilter *prev)
         interval = (simTime() - it->second.startTime_).dbl();
         totalSum += it->second.sum_ / interval;
 
-        ev.recordScalar(moduleMap_[it->first], getResultName().c_str(),
+        int id = getBinder()->getOmnetId(it->first);
+        if(id == 0){
+                // UE had left the simulation before - skip it
+                continue;
+        }
+        getEnvir()->recordScalar(moduleMap_[it->first], getResultName().c_str(),
             it->second.sum_/interval, &attributes);
     }
 }

@@ -208,7 +208,7 @@ void LtePhyUeD2D::handleAirFrame(cMessage* msg)
     // send decapsulated message along with result control info to upperGateOut_
     send(pkt, upperGateOut_);
 
-    if (ev.isGUI())
+    if (getEnvir()->isGUI())
         updateDisplayString();
 }
 
@@ -217,7 +217,7 @@ void LtePhyUeD2D::triggerHandover()
     // stop active D2D flows (go back to Infrastructure mode)
 
     // trigger D2D mode switch
-    D2DModeSelectionBase *d2dModeSelection = check_and_cast<D2DModeSelectionBase*>(simulation.getModule(binder_->getOmnetId(masterId_))->getSubmodule("nic")->getSubmodule("d2dModeSelection"));
+    D2DModeSelectionBase *d2dModeSelection = check_and_cast<D2DModeSelectionBase*>(getSimulation()->getModule(binder_->getOmnetId(masterId_))->getSubmodule("nic")->getSubmodule("d2dModeSelection"));
     d2dModeSelection->doModeSwitchAtHandover(nodeId_);
 
     LtePhyUe::triggerHandover();
@@ -470,7 +470,7 @@ void LtePhyUeD2D::decodeAirFrame(LteAirFrame* frame, UserControlInfo* lteInfo)
     // send decapsulated message along with result control info to upperGateOut_
     send(pkt, upperGateOut_);
 
-    if (ev.isGUI())
+    if (getEnvir()->isGUI())
         updateDisplayString();
 }
 

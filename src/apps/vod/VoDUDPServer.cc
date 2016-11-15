@@ -23,7 +23,9 @@ VoDUDPServer::~VoDUDPServer()
 
 void VoDUDPServer::initialize(int stage)
 {
-    if (stage != 3)
+    cSimpleModule::initialize(stage);
+
+    if (stage != INITSTAGE_APPLICATION_LAYER)
         return;
     EV << "VoD Server initialize: stage " << stage << endl;
     serverPort = par("localPort");
@@ -135,7 +137,7 @@ void VoDUDPServer::handleMessage(cMessage *msg)
             const char *token;
             while ((token = tokenizer.nextToken()) != NULL)
             {
-                clientAddr.push_back(IPvXAddressResolver().resolve(token));
+                clientAddr.push_back(L3AddressResolver().resolve(token));
                 size++;
             }
 
@@ -174,10 +176,10 @@ void VoDUDPServer::handleNS2Message(cMessage *msg)
     long numPkSentApp = msgNew->getNumPkSent();
 
     /* File is not finished yet */
-    int length, interTime;
+    int length;//, interTime;
 
     int seq_num = numPkSentApp;
-    interTime = trace_[numPkSentApp % nrec_].trec_time;
+    //interTime = trace_[numPkSentApp % nrec_].trec_time;
     length = trace_[numPkSentApp % nrec_].trec_size;
 
     VoDPacket* frame = new VoDPacket("VoDPacket");

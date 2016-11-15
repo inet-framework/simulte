@@ -163,20 +163,28 @@ void LteRlcAm::deleteQueues(MacNodeId nodeId)
     AmTxBuffers::iterator tit;
     AmRxBuffers::iterator rit;
 
-    for (tit = txBuffers_.begin(); tit != txBuffers_.end(); tit++)
+    for (tit = txBuffers_.begin(); tit != txBuffers_.end(); )
     {
         if (MacCidToNodeId(tit->first) == nodeId)
         {
             delete tit->second; // Delete Queue
-            txBuffers_.erase(tit); // Delete Elem
+            txBuffers_.erase(tit++); // Delete Elem
+        }
+        else
+        {
+            ++tit;
         }
     }
-    for (rit = rxBuffers_.begin(); rit != rxBuffers_.end(); rit++)
+    for (rit = rxBuffers_.begin(); rit != rxBuffers_.end(); )
     {
         if (MacCidToNodeId(rit->first) == nodeId)
         {
             delete rit->second; // Delete Queue
-            rxBuffers_.erase(rit); // Delete Elem
+            rxBuffers_.erase(rit++); // Delete Elem
+        }
+        else
+        {
+            ++rit;
         }
     }
 }

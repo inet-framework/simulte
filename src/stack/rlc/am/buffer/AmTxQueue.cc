@@ -71,7 +71,7 @@ void AmTxQueue::addPdus()
 
     while ((txWindowDesc_.seqNum_ - txWindowDesc_.firstSeqNum_) < txWindowDesc_.windowSize_)
     {
-        if (currentSdu_ == NULL && sduQueue_.empty())
+        if (currentSdu_ == NULL && sduQueue_.isEmpty())
         {
             // No data to send
 
@@ -458,7 +458,6 @@ void AmTxQueue::handleControlPacket(cPacket* pkt)
             moveTxWindow(pdu->getSnoFragment());
             // signal ACK reception
             recvMrwAck(pdu->getSnoMainPacket());
-            delete pdu;
             break;
 
             case ACK:
@@ -482,9 +481,11 @@ void AmTxQueue::handleControlPacket(cPacket* pkt)
                 }
             }
 
-            delete pdu;
             break;
         }
+
+        ASSERT(pdu->getOwner() == this);
+        delete pdu;
     }
 
 void AmTxQueue::recvAck(const int seqNum)

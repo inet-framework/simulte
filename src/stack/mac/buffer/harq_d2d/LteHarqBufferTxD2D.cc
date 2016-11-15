@@ -31,7 +31,7 @@ void LteHarqBufferTxD2D::receiveHarqFeedback(LteHarqFeedback *fbpkt)
     HarqAcknowledgment harqResult = result ? HARQACK : HARQNACK;
     Codeword cw = fbpkt->getCw();
     unsigned char acid = fbpkt->getAcid();
-    long fbPduId = fbpkt->getPduId(); // id of the pdu that should receive this fb
+    long fbPduId = fbpkt->getFbMacPduId(); // id of the pdu that should receive this fb
     long unitPduId = (*processes_)[acid]->getPduId(cw);
 
     // After handover or a D2D mode switch, the process nay have been dropped. The received feedback must be ignored.

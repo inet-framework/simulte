@@ -38,7 +38,7 @@ class GtpUserX2 : public cSimpleModule
 
   protected:
 
-    virtual int numInitStages() const { return 4; }
+    virtual int numInitStages() const { return inet::NUM_INIT_STAGES; }
     virtual void initialize(int stage);
     virtual void handleMessage(cMessage *msg);
 

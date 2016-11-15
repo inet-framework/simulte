@@ -35,7 +35,6 @@ class LteMacUeRealisticD2D : public LteMacUeRealistic
 
   protected:
 
-    virtual int numInitStages() const { return 11; }
     /**
      * Reads MAC parameters for ue and performs initialization.
      */

@@ -10,7 +10,6 @@
 
 package lte.corenetwork.nodes;
 
-import inet.base.NotificationBoard;
 import inet.mobility.static.StationaryMobility;
 import lte.stack.phy.LteNicRelay;
 
@@ -21,7 +20,7 @@ import lte.stack.phy.LteNicRelay;
 module Relay
 {
     parameters:
-        @node;
+        @networkNode;
         @display("i=device/receiverdish;bgb=250,200");
 
         //# Node specs
@@ -34,9 +33,6 @@ module Relay
         input radioIn[2] @directIn;     // connection to master
 
     submodules:
-        notificationBoard: NotificationBoard {
-            @display("p=50,25;is=s");
-        }
         mobility: StationaryMobility {
             @display("p=50,75;is=s");
         }

@@ -104,7 +104,7 @@ unsigned int LteFeedbackComputationRealistic::computeRank(MacNodeId id)
 Cqi LteFeedbackComputationRealistic::getCqi(TxMode txmode, double snr)
 {
     int newsnr = floor(snr + 0.5);
-    if (newsnr <= 0)
+    if (newsnr < 0)
         return 0;
     if (newsnr > phyPisaData_->maxSnr())
         return 15;
@@ -160,7 +160,7 @@ LteFeedbackDoubleVector LteFeedbackComputationRealistic::computeFeedback(Feedbac
                 //set the remote
                 fb.setAntenna((Remote) j);
                 //set the pmi
-                fb.setWideBandPmi(intuniform(1, pow(rank, (double) 2)));
+                fb.setWideBandPmi(intuniform(getEnvir()->getRNG(0), 1, pow(rank, (double) 2)));
                 //generate feedback for txmode z
                 generateBaseFeedback(numBands_, numPreferredBands, fb, fbType, antennaCws[(Remote) j], rbAllocationType,
                     (TxMode) z, snr);
@@ -203,7 +203,7 @@ LteFeedbackVector LteFeedbackComputationRealistic::computeFeedback(const Remote 
             //set the remote
             fb.setAntenna(remote);
             //set the pmi
-            fb.setWideBandPmi(intuniform(1, pow(rank, (double) 2)));
+            fb.setWideBandPmi(intuniform(getEnvir()->getRNG(0), 1, pow(rank, (double) 2)));
             //generate feedback for txmode z
             generateBaseFeedback(numBands_, numPreferredBands, fb, fbType, antennaCws, rbAllocationType, (TxMode) z,
                 snr);
@@ -248,7 +248,7 @@ LteFeedback LteFeedbackComputationRealistic::computeFeedback(const Remote remote
     if (txmode == CL_SPATIAL_MULTIPLEXING || txmode == MULTI_USER)
     {
         //Set PMI
-        fb.setWideBandPmi(intuniform(1, pow(rank, (double) 2)));
+        fb.setWideBandPmi(intuniform(getEnvir()->getRNG(0), 1, pow(rank, (double) 2)));
     }
     return fb;
 }

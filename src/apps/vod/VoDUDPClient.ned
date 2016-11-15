@@ -8,7 +8,7 @@
 //
 
 package lte.apps.vod;
-import inet.applications.IUDPApp;
+import inet.applications.contract.IUDPApp;
 
 
 //
@@ -32,14 +32,22 @@ simple VoDUDPClient like IUDPApp
         int numPktPerFrame = default(0);
         @display("i=block/app");
         @class(VoDUDPClient);
+        @signal[VoDTptLayer0];
         @statistic[VoDTptLayer0](title="VoD Tpt Layer 0"; unit=""; source="VoDTptLayer0"; record=lteRate);
+        @signal[VoDTptLayer1];
         @statistic[VoDTptLayer1](title="VoD Tpt Layer 1"; unit=""; source="VoDTptLayer1"; record=lteRate);
+        @signal[VoDTptLayer2];
         @statistic[VoDTptLayer2](title="VoD Tpt Layer 2"; unit=""; source="VoDTptLayer2"; record=lteRate);
+        @signal[VoDTptLayer3];
         @statistic[VoDTptLayer3](title="VoD Tpt Layer 3"; unit=""; source="VoDTptLayer3"; record=lteRate);
 
+        @signal[VoDDelayLayer0];
         @statistic[VoDDelayLayer0](title="VoD Delay Layer 0"; unit=""; source="VoDDelayLayer0"; record=lteAvg);
+        @signal[VoDDelayLayer1];
         @statistic[VoDDelayLayer1](title="VoD Delay Layer 1"; unit=""; source="VoDDelayLayer1"; record=lteAvg);
+        @signal[VoDDelayLayer2];
         @statistic[VoDDelayLayer2](title="VoD Delay Layer 2"; unit=""; source="VoDDelayLayer2"; record=lteAvg);
+        @signal[VoDDelayLayer3];
         @statistic[VoDDelayLayer3](title="VoD Delay Layer 3"; unit=""; source="VoDDelayLayer3"; record=lteAvg);
 
 

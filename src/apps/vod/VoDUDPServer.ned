@@ -8,7 +8,7 @@
 //
 
 package lte.apps.vod;
-import inet.applications.IUDPApp;
+import inet.applications.contract.IUDPApp;
 
 
 simple VoDUDPServer like IUDPApp

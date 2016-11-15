@@ -10,6 +10,7 @@
 
 cplusplus {{
     #include "LteRlcPdu.h"
+    #include "LteRlcDefs.h"
 }}
 
 packet LteRlcPdu;

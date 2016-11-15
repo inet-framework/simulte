@@ -30,6 +30,8 @@ LtePdcpRrcBase::~LtePdcpRrcBase()
         delete it->second;
     }
     entities_.clear();
+
+    delete tSample_;
 }
 
 void LtePdcpRrcBase::headerCompress(cPacket* pkt, int headerSize)
@@ -113,6 +115,7 @@ void LtePdcpRrcBase::fromDataPort(cPacket *pkt)
        << " Destination: " << IPv4Address(lteInfo->getDstAddr()) << "@"
        << lteInfo->getDstPort() << " ]\n";
 
+    // TODO: Since IP addresses can change when we add and remove nodes, maybe node IDs should be used instead of them
     LogicalCid mylcid;
     if ((mylcid = ht_->find_entry(lteInfo->getSrcAddr(), lteInfo->getDstAddr(),
         lteInfo->getSrcPort(), lteInfo->getDstPort())) == 0xFFFF)

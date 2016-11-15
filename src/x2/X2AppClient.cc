@@ -11,7 +11,7 @@
 #include "X2AppClient.h"
 #include "LteBinder.h"
 #include "LteMacEnb.h"
-#include "IPvXAddressResolver.h"
+#include "L3AddressResolver.h"
 #include "SCTPAssociation.h"
 #include "SCTPCommand_m.h"
 
@@ -20,26 +20,18 @@ Define_Module(X2AppClient);
 void X2AppClient::initialize(int stage)
 {
     SCTPClient::initialize(stage);
-    if (stage==0)
+    if (stage==inet::INITSTAGE_LOCAL)
     {
         x2ManagerOut_ = gate("x2ManagerOut");
     }
-    else if (stage==4)
+    else if (stage==inet::INITSTAGE_APPLICATION_LAYER)
     {
         // TODO set the connect address
         // Automatic configuration not yet supported. Use the .ini file to set IP addresses
 
-//    // automatic configuration for X2 mesh topology
-//    IPv4NetworkConfigurator* configurator = check_and_cast<IPv4NetworkConfigurator*>(getModuleByPath("configurator"));
-//    cModule* peer = simulation.getModule(getBinder()->getOmnetId(destId));
-//
-//    IPvXAddress addr = configurator->addressOf(peer, getParentModule()->getParentModule());
-//
-//    par("connectAddress").setStringValue(addr.str());
-
         // get the connectAddress and the corresponding X2 id
-        IPvXAddress addr = IPvXAddressResolver().resolve(par("connectAddress").stringValue());
-        X2NodeId peerId = getBinder()->getX2NodeId(addr.get4());
+        L3Address addr = L3AddressResolver().resolve(par("connectAddress").stringValue());
+        X2NodeId peerId = getBinder()->getX2NodeId(addr.toIPv4());
 
         X2NodeId nodeId = check_and_cast<LteMacEnb*>(getParentModule()->getParentModule()->getSubmodule("nic")->getSubmodule("mac"))->getMacCellId();
         getBinder()->setX2PeerAddress(nodeId, peerId, addr);
@@ -50,13 +42,13 @@ void X2AppClient::initialize(int stage)
     }
 }
 
-void X2AppClient::socketEstablished(int32, void *, uint64 buffer )
+void X2AppClient::socketEstablished(int32_t, void *, unsigned long int buffer )
 {
     EV << "X2AppClient: connected\n";
     setStatusString("connected");
 }
 
-void X2AppClient::socketDataArrived(int32, void *, cPacket *msg, bool)
+void X2AppClient::socketDataArrived(int32_t, void *, cPacket *msg, bool)
 {
     packetsRcvd++;
 
@@ -74,6 +66,8 @@ void X2AppClient::socketDataArrived(int32, void *, cPacket *msg, bool)
 
         // forward to x2manager
         send(encapMsg, x2ManagerOut_);
+
+        delete smsg;
     }
     else
     {

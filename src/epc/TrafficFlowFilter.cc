@@ -10,14 +10,16 @@
 #include "TrafficFlowFilter.h"
 #include "IPv4ControlInfo.h"
 #include "IPv4Datagram.h"
-#include "IPvXAddressResolver.h"
+#include "L3AddressResolver.h"
+
+using namespace inet;
 
 Define_Module(TrafficFlowFilter);
 
 void TrafficFlowFilter::initialize(int stage)
 {
     // wait until all the IP addresses are configured
-    if (stage != 3)
+    if (stage != inet::INITSTAGE_NETWORK_LAYER)
         return;
 
     // reading and setting owner type
@@ -39,7 +41,7 @@ EpcNodeType TrafficFlowFilter::selectOwnerType(const char * type)
     else if(strcmp(type,"PGW") == 0)
     return PGW;
 
-    error("TrafficFlowFilter::selectOwnerType - unknown owner type [%s]. Aborting...",type);
+    throw new cRuntimeError ("TrafficFlowFilter::selectOwnerType - unknown owner type [%s]. Aborting...",type);
 }
 
 void TrafficFlowFilter::handleMessage(cMessage *msg)
@@ -92,7 +94,7 @@ void TrafficFlowFilter::handleMessage(cMessage *msg)
     send(datagram,"gtpUserGateOut");
 }
 
-TrafficFlowTemplateId TrafficFlowFilter::findTrafficFlow(IPvXAddress firstKey, TrafficFlowTemplate secondKey)
+TrafficFlowTemplateId TrafficFlowFilter::findTrafficFlow(L3Address firstKey, TrafficFlowTemplate secondKey)
 {
     TrafficFilterTemplateTable::iterator tftIt;
     tftIt = filterTable_.find(firstKey);
@@ -130,7 +132,7 @@ TrafficFlowTemplateId TrafficFlowFilter::findTrafficFlow(IPvXAddress firstKey, T
     EV << "TrafficFlowFilter::findTrafficFlow - Cannot find entry for src and dest addresses. Now trying with first key only" << endl;
 
     // if no result is found again, search only for the first key
-    secondKey.addr.set("0.0.0.0");
+    secondKey.addr.set(IPv4Address("0.0.0.0"));
     for (templIt = templFirst; templIt != templEt; templIt++)
     {
         if ((*templIt) == secondKey)
@@ -143,7 +145,7 @@ TrafficFlowTemplateId TrafficFlowFilter::findTrafficFlow(IPvXAddress firstKey, T
     return UNSPECIFIED_TFT;
 }
 
-bool TrafficFlowFilter::addTrafficFlow(IPvXAddress firstKey, TrafficFlowTemplate tft)
+bool TrafficFlowFilter::addTrafficFlow(L3Address firstKey, TrafficFlowTemplate tft)
 {
     EV << "TrafficFlowFilter::addTrafficFlow - checking existence of an entry for destAddress " << firstKey << " and values: ["
        << tft.addr << "," << tft.destPort << "," << tft.srcPort << "]" << endl;
@@ -166,12 +168,12 @@ bool TrafficFlowFilter::addTrafficFlow(IPvXAddress firstKey, TrafficFlowTemplate
 void TrafficFlowFilter::loadFilterTable(const char * filterTableFile)
 {
     // create default entries
-    IPvXAddress destAddr("0.0.0.0"), srcAddr("0.0.0.0");
+    L3Address destAddr(IPv4Address("0.0.0.0")), srcAddr(IPv4Address("0.0.0.0"));
     unsigned int destPort = UNSPECIFIED_PORT;
     unsigned int srcPort = UNSPECIFIED_PORT;
 
     unsigned int tftId;
-    IPvXAddress primaryKey, secondaryKeyAddr;
+    L3Address primaryKey, secondaryKeyAddr;
 
     // tft attributes management
     const unsigned int numAttributes = 7;
@@ -188,7 +190,7 @@ void TrafficFlowFilter::loadFilterTable(const char * filterTableFile)
 
     // open and check xml file
     EV << "TrafficFlowFilter::loadFilterTable - reading file " << filterTableFile << endl;
-    cXMLElement* config = ev.getXMLDocument(filterTableFile);
+    cXMLElement* config = getEnvir()->getXMLDocument(filterTableFile);
     if (config == NULL)
         error("TrafficFlowFilter::loadFilterTable: Cannot read configuration from file: %s", filterTableFile);
 
@@ -244,13 +246,13 @@ void TrafficFlowFilter::loadFilterTable(const char * filterTableFile)
             // at least one between destAddr and destName MUST be specified in case of PGW
             // try to read the destination address for first
             if (temp[DEST_ADDR] != NULL)
-                destAddr.set(temp[DEST_ADDR]);
+                destAddr.set(IPv4Address(temp[DEST_ADDR]));
             else // if no dest address has been specified, try to resolve node name
             {
                 if (temp[DEST_NAME] != NULL)
                 {
                     EV << "TrafficFlowFilter::loadFilterTable - resolving IP address for host name " << temp[DEST_NAME] << endl;
-                    destAddr = IPvXAddressResolver().resolve(temp[DEST_NAME]);
+                    destAddr = L3AddressResolver().resolve(temp[DEST_NAME]);
                 }
                 else if(ownerType_==PGW)
                 error("TrafficFlowFilter::loadFilterTable - unable to resolve any address for tftID[%i] in PGW.",tftId);
@@ -259,13 +261,13 @@ void TrafficFlowFilter::loadFilterTable(const char * filterTableFile)
                     // at least one between srcAddr and srcName MUST be specified in case of ENB
                     // try to read the source address for first
             if (temp[SRC_ADDR] != NULL)
-                srcAddr.set(temp[SRC_ADDR]);
+                srcAddr.set(IPv4Address(temp[SRC_ADDR]));
             else // if no src address has been specified, try to resolve node name
             {
                 if (temp[SRC_NAME] != NULL)
                 {
                     EV << "TrafficFlowFilter::loadFilterTable - resolving IP address for host name " << temp[SRC_NAME] << endl;
-                    srcAddr = IPvXAddressResolver().resolve(temp[SRC_NAME]);
+                    srcAddr = L3AddressResolver().resolve(temp[SRC_NAME]);
                 }
                 else if(ownerType_==ENB)
                 error("TrafficFlowFilter::loadFilterTable - unable to resolve any address for tftID[%i] in ENB",tftId);

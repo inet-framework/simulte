@@ -8,7 +8,7 @@
 //
 
 #include "LtePdcpRrcUeD2D.h"
-#include "IPvXAddressResolver.h"
+#include "L3AddressResolver.h"
 #include "D2DModeSwitchNotification_m.h"
 
 Define_Module(LtePdcpRrcUeD2D);
@@ -134,9 +134,9 @@ void LtePdcpRrcUeD2D::fromDataPort(cPacket *pkt)
 void LtePdcpRrcUeD2D::initialize(int stage)
 {
     EV << "LtePdcpRrcUeD2D::initialize() - stage " << stage << endl;
-    if (stage == 0)
+    if (stage == inet::INITSTAGE_LOCAL)
         LtePdcpRrcBase::initialize();
-    if (stage == 4)
+    if (stage == INITSTAGE_NETWORK_LAYER_3+1)
     {
         // inform the Binder about the D2D capabilities of this node
         // i.e. the (possibly) D2D peering UEs
@@ -145,7 +145,7 @@ void LtePdcpRrcUeD2D::initialize(int stage)
         const char *token;
         while ((token = tokenizer.nextToken()) != NULL)
         {
-            IPv4Address d2dPeerAddr = IPvXAddressResolver().resolve(token).get4();
+            IPv4Address d2dPeerAddr = L3AddressResolver().resolve(token).toIPv4();
             MacNodeId d2dPeerId = binder_->getMacNodeId(d2dPeerAddr);
             binder_->addD2DCapability(nodeId_, d2dPeerId);
         }

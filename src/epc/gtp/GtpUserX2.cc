@@ -8,15 +8,17 @@
 //
 
 #include "GtpUserX2.h"
-#include "IPvXAddress.h"
+#include "L3Address.h"
 #include <iostream>
 
 Define_Module(GtpUserX2);
 
 void GtpUserX2::initialize(int stage)
 {
+    cSimpleModule::initialize(stage);
+
     // wait until all the IP addresses are configured
-    if (stage != 3)
+    if (stage != inet::INITSTAGE_APPLICATION_LAYER)
         return;
     localPort_ = par("localPort");
 
@@ -63,7 +65,7 @@ void GtpUserX2::handleFromStack(LteX2Message* x2Msg)
     gtpMsg->encapsulate(x2Msg);
 
     // get the IP address of the destination X2 interface from the Binder
-    IPvXAddress peerAddress = binder_->getX2PeerAddress(srcId, destId);
+    L3Address peerAddress = binder_->getX2PeerAddress(srcId, destId);
     socket_.sendTo(gtpMsg, peerAddress, tunnelPeerPort_);
 }
 

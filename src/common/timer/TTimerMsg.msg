@@ -9,6 +9,14 @@
 
 cplusplus {{
     #include "LteCommon.h"
+
+    /**
+     * Timer type
+     */
+    enum TTimerType
+    {
+       TTSIMPLE, TTMULTI
+    };
 }};
 
 enum TTimerType;

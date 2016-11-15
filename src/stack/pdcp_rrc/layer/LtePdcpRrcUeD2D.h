@@ -27,7 +27,7 @@ class LtePdcpRrcUeD2D : public LtePdcpRrcUe
   protected:
 
     virtual void initialize(int stage);
-    virtual int numInitStages() const { return 5; }
+    virtual int numInitStages() const { return inet::NUM_INIT_STAGES; }
     virtual void handleMessage(cMessage *msg);
 
     void handleControlInfo(cPacket* upPkt, FlowControlInfo* lteInfo)

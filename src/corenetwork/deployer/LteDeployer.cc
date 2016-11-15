@@ -8,8 +8,8 @@
 //
 
 #include "LteDeployer.h"
-#include "ChannelControl.h"
-#include "ChannelAccess.h"
+#include "world/radio/ChannelControl.h"
+#include "world/radio/ChannelAccess.h"
 #include "StationaryMobility.h"
 
 Define_Module(LteDeployer);
@@ -148,9 +148,9 @@ void LteDeployer::calculateNodePosition(double centerX, double centerY, int nTh,
     if (totalNodes == 0)
         error("LteDeployer::calculateNodePosition: divide by 0");
     // radians (minus sign because position 0,0 is top-left, not bottom-left)
-    double theta = -startingAngle * PI / 180;
+    double theta = -startingAngle * M_PI / 180;
 
-    double thetaSpacing = (2 * PI) / totalNodes;
+    double thetaSpacing = (2 * M_PI) / totalNodes;
     // angle of n-th node
     theta += nTh * thetaSpacing;
     double x = centerX + (range * cos(theta));

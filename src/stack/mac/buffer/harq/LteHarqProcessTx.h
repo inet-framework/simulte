@@ -62,7 +62,7 @@ class LteHarqProcessTx
     LteHarqProcessTx() {}
 
     /**
-     * Crates a new H-ARQ process, which is a container of H-ARQ units.
+     * Creates a new H-ARQ process, which is a container of H-ARQ units.
      *
      * @param acid H-ARQ process identifier
      * @param numUnits number of units contained in this process (MAX_CODEWORDS)

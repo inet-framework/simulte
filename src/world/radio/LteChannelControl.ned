@@ -7,9 +7,9 @@
 // and cannot be removed from it.
 // 
 
-package lte.stack.phy.ChannelControl;
+package lte.world.radio;
 
-import inet.world.radio.ChannelControl;
+import lte.world.radio.ChannelControl;
 
 simple LteChannelControl extends ChannelControl
 {

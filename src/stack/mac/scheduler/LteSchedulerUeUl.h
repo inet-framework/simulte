@@ -43,6 +43,10 @@ class LteSchedulerUeUl
      * constructor
      */
     LteSchedulerUeUl(LteMacUe * mac);
+    /*
+     * destructor
+     */
+    ~LteSchedulerUeUl();
 };
 
 #endif // _LTE_LTE_SCHEDULER_UE_UL_H_

@@ -31,8 +31,10 @@ void VoIPSender::initialize(int stage)
 {
     EV << "VoIP Sender initialize: stage " << stage << " - initialize=" << initialized_ << endl;
 
+    cSimpleModule::initialize(stage);
+
     // avoid multiple initializations
-    if (stage!=3 || initialized_)
+    if (stage!=inet::INITSTAGE_APPLICATION_LAYER || initialized_)
         return;
 
     durTalk_ = 0;
@@ -53,14 +55,14 @@ void VoIPSender::initialize(int stage)
     selfSender_ = new cMessage("selfSender");
     localPort_ = par("localPort");
     destPort_ = par("destPort");
-    destAddress_ = IPvXAddressResolver().resolve(par("destAddress").stringValue());
+    destAddress_ = inet::L3AddressResolver().resolve(par("destAddress").stringValue());
 
     silences_ = par("silences");
 
     socket.setOutputGate(gate("udpOut"));
     socket.bind(localPort_);
 
-    EV << "VoIPSender::initialize - binding to port: local:" << localPort_ << " , dest:" << destPort_ << endl;
+    EV << "VoIPSender::initialize - binding to port: local:" << localPort_ << " , dest: " << destAddress_.str() << ":" << destPort_ << endl;
 
     // calculating traffic starting time
     simtime_t startTime = par("startTime");

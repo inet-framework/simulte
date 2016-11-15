@@ -31,8 +31,6 @@ class LteMacUeD2D : public LteMacUe
     // Multicast D2D BSR handling
     bool bsrD2DMulticastTriggered_;
 
-    virtual int numInitStages() const { return 4; }
-
     /**
      * Reads MAC parameters for ue and performs initialization.
      */

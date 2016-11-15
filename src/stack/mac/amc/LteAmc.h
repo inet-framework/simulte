@@ -91,9 +91,7 @@ class LteAmc
     public:
     LteAmc(LteMacEnb *mac, LteBinder *binder, LteDeployer *deployer, int numAntennas);
     void initialize();
-    ~LteAmc()
-    {
-    }
+    ~LteAmc();
     void sefType(int f)
     {
         fType_ = f;

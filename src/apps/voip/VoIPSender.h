@@ -14,12 +14,12 @@
 #include <omnetpp.h>
 
 #include "UDPSocket.h"
-#include "IPvXAddressResolver.h"
+#include "L3AddressResolver.h"
 #include "VoipPacket_m.h"
 
 class VoIPSender : public cSimpleModule
 {
-    UDPSocket socket;
+    inet::UDPSocket socket;
     //has the sender been initialized?
     bool initialized_;
 
@@ -51,7 +51,7 @@ class VoIPSender : public cSimpleModule
     simtime_t timestamp_;
     int localPort_;
     int destPort_;
-    IPvXAddress destAddress_;
+    inet::L3Address destAddress_;
 
     void talkspurt(simtime_t dur);
     void selectPeriodTime();
@@ -63,7 +63,7 @@ class VoIPSender : public cSimpleModule
 
   protected:
 
-    virtual int numInitStages() const { return 4; }
+    virtual int numInitStages() const { return inet::NUM_INIT_STAGES; }
     void initialize(int stage);
     void handleMessage(cMessage *msg);
 };

@@ -18,7 +18,7 @@ class SCTPAssociation;
 /**
  * Implements the X2AppClient simple module. See the NED file for more info.
  */
-class X2AppClient : public SCTPClient
+class X2AppClient : public inet::SCTPClient
 {
     // reference to the gates
     cGate* x2ManagerOut_;
@@ -26,9 +26,9 @@ class X2AppClient : public SCTPClient
   protected:
 
     void initialize(int stage);
-    virtual int numInitStages() const { return 5; }
-    void socketEstablished(int32 connId, void *yourPtr, uint64 buffer);
-    void socketDataArrived(int32 connId, void *yourPtr, cPacket *msg, bool urgent);
+    virtual int numInitStages() const { return inet::NUM_INIT_STAGES; }
+    void socketEstablished(int32_t connId, void *yourPtr, unsigned long int buffer);
+    void socketDataArrived(int32_t connId, void *yourPtr, cPacket *msg, bool urgent);
 };
 
 #endif

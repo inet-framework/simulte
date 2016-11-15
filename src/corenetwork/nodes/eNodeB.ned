@@ -10,18 +10,18 @@
 
 package lte.corenetwork.nodes;
 
-import inet.base.NotificationBoard;
 import inet.linklayer.ppp.PPPInterface;
 import inet.mobility.static.StationaryMobility;
 import inet.networklayer.common.InterfaceTable;
-import inet.networklayer.ipv4.RoutingTable;
-import inet.nodes.inet.NetworkLayer;
-import inet.applications.IUDPApp;
-import inet.applications.ITCPApp;
-import inet.applications.ISCTPApp;
-import inet.transport.udp.UDP;
-import inet.transport.tcp.TCP;
-import inet.transport.sctp.SCTP;
+import inet.networklayer.ipv4.IPv4RoutingTable;
+import inet.networklayer.contract.IRoutingTable;
+import inet.networklayer.contract.INetworkLayer;
+import inet.applications.contract.IUDPApp;
+import inet.applications.contract.ITCPApp;
+import inet.applications.contract.ISCTPApp;
+import inet.transportlayer.udp.UDP;
+import inet.transportlayer.tcp.TCP;
+import inet.transportlayer.sctp.SCTP;
 import lte.x2.LteX2App;
 import lte.stack.phy.LteNicEnb;
 import lte.stack.phy.LteNicEnbD2D;
@@ -36,7 +36,7 @@ import lte.epc.gtp.GtpUserX2;
 module eNodeB
 {
     parameters:
-        @node();
+        @networkNode();
         @display("i=device/antennatower;bgb=814,437");
 
         //# Node specs
@@ -45,6 +45,12 @@ module eNodeB
         int macCellId = default(0);  // TODO: this is not a real parameter
         double txPower @unit(mw) = default(100mw);
         bool d2dCapable = default(false);
+
+        //# Network Layer specs
+        string networkLayerType = default("IPv4NetworkLayer");
+        string routingTableType = default("IPv4RoutingTable");
+        *.interfaceTableModule = default(absPath(".interfaceTable"));
+        *.routingTableModule = default(routingTableType != "" ? absPath(".routingTable") : "");
 
         //# Num apps
         int numTcpApps = default(0);  // no of TCP apps. Specify the app types in INI file with tcpApp[0..1].typename="TCPEchoApp" syntax
@@ -58,15 +64,14 @@ module eNodeB
 
     submodules:
 
-        notificationBoard: NotificationBoard {
-            @display("p=50,25;is=s");
-        }
         interfaceTable: InterfaceTable {
             @display("p=50,75;is=s");
         }
         // TODO: should not include a routing table
-        routingTable: RoutingTable {
-            @display("p=50,125;is=s");
+        // routing table
+        routingTable: <routingTableType> like IRoutingTable if routingTableType != "" {
+            parameters:
+                @display("p=50,125;is=s");
         }
         mobility: StationaryMobility {
             @display("p=50,175;is=s");
@@ -101,7 +106,7 @@ module eNodeB
         //#
         //# Network layer module
         //#
-        networkLayer: NetworkLayer {
+        networkLayer: <networkLayerType> like INetworkLayer {
             parameters:
                 @display("p=501,269;q=queue");
         }

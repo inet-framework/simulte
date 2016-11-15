@@ -109,7 +109,7 @@ class LteDlFeedbackGenerator : public cSimpleModule
      * Channel sensing
      */
     void sensing(FbPeriodicity per);
-    virtual int numInitStages() const { return 2; }
+    virtual int numInitStages() const { return inet::INITSTAGE_LINK_LAYER_2 + 1; }
 
   public:
 

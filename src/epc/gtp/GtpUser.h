@@ -12,7 +12,7 @@
 
 #include <omnetpp.h>
 #include "UDPSocket.h"
-#include "IPvXAddressResolver.h"
+#include "L3AddressResolver.h"
 #include "IPv4Datagram.h"
 #include "TftControlInfo.h"
 #include "GtpUserMsg_m.h"
@@ -93,7 +93,7 @@ class GtpUser : public cSimpleModule
 
   protected:
 
-    virtual int numInitStages() const { return 4; }
+    virtual int numInitStages() const { return inet::NUM_INIT_STAGES; }
     virtual void initialize(int stage);
     virtual void handleMessage(cMessage *msg);
 

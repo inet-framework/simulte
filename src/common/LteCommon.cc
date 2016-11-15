@@ -527,23 +527,33 @@ LteDeployer* getDeployer(MacNodeId nodeId)
     // TODO change this behavior (its not needed unless we don't implement relays)
     MacNodeId id = temp->getNextHop(nodeId);
     OmnetId omnetid = temp->getOmnetId(id);
-    return check_and_cast<LteDeployer*>(simulation.getModule(omnetid)->getSubmodule("deployer"));
+    return check_and_cast<LteDeployer*>(getSimulation()->getModule(omnetid)->getSubmodule("deployer"));
 }
 
 cModule* getMacByMacNodeId(MacNodeId nodeId)
 {
-    // TODO fix for relays
-    return (simulation.getModule(getBinder()->getOmnetId(nodeId))->getSubmodule("nic")->getSubmodule("mac"));
+    // UE might have left the simulation, return NULL in this case
+    // since we do not have a MAC-Module anymore
+	int id = getBinder()->getOmnetId(nodeId);
+	if (id == 0){
+		return NULL;
+	}
+	// TODO fix for relays
+	return (getSimulation()->getModule(getBinder()->getOmnetId(nodeId))->getSubmodule("nic")->getSubmodule("mac"));
 }
 
 cModule* getRlcByMacNodeId(MacNodeId nodeId, LteRlcType rlcType)
 {
+	cModule* module = getMacByMacNodeId(nodeId);
+	if(module == NULL){
+		return NULL;
+	}
     return getMacByMacNodeId(nodeId)->getParentModule()->getSubmodule("rlc")->getSubmodule(rlcTypeToA(rlcType).c_str());
 }
 
 LteBinder* getBinder()
 {
-    return check_and_cast<LteBinder*>(simulation.getModuleByPath("binder"));
+    return check_and_cast<LteBinder*>(getSimulation()->getModuleByPath("binder"));
 }
 
 LteMacBase* getMacUe(MacNodeId nodeId)
@@ -654,16 +664,18 @@ void initializeAllChannels(cModule *mod)
 {
     for (cModule::GateIterator i(mod); !i.end(); i++)
     {
-        cGate* gate = i();
+        cGate* gate = *i;
         if (gate->getChannel() != NULL)
         {
-            gate->getChannel()->callInitialize();
+                if(!gate->getChannel()->initialized()){
+                        gate->getChannel()->callInitialize();
+                }
         }
     }
 
     for (cModule::SubmoduleIterator i(mod); !i.end(); i++)
     {
-        cModule *submodule = i();
+        cModule *submodule = *i;
         initializeAllChannels(submodule);
     }
 }

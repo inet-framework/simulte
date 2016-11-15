@@ -17,10 +17,16 @@ Define_Module(UmRxQueue);
 UmRxQueue::UmRxQueue() :
     timer_(this)
 {
+    tSample_ = NULL;
+    tSampleCell_ = NULL;
 }
 
 UmRxQueue::~UmRxQueue()
 {
+    if(tSampleCell_)
+        delete tSampleCell_;
+    if(tSample_)
+        delete tSample_;
 }
 
 bool UmRxQueue::defragment(cPacket* pkt)
@@ -28,7 +34,7 @@ bool UmRxQueue::defragment(cPacket* pkt)
     EV << NOW << "UmRxQueue::defragment" << endl;
 
     Enter_Method("defragment()"); // Direct Method Call
-    take(pkt);// Take ownership
+    take(pkt); // Take ownership
 
     // Get fragment info
     FlowControlInfo* lteInfo = check_and_cast<FlowControlInfo*>(
@@ -56,6 +62,13 @@ bool UmRxQueue::defragment(cPacket* pkt)
     if (ue_ == NULL)
     {
         ue_ = getRlcByMacNodeId(ueId, UM);
+        if(ue_ == NULL) {
+            // UE has left the simulation
+            fragbuf_.remove(pktId);
+            delete lteInfo;
+            delete pkt;
+            return false;
+        }
     }
     tSample_->id_ = ueId;
     tSample_->module_=ue_;
@@ -77,7 +90,6 @@ bool UmRxQueue::defragment(cPacket* pkt)
         ue_->emit(rlcPduPacketLossD2D_, tSample_);
     }
 
-
     // Insert and check if all fragments have been gathered
     if (first)
     {
@@ -87,34 +99,39 @@ bool UmRxQueue::defragment(cPacket* pkt)
     if (!fragbuf_.check(pktId))
     {
         EV << "UmRxBuffer : Fragments missing... continue\n";
-        if (!first)
-        delete lteInfo;
-        delete fragment;
+        // we must keep the first lteInfo since it is stored in the fragment-buffer
+        if(!first)
+            delete lteInfo;
+        delete pkt;
         return false; // Missing fragments
     }
     else
     {
-//        std::cout << "\tUmRxBuffer - All fragments gathered: defragment" << endl;
         EV << "\tUmRxBuffer - All fragments gathered: defragment" << endl;
+
         // All fragments gathered: defragment
         timer_.remove(pktId);// Stop timer
         LteRlcUm* lte_rlc = check_and_cast<LteRlcUm *>(
             getParentModule()->getSubmodule("um"));
         int origPktSize = fragbuf_.remove(pktId);
-        pkt->setByteLength(origPktSize);// Set original packet size before decapsulating
+        // Set original packet size before decapsulating
+        pkt->setByteLength(origPktSize);
 
         LteRlcSdu* rlcPkt = check_and_cast<LteRlcSdu*>(fragment->decapsulate());
         size = rlcPkt->getByteLength();
         delay = (NOW - rlcPkt->getCreationTime()).dbl();
         LtePdcpPdu* pdcpPkt = check_and_cast<LtePdcpPdu*>(
             rlcPkt->decapsulate());
-        delete rlcPkt;
-        delete fragment;
         pdcpPkt->setControlInfo(lteInfo);
+
+        ASSERT(rlcPkt->getOwner() == this);
+        delete rlcPkt;
 
         drop(pdcpPkt);
         lte_rlc->sendDefragmented(pdcpPkt);
     }
+
+    delete pkt;
 
     tSample_->sample_ = size;
     tSampleCell_->sample_ = size;
@@ -227,6 +244,18 @@ void UmRxQueue::handleMessage(cMessage* msg)
            << tmsg->getEvent() << endl;
 
         FlowControlInfo* lteInfo = fragbuf_.getLteInfo(tmsg->getEvent());
+
+        MacNodeId srcId = lteInfo->getSourceId();
+        MacNodeId dstId = lteInfo->getDestId();
+
+        // source or destination might have been removed from the simulation
+        if(getBinder()->getOmnetId(srcId) == 0 || getBinder()->getOmnetId(dstId) == 0){
+                // remove from fagment buffer (includes deletion of lteInfo)
+                fragbuf_.remove(tmsg->getEvent());
+                delete tmsg;
+                return;
+        }
+
         unsigned short dir = lteInfo->getDirection();
         tSample_->sample_ = 1;
         tSampleCell_->sample_ = 1;
@@ -251,10 +280,11 @@ void UmRxQueue::handleMessage(cMessage* msg)
             nodeB_->emit(rlcCellPacketLossD2D_, tSampleCell_);
         }
 
+
+	// remove from fagment buffer (includes deletion of lteInfo)
         fragbuf_.remove(tmsg->getEvent());
         timer_.handle(tmsg->getEvent()); // Stop timer
-        // delete lteInfo
-        delete lteInfo;
+
         delete tmsg;
     }
 }

@@ -12,7 +12,9 @@
 
 #include <map>
 #include <list>
-#include "IPvXAddress.h"
+#include "L3Address.h"
+
+using namespace inet;
 
 enum EpcNodeType
 {
@@ -32,13 +34,13 @@ typedef int TunnelEndpointIdentifier;
 
 struct ConnectionInfo
 {
-    ConnectionInfo(TunnelEndpointIdentifier id, IPvXAddress hop) :
+    ConnectionInfo(TunnelEndpointIdentifier id, L3Address hop) :
         teid(id), nextHop(hop)
     {
     }
 
     TunnelEndpointIdentifier teid;
-    IPvXAddress nextHop;
+    L3Address nextHop;
 };
 
 typedef std::map<TunnelEndpointIdentifier, ConnectionInfo> LabelTable;
@@ -50,11 +52,11 @@ typedef int TrafficFlowTemplateId;
 
 struct TrafficFlowTemplate
 {
-    TrafficFlowTemplate(IPvXAddress ad, unsigned int src, unsigned int dest) :
+    TrafficFlowTemplate(L3Address ad, unsigned int src, unsigned int dest) :
         addr(ad), srcPort(src), destPort(dest)
     {
     }
-    IPvXAddress addr;
+    L3Address addr;
 
     unsigned int srcPort;
     unsigned int destPort;
@@ -73,7 +75,7 @@ struct TrafficFlowTemplate
 // contains a list of traffic flow templates associated to a src/dest address. It is used By the Traffic Flow Filter
 typedef std::list<TrafficFlowTemplate> TrafficFilterTemplateList;
 
-typedef std::map<IPvXAddress, TrafficFilterTemplateList> TrafficFilterTemplateTable;
+typedef std::map<L3Address, TrafficFilterTemplateList> TrafficFilterTemplateTable;
 //===================================================================
 
 char * const * loadXmlTable(char const * attributes[], unsigned int numAttributes);

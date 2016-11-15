@@ -21,7 +21,7 @@ LteHarqProcessTx::LteHarqProcessTx(unsigned char acid, unsigned int numUnits, un
     numSelected_ = 0; //++ @ markSelected and insert, -- @ extract/sendDown
     dropped_ = false;
 
-    // H-ARQ unit istances
+    // H-ARQ unit instances
     for (unsigned int i = 0; i < numHarqUnits_; i++)
     {
         (*units_)[i] = new LteHarqUnitTx(acid, i, macOwner_, dstMac);
@@ -185,7 +185,7 @@ LteMacPdu *LteHarqProcessTx::getPdu(Codeword cw)
 
 long LteHarqProcessTx::getPduId(Codeword cw)
 {
-    return (*units_)[cw]->getPduId();
+    return (*units_)[cw]->getMacPduId();
 }
 
 void LteHarqProcessTx::forceDropProcess()
@@ -264,6 +264,7 @@ LteHarqProcessTx::~LteHarqProcessTx()
          delete *it;
 
     units_->clear();
+    delete units_;
     units_ = NULL;
     macOwner_ = NULL;
 }

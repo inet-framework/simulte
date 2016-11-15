@@ -59,6 +59,7 @@ bool UmFragbuf::check(unsigned int pktID)
 int UmFragbuf::remove(unsigned int pktId)
 {
     int mainPktSize = frags_[pktId].size_;
+    delete frags_[pktId].lteInfo_;
     frags_.erase(pktId);    // Remove Fragments
     return mainPktSize;
 }

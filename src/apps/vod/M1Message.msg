@@ -8,13 +8,13 @@
 //
 
 cplusplus {{
-#include "IPvXAddress.h"
+#include "L3Address.h"
 }};
 
-struct IPvXAddress;
+struct inet::L3Address;
 
 message M1Message {
-        IPvXAddress clientAddr;   // client address
+        inet::L3Address clientAddr;   // client address
         int clientPort;           // client UDP port
         long numPkSent;           // number of packets sent
 }

@@ -48,13 +48,13 @@ LteRlcAmPdu::getBitmapVec()
 bool
 LteRlcAmPdu::isWhole()
 {
-    return (firstSn_var == lastSn_var);
+    return (firstSn == lastSn);
 }
 
 bool
 LteRlcAmPdu::isFirst()
 {
-    return (firstSn_var == snoFragment_var);
+    return (firstSn == snoFragment);
 }
 
 bool
@@ -66,5 +66,5 @@ LteRlcAmPdu::isMiddle()
 bool
 LteRlcAmPdu::isLast()
 {
-    return (lastSn_var == snoFragment_var);
+    return (lastSn == snoFragment);
 }

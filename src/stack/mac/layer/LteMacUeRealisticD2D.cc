@@ -51,7 +51,7 @@ void LteMacUeRealisticD2D::initialize(int stage)
         preconfiguredTxParams_ = getPreconfiguredTxParams();
 
         // get the reference to the eNB
-        enb_ = check_and_cast<LteMacEnbRealisticD2D*>( simulation.getModule(binder_->getOmnetId(getMacCellId()))->getSubmodule("nic")->getSubmodule("mac"));
+        enb_ = check_and_cast<LteMacEnbRealisticD2D*>(getSimulation()->getModule(binder_->getOmnetId(getMacCellId()))->getSubmodule("nic")->getSubmodule("mac"));
     }
 }
 

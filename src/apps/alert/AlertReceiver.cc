@@ -8,13 +8,15 @@
 //
 
 #include "AlertReceiver.h"
-#include "InterfaceTableAccess.h"  // for multicast support
+#include "ModuleAccess.h"  // for multicast support
 
 Define_Module(AlertReceiver);
 
 void AlertReceiver::initialize(int stage)
 {
-    if (stage != 3)
+    cSimpleModule::initialize(stage);
+
+    if (stage != inet::INITSTAGE_APPLICATION_LAYER)
         return;
 
     int port = par("localPort");
@@ -25,9 +27,10 @@ void AlertReceiver::initialize(int stage)
         socket.bind(port);
 
         // for multicast support
-        socket.joinLocalMulticastGroups();
-        IInterfaceTable *ift = InterfaceTableAccess().get(this);
-        InterfaceEntry *ie = ift->getInterfaceByName("wlan");
+        inet::IInterfaceTable *ift = inet::getModuleFromPar<inet::IInterfaceTable>(par("interfaceTableModule"), this);
+        inet::MulticastGroupList mgl = ift->collectMulticastGroups();
+        socket.joinLocalMulticastGroups(mgl);
+        inet::InterfaceEntry *ie = ift->getInterfaceByName("wlan");
         if (!ie)
             throw cRuntimeError("Wrong multicastInterface setting: no interface named wlan");
         socket.setMulticastOutputInterface(ie->getInterfaceId());

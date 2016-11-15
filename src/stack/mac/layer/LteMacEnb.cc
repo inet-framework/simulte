@@ -47,6 +47,7 @@ LteMacEnb::~LteMacEnb()
     delete amc_;
     delete enbSchedulerDl_;
     delete enbSchedulerUl_;
+    delete tSample_;
 
     LteMacBufferMap::iterator bit;
     for (bit = bsrbuf_.begin(); bit != bsrbuf_.end(); bit++)
@@ -217,7 +218,7 @@ void LteMacEnb::deleteQueues(MacNodeId nodeId)
 void LteMacEnb::initialize(int stage)
 {
     LteMacBase::initialize(stage);
-    if (stage == 0)
+    if (stage == inet::INITSTAGE_LOCAL)
     {
         // TODO: read NED parameters, when will be present
         deployer_ = getDeployer();
@@ -275,6 +276,8 @@ void LteMacEnb::initialize(int stage)
 
         tSample_->module_ = check_and_cast<cComponent*>(this);
         tSample_->id_ = nodeId_;
+
+        eNodeBCount = par("eNodeBCount");
         WATCH(numAntennas_);
         WATCH_MAP(bsrbuf_);
     }
@@ -406,7 +409,6 @@ void LteMacEnb::sendGrants(LteMacScheduleList* scheduleList)
         // get and set the user's UserTxParams
         const UserTxParams& ui = getAmc()->computeTxParams(nodeId, UL);
         UserTxParams* txPara = new UserTxParams(ui);
-        // FIXME: possible memory leak
         grant->setUserTxParams(txPara);
 
         // acquiring remote antennas set from user info
@@ -545,7 +547,7 @@ void LteMacEnb::macPduMake(LteMacScheduleList* scheduleList)
 
             ASSERT(pkt != NULL);
 
-            drop(pkt);
+            take(pkt);
             macPkt->pushSdu(pkt);
             sduPerCid--;
         }
@@ -617,7 +619,9 @@ void LteMacEnb::macPduUnmake(cPacket* pkt)
         delete bsr;
     }
 
+    ASSERT(macPkt->getOwner() == this);
     delete macPkt;
+
 }
 
 int LteMacEnb::getNumRbDl()
@@ -634,7 +638,12 @@ bool LteMacEnb::bufferizePacket(cPacket* pkt)
 {
     FlowControlInfo* lteInfo = check_and_cast<FlowControlInfo*>(pkt->getControlInfo());
     MacCid cid = idToMacCid(lteInfo->getDestId(), lteInfo->getLcid());
-
+    OmnetId id = getBinder()->getOmnetId(lteInfo->getDestId());
+    if(id == 0){
+        // destination UE has left the simulation
+        delete pkt;
+        return false;
+    }
     bool ret = false;
 
     if ((ret = LteMacBase::bufferizePacket(pkt)))
@@ -660,6 +669,7 @@ void LteMacEnb::handleSelfMessage()
      *  MAIN LOOP  *
      ***************/
 //    std::cout << "TTI: " << NOW << endl;
+
     EnbType nodeType = deployer_->getEnbType();
 
     EV << "-----" << ((nodeType==MACRO_ENB)?"MACRO":"MICRO") << " ENB MAIN LOOP -----" << endl;
@@ -717,7 +727,7 @@ void LteMacEnb::handleSelfMessage()
     EV << "========================================== END DOWNLINK ============================================" << endl;
 
     // purge from corrupted PDUs all Rx H-HARQ buffers for all users
-    for (; hit != het; hit++)
+    for (hit = harqRxBuffers_.begin(); hit != het; hit++)
     {
         hit->second->purgeCorruptedPdus();
     }

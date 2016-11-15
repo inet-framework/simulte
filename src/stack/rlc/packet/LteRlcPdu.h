@@ -15,11 +15,13 @@
 
 class LteRlcPdu : public LteRlcPdu_Base {
    private:
+
      void copy(const LteRlcPdu& other)
      {
-         this->totalFragments_var = other.totalFragments_var;
-         this->snoFragment_var = other.snoFragment_var;
-         this->snoMainPacket_var = other.snoMainPacket_var;
+         this->totalFragments = other.totalFragments;
+         this->snoFragment = other.snoFragment;
+         this->snoMainPacket = other.snoMainPacket;
+
          // copy the attached control info, if any
          if (other.getControlInfo() != NULL)
          {
@@ -42,6 +44,12 @@ class LteRlcPdu : public LteRlcPdu_Base {
          return *this;
      }
      virtual LteRlcPdu *dup() const {return new LteRlcPdu(*this);}
+     virtual ~LteRlcPdu(){
+         cObject* ctrlInfo = removeControlInfo();
+         if(ctrlInfo){
+             delete ctrlInfo;
+         }
+     }
 };
 
 Register_Class(LteRlcPdu);

@@ -15,8 +15,10 @@ Define_Module(GtpUser);
 
 void GtpUser::initialize(int stage)
 {
+    cSimpleModule::initialize(stage);
+
     // wait until all the IP addresses are configured
-    if (stage != 3)
+    if (stage != inet::INITSTAGE_APPLICATION_LAYER)
         return;
     localPort_ = par("localPort");
 
@@ -71,7 +73,7 @@ void GtpUser::handleFromTrafficFlowFilter(IPv4Datagram * datagram)
     EV << "GtpUser::handleFromTrafficFlowFilter - Received a tftMessage with flowId[" << flowId << "]" << endl;
 
     TunnelEndpointIdentifier nextTeid;
-    IPvXAddress tunnelPeerAddress;
+    L3Address tunnelPeerAddress;
 
     // search a correspondence between the flow id and the pair <teid,nextHop>
     LabelTable::iterator tftIt;
@@ -100,7 +102,7 @@ void GtpUser::handleFromTrafficFlowFilter(IPv4Datagram * datagram)
 void GtpUser::handleFromUdp(GtpUserMsg * gtpMsg)
 {
     TunnelEndpointIdentifier oldTeid, nextTeid;
-    IPvXAddress nextHopAddr;
+    L3Address nextHopAddr;
 
     // obtain the incoming TEID from message
     oldTeid = gtpMsg->getTeid();
@@ -142,7 +144,7 @@ bool GtpUser::loadTeidTable(const char * teidTableFile)
 {
     // open and check xml file
     EV << "GtpUser::loadTeidTable - reading file " << teidTableFile << endl;
-    cXMLElement* config = ev.getXMLDocument(teidTableFile);
+    cXMLElement* config = getEnvir()->getXMLDocument(teidTableFile);
     if (config == NULL)
     error("GtpUser::loadTeidTable: Cannot read configuration from file: %s", teidTableFile);
 
@@ -154,7 +156,7 @@ bool GtpUser::loadTeidTable(const char * teidTableFile)
     cXMLElementList teidList = teidNode->getChildren();
 
     TunnelEndpointIdentifier teidIn,teidOut;
-    IPvXAddress nextHop;
+    L3Address nextHop;
 
     // teid attributes management
     const unsigned int numAttributes = 3;
@@ -187,7 +189,7 @@ bool GtpUser::loadTeidTable(const char * teidTableFile)
 
             teidIn = atoi(temp[0]);
             teidOut = atoi(temp[1]);
-            nextHop.set(temp[2]);
+            nextHop.set(IPv4Address(temp[2]));
 
             std::pair<LabelTable::iterator,bool> ret;
             ret = teidTable_.insert(std::pair<TunnelEndpointIdentifier,ConnectionInfo>(teidIn,ConnectionInfo(teidOut,nextHop)));;
@@ -205,7 +207,7 @@ bool GtpUser::loadTftTable(const char * tftTableFile)
 {
     // open and check xml file
     EV << "GtpUser::loadTftTable - reading file " << tftTableFile << endl;
-    cXMLElement* config = ev.getXMLDocument(tftTableFile);
+    cXMLElement* config = getEnvir()->getXMLDocument(tftTableFile);
     if (config == NULL)
     error("GtpUser::loadTftTable: Cannot read configuration from file: %s", tftTableFile);
 
@@ -219,7 +221,7 @@ bool GtpUser::loadTftTable(const char * tftTableFile)
 
     TrafficFlowTemplateId tft;
     TunnelEndpointIdentifier teidOut;
-    IPvXAddress nextHop;
+    L3Address nextHop;
 
     // TFT attributes management
     const unsigned int numAttributes = 3;
@@ -254,7 +256,7 @@ bool GtpUser::loadTftTable(const char * tftTableFile)
             // convert attributes
             tft= atoi(temp[0]);
             teidOut = atoi(temp[1]);
-            nextHop.set(temp[2]);
+            nextHop.set(IPv4Address(temp[2]));
 
             // create a new entry in the TEID table,
             std::pair<LabelTable::iterator,bool> ret;

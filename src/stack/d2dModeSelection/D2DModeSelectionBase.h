@@ -61,7 +61,7 @@ public:
     virtual ~D2DModeSelectionBase() {}
 
     virtual void initialize(int stage);
-    virtual int numInitStages() const { return 2; }
+    virtual int numInitStages() const { return inet::NUM_INIT_STAGES; }
     virtual void handleMessage(cMessage *msg);
 
     void doModeSwitchAtHandover(MacNodeId nodeId);

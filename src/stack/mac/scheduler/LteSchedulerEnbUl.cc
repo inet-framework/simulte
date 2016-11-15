@@ -148,6 +148,17 @@ LteSchedulerEnbUl::rtxschedule()
             // get current nodeId
             MacNodeId nodeId = it->first;
 
+            if(nodeId == 0){
+                // UE has left the simulation - erase queue and continue
+                harqRxBuffers_->erase(nodeId);
+                continue;
+            }
+            OmnetId id = getBinder()->getOmnetId(nodeId);
+            if(id == 0){
+                harqRxBuffers_->erase(nodeId);
+                continue;
+            }
+
             // get current Harq Process for nodeId
             unsigned char currentAcid = harqStatus_.at(nodeId);
 

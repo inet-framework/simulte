@@ -7,29 +7,15 @@
 // and cannot be removed from it.
 //
 
-#include "LteChannelControl.h"
-#include "FWMath.h"
+#include <LteChannelControl.h>
+#include "INETMath.h"
 #include <cassert>
 
 #include "AirFrame_m.h"
 
-#define coreEV (ev.isDisabled()||!coreDebug) ? EV : EV << "LteChannelControl: "
+#define coreEV EV << "LteChannelControl: "
 
 Define_Module(LteChannelControl);
-
-std::ostream& operator<<(std::ostream& os, const LteChannelControl::RadioEntry& radio)
-{
-    os << radio.radioModule->getFullPath() << " (x=" << radio.pos.x << ",y=" << radio.pos.y << "), "
-       << radio.neighbors.size() << " neighbor(s)";
-    return os;
-}
-
-std::ostream& operator<<(std::ostream& os, const LteChannelControl::TransmissionList& tl)
-{
-    for (LteChannelControl::TransmissionList::const_iterator it = tl.begin(); it != tl.end(); ++it)
-        os << endl << *it;
-    return os;
-}
 
 LteChannelControl::LteChannelControl()
 {

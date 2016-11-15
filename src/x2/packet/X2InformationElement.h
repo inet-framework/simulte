@@ -30,7 +30,7 @@ class X2InformationElement : public X2InformationElement_Base
 {
   protected:
     X2InformationElementType type_;
-    int64 length_;
+    int64_t length_;
 
   public:
 
@@ -60,7 +60,7 @@ class X2InformationElement : public X2InformationElement_Base
 
     // field getter/setter methods
     virtual X2InformationElementType getType() const { return type_; }
-    virtual int64 getLength() const { return length_; }
+    virtual int64_t getLength() const { return length_; }
 };
 
 #endif

@@ -13,20 +13,20 @@
 #include <string.h>
 #include <omnetpp.h>
 
-#include "IPvXAddressResolver.h"
+#include "L3AddressResolver.h"
 #include "UDPSocket.h"
 #include "AlertPacket_m.h"
 
 class AlertReceiver : public cSimpleModule
 {
-    UDPSocket socket;
+    inet::UDPSocket socket;
 
     simsignal_t alertDelay_;
     simsignal_t alertRcvdMsg_;
 
   protected:
 
-    virtual int numInitStages() const { return 4; }
+    virtual int numInitStages() const { return inet::NUM_INIT_STAGES; }
     void initialize(int stage);
     void handleMessage(cMessage *msg);
 };

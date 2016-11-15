@@ -10,7 +10,7 @@
 
 package lte.stack.phy;
 
-import inet.linklayer.IWirelessNic;
+import inet.linklayer.contract.IWirelessNic;
 import lte.stack.mac.LteMac;
 import lte.stack.pdcp_rrc.LtePdcpRrc;
 import lte.stack.phy.feedback.LteDlFeedbackGenerator;
@@ -36,6 +36,7 @@ module LteNicBase like ILteNic
 {
     parameters:
         @display("i=block/ifcard;bgb=250,444;bgl=3");
+        string interfaceTableModule;
         string LtePdcpRrcType;      // One of: "LtePdcpRrcUe", "LtePdcpRrcEnb", "LtePdcpRrcRelayUe", "LtePdcpRrcRelayEnb"
         string LteMacType;          // One of: "LteMacUe", "LteMacEnb", "LteMacEnbExperimental", "LteMacRelayUe", "LteMacRelayEnb"
         string LtePhyType;
@@ -56,6 +57,7 @@ module LteNicBase like ILteNic
         // bridge between lte stack and network layer
         ip2lte: IP2lte {
             nodeType = nodeType;
+            interfaceTableModule = interfaceTableModule;
             @display("p=150,68");
         }
         // PDCP-RRC Layer
@@ -69,6 +71,7 @@ module LteNicBase like ILteNic
         }
         // MAC Layer
         mac: <LteMacType> like LteMac {
+            interfaceTableModule = interfaceTableModule;
             @display("p=151,315");
         }
         // LtePhy submodule

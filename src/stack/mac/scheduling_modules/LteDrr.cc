@@ -23,6 +23,16 @@ void LteDrr::prepareSchedule()
         // Get the current CID.
         MacCid cid = activeTempList_.current();
 
+        MacNodeId nodeId = MacCidToNodeId(cid);
+
+        // check if node is still a valid node in the simulation - might have been dynamically removed
+        if(getBinder()->getOmnetId(nodeId) == 0){
+            activeTempList_.erase();          // remove from the active list
+            activeConnectionTempSet_.erase(cid);
+            EV << "CID " << cid << " of node "<< nodeId << " removed from active connection set - no OmnetId in Binder known.";
+            continue;
+        }
+
         // Get the current DRR descriptor.
         DrrDesc& desc = drrTempMap_[cid];
 

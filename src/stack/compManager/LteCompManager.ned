@@ -30,6 +30,7 @@ simple LteCompManagerBase like LteCompManager
         string clientList = default("");                       // list of ids of client nodes, separated by blank spaces
         double coordinationPeriod @unit(s) = default(0.001s);
         
+        @signal[compReservedBlocks];
         @statistic[compReservedBlocks](title="CoMP Reserved Blocks"; unit=""; source="compReservedBlocks"; record=mean, vector);
         
     gates:

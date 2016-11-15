@@ -24,6 +24,7 @@ LtePhyUe::LtePhyUe()
 LtePhyUe::~LtePhyUe()
 {
     cancelAndDelete(handoverStarter_);
+    delete das_;
 }
 
 void LtePhyUe::initialize(int stage)
@@ -206,13 +207,13 @@ void LtePhyUe::triggerHandover()
     binder_->addUeHandoverTriggered(nodeId_);
 
     // inform the eNB's IP2lte module to forward data to the target eNB
-    IP2lte* enbIp2lte =  check_and_cast<IP2lte*>(simulation.getModule(binder_->getOmnetId(masterId_))->getSubmodule("nic")->getSubmodule("ip2lte"));
+    IP2lte* enbIp2lte =  check_and_cast<IP2lte*>(getSimulation()->getModule(binder_->getOmnetId(masterId_))->getSubmodule("nic")->getSubmodule("ip2lte"));
     enbIp2lte->triggerHandoverSource(nodeId_,candidateMasterId_);
 
     handoverTrigger_ = new cMessage("handoverTrigger");
     scheduleAt(simTime() + handoverLatency_, handoverTrigger_);
 
-    if (ev.isGUI())
+    if (getEnvir()->isGUI())
         getParentModule()->getParentModule()->bubble("Starting handover");
 }
 
@@ -247,7 +248,7 @@ void LtePhyUe::doHandover()
     hysteresisTh_ = updateHysteresisTh(currentMasterRssi_);
 
     // update deployer
-    LteMacEnb* newMacEnb =  check_and_cast<LteMacEnb*>(simulation.getModule(binder_->getOmnetId(candidateMasterId_))->getSubmodule("nic")->getSubmodule("mac"));
+    LteMacEnb* newMacEnb =  check_and_cast<LteMacEnb*>(getSimulation()->getModule(binder_->getOmnetId(candidateMasterId_))->getSubmodule("nic")->getSubmodule("mac"));
     LteDeployer* newDeployer = newMacEnb->getDeployer();
     deployer_->detachUser(nodeId_);
     newDeployer->attachUser(nodeId_);
@@ -260,14 +261,14 @@ void LtePhyUe::doHandover()
     // collect stat
     emit(servingCell_, (long)masterId_);
 
-    if (ev.isGUI())
+    if (getEnvir()->isGUI())
         getParentModule()->getParentModule()->bubble("Handover complete!");
 
     EV << NOW << " LtePhyUe::doHandover - UE " << nodeId_ << " has completed handover to eNB " << masterId_ << "... " << endl;
     binder_->removeUeHandoverTriggered(nodeId_);
 
     // inform the eNB's IP2lte module to forward data to the target eNB
-    IP2lte* enbIp2lte =  check_and_cast<IP2lte*>(simulation.getModule(binder_->getOmnetId(masterId_))->getSubmodule("nic")->getSubmodule("ip2lte"));
+    IP2lte* enbIp2lte =  check_and_cast<IP2lte*>(getSimulation()->getModule(binder_->getOmnetId(masterId_))->getSubmodule("nic")->getSubmodule("ip2lte"));
     enbIp2lte->signalHandoverCompleteTarget(nodeId_,oldMaster);
 
     // TODO: transfer buffers
@@ -277,7 +278,7 @@ void LtePhyUe::doHandover()
 // TODO: ***reorganize*** method
 void LtePhyUe::handleAirFrame(cMessage* msg)
 {
-    UserControlInfo* lteInfo = check_and_cast<UserControlInfo*>(msg->removeControlInfo());
+    UserControlInfo* lteInfo = dynamic_cast<UserControlInfo*>(msg->removeControlInfo());
 
     if (useBattery_)
     {
@@ -400,7 +401,7 @@ void LtePhyUe::handleAirFrame(cMessage* msg)
     // send decapsulated message along with result control info to upperGateOut_
     send(pkt, upperGateOut_);
 
-    if (ev.isGUI())
+    if (getEnvir()->isGUI())
     updateDisplayString();
 }
 
@@ -479,7 +480,7 @@ void LtePhyUe::deleteOldBuffers(MacNodeId masterId)
     /* Delete Mac Buffers */
 
     // delete macBuffer[nodeId_] at old master
-    LteMacEnb *masterMac = check_and_cast<LteMacEnb *>(simulation.getModule(masterOmnetId)->
+    LteMacEnb *masterMac = check_and_cast<LteMacEnb *>(getSimulation()->getModule(masterOmnetId)->
     getSubmodule("nic")->getSubmodule("mac"));
     masterMac->deleteQueues(nodeId_);
 
@@ -489,7 +490,7 @@ void LtePhyUe::deleteOldBuffers(MacNodeId masterId)
     /* Delete Rlc UM Buffers */
 
     // delete UmTxQueue[nodeId_] at old master
-    LteRlcUm *masterRlcUm = check_and_cast<LteRlcUm *>(simulation.getModule(masterOmnetId)->
+    LteRlcUm *masterRlcUm = check_and_cast<LteRlcUm *>(getSimulation()->getModule(masterOmnetId)->
     getSubmodule("nic")->getSubmodule("rlc")->getSubmodule("um"));
     masterRlcUm->deleteQueues(nodeId_);
 

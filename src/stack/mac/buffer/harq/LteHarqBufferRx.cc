@@ -90,6 +90,7 @@ void LteHarqBufferRx::sendFeedback()
                     hfb->getControlInfo())->getDestId()
                    << " result: " << r << endl;
 
+                macOwner_->takeObj(hfb);
                 macOwner_->sendLowerPackets(hfb);
             }
         }
@@ -176,6 +177,7 @@ std::list<LteMacPdu *> LteHarqBufferRx::extractCorrectPdus()
                 nodeB_->emit(macCellThroughput_, tSampleCell_);
                 macOwner_->emit(macThroughput_, tSample_);
 
+                macOwner_->dropObj(temp);
                 ret.push_back(temp);
                 acid = i;
 
@@ -210,4 +212,7 @@ LteHarqBufferRx::~LteHarqBufferRx()
         delete *it;
     processes_.clear();
     macOwner_ = NULL;
+
+    delete tSampleCell_;
+    delete tSample_;
 }

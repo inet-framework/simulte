@@ -13,6 +13,8 @@
 #include <omnetpp.h>
 #include <map>
 
+using namespace omnetpp;
+
 /**
  * \class TaggedSample
  * \brief Object used to send samples with IDs
@@ -72,6 +74,10 @@ class LteRecorder : public cNumericResultRecorder, private cObject
     {
     }
 
+    void deleteModule(unsigned int nodeId){
+        moduleMap_.erase(nodeId);
+    }
+
   protected:
 
     /**
@@ -80,7 +86,7 @@ class LteRecorder : public cNumericResultRecorder, private cObject
      * @param t Reference to simulation time event occurred
      * @param value Sample received
      */
-    virtual void collect(const simtime_t& t, double value)
+    virtual void collect(const simtime_t& t, double value, cObject* details)
     {
     }
 
@@ -102,7 +108,7 @@ class LteRecorder : public cNumericResultRecorder, private cObject
      * @param t Time event occurred
      * @param id obj TaggedSample, contains the sample and the id
      */
-    virtual void receiveSignal(cResultFilter *prev, simtime_t_cref t, cObject *object)
+    virtual void receiveSignal(cResultFilter *prev, simtime_t_cref t, cObject *object, cObject *)
     {
         collect(t, ((TaggedSample*) object)->sample_, ((TaggedSample*) object)->id_, ((TaggedSample*) object)->module_);
     }

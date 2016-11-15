@@ -251,7 +251,7 @@ class LteMacBase : public cSimpleModule
 
   protected:
 
-    virtual int numInitStages() const { return 3; }
+    virtual int numInitStages() const { return inet::NUM_INIT_STAGES; }
 
     /**
      * Grabs NED parameters, initializes gates
@@ -270,6 +270,14 @@ class LteMacBase : public cSimpleModule
      * Statistics recording
      */
     virtual void finish();
+
+    /**
+     * Deleting the module
+     *
+     * Method is overridden in order to cancel the periodic TTI self-message,
+     * afterwards the deleteModule method of cSimpleModule is called.
+     */
+    virtual void deleteModule();
 
     /**
      * Main loop of the Mac level, calls the scheduler

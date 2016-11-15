@@ -73,7 +73,7 @@ McsTable::McsTable()
 void McsTable::rescale(const double scale)
 {
     if (scale <= 0)
-        opp_error("Bad Rescaling value: %f", scale);
+        throw cRuntimeError("Bad Rescaling value: %f", scale);
 
     for (Tbs i = 0; i < CQI2ITBSSIZE; ++i)
     {

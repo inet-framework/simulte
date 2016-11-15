@@ -16,7 +16,7 @@
 #include "LteMacBuffer.h"
 #include "UserTxParams.h"
 #include "InterfaceEntry.h"
-#include "InterfaceTableAccess.h"
+#include "ModuleAccess.h"
 #include "IPv4InterfaceData.h"
 #include "LteBinder.h"
 #include "LtePhyBase.h"
@@ -63,9 +63,9 @@ LteMacUe::~LteMacUe()
 void LteMacUe::initialize(int stage)
 {
     LteMacBase::initialize(stage);
-    if (stage == 0)
+    if (stage == INITSTAGE_LOCAL)
         lcgScheduler_ = new LteSchedulerUeUl(this);
-    else if (stage == 1)
+    else if (stage == INITSTAGE_PHYSICAL_ENVIRONMENT)
     {
         /* Insert UeInfo in the Binder */
         UeInfo* info = new UeInfo();
@@ -79,13 +79,17 @@ void LteMacUe::initialize(int stage)
 
         binder_->addUeInfo(info);
     }
-    else if (stage == 3)
+    else if (stage == INITSTAGE_NETWORK_LAYER_3)
     {
         // find interface entry and use its address
-        IInterfaceTable *interfaceTable = InterfaceTableAccess().get();
+        IInterfaceTable *interfaceTable = getModuleFromPar<IInterfaceTable>(par("interfaceTableModule"), this);
         // TODO: how do we find the LTE interface?
         InterfaceEntry * interfaceEntry = interfaceTable->getInterfaceByName("wlan");
-        binder_->setMacNodeId(interfaceEntry->ipv4Data()->getIPAddress(), nodeId_);
+
+        IPv4InterfaceData* ipv4if = interfaceEntry->ipv4Data();
+        if(ipv4if == NULL)
+            throw new cRuntimeError("no IPv4 interface data - cannot bind node %i", nodeId_);
+        binder_->setMacNodeId(ipv4if->getIPAddress(), nodeId_);
     }
 }
 
@@ -146,7 +150,7 @@ void LteMacUe::macPduMake(LteMacScheduleList* scheduleList)
             if (mbuf_.find(destCid) == mbuf_.end())
                 throw cRuntimeError("Unable to find mac buffer for cid %d", destCid);
 
-            if (mbuf_[destCid]->empty())
+            if (mbuf_[destCid]->isEmpty())
                 throw cRuntimeError("Empty buffer for cid %d, while expected SDUs were %d", destCid, sduPerCid);
 
             pkt = mbuf_[destCid]->popFront();
@@ -310,6 +314,8 @@ void LteMacUe::macPduUnmake(cPacket* pkt)
         }
         sendUpperPackets(upPkt);
     }
+
+    ASSERT(macPkt->getOwner() == this);
     delete macPkt;
 }
 
@@ -637,9 +643,6 @@ LteMacUe::updateUserTxParam(cPacket* pkt)
     if (lteInfo->getFrameType() != DATAPKT)
         return;
 
-    // get the old parameters and delete them, in order to avoid memory leaks
-    const UserTxParams* oldParams = lteInfo->getUserTxParams();
-    delete oldParams;
     lteInfo->setUserTxParams(schedulingGrant_->getUserTxParams()->dup());
 
     lteInfo->setTxMode(schedulingGrant_->getUserTxParams()->readTxMode());
