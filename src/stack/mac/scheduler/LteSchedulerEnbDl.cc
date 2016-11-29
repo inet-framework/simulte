@@ -268,7 +268,7 @@ LteSchedulerEnbDl::rtxschedule()
         // For each UE
         MacNodeId nodeId = it->first;
 
-        OmnetId id = getBinder()->getOmnetId(nodeId);
+        OmnetId id = binder_->getOmnetId(nodeId);
         if(id == 0){
             // UE has left the simulation, erase HARQ-queue
             it = harqQueues->erase(it);

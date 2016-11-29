@@ -41,6 +41,9 @@ class IP2lte : public cSimpleModule
     // reference to the binder
     LteBinder* binder_;
 
+    // MAC node id of this node
+    MacNodeId nodeId_;
+
     /*
      * Handover support
      */
@@ -90,6 +93,7 @@ class IP2lte : public cSimpleModule
     virtual void initialize(int stage);
     virtual int numInitStages() const { return INITSTAGE_LAST; }
     virtual void handleMessage(cMessage *msg);
+    virtual void finish();
   public:
     void triggerHandoverSource(MacNodeId ueId, MacNodeId targetEnb);
     void triggerHandoverTarget(MacNodeId ueId, MacNodeId sourceEnb);

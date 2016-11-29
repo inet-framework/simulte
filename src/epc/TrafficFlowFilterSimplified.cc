@@ -56,26 +56,38 @@ void TrafficFlowFilterSimplified::handleMessage(cMessage *msg)
 
     // run packet filter and associate a flowId to the connection (default bearer?)
     // search within tftTable the proper entry for this destination
-    unsigned int tftId = findTrafficFlow(srcAddr, destAddr);   // search for the tftId in the binder
-    if(tftId == UNSPECIFIED_TFT)
-        error("TrafficFlowFilterSimplified::handleMessage - Cannot find corresponding tftId. Aborting...");
+    TrafficFlowTemplateId tftId = findTrafficFlow(srcAddr, destAddr);   // search for the tftId in the binder
+    if(tftId == -2)
+    {
+        // the destination has been removed from the simulation. Delete msg
+        EV << "TrafficFlowFilterSimplified::handleMessage - Destination has been removed from the simulation. Delete packet." << endl;
+        delete msg;
+    }
+    else
+    {
 
-    // add control info to the normal ip datagram. This info will be read by the GTP-U application
-    TftControlInfo * tftInfo = new TftControlInfo();
-    tftInfo->setTft(tftId);
-    datagram->setControlInfo(tftInfo);
+        // add control info to the normal ip datagram. This info will be read by the GTP-U application
+        TftControlInfo * tftInfo = new TftControlInfo();
+        tftInfo->setTft(tftId);
+        datagram->setControlInfo(tftInfo);
 
-    EV << "TrafficFlowFilterSimplified::handleMessage - setting tft=" << tftId << endl;
+        EV << "TrafficFlowFilterSimplified::handleMessage - setting tft=" << tftId << endl;
 
-    // send the datagram to the GTP-U module
-    send(datagram,"gtpUserGateOut");
+        // send the datagram to the GTP-U module
+        send(datagram,"gtpUserGateOut");
+    }
 }
 
 TrafficFlowTemplateId TrafficFlowFilterSimplified::findTrafficFlow(L3Address srcAddress, L3Address destAddress)
 {
     MacNodeId destId = binder_->getMacNodeId(destAddress.toIPv4());
     if (destId == 0)
-        return -1;   // the destination is outside the LTE network, so send the packet to the PGW
+    {
+        if (ownerType_ == ENB)
+            return -1;   // the destination is outside the LTE network, so send the packet to the PGW
+        else // PGW
+            return -2;   // the destination UE has been removed from the simulation
+    }
 
     MacNodeId destMaster = binder_->getNextHop(destId);
 

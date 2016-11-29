@@ -37,20 +37,20 @@ class LteHarqBufferRx
     unsigned int numHarqProcesses_;
 
     MacNodeId nodeId_; // UE nodeId for which this buffer has been created
+    LteMacBase *macUe_;
 
     /// processes vector
     std::vector<LteHarqProcessRx *> processes_;
 
     //Statistics
+    static unsigned int totalCellRcvdBytes_;
+    unsigned int totalRcvdBytes_ = 0;
     simsignal_t macDelay_;
     simsignal_t macCellThroughput_;
     simsignal_t macThroughput_;
 
     // reference to the eNB module
     cModule* nodeB_;
-
-    TaggedSample *tSample_;
-    TaggedSample *tSampleCell_;
 
   public:
     LteHarqBufferRx() {}

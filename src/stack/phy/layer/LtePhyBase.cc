@@ -20,7 +20,6 @@ LtePhyBase::LtePhyBase()
 LtePhyBase::~LtePhyBase()
 {
     delete channelModel_;
-    delete tSample_;
 }
 
 void LtePhyBase::initialize(int stage)
@@ -47,19 +46,7 @@ void LtePhyBase::initialize(int stage)
         relayTxPower_ = par("relayTxPower");
         deployer_->channelUpdate(nodeId_,
             intuniform(1, binder_->phyPisaData.maxChannel2()));
-        averageCqiDl_ = registerSignal("averageCqiDl");
-        averageCqiUl_ = registerSignal("averageCqiUl");
-        averageCqiD2D_ = registerSignal("averageCqiD2D");
 
-        averageCqiDlvect_ = registerSignal("averageCqiDlvect");
-        averageCqiUlvect_ = registerSignal("averageCqiUlvect");
-        averageCqiD2Dvect_ = registerSignal("averageCqiD2Dvect");
-
-        if (!hasListeners(averageCqiDl_))
-            error("no phy listeners");
-
-        tSample_ = new TaggedSample();
-        tSample_->module_ = check_and_cast<cComponent*>(this);
         carrierFrequency_ = 2.1e+9;
         WATCH(numAirFrameReceived_);
         WATCH(numAirFrameNotReceived_);
@@ -282,8 +269,11 @@ LteAmc *LtePhyBase::getAmcModule(MacNodeId id)
 {
     LteAmc *amc = NULL;
     OmnetId omid = binder_->getOmnetId(id);
+    if (omid == 0)
+        return NULL;
+
     amc = check_and_cast<LteMacEnb *>(
-        getSimulation()->getModule(omid)->getSubmodule("nic")->getSubmodule(
+        getSimulation()->getModule(omid)->getSubmodule("lteNic")->getSubmodule(
             "mac"))->getAmc();
     return amc;
 }

@@ -175,7 +175,7 @@ class LteAmc
         return pilot_;
     }
 
-    Coord getUePosition(MacNodeId id)
+    inet::Coord getUePosition(MacNodeId id)
     {
         return deployer_->getUePosition(id);
     }

@@ -65,9 +65,8 @@ module eNBpp
         deployer: LteDeployer {
             @display("p=50,225;is=s");
         }
-        // NOTE: instance must be named "nic"
-        // TODO: rename to something like lte?
-        nic: LteNicEnb {
+        // NOTE: instance must be named "lteNic"
+        lteNic: LteNicEnb {
             nodeType = nodeType;
             @display("p=200,311");
         }
@@ -100,7 +99,7 @@ module eNBpp
         //# External connection to peer Lte Ip and air interface
         //#
 
-        nic.radioIn <-- radioIn;
+        lteNic.radioIn <-- radioIn;
         pppIf.phys <--> ppp;
 
         udp.ipOut --> networkLayer.transportIn++;
@@ -114,6 +113,6 @@ module eNBpp
         networkLayer.ifOut++ --> pppIf.upperLayerIn;
         pppIf.upperLayerOut --> networkLayer.ifIn++;
 
-        nic.upperLayerOut --> trafficFlowFilter.internetFilterGateIn;
-        gtp_user.pppGate --> nic.upperLayerIn;
+        lteNic.upperLayerOut --> trafficFlowFilter.internetFilterGateIn;
+        gtp_user.pppGate --> lteNic.upperLayerIn;
 }

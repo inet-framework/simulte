@@ -57,9 +57,8 @@ class AmRxQueue : public cSimpleModule
     FlowControlInfo* flowControlInfo_;
 
     //Statistics
-    TaggedSample *tSample_;
-    TaggedSample *tSampleCell_;
-
+    static unsigned int totalCellRcvdBytes_;
+    unsigned int totalRcvdBytes_;
     simsignal_t rlcCellPacketLoss_;
     simsignal_t rlcPacketLoss_;
     simsignal_t rlcPduPacketLoss_;

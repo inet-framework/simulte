@@ -54,15 +54,11 @@ void VoIPReceiver::initialize(int stage)
     voIPFrameLossSignal_ = registerSignal("voIPFrameLoss");
     voIPFrameDelaySignal_ = registerSignal("voIPFrameDelay");
     voIPPlayoutDelaySignal_ = registerSignal("voIPPlayoutDelay");
-
     voIPMosSignal_ = registerSignal("voIPMos");
     voIPTaildropLossSignal_ = registerSignal("voIPTaildropLoss");
-
     voIPJitterSignal_ = registerSignal("voIPJitter");
     voIPPlayoutLossSignal_ = registerSignal("voIPPlayoutLoss");
-
     voipReceivedThroughtput_ = registerSignal("voipReceivedThroughtput");
-    voipReceivedThroughtput_lte_ = registerSignal("voipReceivedThroughtput_lte");
 }
 
 void VoIPReceiver::handleMessage(cMessage *msg)
@@ -92,13 +88,7 @@ void VoIPReceiver::handleMessage(cMessage *msg)
 
     EV << "VoIPReceiver::handleMessage - Packet received: TALK[" << pPacket->getIDtalk() << "] - FRAME[" << pPacket->getIDframe() << " size: " << (int)pPacket->getByteLength() << " bytes]\n";
 
-    TaggedSample t;
-    t.id_ = 0;
-    t.module_ = this;
-    t.sample_ = (int)pPacket->getByteLength();
-
     emit(voipReceivedThroughtput_, (int)pPacket->getByteLength() );
-    emit(voipReceivedThroughtput_lte_, &t );
 
     pPacket->setArrivalTime(simTime());
     mPacketsList_.push_back(pPacket);

@@ -33,22 +33,22 @@ simple VoDUDPClient like IUDPApp
         @display("i=block/app");
         @class(VoDUDPClient);
         @signal[VoDTptLayer0];
-        @statistic[VoDTptLayer0](title="VoD Tpt Layer 0"; unit=""; source="VoDTptLayer0"; record=lteRate);
+        @statistic[VoDTptLayer0](title="VoD Tpt Layer 0"; unit=""; source="VoDTptLayer0"; record=mean,vector);
         @signal[VoDTptLayer1];
-        @statistic[VoDTptLayer1](title="VoD Tpt Layer 1"; unit=""; source="VoDTptLayer1"; record=lteRate);
+        @statistic[VoDTptLayer1](title="VoD Tpt Layer 1"; unit=""; source="VoDTptLayer1"; record=mean,vector);
         @signal[VoDTptLayer2];
-        @statistic[VoDTptLayer2](title="VoD Tpt Layer 2"; unit=""; source="VoDTptLayer2"; record=lteRate);
+        @statistic[VoDTptLayer2](title="VoD Tpt Layer 2"; unit=""; source="VoDTptLayer2"; record=mean,vector);
         @signal[VoDTptLayer3];
-        @statistic[VoDTptLayer3](title="VoD Tpt Layer 3"; unit=""; source="VoDTptLayer3"; record=lteRate);
+        @statistic[VoDTptLayer3](title="VoD Tpt Layer 3"; unit=""; source="VoDTptLayer3"; record=mean,vector);
 
         @signal[VoDDelayLayer0];
-        @statistic[VoDDelayLayer0](title="VoD Delay Layer 0"; unit=""; source="VoDDelayLayer0"; record=lteAvg);
+        @statistic[VoDDelayLayer0](title="VoD Delay Layer 0"; unit=""; source="VoDDelayLayer0"; record=mean,vector);
         @signal[VoDDelayLayer1];
-        @statistic[VoDDelayLayer1](title="VoD Delay Layer 1"; unit=""; source="VoDDelayLayer1"; record=lteAvg);
+        @statistic[VoDDelayLayer1](title="VoD Delay Layer 1"; unit=""; source="VoDDelayLayer1"; record=mean,vector);
         @signal[VoDDelayLayer2];
-        @statistic[VoDDelayLayer2](title="VoD Delay Layer 2"; unit=""; source="VoDDelayLayer2"; record=lteAvg);
+        @statistic[VoDDelayLayer2](title="VoD Delay Layer 2"; unit=""; source="VoDDelayLayer2"; record=mean,vector);
         @signal[VoDDelayLayer3];
-        @statistic[VoDDelayLayer3](title="VoD Delay Layer 3"; unit=""; source="VoDDelayLayer3"; record=lteAvg);
+        @statistic[VoDDelayLayer3](title="VoD Delay Layer 3"; unit=""; source="VoDDelayLayer3"; record=mean,vector);
 
 
     gates:

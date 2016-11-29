@@ -17,8 +17,10 @@
 
 
 #include "world/radio/ChannelAccess.h"
+
 #include "inet/mobility/contract/IMobility.h"
 #include "inet/common/ModuleAccess.h"
+#include "BaseMobility.h"
 
 static int parseInt(const char *s, int defaultValue)
 {
@@ -53,16 +55,27 @@ void ChannelAccess::initialize(int stage)
     if (stage == inet::INITSTAGE_LOCAL)
     {
         cc = getChannelControl();
-        hostModule = findContainingNode(this);
+        hostModule = inet::findContainingNode(this);
         myRadioRef = NULL;
 
         positionUpdateArrived = false;
-        // register to get a notification when position changes
-        hostModule->subscribe(inet::IMobility::mobilityStateChangedSignal, this);
+
+        if (hostModule->findSubmodule("mobility") != -1)
+        {
+            // register to get a notification when position changes
+            hostModule->subscribe(inet::IMobility::mobilityStateChangedSignal, this);
+        }
+
+        if (hostModule->findSubmodule("vehicularMobility") != -1)
+        {
+            // register to get a notification when position changes (vehicularMobility)
+            veinsmobilityStateChanged_ = hostModule->registerSignal("veinsmobilityStateChanged");
+            hostModule->subscribe(veinsmobilityStateChanged_, this);
+        }
     }
     else if (stage == inet::INITSTAGE_PHYSICAL_ENVIRONMENT_2)
     {
-        if (!positionUpdateArrived)
+        if (!positionUpdateArrived && hostModule->isSubscribed(inet::IMobility::mobilityStateChangedSignal, this))
         {
             radioPos.x = parseInt(hostModule->getDisplayString().getTagArg("p", 0), -1);
             radioPos.y = parseInt(hostModule->getDisplayString().getTagArg("p", 1), -1);
@@ -112,8 +125,18 @@ void ChannelAccess::receiveSignal(cComponent *source, simsignal_t signalID, cObj
 {
     if (signalID == inet::IMobility::mobilityStateChangedSignal)
     {
-        IMobility *mobility = check_and_cast<IMobility*>(obj);
+        inet::IMobility *mobility = check_and_cast<inet::IMobility*>(obj);
         radioPos = mobility->getCurrentPosition();
+        positionUpdateArrived = true;
+
+        if (myRadioRef)
+            cc->setRadioPosition(myRadioRef, radioPos);
+    }
+    if (signalID == veinsmobilityStateChanged_)
+    {
+        BaseMobility *mobility = check_and_cast<BaseMobility*>(obj);
+        Coord veinsCoord = mobility->getCurrentPosition();
+        radioPos = inet::Coord(veinsCoord.x, veinsCoord.y, veinsCoord.z);
         positionUpdateArrived = true;
 
         if (myRadioRef)

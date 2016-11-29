@@ -153,7 +153,7 @@ LteSchedulerEnbUl::rtxschedule()
                 harqRxBuffers_->erase(nodeId);
                 continue;
             }
-            OmnetId id = getBinder()->getOmnetId(nodeId);
+            OmnetId id = binder_->getOmnetId(nodeId);
             if(id == 0){
                 harqRxBuffers_->erase(nodeId);
                 continue;

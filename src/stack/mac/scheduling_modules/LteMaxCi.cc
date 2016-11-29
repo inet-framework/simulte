@@ -14,6 +14,9 @@ void LteMaxCi::prepareSchedule()
 {
     EV << NOW << " LteMaxCI::schedule " << eNbScheduler_->mac_->getMacNodeId() << endl;
 
+    if (binder_ == NULL)
+        binder_ = getBinder();
+
     activeConnectionTempSet_ = activeConnectionSet_;
 
     // Build the score list by cycling through the active connections.
@@ -30,7 +33,7 @@ void LteMaxCi::prepareSchedule()
         ++it1;
 
         MacNodeId nodeId = MacCidToNodeId(cid);
-        OmnetId id = getBinder()->getOmnetId(nodeId);
+        OmnetId id = binder_->getOmnetId(nodeId);
         if(nodeId == 0 || id == 0){
                 // node has left the simulation - erase corresponding CIDs
                 activeConnectionSet_.erase(cid);

@@ -16,6 +16,8 @@ bool debug = false;
 
 void LteMaxCiMultiband::prepareSchedule()
 {
+    if (binder_ == NULL)
+        binder_ = getBinder();
     activeConnectionTempSet_ = activeConnectionSet_;
     MacCid cid;
     unsigned int byPs = 0;
@@ -39,7 +41,14 @@ void LteMaxCiMultiband::prepareSchedule()
         cid = *it1;
 
         MacNodeId nodeId = MacCidToNodeId(cid);
-
+        OmnetId id = binder_->getOmnetId(nodeId);
+        if(nodeId == 0 || id == 0)
+        {
+            // node has left the simulation - erase corresponding CIDs
+            activeConnectionSet_.erase(cid);
+            activeConnectionTempSet_.erase(cid);
+            continue;
+        }
         // obtain a vector of CQI, one for each band
         std::vector<Cqi> vect = eNbScheduler_->mac_->getAmc()->readMultiBandCqi(nodeId,direction_);
         int band = 0;

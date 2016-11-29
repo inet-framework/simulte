@@ -116,12 +116,6 @@ class LtePhyBase : public ChannelAccess
     simsignal_t averageCqiUl_;
     simsignal_t averageCqiD2D_;
 
-    simsignal_t averageCqiDlvect_;
-    simsignal_t averageCqiUlvect_;
-    simsignal_t averageCqiD2Dvect_;
-
-    TaggedSample *tSample_;
-
     // User that are trasmitting (uplink)
     //receiveng(downlink) current packet
     MacNodeId connectedNodeId_;
@@ -329,7 +323,7 @@ class LtePhyBase : public ChannelAccess
     /*
      * Returns the current position of the node
      */
-    const Coord& getCoord() { return getRadioPosition(); }
+    const inet::Coord& getCoord() { return getRadioPosition(); }
     /*
      * Returns the time of the last transmission performed
      */

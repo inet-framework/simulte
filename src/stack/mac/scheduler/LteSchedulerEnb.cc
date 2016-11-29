@@ -41,7 +41,6 @@ LteSchedulerEnb::LteSchedulerEnb()
 
 LteSchedulerEnb::~LteSchedulerEnb()
 {
-    delete tSample_;
     delete allocator_;
     if(scheduler_)
         delete scheduler_;
@@ -51,6 +50,8 @@ void LteSchedulerEnb::initialize(Direction dir, LteMacEnb* mac)
 {
     direction_ = dir;
     mac_ = mac;
+
+    binder_ = getBinder();
 
     vbuf_ = mac_->getMacBuffers();
     bsrbuf_ = mac_->getBsrVirtualBuffers();
@@ -74,56 +75,6 @@ void LteSchedulerEnb::initialize(Direction dir, LteMacEnb* mac)
     lteAvgServedBlocksUl_ = mac_->registerSignal("avgServedBlocksUl");
     depletedPowerDl_ = mac_->registerSignal("depletedPowerDl");
     depletedPowerUl_ = mac_->registerSignal("depletedPowerUl");
-
-    prf_0 = mac_->registerSignal("prf_0");
-    prf_1a = mac_->registerSignal("prf_1a");
-    prf_2a = mac_->registerSignal("prf_2a");
-    prf_3a = mac_->registerSignal("prf_3a");
-    prf_1b = mac_->registerSignal("prf_1b");
-    prf_2b = mac_->registerSignal("prf_2b");
-    prf_3b = mac_->registerSignal("prf_3b");
-    prf_1c = mac_->registerSignal("prf_1c");
-    prf_2c = mac_->registerSignal("prf_2c");
-    prf_3c = mac_->registerSignal("prf_3c");
-    prf_4 = mac_->registerSignal("prf_4");
-    prf_5 = mac_->registerSignal("prf_5");
-    prf_6a = mac_->registerSignal("prf_6a");
-    prf_7a = mac_->registerSignal("prf_7a");
-    prf_8a = mac_->registerSignal("prf_8a");
-    prf_6b = mac_->registerSignal("prf_6b");
-    prf_7b = mac_->registerSignal("prf_7b");
-    prf_8b = mac_->registerSignal("prf_8b");
-    prf_6c = mac_->registerSignal("prf_6c");
-    prf_7c = mac_->registerSignal("prf_7c");
-    prf_8c = mac_->registerSignal("prf_8c");
-    prf_9 = mac_->registerSignal("prf_9");
-
-    rb_0 = mac_->registerSignal("rb_0");
-    rb_1a = mac_->registerSignal("rb_1a");
-    rb_2a = mac_->registerSignal("rb_2a");
-    rb_3a = mac_->registerSignal("rb_3a");
-    rb_1b = mac_->registerSignal("rb_1b");
-    rb_2b = mac_->registerSignal("rb_2b");
-    rb_3b = mac_->registerSignal("rb_3b");
-    rb_1c = mac_->registerSignal("rb_1c");
-    rb_2c = mac_->registerSignal("rb_2c");
-    rb_3c = mac_->registerSignal("rb_3c");
-    rb_4 = mac_->registerSignal("rb_4");
-    rb_5 = mac_->registerSignal("rb_5");
-    rb_6a = mac_->registerSignal("rb_6a");
-    rb_7a = mac_->registerSignal("rb_7a");
-    rb_8a = mac_->registerSignal("rb_8a");
-    rb_6b = mac_->registerSignal("rb_6b");
-    rb_7b = mac_->registerSignal("rb_7b");
-    rb_8b = mac_->registerSignal("rb_8b");
-    rb_6c = mac_->registerSignal("rb_6c");
-    rb_7c = mac_->registerSignal("rb_7c");
-    rb_8c = mac_->registerSignal("rb_8c");
-    rb_9 = mac_->registerSignal("rb_9");
-
-    tSample_ = new TaggedSample();
-
-    tSample_->module_ = check_and_cast<cComponent*>(mac_);
 }
 
 LteMacScheduleList* LteSchedulerEnb::schedule()
@@ -741,9 +692,9 @@ void LteSchedulerEnb::update()
 void LteSchedulerEnb::backlog(MacCid cid)
 {
     EV << "LteSchedulerEnb::backlog - backlogged data for Logical Cid " << cid << endl;
-    if(cid == 1){   //HACK
+    if(cid == 1)
         return;
-    }
+
     scheduler_->notifyActiveConnection(cid);
 }
 
@@ -841,15 +792,11 @@ void LteSchedulerEnb::resourceBlockStatistics(bool sleep)
 {
     if (sleep)
     {
-        tSample_->id_ = mac_->getMacCellId();
         if (direction_ == DL)
         {
-            tSample_->sample_ = 0;
-            mac_->emit(cellBlocksUtilizationDl_, tSample_);
-            tSample_->sample_ = 0;
-            mac_->emit(lteAvgServedBlocksDl_, tSample_);
-            tSample_->sample_ = mac_->getIdleLevel(DL, MBSFN);
-            mac_->emit(depletedPowerDl_, tSample_);
+            mac_->emit(cellBlocksUtilizationDl_, 0.0);
+            mac_->emit(lteAvgServedBlocksDl_, (long)0);
+            mac_->emit(depletedPowerDl_, mac_->getIdleLevel(DL, MBSFN));
         }
         return;
     }
@@ -902,24 +849,17 @@ void LteSchedulerEnb::resourceBlockStatistics(bool sleep)
     // antenna here is the number of antennas used; the same applies for plane;
     // Compute average OFDMA utilization between layers and antennas
     utilization /= (((double) (antenna)) * ((double) resourceBlocks_));
-    tSample_->id_ = mac_->getMacCellId();
     if (direction_ == DL)
     {
-        tSample_->sample_ = utilization;
-        mac_->emit(cellBlocksUtilizationDl_, tSample_);
-        tSample_->sample_ = allocatedBlocks;
-        mac_->emit(lteAvgServedBlocksDl_, tSample_);
-        tSample_->sample_ = depletedPower;
-        mac_->emit(depletedPowerDl_, tSample_);
+        mac_->emit(cellBlocksUtilizationDl_, utilization);
+        mac_->emit(lteAvgServedBlocksDl_, allocatedBlocks);
+        mac_->emit(depletedPowerDl_, depletedPower);
     }
     else if (direction_ == UL)
     {
-        tSample_->sample_ = utilization;
-        mac_->emit(cellBlocksUtilizationUl_, tSample_);
-        tSample_->sample_ = allocatedBlocks;
-        mac_->emit(lteAvgServedBlocksUl_, tSample_);
-        tSample_->sample_ = depletedPower;
-        mac_->emit(depletedPowerUl_, tSample_);
+        mac_->emit(cellBlocksUtilizationUl_, utilization);
+        mac_->emit(lteAvgServedBlocksUl_, allocatedBlocks);
+        mac_->emit(depletedPowerUl_, depletedPower);
     }
     else
     {

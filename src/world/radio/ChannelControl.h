@@ -39,7 +39,7 @@ struct IChannelControl::RadioEntry {
     cModule *radioModule;  // the module that registered this radio interface
     cGate *radioInGate;  // gate on host module used to receive airframes
     int channel;
-    Coord pos; // cached radio position
+    inet::Coord pos; // cached radio position
 
     struct Compare {
         bool operator() (const RadioRef &lhs, const RadioRef &rhs) const {
@@ -135,7 +135,7 @@ class ChannelControl : public cSimpleModule, public IChannelControl
     virtual int getRadioChannel(RadioRef r) const { return r->channel; }
 
     /** To be called when the host moved; updates proximity info */
-    virtual void setRadioPosition(RadioRef r, const Coord& pos);
+    virtual void setRadioPosition(RadioRef r, const inet::Coord& pos);
 
     /** Called when host switches channel */
     virtual void setRadioChannel(RadioRef r, int channel);

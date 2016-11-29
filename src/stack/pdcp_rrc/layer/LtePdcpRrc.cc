@@ -30,8 +30,6 @@ LtePdcpRrcBase::~LtePdcpRrcBase()
         delete it->second;
     }
     entities_.clear();
-
-    delete tSample_;
 }
 
 void LtePdcpRrcBase::headerCompress(cPacket* pkt, int headerSize)
@@ -241,7 +239,6 @@ void LtePdcpRrcBase::initialize()
 
     // statistics
 
-    tSample_ = new TaggedSample();
     pdcpdrop0_ = registerSignal("pdcpdrop0");
     pdcpdrop1_ = registerSignal("pdcpdrop1");
     pdcpdrop2_ = registerSignal("pdcpdrop2");

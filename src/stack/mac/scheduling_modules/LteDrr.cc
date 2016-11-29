@@ -15,6 +15,9 @@ void LteDrr::prepareSchedule()
     activeTempList_ = activeList_;
     drrTempMap_ = drrMap_;
 
+    if (binder_ == NULL)
+        binder_ = getBinder();
+
     bool terminateFlag = false, activeFlag = true, eligibleFlag = true;
     unsigned int eligible = activeTempList_.size();
     // Loop until the active list is not empty and there is spare room.

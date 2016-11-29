@@ -627,16 +627,23 @@ void LteBinder::attachAppModule(cModule *parentModule, std::string IPAddr,
 //    }
 }
 
-void LteBinder::unregisterNode(MacNodeId id){
+void LteBinder::unregisterNode(MacNodeId id)
+{
+    EV << NOW << " LteBinder::unregisterNode - unregistering node " << id << endl;
+
     if(nodeIds_.erase(id) != 1){
         EV_ERROR << "Cannot unregister node - node id \"" << id << "\" - not found";
     }
     std::map<IPv4Address, MacNodeId>::iterator it;
-    for(it = macNodeIdToIPAddress_.begin(); it != macNodeIdToIPAddress_.end(); ){
-        if(it->second == id){
+    for(it = macNodeIdToIPAddress_.begin(); it != macNodeIdToIPAddress_.end(); )
+    {
+        if(it->second == id)
+        {
             macNodeIdToIPAddress_.erase(it++);
-        } else {
-                it++;
+        }
+        else
+        {
+            it++;
         }
     }
 }
@@ -701,7 +708,7 @@ void LteBinder::registerNextHop(MacNodeId masterId, MacNodeId slaveId)
 
 void LteBinder::initialize(int stage)
 {
-    if (stage == 0)
+    if (stage == inet::INITSTAGE_LOCAL)
     {
         const char * stringa;
 
@@ -726,22 +733,6 @@ void LteBinder::initialize(int stage)
 
         // execute node creation and setup.
         // nodesConfiguration();
-    }
-    if (stage == 1)
-    {
-        // all UEs completed registration, so build the table of D2D capabilities
-
-        // build and initialize the matrix of D2D peering capabilities
-        MacNodeId maxUe = macNodeIdCounter_[2];
-        d2dPeeringCapability_ = new bool*[maxUe];
-        for (int i=0; i<maxUe; i++)
-        {
-            d2dPeeringCapability_[i] = new bool[maxUe];
-            for (int j=0; j<maxUe; j++)
-            {
-                d2dPeeringCapability_[i][j] = false;
-            }
-        }
     }
 }
 
@@ -781,21 +772,35 @@ void LteBinder::unregisterNextHop(MacNodeId masterId, MacNodeId slaveId)
 OmnetId LteBinder::getOmnetId(MacNodeId nodeId)
 {
     std::map<int, OmnetId>::iterator it = nodeIds_.find(nodeId);
-    if(it != nodeIds_.end()){
+    if(it != nodeIds_.end())
         return it->second;
-    } else {
-        return 0;
-    }
+    return 0;
 }
 
 MacNodeId LteBinder::getMacNodeIdFromOmnetId(OmnetId id){
 	std::map<int, OmnetId>::iterator it;
-	for (it = nodeIds_.begin(); it != nodeIds_.end(); ++it ){
-	    if (it->second == id){
+	for (it = nodeIds_.begin(); it != nodeIds_.end(); ++it )
+	    if (it->second == id)
 	        return it->first;
-	    }
-	}
 	return 0;
+}
+
+LteMacBase* LteBinder::getMacFromMacNodeId(MacNodeId id)
+{
+    if (id == 0)
+        return NULL;
+
+    LteMacBase* mac;
+    if (macNodeIdToModule_.find(id) == macNodeIdToModule_.end())
+    {
+        mac = check_and_cast<LteMacBase*>(getMacByMacNodeId(id));
+        macNodeIdToModule_[id] = mac;
+    }
+    else
+    {
+        mac = macNodeIdToModule_[id];
+    }
+    return mac;
 }
 
 MacNodeId LteBinder::getNextHop(MacNodeId slaveId)
@@ -886,7 +891,9 @@ bool LteBinder::checkD2DCapability(MacNodeId src, MacNodeId dst)
     if (src < UE_MIN_ID || src >= macNodeIdCounter_[2] || dst < UE_MIN_ID || dst >= macNodeIdCounter_[2])
         throw cRuntimeError("LteBinder::checkD2DCapability - Node Id not valid. Src %d Dst %d", src, dst);
 
-    return d2dPeeringCapability_[src][dst];
+    if (d2dPeeringCapability_.find(src) != d2dPeeringCapability_.end() && d2dPeeringCapability_[src].find(dst) != d2dPeeringCapability_[src].end())
+        return d2dPeeringCapability_[src][dst];
+    return false;
 }
 
 std::map<MacNodeId, std::map<MacNodeId, LteD2DMode> >* LteBinder::getD2DPeeringModeMap()

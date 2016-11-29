@@ -36,27 +36,6 @@ class LteMacEnb : public LteMacBase
     simsignal_t activatedFrames_;
     simsignal_t sleepFrames_;
     simsignal_t wastedFrames_;
-    simsignal_t cqiDlSpmux0_;
-    simsignal_t cqiDlSpmux1_;
-    simsignal_t cqiDlSpmux2_;
-    simsignal_t cqiDlSpmux3_;
-    simsignal_t cqiDlSpmux4_;
-    simsignal_t cqiDlTxDiv0_;
-    simsignal_t cqiDlTxDiv1_;
-    simsignal_t cqiDlTxDiv2_;
-    simsignal_t cqiDlTxDiv3_;
-    simsignal_t cqiDlTxDiv4_;
-    simsignal_t cqiDlMuMimo0_;
-    simsignal_t cqiDlMuMimo1_;
-    simsignal_t cqiDlMuMimo2_;
-    simsignal_t cqiDlMuMimo3_;
-    simsignal_t cqiDlMuMimo4_;
-    simsignal_t cqiDlSiso0_;
-    simsignal_t cqiDlSiso1_;
-    simsignal_t cqiDlSiso2_;
-    simsignal_t cqiDlSiso3_;
-    simsignal_t cqiDlSiso4_;
-    TaggedSample* tSample_;
 
     /**
      * Variable used for Downlink energy consumption computation

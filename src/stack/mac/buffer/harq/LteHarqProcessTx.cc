@@ -237,7 +237,7 @@ unsigned char LteHarqProcessTx::getTransmissions(Codeword cw)
     return (*units_)[cw]->getTransmissions();
 }
 
-int64 LteHarqProcessTx::getPduLength(Codeword cw)
+inet::int64 LteHarqProcessTx::getPduLength(Codeword cw)
 {
     return (*units_)[cw]->getPduLength();
 }

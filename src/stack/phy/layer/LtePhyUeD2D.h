@@ -35,6 +35,7 @@ class LtePhyUeD2D : public LtePhyUe
     // ---------------------------------------------------------------- //
 
     virtual void initialize(int stage);
+    virtual void finish();
     virtual void handleAirFrame(cMessage* msg);
     virtual void handleUpperMessage(cMessage* msg);
     virtual void handleSelfMessage(cMessage *msg);

@@ -16,7 +16,6 @@ Define_Module(VoIPSender);
 
 VoIPSender::VoIPSender()
 {
-    initialized_ = false;
     selfSource_ = NULL;
     selfSender_ = NULL;
 }
@@ -29,12 +28,12 @@ VoIPSender::~VoIPSender()
 
 void VoIPSender::initialize(int stage)
 {
-    EV << "VoIP Sender initialize: stage " << stage << " - initialize=" << initialized_ << endl;
+    EV << "VoIP Sender initialize: stage " << stage << endl;
 
     cSimpleModule::initialize(stage);
 
     // avoid multiple initializations
-    if (stage!=inet::INITSTAGE_APPLICATION_LAYER || initialized_)
+    if (stage!=inet::INITSTAGE_APPLICATION_LAYER)
         return;
 
     durTalk_ = 0;
@@ -55,26 +54,10 @@ void VoIPSender::initialize(int stage)
     selfSender_ = new cMessage("selfSender");
     localPort_ = par("localPort");
     destPort_ = par("destPort");
-    destAddress_ = inet::L3AddressResolver().resolve(par("destAddress").stringValue());
-
     silences_ = par("silences");
 
-    socket.setOutputGate(gate("udpOut"));
-    socket.bind(localPort_);
-
-    EV << "VoIPSender::initialize - binding to port: local:" << localPort_ << " , dest: " << destAddress_.str() << ":" << destPort_ << endl;
-
-    // calculating traffic starting time
-    simtime_t startTime = par("startTime");
-
-    // TODO maybe un-necesessary
-    // this conversion is made in order to obtain ms-aligned start time, even in case of random generated ones
-    simtime_t offset = (round(SIMTIME_DBL(startTime)*1000)/1000)+simTime();
-
-    scheduleAt(offset,selfSource_);
-    EV << "\t starting traffic in " << offset << " seconds " << endl;
-
-    initialized_ = true;
+    initTraffic_ = new cMessage("initTraffic");
+    initTraffic();
 }
 
 void VoIPSender::handleMessage(cMessage *msg)
@@ -83,8 +66,45 @@ void VoIPSender::handleMessage(cMessage *msg)
     {
         if (!strcmp(msg->getName(), "selfSender"))
             sendVoIPPacket();
-        else
+        else if (!strcmp(msg->getName(), "selfSource"))
             selectPeriodTime();
+        else
+            initTraffic();
+    }
+}
+
+void VoIPSender::initTraffic()
+{
+    std::string destAddress = par("destAddress").stringValue();
+    cModule* destModule = getModuleByPath(par("destAddress").stringValue());
+    if (destModule == NULL)
+    {
+        // this might happen when users are created dynamically
+        EV << simTime() << "VoIPSender::initTraffic - destination " << destAddress << " not found" << endl;
+
+        simtime_t offset = 0.01; // TODO check value
+        scheduleAt(simTime()+offset, initTraffic_);
+        EV << simTime() << "VoIPSender::initTraffic - the node will retry to initialize traffic in " << offset << " seconds " << endl;
+    }
+    else
+    {
+        delete initTraffic_;
+
+        destAddress_ = inet::L3AddressResolver().resolve(par("destAddress").stringValue());
+        socket.setOutputGate(gate("udpOut"));
+        socket.bind(localPort_);
+
+        EV << simTime() << "VoIPSender::initialize - binding to port: local:" << localPort_ << " , dest: " << destAddress_.str() << ":" << destPort_ << endl;
+
+        // calculating traffic starting time
+        simtime_t startTime = par("startTime");
+
+        // TODO maybe un-necesessary
+        // this conversion is made in order to obtain ms-aligned start time, even in case of random generated ones
+        simtime_t offset = (round(SIMTIME_DBL(startTime)*1000)/1000);
+
+        scheduleAt(simTime()+startTime, selfSource_);
+        EV << "\t starting traffic in " << startTime << " seconds " << endl;
     }
 }
 

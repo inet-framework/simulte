@@ -15,6 +15,9 @@ void LtePf::prepareSchedule()
     EV << NOW << "LtePf::execSchedule ############### eNodeB " << eNbScheduler_->mac_->getMacNodeId() << " ###############" << endl;
     EV << NOW << "LtePf::execSchedule Direction: " << ( ( direction_ == DL ) ? " DL ": " UL ") << endl;
 
+    if (binder_ == NULL)
+        binder_ = getBinder();
+
     // Clear structures
     grantedBytes_.clear();
 
@@ -32,6 +35,14 @@ void LtePf::prepareSchedule()
         MacCid cid = *cidIt;
         ++cidIt;
         MacNodeId nodeId = MacCidToNodeId(cid);
+        OmnetId id = binder_->getOmnetId(nodeId);
+        if(nodeId == 0 || id == 0)
+        {
+            // node has left the simulation - erase corresponding CIDs
+            activeConnectionSet_.erase(cid);
+            activeConnectionTempSet_.erase(cid);
+            continue;
+        }
 
         // if we are allocating the UL subframe, this connection may be either UL or D2D
         Direction dir;

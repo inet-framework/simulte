@@ -117,7 +117,7 @@ class LteDeployer : public cSimpleModule
     double mcsScaleDl_;
 
     // Position of each UE
-    std::map<MacNodeId, Coord> uePosition;
+    std::map<MacNodeId, inet::Coord> uePosition;
 
     std::map<MacNodeId, Lambda> lambdaMap_;
     protected:
@@ -334,17 +334,17 @@ class LteDeployer : public cSimpleModule
     {
         return nodeY_;
     }
-    Coord getUePosition(MacNodeId id)
+    inet::Coord getUePosition(MacNodeId id)
     {
         return uePosition[id];
     }
-    void setUePosition(MacNodeId id, Coord c)
+    void setUePosition(MacNodeId id, inet::Coord c)
     {
         uePosition[id] = c;
     }
 
     // changes eNb position (used for micro deployment)
-    void setEnbPosition(Coord c)
+    void setEnbPosition(inet::Coord c)
     {
         nodeX_ = c.x;
         nodeY_ = c.y;

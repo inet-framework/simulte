@@ -14,6 +14,9 @@
 
 Define_Module(UmRxEntity);
 
+unsigned int UmRxEntity::totalCellPduRcvdBytes_ = 0;
+unsigned int UmRxEntity::totalCellRcvdBytes_ = 0;
+
 UmRxEntity::UmRxEntity() :
     t_reordering_(this)
 {
@@ -137,22 +140,18 @@ void UmRxEntity::enque(cPacket* pkt)
     else  // UL. This module is at the eNB: get the node id of the sender
         ueId = lteInfo->getSourceId();
 
+    totalPduRcvdBytes_ += pdu->getByteLength();
+    double tputSample = (double)totalPduRcvdBytes_ / (NOW - getSimulation()->getWarmupPeriod());
     cModule* ue = getRlcByMacNodeId(ueId, UM);
-    tSample_->id_ = ueId;
-    tSample_->module_ = ue;
     if (lteInfo->getDirection() != D2D && lteInfo->getDirection() != D2D_MULTI)  // UE in IM
     {
-        tSample_->sample_ = pdu->getByteLength();
-        ue->emit(rlcPduThroughput_, tSample_);
-        tSample_->sample_ = (NOW - pdu->getCreationTime()).dbl();
-        ue->emit(rlcPduDelay_, tSample_);
+        ue->emit(rlcPduThroughput_, tputSample);
+        ue->emit(rlcPduDelay_, (NOW - pdu->getCreationTime()).dbl());
     }
     else // UE in DM
     {
-        tSample_->sample_ = pdu->getByteLength();
-        ue->emit(rlcPduThroughputD2D_, tSample_);
-        tSample_->sample_ = (NOW - pdu->getCreationTime()).dbl();
-        ue->emit(rlcPduDelayD2D_, tSample_);
+        ue->emit(rlcPduThroughputD2D_, tputSample);
+        ue->emit(rlcPduDelayD2D_, (NOW - pdu->getCreationTime()).dbl());
     }
 
     EV << NOW << " UmRxEntity::enque - tsn " << tsn << ", the corresponding index after shift in the buffer is " << index << endl;
@@ -255,61 +254,52 @@ void UmRxEntity::toPdcp(LteRlcSdu* rlcSdu)
         ueId = lteInfo->getSourceId();
 
     cModule* ue = getRlcByMacNodeId(ueId, UM);
-    tSample_->id_ = ueId;
-    tSample_->module_ = ue;
-
     // check whether some PDCP PDUs have not been delivered
     while (sno > lastSnoDelivered_+1)
     {
         // emit statistic: packet loss
-        tSample_->sample_ = 1;
         if (lteInfo->getDirection() != D2D && lteInfo->getDirection() != D2D_MULTI)
-            ue->emit(rlcPacketLoss_, tSample_);
+            ue->emit(rlcPacketLoss_, 1.0);
         else
-            ue->emit(rlcPacketLossD2D_, tSample_);
-
-        ue->emit(rlcPacketLossTotal_, tSample_);
-
-        tSampleCell_->sample_ = 1;
-        nodeB_->emit(rlcCellPacketLoss_, tSampleCell_);
-
+            ue->emit(rlcPacketLossD2D_, 1.0);
+        ue->emit(rlcPacketLossTotal_, 1.0);
+        nodeB_->emit(rlcCellPacketLoss_, 1.0);
         lastSnoDelivered_++;
     }
     // update the last sno delivered to the current sno
     lastSnoDelivered_ = sno;
 
     // emit statistic: throughput
-    tSample_->sample_ = length;
-    tSampleCell_->sample_ = length;
-    nodeB_->emit(rlcCellThroughput_, tSampleCell_);
+    totalCellRcvdBytes_ += length;
+    totalRcvdBytes_ += length;
+    double cellTputSample = (double)totalCellRcvdBytes_ / (NOW - getSimulation()->getWarmupPeriod());
+    double tputSample = (double)totalRcvdBytes_ / (NOW - getSimulation()->getWarmupPeriod());
+
+    nodeB_->emit(rlcCellThroughput_, cellTputSample);
     if (lteInfo->getDirection() != D2D && lteInfo->getDirection() != D2D_MULTI)  // UE in IM
     {
-        ue->emit(rlcThroughput_, tSample_);
+        ue->emit(rlcThroughput_, tputSample);
     }
     else
     {
-        ue->emit(rlcThroughputD2D_, tSample_);
+        ue->emit(rlcThroughputD2D_, tputSample);
     }
 
     // emit statistic: packet loss
-    tSample_->sample_ = 0;
-    tSampleCell_->sample_ = 0;
-    nodeB_->emit(rlcCellPacketLoss_, tSampleCell_);
+    nodeB_->emit(rlcCellPacketLoss_, 0.0);
     if (lteInfo->getDirection() != D2D && lteInfo->getDirection() != D2D_MULTI)  // UE in IM
     {
-        ue->emit(rlcPacketLoss_, tSample_);
-        ue->emit(rlcPacketLossTotal_, tSample_);
+        ue->emit(rlcPacketLoss_, 0.0);
+        ue->emit(rlcPacketLossTotal_, 0.0);
         // emit statistic: delay
-        tSample_->sample_ = (NOW - ts).dbl();
-        ue->emit(rlcDelay_, tSample_);
+        ue->emit(rlcDelay_, (NOW - ts).dbl());
     }
     else
     {
-        ue->emit(rlcPacketLossD2D_, tSample_);
-        ue->emit(rlcPacketLossTotal_, tSample_);
+        ue->emit(rlcPacketLossD2D_, 0.0);
+        ue->emit(rlcPacketLossTotal_, 0.0);
         // emit statistic: delay
-        tSample_->sample_ = (NOW - ts).dbl();
-        ue->emit(rlcDelayD2D_, tSample_);
+        ue->emit(rlcDelayD2D_, (NOW - ts).dbl());
     }
 
     EV << NOW << " UmRxEntity::toPdcp Created PDCP PDU with length " <<  pdcpPdu->getByteLength() << " bytes" << endl;
@@ -641,21 +631,17 @@ void UmRxEntity::reassemble(unsigned int index)
         ueId = lteInfo->getSourceId();
 
     cModule* ue = getRlcByMacNodeId(ueId, UM);
-    tSample_->id_ = ueId;
-    tSample_->module_ = ue;
-
     // check whether some PDCP PDUs have not been delivered
     while (pduSno > lastPduReassembled_+1)
     {
         // emit statistic: packet loss
-        tSample_->sample_ = 1;
         if (lteInfo->getDirection() != D2D && lteInfo->getDirection() != D2D_MULTI)  // UE in IM
         {
-            ue->emit(rlcPduPacketLoss_, tSample_);
+            ue->emit(rlcPduPacketLoss_, 1.0);
         }
         else
         {
-            ue->emit(rlcPduPacketLossD2D_, tSample_);
+            ue->emit(rlcPduPacketLossD2D_, 1.0);
         }
 
         lastPduReassembled_++;
@@ -665,14 +651,13 @@ void UmRxEntity::reassemble(unsigned int index)
     lastPduReassembled_ = pduSno;
 
     // emit statistic: packet loss
-    tSample_->sample_ = 0;
     if (lteInfo->getDirection() != D2D && lteInfo->getDirection() != D2D_MULTI)  // UE in IM
     {
-        ue->emit(rlcPduPacketLoss_, tSample_);
+        ue->emit(rlcPduPacketLoss_, 0.0);
     }
     else
     {
-        ue->emit(rlcPduPacketLossD2D_, tSample_);
+        ue->emit(rlcPduPacketLossD2D_, 0.0);
     }
 
     delete lteInfo;
@@ -691,17 +676,14 @@ void UmRxEntity::initialize()
     rxWindowDesc_.windowSize_ = par("rxWindowSize");
     received_.resize(rxWindowDesc_.windowSize_);
 
-    tSampleCell_ = new TaggedSample();
-    tSample_ = new TaggedSample();
+    totalRcvdBytes_ = 0;
+    totalPduRcvdBytes_ = 0;
 
     cModule* parent = check_and_cast<LteRlcUm*>(getParentModule()->getSubmodule("um"));
     //statistics
     LteMacBase* mac = check_and_cast<LteMacBase*>(getParentModule()->getParentModule()->getSubmodule("mac"));
 
     nodeB_ = getRlcByMacNodeId(mac->getMacCellId(), UM);
-
-    tSampleCell_->id_ = mac->getMacCellId();
-    tSampleCell_->module_ = nodeB_;
 
     resetFlag_ = false;
 
@@ -728,8 +710,6 @@ void UmRxEntity::initialize()
 
         rlcCellThroughput_ = nodeB_->registerSignal("rlcCellThroughputDl");
         rlcCellPacketLoss_ = nodeB_->registerSignal("rlcCellPacketLossDl");
-
-
     }
 
     rlcPacketLossD2D_ = parent->registerSignal("rlcPacketLossD2D");

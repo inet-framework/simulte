@@ -22,6 +22,7 @@
 
 #include "inet/common/INETDefs.h"
 #include "inet/common/geometry/common/Coord.h"
+#include "stack/phy/packet/AirFrame_m.h"
 
 using namespace inet;
 
@@ -59,7 +60,7 @@ class IChannelControl
     virtual int getRadioChannel(RadioRef r) const = 0;
 
     /** To be called when the host moved; updates proximity info */
-    virtual void setRadioPosition(RadioRef r, const Coord& pos) = 0;
+    virtual void setRadioPosition(RadioRef r, const inet::Coord& pos) = 0;
 
     /** Called when host switches channel */
     virtual void setRadioChannel(RadioRef r, int channel) = 0;

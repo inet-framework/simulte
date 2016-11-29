@@ -42,6 +42,7 @@ module LteNicBase like ILteNic
     parameters:
         @display("i=block/ifcard;bgb=250,444;bgl=3");
         string interfaceTableModule;
+        string routingTableModule;
         string LtePdcpRrcType;      // One of: "LtePdcpRrcUe", "LtePdcpRrcEnb", "LtePdcpRrcRelayUe", "LtePdcpRrcRelayEnb"
         string LteMacType;          // One of: "LteMacUe", "LteMacEnb", "LteMacEnbExperimental", "LteMacRelayUe", "LteMacRelayEnb"
         string LtePhyType;
@@ -64,6 +65,7 @@ module LteNicBase like ILteNic
         ip2lte: IP2lte {
             nodeType = nodeType;
             interfaceTableModule = interfaceTableModule;
+            routingTableModule = routingTableModule;
             @display("p=150,68");
         }
         // PDCP-RRC Layer

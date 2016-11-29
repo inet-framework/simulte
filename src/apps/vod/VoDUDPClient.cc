@@ -36,6 +36,8 @@ void VoDUDPClient::initialize(int stage)
     if (outfile.bad()) /* File is bad */
         throw cRuntimeError("Error while opening output file (File not found or incorrect type)");
 
+    totalRcvdBytes_ = 0;
+
     cMessage* timer = new cMessage("Timer");
     chdir("../workspace/lte/simulations/dynamicnetwork");
     scheduleAt(simTime(), timer);
@@ -48,8 +50,6 @@ void VoDUDPClient::initialize(int stage)
     delayLayer1_ = registerSignal("VoDDelayLayer1");
     delayLayer2_ = registerSignal("VoDDelayLayer2");
     delayLayer3_ = registerSignal("VoDDelayLayer3");
-    tSample_ = new TaggedSample();
-    tSample_->module_ = check_and_cast<cComponent*>(this);
 }
 
 void VoDUDPClient::finish()
@@ -139,31 +139,28 @@ void VoDUDPClient::receiveStream(VoDPacket *msg)
     int frameLength = msg->getFrameLength();
     simtime_t delay = simTime() - sendingTime;
     int layer = msg->getQid();
-    tSample_->sample_ = msg->getByteLength();
-    tSample_->id_ = 0;
+
+    totalRcvdBytes_ += msg->getByteLength();
+    double tputSample = (double)totalRcvdBytes_ / (simTime() - getSimulation()->getWarmupPeriod());
     if (layer == 0)
     {
-        emit(tptLayer0_, tSample_);
-        tSample_->sample_ = delay.dbl();
-        emit(delayLayer0_, tSample_);
+        emit(tptLayer0_, tputSample);
+        emit(delayLayer0_, delay.dbl());
     }
     else if (layer == 1)
     {
-        emit(tptLayer1_, tSample_);
-        tSample_->sample_ = delay.dbl();
-        emit(delayLayer1_, tSample_);
+        emit(tptLayer1_, tputSample);
+        emit(delayLayer1_, delay.dbl());
     }
     else if (layer == 2)
     {
-        emit(tptLayer2_, tSample_);
-        tSample_->sample_ = delay.dbl();
-        emit(delayLayer2_, tSample_);
+        emit(tptLayer2_, tputSample);
+        emit(delayLayer2_, delay.dbl());
     }
     else if (layer == 3)
     {
-        emit(tptLayer3_, tSample_);
-        tSample_->sample_ = delay.dbl();
-        emit(delayLayer3_, tSample_);
+        emit(tptLayer3_, tputSample);
+        emit(delayLayer3_, delay.dbl());
     }
     //    outfile << seqNum << "\t" << frameLength << "\t" << delay << endl;
 

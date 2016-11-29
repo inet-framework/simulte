@@ -539,7 +539,7 @@ cModule* getMacByMacNodeId(MacNodeId nodeId)
 		return NULL;
 	}
 	// TODO fix for relays
-	return (getSimulation()->getModule(getBinder()->getOmnetId(nodeId))->getSubmodule("nic")->getSubmodule("mac"));
+	return (getSimulation()->getModule(getBinder()->getOmnetId(nodeId))->getSubmodule("lteNic")->getSubmodule("mac"));
 }
 
 cModule* getRlcByMacNodeId(MacNodeId nodeId, LteRlcType rlcType)

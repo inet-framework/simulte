@@ -46,7 +46,7 @@ UserControlInfo& UserControlInfo::operator=(const UserControlInfo& other)
     return *this;
 }
 
-void UserControlInfo::setCoord(const Coord& coord)
+void UserControlInfo::setCoord(const inet::Coord& coord)
 {
     senderCoord = coord;
 }
@@ -60,7 +60,7 @@ void UserControlInfo::setUserTxParams(const UserTxParams *newParams)
 }
 
 
-Coord UserControlInfo::getCoord() const
+inet::Coord UserControlInfo::getCoord() const
 {
     return senderCoord;
 }

@@ -64,7 +64,33 @@ void LteMacUe::initialize(int stage)
 {
     LteMacBase::initialize(stage);
     if (stage == INITSTAGE_LOCAL)
+    {
         lcgScheduler_ = new LteSchedulerUeUl(this);
+
+        cqiDlMuMimo0_ = registerSignal("cqiDlMuMimo0");
+        cqiDlMuMimo1_ = registerSignal("cqiDlMuMimo1");
+        cqiDlMuMimo2_ = registerSignal("cqiDlMuMimo2");
+        cqiDlMuMimo3_ = registerSignal("cqiDlMuMimo3");
+        cqiDlMuMimo4_ = registerSignal("cqiDlMuMimo4");
+
+        cqiDlTxDiv0_ = registerSignal("cqiDlTxDiv0");
+        cqiDlTxDiv1_ = registerSignal("cqiDlTxDiv1");
+        cqiDlTxDiv2_ = registerSignal("cqiDlTxDiv2");
+        cqiDlTxDiv3_ = registerSignal("cqiDlTxDiv3");
+        cqiDlTxDiv4_ = registerSignal("cqiDlTxDiv4");
+
+        cqiDlSpmux0_ = registerSignal("cqiDlSpmux0");
+        cqiDlSpmux1_ = registerSignal("cqiDlSpmux1");
+        cqiDlSpmux2_ = registerSignal("cqiDlSpmux2");
+        cqiDlSpmux3_ = registerSignal("cqiDlSpmux3");
+        cqiDlSpmux4_ = registerSignal("cqiDlSpmux4");
+
+        cqiDlSiso0_ = registerSignal("cqiDlSiso0");
+        cqiDlSiso1_ = registerSignal("cqiDlSiso1");
+        cqiDlSiso2_ = registerSignal("cqiDlSiso2");
+        cqiDlSiso3_ = registerSignal("cqiDlSiso3");
+        cqiDlSiso4_ = registerSignal("cqiDlSiso4");
+    }
     else if (stage == INITSTAGE_PHYSICAL_ENVIRONMENT)
     {
         /* Insert UeInfo in the Binder */
@@ -75,9 +101,17 @@ void LteMacUe::initialize(int stage)
         info->ue = this->getParentModule()->getParentModule();  // reference to the UE module
 
         // Get the Physical Channel reference of the node
-        info->phy = check_and_cast<LtePhyBase*>(info->ue->getSubmodule("nic")->getSubmodule("phy"));
+        info->phy = check_and_cast<LtePhyBase*>(info->ue->getSubmodule("lteNic")->getSubmodule("phy"));
 
         binder_->addUeInfo(info);
+
+        if (NOW > 0)
+        {
+            // only for UEs that have been added dynamically to the simulation
+            LteAmc *amc = check_and_cast<LteMacEnb *>(getSimulation()->getModule(binder_->getOmnetId(cellId_))->getSubmodule("lteNic")->getSubmodule("mac"))->getAmc();
+            amc->attachUser(nodeId_, UL);
+            amc->attachUser(nodeId_, DL);
+        }
     }
     else if (stage == INITSTAGE_NETWORK_LAYER_3)
     {
@@ -736,4 +770,107 @@ void LteMacUe::deleteQueues(MacNodeId nodeId)
     // remove traffic descriptor and lcg entry
     lcgMap_.clear();
     connDesc_.clear();
+}
+
+void LteMacUe::collectCqiStatistics(MacNodeId id, Direction dir, LteFeedback fb)
+{
+    if (dir == DL)
+    {
+        if (fb.getTxMode() == SINGLE_ANTENNA_PORT0)
+        {
+            for (unsigned int i = 0; i < fb.getBandCqi(0).size(); i++)
+            {
+                switch (i)
+                {
+                    case 0:
+                        emit(cqiDlSiso0_, (long)fb.getBandCqi(0)[i]);
+                        break;
+                    case 1:
+                        emit(cqiDlSiso1_, (long)fb.getBandCqi(0)[i]);
+                        break;
+                    case 2:
+                        emit(cqiDlSiso2_, (long)fb.getBandCqi(0)[i]);
+                        break;
+                    case 3:
+                        emit(cqiDlSiso3_, (long)fb.getBandCqi(0)[i]);
+                        break;
+                    case 4:
+                        emit(cqiDlSiso4_, (long)fb.getBandCqi(0)[i]);
+                        break;
+                }
+            }
+        }
+        else if (fb.getTxMode() == TRANSMIT_DIVERSITY)
+        {
+            for (unsigned int i = 0; i < fb.getBandCqi(0).size(); i++)
+            {
+                switch (i)
+                {
+                    case 0:
+                        emit(cqiDlTxDiv0_, (long)fb.getBandCqi(0)[i]);
+                        break;
+                    case 1:
+                        emit(cqiDlTxDiv1_, (long)fb.getBandCqi(0)[i]);
+                        break;
+                    case 2:
+                        emit(cqiDlTxDiv2_, (long)fb.getBandCqi(0)[i]);
+                        break;
+                    case 3:
+                        emit(cqiDlTxDiv3_, (long)fb.getBandCqi(0)[i]);
+                        break;
+                    case 4:
+                        emit(cqiDlTxDiv4_, (long)fb.getBandCqi(0)[i]);
+                        break;
+                }
+            }
+        }
+        else if (fb.getTxMode() == OL_SPATIAL_MULTIPLEXING)
+        {
+            for (unsigned int i = 0; i < fb.getBandCqi(0).size(); i++)
+            {
+                switch (i)
+                {
+                    case 0:
+                        emit(cqiDlSpmux0_, (long)fb.getBandCqi(0)[i]);
+                        break;
+                    case 1:
+                        emit(cqiDlSpmux1_, (long)fb.getBandCqi(0)[i]);
+                        break;
+                    case 2:
+                        emit(cqiDlSpmux2_, (long)fb.getBandCqi(0)[i]);
+                        break;
+                    case 3:
+                        emit(cqiDlSpmux3_, (long)fb.getBandCqi(0)[i]);
+                        break;
+                    case 4:
+                        emit(cqiDlSpmux4_, (long)fb.getBandCqi(0)[i]);
+                        break;
+                }
+            }
+        }
+        else if (fb.getTxMode() == MULTI_USER)
+        {
+            for (unsigned int i = 0; i < fb.getBandCqi(0).size(); i++)
+            {
+                switch (i)
+                {
+                    case 0:
+                        emit(cqiDlMuMimo0_, (long)fb.getBandCqi(0)[i]);
+                        break;
+                    case 1:
+                        emit(cqiDlMuMimo1_, (long)fb.getBandCqi(0)[i]);
+                        break;
+                    case 2:
+                        emit(cqiDlMuMimo2_, (long)fb.getBandCqi(0)[i]);
+                        break;
+                    case 3:
+                        emit(cqiDlMuMimo3_, (long)fb.getBandCqi(0)[i]);
+                        break;
+                    case 4:
+                        emit(cqiDlMuMimo4_, (long)fb.getBandCqi(0)[i]);
+                        break;
+                }
+            }
+        }
+    }
 }

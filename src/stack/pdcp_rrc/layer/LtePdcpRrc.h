@@ -265,8 +265,6 @@ class LtePdcpRrcBase : public cSimpleModule
      */
     LtePdcpEntity* getEntity(LogicalCid lcid);
 
-    TaggedSample* tSample_;
-
     simsignal_t pdcpdrop0_;
     simsignal_t pdcpdrop1_;
     simsignal_t pdcpdrop2_;

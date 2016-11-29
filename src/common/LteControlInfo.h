@@ -15,8 +15,6 @@
 
 class UserTxParams;
 
-using namespace inet;
-
 /**
  * @class UserControlInfo
  * @brief ControlInfo used in the Lte model
@@ -34,7 +32,7 @@ class UserControlInfo : public UserControlInfo_Base
     /** @brief The movement of the sending host.*/
     //Move senderMovement;
     /** @brief The playground position of the sending host.*/
-    Coord senderCoord;
+    inet::Coord senderCoord;
 
   public:
 
@@ -101,8 +99,8 @@ class UserControlInfo : public UserControlInfo_Base
 
     // struct used to request a feedback computation by nodeB
     FeedbackRequest feedbackReq;
-    void setCoord(const Coord& coord);
-    Coord getCoord() const;
+    void setCoord(const inet::Coord& coord);
+    inet::Coord getCoord() const;
 };
 
 Register_Class(UserControlInfo);

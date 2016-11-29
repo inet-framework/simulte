@@ -190,15 +190,6 @@ void LtePhyEnb::handleAirFrame(cMessage* msg)
     if (handleControlPkt(lteInfo, frame))
         return; // If frame contain a control pkt no further action is needed
 
-    if ((lteInfo->getUserTxParams()) != NULL)
-    {
-        double cqi = lteInfo->getUserTxParams()->readCqiVector()[lteInfo->getCw()];
-        tSample_->sample_ = cqi;
-        tSample_->id_ = lteInfo->getSourceId();
-        tSample_->module_ = getMacByMacNodeId(lteInfo->getSourceId());
-        emit(averageCqiUl_, tSample_);
-        emit(averageCqiUlvect_,cqi);
-    }
     bool result = true;
     RemoteSet r = lteInfo->getUserTxParams()->readAntennaSet();
     if (r.size() > 1)

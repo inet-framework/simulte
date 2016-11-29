@@ -30,7 +30,7 @@ class LteDummyChannelModel : public LteChannelModel
     /*
      * Compute Attenuation caused by pathloss and shadowing (optional)
      */
-    virtual double getAttenuation(MacNodeId nodeId, Direction dir, Coord coord)
+    virtual double getAttenuation(MacNodeId nodeId, Direction dir, inet::Coord coord)
     {
         return 0;
     }
@@ -60,15 +60,15 @@ class LteDummyChannelModel : public LteChannelModel
     /*
      * Compute Received useful signal for D2D transmissions
      */
-    virtual std::vector<double> getRSRP_D2D(LteAirFrame *frame, UserControlInfo* lteInfo_1, MacNodeId destId, Coord destCoord);
+    virtual std::vector<double> getRSRP_D2D(LteAirFrame *frame, UserControlInfo* lteInfo_1, MacNodeId destId, inet::Coord destCoord);
     /*
      * Compute FAKE sinr (D2D) for each band for user nodeId according to pathloss, shadowing (optional) and multipath fading
      *
      * @param frame pointer to the packet
      * @param lteinfo pointer to the user control info
      */
-    virtual std::vector<double> getSINR_D2D(LteAirFrame *frame, UserControlInfo* lteInfo_1, MacNodeId destId, Coord destCoord,MacNodeId enbId);
-    virtual std::vector<double> getSINR_D2D(LteAirFrame *frame, UserControlInfo* lteInfo_1, MacNodeId destId, Coord destCoord,MacNodeId enbId,std::vector<double> rsrpVector);
+    virtual std::vector<double> getSINR_D2D(LteAirFrame *frame, UserControlInfo* lteInfo_1, MacNodeId destId, inet::Coord destCoord,MacNodeId enbId);
+    virtual std::vector<double> getSINR_D2D(LteAirFrame *frame, UserControlInfo* lteInfo_1, MacNodeId destId, inet::Coord destCoord,MacNodeId enbId,std::vector<double> rsrpVector);
     //TODO
     virtual bool errorDas(LteAirFrame *frame, UserControlInfo* lteI)
     {

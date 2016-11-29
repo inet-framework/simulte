@@ -39,8 +39,6 @@ simple VoIPReceiver like IUDPApp
         @signal[voIPTaildropLoss];
         @statistic[voIPTaildropLoss](title="VoIP Tail Drop Loss"; unit="ratio"; source="voIPTaildropLoss"; record=mean,vector);
         
-        @signal[voipReceivedThroughtput_lte];
-        @statistic[voipReceivedThroughtput_lte](title="Throughput received at the application level"; unit="Bps"; source="voipReceivedThroughtput_lte"; record=lteRate);
         @signal[voipReceivedThroughtput];
         @statistic[voipReceivedThroughtput](title="Throughput received at the application level"; unit="Bps"; source="voipReceivedThroughtput"; record=timeavg,mean,vector,sum);
         @display("i=block/source");

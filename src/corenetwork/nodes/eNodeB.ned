@@ -84,16 +84,18 @@ module eNodeB
         }
 
         //#
-        //# NIC modules
+        //# lteNic modules
         //#
-        nic: <nicType> like ILteNic {
+        lteNic: <nicType> like ILteNic {
             nodeType = nodeType;
             d2dCapable = d2dCapable;
             @display("p=250,407");
         }
+
         pppIf: PPPInterface {
             @display("p=501,363");
         }
+        
         x2ppp[sizeof(x2)]: PPPInterface {
             @display("p=683,363");
         }
@@ -153,9 +155,9 @@ module eNodeB
         //#
         //# LTE stack to PHY and network layer
         //#        
-        nic.radioIn <-- radioIn;
-        nic.upperLayerOut --> trafficFlowFilter.internetFilterGateIn;
-        nic.upperLayerIn <-- gtpUser.pppGate;
+        lteNic.radioIn <-- radioIn;
+        lteNic.upperLayerOut --> trafficFlowFilter.internetFilterGateIn;
+        lteNic.upperLayerIn <-- gtpUser.pppGate;
         trafficFlowFilter.gtpUserGateOut --> gtpUser.trafficFlowFilterGate;
         gtpUser.udpOut --> udp.appIn++;
         gtpUser.udpIn <-- udp.appOut++;
@@ -169,8 +171,8 @@ module eNodeB
         pppIf.upperLayerIn <-- networkLayer.ifOut++;
 
 
-        gtpUserX2.lteStackOut --> nic.x2$i++;
-        gtpUserX2.lteStackIn <-- nic.x2$o++;
+        gtpUserX2.lteStackOut --> lteNic.x2$i++;
+        gtpUserX2.lteStackIn <-- lteNic.x2$o++;
         gtpUserX2.udpOut --> udp.appIn++;
         gtpUserX2.udpIn <-- udp.appOut++;
 
@@ -200,8 +202,8 @@ module eNodeB
 
             x2App[i].sctpOut[1] --> sctp.from_appl++;
             x2App[i].sctpIn[1] <-- sctp.to_appl++;
-            x2App[i].x2ManagerIn <-- nic.x2$o++;
-            x2App[i].x2ManagerOut --> nic.x2$i++;
+            x2App[i].x2ManagerIn <-- lteNic.x2$o++;
+            x2App[i].x2ManagerOut --> lteNic.x2$i++;
         }
 
         //# 

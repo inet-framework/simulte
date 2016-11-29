@@ -820,7 +820,7 @@ std::vector<double> LteRealisticChannelModel::getSINR(LteAirFrame *frame, UserCo
         //get tx angle
         LtePhyBase* ltePhy = check_and_cast<LtePhyBase*>(
                 getSimulation()->getModule(binder_->getOmnetId(eNbId))->getSubmodule(
-                        "nic")->getSubmodule("phy"));
+                        "lteNic")->getSubmodule("phy"));
 
         if (ltePhy->getTxDirection() == ANISOTROPIC)
         {
@@ -2300,7 +2300,7 @@ LteRealisticChannelModel::JakesFadingMap * LteRealisticChannelModel::obtainUeJak
 {
     // obtain a reference to UE phy
     LtePhyBase * ltePhy = check_and_cast<LtePhyBase*>(
-            getSimulation()->getModule(binder_->getOmnetId(id))->getSubmodule("nic")->getSubmodule("phy"));
+            getSimulation()->getModule(binder_->getOmnetId(id))->getSubmodule("lteNic")->getSubmodule("phy"));
 
     // get the associated channel and get a reference to its Jakes Map
     LteRealisticChannelModel * re = dynamic_cast<LteRealisticChannelModel *>(ltePhy->getChannelModel());
@@ -2339,7 +2339,7 @@ bool LteRealisticChannelModel::computeMultiCellInterference(MacNodeId eNbId, Mac
         if(!(*it)->init)
         {
             // obtain a reference to enb phy and obtain tx power
-            ltePhy = check_and_cast<LtePhyBase*>(getSimulation()->getModule(binder_->getOmnetId(id))->getSubmodule("nic")->getSubmodule("phy"));
+            ltePhy = check_and_cast<LtePhyBase*>(getSimulation()->getModule(binder_->getOmnetId(id))->getSubmodule("lteNic")->getSubmodule("phy"));
             (*it)->txPwr = ltePhy->getTxPwr();//dBm
 
             // get tx direction
@@ -2433,7 +2433,7 @@ bool LteRealisticChannelModel::computeInCellD2DInterference(MacNodeId eNbId, Mac
     band_status.resize(band_,false);
 
     // Get PhyData from the destId
-    ltePhy_destId = check_and_cast<LtePhyBase*>(getSimulation()->getModule(binder_->getOmnetId(destId))->getSubmodule("nic")->getSubmodule("phy"));
+    ltePhy_destId = check_and_cast<LtePhyBase*>(getSimulation()->getModule(binder_->getOmnetId(destId))->getSubmodule("lteNic")->getSubmodule("phy"));
     EV<<NOW<<"ComputeInCellD2DInterference for Node: "<<destId<<endl;
 
     // Get the list of all UEs

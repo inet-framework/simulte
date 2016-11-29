@@ -81,7 +81,7 @@ module Ue
         udp: UDP if numUdpApps>0 {
             @display("p=325,150");
         }
-        nic: <nicType> like ILteNic {
+        lteNic: <nicType> like ILteNic {
             nodeType = nodeType;
             d2dCapable = d2dCapable;
             @display("p=250,407");
@@ -112,8 +112,8 @@ module Ue
         udp.ipOut --> networkLayer.transportIn++ if numUdpApps>0;
         udp.ipIn <-- networkLayer.transportOut++ if numUdpApps>0;
 
-        nic.radioIn <-- radioIn;
+        lteNic.radioIn <-- radioIn;
 
-        networkLayer.ifOut++ --> nic.upperLayerIn;
-        networkLayer.ifIn++ <-- nic.upperLayerOut;
+        networkLayer.ifOut++ --> lteNic.upperLayerIn;
+        networkLayer.ifIn++ <-- lteNic.upperLayerOut;
 }

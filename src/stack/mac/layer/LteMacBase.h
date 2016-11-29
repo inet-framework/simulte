@@ -56,6 +56,8 @@ class LteMacBase : public cSimpleModule
     friend class LteHarqBufferRxD2D;
 
   protected:
+
+    unsigned int totalOverflowedBytes_;
     simsignal_t macBufferOverflowDl_;
     simsignal_t macBufferOverflowUl_;
     simsignal_t macBufferOverflowD2D_;
@@ -63,11 +65,8 @@ class LteMacBase : public cSimpleModule
     simsignal_t receivedPacketFromLowerLayer;
     simsignal_t sentPacketToUpperLayer;
     simsignal_t sentPacketToLowerLayer;
-
     simsignal_t measuredItbs_;
-    simsignal_t measuredItbs_lte_;
 
-    TaggedSample* tSample_;
     /*
      * Data Structures
      */

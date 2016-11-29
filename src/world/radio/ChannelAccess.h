@@ -54,8 +54,9 @@ class ChannelAccess : public cSimpleModule, public cListener
     IChannelControl* cc;  // Pointer to the ChannelControl module
     IChannelControl::RadioRef myRadioRef;  // Identifies this radio in the ChannelControl module
     cModule *hostModule;    // the host that contains this radio model
-    Coord radioPos;  // the physical position of the radio (derived from display string or from mobility models)
+    inet::Coord radioPos;  // the physical position of the radio (derived from display string or from mobility models)
     bool positionUpdateArrived;
+    simsignal_t veinsmobilityStateChanged_;
 
   public:
     ChannelAccess() : cc(NULL), myRadioRef(NULL), hostModule(NULL) {}
@@ -76,7 +77,7 @@ class ChannelAccess : public cSimpleModule, public cListener
     virtual void sendToChannel(AirFrame *msg);
 
     virtual cPar& getChannelControlPar(const char *parName) { return dynamic_cast<cModule *>(cc)->par(parName); }
-    const Coord& getRadioPosition() const { return radioPos; }
+    const inet::Coord& getRadioPosition() const { return radioPos; }
     cModule *getHostModule() const { return hostModule; }
 
     /** Register with ChannelControl and subscribe to hostPos*/

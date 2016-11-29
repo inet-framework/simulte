@@ -57,8 +57,16 @@ void LtePhyUe::initialize(int stage)
         //int index2=intuniform(0,binder_->phyPisaData.maxChannel2()-1);
         deployer_->lambdaInit(nodeId_, index);
         //deployer_->channelUpdate(nodeId_,index2);
-        servingCell_ = registerSignal("servingCell");
-        emit(servingCell_, (long)masterId_);
+
+//        servingCell_ = registerSignal("servingCell");
+//        emit(servingCell_, (long)masterId_);
+
+        averageCqiDl_ = registerSignal("averageCqiDl");
+        averageCqiUl_ = registerSignal("averageCqiUl");
+        averageCqiD2D_ = registerSignal("averageCqiD2D");
+        if (!hasListeners(averageCqiDl_))
+            error("no phy listeners");
+
         WATCH(nodeType_);
         WATCH(masterId_);
         WATCH(candidateMasterId_);
@@ -207,7 +215,7 @@ void LtePhyUe::triggerHandover()
     binder_->addUeHandoverTriggered(nodeId_);
 
     // inform the eNB's IP2lte module to forward data to the target eNB
-    IP2lte* enbIp2lte =  check_and_cast<IP2lte*>(getSimulation()->getModule(binder_->getOmnetId(masterId_))->getSubmodule("nic")->getSubmodule("ip2lte"));
+    IP2lte* enbIp2lte =  check_and_cast<IP2lte*>(getSimulation()->getModule(binder_->getOmnetId(masterId_))->getSubmodule("lteNic")->getSubmodule("ip2lte"));
     enbIp2lte->triggerHandoverSource(nodeId_,candidateMasterId_);
 
     handoverTrigger_ = new cMessage("handoverTrigger");
@@ -248,7 +256,7 @@ void LtePhyUe::doHandover()
     hysteresisTh_ = updateHysteresisTh(currentMasterRssi_);
 
     // update deployer
-    LteMacEnb* newMacEnb =  check_and_cast<LteMacEnb*>(getSimulation()->getModule(binder_->getOmnetId(candidateMasterId_))->getSubmodule("nic")->getSubmodule("mac"));
+    LteMacEnb* newMacEnb =  check_and_cast<LteMacEnb*>(getSimulation()->getModule(binder_->getOmnetId(candidateMasterId_))->getSubmodule("lteNic")->getSubmodule("mac"));
     LteDeployer* newDeployer = newMacEnb->getDeployer();
     deployer_->detachUser(nodeId_);
     newDeployer->attachUser(nodeId_);
@@ -268,7 +276,7 @@ void LtePhyUe::doHandover()
     binder_->removeUeHandoverTriggered(nodeId_);
 
     // inform the eNB's IP2lte module to forward data to the target eNB
-    IP2lte* enbIp2lte =  check_and_cast<IP2lte*>(getSimulation()->getModule(binder_->getOmnetId(masterId_))->getSubmodule("nic")->getSubmodule("ip2lte"));
+    IP2lte* enbIp2lte =  check_and_cast<IP2lte*>(getSimulation()->getModule(binder_->getOmnetId(masterId_))->getSubmodule("lteNic")->getSubmodule("ip2lte"));
     enbIp2lte->signalHandoverCompleteTarget(nodeId_,oldMaster);
 
     // TODO: transfer buffers
@@ -341,11 +349,7 @@ void LtePhyUe::handleAirFrame(cMessage* msg)
         if (lteInfo->getUserTxParams()->readCqiVector().size() == 1)
             cw = 0;
         double cqi = lteInfo->getUserTxParams()->readCqiVector()[cw];
-        tSample_->sample_ = cqi;
-        tSample_->id_ = nodeId_;
-        tSample_->module_ = getMacByMacNodeId(nodeId_);
-        emit(averageCqiDl_, tSample_);
-        emit(averageCqiDlvect_,cqi);
+        emit(averageCqiDl_, cqi);
     }
     // apply decider to received packet
     bool result = true;
@@ -437,8 +441,16 @@ void LtePhyUe::handleUpperMessage(cMessage* msg)
         else
             ++it;
     }
-
     lastActive_ = NOW;
+
+    if (lteInfo->getFrameType() == DATAPKT && lteInfo->getUserTxParams() != NULL)
+    {
+        double cqi = lteInfo->getUserTxParams()->readCqiVector()[lteInfo->getCw()];
+        if (lteInfo->getDirection() == UL)
+            emit(averageCqiUl_, cqi);
+        else if (lteInfo->getDirection() == D2D)
+            emit(averageCqiD2D_, cqi);
+    }
 
     LtePhyBase::handleUpperMessage(msg);
 }
@@ -481,7 +493,7 @@ void LtePhyUe::deleteOldBuffers(MacNodeId masterId)
 
     // delete macBuffer[nodeId_] at old master
     LteMacEnb *masterMac = check_and_cast<LteMacEnb *>(getSimulation()->getModule(masterOmnetId)->
-    getSubmodule("nic")->getSubmodule("mac"));
+    getSubmodule("lteNic")->getSubmodule("mac"));
     masterMac->deleteQueues(nodeId_);
 
     // delete queues for master at this ue
@@ -491,7 +503,7 @@ void LtePhyUe::deleteOldBuffers(MacNodeId masterId)
 
     // delete UmTxQueue[nodeId_] at old master
     LteRlcUm *masterRlcUm = check_and_cast<LteRlcUm *>(getSimulation()->getModule(masterOmnetId)->
-    getSubmodule("nic")->getSubmodule("rlc")->getSubmodule("um"));
+    getSubmodule("lteNic")->getSubmodule("rlc")->getSubmodule("um"));
     masterRlcUm->deleteQueues(nodeId_);
 
     // delete queues for master at this ue
@@ -543,4 +555,29 @@ void LtePhyUe::sendFeedback(LteFeedbackDoubleVector fbDl, LteFeedbackDoubleVecto
     EV << "LtePhy: " << nodeTypeToA(nodeType_) << " with id "
        << nodeId_ << " sending feedback to the air channel" << endl;
     sendUnicast(frame);
+}
+
+void LtePhyUe::finish()
+{
+    if (getSimulation()->getSimulationStage() != CTX_FINISH)
+    {
+        // do this only at deletion of the module during the simulation
+
+        // clear buffers
+        deleteOldBuffers(masterId_);
+
+        // amc calls
+        LteAmc *amc = getAmcModule(masterId_);
+        if (amc != NULL)
+        {
+            amc->detachUser(nodeId_, UL);
+            amc->detachUser(nodeId_, DL);
+        }
+
+        // binder call
+        binder_->unregisterNextHop(masterId_, nodeId_);
+
+        // deployer call
+        deployer_->detachUser(nodeId_);
+    }
 }

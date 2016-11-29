@@ -34,7 +34,7 @@ class RemoteAntennaSet
     struct RemoteAntenna
     {
         /// Position
-        Coord ruPosition_;
+        inet::Coord ruPosition_;
 
         /// Transmit power
         double txPower_;
@@ -71,7 +71,7 @@ class RemoteAntennaSet
      * @param remote i-th physical antenna index
      * @return i-th antenna coordinates
      */
-    Coord getAntennaCoord(unsigned int remote);
+    inet::Coord getAntennaCoord(unsigned int remote);
 
     /**
      * getAntennaTxPower() is used by the phy to find

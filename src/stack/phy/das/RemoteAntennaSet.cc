@@ -12,16 +12,16 @@
 void RemoteAntennaSet::addRemoteAntenna(double ruX, double ruY, double ruPow)
 {
     RemoteAntenna ru;
-    Coord ruPos = Coord(ruX, ruY);
+    inet::Coord ruPos = inet::Coord(ruX, ruY);
     ru.ruPosition_ = ruPos;
     ru.txPower_ = ruPow;
     remoteAntennaSet_.push_back(ru);
 }
 
-Coord RemoteAntennaSet::getAntennaCoord(unsigned int remote)
+inet::Coord RemoteAntennaSet::getAntennaCoord(unsigned int remote)
 {
     if (remote >= remoteAntennaSet_.size())
-        return Coord(0, 0);
+        return inet::Coord(0, 0);
     return remoteAntennaSet_[remote].ruPosition_;
 }
 

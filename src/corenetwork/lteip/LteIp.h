@@ -43,7 +43,7 @@
  * the four tuple, a sequence number and the header size (IP+Transport).
  *
  */
-class LteIp : public QueueBase
+class LteIp : public inet::QueueBase
 {
   protected:
     cGate *stackGateOut_;           /// gate connecting LteIp module to LTE stack
@@ -54,7 +54,7 @@ class LteIp : public QueueBase
     // working vars
     long curFragmentId_;      /// counter, used to assign unique fragmentIds to datagrams (actually unused)
     unsigned int seqNum_;     /// datagram sequence number (RLC fragmentation needs it)
-    ProtocolMapping mapping_; /// where to send transport packets after decapsulation
+    inet::ProtocolMapping mapping_; /// where to send transport packets after decapsulation
 
     // statistics
     int numForwarded_;  /// number of forwarded packets

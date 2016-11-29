@@ -8,6 +8,7 @@
 //
 
 #include "stack/mac/layer/LteMacEnb.h"
+#include "stack/mac/layer/LteMacUe.h"
 #include "stack/mac/buffer/harq/LteHarqBufferRx.h"
 #include "stack/mac/buffer/LteMacBuffer.h"
 #include "stack/mac/buffer/LteMacQueue.h"
@@ -47,7 +48,6 @@ LteMacEnb::~LteMacEnb()
     delete amc_;
     delete enbSchedulerDl_;
     delete enbSchedulerUl_;
-    delete tSample_;
 
     LteMacBufferMap::iterator bit;
     for (bit = bsrbuf_.begin(); bit != bsrbuf_.end(); bit++)
@@ -246,36 +246,9 @@ void LteMacEnb::initialize(int stage)
         //Initialize the current sub frame type with the first subframe of the MBSFN pattern
         currentSubFrameType_ = NORMAL_FRAME_TYPE;
 
-        tSample_ = new TaggedSample();
         activatedFrames_ = registerSignal("activatedFrames");
         sleepFrames_ = registerSignal("sleepFrames");
         wastedFrames_ = registerSignal("wastedFrames");
-        cqiDlMuMimo0_ = registerSignal("cqiDlMuMimo0");
-        cqiDlMuMimo1_ = registerSignal("cqiDlMuMimo1");
-        cqiDlMuMimo2_ = registerSignal("cqiDlMuMimo2");
-        cqiDlMuMimo3_ = registerSignal("cqiDlMuMimo3");
-        cqiDlMuMimo4_ = registerSignal("cqiDlMuMimo4");
-
-        cqiDlTxDiv0_ = registerSignal("cqiDlTxDiv0");
-        cqiDlTxDiv1_ = registerSignal("cqiDlTxDiv1");
-        cqiDlTxDiv2_ = registerSignal("cqiDlTxDiv2");
-        cqiDlTxDiv3_ = registerSignal("cqiDlTxDiv3");
-        cqiDlTxDiv4_ = registerSignal("cqiDlTxDiv4");
-
-        cqiDlSpmux0_ = registerSignal("cqiDlSpmux0");
-        cqiDlSpmux1_ = registerSignal("cqiDlSpmux1");
-        cqiDlSpmux2_ = registerSignal("cqiDlSpmux2");
-        cqiDlSpmux3_ = registerSignal("cqiDlSpmux3");
-        cqiDlSpmux4_ = registerSignal("cqiDlSpmux4");
-
-        cqiDlSiso0_ = registerSignal("cqiDlSiso0");
-        cqiDlSiso1_ = registerSignal("cqiDlSiso1");
-        cqiDlSiso2_ = registerSignal("cqiDlSiso2");
-        cqiDlSiso3_ = registerSignal("cqiDlSiso3");
-        cqiDlSiso4_ = registerSignal("cqiDlSiso4");
-
-        tSample_->module_ = check_and_cast<cComponent*>(this);
-        tSample_->id_ = nodeId_;
 
         eNodeBCount = par("eNodeBCount");
         WATCH(numAntennas_);
@@ -670,6 +643,10 @@ void LteMacEnb::handleSelfMessage()
      ***************/
 //    std::cout << "TTI: " << NOW << endl;
 
+    int nodeCount = binder_->getNodeCount();
+    if(nodeCount <= eNodeBCount)
+        return;
+
     EnbType nodeType = deployer_->getEnbType();
 
     EV << "-----" << ((nodeType==MACRO_ENB)?"MACRO":"MICRO") << " ENB MAIN LOOP -----" << endl;
@@ -759,7 +736,8 @@ void LteMacEnb::macHandleFeedbackPkt(cPacket *pkt)
             if (!jt->isEmptyFeedback())
             {
                 amc_->pushFeedback(id, DL, (*jt));
-                cqiStatistics(id, DL, (*jt));
+                LteMacUe* macUe = check_and_cast<LteMacUe*>(getMacByMacNodeId(id));
+                macUe->collectCqiStatistics(id, DL, (*jt));
             }
             i++;
         }
@@ -808,130 +786,6 @@ ActiveSet LteMacEnb::getActiveSet(Direction dir)
 void LteMacEnb::allocatedRB(unsigned int rb)
 {
     lastTtiAllocatedRb_ = rb;
-}
-
-void LteMacEnb::cqiStatistics(MacNodeId id, Direction dir, LteFeedback fb)
-{
-    if (dir == DL)
-    {
-        tSample_->id_ = id;
-        if (fb.getTxMode() == SINGLE_ANTENNA_PORT0)
-        {
-            for (unsigned int i = 0; i < fb.getBandCqi(0).size(); i++)
-            {
-                switch (i)
-                {
-                    case 0:
-                        tSample_->sample_ = fb.getBandCqi(0)[i];
-                        emit(cqiDlSiso0_, tSample_);
-                        break;
-                    case 1:
-                        tSample_->sample_ = fb.getBandCqi(0)[i];
-                        emit(cqiDlSiso1_, tSample_);
-                        break;
-                    case 2:
-                        tSample_->sample_ = fb.getBandCqi(0)[i];
-                        emit(cqiDlSiso2_, tSample_);
-                        break;
-                    case 3:
-                        tSample_->sample_ = fb.getBandCqi(0)[i];
-                        emit(cqiDlSiso3_, tSample_);
-                        break;
-                    case 4:
-                        tSample_->sample_ = fb.getBandCqi(0)[i];
-                        emit(cqiDlSiso4_, tSample_);
-                        break;
-                }
-            }
-        }
-        else if (fb.getTxMode() == TRANSMIT_DIVERSITY)
-        {
-            for (unsigned int i = 0; i < fb.getBandCqi(0).size(); i++)
-            {
-                switch (i)
-                {
-                    case 0:
-                        tSample_->sample_ = fb.getBandCqi(0)[i];
-                        emit(cqiDlTxDiv0_, tSample_);
-                        break;
-                    case 1:
-                        tSample_->sample_ = fb.getBandCqi(0)[i];
-                        emit(cqiDlTxDiv1_, tSample_);
-                        break;
-                    case 2:
-                        tSample_->sample_ = fb.getBandCqi(0)[i];
-                        emit(cqiDlTxDiv2_, tSample_);
-                        break;
-                    case 3:
-                        tSample_->sample_ = fb.getBandCqi(0)[i];
-                        emit(cqiDlTxDiv3_, tSample_);
-                        break;
-                    case 4:
-                        tSample_->sample_ = fb.getBandCqi(0)[i];
-                        emit(cqiDlTxDiv4_, tSample_);
-                        break;
-                }
-            }
-        }
-        else if (fb.getTxMode() == OL_SPATIAL_MULTIPLEXING)
-        {
-            for (unsigned int i = 0; i < fb.getBandCqi(0).size(); i++)
-            {
-                switch (i)
-                {
-                    case 0:
-                        tSample_->sample_ = fb.getBandCqi(0)[i];
-                        emit(cqiDlSpmux0_, tSample_);
-                        break;
-                    case 1:
-                        tSample_->sample_ = fb.getBandCqi(0)[i];
-                        emit(cqiDlSpmux1_, tSample_);
-                        break;
-                    case 2:
-                        tSample_->sample_ = fb.getBandCqi(0)[i];
-                        emit(cqiDlSpmux2_, tSample_);
-                        break;
-                    case 3:
-                        tSample_->sample_ = fb.getBandCqi(0)[i];
-                        emit(cqiDlSpmux3_, tSample_);
-                        break;
-                    case 4:
-                        tSample_->sample_ = fb.getBandCqi(0)[i];
-                        emit(cqiDlSpmux4_, tSample_);
-                        break;
-                }
-            }
-        }
-        else if (fb.getTxMode() == MULTI_USER)
-        {
-            for (unsigned int i = 0; i < fb.getBandCqi(0).size(); i++)
-            {
-                switch (i)
-                {
-                    case 0:
-                        tSample_->sample_ = fb.getBandCqi(0)[i];
-                        emit(cqiDlMuMimo0_, tSample_);
-                        break;
-                    case 1:
-                        tSample_->sample_ = fb.getBandCqi(0)[i];
-                        emit(cqiDlMuMimo1_, tSample_);
-                        break;
-                    case 2:
-                        tSample_->sample_ = fb.getBandCqi(0)[i];
-                        emit(cqiDlMuMimo2_, tSample_);
-                        break;
-                    case 3:
-                        tSample_->sample_ = fb.getBandCqi(0)[i];
-                        emit(cqiDlMuMimo3_, tSample_);
-                        break;
-                    case 4:
-                        tSample_->sample_ = fb.getBandCqi(0)[i];
-                        emit(cqiDlMuMimo4_, tSample_);
-                        break;
-                }
-            }
-        }
-    }
 }
 
 unsigned int LteMacEnb::getBandStatus(Band b)

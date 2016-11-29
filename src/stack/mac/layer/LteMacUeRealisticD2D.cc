@@ -52,7 +52,14 @@ void LteMacUeRealisticD2D::initialize(int stage)
         preconfiguredTxParams_ = getPreconfiguredTxParams();
 
         // get the reference to the eNB
-        enb_ = check_and_cast<LteMacEnbRealisticD2D*>(getSimulation()->getModule(binder_->getOmnetId(getMacCellId()))->getSubmodule("nic")->getSubmodule("mac"));
+        enb_ = check_and_cast<LteMacEnbRealisticD2D*>(getSimulation()->getModule(binder_->getOmnetId(getMacCellId()))->getSubmodule("lteNic")->getSubmodule("mac"));
+
+        if (NOW > 0)
+        {
+            // only for UEs that have been added dynamically to the simulation
+            LteAmc *amc = check_and_cast<LteMacEnb *>(getSimulation()->getModule(binder_->getOmnetId(cellId_))->getSubmodule("lteNic")->getSubmodule("mac"))->getAmc();
+            amc->attachUser(nodeId_, D2D);
+        }
     }
 }
 

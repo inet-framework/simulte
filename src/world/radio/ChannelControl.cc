@@ -177,7 +177,7 @@ const ChannelControl::RadioRefVector& ChannelControl::getNeighbors(RadioRef h)
 
 void ChannelControl::updateConnections(RadioRef h)
 {
-    Coord& hpos = h->pos;
+    inet::Coord& hpos = h->pos;
     double maxDistSquared = maxInterferenceDistance * maxInterferenceDistance;
     for (RadioList::iterator it = radios.begin(); it != radios.end(); ++it)
     {
@@ -216,7 +216,7 @@ void ChannelControl::checkChannel(int channel)
         error("Invalid channel, must above 0 and below %d", numChannels);
 }
 
-void ChannelControl::setRadioPosition(RadioRef r, const Coord& pos)
+void ChannelControl::setRadioPosition(RadioRef r, const inet::Coord& pos)
 {
     Enter_Method_Silent();
     r->pos = pos;

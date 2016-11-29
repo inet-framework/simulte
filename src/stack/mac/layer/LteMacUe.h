@@ -12,6 +12,7 @@
 
 #include "stack/mac/layer/LteMacBase.h"
 #include "stack/mac/buffer/harq/LteHarqBufferTx.h"
+#include "stack/phy/feedback/LteFeedback.h"
 
 class LteSchedulingGrant;
 class LteSchedulerUeUl;
@@ -49,6 +50,28 @@ class LteMacUe : public LteMacBase
 
     // BSR handling
     bool bsrTriggered_;
+
+    // statistics
+    simsignal_t cqiDlSpmux0_;
+    simsignal_t cqiDlSpmux1_;
+    simsignal_t cqiDlSpmux2_;
+    simsignal_t cqiDlSpmux3_;
+    simsignal_t cqiDlSpmux4_;
+    simsignal_t cqiDlTxDiv0_;
+    simsignal_t cqiDlTxDiv1_;
+    simsignal_t cqiDlTxDiv2_;
+    simsignal_t cqiDlTxDiv3_;
+    simsignal_t cqiDlTxDiv4_;
+    simsignal_t cqiDlMuMimo0_;
+    simsignal_t cqiDlMuMimo1_;
+    simsignal_t cqiDlMuMimo2_;
+    simsignal_t cqiDlMuMimo3_;
+    simsignal_t cqiDlMuMimo4_;
+    simsignal_t cqiDlSiso0_;
+    simsignal_t cqiDlSiso1_;
+    simsignal_t cqiDlSiso2_;
+    simsignal_t cqiDlSiso3_;
+    simsignal_t cqiDlSiso4_;
 
     /**
      * Reads MAC parameters for ue and performs initialization.
@@ -101,6 +124,11 @@ class LteMacUe : public LteMacBase
   public:
     LteMacUe();
     virtual ~LteMacUe();
+
+    /*
+     * Record CQI-related statistics
+     */
+    void collectCqiStatistics(MacNodeId id, Direction dir, LteFeedback fb);
 
     /*
      * Access scheduling grant

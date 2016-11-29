@@ -25,7 +25,7 @@ class LteRealisticChannelModel : public LteChannelModel
     double carrierFrequency_;
 
     // stores my Playground Coords
-    const Coord& myCoord_;
+    const inet::Coord& myCoord_;
 
     // Information needed about the playground
     bool useTorus_;
@@ -50,7 +50,7 @@ class LteRealisticChannelModel : public LteChannelModel
     bool enableMultiCellInterference_;
     bool enableD2DInCellInterference_;
 
-    typedef std::pair<simtime_t, Coord> Position;
+    typedef std::pair<simtime_t, inet::Coord> Position;
 
     // last position of current user
     std::map<MacNodeId, std::queue<Position> > positionHistory_;
@@ -142,7 +142,7 @@ class LteRealisticChannelModel : public LteChannelModel
     bool fixedLos_;
 
   public:
-    LteRealisticChannelModel(ParameterMap& params, const Coord& myCoord, unsigned int band);
+    LteRealisticChannelModel(ParameterMap& params, const inet::Coord& myCoord, unsigned int band);
     virtual ~LteRealisticChannelModel();
     /*
      * Compute Attenuation caused by pathloss and shadowing (optional)
@@ -151,7 +151,7 @@ class LteRealisticChannelModel : public LteChannelModel
      * @param dir traffic direction
      * @param coord position of end point comunication (if dir==UL is the position of UE else is the position of eNodeB)
      */
-    virtual double getAttenuation(MacNodeId nodeId, Direction dir, Coord coord);
+    virtual double getAttenuation(MacNodeId nodeId, Direction dir, inet::Coord coord);
     /*
      * Compute Attenuation for D2D caused by pathloss and shadowing (optional)
      *
@@ -159,7 +159,7 @@ class LteRealisticChannelModel : public LteChannelModel
      * @param dir traffic direction
      * @param coord position of end point comunication (if dir==UL is the position of UE else is the position of eNodeB)
      */
-    virtual double getAttenuation_D2D(MacNodeId nodeId, Direction dir, Coord coord,MacNodeId node2_Id, Coord coord_2);
+    virtual double getAttenuation_D2D(MacNodeId nodeId, Direction dir, inet::Coord coord,MacNodeId node2_Id, inet::Coord coord_2);
     /*
      * Compute sir for each band for user nodeId according to multipath fading
      *
@@ -177,15 +177,15 @@ class LteRealisticChannelModel : public LteChannelModel
     /*
      * Compute Received useful signal for D2D transmissions
      */
-    virtual std::vector<double> getRSRP_D2D(LteAirFrame *frame, UserControlInfo* lteInfo_1, MacNodeId destId, Coord destCoord);
+    virtual std::vector<double> getRSRP_D2D(LteAirFrame *frame, UserControlInfo* lteInfo_1, MacNodeId destId, inet::Coord destCoord);
     /*
      * Compute sinr (D2D) for each band for user nodeId according to pathloss, shadowing (optional) and multipath fading
      *
      * @param frame pointer to the packet
      * @param lteinfo pointer to the user control info
      */
-    virtual std::vector<double> getSINR_D2D(LteAirFrame *frame, UserControlInfo* lteInfo_1, MacNodeId destId, Coord destCoord,MacNodeId enbId);
-    virtual std::vector<double> getSINR_D2D(LteAirFrame *frame, UserControlInfo* lteInfo_1, MacNodeId destId, Coord destCoord,MacNodeId enbId,std::vector<double> rsrpVector);
+    virtual std::vector<double> getSINR_D2D(LteAirFrame *frame, UserControlInfo* lteInfo_1, MacNodeId destId, inet::Coord destCoord,MacNodeId enbId);
+    virtual std::vector<double> getSINR_D2D(LteAirFrame *frame, UserControlInfo* lteInfo_1, MacNodeId destId, inet::Coord destCoord,MacNodeId enbId,std::vector<double> rsrpVector);
     /*
      * Compute the error probability of the transmitted packet according to cqi used, txmode, and the received power
      * after that it throws a random number in order to check if this packet will be corrupted or not
@@ -291,32 +291,32 @@ class LteRealisticChannelModel : public LteChannelModel
      * @param nodeid mac node id of UE
      * @return the speed in m/s
      */
-    double computeSpeed(const MacNodeId nodeId, const Coord coord);
+    double computeSpeed(const MacNodeId nodeId, const inet::Coord coord);
 
     /*
      * Updates position for a given node
      * @param nodeid mac node id of UE
      */
-    void updatePositionHistory(const MacNodeId nodeId, const Coord coord);
+    void updatePositionHistory(const MacNodeId nodeId, const inet::Coord coord);
 
     /*
      * compute total interference due to eNB coexistence
      * @param eNbId id of the considered eNb
      * @param isCqi if we are computing a CQI
      */
-    bool computeMultiCellInterference(MacNodeId eNbId, MacNodeId ueId, Coord coord, bool isCqi,
+    bool computeMultiCellInterference(MacNodeId eNbId, MacNodeId ueId, inet::Coord coord, bool isCqi,
         std::vector<double> * interference);
 
     /*
      * compute total interference due to D2D transmissions within the same cell
      */
-    bool computeInCellD2DInterference(MacNodeId eNbId, MacNodeId senderId, Coord senderCoord, MacNodeId destId, Coord destCoord, bool isCqi,std::vector<double>* interference,Direction dir);
+    bool computeInCellD2DInterference(MacNodeId eNbId, MacNodeId senderId, inet::Coord senderCoord, MacNodeId destId, inet::Coord destCoord, bool isCqi,std::vector<double>* interference,Direction dir);
 
     /*
      * evaluates total intercell interference seen from the spot given by coord
      * @return total interference expressed in dBm
      */
-    bool computeExtCellInterference(MacNodeId eNbId, MacNodeId nodeId, Coord coord, bool isCqi,
+    bool computeExtCellInterference(MacNodeId eNbId, MacNodeId nodeId, inet::Coord coord, bool isCqi,
         std::vector<double>* interference);
 
     /*

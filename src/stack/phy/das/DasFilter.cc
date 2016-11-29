@@ -28,7 +28,7 @@ void DasFilter::setMasterRuSet(MacNodeId masterId)
     cModule* module = getSimulation()->getModule(binder_->getOmnetId(masterId));
     if (getNodeTypeById(masterId) == ENODEB)
     {
-        das_ = check_and_cast<LtePhyEnb*>(module->getSubmodule("nic")->
+        das_ = check_and_cast<LtePhyEnb*>(module->getSubmodule("lteNic")->
             getSubmodule("phy"))->getDasFilter();
         ruSet_ = das_->getRemoteAntennaSet();
     }
@@ -89,7 +89,7 @@ double DasFilter::getAntennaTxPower(int i)
     return ruSet_->getAntennaTxPower(i);
 }
 
-Coord DasFilter::getAntennaCoord(int i)
+inet::Coord DasFilter::getAntennaCoord(int i)
 {
     return ruSet_->getAntennaCoord(i);
 }

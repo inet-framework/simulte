@@ -46,8 +46,6 @@ LteMacBase::~LteMacBase()
         delete hrit->second;
     harqTxBuffers_.clear();
     harqRxBuffers_.clear();
-
-    delete tSample_;
 }
 
 void LteMacBase::sendUpperPackets(cPacket* pkt)
@@ -197,19 +195,19 @@ bool LteMacBase::bufferizePacket(cPacket* pkt)
         LteMacBuffer* vqueue = macBuffers_.find(cid)->second;
         if (!queue->pushBack(pkt))
         {
-            tSample_->id_=nodeId_;
-            tSample_->sample_=pkt->getByteLength();
+            totalOverflowedBytes_ += pkt->getByteLength();
+            double sample = (double)totalOverflowedBytes_ / (NOW - getSimulation()->getWarmupPeriod());
             if (lteInfo->getDirection()==DL)
             {
-                emit(macBufferOverflowDl_,tSample_);
+                emit(macBufferOverflowDl_,sample);
             }
             else if (lteInfo->getDirection()==UL)
             {
-                emit(macBufferOverflowUl_,tSample_);
+                emit(macBufferOverflowUl_,sample);
             }
             else // D2D
             {
-                emit(macBufferOverflowD2D_,tSample_);
+                emit(macBufferOverflowD2D_,sample);
             }
 
             EV << "LteMacBuffers : Dropped packet: queue" << cid << " is full\n";
@@ -328,6 +326,7 @@ void LteMacBase::initialize(int stage)
         ttiTick_ = new cMessage("ttiTick_");
         ttiTick_->setSchedulingPriority(1);        // TTI TICK after other messages
         scheduleAt(NOW + TTI, ttiTick_);
+        totalOverflowedBytes_ = 0;
         macBufferOverflowDl_ = registerSignal("macBufferOverflowDl");
         macBufferOverflowUl_ = registerSignal("macBufferOverflowUl");
         if (isD2DCapable())
@@ -336,11 +335,8 @@ void LteMacBase::initialize(int stage)
         receivedPacketFromLowerLayer = registerSignal("receivedPacketFromLowerLayer");
         sentPacketToUpperLayer = registerSignal("sentPacketToUpperLayer");
         sentPacketToLowerLayer = registerSignal("sentPacketToLowerLayer");
-        tSample_ = new TaggedSample();
-        tSample_->module_ = this;
 
         measuredItbs_ = registerSignal("measuredItbs");
-        measuredItbs_lte_ = registerSignal("measuredItbs_lte");
         WATCH(queueSize_);
         WATCH(maxBytesPerTti_);
         WATCH(nodeId_);

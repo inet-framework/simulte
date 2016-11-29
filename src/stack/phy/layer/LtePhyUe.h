@@ -106,6 +106,7 @@ class LtePhyUe : public LtePhyBase
     virtual void initialize(int stage);
     virtual void handleSelfMessage(cMessage *msg);
     virtual void handleAirFrame(cMessage* msg);
+    virtual void finish();
 
     virtual void handleUpperMessage(cMessage* msg);
 

@@ -54,10 +54,10 @@ class LteHandoverManager : public cSimpleModule
     void receiveHandoverCommand(MacNodeId ueId, MacNodeId eEnb, bool startHo);
 
     // send an IP datagram to the X2 Manager
-    void forwardDataToTargetEnb(IPv4Datagram* datagram, MacNodeId targetEnb);
+    void forwardDataToTargetEnb(inet::IPv4Datagram* datagram, MacNodeId targetEnb);
 
     // receive data from X2 message and send it to the X2 Manager
-    void receiveDataFromSourceEnb(IPv4Datagram* datagram, MacNodeId sourceEnb);
+    void receiveDataFromSourceEnb(inet::IPv4Datagram* datagram, MacNodeId sourceEnb);
 };
 
 #endif /* LTE_LTEHANDOVERMANAGER_H_ */

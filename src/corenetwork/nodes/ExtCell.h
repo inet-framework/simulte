@@ -14,8 +14,6 @@
 #include "common/LteCommon.h"
 #include "corenetwork/binder/LteBinder.h"
 
-using namespace inet;
-
 typedef std::vector<int> BandStatus;
 
 /* The allocation type defines the interference produced by the ext cell
@@ -30,7 +28,7 @@ typedef enum {
 class ExtCell : public cSimpleModule
 {
     // playground coordinates
-    Coord position_;
+    inet::Coord position_;
 
     // id among all the external cells
     int id_;
@@ -82,7 +80,7 @@ class ExtCell : public cSimpleModule
 
   public:
 
-    const Coord getPosition() { return position_; }
+    const inet::Coord getPosition() { return position_; }
 
     int getId() { return id_; }
 

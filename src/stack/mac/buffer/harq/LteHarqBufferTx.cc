@@ -50,7 +50,7 @@ UnitList LteHarqBufferTx::firstReadyForRtx()
     return ret;
 }
 
-int64 LteHarqBufferTx::pduLength(unsigned char acid, Codeword cw)
+inet::int64 LteHarqBufferTx::pduLength(unsigned char acid, Codeword cw)
 {
     return (*processes_)[acid]->getPduLength(cw);
 }

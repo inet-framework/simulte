@@ -22,7 +22,8 @@
  */
 class LtePdcpRrcUeD2D : public LtePdcpRrcUe
 {
-//    std::map<MacNodeId, LteD2DMode> peeringMap_;
+    //
+    std::map<const char*, bool> d2dPeeringInit_;
 
   protected:
 

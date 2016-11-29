@@ -15,6 +15,8 @@
 
 Define_Module(AmRxQueue);
 
+unsigned int AmRxQueue::totalCellRcvdBytes_ = 0;
+
 AmRxQueue::AmRxQueue() :
     timer_(this)
 {
@@ -40,8 +42,7 @@ void AmRxQueue::initialize()
 
     discarded_.resize(rxWindowDesc_.windowSize_);
     received_.resize(rxWindowDesc_.windowSize_);
-    tSampleCell_ = new TaggedSample();
-    tSample_ = new TaggedSample();
+    totalRcvdBytes_ = 0;
 
     cModule* parent = check_and_cast<LteRlcAm*>(
         getParentModule()->getSubmodule("am"));
@@ -134,26 +135,13 @@ void AmRxQueue::discard(const int sn)
 
     if (dir != UNKNOWN_DIRECTION)
     {
-        tSample_->sample_ = 1;
-        tSampleCell_->sample_ = 1;
-        if (dir == DL)
-        {
-            tSample_->id_ = dstId;
-            tSampleCell_->id_ = srcId;
-        }
-        else if (dir == UL)
-        {
-            tSample_->id_ = srcId;
-            tSampleCell_->id_ = dstId;
-        }
         // UE module
         cModule* ue = getRlcByMacNodeId((dir == DL ? dstId : srcId), UM);
         // NODEB
         cModule* nodeb = getRlcByMacNodeId((dir == DL ? srcId : dstId), UM);
-        tSampleCell_->module_ = nodeb;
-        tSample_->module_ = ue;
-        ue->emit(rlcPacketLoss_, tSample_);
-        nodeb->emit(rlcCellPacketLoss_, tSampleCell_);
+
+        ue->emit(rlcPacketLoss_, 1.0);
+        nodeb->emit(rlcCellPacketLoss_, 1.0);
     }
 }
 
@@ -349,35 +337,25 @@ void AmRxQueue::passUp(const int index)
 
     if (dir == DL)
     {
-        tSampleCell_->id_ = srcId;
-        tSample_->id_ = dstId;
         nodeb = getRlcByMacNodeId(srcId, UM);
         ue = getRlcByMacNodeId(dstId, UM);
     }
     else if (dir == UL)
     {
-        tSampleCell_->id_ = dstId;
-        tSample_->id_ = srcId;
         nodeb = getRlcByMacNodeId(dstId, UM);
         ue = getRlcByMacNodeId(srcId, UM);
     }
 
-    tSampleCell_->module_ = nodeb;
-    tSample_->module_ = ue;
+    totalRcvdBytes_ += pkt->getByteLength();
+    totalCellRcvdBytes_ += pkt->getByteLength();
+    double tputSample = (double)totalRcvdBytes_ / (NOW - getSimulation()->getWarmupPeriod());
+    double cellTputSample = (double)totalCellRcvdBytes_ / (NOW - getSimulation()->getWarmupPeriod());
 
-    tSample_->sample_ = pkt->getByteLength();
-    tSampleCell_->sample_ = pkt->getByteLength();
-
-    nodeb->emit(rlcCellThroughput_, tSampleCell_);
-    ue->emit(rlcThroughput_, tSample_);
-
-    tSample_->sample_ = delay;
-    ue->emit(rlcDelay_, tSample_);
-
-    tSample_->sample_ = 0;
-    tSampleCell_->sample_ = 0;
-    ue->emit(rlcPacketLoss_, tSample_);
-    nodeb->emit(rlcCellPacketLoss_, tSampleCell_);
+    nodeb->emit(rlcCellThroughput_, cellTputSample);
+    ue->emit(rlcThroughput_, tputSample);
+    ue->emit(rlcDelay_, delay);
+    ue->emit(rlcPacketLoss_, 0.0);
+    nodeb->emit(rlcCellPacketLoss_, 0.0);
     // Get the SDU and pass it to the upper layers - PDU // SDU // PDCPPDU
     lteRlc->sendDefragmented(pkt);
     // send buffer status report

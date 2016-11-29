@@ -14,6 +14,7 @@
 #include <omnetpp.h>
 #include <string.h>
 #include <fstream>
+
 #include "apps/vod/VoDPacket_m.h"
 #include "apps/vod/VoDUDPStruct.h"
 #include "inet/transportlayer/contract/udp/UDPControlInfo_m.h"
@@ -21,19 +22,20 @@
 #include "inet/networklayer/common/L3AddressResolver.h"
 #include "common/lterecorder.h"
 
+
 using namespace std;
 
 class VoDUDPClient : public cSimpleModule
 {
     inet::UDPSocket socket;
     fstream outfile;
+    unsigned int totalRcvdBytes_;
 
   public:
     simsignal_t tptLayer0_;
     simsignal_t tptLayer1_;
     simsignal_t tptLayer2_;
     simsignal_t tptLayer3_;
-    TaggedSample* tSample_;
     simsignal_t delayLayer0_;
     simsignal_t delayLayer1_;
     simsignal_t delayLayer2_;

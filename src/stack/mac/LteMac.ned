@@ -52,23 +52,23 @@ simple LteMacBase like LteMac {
         //# Statistic recording: end2end delay and throughput at the mac layer
         //#
         @signal[macDelayDl];
-        @statistic[macDelayDl](title="Delay at the MAC layer UL"; unit="s"; source="macDelayDl"; record=lteAvg);
+        @statistic[macDelayDl](title="Delay at the MAC layer UL"; unit="s"; source="macDelayDl"; record=mean,vector);
         @signal[macThroughputDl];
-        @statistic[macThroughputDl](title="Throughput at the MAC layer DL"; unit="Bps"; source="macThroughputDl"; record=lteRate);
+        @statistic[macThroughputDl](title="Throughput at the MAC layer DL"; unit="Bps"; source="macThroughputDl"; record=mean);
         @signal[macDelayUl];
-        @statistic[macDelayUl](title="Delay at the MAC layer UL"; unit="s"; source="macDelayUl"; record=lteAvg);
+        @statistic[macDelayUl](title="Delay at the MAC layer UL"; unit="s"; source="macDelayUl"; record=mean,vector);
         @signal[macThroughputUl];
-        @statistic[macThroughputUl](title="Throughput at the MAC layer UL"; unit="Bps"; source="macThroughputUl"; record=lteRate);
+        @statistic[macThroughputUl](title="Throughput at the MAC layer UL"; unit="Bps"; source="macThroughputUl"; record=mean);
         @signal[macDelayD2D];
-        @statistic[macDelayD2D](title="Delay at the MAC layer D2D"; unit="s"; source="macDelayD2D"; record=lteAvg);
+        @statistic[macDelayD2D](title="Delay at the MAC layer D2D"; unit="s"; source="macDelayD2D"; record=mean,vector);
         @signal[macThroughputD2D];
-        @statistic[macThroughputD2D](title="Throughput at the MAC layer D2D"; unit="Bps"; source="macThroughputD2D"; record=lteRate);
+        @statistic[macThroughputD2D](title="Throughput at the MAC layer D2D"; unit="Bps"; source="macThroughputD2D"; record=mean);
         @signal[macCellThroughputUl];
-        @statistic[macCellThroughputUl](title="Cell Throughput at the MAC layer UL"; unit="Bps"; source="macCellThroughputUl"; record=lteRate);
+        @statistic[macCellThroughputUl](title="Cell Throughput at the MAC layer UL"; unit="Bps"; source="macCellThroughputUl"; record=mean);
         @signal[macCellThroughputDl];
-        @statistic[macCellThroughputDl](title="Cell Throughput at the MAC layer DL"; unit="Bps"; source="macCellThroughputDl"; record=lteRate);
+        @statistic[macCellThroughputDl](title="Cell Throughput at the MAC layer DL"; unit="Bps"; source="macCellThroughputDl"; record=mean);
         @signal[macCellThroughputD2D];
-        @statistic[macCellThroughputD2D](title="Cell Throughput at the MAC layer D2D"; unit="Bps"; source="macCellThroughputD2D"; record=lteRate);  
+        @statistic[macCellThroughputD2D](title="Cell Throughput at the MAC layer D2D"; unit="Bps"; source="macCellThroughputD2D"; record=mean);  
         @signal[macCellPacketLossDl];
         @statistic[macCellPacketLossDl](title="Mac Cell Packet Loss"; unit=""; source="macCellPacketLossDl"; record=mean);
         @signal[macCellPacketLossUl];
@@ -82,41 +82,41 @@ simple LteMacBase like LteMac {
         @signal[macPacketLossD2D];
         @statistic[macPacketLossD2D](title="Mac Packet Loss D2D"; unit=""; source="macPacketLossD2D"; record=mean);
         @signal[macBufferOverFlowDl];
-        @statistic[macBufferOverFlowDl](title="Mac buffer overflow as function of time"; unit="Byte/s"; source="macBufferOverFlowDl"; record=lteRate);
+        @statistic[macBufferOverFlowDl](title="Mac buffer overflow as function of time"; unit="Byte/s"; source="macBufferOverFlowDl"; record=mean);
         @signal[macBufferOverFlowUl];
-        @statistic[macBufferOverFlowUl](title="Mac buffer overflow as function of time"; unit="Byte/s"; source="macBufferOverFlowUl"; record=lteRate);
+        @statistic[macBufferOverFlowUl](title="Mac buffer overflow as function of time"; unit="Byte/s"; source="macBufferOverFlowUl"; record=mean);
         @signal[macBufferOverFlowD2D];
-    	@statistic[macBufferOverFlowD2D](title="Mac buffer overflow as function of time"; unit="Byte/s"; source="macBufferOverFlowD2D"; record=lteRate);
+    	@statistic[macBufferOverFlowD2D](title="Mac buffer overflow as function of time"; unit="Byte/s"; source="macBufferOverFlowD2D"; record=mean);
         @signal[harqErrorRateUl];
-        @statistic[harqErrorRateUl](title="Harq Error Rate Dl"; unit=""; source="harqErrorRateUl"; record=mean);
+        @statistic[harqErrorRateUl](title="Harq Error Rate Dl"; unit=""; source="harqErrorRateUl"; record=mean,vector);
         @signal[harqErrorRateDl];
-        @statistic[harqErrorRateDl](title="Harq Error Rate Dl"; unit=""; source="harqErrorRateDl"; record=mean);
+        @statistic[harqErrorRateDl](title="Harq Error Rate Dl"; unit=""; source="harqErrorRateDl"; record=mean,vector);
         @signal[harqErrorRateD2D];
-        @statistic[harqErrorRateD2D](title="Harq Error Rate D2D"; unit=""; source="harqErrorRateD2D"; record=mean);
+        @statistic[harqErrorRateD2D](title="Harq Error Rate D2D"; unit=""; source="harqErrorRateD2D"; record=mean,vector);
         @signal[harqErrorRate_1st_Ul];
-        @statistic[harqErrorRate_1st_Ul](title="Harq Error Rate Dl"; unit=""; source="harqErrorRate_1st_Ul"; record=mean);
+        @statistic[harqErrorRate_1st_Ul](title="Harq Error Rate Dl"; unit=""; source="harqErrorRate_1st_Ul"; record=mean,vector);
         @signal[harqErrorRate_1st_Dl];
-        @statistic[harqErrorRate_1st_Dl](title="Harq Error Rate Dl"; unit=""; source="harqErrorRate_1st_Dl"; record=mean);
+        @statistic[harqErrorRate_1st_Dl](title="Harq Error Rate Dl"; unit=""; source="harqErrorRate_1st_Dl"; record=mean,vector);
         @signal[harqErrorRate_1st_D2D];
-        @statistic[harqErrorRate_1st_D2D](title="Harq Error Rate D2D"; unit=""; source="harqErrorRate_1st_D2D"; record=mean);
+        @statistic[harqErrorRate_1st_D2D](title="Harq Error Rate D2D"; unit=""; source="harqErrorRate_1st_D2D"; record=mean,vector);
         @signal[harqErrorRate_2nd_Ul];
-        @statistic[harqErrorRate_2nd_Ul](title="Harq Error Rate Dl"; unit=""; source="harqErrorRate_2nd_Ul"; record=mean);
+        @statistic[harqErrorRate_2nd_Ul](title="Harq Error Rate Dl"; unit=""; source="harqErrorRate_2nd_Ul"; record=mean,vector);
         @signal[harqErrorRate_2nd_Dl];
-        @statistic[harqErrorRate_2nd_Dl](title="Harq Error Rate Dl"; unit=""; source="harqErrorRate_2nd_Dl"; record=mean);
+        @statistic[harqErrorRate_2nd_Dl](title="Harq Error Rate Dl"; unit=""; source="harqErrorRate_2nd_Dl"; record=mean,vector);
         @signal[harqErrorRate_2nd_D2D];
-        @statistic[harqErrorRate_2nd_D2D](title="Harq Error Rate D2D"; unit=""; source="harqErrorRate_2nd_D2D"; record=mean);
+        @statistic[harqErrorRate_2nd_D2D](title="Harq Error Rate D2D"; unit=""; source="harqErrorRate_2nd_D2D"; record=mean,vector);
         @signal[harqErrorRate_3rd_Ul];
-        @statistic[harqErrorRate_3rd_Ul](title="Harq Error Rate Dl"; unit=""; source="harqErrorRate_3rd_Ul"; record=mean);
+        @statistic[harqErrorRate_3rd_Ul](title="Harq Error Rate Dl"; unit=""; source="harqErrorRate_3rd_Ul"; record=mean,vector);
         @signal[harqErrorRate_3rd_Dl];
-        @statistic[harqErrorRate_3rd_Dl](title="Harq Error Rate Dl"; unit=""; source="harqErrorRate_3rd_Dl"; record=mean);
+        @statistic[harqErrorRate_3rd_Dl](title="Harq Error Rate Dl"; unit=""; source="harqErrorRate_3rd_Dl"; record=mean,vector);
         @signal[harqErrorRate_3rd_D2D];
-        @statistic[harqErrorRate_3rd_D2D](title="Harq Error Rate D2D"; unit=""; source="harqErrorRate_3rd_D2D"; record=mean);
+        @statistic[harqErrorRate_3rd_D2D](title="Harq Error Rate D2D"; unit=""; source="harqErrorRate_3rd_D2D"; record=mean,vector);
         @signal[harqErrorRate_4th_Ul];
-        @statistic[harqErrorRate_4th_Ul](title="Harq Error Rate Dl"; unit=""; source="harqErrorRate_4th_Ul"; record=mean);
+        @statistic[harqErrorRate_4th_Ul](title="Harq Error Rate Dl"; unit=""; source="harqErrorRate_4th_Ul"; record=mean,vector);
         @signal[harqErrorRate_4th_Dl];
-        @statistic[harqErrorRate_4th_Dl](title="Harq Error Rate Dl"; unit=""; source="harqErrorRate_4th_Dl"; record=mean);
+        @statistic[harqErrorRate_4th_Dl](title="Harq Error Rate Dl"; unit=""; source="harqErrorRate_4th_Dl"; record=mean,vector);
         @signal[harqErrorRate_4th_D2D];
-        @statistic[harqErrorRate_4th_D2D](title="Harq Error Rate D2D"; unit=""; source="harqErrorRate_4th_D2D"; record=mean);
+        @statistic[harqErrorRate_4th_D2D](title="Harq Error Rate D2D"; unit=""; source="harqErrorRate_4th_D2D"; record=mean,vector);
         @signal[receivedPacketFromUpperLayer];
         @statistic[receivedPacketFromUpperLayer](source="receivedPacketFromUpperLayer"; record=count,"sum(packetBytes)","vector(packetBytes)"; interpolationmode=none);
         @signal[receivedPacketFromLowerLayer];
@@ -127,8 +127,6 @@ simple LteMacBase like LteMac {
         @statistic[sentPacketToLowerLayer](source="sentPacketToLowerLayer"; record=count,"sum(packetBytes)","vector(packetBytes)"; interpolationmode=none);
         @signal[measuredItbs];
         @statistic[measuredItbs](title="TBS index"; unit=""; source="measuredItbs"; record=mean,vector);
-        @signal[measuredItbs_lte];
-        @statistic[measuredItbs_lte](title="TBS index"; unit=""; source="measuredItbs_lte"; record=lteAvg);
 
         //# signals for indicating buffer overflow
         @signal[macBufferOverflowUl];
@@ -153,8 +151,55 @@ simple LteMacBase like LteMac {
 //
 // User Equipment MAC layer of LTE stack
 //
-simple LteMacUe extends LteMacBase {
-    @class("LteMacUe");
+simple LteMacUe extends LteMacBase 
+{
+   
+    parameters:
+        @class("LteMacUe");
+        
+        @signal[cqiDlSiso0];
+        @statistic[cqiDlSiso0](title="Average cqi siso band 0"; unit="cqi"; source="cqiDlSiso0"; record=mean);
+        @signal[cqiDlSiso1];
+        @statistic[cqiDlSiso1](title="Average cqi siso band 1"; unit="cqi"; source="cqiDlSiso1"; record=mean);
+        @signal[cqiDlSiso2];
+        @statistic[cqiDlSiso2](title="Average cqi siso band 2"; unit="cqi"; source="cqiDlSiso2"; record=mean);
+        @signal[cqiDlSiso3];
+        @statistic[cqiDlSiso3](title="Average cqi siso band 3"; unit="cqi"; source="cqiDlSiso3"; record=mean);
+        @signal[cqiDlSiso4];
+        @statistic[cqiDlSiso4](title="Average cqi siso band 4"; unit="cqi"; source="cqiDlSiso4"; record=mean);
+    
+        @signal[cqiDlSpmux0];
+        @statistic[cqiDlSpmux0](title="Average cqi Spmux band 0"; unit="cqi"; source="cqiDlSpmux0"; record=mean);
+        @signal[cqiDlSpmux1];
+        @statistic[cqiDlSpmux1](title="Average cqi Spmux band 1"; unit="cqi"; source="cqiDlSpmux1"; record=mean);
+        @signal[cqiDlSpmux2];
+        @statistic[cqiDlSpmux2](title="Average cqi Spmux band 2"; unit="cqi"; source="cqiDlSpmux2"; record=mean);
+        @signal[cqiDlSpmux3];
+        @statistic[cqiDlSpmux3](title="Average cqi Spmux band 3"; unit="cqi"; source="cqiDlSpmux3"; record=mean);
+        @signal[cqiDlSpmux4];
+        @statistic[cqiDlSpmux4](title="Average cqi Spmux band 4"; unit="cqi"; source="cqiDlSpmux4"; record=mean);
+        
+        @signal[cqiDlTxDiv0];
+        @statistic[cqiDlTxDiv0](title="Average cqi TxDiv band 0"; unit="cqi"; source="cqiDlTxDiv0"; record=mean);
+        @signal[cqiDlTxDiv1];
+        @statistic[cqiDlTxDiv1](title="Average cqi TxDiv band 1"; unit="cqi"; source="cqiDlTxDiv1"; record=mean);
+        @signal[cqiDlTxDiv2];
+        @statistic[cqiDlTxDiv2](title="Average cqi TxDiv band 2"; unit="cqi"; source="cqiDlTxDiv2"; record=mean);
+        @signal[cqiDlTxDiv3];
+        @statistic[cqiDlTxDiv3](title="Average cqi TxDiv band 3"; unit="cqi"; source="cqiDlTxDiv3"; record=mean);
+        @signal[cqiDlTxDiv4];
+        @statistic[cqiDlTxDiv4](title="Average cqi TxDiv band 4"; unit="cqi"; source="cqiDlTxDiv4"; record=mean);
+        
+        @signal[cqiDlMuMimo0];
+        @statistic[cqiDlMuMimo0](title="Average cqi MuMimo band 0"; unit="cqi"; source="cqiDlMuMimo0"; record=mean);
+        @signal[cqiDlMuMimo1];
+        @statistic[cqiDlMuMimo1](title="Average cqi MuMimo band 1"; unit="cqi"; source="cqiDlMuMimo1"; record=mean);
+        @signal[cqiDlMuMimo2];
+        @statistic[cqiDlMuMimo2](title="Average cqi MuMimo band 2"; unit="cqi"; source="cqiDlMuMimo2"; record=mean);
+        @signal[cqiDlMuMimo3];
+        @statistic[cqiDlMuMimo3](title="Average cqi MuMimo band 3"; unit="cqi"; source="cqiDlMuMimo3"; record=mean);
+        @signal[cqiDlMuMimo4];
+        @statistic[cqiDlMuMimo4](title="Average cqi MuMimo band 4"; unit="cqi"; source="cqiDlMuMimo4"; record=mean);  
 }
 
 //
@@ -448,166 +493,122 @@ simple LteMacEnb extends LteMacBase {
         
         //# Statistics for Lte Scheduler Enb
         @signal[tmsTxDiv];
-        @statistic[tmsTxDiv](title="how many time TMS has coiche TxDIV respect to the other"; unit="ratio"; source="tmsTxDiv"; record=lteAvg);
+        @statistic[tmsTxDiv](title="how many time TMS has coiche TxDIV respect to the other"; unit="ratio"; source="tmsTxDiv"; record=mean);
         @signal[tmsSMux];
-        @statistic[tmsSMux](title="how many time TMS has coiche SMUX respect to the other"; unit="ratio"; source="tmsSMux"; record=lteAvg);
+        @statistic[tmsSMux](title="how many time TMS has coiche SMUX respect to the other"; unit="ratio"; source="tmsSMux"; record=mean);
         @signal[tmsMuMimo];
-        @statistic[tmsMuMimo](title="how many time TMS has coiche MuMIMO respect to the other"; unit="ratio"; source="tmsMuMimo"; record=lteAvg);
+        @statistic[tmsMuMimo](title="how many time TMS has coiche MuMIMO respect to the other"; unit="ratio"; source="tmsMuMimo"; record=mean);
         
         //#
         //# Statistics for Lte Scheduler Enb
         @signal[cellBlocksUtilizationDl];
-        @statistic[cellBlocksUtilizationDl](title="LTE Cell Blocks Utilization Dl"; unit="blocks"; source="cellBlocksUtilizationDl"; record=lteAvg);
+        @statistic[cellBlocksUtilizationDl](title="LTE Cell Blocks Utilization Dl"; unit="blocks"; source="cellBlocksUtilizationDl"; record=mean);
         @signal[cellBlocksUtilizationUl];
-        @statistic[cellBlocksUtilizationUl](title="LTE Cell Blocks Utilization Ul"; unit="blocks"; source="cellBlocksUtilizationUl"; record=lteAvg);
+        @statistic[cellBlocksUtilizationUl](title="LTE Cell Blocks Utilization Ul"; unit="blocks"; source="cellBlocksUtilizationUl"; record=mean);
         @signal[avgServedBlocksDl];
-        @statistic[avgServedBlocksDl](title="LTE Avg Served Blocks Dl"; unit="blocks"; source="avgServedBlocksDl"; record=lteAvg);
+        @statistic[avgServedBlocksDl](title="LTE Avg Served Blocks Dl"; unit="blocks"; source="avgServedBlocksDl"; record=mean);
         @signal[avgServedBlocksUl];
-        @statistic[avgServedBlocksUl](title="LTE Avg Served Blocks Ul"; unit="blocks"; source="avgServedBlocksUl"; record=lteAvg);
+        @statistic[avgServedBlocksUl](title="LTE Avg Served Blocks Ul"; unit="blocks"; source="avgServedBlocksUl"; record=mean);
         @signal[depletedPowerDl];
-        @statistic[depletedPowerDl](title="LTE ENodeB depleted power Dl"; unit="watts"; source="depletedPowerDl"; record=lteAvg);
+        @statistic[depletedPowerDl](title="LTE ENodeB depleted power Dl"; unit="watts"; source="depletedPowerDl"; record=mean);
         @signal[depletedPowerUl];
-        @statistic[depletedPowerUl](title="LTE ENodeB depleted power Ul"; unit="watts"; source="depletedPowerUl"; record=lteAvg);
+        @statistic[depletedPowerUl](title="LTE ENodeB depleted power Ul"; unit="watts"; source="depletedPowerUl"; record=mean);
         @signal[activatedFrames];
-        @statistic[activatedFrames](title="D1 algo, ratio of activated frame"; unit="ratio"; source="activatedFrames"; record=lteAvg);
+        @statistic[activatedFrames](title="D1 algo, ratio of activated frame"; unit="ratio"; source="activetedFrames"; record=mean);
         @signal[sleepFrames];
-        @statistic[sleepFrames](title="D1 algo, ratio of sleep frame"; unit="ratio"; source="sleepFrames"; record=lteAvg);
+        @statistic[sleepFrames](title="D1 algo, ratio of sleep frame"; unit="ratio"; source="sleepFrames"; record=mean);
         @signal[wastedFrames];
-        @statistic[wastedFrames](title="D1 algo, ratio of activated frame with no traffic to serve"; unit="ratio"; source="wastedFrames"; record=lteAvg);
+        @statistic[wastedFrames](title="D1 algo, ratio of activated frame with no traffic to serve"; unit="ratio"; source="wastedFrames"; record=mean);
         
         @signal[prf_0];
-        @statistic[prf_0](unit="ratio"; source="prf_0"; record=lteAvg);
+        @statistic[prf_0](unit="ratio"; source="prf_0"; record=mean);
         @signal[prf_1a];
-        @statistic[prf_1a](unit="ratio"; source="prf_1a"; record=lteAvg);
+        @statistic[prf_1a](unit="ratio"; source="prf_1a"; record=mean);
         @signal[prf_2a];
-        @statistic[prf_2a](  unit="ratio"; source="prf_2a"; record=lteAvg);
+        @statistic[prf_2a](  unit="ratio"; source="prf_2a"; record=mean);
         @signal[prf_3a];
-        @statistic[prf_3a](  unit="ratio"; source="prf_3a"; record=lteAvg);
+        @statistic[prf_3a](  unit="ratio"; source="prf_3a"; record=mean);
         @signal[prf_1b];
-        @statistic[prf_1b](  unit="ratio"; source="prf_1b"; record=lteAvg);
+        @statistic[prf_1b](  unit="ratio"; source="prf_1b"; record=mean);
         @signal[prf_2b];
-        @statistic[prf_2b](  unit="ratio"; source="prf_2b"; record=lteAvg);
+        @statistic[prf_2b](  unit="ratio"; source="prf_2b"; record=mean);
         @signal[prf_3b];
-        @statistic[prf_3b](  unit="ratio"; source="prf_3b"; record=lteAvg);
-        @signal[prf_1c];
-        @statistic[prf_3b](  unit="ratio"; source="prf_1c"; record=lteAvg);
+        @statistic[prf_3b](  unit="ratio"; source="prf_3b"; record=mean);
+        @signal[prf_3b];
+        @statistic[prf_3b](  unit="ratio"; source="prf_1c"; record=mean);
         @signal[prf_2c];
-        @statistic[prf_2c](  unit="ratio"; source="prf_2c"; record=lteAvg);
+        @statistic[prf_2c](  unit="ratio"; source="prf_2c"; record=mean);
         @signal[prf_3c];
-        @statistic[prf_3c](  unit="ratio"; source="prf_3c"; record=lteAvg);
+        @statistic[prf_3c](  unit="ratio"; source="prf_3c"; record=mean);
         @signal[prf_4];
-        @statistic[prf_4](  unit="ratio"; source="prf_4"; record=lteAvg);
+        @statistic[prf_4](  unit="ratio"; source="prf_4"; record=mean);
         @signal[prf_5];
-        @statistic[prf_5](  unit="ratio"; source="prf_5"; record=lteAvg);
+        @statistic[prf_5](  unit="ratio"; source="prf_5"; record=mean);
         @signal[prf_6a];
-        @statistic[prf_6a](  unit="ratio"; source="prf_6a"; record=lteAvg);
+        @statistic[prf_6a](  unit="ratio"; source="prf_6a"; record=mean);
         @signal[prf_7a];
-        @statistic[prf_7a](  unit="ratio"; source="prf_7a"; record=lteAvg);
+        @statistic[prf_7a](  unit="ratio"; source="prf_7a"; record=mean);
         @signal[prf_8a];
-        @statistic[prf_8a](  unit="ratio"; source="prf_8a"; record=lteAvg);
+        @statistic[prf_8a](  unit="ratio"; source="prf_8a"; record=mean);
         @signal[prf_6b];
-        @statistic[prf_6b](  unit="ratio"; source="prf_6b"; record=lteAvg);
+        @statistic[prf_6b](  unit="ratio"; source="prf_6b"; record=mean);
         @signal[prf_7b];
-        @statistic[prf_7b](  unit="ratio"; source="prf_7b"; record=lteAvg);
+        @statistic[prf_7b](  unit="ratio"; source="prf_7b"; record=mean);
         @signal[prf_8b];
-        @statistic[prf_8b](  unit="ratio"; source="prf_8b"; record=lteAvg);
+        @statistic[prf_8b](  unit="ratio"; source="prf_8b"; record=mean);
         @signal[prf_6c];
-        @statistic[prf_6c](  unit="ratio"; source="prf_6c"; record=lteAvg);
+        @statistic[prf_6c](  unit="ratio"; source="prf_6c"; record=mean);
         @signal[prf_7c];
-        @statistic[prf_7c](  unit="ratio"; source="prf_7c"; record=lteAvg);
+        @statistic[prf_7c](  unit="ratio"; source="prf_7c"; record=mean);
         @signal[prf_8c];
-        @statistic[prf_8c](  unit="ratio"; source="prf_8c"; record=lteAvg);
+        @statistic[prf_8c](  unit="ratio"; source="prf_8c"; record=mean);
         @signal[prf_9];
-        @statistic[prf_9](  unit="ratio"; source="prf_9"; record=lteAvg);
+        @statistic[prf_9](  unit="ratio"; source="prf_9"; record=mean);
         
         @signal[rb_0];
-        @statistic[rb_0](  unit="ratio"; source="rb_0"; record=lteAvg);
+        @statistic[rb_0](  unit="ratio"; source="rb_0"; record=mean);
         @signal[rb_1a];
-        @statistic[rb_1a](  unit="ratio"; source="rb_1a"; record=lteAvg);
+        @statistic[rb_1a](  unit="ratio"; source="rb_1a"; record=mean);
         @signal[rb_2a];
-        @statistic[rb_2a](  unit="ratio"; source="rb_2a"; record=lteAvg);
+        @statistic[rb_2a](  unit="ratio"; source="rb_2a"; record=mean);
         @signal[rb_3a];
-        @statistic[rb_3a](  unit="ratio"; source="rb_3a"; record=lteAvg);
+        @statistic[rb_3a](  unit="ratio"; source="rb_3a"; record=mean);
         @signal[rb_1b];
-        @statistic[rb_1b](  unit="ratio"; source="rb_1b"; record=lteAvg);
+        @statistic[rb_1b](  unit="ratio"; source="rb_1b"; record=mean);
         @signal[rb_2b];
-        @statistic[rb_2b](  unit="ratio"; source="rb_2b"; record=lteAvg);
+        @statistic[rb_2b](  unit="ratio"; source="rb_2b"; record=mean);
         @signal[rb_3b];
-        @statistic[rb_3b](  unit="ratio"; source="rb_3b"; record=lteAvg);
+        @statistic[rb_3b](  unit="ratio"; source="rb_3b"; record=mean);
         @signal[rb_1c];
-        @statistic[rb_1c](  unit="ratio"; source="rb_1c"; record=lteAvg);
+        @statistic[rb_1c](  unit="ratio"; source="rb_1c"; record=mean);
         @signal[rb_2c];
-        @statistic[rb_2c](  unit="ratio"; source="rb_2c"; record=lteAvg);
+        @statistic[rb_2c](  unit="ratio"; source="rb_2c"; record=mean);
         @signal[rb_3c];
-        @statistic[rb_3c](  unit="ratio"; source="rb_3c"; record=lteAvg);
+        @statistic[rb_3c](  unit="ratio"; source="rb_3c"; record=mean);
         @signal[rb_4];
-        @statistic[rb_4](  unit="ratio"; source="rb_4"; record=lteAvg);
+        @statistic[rb_4](  unit="ratio"; source="rb_4"; record=mean);
         @signal[rb_5];
-        @statistic[rb_5](  unit="ratio"; source="rb_5"; record=lteAvg);
+        @statistic[rb_5](  unit="ratio"; source="rb_5"; record=mean);
         @signal[rb_6a];
-        @statistic[rb_6a](  unit="ratio"; source="rb_6a"; record=lteAvg);
+        @statistic[rb_6a](  unit="ratio"; source="rb_6a"; record=mean);
         @signal[rb_7a];
-        @statistic[rb_7a](  unit="ratio"; source="rb_7a"; record=lteAvg);
+        @statistic[rb_7a](  unit="ratio"; source="rb_7a"; record=mean);
         @signal[rb_8a];
-        @statistic[rb_8a](  unit="ratio"; source="rb_8a"; record=lteAvg);
+        @statistic[rb_8a](  unit="ratio"; source="rb_8a"; record=mean);
         @signal[rb_6b];
-        @statistic[rb_6b](  unit="ratio"; source="rb_6b"; record=lteAvg);
+        @statistic[rb_6b](  unit="ratio"; source="rb_6b"; record=mean);
         @signal[rb_7b];
-        @statistic[rb_7b](  unit="ratio"; source="rb_7b"; record=lteAvg);
+        @statistic[rb_7b](  unit="ratio"; source="rb_7b"; record=mean);
         @signal[rb_8b];
-        @statistic[rb_8b](  unit="ratio"; source="rb_8b"; record=lteAvg);
+        @statistic[rb_8b](  unit="ratio"; source="rb_8b"; record=mean);
         @signal[rb_6c];
-        @statistic[rb_6c](  unit="ratio"; source="rb_6c"; record=lteAvg);
+        @statistic[rb_6c](  unit="ratio"; source="rb_6c"; record=mean);
         @signal[rb_7c];
-        @statistic[rb_7c](  unit="ratio"; source="rb_7c"; record=lteAvg);
+        @statistic[rb_7c](  unit="ratio"; source="rb_7c"; record=mean);
         @signal[rb_8c];
-        @statistic[rb_8c](  unit="ratio"; source="rb_8c"; record=lteAvg);
+        @statistic[rb_8c](  unit="ratio"; source="rb_8c"; record=mean);
         @signal[rb_9];
-        @statistic[rb_9](  unit="ratio"; source="rb_9"; record=lteAvg);
-        
-        @signal[cqiDlSiso0];
-        @statistic[cqiDlSiso0](title="Average cqi siso band 0"; unit="cqi"; source="cqiDlSiso0"; record=lteAvg);
-        @signal[cqiDlSiso1];
-        @statistic[cqiDlSiso1](title="Average cqi siso band 1"; unit="cqi"; source="cqiDlSiso1"; record=lteAvg);
-        @signal[cqiDlSiso2];
-        @statistic[cqiDlSiso2](title="Average cqi siso band 2"; unit="cqi"; source="cqiDlSiso2"; record=lteAvg);
-        @signal[cqiDlSiso3];
-        @statistic[cqiDlSiso3](title="Average cqi siso band 3"; unit="cqi"; source="cqiDlSiso3"; record=lteAvg);
-        @signal[cqiDlSiso4];
-        @statistic[cqiDlSiso4](title="Average cqi siso band 4"; unit="cqi"; source="cqiDlSiso4"; record=lteAvg);
-    
-        @signal[cqiDlSpmux0];
-        @statistic[cqiDlSpmux0](title="Average cqi Spmux band 0"; unit="cqi"; source="cqiDlSpmux0"; record=lteAvg);
-        @signal[cqiDlSpmux1];
-        @statistic[cqiDlSpmux1](title="Average cqi Spmux band 1"; unit="cqi"; source="cqiDlSpmux1"; record=lteAvg);
-        @signal[cqiDlSpmux2];
-        @statistic[cqiDlSpmux2](title="Average cqi Spmux band 2"; unit="cqi"; source="cqiDlSpmux2"; record=lteAvg);
-        @signal[cqiDlSpmux3];
-        @statistic[cqiDlSpmux3](title="Average cqi Spmux band 3"; unit="cqi"; source="cqiDlSpmux3"; record=lteAvg);
-        @signal[cqiDlSpmux4];
-        @statistic[cqiDlSpmux4](title="Average cqi Spmux band 4"; unit="cqi"; source="cqiDlSpmux4"; record=lteAvg);
-        
-        @signal[cqiDlTxDiv0];
-        @statistic[cqiDlTxDiv0](title="Average cqi TxDiv band 0"; unit="cqi"; source="cqiDlTxDiv0"; record=lteAvg);
-        @signal[cqiDlTxDiv1];
-        @statistic[cqiDlTxDiv1](title="Average cqi TxDiv band 1"; unit="cqi"; source="cqiDlTxDiv1"; record=lteAvg);
-        @signal[cqiDlTxDiv2];
-        @statistic[cqiDlTxDiv2](title="Average cqi TxDiv band 2"; unit="cqi"; source="cqiDlTxDiv2"; record=lteAvg);
-        @signal[cqiDlTxDiv3];
-        @statistic[cqiDlTxDiv3](title="Average cqi TxDiv band 3"; unit="cqi"; source="cqiDlTxDiv3"; record=lteAvg);
-        @signal[cqiDlTxDiv4];
-        @statistic[cqiDlTxDiv4](title="Average cqi TxDiv band 4"; unit="cqi"; source="cqiDlTxDiv4"; record=lteAvg);
-        
-        @signal[cqiDlMuMimo0];
-        @statistic[cqiDlMuMimo0](title="Average cqi MuMimo band 0"; unit="cqi"; source="cqiDlMuMimo0"; record=lteAvg);
-        @signal[cqiDlMuMimo1];
-        @statistic[cqiDlMuMimo1](title="Average cqi MuMimo band 1"; unit="cqi"; source="cqiDlMuMimo1"; record=lteAvg);
-        @signal[cqiDlMuMimo2];
-        @statistic[cqiDlMuMimo2](title="Average cqi MuMimo band 2"; unit="cqi"; source="cqiDlMuMimo2"; record=lteAvg);
-        @signal[cqiDlMuMimo3];
-        @statistic[cqiDlMuMimo3](title="Average cqi MuMimo band 3"; unit="cqi"; source="cqiDlMuMimo3"; record=lteAvg);
-        @signal[cqiDlMuMimo4];
-        @statistic[cqiDlMuMimo4](title="Average cqi MuMimo band 4"; unit="cqi"; source="cqiDlMuMimo4"; record=lteAvg);    
+        @statistic[rb_9](  unit="ratio"; source="rb_9"; record=mean);
 }    
 
 //

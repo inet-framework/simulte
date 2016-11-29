@@ -57,9 +57,10 @@ class UmRxEntity : public cSimpleModule
     virtual void handleMessage(cMessage* msg);
 
     //Statistics
-    TaggedSample *tSample_;
-    TaggedSample *tSampleCell_;
-
+    static unsigned int totalCellPduRcvdBytes_;
+    static unsigned int totalCellRcvdBytes_;
+    unsigned int totalPduRcvdBytes_;
+    unsigned int totalRcvdBytes_;
     simsignal_t rlcCellPacketLoss_;
     simsignal_t rlcPacketLoss_;
     simsignal_t rlcPduPacketLoss_;

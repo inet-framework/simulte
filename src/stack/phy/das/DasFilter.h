@@ -122,7 +122,7 @@ class DasFilter
      * @param i-th physical antenna index
      * @return i-th antenna coordinates
      */
-    Coord getAntennaCoord(int i);
+    inet::Coord getAntennaCoord(int i);
 
     /**
      * Debugging: prints a line with all physical antenna properties

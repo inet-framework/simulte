@@ -14,31 +14,30 @@
 #include "stack/mac/layer/LteMacBase.h"
 #include "stack/mac/layer/LteMacEnb.h"
 
+unsigned int LteHarqBufferRx::totalCellRcvdBytes_ = 0;
+
 LteHarqBufferRx::LteHarqBufferRx(unsigned int num, LteMacBase *owner,
     MacNodeId nodeId)
 {
     macOwner_ = owner;
     nodeId_ = nodeId;
+    macUe_ = check_and_cast<LteMacBase*>(getMacByMacNodeId(nodeId_));
     numHarqProcesses_ = num;
     processes_.resize(numHarqProcesses_);
+    totalRcvdBytes_ = 0;
 
     for (unsigned int i = 0; i < numHarqProcesses_; i++)
     {
         processes_[i] = new LteHarqProcessRx(i, macOwner_);
     }
-    tSampleCell_ = new TaggedSample();
-    tSample_ = new TaggedSample();
-    /* Signals initialization: those are used to gather statistics */
 
+    /* Signals initialization: those are used to gather statistics */
     if (macOwner_->getNodeType() == ENODEB)
     {
         nodeB_ = macOwner_;
-        macDelay_ = macOwner_->registerSignal("macDelayUl");
+        macDelay_ = macUe_->registerSignal("macDelayUl");
         macThroughput_ = getMacByMacNodeId(nodeId_)->registerSignal("macThroughputUl");
         macCellThroughput_ = macOwner_->registerSignal("macCellThroughputUl");
-
-        tSampleCell_->module_ = check_and_cast<cComponent*>(macOwner_);
-        tSample_->module_ = check_and_cast<cComponent*>(getMacByMacNodeId(nodeId_));
     }
     else if (macOwner_->getNodeType() == UE)
     {
@@ -46,9 +45,6 @@ LteHarqBufferRx::LteHarqBufferRx(unsigned int num, LteMacBase *owner,
         macThroughput_ = macOwner_->registerSignal("macThroughputDl");
         macCellThroughput_ = nodeB_->registerSignal("macCellThroughputDl");
         macDelay_ = macOwner_->registerSignal("macDelayDl");
-
-        tSampleCell_->module_ = nodeB_;
-        tSample_->module_ = macOwner_;
     }
 }
 
@@ -131,51 +127,28 @@ std::list<LteMacPdu *> LteHarqBufferRx::extractCorrectPdus()
             if (processes_[i]->isCorrect(cw))
             {
                 LteMacPdu* temp = processes_[i]->extractPdu(cw);
+                UserControlInfo *uInfo = check_and_cast<UserControlInfo *>(temp->getControlInfo());
                 unsigned int size = temp->getByteLength();
-                UserControlInfo* info = check_and_cast<UserControlInfo*>(
-                    temp->getControlInfo());
-
-                // Calculate delay by subtracting the arrival time
-                // to the MAC packet creation time
-                tSample_->sample_ = (NOW - temp->getCreationTime()).dbl();
-                if (info->getDirection() == DL)
-                {
-                    tSample_->id_ = info->getDestId();
-                }
-                else if (info->getDirection() == UL)
-                {
-                    tSample_->id_ = info->getSourceId();
-                }
-                else
-                {
-                    throw cRuntimeError("LteHarqBufferRx::extractCorrectPdus(): unknown direction %d",(int) info->getDirection());
-                }
 
                 // emit delay statistic
-                macOwner_->emit(macDelay_, tSample_);
+                macUe_->emit(macDelay_, (NOW - temp->getCreationTime()).dbl());
 
                 // Calculate Throughput by sending the number of bits for this packet
-                tSample_->sample_ = size;
-                tSampleCell_->sample_ = size;
-                if (macOwner_->getNodeType() == UE)
-                {
-                    tSample_->id_ = info->getDestId();
-                    tSampleCell_->id_ = macOwner_->getMacCellId();
-                }
-                else if (macOwner_->getNodeType() == ENODEB)
-                {
-                    tSample_->id_ = info->getSourceId();
-                    tSampleCell_->id_ = info->getDestId();
-                }
-                else
-                {
-                    throw cRuntimeError("LteHarqBufferRx::extractCorrectPdus(): unknown nodeType %d",
-                        (int) macOwner_->getNodeType());
-                }
+                totalCellRcvdBytes_ += size;
+                totalRcvdBytes_ += size;
+                double tputSample = (double)totalRcvdBytes_ / (NOW - getSimulation()->getWarmupPeriod());
+                double cellTputSample = (double)totalCellRcvdBytes_ / (NOW - getSimulation()->getWarmupPeriod());
 
                 // emit throughput statistics
-                nodeB_->emit(macCellThroughput_, tSampleCell_);
-                macOwner_->emit(macThroughput_, tSample_);
+                nodeB_->emit(macCellThroughput_, cellTputSample);
+                if (uInfo->getDirection() == DL)
+                {
+                    macOwner_->emit(macThroughput_, tputSample);
+                }
+                else  // UL
+                {
+                    macUe_->emit(macThroughput_, tputSample);
+                }
 
                 macOwner_->dropObj(temp);
                 ret.push_back(temp);
@@ -212,7 +185,4 @@ LteHarqBufferRx::~LteHarqBufferRx()
         delete *it;
     processes_.clear();
     macOwner_ = NULL;
-
-    delete tSampleCell_;
-    delete tSample_;
 }

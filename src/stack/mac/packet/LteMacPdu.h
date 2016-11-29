@@ -32,7 +32,7 @@ class LteMacPdu : public LteMacPdu_Base
     MacControlElementsList ceList_;
 
     /// Length of the PDU
-    int64 macPduLength_;
+    inet::int64 macPduLength_;
 
     /**
      * ID of the MAC PDU
@@ -40,7 +40,7 @@ class LteMacPdu : public LteMacPdu_Base
      * the new message gets a different msgid. However, we need that multiple copies of the
      * same PDU have the same PDU ID (for example, multiple copies of a broadcast transmission)
      */
-    int64 macPduId_;
+    inet::int64 macPduId_;
 
   public:
 
@@ -270,12 +270,12 @@ class LteMacPdu : public LteMacPdu_Base
     /**
      *
      */
-    int64 getByteLength() const
+    inet::int64 getByteLength() const
     {
         return macPduLength_ + getHeaderLength();
     }
 
-    int64 getBitLength() const
+    inet::int64 getBitLength() const
     {
         return (getByteLength() * 8);
     }

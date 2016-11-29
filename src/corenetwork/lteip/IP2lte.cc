@@ -18,6 +18,8 @@
 #include "inet/common/ModuleAccess.h"
 #include "inet/networklayer/ipv4/IPv4InterfaceData.h"
 #include "inet/networklayer/common/InterfaceEntry.h"
+#include "inet/networklayer/configurator/ipv4/IPv4NetworkConfigurator.h"
+#include "inet/networklayer/ipv4/IIPv4RoutingTable.h"
 #include "stack/mac/layer/LteMacBase.h"
 
 using namespace std;
@@ -42,7 +44,7 @@ void IP2lte::initialize(int stage)
         {
             // TODO not so elegant
             cModule *ue = getParentModule()->getParentModule();
-            getBinder()->registerNode(ue, nodeType_, ue->par("masterId"));
+            nodeId_ = binder_->registerNode(ue, nodeType_, ue->par("masterId"));
         }
         else if (nodeType_ == ENODEB)
         {
@@ -51,6 +53,7 @@ void IP2lte::initialize(int stage)
             MacNodeId cellId = getBinder()->registerNode(enodeb, nodeType_);
             LteDeployer * deployer = check_and_cast<LteDeployer*>(enodeb->getSubmodule("deployer"));
             binder_->registerDeployer(deployer, cellId);
+            nodeId_ = cellId;
         }
 
         registerInterface();
@@ -453,5 +456,14 @@ IP2lte::~IP2lte()
             it->second.pop_front();
             delete pkt;
         }
+    }
+}
+
+void IP2lte::finish()
+{
+    if (getSimulation()->getSimulationStage() != CTX_FINISH)
+    {
+        // do this only at deletion of the module during the simulation
+        binder_->unregisterNode(nodeId_);
     }
 }

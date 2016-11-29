@@ -20,8 +20,6 @@
 class VoIPSender : public cSimpleModule
 {
     inet::UDPSocket socket;
-    //has the sender been initialized?
-    bool initialized_;
 
     //source
     simtime_t durTalk_;
@@ -48,11 +46,14 @@ class VoIPSender : public cSimpleModule
 
     cMessage *selfSender_;
 
+    cMessage *initTraffic_;
+
     simtime_t timestamp_;
     int localPort_;
     int destPort_;
     inet::L3Address destAddress_;
 
+    void initTraffic();
     void talkspurt(simtime_t dur);
     void selectPeriodTime();
     void sendVoIPPacket();
@@ -66,6 +67,7 @@ class VoIPSender : public cSimpleModule
     virtual int numInitStages() const { return inet::NUM_INIT_STAGES; }
     void initialize(int stage);
     void handleMessage(cMessage *msg);
+
 };
 
 #endif

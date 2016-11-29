@@ -12,11 +12,13 @@
 
 #include <omnetpp.h>
 #include <string>
+
 #include "common/LteCommon.h"
 #include "inet/networklayer/contract/ipv4/IPv4Address.h"
 #include "inet/networklayer/common/L3Address.h"
 #include "corenetwork/binder/PhyPisaData.h"
 #include "corenetwork/nodes/ExtCell.h"
+#include "stack/mac/layer/LteMacBase.h"
 
 using namespace inet;
 
@@ -49,6 +51,7 @@ class LteBinder : public cSimpleModule
 
     std::map<IPv4Address, MacNodeId> macNodeIdToIPAddress_;
     std::map<MacNodeId, char*> macNodeIdToModuleName_;
+    std::map<MacNodeId, LteMacBase*> macNodeIdToModule_;
     DeployerList deployersMap_;
     std::vector<MacNodeId> nextHop_; // MacNodeIdMaster --> MacNodeIdSlave
     std::map<int, OmnetId> nodeIds_;
@@ -82,7 +85,7 @@ class LteBinder : public cSimpleModule
      * D2D Support
      */
     // determines if two UEs can communicate using D2D
-    bool **d2dPeeringCapability_;
+    std::map<MacNodeId, std::map<MacNodeId, bool> > d2dPeeringCapability_;
     // determines if two D2D-capable UEs are communicating in D2D mode or Infrastructure Mode
     std::map<MacNodeId, std::map<MacNodeId, LteD2DMode> > d2dPeeringMode_;
 
@@ -186,6 +189,9 @@ class LteBinder : public cSimpleModule
      */
     MacNodeId registerNode(cModule *module, LteNodeType type, MacNodeId masterId = 0);
 
+    /**
+     * Un-registers a node from the global LteBinder module.
+     */
     void unregisterNode(MacNodeId id);
 
     /**
@@ -220,8 +226,23 @@ class LteBinder : public cSimpleModule
      */
     OmnetId getOmnetId(MacNodeId nodeId);
 
-
+    /**
+     * getMacNodeIdFromOmnetId() returns the MacNodeId of the module
+     * given its OmnetId
+     *
+     * @param id OmnetId of the module
+     * @return MacNodeId of the module
+     */
     MacNodeId getMacNodeIdFromOmnetId(OmnetId id);
+
+    /*
+     * getMacFromMacNodeId() returns the reference to the LteMacBase module
+     * given the MacNodeId of a node
+     *
+     * @param id MacNodeId of the module
+     * @return LteMacBase* of the module
+     */
+    LteMacBase* getMacFromMacNodeId(MacNodeId id);
 
     /**
      * getNextHop() returns the master of
