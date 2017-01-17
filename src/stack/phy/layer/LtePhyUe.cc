@@ -52,7 +52,6 @@ void LtePhyUe::initialize(int stage)
         useBattery_ = false;
 
         enableHandover_ = par("enableHandover");
-        enableHandover_ = par("enableHandover"); // TODO : USE IT
         int index = intuniform(0, binder_->phyPisaData.maxChannel() - 1);
         //int index2=intuniform(0,binder_->phyPisaData.maxChannel2()-1);
         deployer_->lambdaInit(nodeId_, index);

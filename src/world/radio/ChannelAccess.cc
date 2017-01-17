@@ -17,10 +17,10 @@
 
 
 #include "world/radio/ChannelAccess.h"
-
 #include "inet/mobility/contract/IMobility.h"
 #include "inet/common/ModuleAccess.h"
-#include "BaseMobility.h"
+
+#include "veins/base/modules/BaseMobility.h"
 
 static int parseInt(const char *s, int defaultValue)
 {

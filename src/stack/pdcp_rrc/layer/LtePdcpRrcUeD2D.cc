@@ -31,20 +31,21 @@ void LtePdcpRrcUeD2D::fromDataPort(cPacket *pkt)
 
     if (binder_->getMacNodeId(destAddr) == 0)
     {
+        EV << NOW << " LtePdcpRrcUeD2D::fromDataPort - Destination " << destAddr << " has left the simulation. Delete packet." << endl;
         delete pkt;
         return;
     }
 
-    // TODO add this part for enabling D2D unicast for dynamic-created modules
-//    // the first time we see a new destination address, we need to check whether the endpoint
-//    // is a D2D peer and, eventually, add it to the binder
-//    const char* destName = (L3AddressResolver().findHostWithAddress(destAddr))->getFullName();
-//    if (d2dPeeringInit_.find(destName) == d2dPeeringInit_.end() || !d2dPeeringInit_.at(destName))
-//    {
-//        MacNodeId d2dPeerId = binder_->getMacNodeId(destAddr);
-//        binder_->addD2DCapability(nodeId_, d2dPeerId);
-//        d2dPeeringInit_[destName] = true;
-//    }
+    // This part is required for supporting D2D unicast with dynamic-created modules
+    // the first time we see a new destination address, we need to check whether the endpoint
+    // is a D2D peer and, eventually, add it to the binder
+    const char* destName = (L3AddressResolver().findHostWithAddress(destAddr))->getFullName();
+    if (d2dPeeringInit_.find(destName) == d2dPeeringInit_.end() || !d2dPeeringInit_.at(destName))
+    {
+        MacNodeId d2dPeerId = binder_->getMacNodeId(destAddr);
+        binder_->addD2DCapability(nodeId_, d2dPeerId);
+        d2dPeeringInit_[destName] = true;
+    }
 
     // the direction of the incoming connection is a D2D_MULTI one if the application is of the same type,
     // else the direction will be selected according to the current status of the UE, i.e. D2D or UL
@@ -165,10 +166,7 @@ void LtePdcpRrcUeD2D::initialize(int stage)
             std::pair<const char*, bool> p(token,false);
             d2dPeeringInit_.insert(p);
 
-            // TODO to remove for enabling D2D unicast  for dynamic-created modules
-            IPv4Address d2dPeerAddr = L3AddressResolver().resolve(token).toIPv4();
-            MacNodeId d2dPeerId = binder_->getMacNodeId(d2dPeerAddr);
-            binder_->addD2DCapability(nodeId_, d2dPeerId);
+            // delay initialization D2D capabilities to once arrive the first packet to the destination
         }
     }
 }
