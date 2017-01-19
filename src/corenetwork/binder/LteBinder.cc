@@ -710,6 +710,8 @@ void LteBinder::initialize(int stage)
 {
     if (stage == inet::INITSTAGE_LOCAL)
     {
+        numBands_ = par("numBands");
+
         const char * stringa;
 
         std::vector<int> apppriority;
@@ -881,9 +883,14 @@ void LteBinder::addD2DCapability(MacNodeId src, MacNodeId dst)
 
     // insert initial communication mode
     // TODO make it configurable from NED
-    d2dPeeringMode_[src][dst] = DM;
 
-    EV << "LteBinder::addD2DCapability - UE " << src << " may transmit to UE " << dst << " using D2D" << endl;
+    // enable DM only if the two endpoints are served by the same cell
+    if (nextHop_[src] == nextHop_[dst])
+        d2dPeeringMode_[src][dst] = DM;
+    else
+        d2dPeeringMode_[src][dst] = IM;
+
+    EV << "LteBinder::addD2DCapability - UE " << src << " may transmit to UE " << dst << " using D2D (current mode " << ((d2dPeeringMode_[src][dst] == DM) ? "DM)" : "IM)") << endl;
 }
 
 bool LteBinder::checkD2DCapability(MacNodeId src, MacNodeId dst)

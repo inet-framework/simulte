@@ -11,6 +11,8 @@
 #include "stack/mac/layer/LteMacEnbD2D.h"
 #include "stack/mac/layer/LteMacEnbRealisticD2D.h"
 
+Define_Module(D2DModeSelectionBase);
+
 void D2DModeSelectionBase::initialize(int stage)
 {
     if (stage != 0)

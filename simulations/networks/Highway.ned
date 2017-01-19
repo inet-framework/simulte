@@ -50,7 +50,7 @@ network Highway
         int numUe = default(100);
 
     submodules:
-        
+
         routingRecorder: RoutingTableRecorder {
             @display("p=50,75;is=s");
         }
@@ -58,9 +58,9 @@ network Highway
             @display("p=50,125");
             config = xmldoc("demo.xml");
         }
-        
+
         //# Veins modules
-        
+
         obstacles: ObstacleControl {
             @display("p=391,35");
         }
@@ -100,13 +100,20 @@ network Highway
             nodeType = "PGW";
             @display("p=462,136;is=l");
         }
-        eNodeB: eNodeB {
-            @display("p=346,136;is=vl");
+        eNodeB1: eNodeB {
+            @display("p=156,136;is=vl");
+        }
+        eNodeB2: eNodeB {
+            @display("p=391,313;is=vl");
         }
 
     connections allowunconnected:
         server.pppg++ <--> Eth10G <--> router.pppg++;
         router.pppg++ <--> Eth10G <--> pgw.filterGate;
-        pgw.pppg++ <--> Eth10G <--> eNodeB.ppp;
+        pgw.pppg++ <--> Eth10G <--> eNodeB1.ppp;
+        pgw.pppg++ <--> Eth10G <--> eNodeB2.ppp;
+
+        //# X2 connections
+        eNodeB1.x2++ <--> Eth10G <--> eNodeB2.x2++;
 }
 

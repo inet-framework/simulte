@@ -74,7 +74,7 @@ void LteDeployer::preInitialize()
     rbPilotUl_ = par("rbPilotUl");
     signalDl_ = par("signalDl");
     signalUl_ = par("signalUl");
-    numBands_ = par("numBands");
+    numBands_ = binder_->getNumBands();
     numRus_ = par("numRus");
 
     numPreferredBands_ = par("numPreferredBands");

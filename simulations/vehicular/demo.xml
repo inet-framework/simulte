@@ -1,4 +1,8 @@
 <config>
-    <interface hosts="eNodeB" names="wlan" address="10.0.0.1" netmask="255.0.0.0"/>
+    <!-- Assign to the wlan interface of all eNodeBs one address of type 10.x.x.x, since UEs will be assigned one such address -->
+    <interface hosts="eNodeB*" names="wlan" address="10.x.x.x" netmask="255.0.0.0"/>
+    <interface hosts="ue*" names="wlan" address="10.x.x.x" netmask="255.0.0.0"/>
+    
+    <!-- Assign 192.168.x.x addresses to all other interfaces -->
     <interface hosts="*" address="192.168.x.x" netmask="255.255.255.0"/>
 </config>

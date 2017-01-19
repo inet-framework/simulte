@@ -25,6 +25,7 @@ LteHarqBufferRx::LteHarqBufferRx(unsigned int num, LteMacBase *owner,
     numHarqProcesses_ = num;
     processes_.resize(numHarqProcesses_);
     totalRcvdBytes_ = 0;
+    isMulticast_ = false;
 
     for (unsigned int i = 0; i < numHarqProcesses_; i++)
     {

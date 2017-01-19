@@ -113,9 +113,9 @@ void LtePdcpRrcEnbD2D::fromDataPort(cPacket *pkt)
     emit(sentPacketToLowerLayer, pdcpPkt);
 }
 
-void LtePdcpRrcEnbD2D::initialize()
+void LtePdcpRrcEnbD2D::initialize(int stage)
 {
-    LtePdcpRrcEnb::initialize();
+    LtePdcpRrcEnb::initialize(stage);
 }
 
 void LtePdcpRrcEnbD2D::handleMessage(cMessage* msg)

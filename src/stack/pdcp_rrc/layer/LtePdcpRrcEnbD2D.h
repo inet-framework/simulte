@@ -25,7 +25,7 @@ class LtePdcpRrcEnbD2D : public LtePdcpRrcEnb
 
   protected:
 
-    virtual void initialize();
+    virtual void initialize(int stage);
     virtual void handleMessage(cMessage* msg);
 
     void handleControlInfo(cPacket* upPkt, FlowControlInfo* lteInfo)

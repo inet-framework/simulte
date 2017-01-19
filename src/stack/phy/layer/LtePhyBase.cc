@@ -29,29 +29,24 @@ void LtePhyBase::initialize(int stage)
     if (stage == inet::INITSTAGE_LOCAL)
     {
         binder_ = getBinder();
+        deployer_ = NULL;
         // get gate ids
         upperGateIn_ = findGate("upperGateIn");
         upperGateOut_ = findGate("upperGateOut");
         radioInGate_ = findGate("radioIn");
 
-        // get local id
-        nodeId_ = getAncestorPar("macNodeId");
-        EV << "Local MacNodeId: " << nodeId_ << endl;
-        deployer_ = getDeployer(nodeId_);
         // Initialize and watch statistics
         numAirFrameReceived_ = numAirFrameNotReceived_ = 0;
         ueTxPower_ = par("ueTxPower");
         eNodeBtxPower_ = par("eNodeBTxPower");
         microTxPower_ = par("microTxPower");
         relayTxPower_ = par("relayTxPower");
-        deployer_->channelUpdate(nodeId_,
-            intuniform(1, binder_->phyPisaData.maxChannel2()));
 
         carrierFrequency_ = 2.1e+9;
         WATCH(numAirFrameReceived_);
         WATCH(numAirFrameNotReceived_);
     }
-    else if (stage == 2)
+    else if (stage == inet::INITSTAGE_PHYSICAL_ENVIRONMENT_2)
     {
         initializeChannelModel(par("channelModel").xmlValue());
     }
@@ -203,12 +198,12 @@ LteChannelModel* LtePhyBase::getChannelModelFromName(std::string name, Parameter
 
 LteChannelModel* LtePhyBase::initializeChannelModel(ParameterMap& params)
 {
-    return new LteRealisticChannelModel(params, getRadioPosition(), deployer_->getNumBands());
+    return new LteRealisticChannelModel(params, getRadioPosition(), binder_->getNumBands());
 }
 
 LteChannelModel* LtePhyBase::initializeDummyChannelModel(ParameterMap& params)
 {
-    return new LteDummyChannelModel(params, deployer_->getNumBands());
+    return new LteDummyChannelModel(params, binder_->getNumBands());
 }
 
 void LtePhyBase::updateDisplayString()

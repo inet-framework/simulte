@@ -40,6 +40,8 @@ simple LtePhyBase like LtePhy {
         string txDirection = default("OMNI");
         double txAngle = default(0);       
         
+        bool dynamicCellAssociation = default(false);
+        
         // switch for handover messages handling on UEs
         bool enableHandover = default(false);
         double handoverLatency @unit(s) = default(0.05s);
@@ -56,6 +58,7 @@ simple LtePhyBase like LtePhy {
 simple LtePhyUe extends LtePhyBase {
      parameters:
          @class("LtePhyUe");
+         
          @signal[servingCell];
          @statistic[servingCell](title="ID of the serving eNodeB for the UE"; unit=""; source="servingCell"; record=vector);
         

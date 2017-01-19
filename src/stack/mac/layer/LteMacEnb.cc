@@ -220,6 +220,10 @@ void LteMacEnb::initialize(int stage)
     LteMacBase::initialize(stage);
     if (stage == inet::INITSTAGE_LOCAL)
     {
+        nodeId_ = getAncestorPar("macNodeId");
+
+        cellId_ = nodeId_;
+
         // TODO: read NED parameters, when will be present
         deployer_ = getDeployer();
         /* Get num RB Dl */

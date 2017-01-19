@@ -91,8 +91,14 @@ void LteMacUe::initialize(int stage)
         cqiDlSiso3_ = registerSignal("cqiDlSiso3");
         cqiDlSiso4_ = registerSignal("cqiDlSiso4");
     }
-    else if (stage == INITSTAGE_PHYSICAL_ENVIRONMENT)
+    else if (stage == INITSTAGE_LINK_LAYER)
     {
+        cellId_ = getAncestorPar("masterId");
+    }
+    else if (stage == INITSTAGE_NETWORK_LAYER_3)
+    {
+        nodeId_ = getAncestorPar("macNodeId");
+
         /* Insert UeInfo in the Binder */
         UeInfo* info = new UeInfo();
         info->id = nodeId_;            // local mac ID
@@ -105,16 +111,11 @@ void LteMacUe::initialize(int stage)
 
         binder_->addUeInfo(info);
 
-        if (NOW > 0)
-        {
-            // only for UEs that have been added dynamically to the simulation
-            LteAmc *amc = check_and_cast<LteMacEnb *>(getSimulation()->getModule(binder_->getOmnetId(cellId_))->getSubmodule("lteNic")->getSubmodule("mac"))->getAmc();
-            amc->attachUser(nodeId_, UL);
-            amc->attachUser(nodeId_, DL);
-        }
-    }
-    else if (stage == INITSTAGE_NETWORK_LAYER_3)
-    {
+        // only for UEs that have been added dynamically to the simulation
+        LteAmc *amc = check_and_cast<LteMacEnb *>(getSimulation()->getModule(binder_->getOmnetId(cellId_))->getSubmodule("lteNic")->getSubmodule("mac"))->getAmc();
+        amc->attachUser(nodeId_, UL);
+        amc->attachUser(nodeId_, DL);
+
         // find interface entry and use its address
         IInterfaceTable *interfaceTable = getModuleFromPar<IInterfaceTable>(par("interfaceTableModule"), this);
         // TODO: how do we find the LTE interface?

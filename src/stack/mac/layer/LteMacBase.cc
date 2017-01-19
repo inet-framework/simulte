@@ -134,7 +134,7 @@ void LteMacBase::fromPhy(cPacket *pkt)
             if (userInfo->getDirection() == DL || userInfo->getDirection() == UL)
                 hrb = new LteHarqBufferRx(ENB_RX_HARQ_PROCESSES, this,src);
             else // D2D
-                hrb = new LteHarqBufferRxD2D(ENB_RX_HARQ_PROCESSES, this,src);
+                hrb = new LteHarqBufferRxD2D(ENB_RX_HARQ_PROCESSES, this,src, (userInfo->getDirection() == D2D_MULTI) );
 
             harqRxBuffers_[src] = hrb;
             hrb->insertPdu(cw,pdu);
@@ -309,9 +309,6 @@ void LteMacBase::initialize(int stage)
         /* Create buffers */
         queueSize_ = par("queueSize");
         maxBytesPerTti_ = par("maxBytesPerTti");
-
-        nodeId_ = getAncestorPar("macNodeId");
-        cellId_ = getAncestorPar("macCellId");
 
         /* Get reference to binder */
         binder_ = getBinder();

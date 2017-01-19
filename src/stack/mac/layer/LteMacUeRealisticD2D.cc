@@ -33,7 +33,7 @@ LteMacUeRealisticD2D::~LteMacUeRealisticD2D()
 void LteMacUeRealisticD2D::initialize(int stage)
 {
     LteMacUeRealistic::initialize(stage);
-    if (stage == 0)
+    if (stage == inet::INITSTAGE_LOCAL)
     {
         // check the RLC module type: if it is not "RealisticD2D", abort simulation
         std::string pdcpType = getParentModule()->par("LtePdcpRrcType").stdstringValue();
@@ -45,7 +45,7 @@ void LteMacUeRealisticD2D::initialize(int stage)
         if (pdcpType.compare("LtePdcpRrcUeD2D") != 0)
             throw cRuntimeError("LteMacUeRealisticD2D::initialize - %s module found, must be LtePdcpRrcUeD2D. Aborting", pdcpType.c_str());
     }
-    if (stage == 1)
+    if (stage == inet::INITSTAGE_NETWORK_LAYER_3)
     {
         // get parameters
         usePreconfiguredTxParams_ = par("usePreconfiguredTxParams");
@@ -54,12 +54,8 @@ void LteMacUeRealisticD2D::initialize(int stage)
         // get the reference to the eNB
         enb_ = check_and_cast<LteMacEnbRealisticD2D*>(getSimulation()->getModule(binder_->getOmnetId(getMacCellId()))->getSubmodule("lteNic")->getSubmodule("mac"));
 
-        if (NOW > 0)
-        {
-            // only for UEs that have been added dynamically to the simulation
-            LteAmc *amc = check_and_cast<LteMacEnb *>(getSimulation()->getModule(binder_->getOmnetId(cellId_))->getSubmodule("lteNic")->getSubmodule("mac"))->getAmc();
-            amc->attachUser(nodeId_, D2D);
-        }
+        LteAmc *amc = check_and_cast<LteMacEnb *>(getSimulation()->getModule(binder_->getOmnetId(cellId_))->getSubmodule("lteNic")->getSubmodule("mac"))->getAmc();
+        amc->attachUser(nodeId_, D2D);
     }
 }
 
@@ -590,7 +586,9 @@ void LteMacUeRealisticD2D::handleSelfMessage()
         if (senderId == cellId_)
             continue;
 
-        // TODO skip the H-ARQ buffers corresponding to D2D_MULTI transmissions
+        // skip the H-ARQ buffers corresponding to D2D_MULTI transmissions
+        if (buff->isMulticast())
+            continue;
 
         //The constructor "extracts" all the useful information from the harqRxBuffer and put them in a LteHarqBufferRxD2DMirror object
         //That object resides in enB. Because this operation is done after the enb main loop the enb is 1 TTI backward respect to the Receiver

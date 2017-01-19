@@ -220,38 +220,41 @@ void LtePdcpRrcBase::toEutranRrcSap(cPacket *pkt)
  * Main functions
  */
 
-void LtePdcpRrcBase::initialize()
+void LtePdcpRrcBase::initialize(int stage)
 {
-    dataPort_[IN] = gate("DataPort$i");
-    dataPort_[OUT] = gate("DataPort$o");
-    eutranRrcSap_[IN] = gate("EUTRAN_RRC_Sap$i");
-    eutranRrcSap_[OUT] = gate("EUTRAN_RRC_Sap$o");
-    tmSap_[IN] = gate("TM_Sap$i");
-    tmSap_[OUT] = gate("TM_Sap$o");
-    umSap_[IN] = gate("UM_Sap$i");
-    umSap_[OUT] = gate("UM_Sap$o");
-    amSap_[IN] = gate("AM_Sap$i");
-    amSap_[OUT] = gate("AM_Sap$o");
+    if (stage == inet::INITSTAGE_LOCAL)
+    {
+        dataPort_[IN] = gate("DataPort$i");
+        dataPort_[OUT] = gate("DataPort$o");
+        eutranRrcSap_[IN] = gate("EUTRAN_RRC_Sap$i");
+        eutranRrcSap_[OUT] = gate("EUTRAN_RRC_Sap$o");
+        tmSap_[IN] = gate("TM_Sap$i");
+        tmSap_[OUT] = gate("TM_Sap$o");
+        umSap_[IN] = gate("UM_Sap$i");
+        umSap_[OUT] = gate("UM_Sap$o");
+        amSap_[IN] = gate("AM_Sap$i");
+        amSap_[OUT] = gate("AM_Sap$o");
 
-    binder_ = getBinder();
-    headerCompressedSize_ = par("headerCompressedSize"); // Compressed size
-    nodeId_ = getAncestorPar("macNodeId");
+        binder_ = getBinder();
+        headerCompressedSize_ = par("headerCompressedSize"); // Compressed size
+        nodeId_ = getAncestorPar("macNodeId");
 
-    // statistics
+        // statistics
 
-    pdcpdrop0_ = registerSignal("pdcpdrop0");
-    pdcpdrop1_ = registerSignal("pdcpdrop1");
-    pdcpdrop2_ = registerSignal("pdcpdrop2");
-    pdcpdrop3_ = registerSignal("pdcpdrop3");
-    receivedPacketFromUpperLayer = registerSignal("receivedPacketFromUpperLayer");
-    receivedPacketFromLowerLayer = registerSignal("receivedPacketFromLowerLayer");
-    sentPacketToUpperLayer = registerSignal("sentPacketToUpperLayer");
-    sentPacketToLowerLayer = registerSignal("sentPacketToLowerLayer");
+        pdcpdrop0_ = registerSignal("pdcpdrop0");
+        pdcpdrop1_ = registerSignal("pdcpdrop1");
+        pdcpdrop2_ = registerSignal("pdcpdrop2");
+        pdcpdrop3_ = registerSignal("pdcpdrop3");
+        receivedPacketFromUpperLayer = registerSignal("receivedPacketFromUpperLayer");
+        receivedPacketFromLowerLayer = registerSignal("receivedPacketFromLowerLayer");
+        sentPacketToUpperLayer = registerSignal("sentPacketToUpperLayer");
+        sentPacketToLowerLayer = registerSignal("sentPacketToLowerLayer");
 
-    // TODO WATCH_MAP(gatemap_);
-    WATCH(headerCompressedSize_);
-    WATCH(nodeId_);
-    WATCH(lcid_);
+        // TODO WATCH_MAP(gatemap_);
+        WATCH(headerCompressedSize_);
+        WATCH(nodeId_);
+        WATCH(lcid_);
+    }
 }
 
 void LtePdcpRrcBase::handleMessage(cMessage* msg)
@@ -323,4 +326,20 @@ LtePdcpEntity* LtePdcpRrcBase::getEntity(LogicalCid lcid)
 void LtePdcpRrcBase::finish()
 {
     // TODO make-finish
+}
+
+void LtePdcpRrcEnb::initialize(int stage)
+{
+    LtePdcpRrcBase::initialize(stage);
+    if (stage == inet::INITSTAGE_LOCAL)
+        nodeId_ = getAncestorPar("macNodeId");
+}
+
+void LtePdcpRrcUe::initialize(int stage)
+{
+    LtePdcpRrcBase::initialize(stage);
+    if (stage == inet::INITSTAGE_NETWORK_LAYER_3)
+    {
+        nodeId_ = getAncestorPar("macNodeId");
+    }
 }

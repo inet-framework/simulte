@@ -42,6 +42,9 @@ class LteHarqBufferRx
     /// processes vector
     std::vector<LteHarqProcessRx *> processes_;
 
+    /// flag for multicast flows
+    bool isMulticast_;
+
     //Statistics
     static unsigned int totalCellRcvdBytes_;
     unsigned int totalRcvdBytes_ = 0;
@@ -102,6 +105,11 @@ class LteHarqBufferRx
      * @return  a list of acid and their units  to be used for reception
      */
     UnitList firstAvailable();
+
+    /*
+     * returns true if the corresponding flow is a multicast one
+     */
+    bool isMulticast() { return isMulticast_; }
 
     virtual ~LteHarqBufferRx();
 

@@ -44,10 +44,15 @@ void LtePhyEnb::initialize(int stage)
 
     if (stage == inet::INITSTAGE_LOCAL)
     {
-        nodeType_ = ENODEB;
+        // get local id
+        nodeId_ = getAncestorPar("macNodeId");
+        EV << "Local MacNodeId: " << nodeId_ << endl;
+        std::cout << "Local MacNodeId: " << nodeId_ << endl;
 
-        das_ = new DasFilter(this, binder_, deployer_->getRemoteAntennaSet(),
-            0);
+        nodeType_ = ENODEB;
+        deployer_ = getDeployer(nodeId_);
+        deployer_->channelUpdate(nodeId_, intuniform(1, binder_->phyPisaData.maxChannel2()));
+        das_ = new DasFilter(this, binder_, deployer_->getRemoteAntennaSet(), 0);
 
         WATCH(nodeType_);
         WATCH(das_);

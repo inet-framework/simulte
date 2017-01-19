@@ -41,14 +41,14 @@ const UserTxParams& AmcPilotD2D::computeTxParams(MacNodeId id, const Direction d
 
     if ((dir == D2D || dir == D2D_MULTI) && usePreconfiguredTxParams_)
     {
-        EV << NOW << " AmcPilot" << getName() << "::computeTxParams Use preconfigured Tx params for D2D connections\n";
+        EV << NOW << " AmcPilot" << getName() << "::computeTxParams Use preconfigured Tx params for D2D connections" << endl;
         return *preconfiguredTxParams_;
     }
 
     // Check if user transmission parameters have been already allocated
     if(amc_->existTxParams(id, dir))
     {
-        EV << NOW << " AmcPilot" << getName() << "::computeTxParams The Information for this user have been already assigned \n";
+        EV << NOW << " AmcPilot" << getName() << "::computeTxParams The Information for this user have been already assigned" << endl;
         return amc_->getTxParams(id, dir);
     }
     // TODO make it configurable from NED

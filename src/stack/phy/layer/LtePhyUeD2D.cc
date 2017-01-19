@@ -29,6 +29,7 @@ void LtePhyUeD2D::initialize(int stage)
     LtePhyUe::initialize(stage);
     if (stage == 0)
     {
+        averageCqiD2D_ = registerSignal("averageCqiD2D");
         d2dTxPower_ = par("d2dTxPower");
         d2dMulticastEnableCaptureEffect_ = par("d2dMulticastCaptureEffect");
         d2dDecodingTimer_ = NULL;
@@ -203,9 +204,11 @@ void LtePhyUeD2D::handleAirFrame(cMessage* msg)
 void LtePhyUeD2D::triggerHandover()
 {
     // stop active D2D flows (go back to Infrastructure mode)
+    // currently, DM is possible only for UEs served by the same cell
 
     // trigger D2D mode switch
-    D2DModeSelectionBase *d2dModeSelection = check_and_cast<D2DModeSelectionBase*>(getSimulation()->getModule(binder_->getOmnetId(masterId_))->getSubmodule("lteNic")->getSubmodule("d2dModeSelection"));
+    cModule* enb = getSimulation()->getModule(binder_->getOmnetId(masterId_));
+    D2DModeSelectionBase *d2dModeSelection = check_and_cast<D2DModeSelectionBase*>(enb->getSubmodule("lteNic")->getSubmodule("d2dModeSelection"));
     d2dModeSelection->doModeSwitchAtHandover(nodeId_);
 
     LtePhyUe::triggerHandover();
@@ -219,6 +222,8 @@ void LtePhyUeD2D::doHandover()
     assert(newAmc != NULL);
     oldAmc->detachUser(nodeId_, D2D);
     newAmc->attachUser(nodeId_, D2D);
+
+    // TODO call mode selection module to check if DM connections are possible
 
     LtePhyUe::doHandover();
 }
@@ -248,6 +253,15 @@ void LtePhyUeD2D::handleUpperMessage(cMessage* msg)
             ++it;
     }
     lastActive_ = NOW;
+
+    if (lteInfo->getFrameType() == DATAPKT && lteInfo->getUserTxParams() != NULL)
+    {
+        double cqi = lteInfo->getUserTxParams()->readCqiVector()[lteInfo->getCw()];
+        if (lteInfo->getDirection() == UL)
+            emit(averageCqiUl_, cqi);
+        else if (lteInfo->getDirection() == D2D)
+            emit(averageCqiD2D_, cqi);
+    }
 
     EV << NOW << " LtePhyUeD2D::handleUpperMessage - message from stack" << endl;
     LteAirFrame* frame = NULL;

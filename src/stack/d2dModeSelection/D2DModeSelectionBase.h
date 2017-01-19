@@ -50,7 +50,7 @@ protected:
 
     // run the mode selection algorithm. To be implemented by derived classes
     // it must build a switch list (see above)
-    virtual void doModeSelection() = 0;
+    virtual void doModeSelection() {}
 
     // for each pair of UEs in the switch list, send the notification to do the
     // switch to the transmitter UE

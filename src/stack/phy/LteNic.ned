@@ -213,8 +213,7 @@ module LteNicEnbD2D extends LteNicBase
         LtePhyType = "LtePhyEnbD2D";
         bool compEnabled = default(false);
         string LteCompManagerType = default("LteCompManagerProportional");
-        bool d2dMode = default(false);
-        string d2dModeSelectionType = default("D2DModeSelectionBestCqi");
+        string d2dModeSelectionType = default("D2DModeSelectionBase");
 
     submodules:
         //#
@@ -233,7 +232,8 @@ module LteNicEnbD2D extends LteNicBase
         handoverManager: LteHandoverManager {
             @display("p=60,142,row");
         }
-        d2dModeSelection: <d2dModeSelectionType> like D2DModeSelection if d2dMode {
+
+        d2dModeSelection: <d2dModeSelectionType> like D2DModeSelection {
             @display("p=60,68,row");
         }
     connections:

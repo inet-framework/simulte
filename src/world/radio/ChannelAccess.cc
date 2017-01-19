@@ -60,12 +60,13 @@ void ChannelAccess::initialize(int stage)
 
         positionUpdateArrived = false;
 
+        // subscribe to the correct mobility module
+
         if (hostModule->findSubmodule("mobility") != -1)
         {
             // register to get a notification when position changes
             hostModule->subscribe(inet::IMobility::mobilityStateChangedSignal, this);
         }
-
         if (hostModule->findSubmodule("vehicularMobility") != -1)
         {
             // register to get a notification when position changes (vehicularMobility)
@@ -75,8 +76,23 @@ void ChannelAccess::initialize(int stage)
     }
     else if (stage == inet::INITSTAGE_PHYSICAL_ENVIRONMENT_2)
     {
-        if (!positionUpdateArrived && hostModule->isSubscribed(inet::IMobility::mobilityStateChangedSignal, this))
+        if (!positionUpdateArrived && hostModule->isSubscribed(veinsmobilityStateChanged_, this))
         {
+            // if this module has vehicular mobility, get the initial position from the vehicular mobility module
+
+            //                                                     nic         ->       car       ->       mobility
+            BaseMobility* mob = check_and_cast<BaseMobility*>(getParentModule()->getParentModule()->getSubmodule("vehicularMobility"));
+            radioPos.x = mob->getCurrentPosition().x;
+            radioPos.y = mob->getCurrentPosition().y;
+
+            if (radioPos.x == -1 || radioPos.y == -1)
+                error("The coordinates of '%s' host are invalid. Please set coordinates in "
+                        "'@display' attribute, or configure Mobility for this host.",
+                        hostModule->getFullPath().c_str());
+        }
+        else if (!positionUpdateArrived && hostModule->isSubscribed(inet::IMobility::mobilityStateChangedSignal, this))
+        {
+            // ...else, get the initial position from the display string
             radioPos.x = parseInt(hostModule->getDisplayString().getTagArg("p", 0), -1);
             radioPos.y = parseInt(hostModule->getDisplayString().getTagArg("p", 1), -1);
 

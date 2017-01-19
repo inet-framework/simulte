@@ -88,9 +88,6 @@ simple LteDeployer {
         // number of signaling symbols for RB, UL
         int signalUl = default(1);
         
-        // number of logical bands
-        int numBands = default(1);
-        
         // number of preferred bands to use (meaningful only in PREFERRED mode)
         int numPreferredBands = default(1);
 }

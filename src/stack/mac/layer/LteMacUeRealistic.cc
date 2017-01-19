@@ -36,7 +36,7 @@ LteMacUeRealistic::~LteMacUeRealistic()
 void LteMacUeRealistic::initialize(int stage)
 {
     LteMacUe::initialize(stage);
-    if (stage == 0)
+    if (stage == inet::INITSTAGE_LOCAL)
     {
         // check the RLC module type: if it is not "realistic", abort simulation
         // TODO do the same for RLC AM

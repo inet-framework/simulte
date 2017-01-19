@@ -40,13 +40,8 @@ void IP2lte::initialize(int stage)
         hoManager_ = NULL;
 
         binder_ = getBinder();
-        if (nodeType_ == UE)
-        {
-            // TODO not so elegant
-            cModule *ue = getParentModule()->getParentModule();
-            nodeId_ = binder_->registerNode(ue, nodeType_, ue->par("masterId"));
-        }
-        else if (nodeType_ == ENODEB)
+
+        if (nodeType_ == ENODEB)
         {
             // TODO not so elegant
             cModule *enodeb = getParentModule()->getParentModule();
@@ -54,11 +49,36 @@ void IP2lte::initialize(int stage)
             LteDeployer * deployer = check_and_cast<LteDeployer*>(enodeb->getSubmodule("deployer"));
             binder_->registerDeployer(deployer, cellId);
             nodeId_ = cellId;
+            registerInterface();
         }
-
-        registerInterface();
     }
-    else if (stage == inet::INITSTAGE_NETWORK_LAYER_3)
+    if (stage == inet::INITSTAGE_NETWORK_LAYER - 1)  // the configurator runs at stage NETWORK_LAYER, so the interface
+    {                                                // must be configured at a previous stage
+        if (nodeType_ == UE)
+        {
+            // TODO not so elegant
+            cModule *ue = getParentModule()->getParentModule();
+            nodeId_ = binder_->registerNode(ue, nodeType_, ue->par("masterId"));
+            registerInterface();
+
+            // if the UE has been created dynamically, we need to manually add a default route having "wlan" as output interface
+            // otherwise we are not able to reach devices outside the cellular network
+            if (NOW > 0)
+            {
+                IIPv4RoutingTable *irt = getModuleFromPar<IIPv4RoutingTable>(par("routingTableModule"), this);
+                IPv4Route * defaultRoute = new IPv4Route();
+                defaultRoute->setDestination(IPv4Address(inet::IPv4Address::UNSPECIFIED_ADDRESS));
+                defaultRoute->setNetmask(IPv4Address(inet::IPv4Address::UNSPECIFIED_ADDRESS));
+
+                IInterfaceTable *ift = getModuleFromPar<IInterfaceTable>(par("interfaceTableModule"), this);
+                InterfaceEntry * interfaceEntry = ift->getInterfaceByName("wlan");
+                defaultRoute->setInterface(interfaceEntry);
+
+                irt->addRoute(defaultRoute);
+            }
+        }
+    }
+    else if (stage == inet::INITSTAGE_NETWORK_LAYER_3+1)
     {
         registerMulticastGroups();
     }

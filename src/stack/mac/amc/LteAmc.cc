@@ -470,6 +470,7 @@ LteSummaryFeedback LteAmc::getFeedback(MacNodeId id, Remote antenna, TxMode txMo
 LteSummaryFeedback LteAmc::getFeedbackD2D(MacNodeId id, Remote antenna, TxMode txMode, MacNodeId peerId)
 {
     MacNodeId nh = getNextHop(id);
+
     if (id != nh)
         EV << NOW << " LteAmc::getFeedbackD2D detected " << nh << " as nexthop for " << id << "\n";
     id = nh;
@@ -480,6 +481,9 @@ LteSummaryFeedback LteAmc::getFeedbackD2D(MacNodeId id, Remote antenna, TxMode t
         std::map<MacNodeId, History_>::iterator it = d2dFeedbackHistory_.begin();
         for (; it != d2dFeedbackHistory_.end(); ++it)
         {
+            if (it->first == 0) // skip fake UE 0
+                continue;
+
             if (binder_->checkD2DCapability(id, it->first))
             {
                 peerId = it->first;
@@ -1267,6 +1271,8 @@ void LteAmc::detachUser(MacNodeId nodeId, Direction dir)
         std::map<MacNodeId, History_>* d2dHistory;
         unsigned int nodeIndex;
 
+
+
         if(dir==DL)
         {
             connectedUe = &dlConnectedUe_;
@@ -1310,6 +1316,9 @@ void LteAmc::detachUser(MacNodeId nodeId, Direction dir)
             std::map<MacNodeId, History_>::iterator ht =  d2dHistory->begin();
             for (; ht != d2dHistory->end(); ++ht)
             {
+                if (ht->first == 0)  // skip fake UE 0
+                    continue;
+
                 history = &(ht->second);
                 RemoteSet::iterator it = remoteSet_.begin();
                 RemoteSet::iterator et = remoteSet_.end();
@@ -1409,6 +1418,9 @@ void LteAmc::attachUser(MacNodeId nodeId, Direction dir)
             std::map<MacNodeId, History_>::iterator ht = d2dHistory->begin();
             for (; ht != d2dHistory->end(); ++ht)
             {
+                if (ht->first == 0)  // skip fake UE 0
+                    continue;
+
                 history = &(ht->second);
                 RemoteSet::iterator it = remoteSet_.begin();
                 RemoteSet::iterator et = remoteSet_.end();
@@ -1441,6 +1453,10 @@ void LteAmc::attachUser(MacNodeId nodeId, Direction dir)
         }
         else // D2D
         {
+            // initialize an empty feedback for a fake user (id 0), in order to manage
+            // the case of transmission before a feedback has been reported
+            History_ hist;
+            (*d2dHistory)[0] = hist;
             std::map<MacNodeId, History_>::iterator ht =  d2dHistory->begin();
             for (; ht != d2dHistory->end(); ++ht)
             {

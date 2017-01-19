@@ -31,38 +31,26 @@ void LtePhyUe::initialize(int stage)
 {
     LtePhyBase::initialize(stage);
 
-    if (stage == 0)
+    if (stage == inet::INITSTAGE_LOCAL)
     {
         nodeType_ = UE;
-        masterId_ = getAncestorPar("masterId");
-        candidateMasterId_ = masterId_;
-
-        dasRssiThreshold_ = 1.0e-5;
-        das_ = new DasFilter(this, binder_, NULL, dasRssiThreshold_);
-        das_->setMasterRuSet(masterId_);
-
+        useBattery_ = false;  // disabled
+        enableHandover_ = par("enableHandover");
+        handoverLatency_ = par("handoverLatency").doubleValue();
+        dynamicCellAssociation_ = par("dynamicCellAssociation");
         currentMasterRssi_ = 0;
         candidateMasterRssi_ = 0;
         hysteresisTh_ = 0;
         hysteresisFactor_ = 10;
         handoverDelta_ = 0.00001;
-        handoverLatency_ = par("handoverLatency").doubleValue();
 
-        // disabled
-        useBattery_ = false;
+        dasRssiThreshold_ = 1.0e-5;
+        das_ = new DasFilter(this, binder_, NULL, dasRssiThreshold_);
 
-        enableHandover_ = par("enableHandover");
-        int index = intuniform(0, binder_->phyPisaData.maxChannel() - 1);
-        //int index2=intuniform(0,binder_->phyPisaData.maxChannel2()-1);
-        deployer_->lambdaInit(nodeId_, index);
-        //deployer_->channelUpdate(nodeId_,index2);
-
-//        servingCell_ = registerSignal("servingCell");
-//        emit(servingCell_, (long)masterId_);
-
+        servingCell_ = registerSignal("servingCell");
         averageCqiDl_ = registerSignal("averageCqiDl");
         averageCqiUl_ = registerSignal("averageCqiUl");
-        averageCqiD2D_ = registerSignal("averageCqiD2D");
+
         if (!hasListeners(averageCqiDl_))
             error("no phy listeners");
 
@@ -77,7 +65,7 @@ void LtePhyUe::initialize(int stage)
         WATCH(handoverDelta_);
         WATCH(das_);
     }
-    else if (stage == 1)
+    else if (stage == inet::INITSTAGE_PHYSICAL_ENVIRONMENT)
     {
         if (useBattery_)
         {
@@ -103,6 +91,78 @@ void LtePhyUe::initialize(int stage)
             getParentModule()-> // nic
             getSubmodule("rlc")->
                 getSubmodule("um"));
+    }
+    else if (stage == inet::INITSTAGE_PHYSICAL_LAYER)
+    {
+        // find the best candidate master cell
+        if (dynamicCellAssociation_)
+        {
+            // this is a fictitious frame that needs to compute the SINR
+            LteAirFrame *frame = new LteAirFrame("cellSelectionFrame");
+            UserControlInfo *cInfo = new UserControlInfo();
+
+            // get the list of all eNodeBs in the network
+            std::vector<EnbInfo*>* enbList = binder_->getEnbList();
+            std::vector<EnbInfo*>::iterator it = enbList->begin();
+            for (; it != enbList->end(); ++it)
+            {
+                MacNodeId cellId = (*it)->id;
+                LtePhyBase* cellPhy = check_and_cast<LtePhyBase*>((*it)->eNodeB->getSubmodule("lteNic")->getSubmodule("phy"));
+                double cellTxPower = cellPhy->getTxPwr();
+                Coord cellPos = cellPhy->getCoord();
+
+                // build a control info
+                cInfo->setSourceId(cellId);
+                cInfo->setTxPower(cellTxPower);
+                cInfo->setCoord(cellPos);
+
+                // get RSSI from the eNB
+                std::vector<double>::iterator it;
+                double rssi = 0;
+                std::vector<double> rssiV = channelModel_->getSINR(frame, cInfo);
+                for (it = rssiV.begin(); it != rssiV.end(); ++it)
+                    rssi += *it;
+                rssi /= rssiV.size();   // compute the mean over all RBs
+
+                EV << "LtePhyUe::initialize - RSSI from eNodeB " << cellId << ": " << rssi << " dB (current candidate eNodeB " << candidateMasterId_ << ": " << candidateMasterRssi_ << " dB" << endl;
+
+                if (rssi > candidateMasterRssi_)
+                {
+                    candidateMasterId_ = cellId;
+                    candidateMasterRssi_ = rssi;
+                }
+            }
+            delete cInfo;
+            delete frame;
+
+            // set serving cell
+            masterId_ = candidateMasterId_;
+            getAncestorPar("masterId").setLongValue(masterId_);
+            currentMasterRssi_ = candidateMasterRssi_;
+            updateHysteresisTh(candidateMasterRssi_);
+        }
+        else
+        {
+            // get serving cell from configuration
+            masterId_ = getAncestorPar("masterId");
+            candidateMasterId_ = masterId_;
+        }
+        EV << "LtePhyUe::initialize - Attaching to eNodeB " << masterId_ << endl;
+
+        das_->setMasterRuSet(masterId_);
+        emit(servingCell_, (long)masterId_);
+    }
+    else if (stage == inet::INITSTAGE_NETWORK_LAYER_2)
+    {
+        // get local id
+        nodeId_ = getAncestorPar("macNodeId");
+        EV << "Local MacNodeId: " << nodeId_ << endl;
+
+        // get deployer at this stage because the next hop of the node is registered in the IP2Lte module at the INITSTAGE_NETWORK_LAYER
+        deployer_ = getDeployer(nodeId_);
+        int index = intuniform(0, binder_->phyPisaData.maxChannel() - 1);
+        deployer_->lambdaInit(nodeId_, index);
+        deployer_->channelUpdate(nodeId_, intuniform(1, binder_->phyPisaData.maxChannel2()));
     }
 }
 
@@ -317,7 +377,9 @@ void LtePhyUe::handleAirFrame(cMessage* msg)
         EV << "Packet Type: " << phyFrameTypeToA((LtePhyFrameType)lteInfo->getFrameType()) << endl;
         EV << "Frame MacNodeId: " << lteInfo->getDestId() << endl;
         EV << "Local MacNodeId: " << nodeId_ << endl;
-        endSimulation();
+        delete lteInfo;
+        delete frame;
+        return;
     }
 
         /*
