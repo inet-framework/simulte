@@ -316,6 +316,8 @@ void LteMacEnbRealisticD2D::sendModeSwitchNotification(MacNodeId srcId, MacNodeI
 {
     Enter_Method("sendModeSwitchNotification");
 
+    EV << NOW << " LteMacEnbRealisticD2D::sendModeSwitchNotification - " << srcId << " --> " << dstId << " going from " << d2dModeToA(oldMode) << " to " << d2dModeToA(newMode) << endl;
+
     // send switch notification to both the tx and rx side of the flow
     D2DModeSwitchNotification* switchPktTx = new D2DModeSwitchNotification("D2DModeSwitchNotification");
     switchPktTx->setTxSide(true);

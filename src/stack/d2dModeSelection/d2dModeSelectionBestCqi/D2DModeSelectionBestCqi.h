@@ -30,6 +30,7 @@ public:
     virtual ~D2DModeSelectionBestCqi() {}
 
     virtual void initialize(int stage);
+    virtual void doModeSwitchAtHandover(MacNodeId nodeId, bool handoverCompleted);
 };
 
 #endif /* LTE_D2DMODESELECTIONBESTCQI_H_ */

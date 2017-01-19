@@ -75,3 +75,14 @@ void D2DModeSelectionBestCqi::doModeSelection()
         }
     }
 }
+
+void D2DModeSelectionBestCqi::doModeSwitchAtHandover(MacNodeId nodeId, bool handoverCompleted)
+{
+    // with this MS algorithm, connections of nodeId will return to DM after handover only
+    // if the algorithm triggers the switch at the next period. Thus, it is not necessary to
+    // force the switch here.
+    if (handoverCompleted)
+        return;
+
+    D2DModeSelectionBase::doModeSwitchAtHandover(nodeId, handoverCompleted);
+}

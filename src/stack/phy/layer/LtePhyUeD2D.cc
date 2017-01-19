@@ -209,7 +209,7 @@ void LtePhyUeD2D::triggerHandover()
     // trigger D2D mode switch
     cModule* enb = getSimulation()->getModule(binder_->getOmnetId(masterId_));
     D2DModeSelectionBase *d2dModeSelection = check_and_cast<D2DModeSelectionBase*>(enb->getSubmodule("lteNic")->getSubmodule("d2dModeSelection"));
-    d2dModeSelection->doModeSwitchAtHandover(nodeId_);
+    d2dModeSelection->doModeSwitchAtHandover(nodeId_, false);
 
     LtePhyUe::triggerHandover();
 }
@@ -223,9 +223,12 @@ void LtePhyUeD2D::doHandover()
     oldAmc->detachUser(nodeId_, D2D);
     newAmc->attachUser(nodeId_, D2D);
 
-    // TODO call mode selection module to check if DM connections are possible
-
     LtePhyUe::doHandover();
+
+    // call mode selection module to check if DM connections are possible
+    cModule* enb = getSimulation()->getModule(binder_->getOmnetId(masterId_));
+    D2DModeSelectionBase *d2dModeSelection = check_and_cast<D2DModeSelectionBase*>(enb->getSubmodule("lteNic")->getSubmodule("d2dModeSelection"));
+    d2dModeSelection->doModeSwitchAtHandover(nodeId_, true);
 }
 
 void LtePhyUeD2D::handleUpperMessage(cMessage* msg)
