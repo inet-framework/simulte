@@ -967,3 +967,9 @@ void LteMacUeRealisticD2D::macHandleD2DModeSwitch(cPacket* pkt)
     delete uInfo;
     delete pkt;
 }
+
+void LteMacUeRealisticD2D::doHandover(MacNodeId targetEnb)
+{
+    enb_ = check_and_cast<LteMacEnbRealisticD2D*>(getMacByMacNodeId(targetEnb));
+    LteMacUeRealistic::doHandover(targetEnb);
+}

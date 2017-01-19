@@ -94,6 +94,7 @@ class LteMacUeRealisticD2D : public LteMacUeRealistic
         else
             bsrTriggered_ = true;
     }
+    virtual void doHandover(MacNodeId targetEnb);
 };
 
 #endif
