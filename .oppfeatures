@@ -1,0 +1,15 @@
+<features>
+ <feature
+  id="SimuLTE_Cars"
+  name="SimuLTE Cars"
+  description = "LTE-enabled vehicular networks"
+  initiallyEnabled = "false"
+  requires = ""
+  labels = ""
+  nedPackages = "lte.corenetwork.nodes.cars
+                 lte.simulations.networks.cars"
+  extraSourceFolders = ""
+  compileFlags = "-DWITH_VEINS"
+  linkerFlags = ""
+ />
+</features>

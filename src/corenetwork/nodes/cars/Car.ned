@@ -8,7 +8,7 @@
 // 
 
 
-package lte.corenetwork.nodes;
+package lte.corenetwork.nodes.cars;
 
 import inet.applications.contract.ITCPApp;
 import inet.applications.contract.IUDPApp;

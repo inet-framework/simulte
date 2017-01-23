@@ -18,7 +18,7 @@
 // Foundation, Inc., 59 Temple Place, Suite 330, Boston, MA  02111-1307  USA
 //
 
-package lte.simulations.networks;
+package lte.simulations.networks.cars;
 
 import org.car2x.veins.base.connectionManager.ConnectionManager;
 import org.car2x.veins.base.modules.BaseWorldUtility;
@@ -38,7 +38,7 @@ import lte.epc.PgwStandardSimplified;
 import lte.corenetwork.binder.LteBinder;
 import lte.corenetwork.nodes.eNodeB;
 import lte.corenetwork.nodes.Ue;
-import lte.corenetwork.nodes.Car;
+import lte.corenetwork.nodes.cars.Car;
 
 network Highway
 {
