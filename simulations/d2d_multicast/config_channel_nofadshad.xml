@@ -55,7 +55,7 @@
         <!-- Feedback Type (REAL, DUMMY) -->
         <FeedbackComputation type="REAL">
         	 <!-- Target bler used to compute feedback -->
-        	 <parameter name="targetBler" type="double" value="0.001"/>
+        	 <parameter name="targetBler" type="double" value="0.002"/>
         	 <!-- Rank indicator tracefile -->
              <parameter name="lambdaMinTh" type="double" value="0.02"/>
              <parameter name="lambdaMaxTh" type="double" value="0.2"/>

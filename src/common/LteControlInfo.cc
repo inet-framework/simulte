@@ -53,7 +53,7 @@ void UserControlInfo::setCoord(const Coord& coord)
 
 void UserControlInfo::setUserTxParams(const UserTxParams *newParams)
 {
-    if(userTxParams){
+    if(userTxParams != NULL){
         delete userTxParams;
     }
     userTxParams = newParams;

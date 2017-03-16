@@ -33,11 +33,11 @@ class LteSchedulingGrant : public LteSchedulingGrant_Base
 
     ~LteSchedulingGrant()
     {
-//        if (userTxParams != NULL)
-//        {
-//            delete userTxParams;
-//            userTxParams = NULL;
-//        }
+        if (userTxParams != NULL)
+        {
+            delete userTxParams;
+            userTxParams = NULL;
+        }
     }
 
     LteSchedulingGrant(const LteSchedulingGrant& other) :

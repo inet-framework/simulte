@@ -15,6 +15,7 @@
 #include "LteMacEnbRealistic.h"
 #include "LteHarqBufferRxD2DMirror.h"
 #include "D2DModeSwitchNotification_m.h"
+#include "LteRac_m.h"
 
 Define_Module(LteMacUeRealisticD2D);
 
@@ -62,7 +63,7 @@ LteMacPdu* LteMacUeRealisticD2D::makeBsr(int size){
     uinfo->setSourceId(getMacNodeId());
     uinfo->setDestId(getMacCellId());
     uinfo->setDirection(UL);
-    uinfo->setUserTxParams(schedulingGrant_->getUserTxParams());
+    uinfo->setUserTxParams(schedulingGrant_->getUserTxParams()->dup());
     LteMacPdu* macPkt = new LteMacPdu("LteMacPdu");
     macPkt->setHeaderLength(MAC_HEADER);
     macPkt->setControlInfo(uinfo);
@@ -431,7 +432,123 @@ LteMacUeRealisticD2D::macHandleGrant(cPacket* pkt)
 
     // clearing pending RAC requests
     racRequested_=false;
+    racD2DMulticastRequested_=false;
 }
+
+void LteMacUeRealisticD2D::checkRAC()
+{
+    EV << NOW << " LteMacUeRealisticD2D::checkRAC , Ue  " << nodeId_ << ", racTimer : " << racBackoffTimer_ << " maxRacTryOuts : " << maxRacTryouts_
+       << ", raRespTimer:" << raRespTimer_ << endl;
+
+    if (racBackoffTimer_>0)
+    {
+        racBackoffTimer_--;
+        return;
+    }
+
+    if(raRespTimer_>0)
+    {
+        // decrease RAC response timer
+        raRespTimer_--;
+        EV << NOW << " LteMacUeRealisticD2D::checkRAC - waiting for previous RAC requests to complete (timer=" << raRespTimer_ << ")" << endl;
+        return;
+    }
+
+    // Avoids double requests whithin same TTI window
+    if (racRequested_)
+    {
+        EV << NOW << " LteMacUeRealisticD2D::checkRAC - double RAC request" << endl;
+        racRequested_=false;
+        return;
+    }
+    if (racD2DMulticastRequested_)
+    {
+        EV << NOW << " LteMacUeRealisticD2D::checkRAC - double RAC request" << endl;
+        racD2DMulticastRequested_=false;
+        return;
+    }
+
+    bool trigger=false;
+    bool triggerD2DMulticast=false;
+
+    LteMacBufferMap::const_iterator it;
+
+    for (it = macBuffers_.begin(); it!=macBuffers_.end();++it)
+    {
+        if (!(it->second->isEmpty()))
+        {
+            MacCid cid = it->first;
+            if (connDesc_.at(cid).getDirection() == D2D_MULTI)
+                triggerD2DMulticast = true;
+            else
+                trigger = true;
+            break;
+        }
+    }
+
+    if (!trigger && !triggerD2DMulticast)
+        EV << NOW << "Ue " << nodeId_ << ",RAC aborted, no data in queues " << endl;
+
+    if ((racRequested_=trigger) || (racD2DMulticastRequested_=triggerD2DMulticast))
+    {
+        LteRac* racReq = new LteRac("RacRequest");
+        UserControlInfo* uinfo = new UserControlInfo();
+        uinfo->setSourceId(getMacNodeId());
+        uinfo->setDestId(getMacCellId());
+        uinfo->setDirection(UL);
+        uinfo->setFrameType(RACPKT);
+        racReq->setControlInfo(uinfo);
+
+        sendLowerPackets(racReq);
+
+        EV << NOW << " Ue  " << nodeId_ << " cell " << cellId_ << " ,RAC request sent to PHY " << endl;
+
+        // wait at least  "raRespWinStart_" TTIs before another RAC request
+        raRespTimer_ = raRespWinStart_;
+    }
+}
+
+void LteMacUeRealisticD2D::macHandleRac(cPacket* pkt)
+{
+    LteRac* racPkt = check_and_cast<LteRac*>(pkt);
+
+    if (racPkt->getSuccess())
+    {
+        EV << "LteMacUeRealisticD2D::macHandleRac - Ue " << nodeId_ << " won RAC" << endl;
+        // is RAC is won, BSR has to be sent
+        if (racD2DMulticastRequested_)
+            bsrD2DMulticastTriggered_=true;
+        else
+            bsrTriggered_ = true;
+
+        // reset RAC counter
+        currentRacTry_=0;
+        //reset RAC backoff timer
+        racBackoffTimer_=0;
+    }
+    else
+    {
+        // RAC has failed
+        if (++currentRacTry_ >= maxRacTryouts_)
+        {
+            EV << NOW << " Ue " << nodeId_ << ", RAC reached max attempts : " << currentRacTry_ << endl;
+            // no more RAC allowed
+            //! TODO flush all buffers here
+            //reset RAC counter
+            currentRacTry_=0;
+            //reset RAC backoff timer
+            racBackoffTimer_=0;
+        }
+        else
+        {
+            // recompute backoff timer
+            racBackoffTimer_= uniform(minRacBackoff_,maxRacBackoff_);
+            EV << NOW << " Ue " << nodeId_ << " RAC attempt failed, backoff extracted : " << racBackoffTimer_ << endl;
+        }
+    }
+    delete racPkt;
+}
+
 
 void LteMacUeRealisticD2D::handleSelfMessage()
 {
@@ -665,31 +782,6 @@ UserTxParams* LteMacUeRealisticD2D::getPreconfiguredTxParams()
     txParams->writeAntennas(antennas);
 
     return txParams;
-}
-
-void LteMacUeRealisticD2D::updateUserTxParam(cPacket* pkt)
-{
-    UserControlInfo *lteInfo = check_and_cast<UserControlInfo *>(pkt->getControlInfo());
-    if (usePreconfiguredTxParams_ || lteInfo->getDirection() == D2D_MULTI)
-    {
-
-        if (lteInfo->getFrameType() != DATAPKT)
-            return;
-
-        // get the old parameters and delete them, in order to avoid memory leaks
-        const UserTxParams* oldParams = lteInfo->getUserTxParams();
-        if (oldParams != NULL)
-            delete oldParams;
-        lteInfo->setUserTxParams(schedulingGrant_->getUserTxParams()->dup());
-
-        // set tx mode and granted blocks
-        lteInfo->setTxMode(lteInfo->getUserTxParams()->readTxMode());
-        int grantedBlocks = schedulingGrant_->getTotalGrantedBlocks();
-        lteInfo->setGrantedBlocks(schedulingGrant_->getGrantedBlocks());
-        lteInfo->setTotalGrantedBlocks(grantedBlocks);
-    }
-    else
-        LteMacUe::updateUserTxParam(pkt);
 }
 
 void LteMacUeRealisticD2D::macHandleD2DModeSwitch(cPacket* pkt)
