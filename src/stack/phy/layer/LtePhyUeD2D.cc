@@ -8,9 +8,9 @@
 //
 
 #include <assert.h>
-#include "LtePhyUeD2D.h"
-#include "LteFeedbackPkt.h"
-#include "D2DModeSelectionBase.h"
+#include "stack/phy/layer/LtePhyUeD2D.h"
+#include "stack/phy/packet/LteFeedbackPkt.h"
+#include "stack/d2dModeSelection/D2DModeSelectionBase.h"
 
 Define_Module(LtePhyUeD2D);
 

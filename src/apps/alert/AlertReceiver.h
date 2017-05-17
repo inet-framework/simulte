@@ -15,7 +15,7 @@
 
 #include "inet/networklayer/common/L3AddressResolver.h"
 #include "inet/transportlayer/contract/udp/UDPSocket.h"
-#include "AlertPacket_m.h"
+#include "apps/alert/AlertPacket_m.h"
 
 class AlertReceiver : public cSimpleModule
 {

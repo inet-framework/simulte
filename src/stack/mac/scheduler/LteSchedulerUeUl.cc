@@ -7,13 +7,13 @@
 // and cannot be removed from it.
 //
 
-#include "LteSchedulerUeUl.h"
-#include "LteMacUe.h"
-#include "UserTxParams.h"
-#include "LteSchedulingGrant.h"
-#include "LteMacPdu.h"
-#include "LcgScheduler.h"
-#include "LcgSchedulerRealistic.h"
+#include "stack/mac/scheduler/LteSchedulerUeUl.h"
+#include "stack/mac/layer/LteMacUe.h"
+#include "stack/mac/amc/UserTxParams.h"
+#include "stack/mac/packet/LteSchedulingGrant.h"
+#include "stack/mac/packet/LteMacPdu.h"
+#include "stack/mac/scheduler/LcgScheduler.h"
+#include "stack/mac/scheduler/LcgSchedulerRealistic.h"
 
 LteSchedulerUeUl::LteSchedulerUeUl(LteMacUe * mac)
 {

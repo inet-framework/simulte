@@ -7,8 +7,8 @@
 // and cannot be removed from it.
 //
 
-#include "LteFeedbackComputationDummy.h"
-#include "LteFeedback.h"
+#include "stack/phy/feedback/LteFeedbackComputationDummy.h"
+#include "stack/phy/feedback/LteFeedback.h"
 
 LteFeedbackComputationDummy::LteFeedbackComputationDummy(double channelVariationProb, int channelVariationStep,
     int txDivMin, int txDivMax, int sMuxMin, int sMuxMax, int muMimoMin, int muMimoMax, double rankVariationProb,

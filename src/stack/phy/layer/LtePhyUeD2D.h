@@ -10,7 +10,7 @@
 #ifndef _LTE_AIRPHYUED2D_H_
 #define _LTE_AIRPHYUED2D_H_
 
-#include "LtePhyUe.h"
+#include "stack/phy/layer/LtePhyUe.h"
 
 class LtePhyUeD2D : public LtePhyUe
 {

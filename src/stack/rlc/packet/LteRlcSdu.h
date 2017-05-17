@@ -10,7 +10,7 @@
 #ifndef LTERLCSDU_H_
 #define LTERLCSDU_H_
 
-#include "LteRlcSdu_m.h"
+#include "stack/rlc/packet/LteRlcSdu_m.h"
 #include "common/LteControlInfo.h"
 
 class LteRlcSdu : public LteRlcSdu_Base

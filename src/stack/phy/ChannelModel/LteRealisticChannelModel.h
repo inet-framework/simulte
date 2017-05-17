@@ -10,7 +10,7 @@
 #ifndef _LTE_LTEREALISTICCHANNELMODEL_H_
 #define _LTE_LTEREALISTICCHANNELMODEL_H_
 
-#include "LteChannelModel.h"
+#include "stack/phy/ChannelModel/LteChannelModel.h"
 
 class LteBinder;
 

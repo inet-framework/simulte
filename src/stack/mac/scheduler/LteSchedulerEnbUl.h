@@ -10,7 +10,7 @@
 #ifndef _LTE_LTE_SCHEDULER_ENB_UL_H_
 #define _LTE_LTE_SCHEDULER_ENB_UL_H_
 
-#include "LteSchedulerEnb.h"
+#include "stack/mac/scheduler/LteSchedulerEnb.h"
 
 /**
  * @class LteSchedulerEnbUl

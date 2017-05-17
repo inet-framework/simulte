@@ -11,11 +11,11 @@
 #define _LTE_LTERLCUMREALISTIC_H_
 
 #include <omnetpp.h>
-#include "LteRlcUm.h"
-#include "UmTxEntity.h"
-#include "UmRxEntity.h"
-#include "LteRlcDataPdu.h"
-#include "LteMacBase.h"
+#include "stack/rlc/um/LteRlcUm.h"
+#include "stack/rlc/um/entity/UmTxEntity.h"
+#include "stack/rlc/um/entity/UmRxEntity.h"
+#include "stack/rlc/packet/LteRlcDataPdu.h"
+#include "stack/mac/layer/LteMacBase.h"
 
 class UmTxEntity;
 class UmRxEntity;

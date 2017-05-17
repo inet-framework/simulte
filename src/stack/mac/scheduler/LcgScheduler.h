@@ -11,7 +11,7 @@
 #define _LTE_LCGSCHEDULER_H_
 
 #include "common/LteCommon.h"
-#include "LteMacUe.h"
+#include "stack/mac/layer/LteMacUe.h"
 
 /// forward declarations
 class LteSchedulerUeUl;

@@ -10,7 +10,7 @@
 #ifndef _LTE_X2COMPMSG_H_
 #define _LTE_X2COMPMSG_H_
 
-#include "LteX2Message.h"
+#include "x2/packet/LteX2Message.h"
 #include "common/LteCommon.h"
 
 /**

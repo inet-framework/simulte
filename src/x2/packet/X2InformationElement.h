@@ -10,7 +10,7 @@
 #ifndef _LTE_X2INFORMATIONELEMENT_H_
 #define _LTE_X2INFORMATIONELEMENT_H_
 
-#include "LteX2Message_m.h"
+#include "x2/packet/LteX2Message_m.h"
 #include "common/LteCommon.h"
 
 // add here new IE types

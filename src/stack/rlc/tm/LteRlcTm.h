@@ -12,7 +12,7 @@
 
 #include <omnetpp.h>
 #include "common/LteCommon.h"
-#include "LteRlcDefs.h"
+#include "stack/rlc/LteRlcDefs.h"
 
 /**
  * @class LteRlcTm

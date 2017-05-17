@@ -10,9 +10,9 @@
 #ifndef _LTE_LTEMACUED2D_H_
 #define _LTE_LTEMACUED2D_H_
 
-#include "LteMacUe.h"
-#include "LteMacEnbD2D.h"
-#include "LteHarqBufferTxD2D.h"
+#include "stack/mac/layer/LteMacUe.h"
+#include "stack/mac/layer/LteMacEnbD2D.h"
+#include "stack/mac/buffer/harq_d2d/LteHarqBufferTxD2D.h"
 
 class LteMacUeD2D : public LteMacUe
 {

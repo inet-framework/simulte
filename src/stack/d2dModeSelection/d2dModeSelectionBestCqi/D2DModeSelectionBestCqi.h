@@ -10,7 +10,7 @@
 #ifndef LTE_D2DMODESELECTIONBESTCQI_H_
 #define LTE_D2DMODESELECTIONBESTCQI_H_
 
-#include "D2DModeSelectionBase.h"
+#include "stack/d2dModeSelection/D2DModeSelectionBase.h"
 
 //
 // D2DModeSelectionBestCqi

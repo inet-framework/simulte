@@ -7,15 +7,15 @@
 // and cannot be removed from it.
 //
 
-#include "LteMacUeRealisticD2D.h"
-#include "LteHarqBufferRx.h"
-#include "LteMacQueue.h"
-#include "LteSchedulingGrant.h"
-#include "LteSchedulerUeUl.h"
-#include "LteMacEnbRealistic.h"
-#include "LteHarqBufferRxD2DMirror.h"
-#include "D2DModeSwitchNotification_m.h"
-#include "LteRac_m.h"
+#include "stack/mac/layer/LteMacUeRealisticD2D.h"
+#include "stack/mac/buffer/harq/LteHarqBufferRx.h"
+#include "stack/mac/buffer/LteMacQueue.h"
+#include "stack/mac/packet/LteSchedulingGrant.h"
+#include "stack/mac/scheduler/LteSchedulerUeUl.h"
+#include "stack/mac/layer/LteMacEnbRealistic.h"
+#include "stack/mac/buffer/harq_d2d/LteHarqBufferRxD2DMirror.h"
+#include "stack/d2dModeSelection/D2DModeSwitchNotification_m.h"
+#include "stack/mac/packet/LteRac_m.h"
 
 Define_Module(LteMacUeRealisticD2D);
 

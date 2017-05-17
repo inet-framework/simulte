@@ -7,9 +7,9 @@
 // and cannot be removed from it.
 //
 
-#include "D2DModeSelectionBase.h"
-#include "LteMacEnbD2D.h"
-#include "LteMacEnbRealisticD2D.h"
+#include "stack/d2dModeSelection/D2DModeSelectionBase.h"
+#include "stack/mac/layer/LteMacEnbD2D.h"
+#include "stack/mac/layer/LteMacEnbRealisticD2D.h"
 
 void D2DModeSelectionBase::initialize(int stage)
 {

@@ -10,7 +10,7 @@
 #ifndef _LTE_LTERLCUMREALISTICD2D_H_
 #define _LTE_LTERLCUMREALISTICD2D_H_
 
-#include "LteRlcUmRealistic.h"
+#include "stack/rlc/um/LteRlcUmRealistic.h"
 
 /**
  * @class LteRlcUmRealisticD2D

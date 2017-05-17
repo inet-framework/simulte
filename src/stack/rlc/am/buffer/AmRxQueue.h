@@ -10,11 +10,11 @@
 #ifndef _LTE_AMRXBUFFER_H_
 #define _LTE_AMRXBUFFER_H_
 
-#include "LteRlcDefs.h"
-#include "TTimer.h"
-#include "LteRlcAmPdu.h"
-#include "LteRlcAmSdu_m.h"
-#include "LtePdcpPdu_m.h"
+#include "stack/rlc/LteRlcDefs.h"
+#include "common/timer/TTimer.h"
+#include "stack/rlc/am/packet/LteRlcAmPdu.h"
+#include "stack/rlc/am/packet/LteRlcAmSdu_m.h"
+#include "stack/pdcp_rrc/packet/LtePdcpPdu_m.h"
 
 class AmRxQueue : public cSimpleModule
 {

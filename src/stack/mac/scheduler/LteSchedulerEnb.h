@@ -11,7 +11,7 @@
 #define _LTE_LTESCHEDULERENB_H_
 
 #include "common/LteCommon.h"
-#include "LteHarqBufferTx.h"
+#include "stack/mac/buffer/harq/LteHarqBufferTx.h"
 
 /// forward declarations
 class LteScheduler;

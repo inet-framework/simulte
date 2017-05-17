@@ -7,7 +7,7 @@
 // and cannot be removed from it.
 //
 
-#include "AlertReceiver.h"
+#include "apps/alert/AlertReceiver.h"
 #include "inet/common/ModuleAccess.h"  // for multicast support
 
 Define_Module(AlertReceiver);

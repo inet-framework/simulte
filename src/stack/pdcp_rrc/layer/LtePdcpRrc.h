@@ -13,12 +13,12 @@
 #include <omnetpp.h>
 #include "corenetwork/binder/LteBinder.h"
 #include "common/LteCommon.h"
-#include "ConnectionsTable.h"
-#include "IPv4Datagram.h"
-#include "LteIp.h"
+#include "stack/pdcp_rrc/ConnectionsTable.h"
+#include "inet/networklayer/ipv4/IPv4Datagram.h"
+#include "corenetwork/lteip/LteIp.h"
 #include "common/LteControlInfo.h"
-#include "LtePdcpPdu_m.h"
-#include "LtePdcpEntity.h"
+#include "stack/pdcp_rrc/packet/LtePdcpPdu_m.h"
+#include "stack/pdcp_rrc/layer/entity/LtePdcpEntity.h"
 
 /**
  * @class LtePdcp

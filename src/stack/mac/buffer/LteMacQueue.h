@@ -11,7 +11,7 @@
 #define _LTE_LTEMACQUEUE_H_
 
 #include <omnetpp.h>
-#include "LteRlcPdu_m.h"
+#include "stack/rlc/packet/LteRlcPdu_m.h"
 
 using namespace omnetpp;
 

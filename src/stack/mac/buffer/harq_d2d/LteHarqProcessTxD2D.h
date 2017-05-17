@@ -10,8 +10,8 @@
 #ifndef _LTE_LTEHARQPROCESSTXD2D_H_
 #define _LTE_LTEHARQPROCESSTXD2D_H_
 
-#include "LteHarqProcessTx.h"
-#include "LteHarqUnitTxD2D.h"
+#include "stack/mac/buffer/harq/LteHarqProcessTx.h"
+#include "stack/mac/buffer/harq_d2d/LteHarqUnitTxD2D.h"
 
 /**
  * Container of H-ARQ units.

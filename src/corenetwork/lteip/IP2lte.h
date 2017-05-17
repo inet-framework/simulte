@@ -13,8 +13,8 @@
 #include <omnetpp.h>
 #include "common/LteControlInfo.h"
 #include "common/LteControlInfo.h"
-#include "IPv4Datagram.h"
-#include "LteHandoverManager.h"
+#include "inet/networklayer/ipv4/IPv4Datagram.h"
+#include "stack/handoverManager/LteHandoverManager.h"
 #include "corenetwork/binder/LteBinder.h"
 
 class LteHandoverManager;

@@ -7,7 +7,7 @@
 // and cannot be removed from it.
 //
 
-#include "TftControlInfo.h"
+#include "epc/gtp/TftControlInfo.h"
 
 TftControlInfo::TftControlInfo()
 {

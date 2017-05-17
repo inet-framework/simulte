@@ -7,7 +7,7 @@
 // and cannot be removed from it.
 //
 
-#include "UmTxQueue.h"
+#include "stack/rlc/um/buffer/UmTxQueue.h"
 
 Define_Module(UmTxQueue);
 

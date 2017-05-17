@@ -10,7 +10,7 @@
 #ifndef _LTE_LTEMACPDU_H_
 #define _LTE_LTEMACPDU_H_
 
-#include "LteMacPdu_m.h"
+#include "stack/mac/packet/LteMacPdu_m.h"
 #include "common/LteCommon.h"
 #include "common/LteControlInfo.h"
 

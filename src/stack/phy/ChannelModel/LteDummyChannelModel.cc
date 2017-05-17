@@ -7,7 +7,7 @@
 // and cannot be removed from it.
 //
 
-#include "LteDummyChannelModel.h"
+#include "stack/phy/ChannelModel/LteDummyChannelModel.h"
 
 LteDummyChannelModel::LteDummyChannelModel(ParameterMap& params, int band) :
     LteChannelModel(band)

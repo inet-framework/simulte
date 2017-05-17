@@ -11,7 +11,7 @@
 #define _LTE_LTEFEEDBACK_H_
 
 #include "common/LteCommon.h"
-#include "UserTxParams.h"
+#include "stack/mac/amc/UserTxParams.h"
 #include <map>
 #include <vector>
 

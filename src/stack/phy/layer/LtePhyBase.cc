@@ -7,7 +7,7 @@
 // and cannot be removed from it.
 //
 
-#include "LtePhyBase.h"
+#include "stack/phy/layer/LtePhyBase.h"
 #include "common/LteCommon.h"
 
 short LtePhyBase::airFramePriority_ = 10;

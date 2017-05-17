@@ -8,10 +8,10 @@
 //
 
 #include <LteChannelControl.h>
-#include "INETMath.h"
+#include "inet/common/INETMath.h"
 #include <cassert>
 
-#include "AirFrame_m.h"
+#include "stack/phy/packet/AirFrame_m.h"
 
 #define coreEV EV << "LteChannelControl: "
 

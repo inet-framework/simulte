@@ -7,17 +7,17 @@
 // and cannot be removed from it.
 //
 
-#include "LteSchedulerEnb.h"
-#include "LteAllocationModule.h"
-#include "LteScheduler.h"
-#include "LteDrr.h"
-#include "LteMaxCi.h"
-#include "LtePf.h"
-#include "LteMaxCiMultiband.h"
-#include "LteMaxCiOptMB.h"
-#include "LteMaxCiComp.h"
-#include "LteMacBuffer.h"
-#include "LteMacQueue.h"
+#include "stack/mac/scheduler/LteSchedulerEnb.h"
+#include "stack/mac/allocator/LteAllocationModule.h"
+#include "stack/mac/scheduler/LteScheduler.h"
+#include "stack/mac/scheduling_modules/LteDrr.h"
+#include "stack/mac/scheduling_modules/LteMaxCi.h"
+#include "stack/mac/scheduling_modules/LtePf.h"
+#include "stack/mac/scheduling_modules/LteMaxCiMultiband.h"
+#include "stack/mac/scheduling_modules/LteMaxCiOptMB.h"
+#include "stack/mac/scheduling_modules/LteMaxCiComp.h"
+#include "stack/mac/buffer/LteMacBuffer.h"
+#include "stack/mac/buffer/LteMacQueue.h"
 
 LteSchedulerEnb::LteSchedulerEnb()
 {

@@ -8,9 +8,9 @@
 //
 
 #include "inet/networklayer/ipv4/IPv4InterfaceData.h"
-#include "LteIp.h"
+#include "corenetwork/lteip/LteIp.h"
 #include "corenetwork/binder/LteBinder.h"
-#include "LteDeployer.h"
+#include "corenetwork/deployer/LteDeployer.h"
 #include "inet/common/ModuleAccess.h"
 
 Define_Module(LteIp);

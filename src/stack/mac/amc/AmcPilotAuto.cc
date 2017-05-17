@@ -7,7 +7,7 @@
 // and cannot be removed from it.
 //
 
-#include "AmcPilotAuto.h"
+#include "stack/mac/amc/AmcPilotAuto.h"
 
 const UserTxParams& AmcPilotAuto::computeTxParams(MacNodeId id, const Direction dir)
 {

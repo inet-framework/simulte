@@ -8,7 +8,7 @@
 //
 
 #include "common/LteControlInfo.h"
-#include "UserTxParams.h"
+#include "stack/mac/amc/UserTxParams.h"
 
 UserControlInfo::~UserControlInfo()
 {

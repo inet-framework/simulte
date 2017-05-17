@@ -10,7 +10,7 @@
 #ifndef _LTE_LTEFEEDBACKCOMPUTATIONREALISTIC_H_
 #define _LTE_LTEFEEDBACKCOMPUTATIONREALISTIC_H_
 
-#include "LteFeedbackComputation.h"
+#include "stack/phy/feedback/LteFeedbackComputation.h"
 
 class PhyPisaData;
 class LteFeedbackComputationRealistic : public LteFeedbackComputation

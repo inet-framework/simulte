@@ -15,7 +15,7 @@
 
 #include "inet/networklayer/common/L3AddressResolver.h"
 #include "inet/transportlayer/contract/udp/UDPSocket.h"
-#include "VoipPacket_m.h"
+#include "apps/voip/VoipPacket_m.h"
 #include <list>
 
 class VoIPReceiver : public cSimpleModule

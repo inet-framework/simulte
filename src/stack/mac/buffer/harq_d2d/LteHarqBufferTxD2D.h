@@ -10,8 +10,8 @@
 #ifndef _LTE_LTEHARQBUFFERTXD2D_H_
 #define _LTE_LTEHARQBUFFERTXD2D_H_
 
-#include "LteHarqBufferTx.h"
-#include "LteHarqProcessTxD2D.h"
+#include "stack/mac/buffer/harq/LteHarqBufferTx.h"
+#include "stack/mac/buffer/harq_d2d/LteHarqProcessTxD2D.h"
 
 /*
  * NOTA: e' compito del mac ul usare solo il processo di turno, non c'e' nessun controllo.

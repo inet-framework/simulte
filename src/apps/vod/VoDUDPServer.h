@@ -13,10 +13,10 @@
 #include <platdep/sockets.h>
 #include <omnetpp.h>
 #include <fstream>
-#include "VoDUDPStruct.h"
+#include "apps/vod/VoDUDPStruct.h"
 #include "inet/transportlayer/contract/udp/UDPControlInfo_m.h"
-#include "VoDPacket_m.h"
-#include "M1Message_m.h"
+#include "apps/vod/VoDPacket_m.h"
+#include "apps/vod/M1Message_m.h"
 #include "inet/transportlayer/contract/udp/UDPSocket.h"
 #include "inet/networklayer/common/L3AddressResolver.h"
 

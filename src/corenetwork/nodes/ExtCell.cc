@@ -7,7 +7,7 @@
 // and cannot be removed from it.
 //
 
-#include "ExtCell.h"
+#include "corenetwork/nodes/ExtCell.h"
 
 Define_Module(ExtCell);
 

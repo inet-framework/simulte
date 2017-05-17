@@ -7,8 +7,8 @@
 // and cannot be removed from it.
 //
 
-#include "LteDlFeedbackGenerator.h"
-#include "LtePhyUe.h"
+#include "stack/phy/feedback/LteDlFeedbackGenerator.h"
+#include "stack/phy/layer/LtePhyUe.h"
 
 Define_Module(LteDlFeedbackGenerator);
 

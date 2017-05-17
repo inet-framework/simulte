@@ -13,9 +13,9 @@
 #include <omnetpp.h>
 #include "common/LteCommon.h"
 #include "common/LteControlInfo.h"
-#include "LteRlcSdu_m.h"
-#include "UmTxQueue.h"
-#include "UmRxQueue.h"
+#include "stack/rlc/packet/LteRlcSdu_m.h"
+#include "stack/rlc/um/buffer/UmTxQueue.h"
+#include "stack/rlc/um/buffer/UmRxQueue.h"
 
 class UmTxQueue;
 class UmRxQueue;

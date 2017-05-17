@@ -10,7 +10,7 @@
 #ifndef _LTE_LTEMACENBREALISTIC_H_
 #define _LTE_LTEMACENBREALISTIC_H_
 
-#include "LteMacEnb.h"
+#include "stack/mac/layer/LteMacEnb.h"
 
 class LteMacEnbRealistic : public LteMacEnb
 {

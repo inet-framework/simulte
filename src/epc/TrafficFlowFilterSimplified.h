@@ -11,8 +11,8 @@
 #define _LTE_TRAFFICFLOWFILTERSIMPLIFIED_H_
 
 #include <omnetpp.h>
-#include "TftControlInfo.h"
-#include "gtp_common.h"
+#include "epc/gtp/TftControlInfo.h"
+#include "epc/gtp_common.h"
 #include "corenetwork/binder/LteBinder.h"
 
 /**

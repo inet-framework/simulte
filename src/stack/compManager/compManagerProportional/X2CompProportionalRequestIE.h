@@ -10,7 +10,7 @@
 #ifndef _LTE_X2COMPPROPORTIONALREQUESTIE_H_
 #define _LTE_X2COMPREQUESTIE_H_
 
-#include "X2CompRequestIE.h"
+#include "stack/compManager/X2CompRequestIE.h"
 
 //
 // X2CompProportionalRequestIE

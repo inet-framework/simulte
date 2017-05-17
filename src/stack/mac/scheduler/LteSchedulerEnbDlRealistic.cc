@@ -7,10 +7,10 @@
 // and cannot be removed from it.
 //
 
-#include "LteSchedulerEnbDlRealistic.h"
-#include "LteScheduler.h"
-#include "LteAllocationModule.h"
-#include "LteMacBuffer.h"
+#include "stack/mac/scheduler/LteSchedulerEnbDlRealistic.h"
+#include "stack/mac/scheduler/LteScheduler.h"
+#include "stack/mac/allocator/LteAllocationModule.h"
+#include "stack/mac/buffer/LteMacBuffer.h"
 
 LteSchedulerEnbDlRealistic::LteSchedulerEnbDlRealistic() {
     // TODO Auto-generated constructor stub

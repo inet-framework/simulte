@@ -8,7 +8,7 @@
 #ifndef LTEMAXCIMULTIBAND_H_
 #define LTEMAXCIMULTIBAND_H_
 
-#include "LteScheduler.h"
+#include "stack/mac/scheduler/LteScheduler.h"
 
     typedef SortedDesc<MacCid, unsigned int> ScoreDesc;
     typedef std::priority_queue<ScoreDesc> ScoreList;

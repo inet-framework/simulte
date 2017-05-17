@@ -12,12 +12,12 @@
 
 #include <omnetpp.h>
 #include "stack/phy/das/RemoteAntennaSet.h"
-#include "LteAirFrame.h"
+#include "stack/phy/packet/LteAirFrame.h"
 #include "common/LteControlInfo.h"
 #include "corenetwork/binder/LteBinder.h"
 #include "common/LteCommon.h"
-#include "LtePhyBase.h"
-#include "LtePhyEnb.h"
+#include "stack/phy/layer/LtePhyBase.h"
+#include "stack/phy/layer/LtePhyEnb.h"
 
 class LtePhyBase;
 class LtePhyEnb;

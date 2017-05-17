@@ -7,8 +7,8 @@
 
 #include <vector>
 
-#include "LteMaxCiMultiband.h"
-#include "LteSchedulerEnb.h"
+#include "stack/mac/scheduling_modules/LteMaxCiMultiband.h"
+#include "stack/mac/scheduler/LteSchedulerEnb.h"
 
 using namespace std;
 

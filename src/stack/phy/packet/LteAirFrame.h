@@ -11,7 +11,7 @@
 #define _LTE_LTEAIRFRAME_H_
 
 #include "common/LteCommon.h"
-#include "LteAirFrame_m.h"
+#include "stack/phy/packet/LteAirFrame_m.h"
 #include "common/LteControlInfo.h"
 
 class LteAirFrame : public LteAirFrame_Base

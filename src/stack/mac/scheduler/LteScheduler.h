@@ -11,7 +11,7 @@
 #define _LTE_LTESCHEDULER_H_
 
 #include "common/LteCommon.h"
-#include "LteMacEnb.h"
+#include "stack/mac/layer/LteMacEnb.h"
 
 /// forward declarations
 class LteSchedulerEnb;

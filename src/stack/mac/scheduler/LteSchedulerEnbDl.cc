@@ -7,10 +7,10 @@
 // and cannot be removed from it.
 //
 
-#include "LteSchedulerEnbDl.h"
-#include "LteMacEnb.h"
-#include "LteScheduler.h"
-#include "LteAllocationModule.h"
+#include "stack/mac/scheduler/LteSchedulerEnbDl.h"
+#include "stack/mac/layer/LteMacEnb.h"
+#include "stack/mac/scheduler/LteScheduler.h"
+#include "stack/mac/allocator/LteAllocationModule.h"
 
 bool
 LteSchedulerEnbDl::checkEligibility(MacNodeId id, Codeword& cw)

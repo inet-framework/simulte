@@ -7,7 +7,7 @@
 // and cannot be removed from it.
 //
 
-#include "LteMcs.h"
+#include "stack/mac/amc/LteMcs.h"
 
 /**
  * <CQI Index [0-15]> , <Modulation> , <Code Rate x 1024>

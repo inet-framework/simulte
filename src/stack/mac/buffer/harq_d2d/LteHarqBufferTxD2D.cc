@@ -7,7 +7,7 @@
 // and cannot be removed from it.
 //
 
-#include "LteHarqBufferTxD2D.h"
+#include "stack/mac/buffer/harq_d2d/LteHarqBufferTxD2D.h"
 
 LteHarqBufferTxD2D::LteHarqBufferTxD2D(unsigned int numProc, LteMacBase *owner, LteMacBase *dstMac)
 {

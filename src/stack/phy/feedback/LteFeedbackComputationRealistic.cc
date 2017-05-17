@@ -8,8 +8,8 @@
 //
 
 #include <math.h>
-#include "LteFeedbackComputationRealistic.h"
-#include "PhyPisaData.h"
+#include "stack/phy/feedback/LteFeedbackComputationRealistic.h"
+#include "corenetwork/binder/PhyPisaData.h"
 #include "corenetwork/binder/LteBinder.h"
 
 LteFeedbackComputationRealistic::LteFeedbackComputationRealistic(double targetBler, std::map<MacNodeId, Lambda>* lambda,

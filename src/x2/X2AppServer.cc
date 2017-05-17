@@ -9,9 +9,9 @@
 
 #include <stdlib.h>
 #include <stdio.h>
-#include "X2AppServer.h"
-#include "SCTPCommand_m.h"
-#include "SCTPMessage_m.h"
+#include "x2/X2AppServer.h"
+#include "inet/transportlayer/contract/sctp/SCTPCommand_m.h"
+#include "inet/transportlayer/sctp/SCTPMessage_m.h"
 
 Define_Module(X2AppServer);
 

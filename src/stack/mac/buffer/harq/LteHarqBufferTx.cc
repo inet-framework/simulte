@@ -7,7 +7,7 @@
 // and cannot be removed from it.
 //
 
-#include "LteHarqBufferTx.h"
+#include "stack/mac/buffer/harq/LteHarqBufferTx.h"
 
 LteHarqBufferTx::LteHarqBufferTx(unsigned int numProc, LteMacBase *owner, LteMacBase *dstMac)
 {

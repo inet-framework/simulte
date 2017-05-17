@@ -10,8 +10,8 @@
 #ifndef _LTE_TTIMER_H_
 #define _LTE_TTIMER_H_
 
-#include "TTimerMsg_m.h"
-#include "TMultiTimerMsg_m.h"
+#include "common/timer/TTimerMsg_m.h"
+#include "common/timer/TMultiTimerMsg_m.h"
 
 using namespace omnetpp;
 

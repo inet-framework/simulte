@@ -10,7 +10,7 @@
 #ifndef _LTE_LTEHARQUNITTXD2D_H_
 #define _LTE_LTEHARQUNITTXD2D_H_
 
-#include "LteHarqUnitTx.h"
+#include "stack/mac/buffer/harq/LteHarqUnitTx.h"
 
 /**
  * An LteHarqUnit is an HARQ mac pdu container,

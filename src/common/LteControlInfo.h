@@ -10,7 +10,7 @@
 #ifndef _LTE_LTECONTROLINFO_H_
 #define _LTE_LTECONTROLINFO_H_
 
-#include "LteControlInfo_m.h"
+#include "common/LteControlInfo_m.h"
 #include <vector>
 
 class UserTxParams;

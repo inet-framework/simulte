@@ -10,9 +10,9 @@
 #ifndef _LTE_LTEMACUEREALISTICD2D_H_
 #define _LTE_LTEMACUEREALISTICD2D_H_
 
-#include "LteMacUeRealistic.h"
-#include "LteMacEnbRealisticD2D.h"
-#include "LteHarqBufferTxD2D.h"
+#include "stack/mac/layer/LteMacUeRealistic.h"
+#include "stack/mac/layer/LteMacEnbRealisticD2D.h"
+#include "stack/mac/buffer/harq_d2d/LteHarqBufferTxD2D.h"
 
 class LteSchedulingGrant;
 class LteSchedulerUeUl;

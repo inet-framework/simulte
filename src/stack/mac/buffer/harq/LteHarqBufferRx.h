@@ -10,8 +10,8 @@
 #ifndef _LTE_LTEHARQBUFFERRX_H_
 #define _LTE_LTEHARQBUFFERRX_H_
 
-#include "LteMacBase.h"
-#include "LteHarqProcessRx.h"
+#include "stack/mac/layer/LteMacBase.h"
+#include "stack/mac/buffer/harq/LteHarqProcessRx.h"
 
 class LteMacBase;
 class LteHarqProcessRx;

@@ -7,9 +7,9 @@
 // and cannot be removed from it.
 //
 
-#include "LteSchedulingGrant_m.h"
+#include "stack/mac/packet/LteSchedulingGrant_m.h"
 #include "common/LteCommon.h"
-#include "UserTxParams.h"
+#include "stack/mac/amc/UserTxParams.h"
 
 class UserTxParams;
 

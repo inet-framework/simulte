@@ -7,7 +7,7 @@
 // and cannot be removed from it.
 //
 
-#include "LteHarqProcessTxD2D.h"
+#include "stack/mac/buffer/harq_d2d/LteHarqProcessTxD2D.h"
 
 LteHarqProcessTxD2D::LteHarqProcessTxD2D(unsigned char acid, unsigned int numUnits, unsigned int numProcesses, LteMacBase *macOwner, LteMacBase *dstMac)
 {

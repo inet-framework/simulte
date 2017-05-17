@@ -10,7 +10,7 @@
 #ifndef _LTE_LTEMAXCI_H_
 #define _LTE_LTEMAXCI_H_
 
-#include "LteScheduler.h"
+#include "stack/mac/scheduler/LteScheduler.h"
 
 class LteMaxCi : public virtual LteScheduler
 {

@@ -9,8 +9,8 @@
 
 #include "common/LteCommon.h"
 #include "corenetwork/binder/LteBinder.h"
-#include "LteDeployer.h"
-#include "LteMacEnb.h"
+#include "corenetwork/deployer/LteDeployer.h"
+#include "stack/mac/layer/LteMacEnb.h"
 #include "common/LteControlInfo.h"
 
 const std::string lteTrafficClassToA(LteTrafficClass type)

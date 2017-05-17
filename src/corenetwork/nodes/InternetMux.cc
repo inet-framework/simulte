@@ -7,9 +7,9 @@
 // and cannot be removed from it.
 //
 
-#include "InternetMux.h"
+#include "corenetwork/nodes/InternetMux.h"
 #include "corenetwork/binder/LteBinder.h"
-#include "LteControlInfo_m.h"
+#include "common/LteControlInfo_m.h"
 
 Define_Module(InternetMux);
 

@@ -7,17 +7,17 @@
 // and cannot be removed from it.
 //
 
-#include "LteMacUeD2D.h"
-#include "LteMacQueue.h"
-#include "LteSchedulingGrant.h"
-#include "LteMacBuffer.h"
-#include "UserTxParams.h"
-#include "LteSchedulerUeUl.h"
-#include "LteHarqBufferRx.h"
-#include "LteHarqBufferRxD2DMirror.h"
-#include "LteDeployer.h"
-#include "D2DModeSwitchNotification_m.h"
-#include "LteRac_m.h"
+#include "stack/mac/layer/LteMacUeD2D.h"
+#include "stack/mac/buffer/LteMacQueue.h"
+#include "stack/mac/packet/LteSchedulingGrant.h"
+#include "stack/mac/buffer/LteMacBuffer.h"
+#include "stack/mac/amc/UserTxParams.h"
+#include "stack/mac/scheduler/LteSchedulerUeUl.h"
+#include "stack/mac/buffer/harq/LteHarqBufferRx.h"
+#include "stack/mac/buffer/harq_d2d/LteHarqBufferRxD2DMirror.h"
+#include "corenetwork/deployer/LteDeployer.h"
+#include "stack/d2dModeSelection/D2DModeSwitchNotification_m.h"
+#include "stack/mac/packet/LteRac_m.h"
 
 Define_Module(LteMacUeD2D);
 

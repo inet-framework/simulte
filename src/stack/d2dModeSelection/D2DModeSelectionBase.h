@@ -10,7 +10,7 @@
 #ifndef LTE_D2DMODESELECTIONBASE_H_
 #define LTE_D2DMODESELECTIONBASE_H_
 
-#include "LteMacEnb.h"
+#include "stack/mac/layer/LteMacEnb.h"
 
 //
 // D2DModeSelectionBase

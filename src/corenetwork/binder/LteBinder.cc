@@ -8,10 +8,10 @@
 //
 
 #include "corenetwork/binder/LteBinder.h"
-#include "LteDeployer.h"
+#include "corenetwork/deployer/LteDeployer.h"
 #include "inet/networklayer/common/L3AddressResolver.h"
 #include <cctype>
-#include "InternetMux.h"
+#include "corenetwork/nodes/InternetMux.h"
 
 using namespace std;
 

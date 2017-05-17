@@ -7,9 +7,9 @@
 // and cannot be removed from it.
 //
 
-#include "LteScheduler.h"
-#include "LteSchedulerEnb.h"
-#include "LteSchedulerEnbUl.h"
+#include "stack/mac/scheduler/LteScheduler.h"
+#include "stack/mac/scheduler/LteSchedulerEnb.h"
+#include "stack/mac/scheduler/LteSchedulerEnbUl.h"
 
 /**
  * TODO:
