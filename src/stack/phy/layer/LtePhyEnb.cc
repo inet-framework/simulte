@@ -10,7 +10,7 @@
 #include "LtePhyEnb.h"
 #include "LteFeedbackPkt.h"
 #include "DasFilter.h"
-#include "LteCommon.h"
+#include "common/LteCommon.h"
 
 Define_Module(LtePhyEnb);
 

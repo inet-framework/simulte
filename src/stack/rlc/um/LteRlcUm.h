@@ -11,8 +11,8 @@
 #define _LTE_LTERLCUM_H_
 
 #include <omnetpp.h>
-#include "LteCommon.h"
-#include "LteControlInfo.h"
+#include "common/LteCommon.h"
+#include "common/LteControlInfo.h"
 #include "LteRlcSdu_m.h"
 #include "UmTxQueue.h"
 #include "UmRxQueue.h"

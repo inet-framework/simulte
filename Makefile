@@ -10,7 +10,7 @@ cleanall: checkmakefiles
 	rm -f src/Makefile
 
 makefiles:
-	cd src && opp_makemake -f --deep --make-so -o lte -O out -I$$\(INET_PROJ\)/src -L../../inet/out/$$\(CONFIGNAME\)/src -lINET -DINET_IMPORT -KINET_PROJ=../../inet
+	cd src && opp_makemake -f --deep --make-so -o lte -O out -I$$\(INET_PROJ\)/src -I. -L../../inet/out/$$\(CONFIGNAME\)/src -lINET -DINET_IMPORT -KINET_PROJ=../../inet
 
 
 checkmakefiles:

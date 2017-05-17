@@ -11,7 +11,7 @@
 #define _LTE_X2HANDOVERCONTROLMSG_H_
 
 #include "LteX2Message.h"
-#include "LteCommon.h"
+#include "common/LteCommon.h"
 
 /**
  * @class X2HandoverControlMsg

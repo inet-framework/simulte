@@ -17,8 +17,8 @@
 #include "UserTxParams.h"
 #include "InterfaceEntry.h"
 #include "inet/common/ModuleAccess.h"
-#include "IPv4InterfaceData.h"
-#include "LteBinder.h"
+#include "inet/networklayer/ipv4/IPv4InterfaceData.h"
+#include "corenetwork/binder/LteBinder.h"
 #include "LteMacSduRequest.h"
 
 Define_Module(LteMacUeRealistic);

@@ -8,7 +8,7 @@
 //
 
 #include "LtePhyBase.h"
-#include "LteCommon.h"
+#include "common/LteCommon.h"
 
 short LtePhyBase::airFramePriority_ = 10;
 

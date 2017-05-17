@@ -11,7 +11,7 @@
 #define _LTE_X2COMPMSG_H_
 
 #include "LteX2Message.h"
-#include "LteCommon.h"
+#include "common/LteCommon.h"
 
 /**
  * @class X2CompMsg

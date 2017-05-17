@@ -11,7 +11,7 @@
 #define _LTE_X2INFORMATIONELEMENT_H_
 
 #include "LteX2Message_m.h"
-#include "LteCommon.h"
+#include "common/LteCommon.h"
 
 // add here new IE types
 enum X2InformationElementType

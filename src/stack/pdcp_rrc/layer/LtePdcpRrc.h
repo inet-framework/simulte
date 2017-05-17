@@ -11,12 +11,12 @@
 #define _LTE_LTEPDCPRRC_H_
 
 #include <omnetpp.h>
-#include "LteBinder.h"
-#include "LteCommon.h"
+#include "corenetwork/binder/LteBinder.h"
+#include "common/LteCommon.h"
 #include "ConnectionsTable.h"
 #include "IPv4Datagram.h"
 #include "LteIp.h"
-#include "LteControlInfo.h"
+#include "common/LteControlInfo.h"
 #include "LtePdcpPdu_m.h"
 #include "LtePdcpEntity.h"
 

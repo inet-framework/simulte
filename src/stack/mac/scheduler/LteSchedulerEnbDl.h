@@ -11,7 +11,7 @@
 #define _LTE_LTE_SCHEDULER_ENB_DL_H_
 
 #include "LteSchedulerEnb.h"
-#include "LteCommon.h"
+#include "common/LteCommon.h"
 #include "LteAmc.h"
 #include "UserTxParams.h"
 

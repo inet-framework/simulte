@@ -9,8 +9,8 @@
 
 #include "AmRxQueue.h"
 #include "LteRlcAm.h"
-#include "LteCommon.h"
-#include "LteControlInfo.h"
+#include "common/LteCommon.h"
+#include "common/LteControlInfo.h"
 #include "LteMacBase.h"
 
 Define_Module(AmRxQueue);

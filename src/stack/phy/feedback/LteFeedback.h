@@ -10,7 +10,7 @@
 #ifndef _LTE_LTEFEEDBACK_H_
 #define _LTE_LTEFEEDBACK_H_
 
-#include "LteCommon.h"
+#include "common/LteCommon.h"
 #include "UserTxParams.h"
 #include <map>
 #include <vector>

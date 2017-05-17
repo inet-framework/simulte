@@ -10,7 +10,7 @@
 #ifndef _LTE_LTESCHEDULER_H_
 #define _LTE_LTESCHEDULER_H_
 
-#include "LteCommon.h"
+#include "common/LteCommon.h"
 #include "LteMacEnb.h"
 
 /// forward declarations

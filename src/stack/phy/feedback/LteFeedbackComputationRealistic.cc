@@ -10,7 +10,7 @@
 #include <math.h>
 #include "LteFeedbackComputationRealistic.h"
 #include "PhyPisaData.h"
-#include "LteBinder.h"
+#include "corenetwork/binder/LteBinder.h"
 
 LteFeedbackComputationRealistic::LteFeedbackComputationRealistic(double targetBler, std::map<MacNodeId, Lambda>* lambda,
     double lambdaMinTh, double lambdaMaxTh, double lambdaRatioTh, unsigned int numBands)

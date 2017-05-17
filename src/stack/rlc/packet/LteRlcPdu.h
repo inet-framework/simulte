@@ -11,7 +11,7 @@
 #define LTERLCPDU_H_
 
 #include "LteRlcPdu_m.h"
-#include "LteControlInfo.h"
+#include "common/LteControlInfo.h"
 
 class LteRlcPdu : public LteRlcPdu_Base {
    private:

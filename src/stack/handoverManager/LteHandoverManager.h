@@ -10,7 +10,7 @@
 #ifndef LTE_LTEHANDOVERMANAGER_H_
 #define LTE_LTEHANDOVERMANAGER_H_
 
-#include "LteCommon.h"
+#include "common/LteCommon.h"
 #include "X2ControlInfo_m.h"
 #include "X2HandoverControlMsg.h"
 #include "X2HandoverDataMsg.h"

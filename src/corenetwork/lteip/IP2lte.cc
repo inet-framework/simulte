@@ -8,7 +8,7 @@
 //
 
 #include "IP2lte.h"
-#include "LteBinder.h"
+#include "corenetwork/binder/LteBinder.h"
 #include "LteDeployer.h"
 #include "TCPSegment.h"
 #include "UDPPacket.h"
@@ -16,7 +16,7 @@
 #include <iostream>
 
 #include "inet/common/ModuleAccess.h"
-#include "IPv4InterfaceData.h"
+#include "inet/networklayer/ipv4/IPv4InterfaceData.h"
 #include "InterfaceEntry.h"
 #include "LteMacBase.h"
 

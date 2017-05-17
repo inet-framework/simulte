@@ -9,7 +9,7 @@
 
 #include "LteHarqBufferRxD2D.h"
 #include "LteMacPdu.h"
-#include "LteControlInfo.h"
+#include "common/LteControlInfo.h"
 #include "LteHarqFeedback_m.h"
 #include "LteMacBase.h"
 #include "LteMacEnb.h"

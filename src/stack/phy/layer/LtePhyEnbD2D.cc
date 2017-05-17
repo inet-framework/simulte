@@ -9,7 +9,7 @@
 
 #include "LtePhyEnbD2D.h"
 #include "LteFeedbackPkt.h"
-#include "LteCommon.h"
+#include "common/LteCommon.h"
 #include "DasFilter.h"
 
 Define_Module(LtePhyEnbD2D);

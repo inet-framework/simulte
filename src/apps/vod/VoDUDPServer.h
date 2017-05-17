@@ -14,7 +14,7 @@
 #include <omnetpp.h>
 #include <fstream>
 #include "VoDUDPStruct.h"
-#include "UDPControlInfo_m.h"
+#include "inet/transportlayer/contract/udp/UDPControlInfo_m.h"
 #include "VoDPacket_m.h"
 #include "M1Message_m.h"
 #include "inet/transportlayer/contract/udp/UDPSocket.h"

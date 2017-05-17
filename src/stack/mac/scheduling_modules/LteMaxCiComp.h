@@ -11,7 +11,7 @@
 #define _LTE_LTEMAXCICOMP_H_
 
 #include "LteScheduler.h"
-#include "LteCommon.h"
+#include "common/LteCommon.h"
 
 class LteMaxCiComp : public virtual LteScheduler
 {

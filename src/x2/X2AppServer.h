@@ -11,8 +11,8 @@
 #define __X2APPSERVER_H_
 
 #include "SCTPServer.h"
-#include "LteCommon.h"
-#include "LteBinder.h"
+#include "common/LteCommon.h"
+#include "corenetwork/binder/LteBinder.h"
 
 
 /**

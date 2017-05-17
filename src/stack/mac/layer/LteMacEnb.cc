@@ -19,7 +19,7 @@
 #include "LteAmc.h"
 #include "UserTxParams.h"
 #include "LteRac_m.h"
-#include "LteCommon.h"
+#include "common/LteCommon.h"
 
 Define_Module( LteMacEnb);
 

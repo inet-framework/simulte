@@ -11,7 +11,7 @@
 #define _LTE_LTEX2MESSAGE_H_
 
 #include "LteX2Message_m.h"
-#include "LteCommon.h"
+#include "common/LteCommon.h"
 #include "X2InformationElement.h"
 
 using namespace omnetpp;

@@ -11,7 +11,7 @@
 #define _LTE_LTEDLFBGENERATOR_H_
 
 #include <omnetpp.h>
-#include "LteCommon.h"
+#include "common/LteCommon.h"
 #include "LteDeployer.h"
 #include "DasFilter.h"
 #include "LteFeedback.h"

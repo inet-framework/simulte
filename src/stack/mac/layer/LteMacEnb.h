@@ -13,7 +13,7 @@
 #include "LteMacBase.h"
 #include "LteDeployer.h"
 #include "LteAmc.h"
-#include "LteCommon.h"
+#include "common/LteCommon.h"
 
 class MacBsr;
 class LteSchedulerEnbDl;

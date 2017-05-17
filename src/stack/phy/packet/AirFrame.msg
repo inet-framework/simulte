@@ -22,7 +22,7 @@
 
 cplusplus {{
 #include "INETDefs.h"
-#include "Coord.h"
+#include "inet/common/geometry/common/Coord.h"
 #include "ModulationType.h"
 }}
 

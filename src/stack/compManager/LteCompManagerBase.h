@@ -10,7 +10,7 @@
 #ifndef LTE_LTECOMPMANAGERBASE_H_
 #define LTE_LTECOMPMANAGERBASE_H_
 
-#include "LteCommon.h"
+#include "common/LteCommon.h"
 #include "LteMacEnb.h"
 #include "LteMacBuffer.h"
 #include "X2ControlInfo_m.h"

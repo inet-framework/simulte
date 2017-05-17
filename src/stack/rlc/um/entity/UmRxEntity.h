@@ -13,7 +13,7 @@
 #include <omnetpp.h>
 #include "LteRlcUmRealistic.h"
 #include "TTimer.h"
-#include "LteControlInfo.h"
+#include "common/LteControlInfo.h"
 #include "LtePdcpPdu_m.h"
 #include "LteRlcDefs.h"
 

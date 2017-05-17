@@ -13,10 +13,10 @@
 #include <string.h>
 #include <omnetpp.h>
 #include <math.h>
-#include "IPv4Address.h"
-#include "RemoteAntennaSet.h"
-#include "LteBinder.h"
-#include "LteCommon.h"
+#include "inet/networklayer/contract/ipv4/IPv4Address.h"
+#include "stack/phy/das/RemoteAntennaSet.h"
+#include "corenetwork/binder/LteBinder.h"
+#include "common/LteCommon.h"
 
 class DasFilter;
 

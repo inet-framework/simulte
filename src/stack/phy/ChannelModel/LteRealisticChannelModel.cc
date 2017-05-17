@@ -9,10 +9,10 @@
 
 #include "LteRealisticChannelModel.h"
 #include "LteAirFrame.h"
-#include "LteBinder.h"
+#include "corenetwork/binder/LteBinder.h"
 #include "LteDeployer.h"
 #include "UserTxParams.h"
-#include "LteCommon.h"
+#include "common/LteCommon.h"
 #include "ExtCell.h"
 #include "LtePhyUe.h"
 

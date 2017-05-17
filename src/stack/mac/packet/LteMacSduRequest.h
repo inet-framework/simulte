@@ -11,7 +11,7 @@
 #define _LTE_LTEMACSDUREQUEST_H_
 
 #include "LteMacSduRequest_m.h"
-#include "LteCommon.h"
+#include "common/LteCommon.h"
 
 /**
  * @class LteMacSduRequest

@@ -9,7 +9,7 @@
 
 #include "LteHarqBufferRxD2DMirror.h"
 #include "LteHarqBufferRx.h"
-#include "LteCommon.h"
+#include "common/LteCommon.h"
 
 LteHarqBufferRxD2DMirror::LteHarqBufferRxD2DMirror(LteHarqBufferRx* harqBuffer,unsigned char maxHarqRtx,MacNodeId peer)
 {

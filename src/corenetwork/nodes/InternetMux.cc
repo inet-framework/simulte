@@ -8,7 +8,7 @@
 //
 
 #include "InternetMux.h"
-#include "LteBinder.h"
+#include "corenetwork/binder/LteBinder.h"
 #include "LteControlInfo_m.h"
 
 Define_Module(InternetMux);

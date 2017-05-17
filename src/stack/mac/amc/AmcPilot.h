@@ -10,7 +10,7 @@
 #ifndef _LTE_AMCPILOT_H_
 #define _LTE_AMCPILOT_H_
 
-//#include "LteCommon.h"
+//#include "common/LteCommon.h"
 #include "LteAmc.h"
 #include "UserTxParams.h"
 #include "LteFeedback.h"

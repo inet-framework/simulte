@@ -10,7 +10,7 @@
 #ifndef _LTE_LTERLCDEFS_H_
 #define _LTE_LTERLCDEFS_H_
 
-#include "LteControlInfo.h"
+#include "common/LteControlInfo.h"
 #include "LteRlcPdu.h"
 #include "LteRlcSdu.h"
 #include "UmFragbuf.h"

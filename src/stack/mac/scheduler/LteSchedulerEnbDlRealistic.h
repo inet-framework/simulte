@@ -12,7 +12,7 @@
 #define _LTE_LTESCHEDULERENBDLREALISTIC_H_
 
 #include "LteSchedulerEnbDl.h"
-#include "LteCommon.h"
+#include "common/LteCommon.h"
 #include "LteAmc.h"
 #include "UserTxParams.h"
 

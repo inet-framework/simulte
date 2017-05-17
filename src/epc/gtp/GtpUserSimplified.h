@@ -16,7 +16,7 @@
 #include "IPv4Datagram.h"
 #include "TftControlInfo.h"
 #include "GtpUserMsg_m.h"
-#include "LteBinder.h"
+#include "corenetwork/binder/LteBinder.h"
 #include <map>
 #include "gtp_common.h"
 

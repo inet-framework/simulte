@@ -8,7 +8,7 @@
 //
 
 #include "LteSchedulingGrant_m.h"
-#include "LteCommon.h"
+#include "common/LteCommon.h"
 #include "UserTxParams.h"
 
 class UserTxParams;

@@ -10,13 +10,13 @@
 #ifndef _LTE_AMTXBUFFER_H_
 #define _LTE_AMTXBUFFER_H_
 
-#include "LteCommon.h"
+#include "common/LteCommon.h"
 #include "LteRlcDefs.h"
 #include "TTimer.h"
 #include "LteRlcAmPdu.h"
 #include "LteRlcAmSdu_m.h"
 #include "LtePdcpPdu_m.h"
-#include "LteControlInfo.h"
+#include "common/LteControlInfo.h"
 
 /*
  * RLC AM Mode Transmission Entity

@@ -11,7 +11,7 @@
 #define _LTE_LTEHARQPROCESSRXD2DMIRROR_H_
 
 #include <omnetpp.h>
-#include "LteCommon.h"
+#include "common/LteCommon.h"
 
 /**
  * H-ARQ RX processes contain pdus received from phy layer for which

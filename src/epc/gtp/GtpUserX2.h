@@ -13,7 +13,7 @@
 #include <omnetpp.h>
 #include "inet/transportlayer/contract/udp/UDPSocket.h"
 #include "GtpUserMsg_m.h"
-#include "LteBinder.h"
+#include "corenetwork/binder/LteBinder.h"
 #include "LteX2Message.h"
 #include <map>
 #include "gtp_common.h"

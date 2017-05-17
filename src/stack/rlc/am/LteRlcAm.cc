@@ -8,7 +8,7 @@
 //
 
 #include "LteRlcAm.h"
-#include "LteCommon.h"
+#include "common/LteCommon.h"
 #include "AmTxQueue.h"
 #include "AmRxQueue.h"
 

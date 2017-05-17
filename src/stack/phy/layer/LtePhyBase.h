@@ -17,8 +17,8 @@
 
 #include "world/radio/ChannelAccess.h"
 #include "ChannelControl.h"
-#include "LteCommon.h"
-#include "LteControlInfo.h"
+#include "common/LteCommon.h"
+#include "common/LteControlInfo.h"
 #include "LteAirFrame.h"
 #include "LteMacEnb.h"
 #include "LteAmc.h"

@@ -13,8 +13,8 @@
 #include <omnetpp.h>
 
 #include "LteMacPdu.h"
-#include "LteControlInfo.h"
-#include "LteCommon.h"
+#include "common/LteControlInfo.h"
+#include "common/LteCommon.h"
 #include "LteMacBase.h"
 
 class LteMacBase;

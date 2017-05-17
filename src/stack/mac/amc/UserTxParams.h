@@ -14,7 +14,7 @@
 #ifndef _LTE_USERTXPARAMS_H_
 #define _LTE_USERTXPARAMS_H_
 
-//#include "LteCommon.h"
+//#include "common/LteCommon.h"
 #include "LteMcs.h"
 
 /**

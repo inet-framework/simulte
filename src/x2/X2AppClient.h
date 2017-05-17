@@ -11,7 +11,7 @@
 #define __X2APPCLIENT_H_
 
 #include "SCTPClient.h"
-#include "LteCommon.h"
+#include "common/LteCommon.h"
 
 class SCTPAssociation;
 

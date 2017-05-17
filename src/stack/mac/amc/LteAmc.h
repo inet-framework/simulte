@@ -12,11 +12,11 @@
 
 #include <omnetpp.h>
 #include "LteFeedback.h"
-//#include "LteCommon.h"
+//#include "common/LteCommon.h"
 #include "AmcPilot.h"
 #include "LteMcs.h"
 #include "UserTxParams.h"
-#include "LteBinder.h"
+#include "corenetwork/binder/LteBinder.h"
 #include "LteDeployer.h"
 
 /// Forward declaration of AmcPilot class, used by LteAmc.

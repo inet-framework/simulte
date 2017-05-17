@@ -11,8 +11,8 @@
 #define _LTE_LTEMACPDU_H_
 
 #include "LteMacPdu_m.h"
-#include "LteCommon.h"
-#include "LteControlInfo.h"
+#include "common/LteCommon.h"
+#include "common/LteControlInfo.h"
 
 /**
  * @class LteMacPdu

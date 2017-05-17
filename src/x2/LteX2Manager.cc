@@ -12,7 +12,7 @@
 
 #include "LteX2Manager.h"
 #include "InterfaceEntry.h"
-#include "IPv4InterfaceData.h"
+#include "inet/networklayer/ipv4/IPv4InterfaceData.h"
 #include "IPv4NetworkConfigurator.h"
 
 Define_Module(LteX2Manager);

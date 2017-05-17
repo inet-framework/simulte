@@ -7,9 +7,9 @@
 // and cannot be removed from it.
 //
 
-#include "IPv4InterfaceData.h"
+#include "inet/networklayer/ipv4/IPv4InterfaceData.h"
 #include "LteIp.h"
-#include "LteBinder.h"
+#include "corenetwork/binder/LteBinder.h"
 #include "LteDeployer.h"
 #include "inet/common/ModuleAccess.h"
 

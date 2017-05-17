@@ -8,7 +8,7 @@
 //
 
 #include "VoIPReceiver.h"
-#include "lterecorder.h"
+#include "common/lterecorder.h"
 
 Define_Module(VoIPReceiver);
 
