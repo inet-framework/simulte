@@ -17,8 +17,8 @@
 #include "UDPControlInfo_m.h"
 #include "VoDPacket_m.h"
 #include "M1Message_m.h"
-#include "UDPSocket.h"
-#include "L3AddressResolver.h"
+#include "inet/transportlayer/contract/udp/UDPSocket.h"
+#include "inet/networklayer/common/L3AddressResolver.h"
 
 using namespace std;
 using namespace inet;

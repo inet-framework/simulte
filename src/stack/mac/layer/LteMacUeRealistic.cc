@@ -16,7 +16,7 @@
 #include "LteMacBuffer.h"
 #include "UserTxParams.h"
 #include "InterfaceEntry.h"
-#include "ModuleAccess.h"
+#include "inet/common/ModuleAccess.h"
 #include "IPv4InterfaceData.h"
 #include "LteBinder.h"
 #include "LteMacSduRequest.h"

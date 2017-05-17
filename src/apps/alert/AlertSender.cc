@@ -9,7 +9,7 @@
 
 #include <cmath>
 #include "AlertSender.h"
-#include "ModuleAccess.h"  // for multicast support
+#include "inet/common/ModuleAccess.h"  // for multicast support
 
 #define round(x) floor((x) + 0.5)
 

@@ -17,8 +17,8 @@
 #include "VoDPacket_m.h"
 #include "VoDUDPStruct.h"
 #include "UDPControlInfo_m.h"
-#include "UDPSocket.h"
-#include "L3AddressResolver.h"
+#include "inet/transportlayer/contract/udp/UDPSocket.h"
+#include "inet/networklayer/common/L3AddressResolver.h"
 #include "lterecorder.h"
 
 using namespace std;

@@ -8,7 +8,7 @@
 //
 
 #include "LtePdcpRrcUeD2D.h"
-#include "L3AddressResolver.h"
+#include "inet/networklayer/common/L3AddressResolver.h"
 #include "D2DModeSwitchNotification_m.h"
 
 Define_Module(LtePdcpRrcUeD2D);

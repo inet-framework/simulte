@@ -15,7 +15,7 @@
 #include "UDP.h"
 #include <iostream>
 
-#include "ModuleAccess.h"
+#include "inet/common/ModuleAccess.h"
 #include "IPv4InterfaceData.h"
 #include "InterfaceEntry.h"
 #include "LteMacBase.h"

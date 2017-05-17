@@ -9,7 +9,7 @@
 
 #include "LteBinder.h"
 #include "LteDeployer.h"
-#include "L3AddressResolver.h"
+#include "inet/networklayer/common/L3AddressResolver.h"
 #include <cctype>
 #include "InternetMux.h"
 

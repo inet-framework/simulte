@@ -12,9 +12,9 @@
 
 #include <string.h>
 #include <omnetpp.h>
-#include "UDPSocket.h"
-#include "L3Address.h"
-#include "L3AddressResolver.h"
+#include "inet/transportlayer/contract/udp/UDPSocket.h"
+#include "inet/networklayer/common/L3Address.h"
+#include "inet/networklayer/common/L3AddressResolver.h"
 #include "AlertPacket_m.h"
 
 class AlertSender : public cSimpleModule

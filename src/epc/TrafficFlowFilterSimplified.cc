@@ -10,7 +10,7 @@
 #include "TrafficFlowFilterSimplified.h"
 #include "IPv4ControlInfo.h"
 #include "IPv4Datagram.h"
-#include "L3AddressResolver.h"
+#include "inet/networklayer/common/L3AddressResolver.h"
 
 Define_Module(TrafficFlowFilterSimplified);
 

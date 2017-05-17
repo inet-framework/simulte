@@ -8,7 +8,7 @@
 //
 
 #include "AlertReceiver.h"
-#include "ModuleAccess.h"  // for multicast support
+#include "inet/common/ModuleAccess.h"  // for multicast support
 
 Define_Module(AlertReceiver);
 

@@ -18,7 +18,7 @@
 
 #include "world/radio/ChannelAccess.h"
 #include "IMobility.h"
-#include "ModuleAccess.h"
+#include "inet/common/ModuleAccess.h"
 
 static int parseInt(const char *s, int defaultValue)
 {

@@ -8,7 +8,7 @@
 //
 
 #include "GtpUserX2.h"
-#include "L3Address.h"
+#include "inet/networklayer/common/L3Address.h"
 #include <iostream>
 
 Define_Module(GtpUserX2);

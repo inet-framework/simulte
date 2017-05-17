@@ -13,7 +13,7 @@
 #include "LteCommon.h"
 #include "LteX2Message.h"
 #include "X2ControlInfo_m.h"
-#include "L3AddressResolver.h"
+#include "inet/networklayer/common/L3AddressResolver.h"
 #include "X2AppClient.h"
 #include "LteBinder.h"
 

@@ -9,7 +9,7 @@
 
 #include "GtpUserSimplified.h"
 #include "IPv4ControlInfo.h"
-#include "L3AddressResolver.h"
+#include "inet/networklayer/common/L3AddressResolver.h"
 #include <iostream>
 
 Define_Module(GtpUserSimplified);

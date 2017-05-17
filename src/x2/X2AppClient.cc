@@ -11,7 +11,7 @@
 #include "X2AppClient.h"
 #include "LteBinder.h"
 #include "LteMacEnb.h"
-#include "L3AddressResolver.h"
+#include "inet/networklayer/common/L3AddressResolver.h"
 #include "SCTPAssociation.h"
 #include "SCTPCommand_m.h"
 

@@ -11,7 +11,7 @@
 #include "LteIp.h"
 #include "LteBinder.h"
 #include "LteDeployer.h"
-#include "ModuleAccess.h"
+#include "inet/common/ModuleAccess.h"
 
 Define_Module(LteIp);
 

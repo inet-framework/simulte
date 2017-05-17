@@ -11,7 +11,7 @@
 #define _LTE_GTP_USER_X2_H_
 
 #include <omnetpp.h>
-#include "UDPSocket.h"
+#include "inet/transportlayer/contract/udp/UDPSocket.h"
 #include "GtpUserMsg_m.h"
 #include "LteBinder.h"
 #include "LteX2Message.h"

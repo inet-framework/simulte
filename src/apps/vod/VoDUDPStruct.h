@@ -10,7 +10,7 @@
 #ifndef _LTE_VODUDPSTRUCT_H_
 #define _LTE_VODUDPSTRUCT_H_
 
-#include "L3Address.h"
+#include "inet/networklayer/common/L3Address.h"
 
 /**
  * Stores information on a video stream
