@@ -35,7 +35,7 @@ simulteRoot = os.path.abspath("../..")
 inetRoot = os.path.abspath(simulteRoot + "/../inet")
 sep = ";" if sys.platform == 'win32' else ':'
 nedPath = inetRoot + "/src" + sep + simulteRoot + "/src" + sep + simulteRoot + "/simulations"
-simulteLib = simulteRoot + "/src/simulte"
+simulteLib = simulteRoot + "/src/lte"
 opp_run = "opp_run"
 cpuTimeLimit = "300s"
 logFile = "test.out"
