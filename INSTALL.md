@@ -8,8 +8,10 @@ Prerequisites
 -------------
 
 You should have a 
-- working OMNeT++ (v4.4) installation. (Download from http://omnetpp.org)
-- working INET-Framework installation (v2.3). (Download from http://inet.omnetpp.org)
+- working OMNeT++ (v5.1) installation. (Download from http://omnetpp.org)
+- working INET-Framework installation (v3.5). (Download from http://inet.omnetpp.org)
+
+NOTE: OMNeT++ 5.0 paired with INET 3.4 is also working.
 
 Make sure your OMNeT++ installation works OK (e.g. try running the samples)
 and it is in the path (to test, try the command "which nedtool"). On

@@ -3,6 +3,13 @@ SimuLTE
 
 LTE user plane simulation model, compatible with the INET Framework.
 
+Dependencies
+------------
+
+The current master/head version requires either of
+
+- OMNeT++ 5.0 and INET 3.4
+- OMNeT++ 5.1 and INET 3.5
 
 Features
 --------
