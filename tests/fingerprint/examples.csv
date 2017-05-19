@@ -1,8 +1,8 @@
 # workingdir,                        args,                                     simtimelimit,    fingerprint
-/simulations/demo/,                  -f demo.ini -c VideoStreaming -r 0,    5s,             aa9e-152b
-/simulations/demo/,                  -f demo.ini -c MixedTraffic -r 0,      5s,             e9e0-0df5
-/simulations/demo/,                  -f demo.ini -c VoIP -r 0,              5s,             39a3-a261
-/simulations/demo/,                  -f demo.ini -c VoIP_PF -r 0,           5s,             0bb7-d71c
-/simulations/demo/,                  -f demo.ini -c Large-VoIP_PF -r 0,     5s,             2f4a-9018
-/simulations/demo/,                  -f demo.ini -c Large-VoIP_MaxCI -r 0,  5s,             3130-f601
-/simulations/demo/,                  -f demo.ini -c VoIP_DL-UL -r 0,        5s,             76bf-af3b
+/simulations/demo/,                  -f omnetpp.ini -c VideoStreaming -r 0,    5s,             1dbf-54ae
+/simulations/demo/,                  -f omnetpp.ini -c MixedTraffic -r 0,      5s,             e9e0-0df5
+/simulations/demo/,                  -f omnetpp.ini -c VoIP -r 0,              5s,             fb2b-651e
+/simulations/demo/,                  -f omnetpp.ini -c VoIP_PF -r 0,           5s,             584d-6781
+/simulations/demo/,                  -f omnetpp.ini -c Large-VoIP_PF -r 0,     5s,             a0bf-f7e0
+/simulations/demo/,                  -f omnetpp.ini -c Large-VoIP_MaxCI -r 0,  5s,             8ab4-d454
+/simulations/demo/,                  -f omnetpp.ini -c VoIP_DL-UL -r 0,        5s,             146a-dca0
