@@ -7,7 +7,7 @@
 // and cannot be removed from it.
 //
 
-#include <LteChannelControl.h>
+#include "world/radio/LteChannelControl.h"
 #include "inet/common/INETMath.h"
 #include <cassert>
 
