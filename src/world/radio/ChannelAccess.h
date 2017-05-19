@@ -24,9 +24,9 @@
 #include <list>
 #include <limits>
 
-#include "INETDefs.h"
+#include "inet/common/INETDefs.h"
 
-#include "IChannelControl.h"
+#include "world/radio/IChannelControl.h"
 
 // Forward declarations
 class AirFrame;

@@ -10,7 +10,7 @@
 #ifndef _LTE_LTEHARQBUFFERRXD2DMIRROR_H_
 #define _LTE_LTEHARQBUFFERRXD2DMIRROR_H_
 
-#include "LteHarqProcessRxD2DMirror.h"
+#include "stack/mac/buffer/harq_d2d/LteHarqProcessRxD2DMirror.h"
 
 class LteHarqBufferRx;
 

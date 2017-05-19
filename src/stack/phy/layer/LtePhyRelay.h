@@ -10,7 +10,7 @@
 #ifndef _LTE_AIRPHYRELAY_H_
 #define _LTE_AIRPHYRELAY_H_
 
-#include "LtePhyBase.h"
+#include "stack/phy/layer/LtePhyBase.h"
 
 class LtePhyRelay : public LtePhyBase
 {

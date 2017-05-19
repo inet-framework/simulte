@@ -11,7 +11,7 @@
 #define _LTE_INTERNETMUX_H_
 
 #include <omnetpp.h>
-#include "LteCommon.h"
+#include "common/LteCommon.h"
 
 class InternetMux : public cSimpleModule
 {

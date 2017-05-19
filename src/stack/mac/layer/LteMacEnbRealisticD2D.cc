@@ -7,13 +7,13 @@
 // and cannot be removed from it.
 //
 
-#include "LteMacEnbRealisticD2D.h"
-#include "LteFeedbackPkt.h"
-#include "LteMacUeRealisticD2D.h"
-#include "LteHarqBufferRx.h"
-#include "AmcPilotD2D.h"
-#include "LteSchedulerEnbUl.h"
-#include "LteSchedulingGrant.h"
+#include "stack/mac/layer/LteMacEnbRealisticD2D.h"
+#include "stack/phy/packet/LteFeedbackPkt.h"
+#include "stack/mac/layer/LteMacUeRealisticD2D.h"
+#include "stack/mac/buffer/harq/LteHarqBufferRx.h"
+#include "stack/mac/amc/AmcPilotD2D.h"
+#include "stack/mac/scheduler/LteSchedulerEnbUl.h"
+#include "stack/mac/packet/LteSchedulingGrant.h"
 
 Define_Module(LteMacEnbRealisticD2D);
 

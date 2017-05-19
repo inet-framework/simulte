@@ -10,8 +10,8 @@
 #ifndef LTERLCDATAPDU_H_
 #define LTERLCDATAPDU_H_
 
-#include "LteRlcDataPdu_m.h"
-#include "LteRlcDefs.h"
+#include "stack/rlc/packet/LteRlcDataPdu_m.h"
+#include "stack/rlc/LteRlcDefs.h"
 
 /**
  * @class LteRlcDataPdu

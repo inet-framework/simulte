@@ -7,8 +7,8 @@
 // and cannot be removed from it.
 //
 
-#include "LteHandoverManager.h"
-#include "X2HandoverCommandIE.h"
+#include "stack/handoverManager/LteHandoverManager.h"
+#include "stack/handoverManager/X2HandoverCommandIE.h"
 
 Define_Module(LteHandoverManager);
 

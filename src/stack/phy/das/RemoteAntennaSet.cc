@@ -7,7 +7,7 @@
 // and cannot be removed from it.
 //
 
-#include "RemoteAntennaSet.h"
+#include "stack/phy/das/RemoteAntennaSet.h"
 
 void RemoteAntennaSet::addRemoteAntenna(double ruX, double ruY, double ruPow)
 {

@@ -16,16 +16,16 @@
 #include <omnetpp.h>
 
 #include "world/radio/ChannelAccess.h"
-#include "ChannelControl.h"
-#include "LteCommon.h"
-#include "LteControlInfo.h"
-#include "LteAirFrame.h"
-#include "LteMacEnb.h"
-#include "LteAmc.h"
-#include "LteChannelModel.h"
-#include "LteFeedbackComputationRealistic.h"
-#include "LteRealisticChannelModel.h"
-#include "LteDummyChannelModel.h"
+#include "world/radio/ChannelControl.h"
+#include "common/LteCommon.h"
+#include "common/LteControlInfo.h"
+#include "stack/phy/packet/LteAirFrame.h"
+#include "stack/mac/layer/LteMacEnb.h"
+#include "stack/mac/amc/LteAmc.h"
+#include "stack/phy/ChannelModel/LteChannelModel.h"
+#include "stack/phy/feedback/LteFeedbackComputationRealistic.h"
+#include "stack/phy/ChannelModel/LteRealisticChannelModel.h"
+#include "stack/phy/ChannelModel/LteDummyChannelModel.h"
 
 /**
  * @class LtePhy

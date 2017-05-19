@@ -8,7 +8,7 @@
 //
 
 #include <climits>
-#include "LteMacQueue.h"
+#include "stack/mac/buffer/LteMacQueue.h"
 
 LteMacQueue::LteMacQueue(int queueSize) :
     cPacketQueue("LteMacQueue")

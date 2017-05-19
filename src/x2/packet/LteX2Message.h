@@ -10,9 +10,9 @@
 #ifndef _LTE_LTEX2MESSAGE_H_
 #define _LTE_LTEX2MESSAGE_H_
 
-#include "LteX2Message_m.h"
-#include "LteCommon.h"
-#include "X2InformationElement.h"
+#include "x2/packet/LteX2Message_m.h"
+#include "common/LteCommon.h"
+#include "x2/packet/X2InformationElement.h"
 
 using namespace omnetpp;
 

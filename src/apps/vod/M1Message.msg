@@ -8,7 +8,7 @@
 //
 
 cplusplus {{
-#include "L3Address.h"
+#include "inet/networklayer/common/L3Address.h"
 }};
 
 struct inet::L3Address;

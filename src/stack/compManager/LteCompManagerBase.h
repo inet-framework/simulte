@@ -10,13 +10,13 @@
 #ifndef LTE_LTECOMPMANAGERBASE_H_
 #define LTE_LTECOMPMANAGERBASE_H_
 
-#include "LteCommon.h"
-#include "LteMacEnb.h"
-#include "LteMacBuffer.h"
-#include "X2ControlInfo_m.h"
-#include "X2CompMsg.h"
-#include "X2CompRequestIE.h"
-#include "X2CompReplyIE.h"
+#include "common/LteCommon.h"
+#include "stack/mac/layer/LteMacEnb.h"
+#include "stack/mac/buffer/LteMacBuffer.h"
+#include "x2/packet/X2ControlInfo_m.h"
+#include "stack/compManager/X2CompMsg.h"
+#include "stack/compManager/X2CompRequestIE.h"
+#include "stack/compManager/X2CompReplyIE.h"
 
 typedef enum {
     COMP_CLIENT,

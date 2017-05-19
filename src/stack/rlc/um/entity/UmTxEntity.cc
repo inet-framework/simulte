@@ -7,7 +7,7 @@
 // and cannot be removed from it.
 //
 
-#include "UmTxEntity.h"
+#include "stack/rlc/um/entity/UmTxEntity.h"
 
 Define_Module(UmTxEntity);
 

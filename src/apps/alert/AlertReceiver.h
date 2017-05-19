@@ -13,9 +13,9 @@
 #include <string.h>
 #include <omnetpp.h>
 
-#include "L3AddressResolver.h"
-#include "UDPSocket.h"
-#include "AlertPacket_m.h"
+#include "inet/networklayer/common/L3AddressResolver.h"
+#include "inet/transportlayer/contract/udp/UDPSocket.h"
+#include "apps/alert/AlertPacket_m.h"
 
 class AlertReceiver : public cSimpleModule
 {

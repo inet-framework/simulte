@@ -7,8 +7,8 @@
 // and cannot be removed from it.
 //
 
-#include "LtePf.h"
-#include "LteSchedulerEnb.h"
+#include "stack/mac/scheduling_modules/LtePf.h"
+#include "stack/mac/scheduler/LteSchedulerEnb.h"
 
 void LtePf::prepareSchedule()
 {

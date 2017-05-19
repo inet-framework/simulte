@@ -7,9 +7,9 @@
 // and cannot be removed from it.
 //
 
-#include "GtpUserSimplified.h"
-#include "IPv4ControlInfo.h"
-#include "L3AddressResolver.h"
+#include "epc/gtp/GtpUserSimplified.h"
+#include "inet/networklayer/contract/ipv4/IPv4ControlInfo.h"
+#include "inet/networklayer/common/L3AddressResolver.h"
 #include <iostream>
 
 Define_Module(GtpUserSimplified);

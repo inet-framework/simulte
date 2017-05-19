@@ -7,7 +7,7 @@
 // and cannot be removed from it.
 // 
 
-#include "ConnectionsTable.h"
+#include "stack/pdcp_rrc/ConnectionsTable.h"
 
 ConnectionsTable::ConnectionsTable()
 {

@@ -7,21 +7,21 @@
 // and cannot be removed from it.
 //
 
-#include "LteMacEnbD2D.h"
-#include "LteHarqBufferRx.h"
-#include "LteMacBuffer.h"
-#include "LteMacQueue.h"
-#include "LteFeedbackPkt.h"
-#include "LteSchedulerEnbDl.h"
-#include "LteSchedulerEnbUl.h"
-#include "LteSchedulingGrant.h"
-#include "LteAllocationModule.h"
-#include "LteAmc.h"
-#include "UserTxParams.h"
-#include "LteRac_m.h"
-#include "LteCommon.h"
-#include "AmcPilotD2D.h"
-#include "D2DModeSwitchNotification_m.h"
+#include "stack/mac/layer/LteMacEnbD2D.h"
+#include "stack/mac/buffer/harq/LteHarqBufferRx.h"
+#include "stack/mac/buffer/LteMacBuffer.h"
+#include "stack/mac/buffer/LteMacQueue.h"
+#include "stack/phy/packet/LteFeedbackPkt.h"
+#include "stack/mac/scheduler/LteSchedulerEnbDl.h"
+#include "stack/mac/scheduler/LteSchedulerEnbUl.h"
+#include "stack/mac/packet/LteSchedulingGrant.h"
+#include "stack/mac/allocator/LteAllocationModule.h"
+#include "stack/mac/amc/LteAmc.h"
+#include "stack/mac/amc/UserTxParams.h"
+#include "stack/mac/packet/LteRac_m.h"
+#include "common/LteCommon.h"
+#include "stack/mac/amc/AmcPilotD2D.h"
+#include "stack/d2dModeSelection/D2DModeSwitchNotification_m.h"
 
 Define_Module( LteMacEnbD2D);
 

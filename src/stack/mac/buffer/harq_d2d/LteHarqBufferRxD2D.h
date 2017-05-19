@@ -10,8 +10,8 @@
 #ifndef _LTE_LTEHARQBUFFERRXD2D_H_
 #define _LTE_LTEHARQBUFFERRXD2D_H_
 
-#include "LteHarqBufferRx.h"
-#include "LteHarqProcessRxD2D.h"
+#include "stack/mac/buffer/harq/LteHarqBufferRx.h"
+#include "stack/mac/buffer/harq_d2d/LteHarqProcessRxD2D.h"
 
 class LteHarqProcessRxD2D;
 

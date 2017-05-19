@@ -20,8 +20,8 @@
 #include <list>
 #include <set>
 
-#include "INETDefs.h"
-#include "Coord.h"
+#include "inet/common/INETDefs.h"
+#include "inet/common/geometry/common/Coord.h"
 
 using namespace inet;
 

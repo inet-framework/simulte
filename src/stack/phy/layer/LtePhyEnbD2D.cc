@@ -7,10 +7,10 @@
 // and cannot be removed from it.
 //
 
-#include "LtePhyEnbD2D.h"
-#include "LteFeedbackPkt.h"
-#include "LteCommon.h"
-#include "DasFilter.h"
+#include "stack/phy/layer/LtePhyEnbD2D.h"
+#include "stack/phy/packet/LteFeedbackPkt.h"
+#include "common/LteCommon.h"
+#include "stack/phy/das/DasFilter.h"
 
 Define_Module(LtePhyEnbD2D);
 

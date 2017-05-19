@@ -8,17 +8,17 @@
 //
 
 
-#include "LteMacBase.h"
-#include "LteHarqBufferTx.h"
-#include "LteHarqBufferRxD2D.h"
-#include "LteHarqBufferRx.h"
-#include "LteMacPdu.h"
-#include "LteMacQueue.h"
-#include "LteControlInfo.h"
-#include "LteBinder.h"
-#include "LteDeployer.h"
-#include "LteHarqFeedback_m.h"
-#include "LteMacBuffer.h"
+#include "stack/mac/layer/LteMacBase.h"
+#include "stack/mac/buffer/harq/LteHarqBufferTx.h"
+#include "stack/mac/buffer/harq_d2d/LteHarqBufferRxD2D.h"
+#include "stack/mac/buffer/harq/LteHarqBufferRx.h"
+#include "stack/mac/packet/LteMacPdu.h"
+#include "stack/mac/buffer/LteMacQueue.h"
+#include "common/LteControlInfo.h"
+#include "corenetwork/binder/LteBinder.h"
+#include "corenetwork/deployer/LteDeployer.h"
+#include "stack/mac/packet/LteHarqFeedback_m.h"
+#include "stack/mac/buffer/LteMacBuffer.h"
 #include "assert.h"
 
 LteMacBase::LteMacBase()

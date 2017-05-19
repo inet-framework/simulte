@@ -6,7 +6,7 @@
 // The above file and the present reference are part of the software itself,
 // and cannot be removed from it.
 //
-#include "LteHarqProcessRxD2DMirror.h"
+#include "stack/mac/buffer/harq_d2d/LteHarqProcessRxD2DMirror.h"
 
 LteHarqProcessRxD2DMirror::LteHarqProcessRxD2DMirror(unsigned char acid,unsigned char maxharq){
     pdu_length_.resize(MAX_CODEWORDS,0);

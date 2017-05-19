@@ -10,8 +10,8 @@
 #ifndef _LTE_LTEFEEDBACKPKT_H_
 #define _LTE_LTEFEEDBACKPKT_H_
 
-#include "LteFeedbackPkt_m.h"
-#include "LteFeedback.h"
+#include "stack/phy/packet/LteFeedbackPkt_m.h"
+#include "stack/phy/feedback/LteFeedback.h"
 
 class LteFeedbackPkt : public LteFeedbackPkt_Base
 {

@@ -7,7 +7,7 @@
 // and cannot be removed from it.
 // 
 
-#include "LteChannelModel.h"
+#include "stack/phy/ChannelModel/LteChannelModel.h"
 
 LteChannelModel::LteChannelModel(unsigned int band)
 {

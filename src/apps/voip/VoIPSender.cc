@@ -8,7 +8,7 @@
 //
 
 #include <cmath>
-#include "VoIPSender.h"
+#include "apps/voip/VoIPSender.h"
 
 #define round(x) floor((x) + 0.5)
 

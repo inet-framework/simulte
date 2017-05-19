@@ -10,12 +10,12 @@
 #ifndef LTE_LTEX2MANAGER_H_
 #define LTE_LTEX2MANAGER_H_
 
-#include "LteCommon.h"
-#include "LteX2Message.h"
-#include "X2ControlInfo_m.h"
-#include "L3AddressResolver.h"
-#include "X2AppClient.h"
-#include "LteBinder.h"
+#include "common/LteCommon.h"
+#include "x2/packet/LteX2Message.h"
+#include "x2/packet/X2ControlInfo_m.h"
+#include "inet/networklayer/common/L3AddressResolver.h"
+#include "x2/X2AppClient.h"
+#include "corenetwork/binder/LteBinder.h"
 
 class LteX2Manager : public cSimpleModule {
 

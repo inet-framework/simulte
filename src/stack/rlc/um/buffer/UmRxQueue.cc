@@ -7,10 +7,10 @@
 // and cannot be removed from it.
 //
 
-#include "UmRxQueue.h"
-#include "LteMacBase.h"
-#include "LteMacEnb.h"
-#include "LteRlcUm.h"
+#include "stack/rlc/um/buffer/UmRxQueue.h"
+#include "stack/mac/layer/LteMacBase.h"
+#include "stack/mac/layer/LteMacEnb.h"
+#include "stack/rlc/um/LteRlcUm.h"
 
 Define_Module(UmRxQueue);
 

@@ -10,10 +10,10 @@
 #ifndef _LTE_LTERLCDEFS_H_
 #define _LTE_LTERLCDEFS_H_
 
-#include "LteControlInfo.h"
-#include "LteRlcPdu.h"
-#include "LteRlcSdu.h"
-#include "UmFragbuf.h"
+#include "common/LteControlInfo.h"
+#include "stack/rlc/packet/LteRlcPdu.h"
+#include "stack/rlc/packet/LteRlcSdu.h"
+#include "stack/rlc/um/buffer/UmFragbuf.h"
 
 /*!
  * LTE RLC AM Types

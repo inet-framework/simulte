@@ -8,7 +8,7 @@
 //
 
 cplusplus {{
-    #include "TTimerMsg_m.h"
+#include "common/timer/TTimerMsg_m.h"
 }};
 
 class TTimerMsg;

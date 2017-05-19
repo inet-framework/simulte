@@ -7,7 +7,7 @@
 // and cannot be removed from it.
 //
 
-#include "D2DModeSelectionBestCqi.h"
+#include "stack/d2dModeSelection/d2dModeSelectionBestCqi/D2DModeSelectionBestCqi.h"
 
 Define_Module(D2DModeSelectionBestCqi);
 

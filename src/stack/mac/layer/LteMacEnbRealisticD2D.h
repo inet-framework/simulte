@@ -10,10 +10,10 @@
 #ifndef _LTE_LTEMACENBREALISTICD2D_H_
 #define _LTE_LTEMACENBREALISTICD2D_H_
 
-#include "LteMacEnbRealistic.h"
-#include "LteMacBuffer.h"
-#include "LteHarqBufferRxD2DMirror.h"
-#include "D2DModeSwitchNotification_m.h"
+#include "stack/mac/layer/LteMacEnbRealistic.h"
+#include "stack/mac/buffer/LteMacBuffer.h"
+#include "stack/mac/buffer/harq_d2d/LteHarqBufferRxD2DMirror.h"
+#include "stack/d2dModeSelection/D2DModeSwitchNotification_m.h"
 
 typedef std::map<MacNodeId, LteHarqBufferRxD2DMirror*> HarqRxBuffersMirror;
 

@@ -10,10 +10,10 @@
 #define DATAPORT_OUT "dataPort$o"
 #define DATAPORT_IN "dataPort$i"
 
-#include "LteX2Manager.h"
-#include "InterfaceEntry.h"
-#include "IPv4InterfaceData.h"
-#include "IPv4NetworkConfigurator.h"
+#include "x2/LteX2Manager.h"
+#include "inet/networklayer/common/InterfaceEntry.h"
+#include "inet/networklayer/ipv4/IPv4InterfaceData.h"
+#include "inet/networklayer/configurator/ipv4/IPv4NetworkConfigurator.h"
 
 Define_Module(LteX2Manager);
 

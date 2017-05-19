@@ -10,8 +10,8 @@
 #ifndef __X2APPCLIENT_H_
 #define __X2APPCLIENT_H_
 
-#include "SCTPClient.h"
-#include "LteCommon.h"
+#include "inet/applications/sctpapp/SCTPClient.h"
+#include "common/LteCommon.h"
 
 class SCTPAssociation;
 

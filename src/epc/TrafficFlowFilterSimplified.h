@@ -11,9 +11,9 @@
 #define _LTE_TRAFFICFLOWFILTERSIMPLIFIED_H_
 
 #include <omnetpp.h>
-#include "TftControlInfo.h"
-#include "gtp_common.h"
-#include "LteBinder.h"
+#include "epc/gtp/TftControlInfo.h"
+#include "epc/gtp_common.h"
+#include "corenetwork/binder/LteBinder.h"
 
 /**
  * Objective of the Traffic Flow Filter is mapping IP 4-Tuples to TFT identifiers. This commonly means identifying a bearer and

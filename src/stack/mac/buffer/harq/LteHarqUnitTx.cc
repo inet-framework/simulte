@@ -7,8 +7,8 @@
 // and cannot be removed from it.
 //
 
-#include "LteHarqUnitTx.h"
-#include "LteMacEnb.h"
+#include "stack/mac/buffer/harq/LteHarqUnitTx.h"
+#include "stack/mac/layer/LteMacEnb.h"
 #include <omnetpp.h>
 
 LteHarqUnitTx::LteHarqUnitTx(unsigned char acid, Codeword cw,

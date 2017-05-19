@@ -11,12 +11,12 @@
 #define _LTE_GTP_USER_X2_H_
 
 #include <omnetpp.h>
-#include "UDPSocket.h"
-#include "GtpUserMsg_m.h"
-#include "LteBinder.h"
-#include "LteX2Message.h"
+#include "inet/transportlayer/contract/udp/UDPSocket.h"
+#include "epc/gtp/GtpUserMsg_m.h"
+#include "corenetwork/binder/LteBinder.h"
+#include "x2/packet/LteX2Message.h"
 #include <map>
-#include "gtp_common.h"
+#include "epc/gtp_common.h"
 
 /**
  * GtpUserX2 is used for building data tunnels between GTP peers over X2, for handover procedure.

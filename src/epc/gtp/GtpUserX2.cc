@@ -7,8 +7,8 @@
 // and cannot be removed from it.
 //
 
-#include "GtpUserX2.h"
-#include "L3Address.h"
+#include "epc/gtp/GtpUserX2.h"
+#include "inet/networklayer/common/L3Address.h"
 #include <iostream>
 
 Define_Module(GtpUserX2);

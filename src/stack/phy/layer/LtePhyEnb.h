@@ -10,7 +10,7 @@
 #ifndef _LTE_AIRPHYENB_H_
 #define _LTE_AIRPHYENB_H_
 
-#include "LtePhyBase.h"
+#include "stack/phy/layer/LtePhyBase.h"
 
 class DasFilter;
 class LteFeedbackPkt;

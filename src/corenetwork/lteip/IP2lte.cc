@@ -7,18 +7,18 @@
 // and cannot be removed from it.
 //
 
-#include "IP2lte.h"
-#include "LteBinder.h"
-#include "LteDeployer.h"
-#include "TCPSegment.h"
-#include "UDPPacket.h"
-#include "UDP.h"
+#include "corenetwork/lteip/IP2lte.h"
+#include "corenetwork/binder/LteBinder.h"
+#include "corenetwork/deployer/LteDeployer.h"
+#include "inet/transportlayer/tcp_common/TCPSegment.h"
+#include "inet/transportlayer/udp/UDPPacket.h"
+#include "inet/transportlayer/udp/UDP.h"
 #include <iostream>
 
-#include "ModuleAccess.h"
-#include "IPv4InterfaceData.h"
-#include "InterfaceEntry.h"
-#include "LteMacBase.h"
+#include "inet/common/ModuleAccess.h"
+#include "inet/networklayer/ipv4/IPv4InterfaceData.h"
+#include "inet/networklayer/common/InterfaceEntry.h"
+#include "stack/mac/layer/LteMacBase.h"
 
 using namespace std;
 

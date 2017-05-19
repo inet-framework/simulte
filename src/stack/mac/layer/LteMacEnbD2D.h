@@ -10,8 +10,8 @@
 #ifndef _LTE_LTEMACENBD2D_H_
 #define _LTE_LTEMACENBD2D_H_
 
-#include "LteMacEnb.h"
-#include "LteHarqBufferRxD2DMirror.h"
+#include "stack/mac/layer/LteMacEnb.h"
+#include "stack/mac/buffer/harq_d2d/LteHarqBufferRxD2DMirror.h"
 
 typedef std::map<MacNodeId, LteHarqBufferRxD2DMirror*> HarqRxBuffersMirror;
 

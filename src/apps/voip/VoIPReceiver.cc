@@ -7,8 +7,8 @@
 // and cannot be removed from it.
 //
 
-#include "VoIPReceiver.h"
-#include "lterecorder.h"
+#include "apps/voip/VoIPReceiver.h"
+#include "common/lterecorder.h"
 
 Define_Module(VoIPReceiver);
 

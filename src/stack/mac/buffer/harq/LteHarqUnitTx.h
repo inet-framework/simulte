@@ -12,10 +12,10 @@
 
 #include <omnetpp.h>
 
-#include "LteMacPdu.h"
-#include "LteControlInfo.h"
-#include "LteCommon.h"
-#include "LteMacBase.h"
+#include "stack/mac/packet/LteMacPdu.h"
+#include "common/LteControlInfo.h"
+#include "common/LteCommon.h"
+#include "stack/mac/layer/LteMacBase.h"
 
 class LteMacBase;
 

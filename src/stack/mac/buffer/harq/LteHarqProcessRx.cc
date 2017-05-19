@@ -7,11 +7,11 @@
 // and cannot be removed from it.
 //
 
-#include "LteHarqProcessRx.h"
-#include "LteMacBase.h"
-#include "LteControlInfo.h"
-#include "LteHarqFeedback_m.h"
-#include "LteMacPdu.h"
+#include "stack/mac/buffer/harq/LteHarqProcessRx.h"
+#include "stack/mac/layer/LteMacBase.h"
+#include "common/LteControlInfo.h"
+#include "stack/mac/packet/LteHarqFeedback_m.h"
+#include "stack/mac/packet/LteMacPdu.h"
 
 LteHarqProcessRx::LteHarqProcessRx(unsigned char acid, LteMacBase *owner)
 {

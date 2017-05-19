@@ -10,11 +10,11 @@
 #ifndef LTE_LTEHANDOVERMANAGER_H_
 #define LTE_LTEHANDOVERMANAGER_H_
 
-#include "LteCommon.h"
-#include "X2ControlInfo_m.h"
-#include "X2HandoverControlMsg.h"
-#include "X2HandoverDataMsg.h"
-#include "IP2lte.h"
+#include "common/LteCommon.h"
+#include "x2/packet/X2ControlInfo_m.h"
+#include "stack/handoverManager/X2HandoverControlMsg.h"
+#include "stack/handoverManager/X2HandoverDataMsg.h"
+#include "corenetwork/lteip/IP2lte.h"
 
 class IP2lte;
 

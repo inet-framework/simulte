@@ -11,14 +11,14 @@
 #define _LTE_GTP_USER_SIMPLIFIED_H_
 
 #include <omnetpp.h>
-#include "UDPSocket.h"
-#include "L3AddressResolver.h"
-#include "IPv4Datagram.h"
-#include "TftControlInfo.h"
-#include "GtpUserMsg_m.h"
-#include "LteBinder.h"
+#include "inet/transportlayer/contract/udp/UDPSocket.h"
+#include "inet/networklayer/common/L3AddressResolver.h"
+#include "inet/networklayer/ipv4/IPv4Datagram.h"
+#include "epc/gtp/TftControlInfo.h"
+#include "epc/gtp/GtpUserMsg_m.h"
+#include "corenetwork/binder/LteBinder.h"
 #include <map>
-#include "gtp_common.h"
+#include "epc/gtp_common.h"
 
 /**
  * GtpUserSimplified is used for building data tunnels between GTP peers.

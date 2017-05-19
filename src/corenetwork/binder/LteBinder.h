@@ -12,11 +12,11 @@
 
 #include <omnetpp.h>
 #include <string>
-#include "LteCommon.h"
-#include "IPv4Address.h"
-#include "L3Address.h"
-#include "PhyPisaData.h"
-#include "ExtCell.h"
+#include "common/LteCommon.h"
+#include "inet/networklayer/contract/ipv4/IPv4Address.h"
+#include "inet/networklayer/common/L3Address.h"
+#include "corenetwork/binder/PhyPisaData.h"
+#include "corenetwork/nodes/ExtCell.h"
 
 using namespace inet;
 

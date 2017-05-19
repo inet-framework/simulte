@@ -9,7 +9,7 @@
 
 
 cplusplus {{
-    #include "AirFrame_m.h"
+#include "stack/phy/packet/AirFrame_m.h"
 }}
 
 packet AirFrame;

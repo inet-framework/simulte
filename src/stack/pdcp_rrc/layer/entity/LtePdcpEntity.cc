@@ -7,7 +7,7 @@
 // and cannot be removed from it.
 //
 
-#include "LtePdcpEntity.h"
+#include "stack/pdcp_rrc/layer/entity/LtePdcpEntity.h"
 
 LtePdcpEntity::LtePdcpEntity()
 {

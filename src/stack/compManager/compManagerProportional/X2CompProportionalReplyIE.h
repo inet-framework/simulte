@@ -10,7 +10,7 @@
 #ifndef _LTE_X2COMPPROPORTIONALREPLYIE_H_
 #define _LTE_X2COMPPROPORTIONALREPLYIE_H_
 
-#include "X2CompReplyIE.h"
+#include "stack/compManager/X2CompReplyIE.h"
 
 enum CompRbStatus
 {

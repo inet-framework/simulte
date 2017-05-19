@@ -7,11 +7,11 @@
 // and cannot be removed from it.
 //
 
-#include "LteHarqProcessRxD2D.h"
-#include "LteMacBase.h"
-#include "LteControlInfo.h"
-#include "LteHarqFeedback_m.h"
-#include "LteMacPdu.h"
+#include "stack/mac/buffer/harq_d2d/LteHarqProcessRxD2D.h"
+#include "stack/mac/layer/LteMacBase.h"
+#include "common/LteControlInfo.h"
+#include "stack/mac/packet/LteHarqFeedback_m.h"
+#include "stack/mac/packet/LteMacPdu.h"
 
 LteHarqProcessRxD2D::LteHarqProcessRxD2D(unsigned char acid, LteMacBase *owner)
     : LteHarqProcessRx(acid, owner)

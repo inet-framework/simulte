@@ -10,9 +10,9 @@
 #include <cstdio>
 #include <vector>
 #include <map>
-#include "LteSchedulerEnb.h"
-#include "LteMaxCiOptMB.h"
-#include "LteMacBuffer.h"
+#include "stack/mac/scheduler/LteSchedulerEnb.h"
+#include "stack/mac/scheduling_modules/LteMaxCiOptMB.h"
+#include "stack/mac/buffer/LteMacBuffer.h"
 
 using namespace std;
 

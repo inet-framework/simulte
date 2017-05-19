@@ -15,11 +15,11 @@
  **************************************************************************/
 
 
-#include "ChannelControl.h"
-#include "INETMath.h"
+#include "world/radio/ChannelControl.h"
+#include "inet/common/INETMath.h"
 #include <cassert>
 
-#include "AirFrame_m.h"
+#include "stack/phy/packet/AirFrame_m.h"
 
 Define_Module(ChannelControl);
 

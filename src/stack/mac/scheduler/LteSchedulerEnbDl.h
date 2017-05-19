@@ -10,10 +10,10 @@
 #ifndef _LTE_LTE_SCHEDULER_ENB_DL_H_
 #define _LTE_LTE_SCHEDULER_ENB_DL_H_
 
-#include "LteSchedulerEnb.h"
-#include "LteCommon.h"
-#include "LteAmc.h"
-#include "UserTxParams.h"
+#include "stack/mac/scheduler/LteSchedulerEnb.h"
+#include "common/LteCommon.h"
+#include "stack/mac/amc/LteAmc.h"
+#include "stack/mac/amc/UserTxParams.h"
 
 /**
  * @class LteSchedulerEnbDl

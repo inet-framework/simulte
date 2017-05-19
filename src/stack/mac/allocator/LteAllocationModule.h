@@ -10,7 +10,7 @@
 #ifndef _LTE_LTEALLOCATIONMODULE_H_
 #define _LTE_LTEALLOCATIONMODULE_H_
 
-#include "LteCommon.h"
+#include "common/LteCommon.h"
 
 class LteMacEnb;
 

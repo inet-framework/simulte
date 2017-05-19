@@ -10,9 +10,9 @@
 #ifndef LTE_LTECOMPMANAGERPROPORTIONAL_H_
 #define LTE_LTECOMPMANAGERPROPORTIONAL_H_
 
-#include "LteCompManagerBase.h"
-#include "X2CompProportionalRequestIE.h"
-#include "X2CompProportionalReplyIE.h"
+#include "stack/compManager/LteCompManagerBase.h"
+#include "stack/compManager/compManagerProportional/X2CompProportionalRequestIE.h"
+#include "stack/compManager/compManagerProportional/X2CompProportionalReplyIE.h"
 
 class LteCompManagerProportional : public LteCompManagerBase {
 

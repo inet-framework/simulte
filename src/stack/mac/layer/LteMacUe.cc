@@ -7,19 +7,19 @@
 // and cannot be removed from it.
 //
 
-#include "LteMacUe.h"
-#include "LteHarqBufferRx.h"
-#include "LteMacQueue.h"
-#include "LteSchedulingGrant.h"
-#include "LteSchedulerUeUl.h"
-#include "LteRac_m.h"
-#include "LteMacBuffer.h"
-#include "UserTxParams.h"
-#include "InterfaceEntry.h"
-#include "ModuleAccess.h"
-#include "IPv4InterfaceData.h"
-#include "LteBinder.h"
-#include "LtePhyBase.h"
+#include "stack/mac/layer/LteMacUe.h"
+#include "stack/mac/buffer/harq/LteHarqBufferRx.h"
+#include "stack/mac/buffer/LteMacQueue.h"
+#include "stack/mac/packet/LteSchedulingGrant.h"
+#include "stack/mac/scheduler/LteSchedulerUeUl.h"
+#include "stack/mac/packet/LteRac_m.h"
+#include "stack/mac/buffer/LteMacBuffer.h"
+#include "stack/mac/amc/UserTxParams.h"
+#include "inet/networklayer/common/InterfaceEntry.h"
+#include "inet/common/ModuleAccess.h"
+#include "inet/networklayer/ipv4/IPv4InterfaceData.h"
+#include "corenetwork/binder/LteBinder.h"
+#include "stack/phy/layer/LtePhyBase.h"
 
 Define_Module(LteMacUe);
 

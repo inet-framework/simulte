@@ -11,13 +11,13 @@
 #define _LTE_DASFILTER_H_
 
 #include <omnetpp.h>
-#include "RemoteAntennaSet.h"
-#include "LteAirFrame.h"
-#include "LteControlInfo.h"
-#include "LteBinder.h"
-#include "LteCommon.h"
-#include "LtePhyBase.h"
-#include "LtePhyEnb.h"
+#include "stack/phy/das/RemoteAntennaSet.h"
+#include "stack/phy/packet/LteAirFrame.h"
+#include "common/LteControlInfo.h"
+#include "corenetwork/binder/LteBinder.h"
+#include "common/LteCommon.h"
+#include "stack/phy/layer/LtePhyBase.h"
+#include "stack/phy/layer/LtePhyEnb.h"
 
 class LtePhyBase;
 class LtePhyEnb;

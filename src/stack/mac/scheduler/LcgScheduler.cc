@@ -7,8 +7,8 @@
 // and cannot be removed from it.
 //
 
-#include "LcgScheduler.h"
-#include "LteMacBuffer.h"
+#include "stack/mac/scheduler/LcgScheduler.h"
+#include "stack/mac/buffer/LteMacBuffer.h"
 
 LcgScheduler::LcgScheduler(LteMacUe* mac)
 {

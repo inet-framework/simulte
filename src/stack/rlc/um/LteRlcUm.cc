@@ -7,8 +7,8 @@
 // and cannot be removed from it.
 //
 
-#include "LteRlcUm.h"
-#include "D2DModeSwitchNotification_m.h"
+#include "stack/rlc/um/LteRlcUm.h"
+#include "stack/d2dModeSelection/D2DModeSwitchNotification_m.h"
 
 Define_Module(LteRlcUm);
 

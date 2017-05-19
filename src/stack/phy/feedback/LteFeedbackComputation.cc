@@ -7,7 +7,7 @@
 // and cannot be removed from it.
 // 
 
-#include "LteFeedbackComputation.h"
+#include "stack/phy/feedback/LteFeedbackComputation.h"
 
 LteFeedbackComputation::LteFeedbackComputation()
 {

@@ -7,9 +7,9 @@
 // and cannot be removed from it.
 //
 
-#include "LtePdcpRrcUeD2D.h"
-#include "L3AddressResolver.h"
-#include "D2DModeSwitchNotification_m.h"
+#include "stack/pdcp_rrc/layer/LtePdcpRrcUeD2D.h"
+#include "inet/networklayer/common/L3AddressResolver.h"
+#include "stack/d2dModeSelection/D2DModeSwitchNotification_m.h"
 
 Define_Module(LtePdcpRrcUeD2D);
 

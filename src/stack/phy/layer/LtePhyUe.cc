@@ -8,10 +8,10 @@
 //
 
 #include <assert.h>
-#include "LtePhyUe.h"
-#include "LteFeedbackPkt.h"
-#include "IP2lte.h"
-#include "LteDlFeedbackGenerator.h"
+#include "stack/phy/layer/LtePhyUe.h"
+#include "stack/phy/packet/LteFeedbackPkt.h"
+#include "corenetwork/lteip/IP2lte.h"
+#include "stack/phy/feedback/LteDlFeedbackGenerator.h"
 
 Define_Module(LtePhyUe);
 

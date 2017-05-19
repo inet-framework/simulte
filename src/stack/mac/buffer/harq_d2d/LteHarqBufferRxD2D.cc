@@ -7,12 +7,12 @@
 // and cannot be removed from it.
 //
 
-#include "LteHarqBufferRxD2D.h"
-#include "LteMacPdu.h"
-#include "LteControlInfo.h"
-#include "LteHarqFeedback_m.h"
-#include "LteMacBase.h"
-#include "LteMacEnb.h"
+#include "stack/mac/buffer/harq_d2d/LteHarqBufferRxD2D.h"
+#include "stack/mac/packet/LteMacPdu.h"
+#include "common/LteControlInfo.h"
+#include "stack/mac/packet/LteHarqFeedback_m.h"
+#include "stack/mac/layer/LteMacBase.h"
+#include "stack/mac/layer/LteMacEnb.h"
 
 LteHarqBufferRxD2D::LteHarqBufferRxD2D(unsigned int num, LteMacBase *owner, MacNodeId nodeId)
 {

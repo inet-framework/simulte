@@ -7,7 +7,7 @@
 // and cannot be removed from it.
 // 
 
-#include "LteFeedbackPkt.h"
+#include "stack/phy/packet/LteFeedbackPkt.h"
 
 LteFeedbackDoubleVector LteFeedbackPkt::getLteFeedbackDoubleVectorDl()
 {

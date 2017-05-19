@@ -11,7 +11,7 @@
 #define _LTE_UNUUMUX_H_
 
 #include <omnetpp.h>
-#include "LteControlInfo.h"
+#include "common/LteControlInfo.h"
 
 /**
  * @class UnUuMux

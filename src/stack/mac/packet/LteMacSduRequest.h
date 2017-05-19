@@ -10,8 +10,8 @@
 #ifndef _LTE_LTEMACSDUREQUEST_H_
 #define _LTE_LTEMACSDUREQUEST_H_
 
-#include "LteMacSduRequest_m.h"
-#include "LteCommon.h"
+#include "stack/mac/packet/LteMacSduRequest_m.h"
+#include "common/LteCommon.h"
 
 /**
  * @class LteMacSduRequest

@@ -11,11 +11,11 @@
 #define _LTE_LTERLCUM_H_
 
 #include <omnetpp.h>
-#include "LteCommon.h"
-#include "LteControlInfo.h"
-#include "LteRlcSdu_m.h"
-#include "UmTxQueue.h"
-#include "UmRxQueue.h"
+#include "common/LteCommon.h"
+#include "common/LteControlInfo.h"
+#include "stack/rlc/packet/LteRlcSdu_m.h"
+#include "stack/rlc/um/buffer/UmTxQueue.h"
+#include "stack/rlc/um/buffer/UmRxQueue.h"
 
 class UmTxQueue;
 class UmRxQueue;

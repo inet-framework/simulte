@@ -11,14 +11,14 @@
 #define _LTE_LTEDLFBGENERATOR_H_
 
 #include <omnetpp.h>
-#include "LteCommon.h"
-#include "LteDeployer.h"
-#include "DasFilter.h"
-#include "LteFeedback.h"
-#include "TTimer.h"
-#include "TTimerMsg_m.h"
-#include "LteFeedbackComputation.h"
-#include "LteFeedbackComputationDummy.h"
+#include "common/LteCommon.h"
+#include "corenetwork/deployer/LteDeployer.h"
+#include "stack/phy/das/DasFilter.h"
+#include "stack/phy/feedback/LteFeedback.h"
+#include "common/timer/TTimer.h"
+#include "common/timer/TTimerMsg_m.h"
+#include "stack/phy/feedback/LteFeedbackComputation.h"
+#include "stack/phy/feedback/LteFeedbackComputationDummy.h"
 
 class DasFilter;
 /**

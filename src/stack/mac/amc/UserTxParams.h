@@ -14,8 +14,8 @@
 #ifndef _LTE_USERTXPARAMS_H_
 #define _LTE_USERTXPARAMS_H_
 
-//#include "LteCommon.h"
-#include "LteMcs.h"
+//#include "common/LteCommon.h"
+#include "stack/mac/amc/LteMcs.h"
 
 /**
  * @class UserTxParams

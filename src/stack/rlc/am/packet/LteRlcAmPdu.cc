@@ -7,7 +7,7 @@
 // and cannot be removed from it.
 // 
 
-#include "LteRlcAmPdu.h"
+#include "stack/rlc/am/packet/LteRlcAmPdu.h"
 
 void
 LteRlcAmPdu::setBitmapArraySize(unsigned int size)

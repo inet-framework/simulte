@@ -10,7 +10,7 @@
 #ifndef _LTE_LTEMACRELAYUE_H_
 #define _LTE_LTEMACRELAYUE_H_
 
-#include "LteMacUe.h"
+#include "stack/mac/layer/LteMacUe.h"
 
 class LteMacRelayUe : public LteMacUe
 {

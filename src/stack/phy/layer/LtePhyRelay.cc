@@ -7,7 +7,7 @@
 // and cannot be removed from it.
 //
 
-#include "LtePhyRelay.h"
+#include "stack/phy/layer/LtePhyRelay.h"
 
 Define_Module(LtePhyRelay);
 

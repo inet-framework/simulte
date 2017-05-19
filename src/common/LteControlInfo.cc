@@ -7,8 +7,8 @@
 // and cannot be removed from it.
 //
 
-#include "LteControlInfo.h"
-#include "UserTxParams.h"
+#include "common/LteControlInfo.h"
+#include "stack/mac/amc/UserTxParams.h"
 
 UserControlInfo::~UserControlInfo()
 {

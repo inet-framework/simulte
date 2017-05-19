@@ -10,7 +10,7 @@
 #ifndef _LTE_LTEMCS_H_
 #define _LTE_LTEMCS_H_
 
-#include "LteCommon.h"
+#include "common/LteCommon.h"
 
 // This file contains MCS types and constants; MCS and ITBS tables;
 // and functions related to MCS and Tx-Modes.

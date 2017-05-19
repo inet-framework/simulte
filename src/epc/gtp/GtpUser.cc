@@ -7,8 +7,8 @@
 // and cannot be removed from it.
 //
 
-#include "GtpUser.h"
-#include "IPv4ControlInfo.h"
+#include "epc/gtp/GtpUser.h"
+#include "inet/networklayer/contract/ipv4/IPv4ControlInfo.h"
 #include <iostream>
 
 Define_Module(GtpUser);

@@ -8,7 +8,7 @@
 //
 
 cplusplus {{
-#include "LteCommon.h"
+#include "common/LteCommon.h"
 }}
 
 class noncobject LteD2DMode;

@@ -7,9 +7,9 @@
 // and cannot be removed from it.
 //
 
-#include "LteHarqBufferRxD2DMirror.h"
-#include "LteHarqBufferRx.h"
-#include "LteCommon.h"
+#include "stack/mac/buffer/harq_d2d/LteHarqBufferRxD2DMirror.h"
+#include "stack/mac/buffer/harq/LteHarqBufferRx.h"
+#include "common/LteCommon.h"
 
 LteHarqBufferRxD2DMirror::LteHarqBufferRxD2DMirror(LteHarqBufferRx* harqBuffer,unsigned char maxHarqRtx,MacNodeId peer)
 {

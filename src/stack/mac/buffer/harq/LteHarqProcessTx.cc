@@ -7,7 +7,7 @@
 // and cannot be removed from it.
 //
 
-#include "LteHarqProcessTx.h"
+#include "stack/mac/buffer/harq/LteHarqProcessTx.h"
 
 LteHarqProcessTx::LteHarqProcessTx(unsigned char acid, unsigned int numUnits, unsigned int numProcesses,
     LteMacBase *macOwner, LteMacBase *dstMac)

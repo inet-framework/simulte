@@ -12,16 +12,16 @@
 
 #include <omnetpp.h>
 #include <stdlib.h>
-#include "QueueBase.h"
-#include "IPv4ControlInfo.h"
-#include "IPv4Datagram.h"
-#include "ProtocolMap.h"
-#include "LteControlInfo.h"
-#include "IPProtocolId_m.h"
-#include "TCPSegment.h"
-#include "UDPPacket.h"
-#include "UDP.h"
-#include "LteControlInfo.h"
+#include "inet/common/queue/QueueBase.h"
+#include "inet/networklayer/contract/ipv4/IPv4ControlInfo.h"
+#include "inet/networklayer/ipv4/IPv4Datagram.h"
+#include "inet/common/ProtocolMap.h"
+#include "common/LteControlInfo.h"
+#include "inet/networklayer/common/IPProtocolId_m.h"
+#include "inet/transportlayer/tcp_common/TCPSegment.h"
+#include "inet/transportlayer/udp/UDPPacket.h"
+#include "inet/transportlayer/udp/UDP.h"
+#include "common/LteControlInfo.h"
 
 /**
  * @class LteIp

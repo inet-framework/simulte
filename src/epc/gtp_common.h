@@ -12,7 +12,7 @@
 
 #include <map>
 #include <list>
-#include "L3Address.h"
+#include "inet/networklayer/common/L3Address.h"
 
 using namespace inet;
 

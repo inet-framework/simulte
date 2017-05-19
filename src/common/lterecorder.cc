@@ -8,8 +8,8 @@
 //
 //
 
-#include "lterecorder.h"
-#include "LteBinder.h"
+#include "common/lterecorder.h"
+#include "corenetwork/binder/LteBinder.h"
 
 /*
  * Register recorders

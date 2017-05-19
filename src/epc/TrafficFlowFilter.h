@@ -12,8 +12,8 @@
 
 #include <omnetpp.h>
 //#include "trafficFlowTemplateMsg_m.h"
-#include "TftControlInfo.h"
-#include "gtp_common.h"
+#include "epc/gtp/TftControlInfo.h"
+#include "epc/gtp_common.h"
 
 using namespace inet;
 

@@ -11,11 +11,11 @@
 #define _LTE_UMRXENTITY_H_
 
 #include <omnetpp.h>
-#include "LteRlcUmRealistic.h"
-#include "TTimer.h"
-#include "LteControlInfo.h"
-#include "LtePdcpPdu_m.h"
-#include "LteRlcDefs.h"
+#include "stack/rlc/um/LteRlcUmRealistic.h"
+#include "common/timer/TTimer.h"
+#include "common/LteControlInfo.h"
+#include "stack/pdcp_rrc/packet/LtePdcpPdu_m.h"
+#include "stack/rlc/LteRlcDefs.h"
 
 class LteMacBase;
 class LteRlcUm;

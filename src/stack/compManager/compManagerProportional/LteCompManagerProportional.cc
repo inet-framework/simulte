@@ -7,7 +7,7 @@
 // and cannot be removed from it.
 //
 
-#include "LteCompManagerProportional.h"
+#include "stack/compManager/compManagerProportional/LteCompManagerProportional.h"
 
 Define_Module(LteCompManagerProportional);
 

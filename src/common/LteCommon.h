@@ -28,9 +28,9 @@
 #include <queue>
 #include <map>
 #include <list>
-#include "Coord.h"
+#include "inet/common/geometry/common/Coord.h"
 #include <algorithm>
-#include "lterecorder.h"
+#include "common/lterecorder.h"
 
 using namespace omnetpp;
 

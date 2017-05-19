@@ -14,12 +14,12 @@
 #include <omnetpp.h>
 #include <string.h>
 #include <fstream>
-#include "VoDPacket_m.h"
-#include "VoDUDPStruct.h"
-#include "UDPControlInfo_m.h"
-#include "UDPSocket.h"
-#include "L3AddressResolver.h"
-#include "lterecorder.h"
+#include "apps/vod/VoDPacket_m.h"
+#include "apps/vod/VoDUDPStruct.h"
+#include "inet/transportlayer/contract/udp/UDPControlInfo_m.h"
+#include "inet/transportlayer/contract/udp/UDPSocket.h"
+#include "inet/networklayer/common/L3AddressResolver.h"
+#include "common/lterecorder.h"
 
 using namespace std;
 
