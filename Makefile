@@ -1,4 +1,4 @@
-all: checkmakefiles makefiles
+all: checkmakefiles
 	cd src && $(MAKE)
 
 clean: checkmakefiles
