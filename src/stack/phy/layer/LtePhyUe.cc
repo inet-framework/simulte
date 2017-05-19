@@ -57,8 +57,8 @@ void LtePhyUe::initialize(int stage)
         //int index2=intuniform(0,binder_->phyPisaData.maxChannel2()-1);
         deployer_->lambdaInit(nodeId_, index);
         //deployer_->channelUpdate(nodeId_,index2);
-//        servingCell_ = registerSignal("servingCell");
-//        emit(servingCell_, (long)masterId_);
+        servingCell_ = registerSignal("servingCell");
+        emit(servingCell_, (long)masterId_);
         WATCH(nodeType_);
         WATCH(masterId_);
         WATCH(candidateMasterId_);
