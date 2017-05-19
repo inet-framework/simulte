@@ -45,7 +45,6 @@ void X2AppClient::initialize(int stage)
 void X2AppClient::socketEstablished(int32_t, void *, unsigned long int buffer )
 {
     EV << "X2AppClient: connected\n";
-    setStatusString("connected");
 }
 
 void X2AppClient::socketDataArrived(int32_t, void *, cPacket *msg, bool)
