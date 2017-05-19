@@ -26,6 +26,11 @@ import lte.stack.handoverManager.LteHandoverManager;
 //
 moduleinterface ILteNic extends IWirelessNic
 {
+        string nodeType;
+        bool d2dCapable;            // inherit the value from the parent module
+    gates:
+        inout EUTRAN_RRC_Sap;   // Control of RRC Layer
+        inout x2[] @loose;     // optional x2 manager
 }
 
 // 
@@ -52,6 +57,7 @@ module LteNicBase like ILteNic
         input upperLayerIn;
         output upperLayerOut;
         input radioIn @loose;  // to receive messages sent using sendDirect()
+        inout x2[] @loose;     // optional x2 manager
 
     submodules:
         // bridge between lte stack and network layer
@@ -158,9 +164,6 @@ module LteNicEnb extends LteNicBase
         bool compEnabled = default(false);
         string LteCompManagerType = default("LteCompManagerProportional");
 
-    gates:
-        inout x2[];
-
     submodules:
         //#
         //# X2 manager
@@ -208,11 +211,8 @@ module LteNicEnbD2D extends LteNicBase
         LtePhyType = "LtePhyEnbD2D";
         bool compEnabled = default(false);
         string LteCompManagerType = default("LteCompManagerProportional");
-        bool d2dModeSelection = default(false);
+        bool d2dMode = default(false);
         string d2dModeSelectionType = default("D2DModeSelectionBestCqi");
-
-    gates:
-        inout x2[];
 
     submodules:
         //#
@@ -231,7 +231,7 @@ module LteNicEnbD2D extends LteNicBase
         handoverManager: LteHandoverManager {
             @display("p=60,142,row");
         }
-        d2dModeSelection: <d2dModeSelectionType> like D2DModeSelection if d2dModeSelection {
+        d2dModeSelection: <d2dModeSelectionType> like D2DModeSelection if d2dMode {
             @display("p=60,68,row");
         }
     connections:
