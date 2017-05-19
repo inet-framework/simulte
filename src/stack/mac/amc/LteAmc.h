@@ -35,7 +35,7 @@ class LteMacEnb;
 class LteAmc
 {
   private:
-    AmcPilot *getAmcPilot(cPar amcMode);
+    AmcPilot *getAmcPilot(const cPar& amcMode);
     MacNodeId getNextHop(MacNodeId dst);
     public:
     void printParameters();

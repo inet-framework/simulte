@@ -23,7 +23,7 @@ LteAmc::~LteAmc()
  * PRIVATE FUNCTIONS
  *********************/
 
-AmcPilot* LteAmc::getAmcPilot(cPar p)
+AmcPilot* LteAmc::getAmcPilot(const cPar& p)
 {
     EV << "Creating Amc pilot " << p.stringValue() << endl;
     const char* s = p.stringValue();
