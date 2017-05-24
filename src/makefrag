@@ -1,0 +1,7 @@
+#
+# on Windows we have to link with the winsock2 library as it is no longer added
+# to the omnetpp system libraries by default (as of OMNeT++ 5.1)
+#
+ifeq ($(PLATFORM),win32.x86_64)
+  LIBS += -lws2_32
+endif

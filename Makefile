@@ -1,16 +1,16 @@
 all: checkmakefiles
-	cd src && $(MAKE)
+	@cd src && $(MAKE)
 
 clean: checkmakefiles
-	cd src && $(MAKE) clean
+	@cd src && $(MAKE) clean
 
 cleanall: checkmakefiles
-	cd src && $(MAKE) MODE=release clean
-	cd src && $(MAKE) MODE=debug clean
-	rm -f src/Makefile
+	@cd src && $(MAKE) MODE=release clean
+	@cd src && $(MAKE) MODE=debug clean
+	@rm -f src/Makefile
 
 makefiles:
-	cd src && opp_makemake --make-so -f --deep -o lte -O out -KINET_PROJ=../../inet -I. -I$$\(INET_PROJ\)/src -L$$\(INET_PROJ\)/out/$$\(CONFIGNAME\)/src -lINET
+	@cd src && opp_makemake --make-so -f --deep -o lte -O out -KINET_PROJ=../../inet -DINET_IMPORT -I. -I$$\(INET_PROJ\)/src -L$$\(INET_PROJ\)/out/$$\(CONFIGNAME\)/src -lINET
 
 checkmakefiles:
 	@if [ ! -f src/Makefile ]; then \
