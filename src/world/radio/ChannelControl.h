@@ -61,7 +61,7 @@ struct IChannelControl::RadioEntry {
  * @ingroup channelControl
  * @see ChannelAccess
  */
-class INET_API ChannelControl : public cSimpleModule, public IChannelControl
+class ChannelControl : public cSimpleModule, public IChannelControl
 {
   protected:
     typedef std::list<RadioEntry> RadioList;
