@@ -2,10 +2,14 @@
 DIR=`dirname $0`
 DIR=`(cd $DIR ; pwd)`
 INET_DIR=`(cd $DIR/../../inet/src ; pwd)`
-COMMAND_LINE_OPTIONS="-l $INET_DIR/INET -n $DIR/../simulations:$DIR:$INET_DIR"
+COMMAND_LINE_OPTIONS="-n $DIR/../simulations:$DIR:$INET_DIR"
 
-if [ -x $DIR/lte -o -x $DIR/lte.exe ]; then
-  $DIR/lte $COMMAND_LINE_OPTIONS $*
-else
+if [ -f $DIR/liblte.so -o -f $DIR/liblte.dll -o -f $DIR/liblte.dylib ]; then
   opp_run -l $DIR/lte $COMMAND_LINE_OPTIONS $*
+elif [ -x $DIR/lte -o -x $DIR/lte.exe ]; then
+  $DIR/lte $COMMAND_LINE_OPTIONS $*
+elif [ -f $DIR/liblte_dbg.so -o -f $DIR/liblte_dbg.dll -o -f $DIR/liblte_dbg.dylib ]; then
+  opp_run -l $DIR/lte_dbg $COMMAND_LINE_OPTIONS $*
+elif [ -x $DIR/lte_dbg -o -x $DIR/lte_dbg.exe ]; then
+  $DIR/lte_dbg $COMMAND_LINE_OPTIONS $*
 fi
