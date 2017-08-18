@@ -19,6 +19,7 @@ import inet.networklayer.contract.INetworkLayer;
 import inet.networklayer.configurator.ipv4.HostAutoConfigurator;
 import inet.transportlayer.tcp.TCP;
 import inet.transportlayer.udp.UDP;
+import lte.stack.phy.ILteNic;
 import lte.stack.phy.LteNicUe;
 import lte.stack.phy.LteNicUeD2D;
 
@@ -49,6 +50,7 @@ module Car
 
         //# D2D capability
         bool d2dCapable = default(false);
+        string nicType = d2dCapable ? "LteNicUeD2D" : "LteNicUe";
 
         //# Network Layer specs
         string networkLayerType = default("IPv4NetworkLayer");
@@ -88,13 +90,7 @@ module Car
             @display("p=325,150");
         }
         // NOTE: instance must be named "lteNic"
-        lteNic: LteNicUe if !d2dCapable {
-            nodeType = nodeType;
-            d2dCapable = d2dCapable;
-            @display("p=250,407");
-        }
-        // NOTE: instance must be named "lteNic"
-        lteNic: LteNicUeD2D if d2dCapable {
+        lteNic: <nicType> like ILteNic {
             nodeType = nodeType;
             d2dCapable = d2dCapable;
             @display("p=250,407");

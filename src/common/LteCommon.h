@@ -30,8 +30,6 @@
 #include <list>
 #include "inet/common/geometry/common/Coord.h"
 #include <algorithm>
-#include "common/lterecorder.h"
-
 
 using namespace omnetpp;
 

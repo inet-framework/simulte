@@ -514,7 +514,7 @@ simple LteMacEnb extends LteMacBase {
         @signal[depletedPowerUl];
         @statistic[depletedPowerUl](title="LTE ENodeB depleted power Ul"; unit="watts"; source="depletedPowerUl"; record=mean);
         @signal[activatedFrames];
-        @statistic[activatedFrames](title="D1 algo, ratio of activated frame"; unit="ratio"; source="activetedFrames"; record=mean);
+        @statistic[activatedFrames](title="D1 algo, ratio of activated frame"; unit="ratio"; source="activatedFrames"; record=mean);
         @signal[sleepFrames];
         @statistic[sleepFrames](title="D1 algo, ratio of sleep frame"; unit="ratio"; source="sleepFrames"; record=mean);
         @signal[wastedFrames];
@@ -534,8 +534,8 @@ simple LteMacEnb extends LteMacBase {
         @statistic[prf_2b](  unit="ratio"; source="prf_2b"; record=mean);
         @signal[prf_3b];
         @statistic[prf_3b](  unit="ratio"; source="prf_3b"; record=mean);
-        @signal[prf_3b];
-        @statistic[prf_3b](  unit="ratio"; source="prf_1c"; record=mean);
+        @signal[prf_1c];
+        @statistic[prf_1c](  unit="ratio"; source="prf_1c"; record=mean);
         @signal[prf_2c];
         @statistic[prf_2c](  unit="ratio"; source="prf_2c"; record=mean);
         @signal[prf_3c];

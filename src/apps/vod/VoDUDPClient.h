@@ -20,8 +20,6 @@
 #include "inet/transportlayer/contract/udp/UDPControlInfo_m.h"
 #include "inet/transportlayer/contract/udp/UDPSocket.h"
 #include "inet/networklayer/common/L3AddressResolver.h"
-#include "common/lterecorder.h"
-
 
 using namespace std;
 

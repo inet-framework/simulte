@@ -27,6 +27,7 @@ out/
 .tkenvrc
 .tkenvlog
 *.out
+.computed
 
 # ignore backup and temp files
 *.bak
