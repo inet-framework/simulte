@@ -47,7 +47,7 @@ void LtePf::prepareSchedule()
         // if we are allocating the UL subframe, this connection may be either UL or D2D
         Direction dir;
         if (direction_ == UL)
-            dir = (MacCidToLcid(cid) == D2D_SHORT_BSR) ? D2D : direction_;
+            dir = (MacCidToLcid(cid) == D2D_SHORT_BSR) ? D2D : (MacCidToLcid(cid) == D2D_MULTI_SHORT_BSR) ? D2D_MULTI : direction_;
         else
             dir = DL;
 
