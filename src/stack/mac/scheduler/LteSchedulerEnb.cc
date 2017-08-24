@@ -9,6 +9,7 @@
 
 #include "stack/mac/scheduler/LteSchedulerEnb.h"
 #include "stack/mac/allocator/LteAllocationModule.h"
+#include "stack/mac/allocator/LteAllocationModuleFrequencyReuse.h"
 #include "stack/mac/scheduler/LteScheduler.h"
 #include "stack/mac/scheduling_modules/LteDrr.h"
 #include "stack/mac/scheduling_modules/LteMaxCi.h"
@@ -16,6 +17,7 @@
 #include "stack/mac/scheduling_modules/LteMaxCiMultiband.h"
 #include "stack/mac/scheduling_modules/LteMaxCiOptMB.h"
 #include "stack/mac/scheduling_modules/LteMaxCiComp.h"
+#include "stack/mac/scheduling_modules/LteAllocatorBestFit.h"
 #include "stack/mac/buffer/LteMacBuffer.h"
 #include "stack/mac/buffer/LteMacQueue.h"
 
@@ -59,14 +61,17 @@ void LteSchedulerEnb::initialize(Direction dir, LteMacEnb* mac)
     harqTxBuffers_ = mac_->getHarqTxBuffers();
     harqRxBuffers_ = mac_->getHarqRxBuffers();
 
-    // Create Allocator
-    allocator_ = new LteAllocationModule(mac_, direction_);
-
     // Create LteScheduler
     SchedDiscipline discipline = mac_->getSchedDiscipline(direction_);
 
     scheduler_ = getScheduler(discipline);
     scheduler_->setEnbScheduler(this);
+
+    // Create Allocator
+    if (discipline == ALLOCATOR_BESTFIT)   // NOTE: create this type of allocator for every scheduler using Frequency Reuse
+        allocator_ = new LteAllocationModuleFrequencyReuse(mac_, direction_);
+    else
+        allocator_ = new LteAllocationModule(mac_, direction_);
 
     // Initialize statistics
     cellBlocksUtilizationDl_ = mac_->registerSignal("cellBlocksUtilizationDl");
@@ -759,6 +764,21 @@ unsigned int LteSchedulerEnb::availableBytes(const MacNodeId id,
     return bytes;
 }
 
+std::set<Band> LteSchedulerEnb::getOccupiedBands()
+{
+   return allocator_->getAllocatorOccupiedBands();
+}
+
+void LteSchedulerEnb::storeAllocationEnb( std::vector<std::vector<AllocatedRbsPerBandMapA> > allocatedRbsPerBand,std::set<Band>* untouchableBands)
+{
+    allocator_->storeAllocation(allocatedRbsPerBand, untouchableBands);
+}
+
+void LteSchedulerEnb::storeScListId(std::pair<unsigned int, Codeword> scList,unsigned int num_blocks)
+{
+    scheduleList_[scList]=num_blocks;
+}
+
     /*****************
      * UTILITIES
      *****************/
@@ -781,6 +801,8 @@ LteScheduler* LteSchedulerEnb::getScheduler(SchedDiscipline discipline)
         return new LteMaxCiOptMB();
         case MAXCI_COMP:
         return new LteMaxCiComp();
+        case ALLOCATOR_BESTFIT:
+        return new LteAllocatorBestFit();
 
         default:
         throw cRuntimeError("LteScheduler not recognized");

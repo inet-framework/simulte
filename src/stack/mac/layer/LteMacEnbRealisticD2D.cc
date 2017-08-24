@@ -29,7 +29,7 @@ LteMacEnbRealisticD2D::~LteMacEnbRealisticD2D()
 void LteMacEnbRealisticD2D::initialize(int stage)
 {
     LteMacEnbRealistic::initialize(stage);
-    if (stage == 0)
+    if (stage == INITSTAGE_LOCAL)
     {
         cModule* rlc = getParentModule()->getSubmodule("rlc");
         std::string rlcUmType = rlc->par("LteRlcUmType").stdstringValue();
@@ -37,12 +37,29 @@ void LteMacEnbRealisticD2D::initialize(int stage)
         if (rlcUmType.compare("LteRlcUmRealistic") != 0 || !rlcD2dCapable)
             throw cRuntimeError("LteMacEnbRealisticD2D::initialize - %s module found, must be LteRlcUmRealisticD2D. Aborting", rlcUmType.c_str());
     }
-    if (stage == 1)
+    else if (stage == INITSTAGE_LOCAL + 1)
     {
         usePreconfiguredTxParams_ = par("usePreconfiguredTxParams");
         Cqi d2dCqi = par("d2dCqi");
         if (usePreconfiguredTxParams_)
             check_and_cast<AmcPilotD2D*>(amc_->getPilot())->setPreconfiguredTxParams(d2dCqi);
+    }
+    else if (stage == INITSTAGE_LAST)  // be sure that all UEs have been initialized
+    {
+        buildConflictGraph_ = par("buildConflictGraph").boolValue();
+        if (buildConflictGraph_)
+        {
+            conflictGraphUpdatePeriod_ = par("conflictGraphUpdatePeriod");
+            conflictGraphThreshold_ = par("conflictGraphThreshold");
+
+            meshMaster_ = new MeshMaster(this, conflictGraphThreshold_);
+            meshMaster_->initStructure();
+            meshMaster_->computeStruct();
+//            // for debug purposes
+//            meshMaster_->printConflictMap();
+
+            scheduleAt(NOW + conflictGraphUpdatePeriod_, new cMessage("updateConflictGraph"));
+        }
     }
 }
 
@@ -87,6 +104,17 @@ void LteMacEnbRealisticD2D::handleMessage(cMessage* msg)
         macHandleD2DModeSwitch(pkt);
         delete pkt;
     }
+    else if (msg->isSelfMessage() && msg->isName("updateConflictGraph"))
+    {
+        // compute conflict graph for resource allocation
+
+        meshMaster_->computeStruct();
+
+        // for debug purposes
+        //meshMaster_->printConflictMap();
+
+        scheduleAt(NOW + conflictGraphUpdatePeriod_, msg);
+    }
     else
         LteMacEnbRealistic::handleMessage(msg);
 }
@@ -94,8 +122,6 @@ void LteMacEnbRealisticD2D::handleMessage(cMessage* msg)
 
 void LteMacEnbRealisticD2D::handleSelfMessage()
 {
-    // TODO compute conflict graph for resource allocation
-
     // Call the eNodeB main loop
     LteMacEnbRealistic::handleSelfMessage();
 }
@@ -233,7 +259,7 @@ void LteMacEnbRealisticD2D::sendGrants(LteMacScheduleList* scheduleList)
                // for (; antenna_it != antenna_et; ++antenna_it) // OLD FOR
                for (antenna_it = antennas.begin(); antenna_it != antenna_et; ++antenna_it)
                {
-                    bandAllocatedBlocks += enbSchedulerUl_->readPerUeAllocatedBlocks(nodeId,*antenna_it, b);
+                   bandAllocatedBlocks += enbSchedulerUl_->readPerUeAllocatedBlocks(nodeId,*antenna_it, b);
                }
                grantedBytes += amc_->computeBytesOnNRbs(nodeId, b, cw, bandAllocatedBlocks, dir );
             }

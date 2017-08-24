@@ -11,6 +11,7 @@
 #define _LTE_LTEALLOCATIONMODULE_H_
 
 #include "common/LteCommon.h"
+#include "stack/mac/allocator/LteAllocatorUtils.h"
 
 class LteMacEnb;
 
@@ -285,6 +286,30 @@ class LteAllocationModule
         const MacNodeId nodeId)
     {
         return allocatedRbsUe_[nodeId].allocationMap_[antenna][b].end();
+    }
+
+    /*
+     *  Support for allocation with frequency reuse
+     */
+
+    // Store the Allocation based on passed parameters
+    virtual void storeAllocation( std::vector<std::vector<AllocatedRbsPerBandMapA> > allocatedRbsPerBand,std::set<Band>* untouchableBands = NULL)
+    {
+        return;
+    }
+
+    // Get the bands already allocated
+    virtual std::set<Band> getAllocatorOccupiedBands()
+    {
+        std::set<Band> bandVector;
+        bandVector.clear();
+        return bandVector;
+    }
+
+    // returns the number of logical bands
+    unsigned int getNumBands()
+    {
+        return bands_;
     }
 };
 

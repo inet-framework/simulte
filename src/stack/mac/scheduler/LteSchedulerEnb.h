@@ -12,6 +12,7 @@
 
 #include "common/LteCommon.h"
 #include "stack/mac/buffer/harq/LteHarqBufferTx.h"
+#include "stack/mac/allocator/LteAllocatorUtils.h"
 
 /// forward declarations
 class LteScheduler;
@@ -36,6 +37,7 @@ class LteSchedulerEnb
     friend class LteMaxCiMultiband;
     friend class LteMaxCiOptMB;
     friend class LteMaxCiComp;
+    friend class LteAllocatorBestFit;
 
   protected:
 
@@ -296,6 +298,14 @@ class LteSchedulerEnb
     {
         return allocatedCws_[nodeId];
     }
+
+    // Get the bands already allocated
+    std::set<Band> getOccupiedBands();
+
+    void storeAllocationEnb(std::vector<std::vector<AllocatedRbsPerBandMapA> > allocatedRbsPerBand, std::set<Band>* untouchableBands = NULL);
+
+    // store an element in the schedule list
+    void storeScListId(std::pair<unsigned int, Codeword> scList,unsigned int num_blocks);
 
   private:
 

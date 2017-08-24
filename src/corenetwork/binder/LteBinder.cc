@@ -916,6 +916,26 @@ LteD2DMode LteBinder::getD2DMode(MacNodeId src, MacNodeId dst)
     return d2dPeeringMode_[src][dst];
 }
 
+bool LteBinder::isFrequencyReuseEnabled(MacNodeId nodeId)
+{
+    // a d2d-enabled UE can use frequency reuse if it can communicate using DM with all its peers
+    // in fact, the scheduler does not know to which UE it will communicate when it grants some RBs
+    if (d2dPeeringMode_.find(nodeId) == d2dPeeringMode_.end())
+        return false;
+
+    std::map<MacNodeId, LteD2DMode>::iterator it = d2dPeeringMode_[nodeId].begin();
+    if (it == d2dPeeringMode_[nodeId].end())
+        return false;
+
+    for (; it != d2dPeeringMode_[nodeId].end(); ++it)
+    {
+        if (it->second == IM)
+            return false;
+    }
+    return true;
+}
+
+
 void LteBinder::registerMulticastGroup(MacNodeId nodeId, int32 groupId)
 {
     if (multicastGroupMap_.find(nodeId) == multicastGroupMap_.end())

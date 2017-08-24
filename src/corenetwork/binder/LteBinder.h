@@ -377,7 +377,7 @@ class LteBinder : public cSimpleModule
     std::map<MacNodeId, std::map<MacNodeId, LteD2DMode> >* getD2DPeeringModeMap();
     void setD2DMode(MacNodeId src, MacNodeId dst, LteD2DMode mode);
     LteD2DMode getD2DMode(MacNodeId src, MacNodeId dst);
-
+    bool isFrequencyReuseEnabled(MacNodeId nodeId);
     /*
      * Multicast Support
      */

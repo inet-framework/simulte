@@ -17,6 +17,8 @@
 
 typedef std::map<MacNodeId, LteHarqBufferRxD2DMirror*> HarqRxBuffersMirror;
 
+
+
 class LteMacEnbRealisticD2D : public LteMacEnbRealistic
 {
   protected:
@@ -31,6 +33,11 @@ class LteMacEnbRealisticD2D : public LteMacEnbRealistic
     // if true, use the preconfigured TX params for transmission, else use that signaled by the eNB
     bool usePreconfiguredTxParams_;
     UserTxParams* preconfiguredTxParams_;
+
+    // parameters for conflict graph (needed when frequency reuse is enabled)
+    bool buildConflictGraph_;
+    simtime_t conflictGraphUpdatePeriod_;
+    double conflictGraphThreshold_;
 
     void clearBsrBuffers(MacNodeId ueId);
 
