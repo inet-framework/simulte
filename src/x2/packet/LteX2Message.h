@@ -106,7 +106,6 @@ class LteX2Message : public LteX2Message_Base
     {
         ieList_.push_back(ie);
         msgLength_ += ie->getLength();
-        cPacket::setByteLength(cPacket::getByteLength()+ie->getLength());
     }
 
     /**
@@ -120,7 +119,6 @@ class LteX2Message : public LteX2Message_Base
         X2InformationElement* ie = ieList_.front();
         ieList_.pop_front();
         msgLength_ -= ie->getLength();
-        cPacket::setByteLength(cPacket::getByteLength()-ie->getLength());
         return ie;
     }
 
