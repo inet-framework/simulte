@@ -971,7 +971,7 @@ std::vector<double> LteRealisticChannelModel::getRSRP_D2D(LteAirFrame *frame, Us
 {
     AttenuationVector::iterator it;
     // Get Tx power
-    double recvPower = lteInfo_1->getTxPower(); // dBm
+    double recvPower = lteInfo_1->getD2dTxPower(); // dBm
 
     // Coordinate of the Sender of the Feedback packet
     Coord sourceCoord =  lteInfo_1->getCoord();
@@ -1017,14 +1017,14 @@ std::vector<double> LteRealisticChannelModel::getRSRP_D2D(LteAirFrame *frame, Us
        << " - DIR=" << dirToA(dir)
        << " - frameType=" << ((lteInfo_1->getFrameType()==FEEDBACKPKT)?"feedback":"other")
        << endl
-       << " - txPwr " << lteInfo_1->getTxPower()
+       << " - txPwr " << recvPower
        << " - ue1_Coord[" << sourceCoord << "] - ue2_Coord[" << destCoord << "] - ue1_Id[" << sourceId << "] - ue2_Id[" << destId << "]" <<
     endl;
     //=================== END PARAMETERS SETUP =======================
 
     //=============== PATH LOSS + SHADOWING + FADING =================
     EV << "\t using parameters - noiseFigure=" << noiseFigure << " - antennaGainTx=" << antennaGainTx << " - antennaGainRx=" << antennaGainRx <<
-    " - txPwr=" << lteInfo_1->getTxPower() << " - for ueId=" << sourceId << endl;
+    " - txPwr=" << recvPower << " - for ueId=" << sourceId << endl;
 
     // attenuation for the desired signal
     double attenuation = getAttenuation_D2D(sourceId, dir, sourceCoord, destId, destCoord); // dB
@@ -1094,15 +1094,7 @@ std::vector<double> LteRealisticChannelModel::getSINR_D2D(LteAirFrame *frame, Us
 {
     AttenuationVector::iterator it;
     // Get Tx power
-    double recvPower;
-    if (lteInfo->getFrameType()==FEEDBACKPKT)
-    {
-        recvPower = lteInfo->getD2dTxPower(); // dBm
-    }
-    else
-    {
-        recvPower = lteInfo->getTxPower(); // dBm
-    }
+    double recvPower = lteInfo->getD2dTxPower(); // dBm
 
     // Coordinate of the Sender of the Feedback packet
     Coord sourceCoord =  lteInfo->getCoord();

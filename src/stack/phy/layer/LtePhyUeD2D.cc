@@ -289,6 +289,7 @@ void LtePhyUeD2D::handleUpperMessage(cMessage* msg)
     lteInfo->setCoord(getRadioPosition());
 
     lteInfo->setTxPower(txPower_);
+    lteInfo->setD2dTxPower(d2dTxPower_);
     frame->setControlInfo(lteInfo);
 
     EV << "LtePhyUeD2D::handleUpperMessage - " << nodeTypeToA(nodeType_) << " with id " << nodeId_
