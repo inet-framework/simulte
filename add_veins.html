@@ -1,0 +1,135 @@
+ 
+ 
+<!DOCTYPE html>
+<html>
+
+  <head>
+    <meta charset='utf-8'>
+    <meta http-equiv="X-UA-Compatible" content="chrome=1">
+    <meta name="description" content="Simulte : SimuLTE -- LTE User Plane Simulation Model for INET &amp; OMNeT++">
+
+    <link rel="stylesheet" type="text/css" media="screen" href="stylesheets/stylesheet.css">
+    <link rel="stylesheet" type="text/css" media="screen" href="stylesheets/custom.css">
+
+    <script>
+    (function(i,s,o,g,r,a,m){i['GoogleAnalyticsObject']=r;i[r]=i[r]||function(){
+    (i[r].q=i[r].q||[]).push(arguments)},i[r].l=1*new Date();a=s.createElement(o),
+    m=s.getElementsByTagName(o)[0];a.async=1;a.src=g;m.parentNode.insertBefore(a,m)
+    })(window,document,'script','//www.google-analytics.com/analytics.js','ga');
+
+    ga('create', 'UA-39973809-2', 'auto');
+    ga('send', 'pageview');
+
+    </script>
+
+    <title>SimuLTE - LTE User Plane Simulation Model for INET</title>
+
+  </head>
+
+  <body>
+
+    <!-- HEADER -->
+    <div id="header_wrap" class="outer">
+        <header class="inner_title">
+            <a id="forkme_banner" href="https://github.com/inet-framework/simulte">View on GitHub</a>   
+            <a id="title" href="index.html"><img src="images/logo.png" width="50%"/></a>
+            <h2 id="project_tagline">LTE User Plane Simulation Model for INET &amp; OMNeT++</h2>
+            
+            <section id="downloads">
+              <a class="zip_download_link" href="https://github.com/inet-framework/simulte/zipball/master">Download this project as a .zip file</a>
+              <a class="tar_download_link" href="https://github.com/inet-framework/simulte/tarball/master">Download this project as a tar.gz file</a>
+            </section>
+
+            <div id="menu">
+                <ul>
+                    <li><a href="index.html">Home</a></li>
+                    <li><a href="description.html">Description</a></li>
+                    <li><a href="guides.html">Guides</a></li>
+                    <li><a href="faq.html">FAQ</a></li>
+                    <li><a href="related.html">Publications</a></li>                    
+                    <li><a href="contacts.html">Contact us</a></li>
+                </ul>
+            </div>
+        </header>
+    </div>
+
+    <!-- MAIN CONTENT -->
+    <div id="main_content_wrap" class="outer">
+      <section id="main_content" class="inner">
+
+        <h1>Integrate SimuLTE and Veins</h1>
+        <p>Veins is a framework for simulating vehicular networks, based on the road traffic simulator SUMO. Integrating Veins into SimuLTE allows you to simulate cellular communications in vehicular networks.
+        <p>You can either i) download the archive including the complete framework, or ii) manually add Veins to your SimuLTE project.
+        <p>NOTE: this feature is still experimental, hence comments/feedback/suggestions are welcome.
+       
+        <h5>Prerequisite: Download SUMO</h5>
+        <ol>
+           <li>Download SUMO from <a href="http://sumo.dlr.de/wiki/Downloads">here</a>. Please refer to the Veins documentation for the correct version (e.g. Veins 4.6 works with SUMO 0.30.0)</li> 
+           <li>Extract the archive's content into, e.g., PATH_TO_SUMO/sumo-0.30.0.</li>
+           <li>Navigate to the resulting directory and run <i>./configure && make</i>.
+        </ol>
+        <br>
+        <h3>Download the complete package</h3>
+        <h5>Step 1: Download the framework</h5>
+        <ol>
+            <li>Download the archive (<a href="simulte_veins.tar.gz">tar.gz</a> - <a href="simulte_veins.zip">zip</a>).</li>
+            <li>Extract the archive's content, e.g. into a folder called <i>simulte_veins</i>.
+        </ol>
+        
+        <h5>Step 2: Import the framework into your workspace</h5>
+        <ol>
+           <li>Start the OMNeT++ IDE and open your simulte_veins workspace, i.e. the folder created in the previous step.</li>
+           <li>Import the project using: File | Import | General | Existing projects into Workspace. Then select the <i>simulte_veins</i> directory and be sure NOT to check the "Copy projects into workspace" box. Click Finish. </li>
+           <li>Build the project by pressing CTRL-B (or Project | Build all). </li>
+        </ol>
+
+        <br>
+        <h3>Import Veins into SimuLTE</h3>
+        
+        <h5>Step 1: Download the <i>veins-integration</i> branch from the SimuLTE repository</h5>
+        <ol>
+           <li>Use Git or checkout with SVN to get the branch repository called <i>veins-integration</i>. The repository can be found at the following URL: https://github.com/inet-framework/simulte.git . For example, with Git, type in the command line:<br> <i>git clone https://github.com/inet-framework/simulte.git --branch veins-integration</i> </li>
+           <li>Import SimuLTE into your OMNeT++ workspace. For information, please refer to the <a href="http://simulte.com/install.html">Install guide</a> page. </li>
+        </ol>
+ 
+        <h5>Step 2: Download Veins</h5>
+        <ol>
+           <li>Download the Veins framework from <a href="http://veins.car2x.org/download/">here</a>.</li> 
+           <li>Extract the archive's content into your workspace (e.g. next to SimuLTE and INET directories).</li>
+        </ol>
+        
+        <h5>Step 3: Import Veins into your workspace</h5>
+        <ol>
+           <li>Start the OMNeT++ IDE and open the SimuLTE workspace.</li>
+           <li>Import the project using: File | Import | General | Existing projects into Workspace. Then select the Veins directory and be sure NOT to check the "Copy projects into workspace" box. Click Finish. </li>
+           <li>Right-click on the "simulte" folder | Properties | Project References. Then tick the "veins" box. Click OK. </li>
+           <li>Right-click on the "simulte" folder | Properties | OMNeT++ | Project Features. Tick the "SimuLTE Cars" box. Click OK. </li>
+           <li>Build the project by pressing CTRL-B (or Project | Build all). </li>
+        </ol>
+  
+        <br>
+        <h3>Run a simulation example</h3>
+        <ol>
+           <li>In your terminal, navigate to the "veins" folder and run SUMO, by using the command <i>./sumo-launchd.py -vv -c PATH_TO_SUMO/sumo-0.30.0/bin/sumo</i></li>
+           <li>In the OMNeT++ IDE, select the 'simulte/simulations/vehicular' example folder, and click 'Run' on the toolbar.</li>
+        </ol>
+        
+      </section>
+
+    
+    </div>
+
+    <!-- FOOTER  -->
+    <div id="footer_wrap" class="outer">
+      <footer class="inner">
+        <span>Published with <a href="http://pages.github.com">GitHub Pages</a></span>
+        <span id="webmaster">&copy; <a href="http://www.iet.unipi.it/a.virdis">Antonio Virdis</a> - <a href="http://www.iet.unipi.it/g.nardini/">Giovanni Nardini</a> - 2015</span>                
+      </footer>
+    </div>
+
+    
+
+  </body>
+</html>
+
+
