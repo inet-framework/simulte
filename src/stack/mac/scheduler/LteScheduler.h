@@ -29,8 +29,12 @@ struct SortedDesc
 
     /// Comparison operator to enable sorting.
     bool operator<(const SortedDesc& y) const
-        {
-        return score_ < y.score_;
+    {
+        if (score_ < y.score_)
+            return true;
+        if (score_ == y.score_)
+            return uniform(getEnvir()->getRNG(0),0,1) < 0.5;
+        return false;
     }
 
   public:

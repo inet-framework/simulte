@@ -93,11 +93,9 @@ void LtePf::prepareSchedule()
         double s=.0;
 
         if (pfRate_.find(cid)==pfRate_.end()) pfRate_[cid]=0;
-
         if(pfRate_[cid] < scoreEpsilon_) s = 1.0 / scoreEpsilon_;
         else if(availableBlocks > 0) s = ((availableBytes / availableBlocks) / pfRate_[cid]) + uniform(getEnvir()->getRNG(0),-scoreEpsilon_/2.0, scoreEpsilon_/2.0);
         else s = 0.0;
-
         // Create a new score descriptor for the connection, where the score is equal to the ratio between bytes per slot and long term rate
         ScoreDesc desc(cid,s);
         score.push(desc);
@@ -176,7 +174,6 @@ void LtePf::commitSchedule()
             shortTermRate = 0.0;
 
         EV << NOW << " LtePf::storeSchedule Short Term Rate " << shortTermRate << endl;
-
         // Updating the long term rate
         double& longTermRate = pfRate_[cid];
         longTermRate = (1.0 - pfAlpha_) * longTermRate + pfAlpha_ * shortTermRate;

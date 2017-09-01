@@ -54,11 +54,7 @@ void LteMacEnbRealisticD2D::initialize(int stage)
 
             meshMaster_ = new MeshMaster(this, conflictGraphThreshold_);
             meshMaster_->initStructure();
-            meshMaster_->computeStruct();
-//            // for debug purposes
-//            meshMaster_->printConflictMap();
-
-            scheduleAt(NOW + conflictGraphUpdatePeriod_, new cMessage("updateConflictGraph"));
+            scheduleAt(NOW + 0.05, new cMessage("updateConflictGraph"));
         }
     }
 }
@@ -109,9 +105,8 @@ void LteMacEnbRealisticD2D::handleMessage(cMessage* msg)
         // compute conflict graph for resource allocation
 
         meshMaster_->computeStruct();
-
-        // for debug purposes
-        //meshMaster_->printConflictMap();
+//        // for debug purposes
+//        meshMaster_->printConflictMap();
 
         scheduleAt(NOW + conflictGraphUpdatePeriod_, msg);
     }

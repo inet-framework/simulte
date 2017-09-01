@@ -388,8 +388,8 @@ unsigned int LteSchedulerEnb::scheduleGrant(MacCid cid, unsigned int bytes,
                 // for the first SDU, add 2 byte for the MAC PDU Header
                 if (firstSdu)
                 {
+                    toServe += RLC_HEADER_UM;
                     toServe += MAC_HEADER;
-//                    firstSdu = false;
                 }
 
                 //   Check if the flow will overflow its request by adding an entire SDU
