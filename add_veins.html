@@ -66,9 +66,9 @@
         <ul>
            <li>OMNeT++ v5.1.1;</li>
            <li>INET-Framework v3.6;</li>
-           <li>SUMO.
+           <li>SUMO v0.30.0
               <ol> 
-                <li>Download SUMO from <a href="http://sumo.dlr.de/wiki/Downloads">here</a>. Please refer to the Veins documentation for the correct version (e.g. Veins 4.6 works with SUMO 0.30.0)</li> 
+                <li>Download SUMO v0.30.0 from <a href="http://sumo.dlr.de/wiki/Downloads">here</a>.</li> 
                 <li>Extract the archive's content into, e.g., PATH_TO_SUMO/sumo-0.30.0.</li>
                 <li>Navigate to the resulting directory and run <i>./configure && make</i>.
               </ol>
@@ -98,17 +98,17 @@
            <li>Import SimuLTE into your OMNeT++ workspace. For information, please refer to the <a href="http://simulte.com/install.html">Install guide</a> page. </li>
         </ol>
  
-        <h5>Step 2: Download Veins</h5>
+        <h5>Step 2: Download Veins 4.6</h5>
         <ol>
-           <li>Download the Veins framework from <a href="http://veins.car2x.org/download/">here</a>.</li> 
+           <li>Download the Veins framework from <a href="http://veins.car2x.org/download/">here</a>. Veins v4.6 is required.</li> 
            <li>Extract the archive's content into your workspace (e.g. next to SimuLTE and INET directories).</li>
         </ol>
         
         <h5>Step 3: Import Veins into your workspace</h5>
         <ol>
            <li>Start the OMNeT++ IDE and open the SimuLTE workspace.</li>
-           <li>Import the project using: File | Import | General | Existing projects into Workspace. Then select the Veins directory and be sure NOT to check the "Copy projects into workspace" box. Click Finish. </li>
-           <li>Right-click on the "simulte" folder | Properties | Project References. Then tick the "veins" box. Click OK. </li>
+           <li>Import the project using: File | Import | General | Existing projects into Workspace. Then select the Veins directory and check the "Search for nested projects" box. This will add both "veins" and "veins_inet" projects. Click Finish. </li>
+           <li>Right-click on the "simulte" folder | Properties | Project References. Then tick the "veins_inet" box. Click OK. </li>
            <li>Right-click on the "simulte" folder | Properties | OMNeT++ | Project Features. Tick the "SimuLTE Cars" box. Click OK. </li>
            <li>Build the project by pressing CTRL-B (or Project | Build all). </li>
         </ol>
@@ -117,7 +117,7 @@
         <h3>Run a simulation example</h3>
         <ol>
            <li>In your terminal, navigate to the "veins" folder and run SUMO, by using the command <i>./sumo-launchd.py -vv -c PATH_TO_SUMO/sumo-0.30.0/bin/sumo</i></li>
-           <li>In the OMNeT++ IDE, select the 'simulte/simulations/vehicular' example folder, and click 'Run' on the toolbar.</li>
+           <li>In the OMNeT++ IDE, select the 'simulte/simulations/cars' example folder, and click 'Run' on the toolbar.</li>
         </ol>
         
         <span>Prev: <a href="guides.html">Guides</a></span>
