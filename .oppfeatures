@@ -1,4 +1,4 @@
-<features>
+<features cppSourceRoots="src/common" definesFile="src/common/features.h">
  <feature
   id="SimuLTE_Cars"
   name="SimuLTE Cars"
@@ -7,9 +7,9 @@
   requires = ""
   labels = ""
   nedPackages = "lte.corenetwork.nodes.cars
-                 lte.simulations.networks.cars"
+                 lte.simulations.cars"
   extraSourceFolders = ""
-  compileFlags = "-DWITH_VEINS"
+  compileFlags = ""
   linkerFlags = ""
  />
 </features>

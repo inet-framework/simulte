@@ -23,8 +23,6 @@ import lte.stack.phy.ILteNic;
 import lte.stack.phy.LteNicUe;
 import lte.stack.phy.LteNicUeD2D;
 
-import org.car2x.veins.base.modules.IMobility;
-
 // 
 // Car Module
 //
@@ -35,8 +33,7 @@ module Car
         @display("i=car.png;bgb=400,518");
 
         //# Mobility
-        string mobilityType = default("");
-        string vehicularMobilityType = default("org.car2x.veins.modules.mobility.traci.TraCIMobility");
+        string mobilityType = default("VeinsInetMobility");
 
         //# Apps
         int numTcpApps = default(0);  // no of TCP apps
@@ -62,6 +59,9 @@ module Car
         input radioIn @directIn;     // connection to master
 
     submodules:
+        mobility: <mobilityType> like IMobility {
+            @display("p=50,175;is=s");
+        }
         interfaceTable: InterfaceTable {
             @display("p=50,75;is=s");
         }
@@ -69,13 +69,6 @@ module Car
         routingTable: <routingTableType> like IRoutingTable if routingTableType != "" {
             parameters:
                 @display("p=50,125;is=s");
-        }
-        mobility: <mobilityType> like IMobility if mobilityType != "" {
-            @display("p=50,175;is=s");
-        }
-        vehicularMobility: <vehicularMobilityType> like org.car2x.veins.base.modules.IMobility if mobilityType == "" {
-            parameters:
-                @display("p=50,225;is=s");
         }
         tcpApp[numTcpApps]: <> like ITCPApp {
             @display("p=175,50,row");

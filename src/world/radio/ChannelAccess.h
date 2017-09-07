@@ -27,6 +27,7 @@
 #include "inet/common/INETDefs.h"
 
 #include "world/radio/IChannelControl.h"
+#include "common/features.h"
 
 // Forward declarations
 class AirFrame;
@@ -56,9 +57,6 @@ class ChannelAccess : public cSimpleModule, public cListener
     cModule *hostModule;    // the host that contains this radio model
     inet::Coord radioPos;  // the physical position of the radio (derived from display string or from mobility models)
     bool positionUpdateArrived;
-#ifdef WITH_VEINS
-    simsignal_t veinsmobilityStateChanged_;
-#endif
 
   public:
     ChannelAccess() : cc(NULL), myRadioRef(NULL), hostModule(NULL) {}

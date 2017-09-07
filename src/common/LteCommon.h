@@ -28,8 +28,9 @@
 #include <queue>
 #include <map>
 #include <list>
-#include "inet/common/geometry/common/Coord.h"
 #include <algorithm>
+#include "inet/common/geometry/common/Coord.h"
+#include "common/features.h"
 
 using namespace omnetpp;
 

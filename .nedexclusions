@@ -1,5 +1,2 @@
 lte.corenetwork.nodes.cars
-lte.simulations.networks.cars
-lte.simulations.networks.cars.Highway
-lte.simulations.networks.Highway
-lte.corenetwork.nodes.Car
+lte.simulations.cars
