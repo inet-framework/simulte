@@ -295,7 +295,14 @@ void LtePhyBase::sendUnicast(LteAirFrame *frame)
     // get a pointer to receiving module
     cModule *receiver = getSimulation()->getModule(destOmnetId);
     // receiver's gate
-    sendDirect(frame, 0, frame->getDuration(), receiver, "radioIn");
+    int gateIdx = receiver->findGate("radioIn");
+    if (gateIdx < 0) {
+        gateIdx = receiver->findGate("lteRadioIn");
+        if (gateIdx < 0) {
+            throw cRuntimeError("receiver \"%s\" has no suitable radio gate", receiver->getFullPath().c_str());
+        }
+    }
+    sendDirect(frame, 0, frame->getDuration(), receiver, gateIdx);
 
     return;
 }
