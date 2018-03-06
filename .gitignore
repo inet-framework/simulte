@@ -9,6 +9,7 @@ src/Makefile.vc
 *.sca
 *.vec
 *.anf
+*.qtenvrc
 .settings/
 
 # ignore binary files
