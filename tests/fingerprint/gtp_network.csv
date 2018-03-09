@@ -1,0 +1,3 @@
+# workingdir,                        args,                                  simtimelimit,    fingerprint
+/simulations/gtpNetwork/,           -f lteCoreExample.ini -c Internet-LTE -r 0,    5s,       bd3c-6c0f/tplx
+/simulations/gtpNetwork/,           -f lteCoreExample.ini -c LTE-LTE -r 0,         5s,       3b27-a2ba/tplx

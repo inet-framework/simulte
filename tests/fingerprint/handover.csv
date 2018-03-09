@@ -1,0 +1,9 @@
+# workingdir,                            args,                                          simtimelimit,    fingerprint
+/simulations/test_handover/,              -f omnetpp.ini -c Handover-General -r 0,      5s,              56f8-68c7/tplx
+/simulations/test_handover/,              -f omnetpp.ini -c VoIP-DL -r 0,               5s,              82ed-cdaf/tplx
+/simulations/test_handover/,              -f omnetpp.ini -c VoIP-UL -r 0,               5s,              e70b-03c7/tplx
+/simulations/test_handover/,              -f omnetpp.ini -c VoIP-DL_UL -r 0,            5s,              028b-b7fa/tplx
+/simulations/test_handover/,              -f omnetpp.ini -c VoIP-D2D -r 0,              5s,              9ec0-9b0e/tplx
+/simulations/test_handover/,              -f omnetpp.ini -c FileTransfer-DL_UL -r 0,    5s,              5aa2-d1c5/tplx
+/simulations/test_handover/,              -f omnetpp.ini -c FileTransfer-D2D -r 0,      5s,              e9e2-0ccf/tplx
+

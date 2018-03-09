@@ -1,0 +1,4 @@
+# workingdir,                        args,                                     simtimelimit,    fingerprint
+/simulations/advanced/,              -f omnetpp.ini -c VoIP -r 0,              5s,              e9f1-68fc/tplx
+/simulations/advanced/,              -f omnetpp.ini -c SchedulersTest -r 0,    5s,              4a1a-393d/tplx
+/simulations/advanced/,              -f omnetpp.ini -c SchedulersTest -r 12,    5s,             310d-2c8c/tplx

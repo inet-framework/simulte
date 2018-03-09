@@ -28,6 +28,7 @@ import sys
 import threading
 import time
 import unittest
+from distutils import spawn
 from StringIO import StringIO
 
 
@@ -36,19 +37,26 @@ inetRoot = os.path.abspath(simulteRoot + "/../inet")
 sep = ";" if sys.platform == 'win32' else ':'
 nedPath = inetRoot + "/src" + sep + simulteRoot + "/src" + sep + simulteRoot + "/simulations"
 simulteLib = simulteRoot + "/src/lte"
+inetLib = inetRoot + "/src/INET"
 opp_run = "opp_run"
 cpuTimeLimit = "300s"
 logFile = "test.out"
+extraOppRunArgs = ""
 exitCode = 0
+
+if spawn.find_executable("opp_run_dbg"):
+	executable = "opp_run_dbg"
+elif spawn.find_executable("opp_run"):
+	executable = "opp_run"
+elif spawn.find_executable("opp_run_release"):
+	executable = "opp_run_release"
 
 class FingerprintTestCaseGenerator():
     fileToSimulationsMap = {}
     def generateFromCSV(self, csvFileList, filterRegexList, excludeFilterRegexList, repeat):
         testcases = []
         for csvFile in csvFileList:
-            f = open(csvFile, 'rb')
-            simulations = self.parseSimulationsTable(f)
-            f.close()
+            simulations = self.parseSimulationsTable(csvFile)
             self.fileToSimulationsMap[csvFile] = simulations
             testcases.extend(self.generateFromDictList(simulations, filterRegexList, excludeFilterRegexList, repeat))
         return testcases
@@ -71,25 +79,27 @@ class FingerprintTestCaseGenerator():
             title = simulation['wd'] + " " + simulation['args']
             if not filterRegexList or ['x' for regex in filterRegexList if re.search(regex, title)]: # if any regex matches title
                 if not excludeFilterRegexList or not ['x' for regex in excludeFilterRegexList if re.search(regex, title)]: # if NO exclude-regex matches title
-                    testcases.append(FingerprintTestCase(title, simulation['wd'], simulation['args'],
+                    testcases.append(FingerprintTestCase(title, simulation['file'], simulation['wd'], simulation['args'],
                             simulation['simtimelimit'], simulation['fingerprint'], StoreFingerprintCallback(simulation), StoreExitcodeCallback(simulation), repeat))
         return testcases
 
     def commentRemover(self, csvData):
-        p = re.compile('#.*$')
+        p = re.compile(' *#.*$')
         for line in csvData:
             yield p.sub('',line)
 
     # parse the CSV into a list of dicts
     def parseSimulationsTable(self, csvFile):
         simulations = []
-        csvReader = csv.reader(self.commentRemover(csvFile), delimiter=',', quotechar='"', skipinitialspace=True)
+        f = open(csvFile, 'rb')
+        csvReader = csv.reader(self.commentRemover(f), delimiter=',', quotechar='"', skipinitialspace=True)
         for fields in csvReader:
             if len(fields) == 0:
                 continue        # empty line
             if len(fields) != 4:
                 raise Exception("Line " + str(csvReader.line_num) + " must contain 4 items, but contains " + str(len(fields)) + ": " + '"' + '", "'.join(fields) + '"')
-            simulations.append({'line' : csvReader.line_num, 'wd': fields[0], 'args': fields[1], 'simtimelimit': fields[2], 'fingerprint': fields[3]})
+            simulations.append({'file': csvFile, 'line' : csvReader.line_num, 'wd': fields[0], 'args': fields[1], 'simtimelimit': fields[2], 'fingerprint': fields[3]})
+        f.close()
         return simulations
 
     def writeUpdatedCSVFiles(self):
@@ -110,7 +120,17 @@ class FingerprintTestCaseGenerator():
                 ff = open(failedFile, 'w')
                 ff.write(failedContents)
                 ff.close()
-                print "Check " + failedFile + " for errors and failed fingerprints"
+                print "Check " + failedFile + " for failed fingerprints"
+
+    def writeErrorCSVFiles(self):
+        for csvFile, simulations in self.fileToSimulationsMap.iteritems():
+            errorContents = self.formatErrorSimulationsTable(csvFile, simulations)
+            if errorContents:
+                errorFile = csvFile + ".ERROR"
+                ff = open(errorFile, 'w')
+                ff.write(errorContents)
+                ff.close()
+                print "Check " + errorFile + " for errors"
 
     def escape(self, str):
         if re.search(r'[\r\n\",]', str):
@@ -129,6 +149,18 @@ class FingerprintTestCaseGenerator():
             if 'computedFingerprint' in simulation:
                 oldFingerprint = simulation['fingerprint']
                 newFingerprint = simulation['computedFingerprint']
+                oldFpList = oldFingerprint.split(' ')
+                if '/' in newFingerprint:
+                    # keep old omnetpp4 fp
+                    keepFpList = [elem for elem in oldFpList if not '/' in elem]
+                    if keepFpList:
+                        newFingerprint = ' '.join(keepFpList) + ' ' + newFingerprint
+                else:
+                    # keep all old omnetpp5 fp
+                    keepFpList = [elem for elem in oldFpList if '/' in elem]
+                    if keepFpList:
+                        newFingerprint = newFingerprint + ' ' + ' '.join(keepFpList)
+
                 if ',' in newFingerprint:
                     newFingerprint = '"' + newFingerprint + '"'
                 containsComputedFingerprint = True
@@ -166,7 +198,24 @@ class FingerprintTestCaseGenerator():
                         containsFailures = True
                         result.append("# Failures:\n");
                     result.append(lines[simulation['line']])
-        return ''.join(result) if containsErrors or containsFailures else None
+        return ''.join(result) if containsFailures else None
+
+    def formatErrorSimulationsTable(self, csvFile, simulations):
+        ff = open(csvFile, 'r')
+        lines = ff.readlines()
+        ff.close()
+        lines.insert(0, '')     # csv line count is 1..n; insert an empty item --> lines[1] is the first line
+        result = []
+
+        containsErrors = False
+        for simulation in simulations:
+            if 'exitcode' in simulation and simulation['exitcode'] != 0:
+                if not containsErrors:
+                    containsErrors = True
+                    result.append("# Errors:\n");
+                result.append(lines[simulation['line']])
+
+        return ''.join(result) if containsErrors else None
 
 
 class SimulationResult:
@@ -185,8 +234,9 @@ class SimulationResult:
 
 
 class SimulationTestCase(unittest.TestCase):
-    def runSimulation(self, title, command, workingdir):
+    def runSimulation(self, title, command, workingdir, resultdir):
         global logFile
+        ensure_dir(workingdir + "/results")
 
         # run the program and log the output
         t0 = time.time()
@@ -195,6 +245,16 @@ class SimulationTestCase(unittest.TestCase):
 
         elapsedTime = time.time() - t0
         FILE = open(logFile, "a")
+        FILE.write("------------------------------------------------------\n"
+                 + "Running: " + title + "\n\n"
+                 + "$ cd " + workingdir + "\n"
+                 + "$ " + command + "\n\n"
+                 + out.strip() + "\n\n"
+                 + "Exit code: " + str(exitcode) + "\n"
+                 + "Elapsed time:  " + str(round(elapsedTime,2)) + "s\n\n")
+        FILE.close()
+
+        FILE = open(resultdir + "/test.out", "w")
         FILE.write("------------------------------------------------------\n"
                  + "Running: " + title + "\n\n"
                  + "$ cd " + workingdir + "\n"
@@ -215,7 +275,7 @@ class SimulationTestCase(unittest.TestCase):
                 if re.search("successfully", err):
                     result.isFingerprintOK = True
                 else:
-                    m = re.search("(computed|calculated): ([-a-zA-Z0-9]+)", err)
+                    m = re.search("(computed|calculated): ([-a-zA-Z0-9]+(/[a-z0]+)?)", err)
                     if m:
                         result.isFingerprintOK = False
                         result.computedFingerprint = m.group(2)
@@ -241,9 +301,10 @@ class SimulationTestCase(unittest.TestCase):
 
 
 class FingerprintTestCase(SimulationTestCase):
-    def __init__(self, title, wd, args, simtimelimit, fingerprint, storeFingerprintCallback, storeExitcodeCallback, repeat):
+    def __init__(self, title, csvFile, wd, args, simtimelimit, fingerprint, storeFingerprintCallback, storeExitcodeCallback, repeat):
         SimulationTestCase.__init__(self)
         self.title = title
+        self.csvFile = csvFile
         self.wd = wd
         self.args = args
         self.simtimelimit = simtimelimit
@@ -254,20 +315,30 @@ class FingerprintTestCase(SimulationTestCase):
 
     def runTest(self):
         # CPU time limit is a safety guard: fingerprint checks shouldn't take forever
-        global simulteRoot, opp_run, nedPath, cpuTimeLimit
+        global inetRoot, executable, nedPath, cpuTimeLimit, extraOppRunArgs
 
         # run the simulation
         workingdir = _iif(self.wd.startswith('/'), simulteRoot + "/" + self.wd, self.wd)
-        command = opp_run + " -n " + nedPath + " -l " + simulteLib + " -u Cmdenv " + self.args + \
-            _iif(self.simtimelimit!="", " --sim-time-limit=" + self.simtimelimit, "") + \
-            " --fingerprint=" + self.fingerprint + " --cpu-time-limit=" + cpuTimeLimit + \
-            ""
-            #" --vector-recording=false --scalar-recording=false"
-
-        anyFingerpintBad = False;
+        wdname = '' + self.wd + ' ' + self.args
+        wdname = re.sub('/', '_', wdname);
+        wdname = re.sub('[\W]+', '_', wdname);
+        resultdir = os.path.abspath(".") + "/results/" + self.csvFile + "/" + wdname;
+        if not os.path.exists(resultdir):
+            try:
+                os.makedirs(resultdir)
+            except OSError:
+                pass
+        command = executable + " -n " + nedPath + " -l " + simulteLib + " -u Cmdenv " + self.args + \
+            _iif(self.simtimelimit != "", " --sim-time-limit=" + self.simtimelimit, "") + \
+            " \"--fingerprint=" + self.fingerprint + "\" --cpu-time-limit=" + cpuTimeLimit + \
+            " --vector-recording=false --scalar-recording=true" + \
+            " --result-dir=" + resultdir + \
+            extraOppRunArgs;
+        # print "COMMAND: " + command + '\n'
+        anyFingerprintBad = False;
         computedFingerprints = set()
         for rep in range(self.repeat):
-            result = self.runSimulation(self.title, command, workingdir)
+            result = self.runSimulation(self.title, command, workingdir, resultdir)
 
             # process the result
             # note: fingerprint mismatch is technically NOT an error in 4.2 or before! (exitcode==0)
@@ -282,13 +353,13 @@ class FingerprintTestCase(SimulationTestCase):
                 raise Exception("other")
             elif result.isFingerprintOK == False:
                 computedFingerprints.add(result.computedFingerprint)
-                anyFingerpintBad = True
+                anyFingerprintBad = True
             else:
                 # fingerprint OK:
                 computedFingerprints.add(self.fingerprint)
 #                pass
 
-        if anyFingerpintBad:
+        if anyFingerprintBad:
             self.storeFingerprintCallback(",".join(computedFingerprints))
             assert False, "some fingerprint mismatch; actual " + " '" + ",".join(computedFingerprints) +"'"
 
@@ -331,12 +402,19 @@ class ThreadedTestSuite(unittest.BaseTestSuite):
             # cooperate removing every ip in the list. Each thread will do the
             # job as fast as it can.
             t = threading.Thread(target=self.runThread, args=(result, it))
+            t.daemon = True
             t.start()
             threads.append(t)
 
         # Wait until all the threads are done. .join() is blocking.
-        for t in threads:
-            t.join()
+        #for t in threads:
+        #    t.join()
+        runApp = True
+        while runApp and threading.active_count() > 1:
+            try:
+                time.sleep(0.1)
+            except KeyboardInterrupt:
+                runApp = False
         return result
 
     def runThread(self, result, it):
@@ -504,21 +582,30 @@ class SimulationTextTestResult(ThreadedTestResult):
     def _splitMsg(self, msg):
         cause = str(msg)
         detail = None
-        if cause.count(':'):
-            (cause, detail) = cause.split(':',1)
+        if cause.count(': '):
+            (cause, detail) = cause.split(': ',1)
         return (cause, detail)
 
 
 def _iif(cond,t,f):
     return t if cond else f
 
+def ensure_dir(f):
+    if not os.path.exists(f):
+        os.makedirs(f)
+
 if __name__ == "__main__":
+    defaultNumThreads = multiprocessing.cpu_count();
+    if defaultNumThreads >= 6:
+        defaultNumThreads = defaultNumThreads - 1
     parser = argparse.ArgumentParser(description='Run the fingerprint tests specified in the input files.')
     parser.add_argument('testspecfiles', nargs='*', metavar='testspecfile', help='CSV files that contain the tests to run (default: *.csv). Expected CSV file columns: workingdir, args, simtimelimit, fingerprint')
     parser.add_argument('-m', '--match', action='append', metavar='regex', help='Line filter: a line (more precisely, workingdir+SPACE+args) must match any of the regular expressions in order for that test case to be run')
     parser.add_argument('-x', '--exclude', action='append', metavar='regex', help='Negative line filter: a line (more precisely, workingdir+SPACE+args) must NOT match any of the regular expressions in order for that test case to be run')
-    parser.add_argument('-t', '--threads', type=int, default=multiprocessing.cpu_count(), help='number of parallel threads (default: number of CPUs, currently '+str(multiprocessing.cpu_count())+')')
+    parser.add_argument('-t', '--threads', type=int, default=defaultNumThreads, help='number of parallel threads (default: number of CPUs, currently '+str(defaultNumThreads)+')')
     parser.add_argument('-r', '--repeat', type=int, default=1, help='number of repeating each test (default: 1)')
+    parser.add_argument('-a', '--oppargs', action='append', metavar='oppargs', nargs='*', help='extra opp_run arguments without leading "--", you can terminate list with " -- " ')
+    parser.add_argument('-e', '--executable', help='Determines which binary to execute (e.g. opp_run_dbg, opp_run_release)')
     args = parser.parse_args()
 
     if os.path.isfile(logFile):
@@ -527,6 +614,14 @@ if __name__ == "__main__":
 
     if not args.testspecfiles:
         args.testspecfiles = glob.glob('*.csv')
+
+    if args.oppargs:
+        for oppArgList in args.oppargs:
+            for oppArg in oppArgList:
+                extraOppRunArgs += " --" + oppArg
+
+    if args.executable:
+        executable = args.executable
 
     generator = FingerprintTestCaseGenerator()
     testcases = generator.generateFromCSV(args.testspecfiles, args.match, args.exclude, args.repeat)
@@ -542,6 +637,7 @@ if __name__ == "__main__":
 
     print
     generator.writeUpdatedCSVFiles()
+    generator.writeErrorCSVFiles()
     generator.writeFailedCSVFiles()
 
     print "Log has been saved to %s" % logFile

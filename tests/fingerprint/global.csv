@@ -1,0 +1,52 @@
+# workingdir,                        args,                                                  simtimelimit,   fingerprint
+
+#Advanced
+/simulations/advanced/,             -f omnetpp.ini -c VoIP -r 0,                            5s,             e9f1-68fc/tplx
+/simulations/advanced/,             -f omnetpp.ini -c SchedulersTest -r 0,                  5s,             4a1a-393d/tplx
+/simulations/advanced/,             -f omnetpp.ini -c SchedulersTest -r 12,                 5s,             310d-2c8c/tplx
+
+# DEMO  
+/simulations/demo/,                 -f omnetpp.ini -c VideoStreaming -r 0,                  5s,             ac8b-ab27/tplx
+/simulations/demo/,                 -f omnetpp.ini -c VoIP -r 0,                            5s,             e9f1-68fc/tplx
+/simulations/demo/,                 -f omnetpp.ini -c VoIP_PF -r 0,                         5s,             e2e0-748e/tplx
+#/simulations/demo/,                -f omnetpp.ini -c Large-VoIP_PF -r 0,                   5s,             20d0-b35d/tplx
+#/simulations/demo/,                -f omnetpp.ini -c Large-VoIP_MaxCI -r 0,                5s,             7a2e-e489/tplx
+/simulations/demo/,                 -f omnetpp.ini -c VoIP_DL-UL -r 0,                      5s,             1dc7-85d9/tplx
+/simulations/demo/,                 -f omnetpp.ini -c VoIP-DL -r 0,                         5s,             b257-b460/tplx
+/simulations/demo/,                 -f omnetpp.ini -c VoIP-UL -r 0,                         5s,             04eb-e755/tplx
+
+# D2D Multicast
+/simulations/d2d_multicast/,        -f omnetpp.ini -c D2DMulticast-1to2 -r 0,               5s,             8f8d-a52a/tplx
+/simulations/d2d_multicast/,        -f omnetpp.ini -c D2DMulticast-1toM -r 0,               5s,             2e47-3e92/tplx
+
+# D2D Unicast
+/simulations/d2d/,                  -f omnetpp.ini -c SinglePair-UDP-D2D -r 0,              5s,             19e8-9302/tplx
+/simulations/d2d/,                  -f omnetpp.ini -c SinglePair-UDP-Infra -r 0,            5s,             1dc2-95a4/tplx
+/simulations/d2d/,                  -f omnetpp.ini -c MultiplePairs-UDP-D2D -r 0,           5s,             f118-7ffa/tplx
+/simulations/d2d/,                  -f omnetpp.ini -c MultiplePairs-UDP-Infra -r 0,         5s,             9770-20c0/tplx
+/simulations/d2d/,                  -f omnetpp.ini -c MultiplePairs-UDP-D2D-wReuse -r 0,    5s,             5be6-a9c9/tplx
+
+# Eutran_epc
+/simulations/eutran_epc/,           -f omnetpp.ini -c VoIP-DL -r 0,                         5s,             cb6e-d7b3/tplx
+/simulations/eutran_epc/,           -f omnetpp.ini -c Voip-UL -r 0,                         5s,             04e3-6cef/tplx
+
+# GTP Network
+/simulations/gtpNetwork/,           -f lteCoreExample.ini -c Internet-LTE -r 0,             5s,             bd3c-6c0f/tplx
+/simulations/gtpNetwork/,           -f lteCoreExample.ini -c LTE-LTE -r 0,                  5s,             3b27-a2ba/tplx
+
+# Multicell
+/simulations/multicell/,            -f omnetpp.ini -c VoIP -r 0,                            5s,             96bc-ca5f/tplx
+/simulations/multicell/,            -f omnetpp.ini -c InterferenceTest -r 0,                5s,             9836-1d03/tplx
+
+# Handover
+/simulations/test_handover/,        -f omnetpp.ini -c Handover-General -r 0,                5s,              56f8-68c7/tplx
+/simulations/test_handover/,        -f omnetpp.ini -c VoIP-DL -r 0,                         5s,              82ed-cdaf/tplx
+/simulations/test_handover/,        -f omnetpp.ini -c VoIP-UL -r 0,                         5s,              e70b-03c7/tplx
+/simulations/test_handover/,        -f omnetpp.ini -c VoIP-DL_UL -r 0,                      5s,              028b-b7fa/tplx
+/simulations/test_handover/,        -f omnetpp.ini -c VoIP-D2D -r 0,                        5s,              9ec0-9b0e/tplx
+/simulations/test_handover/,        -f omnetpp.ini -c FileTransfer-DL_UL -r 0,              5s,              5aa2-d1c5/tplx
+/simulations/test_handover/,        -f omnetpp.ini -c FileTransfer-D2D -r 0,                5s,              e9e2-0ccf/tplx
+
+# X2
+/simulations/x2/,                   -f omnetpp.ini -c X2-Mesh-balanced -r 0,                5s,              004a-e749/tplx
+/simulations/x2/,                   -f omnetpp.ini -c X2-Mesh-unbalanced -r 0,              5s,              1d7a-727e/tplx
