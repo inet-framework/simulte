@@ -37,13 +37,14 @@ module eNBpp
         int macNodeId = default(0); // TODO: this is not a real parameter
         int macCellId = default(0);  // TODO: this is not a real parameter
         double txPower @unit(mw) = default(100mw);
+        string nicType = default("LteNicEnb");
 
         //# Network Layer specs
         string networkLayerType = default("IPv4NetworkLayer");
         string routingTableType = default("IPv4RoutingTable");
         *.interfaceTableModule = default(absPath(".interfaceTable"));
         *.routingTableModule = default(routingTableType != "" ? absPath(".routingTable") : "");
-
+        
     gates:
         inout ppp;     // connection to LteIP peer
         input radioIn @directIn;  // connection to slave

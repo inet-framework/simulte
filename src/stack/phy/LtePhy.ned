@@ -16,7 +16,6 @@ package lte.stack.phy;
 moduleinterface LtePhy {
     parameters:
         @display("i=block/wrxtx");
-        bool usePropagationDelay;
         xml channelModel;
         
     gates:
@@ -31,7 +30,6 @@ moduleinterface LtePhy {
 simple LtePhyBase like LtePhy {
     parameters:
         @display("i=block/wrxtx");
-        bool usePropagationDelay = default(true);                     // Should transmission delay be simulated?
         xml channelModel;
         double ueTxPower =default(26);
         double eNodeBTxPower =default(46);

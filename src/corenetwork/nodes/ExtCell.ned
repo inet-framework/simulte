@@ -30,9 +30,6 @@ simple ExtCell
         // transmission angle
         double txAngle = default(0);
         
-        // number of logical bands
-        int numBands = default(1);
-        
         // --- ALLOCATION MANAGEMENT --- //
         string bandAllocationType = default("FULL_ALLOC");
         double bandUtilization = default(0.5);    

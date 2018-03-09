@@ -38,9 +38,8 @@ void ExtCell::initialize()
         txAngle_ = par("txAngle");
     }
 
-    numBands_ = par("numBands");
-
     binder_ = getBinder();
+    numBands_ = binder_->getNumBands();
 
     // initialize band status structures
     bandStatus_.resize(numBands_, 0);

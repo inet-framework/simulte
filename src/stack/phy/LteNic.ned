@@ -27,7 +27,7 @@ import lte.stack.handoverManager.LteHandoverManager;
 moduleinterface ILteNic extends IWirelessNic
 {
         string nodeType;
-        bool d2dCapable;            // inherit the value from the parent module
+        //bool d2dCapable;            // inherit the value from the parent module
     gates:
         inout EUTRAN_RRC_Sap;   // Control of RRC Layer
         inout x2[] @loose;     // optional x2 manager
@@ -127,6 +127,7 @@ module LteNicUe extends LteNicBase
         LtePdcpRrcType = "LtePdcpRrcUe";
         LteMacType = default("LteMacUeRealistic");
         LtePhyType = "LtePhyUe";
+        d2dCapable = false;
 
     submodules:
         // Feedback generator submodule
@@ -144,6 +145,7 @@ module LteNicUeD2D extends LteNicBase
         LtePdcpRrcType = "LtePdcpRrcUeD2D";
         LteMacType = default("LteMacUeRealisticD2D");
         LtePhyType = "LtePhyUeD2D";
+        d2dCapable = true;
 
         string d2dPeerAddresses = default("");  // list of D2D peer UEs, separated by blank spaces
 
@@ -163,6 +165,7 @@ module LteNicEnb extends LteNicBase
         LtePdcpRrcType = "LtePdcpRrcEnb";
         LteMacType = default("LteMacEnbRealistic");
         LtePhyType = "LtePhyEnb";
+        d2dCapable = false;
         bool compEnabled = default(false);
         string LteCompManagerType = default("LteCompManagerProportional");
 
@@ -191,10 +194,11 @@ module LteNicEnb extends LteNicBase
         handoverManager.x2ManagerIn <-- x2Manager.dataPort$o++;
         handoverManager.x2ManagerOut --> x2Manager.dataPort$i++;
 
-        //# connections between X2 Manager and GTP (for handover)
-        x2$i[0] --> x2Manager.x2Gtp$i;
-        x2$o[0] <-- x2Manager.x2Gtp$o;
-
+		if( sizeof(x2) > 0 ){
+            //# connections between X2 Manager and GTP (for handover)
+            x2$i[0] --> x2Manager.x2Gtp$i;
+            x2$o[0] <-- x2Manager.x2Gtp$o;
+		}
         //# connections between X2 Manager and the outer world
         for i=1..sizeof(x2)-1 {
             x2$i[i] --> x2Manager.x2$i++;
@@ -211,10 +215,11 @@ module LteNicEnbD2D extends LteNicBase
         LtePdcpRrcType = "LtePdcpRrcEnbD2D";
         LteMacType = default("LteMacEnbRealisticD2D");
         LtePhyType = "LtePhyEnbD2D";
+        d2dCapable = true;
         bool compEnabled = default(false);
         string LteCompManagerType = default("LteCompManagerProportional");
         string d2dModeSelectionType = default("D2DModeSelectionBase");
-
+        
     submodules:
         //#
         //# X2 manager
@@ -243,10 +248,11 @@ module LteNicEnbD2D extends LteNicBase
         handoverManager.x2ManagerIn <-- x2Manager.dataPort$o++;
         handoverManager.x2ManagerOut --> x2Manager.dataPort$i++;
 
-        //# connections between X2 Manager and GTP (for handover)
-        x2$i[0] --> x2Manager.x2Gtp$i;
-        x2$o[0] <-- x2Manager.x2Gtp$o;
-
+		if( sizeof(x2) > 0 ){
+        	//# connections between X2 Manager and GTP (for handover)
+        	x2$i[0] --> x2Manager.x2Gtp$i;
+        	x2$o[0] <-- x2Manager.x2Gtp$o;
+		}
         //# connections between X2 Manager and the outer world
         for i=1..sizeof(x2)-1 {
             x2$i[i] --> x2Manager.x2$i++;
@@ -261,6 +267,7 @@ module LteNicRelay extends LteNicBase
 {
     parameters:
         LtePhyType = "LtePhyRelay";
+        d2dCapable = false;
 
     submodules:
         // Feedback generator submodule

@@ -19,18 +19,18 @@ Define_Module(TrafficFlowFilter);
 void TrafficFlowFilter::initialize(int stage)
 {
     // wait until all the IP addresses are configured
-    if (stage != inet::INITSTAGE_NETWORK_LAYER)
-        return;
+    if (stage == inet::INITSTAGE_TRANSPORT_LAYER)
+    {
+        // reading and setting owner type
+        ownerType_ = selectOwnerType(par("ownerType"));
 
-    // reading and setting owner type
-    ownerType_ = selectOwnerType(par("ownerType"));
-
-    //============= Reading XML files =============
-    const char *filename = par("filterFileName");
-    if (filename == NULL || (!strcmp(filename, "")))
-        error("TrafficFlowFilter::initialize - Error reading configuration from file %s", filename);
-    loadFilterTable(filename);
-    //=============================================
+        //============= Reading XML files =============
+        const char *filename = par("filterFileName");
+        if (filename == NULL || (!strcmp(filename, "")))
+            error("TrafficFlowFilter::initialize - Error reading configuration from file %s", filename);
+        loadFilterTable(filename);
+        //=============================================
+    }
 }
 
 EpcNodeType TrafficFlowFilter::selectOwnerType(const char * type)
