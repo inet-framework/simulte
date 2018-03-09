@@ -27,7 +27,7 @@ simple LteDeployer {
         double speed @unit(mps) = default(0mps);
         
         // position update interval for CircleMobility and ConstSpeedMobility
-        double positionUpdateInterval @unit(s) = default(1s);
+        double positionUpdateInterval @unit(s) = default(0.001s);
           
         // broadcast messages interval (used for handover or das)
         double broadcastMessageInterval @unit(s) = default(1s);

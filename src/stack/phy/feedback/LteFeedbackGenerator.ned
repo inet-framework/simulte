@@ -23,13 +23,13 @@ simple LteDlFeedbackGenerator {
         string feedbackType = default("ALLBANDS");
                 
         // resource allocation type ("distributed" or "localized")
-        string rbAllocationType = default("distributed");    
+        string rbAllocationType = default("localized");    
         
         // period for Periodic feedback in TTI
         int fbPeriod = default(6);         
         
         // time interval between sensing and transmission in TTI
-        int fbDelay  = default(4);         
+        int fbDelay  = default(1);         
         
         // true if we want to use also periodic feedback
         bool usePeriodic = default(true);  

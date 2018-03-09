@@ -48,7 +48,7 @@ network eutran_epcNetwork
         binder: LteBinder {
             @display("p=310,25;is=s");
         }
-        eNodeB: eNBpp {
+        eNB: eNBpp {
             @display("p=54,291;is=vl");
         }
         ue[numUe]: Ue {
@@ -74,7 +74,7 @@ network eutran_epcNetwork
             @display("p=300,291");
         }
     connections:
-        router1.pppg++ <--> networkConnection <--> eNodeB.ppp;
+        router1.pppg++ <--> networkConnection <--> eNB.ppp;
         InternetHost.ethg++ <--> networkConnection <--> router3.ethg++;
 
         pgwStandard.pppg++ <--> networkConnection <--> router.pppg++;

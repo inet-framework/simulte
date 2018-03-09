@@ -46,7 +46,7 @@ simple LteMacBase like LteMac {
                 
         //# H-ARQ
         int harqProcesses = default(8);
-        int maxHarqRtx = default(4);
+        int maxHarqRtx = default(3);
          
         //#
         //# Statistic recording: end2end delay and throughput at the mac layer
@@ -248,14 +248,14 @@ simple LteMacEnb extends LteMacBase {
         //# AMC Parameters
         //#
         
-        // AMC Mode:  "auto", "piloted", "multi", "das"
+        // AMC Mode:  "auto", "piloted", "multi", "das", "D2D"
         string amcMode = default("AUTO");
         
         //Min disance used to pair two MuMimo UE
         int muMimoMinDistance =default(50);
         
         // resource allocation type ("distributed" or "localized")
-        string rbAllocationType = default("distributed");
+        string rbAllocationType = default("localized");
 
         // summary feedback confidence function lower bound
         double summaryLowerBound @unit(s) = default(5ms);
