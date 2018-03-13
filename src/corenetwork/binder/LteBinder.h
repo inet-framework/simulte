@@ -62,11 +62,6 @@ class LteBinder : public cSimpleModule
 
     MacNodeId macNodeIdCounter_[3]; // MacNodeId Counter
     DeployedUesMap dMap_; // DeployedUes --> Master Mapping
-    QCIParameters QCIParam_[LTE_QCI_CLASSES];
-
-    bool nodesConfigured_; // signals whether nodes have been configured from scenario.
-
-    std::string increment_address(const char* address_string); //TODO unused function
 
     /*
      * X2 Support
@@ -104,40 +99,6 @@ class LteBinder : public cSimpleModule
     virtual void handleMessage(cMessage *msg)
     {
     }
-    /**
-     * Attaches the application module to a UE module.
-     * At the moment only works with UDP
-     *
-     * @param parentModule module to which attach application
-     * @param mobType application module type
-     * @param counter app index in UL direction. Always -1 in DL
-     */
-    void attachAppModule(cModule *parentModule, std::string IPAddr,
-        cXMLAttributeMap attr, int counter);
-
-    /*
-     * connects the application module gates to the transport layer of
-     * given <parentModule>
-     * @param parentModule module to which transport layer connect application gates
-     * @param appModule  the application module to be connected
-     * @param transport the transport type : <udp|tcp>
-     */
-    void transportAppAttach(cModule* parentModule, cModule* appModule, std::string transport);
-
-    /*
-     * Set the appropriate port for the UL application.
-     * In uplink the receiver is always the eNb, thus there is only one ip dest address.
-     * We use the port number to differentiate between the various application
-     *
-     * This function will be called only for application that operates in the uplink direction
-     *
-     * @param module module to wich set the port
-     * @param counter offset to add to the basePort
-     *
-     */
-    void setTransportAppPort(cModule* module, unsigned int counter, cXMLAttributeMap attr);
-
-    void parseParam(cModule* module, cXMLAttributeMap attr);
 
   public:
     LteBinder()
@@ -159,17 +120,6 @@ class LteBinder : public cSimpleModule
             enbList_.pop_back();
         }
     }
-    int getQCIPriority(int);
-    double getPacketDelayBudget(int);
-    double getPacketErrorLossRate(int);
-
-    /**
-     * eNodeB creation.
-     *
-     * Dynamically creates an eNodeB node, set its parameters, registers it to the binder
-     * and initializes its channels.
-     */
-    cModule* createNodeB(EnbType type);
 
     /**
      * Registers a node to the global LteBinder module.
