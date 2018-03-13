@@ -28,6 +28,8 @@ class LteFeedbackComputationRealistic : public LteFeedbackComputation
     //pointer to pisadata
     PhyPisaData* phyPisaData_;
 
+    std::vector<double> baseMin_;
+
   protected:
     // Rank computation
     unsigned int computeRank(MacNodeId id);
