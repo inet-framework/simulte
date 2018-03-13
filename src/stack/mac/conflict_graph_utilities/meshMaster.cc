@@ -184,7 +184,7 @@ double MeshMaster::computeReceivedPower(MacNodeId receiver_nodeId,MacNodeId tran
     // Get the Real Channel reference of the transmitter
     LteRealisticChannelModel* transmitter_realChan = dynamic_cast<LteRealisticChannelModel *>(transmitter_ltePhy->getChannelModel());
     // Get the receiver's position
-    Coord receiver_coord = mac_->getDeployer()->getUePosition(receiver_nodeId);
+    Coord receiver_coord = mac_->getCellInfo()->getUePosition(receiver_nodeId);
     // Compute attenuation using data structures within the Macro Cell.
     double att = transmitter_realChan->getAttenuation(receiver_nodeId,UL,receiver_coord); // TODO: check if the attenuation is right
     double txPwr = TxPower - cableLoss_ + antennaGainUe_;

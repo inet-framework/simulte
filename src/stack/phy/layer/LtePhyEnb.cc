@@ -50,9 +50,9 @@ void LtePhyEnb::initialize(int stage)
         std::cout << "Local MacNodeId: " << nodeId_ << endl;
 
         nodeType_ = ENODEB;
-        deployer_ = getDeployer(nodeId_);
-        deployer_->channelUpdate(nodeId_, intuniform(1, binder_->phyPisaData.maxChannel2()));
-        das_ = new DasFilter(this, binder_, deployer_->getRemoteAntennaSet(), 0);
+        cellInfo_ = getCellInfo(nodeId_);
+        cellInfo_->channelUpdate(nodeId_, intuniform(1, binder_->phyPisaData.maxChannel2()));
+        das_ = new DasFilter(this, binder_, cellInfo_->getRemoteAntennaSet(), 0);
 
         WATCH(nodeType_);
         WATCH(das_);
@@ -62,7 +62,7 @@ void LtePhyEnb::initialize(int stage)
         initializeFeedbackComputation(par("feedbackComputation").xmlValue());
 
         //check eNb type and set TX power
-        if (deployer_->getEnbType() == MICRO_ENB)
+        if (cellInfo_->getEnbType() == MICRO_ENB)
             txPower_ = microTxPower_;
         else
             txPower_ = eNodeBtxPower_;
@@ -81,7 +81,7 @@ void LtePhyEnb::initialize(int stage)
             txAngle_ = par("txAngle");
         }
 
-        bdcUpdateInterval_ = deployer_->par("broadcastMessageInterval");
+        bdcUpdateInterval_ = cellInfo_->par("broadcastMessageInterval");
         if (bdcUpdateInterval_ != 0 && par("enableHandover").boolValue()) {
             // self message provoking the generation of a broadcast message
             bdcStarter_ = new cMessage("bdcStarter");
@@ -252,7 +252,7 @@ void LtePhyEnb::requestFeedback(UserControlInfo* lteinfo, LteAirFrame* frame,
     EV << NOW << " LtePhyEnb::requestFeedback " << endl;
     //get UE Position
     Coord sendersPos = lteinfo->getCoord();
-    deployer_->setUePosition(lteinfo->getSourceId(), sendersPos);
+    cellInfo_->setUePosition(lteinfo->getSourceId(), sendersPos);
 
     //Apply analog model (pathloss)
     //Get snr for UL direction
@@ -261,12 +261,12 @@ void LtePhyEnb::requestFeedback(UserControlInfo* lteinfo, LteAirFrame* frame,
     //Feedback computation
     fb_.clear();
     //get number of RU
-    int nRus = deployer_->getNumRus();
+    int nRus = cellInfo_->getNumRus();
     TxMode txmode = req.txMode;
     FeedbackType type = req.type;
     RbAllocationType rbtype = req.rbAllocationType;
-    std::map<Remote, int> antennaCws = deployer_->getAntennaCws();
-    unsigned int numPreferredBand = deployer_->getNumPreferredBands();
+    std::map<Remote, int> antennaCws = cellInfo_->getAntennaCws();
+    unsigned int numPreferredBand = cellInfo_->getNumPreferredBands();
     for (Direction dir = UL; dir != UNKNOWN_DIRECTION;
         dir = ((dir == UL )? DL : UNKNOWN_DIRECTION))
     {
@@ -409,8 +409,8 @@ LteFeedbackComputation* LtePhyEnb::getFeedbackComputationFromName(
             lambdaRatioTh = params["lambdaRatioTh"].doubleValue();
         }
         LteFeedbackComputation* fbcomp = new LteFeedbackComputationRealistic(
-            targetBler, deployer_->getLambda(), lambdaMinTh, lambdaMaxTh,
-            lambdaRatioTh, deployer_->getNumBands());
+            targetBler, cellInfo_->getLambda(), lambdaMinTh, lambdaMaxTh,
+            lambdaRatioTh, cellInfo_->getNumBands());
         return fbcomp;
     }
     else

@@ -10,8 +10,8 @@
 #ifndef _LTE_LTEMACENB_H_
 #define _LTE_LTEMACENB_H_
 
+#include "corenetwork/lteCellInfo/LteCellInfo.h"
 #include "stack/mac/layer/LteMacBase.h"
-#include "corenetwork/deployer/LteDeployer.h"
 #include "stack/mac/amc/LteAmc.h"
 #include "common/LteCommon.h"
 #include "stack/mac/conflict_graph_utilities/meshMaster.h"
@@ -24,8 +24,8 @@ class MeshMaster;
 class LteMacEnb : public LteMacBase
 {
   protected:
-    /// Local LteDeployer
-    LteDeployer *deployer_;
+    /// Local LteCellInfo
+    LteCellInfo *cellInfo_;
 
     /// Lte AMC module
     LteAmc *amc_;
@@ -185,9 +185,9 @@ class LteMacEnb : public LteMacBase
     }
 
     /**
-     * Getter for Deployer.
+     * Getter for cellInfo.
      */
-    virtual LteDeployer* getDeployer();
+    virtual LteCellInfo* getCellInfo();
 
     /**
      * Returns the number of system antennas (MACRO included)

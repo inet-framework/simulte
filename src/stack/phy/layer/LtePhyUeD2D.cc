@@ -504,8 +504,8 @@ void LtePhyUeD2D::sendFeedback(LteFeedbackDoubleVector fbDl, LteFeedbackDoubleVe
     frame->setControlInfo(uinfo);
     //TODO access speed data Update channel index
 //    if (coherenceTime(move.getSpeed())<(NOW-lastFeedback_)){
-//        deployer_->channelIncrease(nodeId_);
-//        deployer_->lambdaIncrease(nodeId_,1);
+//        cellInfo_->channelIncrease(nodeId_);
+//        cellInfo_->lambdaIncrease(nodeId_,1);
 //    }
     lastFeedback_ = NOW;
     EV << "LtePhy: " << nodeTypeToA(nodeType_) << " with id "

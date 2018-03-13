@@ -17,7 +17,7 @@ class LteAmc;
 class LteMacRelayEnb : public LteMacEnb
 {
   protected:
-    virtual LteDeployer* getDeployer();
+    virtual LteCellInfo* getCellInfo();
     virtual int getNumAntennas();
 
   public:

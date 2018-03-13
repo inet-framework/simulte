@@ -34,7 +34,7 @@ void LtePhyEnbD2D::requestFeedback(UserControlInfo* lteinfo, LteAirFrame* frame,
     EV << NOW << " LtePhyEnbD2D::requestFeedback " << endl;
     //get UE Position
     Coord sendersPos = lteinfo->getCoord();
-    deployer_->setUePosition(lteinfo->getSourceId(), sendersPos);
+    cellInfo_->setUePosition(lteinfo->getSourceId(), sendersPos);
 
     //Apply analog model (pathloss)
     //Get snr for UL direction
@@ -43,12 +43,12 @@ void LtePhyEnbD2D::requestFeedback(UserControlInfo* lteinfo, LteAirFrame* frame,
     //Feedback computation
     fb_.clear();
     //get number of RU
-    int nRus = deployer_->getNumRus();
+    int nRus = cellInfo_->getNumRus();
     TxMode txmode = req.txMode;
     FeedbackType type = req.type;
     RbAllocationType rbtype = req.rbAllocationType;
-    std::map<Remote, int> antennaCws = deployer_->getAntennaCws();
-    unsigned int numPreferredBand = deployer_->getNumPreferredBands();
+    std::map<Remote, int> antennaCws = cellInfo_->getAntennaCws();
+    unsigned int numPreferredBand = cellInfo_->getNumPreferredBands();
     Direction dir = UL;
     while (dir != UNKNOWN_DIRECTION)
     {

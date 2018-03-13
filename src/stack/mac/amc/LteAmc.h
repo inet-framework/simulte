@@ -11,18 +11,18 @@
 #define _LTE_LTEAMC_H_
 
 #include <omnetpp.h>
+
+#include "corenetwork/lteCellInfo/LteCellInfo.h"
 #include "stack/phy/feedback/LteFeedback.h"
-//#include "common/LteCommon.h"
 #include "stack/mac/amc/AmcPilot.h"
 #include "stack/mac/amc/LteMcs.h"
 #include "stack/mac/amc/UserTxParams.h"
 #include "corenetwork/binder/LteBinder.h"
-#include "corenetwork/deployer/LteDeployer.h"
 
 /// Forward declaration of AmcPilot class, used by LteAmc.
 class AmcPilot;
-/// Forward declaration of LteDeployer class, used by LteAmc.
-class LteDeployer;
+/// Forward declaration of LteCellInfo class, used by LteAmc.
+class LteCellInfo;
 /// Forward declaration of LteMacEnb class, used by LteAmc.
 class LteMacEnb;
 
@@ -45,7 +45,7 @@ class LteAmc
     protected:
     LteMacEnb *mac_;
     LteBinder *binder_;
-    LteDeployer *deployer_;
+    LteCellInfo *cellInfo_;
     AmcPilot *pilot_;
     RbAllocationType allocationType_;
     int numBands_;
@@ -89,7 +89,7 @@ class LteAmc
     LteMuMimoMatrix muMimoUlMatrix_;
     LteMuMimoMatrix muMimoD2DMatrix_;
     public:
-    LteAmc(LteMacEnb *mac, LteBinder *binder, LteDeployer *deployer, int numAntennas);
+    LteAmc(LteMacEnb *mac, LteBinder *binder, LteCellInfo *cellInfo, int numAntennas);
     void initialize();
     ~LteAmc();
     void sefType(int f)
@@ -177,7 +177,7 @@ class LteAmc
 
     inet::Coord getUePosition(MacNodeId id)
     {
-        return deployer_->getUePosition(id);
+        return cellInfo_->getUePosition(id);
     }
 
     void muMimoMatrixInit(Direction dir, MacNodeId nodeId)

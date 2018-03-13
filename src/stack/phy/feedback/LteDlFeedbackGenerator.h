@@ -11,8 +11,9 @@
 #define _LTE_LTEDLFBGENERATOR_H_
 
 #include <omnetpp.h>
+
+#include "../../../corenetwork/lteCellInfo/LteCellInfo.h"
 #include "common/LteCommon.h"
-#include "corenetwork/deployer/LteDeployer.h"
 #include "stack/phy/das/DasFilter.h"
 #include "stack/phy/feedback/LteFeedback.h"
 #include "common/timer/TTimer.h"
@@ -52,9 +53,9 @@ class LteDlFeedbackGenerator : public cSimpleModule
     TxMode currentTxMode_;  /// transmission mode to use in feedback generation
 
     DasFilter *dasFilter_;  /// reference to das filter
-    LteDeployer *deployer_; /// reference to deployer
+    LteCellInfo *cellInfo_; /// reference to cellInfo
 
-    // Deployer parameters
+    // cellInfo parameters
     std::map<Remote, int> antennaCws_; /// number of antenna per remote
     int numPreferredBands_;           /// number of preferred bands to use (meaningful only in PREFERRED mode)
     int numBands_;                      /// number of cell bands
@@ -139,7 +140,7 @@ class LteDlFeedbackGenerator : public cSimpleModule
 
     /*
      * Perform handover-related operations
-     * Update cell id and the reference to the deployer
+     * Update cell id and the reference to the cellInfo
      */
     void handleHandover(MacCellId newEnbId);
 };

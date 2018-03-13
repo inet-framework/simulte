@@ -8,6 +8,8 @@
 //
 
 #include "stack/mac/layer/LteMacUeD2D.h"
+
+#include "corenetwork/lteCellInfo/LteCellInfo.h"
 #include "stack/mac/buffer/LteMacQueue.h"
 #include "stack/mac/packet/LteSchedulingGrant.h"
 #include "stack/mac/buffer/LteMacBuffer.h"
@@ -15,7 +17,6 @@
 #include "stack/mac/scheduler/LteSchedulerUeUl.h"
 #include "stack/mac/buffer/harq/LteHarqBufferRx.h"
 #include "stack/mac/buffer/harq_d2d/LteHarqBufferRxD2DMirror.h"
-#include "corenetwork/deployer/LteDeployer.h"
 #include "stack/d2dModeSelection/D2DModeSwitchNotification_m.h"
 #include "stack/mac/packet/LteRac_m.h"
 
@@ -69,7 +70,7 @@ UserTxParams* LteMacUeD2D::getPreconfiguredTxParams()
     txParams->writeCqi(std::vector<Cqi>(1,cqi));
 
     BandSet b;
-    for (Band i = 0; i < getDeployer(nodeId_)->getNumBands(); ++i) b.insert(i);
+    for (Band i = 0; i < getCellInfo(nodeId_)->getNumBands(); ++i) b.insert(i);
 
     RemoteSet antennas;
     antennas.insert(MACRO);

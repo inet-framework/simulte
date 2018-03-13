@@ -8,12 +8,13 @@
 // 
 
 
-package lte.corenetwork.deployer;
+package lte.corenetwork.lteCellInfo;
 
-simple LteDeployer {
+simple LteCellInfo {
     parameters:
         @display("i=block/control");
             
+        @class("LteCellInfo");
         //#
         //# General properties
         //#
@@ -38,7 +39,6 @@ simple LteDeployer {
         //#
         //# Remote Units (DAS)
         //#
-        
         // number of remote Units
         int numRus = default(0);
         

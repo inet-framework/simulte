@@ -9,8 +9,9 @@
 
 #include "inet/networklayer/ipv4/IPv4InterfaceData.h"
 #include "corenetwork/lteip/LteIp.h"
+
+#include "../lteCellInfo/LteCellInfo.h"
 #include "corenetwork/binder/LteBinder.h"
-#include "corenetwork/deployer/LteDeployer.h"
 #include "inet/common/ModuleAccess.h"
 
 Define_Module(LteIp);
@@ -36,8 +37,6 @@ void LteIp::initialize()
     {
         cModule *enodeb = getParentModule();
         MacNodeId cellId = getBinder()->registerNode(enodeb, nodeType_);
-        LteDeployer * deployer = check_and_cast<LteDeployer*>(enodeb->getSubmodule("deployer"));
-        getBinder()->registerDeployer(deployer, cellId);
     }
 
     WATCH(numForwarded_);

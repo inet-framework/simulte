@@ -30,11 +30,10 @@ void LtePhyRelay::initialize(int stage)
     else if (stage == 1)
     {
         LtePhyBase::initialize(stage);
-        // deployer is on DeNB
         txPower_ = relayTxPower_;
         OmnetId masterOmnetId = binder_->getOmnetId(masterId_);
         bdcUpdateInterval_ = getSimulation()->getModule(masterOmnetId)->
-        getSubmodule("deployer")->
+        getSubmodule("cellInfo")->
         par("positionUpdateInterval");
         // TODO: add a parameter not to generate broadcasts (no handovers scenario)
         // e.g.: if (bdcUpdateInterval_ != 0 && !!doHandovers)

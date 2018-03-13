@@ -58,7 +58,7 @@ LteSchedulerEnbDl::schedulePerAcidRtx(MacNodeId nodeId, Codeword cw, unsigned ch
         // Create a vector of band limit using all bands
         bandLim = &tempBandLim;
 
-        unsigned int numBands = mac_->getDeployer()->getNumBands();
+        unsigned int numBands = mac_->getCellInfo()->getNumBands();
         // for each band of the band vector provided
         for (unsigned int i = 0; i < numBands; i++)
         {

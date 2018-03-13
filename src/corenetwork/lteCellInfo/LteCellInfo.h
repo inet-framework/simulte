@@ -7,8 +7,8 @@
 // and cannot be removed from it.
 //
 
-#ifndef _LTE_LTEDEPLOYER_H_
-#define _LTE_LTEDEPLOYER_H_
+#ifndef _LTE_LTECELLINFO_H_
+#define _LTE_LTECELLINFO_H_
 
 #include <string.h>
 #include <omnetpp.h>
@@ -21,17 +21,10 @@
 class DasFilter;
 
 /**
- * @class LteDeployer
- * @brief Lte network elements dynamic deployer. There is one deplayer for each eNB (thus one for each cell)
- *
- *
- * eNB module which can dynamically create UEs and relays
- * and can deploy them into the playground.
- *
- * Keeps general information about the cell
+ * @class LteCellInfo
+ * @brief There is one LteCellInfo module for each eNB (thus one for each cell). Keeps cross-layer information about the cell
  */
-// TODO move all the parameters to their own modules
-class LteDeployer : public cSimpleModule
+class LteCellInfo : public cSimpleModule
 {
   private:
     /// reference to the global module binder
@@ -42,22 +35,8 @@ class LteDeployer : public cSimpleModule
     /// Cell Id
     MacCellId cellId_;
 
-    //------------- INTERCELL INTERFERENCE SUPPORT ------------------
-    /*
-     * reference to macro Enb. Used for interference computation purposes.
-     * NULL if this is a macro node,
-     */
-    EnbInfo *refEnb_;
-
-    /*
-     * list of micro eNbs within a cell.
-     * empty if this is a micro node
-     */
-    std::vector<EnbInfo*> microList_;
-
     // MACRO_ENB or MICRO_ENB
     EnbType eNbType_;
-    //---------------------------------------------------------------
 
     /// x playground lower bound
     double pgnMinX_;
@@ -75,11 +54,6 @@ class LteDeployer : public cSimpleModule
     double nodeY_;
     /// z eNB position
     double nodeZ_;
-
-    /// number fo relays attached to eNB
-    int numRelays_;
-    /// relay distance from eNB
-    int relayDistance_;
 
     /// Number of DAS RU
     int numRus_;
@@ -131,9 +105,9 @@ class LteDeployer : public cSimpleModule
     /**
      * Deploys remote antennas.
      *
-     * This is a virtual deployment: the deployer needs only to inform
+     * This is a virtual deployment: the cellInfo needs only to inform
      * the eNB nic module about the position of the deployed antennas and
-     * their TX power. These parameters are configured via the deployer, but
+     * their TX power. These parameters are configured via the cellInfo, but
      * no NED module is created here.
      *
      * @param nodeX x coordinate of the center of the master node
@@ -147,20 +121,6 @@ class LteDeployer : public cSimpleModule
         double signalCarriers = 0, Direction dir = DL);
 
   private:
-
-    /**
-     * Relay creation.
-     *
-     * Dinamically creates a relay node, set its parameters, registers it to the binder
-     * and initializes its channels.
-     *
-     * @param x x coordinate of the center of the master node
-     * @param y y coordinate of the center of the master node
-     * @param nUes number of UEs attached to this relay
-     * @return relay macNodeId assigned by the binder
-     */
-    uint16_t createRelayAt(double x, double y);
-
     /**
      * Calculates node position around a circumference.
      *
@@ -173,79 +133,16 @@ class LteDeployer : public cSimpleModule
      * @param[out] xPos calculated x coordinate
      * @param[out] yPos calculated y coordinate
      */
+    // Used by remote Units only
     void calculateNodePosition(double centerX, double centerY, int nTh,
         int totalNodes, int range, double startingAngle, double *xPos,
         double *yPos);
 
-    /**
-     * UE creation.
-     *
-     * Dynamically creates a UE node, set its parameters, registers it to the binder,
-     * initializes its channels and adds the mobility module.
-     *
-     * @param x x coordinate of the UE
-     * @param y y coordinate of the UE
-     * @param mobType mobility module to be used for this user, configured via NED string between
-     *        3 values: static, circular, linear
-     * @param appType is the application type configured via NED. At the
-     *        moment only available are: UDPBasicApp, UDPSink
-     * @param centerX x coordinate of the UE
-     * @param centerY y coordinate of the UE
-     * @param masterId ID of the master node
-     */
-    cModule* createUeAt(double x, double y, std::string mobType, double centerX,
-        double centerY, MacNodeId masterId, double speed);
-
-    /**
-     * Attaches the mobility module to a UE module.
-     *
-     * @param parentModule module to which attach mobility
-     * @param mobType mobility module type
-     * @param x UE's position
-     * @param y UE's position
-     * @param centerX x center position (used for circle mobility)
-     * @param centerY y center position (used for circle mobility)
-     */
-    void attachMobilityModule(cModule *parentModule, std::string mobType,
-        double x, double y, double centerX, double centerY, double speed);
-
     void createAntennaCwMap();
 
   public:
-    /**
-     * All of the deployer operations are performed in pre-initialization
-     */
-    virtual void preInitialize();
 
-    LteDeployer();
-
-    /**
-     * Relay deployment.
-     *
-     * It deploys numRelays_ relays (ned parameter),
-     * each one with a number of associated UEs read from relayUes string ned parameter.
-     * Relays are deployed at a relayDistance_ distance from eNB (ned parameter),
-     * and are equally spaced over the circumference perimeter.
-     */
-    virtual int deployRelays(double startAngle, int i, int num, double *xPos,
-        double *yPos);
-
-    /**
-     * Deploys UEs around a given center.
-     *
-     * @param centerX x coordinate of the center of the master node
-     * @param centerY y coordinate of the center of the master node
-     * @param nUes number of UEs to be deployed
-     * @param mobType mobility module to be used for this user, configured via NED string between
-     *        3 values: static, circular, linear
-     * @param appType is the application type configured via NED. At the
-     *        moment only availables are: UDPBasicApp, UDPSink
-     * @param range distance between center and UEs
-     * @param masterId MacNodeId of the master of this UE
-     */
-    virtual cModule* deployUes(double centerX, double centerY, int Ue,
-        int totalNumOfUes, std::string mobType, int range,
-        uint16_t masterId, double speed);
+    LteCellInfo();
 
     // Getters
     int getNumRbDl()
@@ -304,12 +201,6 @@ class LteDeployer : public cSimpleModule
     {
         return numRus_;
     }
-
-    MacCellId getCellId()
-    {
-        return cellId_;
-    }
-
     std::map<Remote, int> getAntennaCws()
     {
         return antennaCws_;
@@ -324,16 +215,17 @@ class LteDeployer : public cSimpleModule
     {
         return ruSet_;
     }
-//MODIFICATO
-    double getNodeX()
+
+    void setEnbType(EnbType t)
     {
-        return nodeX_;
+        eNbType_ = t;
     }
 
-    double getNodeY()
+    EnbType getEnbType()
     {
-        return nodeY_;
+        return eNbType_;
     }
+
     inet::Coord getUePosition(MacNodeId id)
     {
         return uePosition[id];
@@ -341,13 +233,6 @@ class LteDeployer : public cSimpleModule
     void setUePosition(MacNodeId id, inet::Coord c)
     {
         uePosition[id] = c;
-    }
-
-    // changes eNb position (used for micro deployment)
-    void setEnbPosition(inet::Coord c)
-    {
-        nodeX_ = c.x;
-        nodeY_ = c.y;
     }
 
     void lambdaUpdate(MacNodeId id, unsigned int index)
@@ -387,63 +272,12 @@ class LteDeployer : public cSimpleModule
     {
         return &lambdaMap_;
     }
-
-    //------------- INTERCELL INTERFERENCE SUPPORT ------------------
-    bool setMacroNode(MacNodeId id, cModule * eNodeB)
-    {
-        refEnb_ = new EnbInfo();
-        refEnb_->id = id;            // cell ID
-        refEnb_->type = MACRO_ENB;    // eNb Type
-        refEnb_->init = false;        // flag for phy initialization
-
-        refEnb_->eNodeB = eNodeB;    // reference to the Macro Node
-        refEnb_->x2 = eNodeB->findGate("x2");    // gate for X2 communications
-
-        // TODO add node type check
-        return true;
-    }
-
-    EnbInfo * getMacroNode()
-    {
-        return refEnb_;
-    }
-
-    bool addMicroNode(MacNodeId id, cModule * eNodeB)
-    {
-        EnbInfo * elem = new EnbInfo();
-        elem->id = id;             // cell ID
-        elem->type = MICRO_ENB;    // eNb Type
-        elem->init = false;        // flag for phy initialization
-
-        elem->eNodeB = eNodeB;     // reference to the Micro Node
-        elem->x2 = eNodeB->findGate("x2"); // gate for X2 communications
-
-        microList_.push_back(elem);
-
-        // TODO add node type check
-        return true;
-    }
-
-    void setEnbType(EnbType t)
-    {
-        eNbType_ = t;
-    }
-
-    EnbType getEnbType()
-    {
-        return eNbType_;
-    }
-
-    std::vector<EnbInfo*> * getMicroList()
-    {
-        return &microList_;
-    }
     //---------------------------------------------------------------
 
     void detachUser(MacNodeId nodeId);
     void attachUser(MacNodeId nodeId);
 
-    ~LteDeployer();
+    ~LteCellInfo();
 };
 
 #endif

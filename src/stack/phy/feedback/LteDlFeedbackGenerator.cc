@@ -40,7 +40,7 @@ void LteDlFeedbackGenerator::createFeedback(FbPeriodicity per)
     fb->clear();
     //Feedback computation
     //get number of RU
-    int nRus = deployer_->getNumRus();
+    int nRus = cellInfo_->getNumRus();
     std::vector<double> dummy;
     EV << NOW << " LteDlFeedbackGenerator::createFeedback " << fbGeneratorTypeToA(generatorType_)
        << " Feedback " << endl;
@@ -138,14 +138,14 @@ void LteDlFeedbackGenerator::initialize(int stage)
     {
         EV << "DLFeedbackGenerator Stage " << stage << " nodeid: " << nodeId_
            << " init" << endl;
-        deployer_ = getDeployer(masterId_);
+        cellInfo_ = getCellInfo(masterId_);
         EV << "DLFeedbackGenerator Stage " << stage << " nodeid: " << nodeId_
-           << " deployer taken" << endl;
-        antennaCws_ = deployer_->getAntennaCws();
-        numBands_ = deployer_->getNumBands();
-        numPreferredBands_ = deployer_->getNumPreferredBands();
+           << " cellInfo taken" << endl;
+        antennaCws_ = cellInfo_->getAntennaCws();
+        numBands_ = cellInfo_->getNumBands();
+        numPreferredBands_ = cellInfo_->getNumPreferredBands();
         EV << "DLFeedbackGenerator Stage " << stage << " nodeid: " << nodeId_
-           << " used deployer: bands " << numBands_ << " preferred bands "
+           << " used cellInfo: bands " << numBands_ << " preferred bands "
            << numPreferredBands_ << endl;
         LtePhyUe* tmp = dynamic_cast<LtePhyUe*>(getParentModule()->getSubmodule(
                 "phy"));
@@ -406,7 +406,7 @@ void LteDlFeedbackGenerator::initializeFeedbackComputation(
 void LteDlFeedbackGenerator::handleHandover(MacCellId newEnbId)
 {
     masterId_ = newEnbId;
-    deployer_ = getDeployer(masterId_);
+    cellInfo_ = getCellInfo(masterId_);
 
     EV << NOW << " LteDlFeedbackGenerator::handleHandover - Master ID updated to " << masterId_ << endl;
 }

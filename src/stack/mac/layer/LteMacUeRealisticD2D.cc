@@ -780,7 +780,7 @@ UserTxParams* LteMacUeRealisticD2D::getPreconfiguredTxParams()
     txParams->writeCqi(std::vector<Cqi>(1,cqi));
 
     BandSet b;
-    for (Band i = 0; i < getDeployer(nodeId_)->getNumBands(); ++i) b.insert(i);
+    for (Band i = 0; i < getCellInfo(nodeId_)->getNumBands(); ++i) b.insert(i);
 
     RemoteSet antennas;
     antennas.insert(MACRO);

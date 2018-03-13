@@ -23,7 +23,7 @@ void LteCompManagerBase::initialize()
     mac_ = check_and_cast<LteMacEnb*>(getParentModule()->getSubmodule("mac"));
 
     // get the number of available bands
-    numBands_ = mac_->getDeployer()->getNumBands();
+    numBands_ = mac_->getCellInfo()->getNumBands();
 
     const char* nodeType = par("compNodeType").stringValue();
     if (strcmp(nodeType,"COMP_CLIENT") == 0)

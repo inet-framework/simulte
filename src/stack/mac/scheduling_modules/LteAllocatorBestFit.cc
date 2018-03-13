@@ -257,7 +257,7 @@ void LteAllocatorBestFit::prepareSchedule()
         req_RBs = (vQueueFrontSize+req_Bytes1RB-1)/req_Bytes1RB;
 
         // Get the total number of bands
-        unsigned int numBands = mac_->getDeployer()->getNumBands();
+        unsigned int numBands = mac_->getCellInfo()->getNumBands();
 
         unsigned int blocks = 0;
         // Set the band counter to zero

@@ -81,7 +81,7 @@ bool LteSchedulerEnbUl::racschedule()
         EV << NOW << " LteSchedulerEnbUl::racschedule handling RAC for node " << nodeId << endl;
 
         // Get number of logical bands
-        unsigned int numBands = mac_->getDeployer()->getNumBands();
+        unsigned int numBands = mac_->getCellInfo()->getNumBands();
 
         // FIXME default behavior
         //try to allocate one block to selected UE on at least one logical band of MACRO antenna, first codeword
@@ -302,7 +302,7 @@ LteSchedulerEnbUl::schedulePerAcidRtx(MacNodeId nodeId, Codeword cw, unsigned ch
             // FIXME: bandlim is never deleted
             bandLim = new std::vector<BandLimit>();
 
-            unsigned int numBands = mac_->getDeployer()->getNumBands();
+            unsigned int numBands = mac_->getCellInfo()->getNumBands();
             // for each band of the band vector provided
             for (unsigned int i = 0; i < numBands; i++)
             {
@@ -483,7 +483,7 @@ LteSchedulerEnbUl::schedulePerAcidRtxD2D(MacNodeId destId,MacNodeId senderId, Co
             // FIXME: bandlim is never deleted
             bandLim = new std::vector<BandLimit>();
 
-            unsigned int numBands = mac_->getDeployer()->getNumBands();
+            unsigned int numBands = mac_->getCellInfo()->getNumBands();
             // for each band of the band vector provided
             for (unsigned int i = 0; i < numBands; i++)
             {

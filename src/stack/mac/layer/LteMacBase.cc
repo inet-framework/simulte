@@ -16,10 +16,11 @@
 #include "stack/mac/buffer/LteMacQueue.h"
 #include "common/LteControlInfo.h"
 #include "corenetwork/binder/LteBinder.h"
-#include "corenetwork/deployer/LteDeployer.h"
 #include "stack/mac/packet/LteHarqFeedback_m.h"
 #include "stack/mac/buffer/LteMacBuffer.h"
 #include "assert.h"
+
+#include "../../../corenetwork/lteCellInfo/LteCellInfo.h"
 
 LteMacBase::LteMacBase()
 {
@@ -374,11 +375,9 @@ void LteMacBase::handleMessage(cMessage* msg)
 
 void LteMacBase::finish()
 {
-    EV_DEBUG << "LteMacBase - finishing.";
 }
 
 void LteMacBase::deleteModule(){
-    EV_DEBUG << "LteMacBase - module deleted.";
     cancelAndDelete(ttiTick_);
     cSimpleModule::deleteModule();
 }

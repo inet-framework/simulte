@@ -8,9 +8,10 @@
 //
 
 #include "corenetwork/binder/LteBinder.h"
-#include "corenetwork/deployer/LteDeployer.h"
 #include "inet/networklayer/common/L3AddressResolver.h"
 #include <cctype>
+
+#include "../lteCellInfo/LteCellInfo.h"
 #include "corenetwork/nodes/InternetMux.h"
 
 using namespace std;
@@ -477,15 +478,7 @@ cModule* LteBinder::createNodeB(EnbType type)
         iChOut->callInitialize();
         iChIn->callInitialize();
 
-        LteDeployer * deployer = check_and_cast<LteDeployer*>(
-            enodeb->getSubmodule("deployer"));
-        registerDeployer(deployer, cellId);
-
         EV << "LteBinder::createNodeB - enbType set to " << type << endl;
-        deployer->setEnbType(type);
-
-        deployer->preInitialize();
-
         return enodeb;
     }
 
@@ -651,7 +644,7 @@ void LteBinder::unregisterNode(MacNodeId id)
 MacNodeId LteBinder::registerNode(cModule *module, LteNodeType type,
     MacNodeId masterId)
 {
-    Enter_Method("registerNode");
+    Enter_Method_Silent("registerNode");
 
     MacNodeId macNodeId = -1;
 
@@ -692,7 +685,7 @@ MacNodeId LteBinder::registerNode(cModule *module, LteNodeType type,
 
 void LteBinder::registerNextHop(MacNodeId masterId, MacNodeId slaveId)
 {
-    Enter_Method("registerNextHop");
+    Enter_Method_Silent("registerNextHop");
     EV << "LteBinder : Registering slave " << slaveId << " to master "
        << masterId << "\n";
 
@@ -761,7 +754,7 @@ double LteBinder::getPacketErrorLossRate(int QCI)
 
 void LteBinder::unregisterNextHop(MacNodeId masterId, MacNodeId slaveId)
 {
-    Enter_Method("unregisterNextHop");
+    Enter_Method_Silent("unregisterNextHop");
     EV << "LteBinder : Unregistering slave " << slaveId << " from master "
        << masterId << "\n";
     dMap_[masterId][slaveId] = false;
@@ -807,7 +800,7 @@ LteMacBase* LteBinder::getMacFromMacNodeId(MacNodeId id)
 
 MacNodeId LteBinder::getNextHop(MacNodeId slaveId)
 {
-    Enter_Method("getNextHop");
+    Enter_Method_Silent("getNextHop");
     if (slaveId >= nextHop_.size())
         throw cRuntimeError("LteBinder::getNextHop(): bad slave id %d", slaveId);
     return nextHop_[slaveId];
@@ -829,7 +822,7 @@ const char* LteBinder::getModuleNameByMacNodeId(MacNodeId nodeId)
 
 ConnectedUesMap LteBinder::getDeployedUes(MacNodeId localId, Direction dir)
 {
-    Enter_Method("getDeployedUes");
+    Enter_Method_Silent("getDeployedUes");
     return dMap_[localId];
 }
 

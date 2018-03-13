@@ -29,7 +29,7 @@ void LtePhyBase::initialize(int stage)
     if (stage == inet::INITSTAGE_LOCAL)
     {
         binder_ = getBinder();
-        deployer_ = NULL;
+        cellInfo_ = NULL;
         // get gate ids
         upperGateIn_ = findGate("upperGateIn");
         upperGateOut_ = findGate("upperGateOut");

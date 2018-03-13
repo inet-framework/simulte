@@ -94,7 +94,7 @@ void LteMacEnbRealistic::macSduRequest()
 
         // for each band, count the number of bytes allocated for this ue (dovrebbe essere per cid)
         unsigned int allocatedBytes = 0;
-        int numBands = deployer_->getNumBands();
+        int numBands = cellInfo_->getNumBands();
         for (Band b=0; b < numBands; b++)
         {
             // get the number of bytes allocated to this connection
@@ -374,9 +374,8 @@ void LteMacEnbRealistic::handleSelfMessage()
     /***************
      *  MAIN LOOP  *
      ***************/
-    EnbType nodeType = deployer_->getEnbType();
 
-    EV << "-----" << ((nodeType==MACRO_ENB)?"MACRO":"MICRO") << " ENB MAIN LOOP -----" << endl;
+    EV << "-----" << "ENB MAIN LOOP -----" << endl;
 
     /*************
      * END DEBUG
@@ -447,7 +446,7 @@ void LteMacEnbRealistic::handleSelfMessage()
     flushHarqMsg->setSchedulingPriority(1);        // after other messages
     scheduleAt(NOW, flushHarqMsg);
 
-    EV << "--- END " << ((nodeType==MACRO_ENB)?"MACRO":"MICRO") << " ENB MAIN LOOP ---" << endl;
+    EV << "--- END ENB MAIN LOOP ---" << endl;
 }
 
 void LteMacEnbRealistic::flushHarqBuffers()

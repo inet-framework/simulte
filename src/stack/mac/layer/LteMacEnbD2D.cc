@@ -223,7 +223,7 @@ void LteMacEnbD2D::sendGrants(LteMacScheduleList* scheduleList)
         // acquiring remote antennas set from user info
         const std::set<Remote>& antennas = ui.readAntennaSet();
         std::set<Remote>::const_iterator antenna_it, antenna_et = antennas.end();
-        const unsigned int logicalBands = deployer_->getNumBands();
+        const unsigned int logicalBands = cellInfo_->getNumBands();
 
         //  HANDLE MULTICW
         for (; cw < codewords; ++cw)

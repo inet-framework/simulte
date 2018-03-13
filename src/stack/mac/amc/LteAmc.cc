@@ -196,11 +196,11 @@ void LteAmc::printMuMimoMatrix(const char* s)
  * PUBLIC FUNCTIONS
  ********************/
 
-LteAmc::LteAmc(LteMacEnb *mac, LteBinder *binder, LteDeployer *deployer, int numAntennas)
+LteAmc::LteAmc(LteMacEnb *mac, LteBinder *binder, LteCellInfo *cellInfo, int numAntennas)
 {
     mac_ = mac;
     binder_ = binder;
-    deployer_ = deployer;
+    cellInfo_ = cellInfo;
     numAntennas_ = numAntennas;
     initialize();
 }
@@ -216,11 +216,11 @@ void LteAmc::initialize()
     ulConnectedUe_ = binder_->getDeployedUes(nodeId_, UL);
     d2dConnectedUe_ = binder_->getDeployedUes(nodeId_, UL);
 
-    /** Get parameters from Deployer **/
-    numBands_ = deployer_->getNumBands();
-    mcsScaleDl_ = deployer_->getMcsScaleDl();
-    mcsScaleUl_ = deployer_->getMcsScaleUl();
-    mcsScaleD2D_ = deployer_->getMcsScaleUl();
+    /** Get parameters from cellInfo **/
+    numBands_ = cellInfo_->getNumBands();
+    mcsScaleDl_ = cellInfo_->getMcsScaleDl();
+    mcsScaleUl_ = cellInfo_->getMcsScaleUl();
+    mcsScaleD2D_ = cellInfo_->getMcsScaleUl();
 
     /** Get AMC parameters from MAC module NED **/
     fbhbCapacityDl_ = mac_->par("fbhbCapacityDl");
@@ -944,14 +944,14 @@ double LteAmc::readCoderate(MacNodeId id, Codeword cw, unsigned int bytes, const
     if (dir == DL)
     {
         availRe = 2
-            * (deployer_->getRbyDl() * deployer_->getRbxDl() - deployer_->getSignalDl() * deployer_->getRbyDl()
-                - deployer_->getRbPilotDl());
+            * (cellInfo_->getRbyDl() * cellInfo_->getRbxDl() - cellInfo_->getSignalDl() * cellInfo_->getRbyDl()
+                - cellInfo_->getRbPilotDl());
     }
     else if (dir == UL)
     {
         availRe = 2
-            * (deployer_->getRbyUl() * deployer_->getRbxUl() - deployer_->getSignalUl() * deployer_->getRbyUl()
-                - deployer_->getRbPilotUl());
+            * (cellInfo_->getRbyUl() * cellInfo_->getRbxUl() - cellInfo_->getSignalUl() * cellInfo_->getRbyUl()
+                - cellInfo_->getRbPilotUl());
     }
     else
     {

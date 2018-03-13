@@ -158,11 +158,11 @@ void LtePhyUe::initialize(int stage)
         nodeId_ = getAncestorPar("macNodeId");
         EV << "Local MacNodeId: " << nodeId_ << endl;
 
-        // get deployer at this stage because the next hop of the node is registered in the IP2Lte module at the INITSTAGE_NETWORK_LAYER
-        deployer_ = getDeployer(nodeId_);
+        // get cellInfo at this stage because the next hop of the node is registered in the IP2Lte module at the INITSTAGE_NETWORK_LAYER
+        cellInfo_ = getCellInfo(nodeId_);
         int index = intuniform(0, binder_->phyPisaData.maxChannel() - 1);
-        deployer_->lambdaInit(nodeId_, index);
-        deployer_->channelUpdate(nodeId_, intuniform(1, binder_->phyPisaData.maxChannel2()));
+        cellInfo_->lambdaInit(nodeId_, index);
+        cellInfo_->channelUpdate(nodeId_, intuniform(1, binder_->phyPisaData.maxChannel2()));
     }
 }
 
@@ -314,12 +314,12 @@ void LtePhyUe::doHandover()
     currentMasterRssi_ = candidateMasterRssi_;
     hysteresisTh_ = updateHysteresisTh(currentMasterRssi_);
 
-    // update deployer
+    // update cellInfo
     LteMacEnb* newMacEnb =  check_and_cast<LteMacEnb*>(getSimulation()->getModule(binder_->getOmnetId(candidateMasterId_))->getSubmodule("lteNic")->getSubmodule("mac"));
-    LteDeployer* newDeployer = newMacEnb->getDeployer();
-    deployer_->detachUser(nodeId_);
-    newDeployer->attachUser(nodeId_);
-    deployer_ = newDeployer;
+    LteCellInfo* newCellInfo = newMacEnb->getCellInfo();
+    cellInfo_->detachUser(nodeId_);
+    newCellInfo->attachUser(nodeId_);
+    cellInfo_ = newCellInfo;
 
     // update DL feedback generator
     LteDlFeedbackGenerator* fbGen = check_and_cast<LteDlFeedbackGenerator*>(getParentModule()->getSubmodule("dlFbGen"));
@@ -609,8 +609,8 @@ void LtePhyUe::sendFeedback(LteFeedbackDoubleVector fbDl, LteFeedbackDoubleVecto
     frame->setControlInfo(uinfo);
     //TODO access speed data Update channel index
 //    if (coherenceTime(move.getSpeed())<(NOW-lastFeedback_)){
-//        deployer_->channelIncrease(nodeId_);
-//        deployer_->lambdaIncrease(nodeId_,1);
+//        cellInfo_->channelIncrease(nodeId_);
+//        cellInfo_->lambdaIncrease(nodeId_,1);
 //    }
     lastFeedback_ = NOW;
     EV << "LtePhy: " << nodeTypeToA(nodeType_) << " with id "
@@ -638,7 +638,7 @@ void LtePhyUe::finish()
         // binder call
         binder_->unregisterNextHop(masterId_, nodeId_);
 
-        // deployer call
-        deployer_->detachUser(nodeId_);
+        // cellInfo call
+        cellInfo_->detachUser(nodeId_);
     }
 }

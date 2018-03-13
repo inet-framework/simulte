@@ -33,7 +33,7 @@ class LtePhyEnb;
  * It is only present on eNodeB and UEs thereby attached,
  * performing these tasks:
  * - eNodeB:
- *   - Stores the Remote Antenna Set (provided by the deployer at startup)
+ *   - Stores the Remote Antenna Set (provided by the cellInfo at startup)
  * - On UEs attached to eNodeBs:
  *   - Retrieves the Remote Antenna Set from the master
  *   - Reads broadcast packet to find out which Antennas
@@ -54,7 +54,7 @@ class DasFilter
     virtual ~DasFilter();
 
     /**
-     * addRemoteAntenna() is called by the deployer to add a new
+     * addRemoteAntenna() is called by the cellInfo to add a new
      * antenna for the eNB with all its physical properties
      *
      * @param ruX Remote Antenna coordinate on X axis

@@ -89,8 +89,8 @@ class LtePhyBase : public ChannelAccess
     /// Reference to LteBinder
     LteBinder *binder_;
 
-    /// Reference to LteDeployer
-    LteDeployer* deployer_;
+    /// Reference to LteCellInfo
+    LteCellInfo* cellInfo_;
 
     /*
      * If true, UEs associate to the best serving cell at initialization

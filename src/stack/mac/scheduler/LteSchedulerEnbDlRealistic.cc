@@ -53,7 +53,7 @@ unsigned int LteSchedulerEnbDlRealistic::scheduleGrant(MacCid cid, unsigned int 
 
         txParams.print("grant()");
 
-        unsigned int numBands = mac_->getDeployer()->getNumBands();
+        unsigned int numBands = mac_->getCellInfo()->getNumBands();
         // for each band of the band vector provided
         for (unsigned int i = 0; i < numBands; i++)
         {

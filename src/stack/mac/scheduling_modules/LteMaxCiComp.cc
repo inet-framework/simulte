@@ -25,7 +25,7 @@ void LteMaxCiComp::getBandLimit(std::vector<BandLimit>* bandLimit, MacNodeId ueI
 
     // check the number of codewords
     unsigned int numCodewords = 1;
-    unsigned int numBands = eNbScheduler_->mac_->getDeployer()->getNumBands();
+    unsigned int numBands = eNbScheduler_->mac_->getCellInfo()->getNumBands();
     // for each band of the band vector provided
     for (unsigned int i = 0; i < numBands; i++)
     {

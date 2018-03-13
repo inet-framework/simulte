@@ -8,9 +8,10 @@
 //
 
 #include "stack/phy/ChannelModel/LteRealisticChannelModel.h"
+
+#include "../../../corenetwork/lteCellInfo/LteCellInfo.h"
 #include "stack/phy/packet/LteAirFrame.h"
 #include "corenetwork/binder/LteBinder.h"
-#include "corenetwork/deployer/LteDeployer.h"
 #include "stack/mac/amc/UserTxParams.h"
 #include "common/LteCommon.h"
 #include "corenetwork/nodes/ExtCell.h"
@@ -753,7 +754,7 @@ std::vector<double> LteRealisticChannelModel::getSINR(LteAirFrame *frame, UserCo
         // get MacId for Ue and eNb
         ueId = lteInfo->getSourceId();
         eNbId = lteInfo->getDestId();
-        eNbType = getDeployer(eNbId)->getEnbType();
+        eNbType = getCellInfo(eNbId)->getEnbType();
 
         if (dir == DL)
         {
@@ -788,7 +789,7 @@ std::vector<double> LteRealisticChannelModel::getSINR(LteAirFrame *frame, UserCo
                        << " - DIR=" << (( dir==DL )?"DL" : "UL")
                        << " - frameType=" << ((lteInfo->getFrameType()==FEEDBACKPKT)?"feedback":"other")
                        << endl
-                       << (( getDeployer(eNbId)->getEnbType() == MACRO_ENB )? "MACRO" : "MICRO") << " - txPwr " << lteInfo->getTxPower()
+                       << (( getCellInfo(eNbId)->getEnbType() == MACRO_ENB )? "MACRO" : "MICRO") << " - txPwr " << lteInfo->getTxPower()
                        << " - ueCoord[" << ueCoord << "] - enbCoord[" << enbCoord << "] - ueId[" << ueId << "] - enbId[" << eNbId << "]" <<
                        endl;
     //=================== END PARAMETERS SETUP =======================
@@ -1467,7 +1468,7 @@ double LteRealisticChannelModel::rayleighFading(MacNodeId id,
 {
     //get raylegh variable from trace file
     double temp1 = binder_->phyPisaData.getChannel(
-            getDeployer(id)->getLambda(id)->channelIndex + band);
+            getCellInfo(id)->getLambda(id)->channelIndex + band);
     return linearToDb(temp1);
 }
 

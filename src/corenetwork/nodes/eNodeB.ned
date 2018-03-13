@@ -26,7 +26,7 @@ import lte.x2.LteX2App;
 import lte.stack.phy.ILteNic;
 import lte.stack.phy.LteNicEnb;
 import lte.stack.phy.LteNicEnbD2D;
-import lte.corenetwork.deployer.LteDeployer;
+import lte.corenetwork.lteCellInfo.LteCellInfo;
 import lte.epc.gtp.GtpUserSimplified;
 import lte.epc.TrafficFlowFilterSimplified;
 import lte.epc.gtp.GtpUserX2;
@@ -77,8 +77,7 @@ module eNodeB
         mobility: StationaryMobility {
             @display("p=50,175;is=s");
         }
-        // NOTE: LteDeployer must be created first
-        deployer: LteDeployer {
+        cellInfo: LteCellInfo {
             @display("p=50,225;is=s");
         }
 

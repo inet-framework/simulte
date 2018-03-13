@@ -8,8 +8,9 @@
 //
 
 #include "common/LteCommon.h"
+
+#include "../corenetwork/lteCellInfo/LteCellInfo.h"
 #include "corenetwork/binder/LteBinder.h"
-#include "corenetwork/deployer/LteDeployer.h"
 #include "stack/mac/layer/LteMacEnb.h"
 #include "common/LteControlInfo.h"
 
@@ -519,7 +520,7 @@ LogicalCid MacCidToLcid(MacCid cid)
     return ((LogicalCid) (cid));
 }
 
-LteDeployer* getDeployer(MacNodeId nodeId)
+LteCellInfo* getCellInfo(MacNodeId nodeId)
 {
     LteBinder* temp = getBinder();
     // Check if nodeId is a relay, if nodeId is a eNodeB
@@ -527,7 +528,7 @@ LteDeployer* getDeployer(MacNodeId nodeId)
     // TODO change this behavior (its not needed unless we don't implement relays)
     MacNodeId id = temp->getNextHop(nodeId);
     OmnetId omnetid = temp->getOmnetId(id);
-    return check_and_cast<LteDeployer*>(getSimulation()->getModule(omnetid)->getSubmodule("deployer"));
+    return check_and_cast<LteCellInfo*>(getSimulation()->getModule(omnetid)->getSubmodule("cellInfo"));
 }
 
 cModule* getMacByMacNodeId(MacNodeId nodeId)

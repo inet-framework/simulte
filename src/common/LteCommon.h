@@ -35,7 +35,7 @@
 using namespace omnetpp;
 
 class LteBinder;
-class LteDeployer;
+class LteCellInfo;
 class LteMacEnb;
 class LteMacBase;
 class LtePhyBase;
@@ -856,7 +856,7 @@ LogicalCid MacCidToLcid(MacCid cid);
 GrantType aToGrantType(std::string a);
 const std::string grantTypeToA(GrantType gType);
 LteBinder* getBinder();
-LteDeployer* getDeployer(MacNodeId nodeId);
+LteCellInfo* getCellInfo(MacNodeId nodeId);
 cModule* getMacByMacNodeId(MacNodeId nodeId);
 cModule* getRlcByMacNodeId(MacNodeId nodeId, LteRlcType rlcType);
 LteMacBase* getMacUe(MacNodeId nodeId);

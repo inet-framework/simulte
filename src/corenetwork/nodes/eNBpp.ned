@@ -17,7 +17,7 @@ import inet.networklayer.ipv4.IPv4RoutingTable;
 import inet.networklayer.contract.IRoutingTable;
 import inet.networklayer.contract.INetworkLayer;
 import inet.transportlayer.udp.UDP;
-import lte.corenetwork.deployer.LteDeployer;
+import lte.corenetwork.lteCellInfo.LteCellInfo;
 import lte.epc.TrafficFlowFilter;
 import lte.epc.gtp.GtpUser;
 import lte.stack.phy.LteNicEnb;
@@ -62,8 +62,8 @@ module eNBpp
         mobility: StationaryMobility {
             @display("p=50,175;is=s");
         }
-        // NOTE: LteDeployer must be created first
-        deployer: LteDeployer {
+        // 
+        cellInfo: LteCellInfo {
             @display("p=50,225;is=s");
         }
         // NOTE: instance must be named "lteNic"

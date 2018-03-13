@@ -27,10 +27,6 @@ using namespace inet;
  * It stores global mapping tables with OMNeT++ module IDs,
  * IP addresses, etc.
  *
- * At startup it is called by the LteDeployer, and
- * creates all the MacNodeIds and IP Addresses
- * for all nodes in the network.
- *
  * After this it fills the two tables:
  * - nextHop, binding each master node id with its slave
  * - nodeId, binding each node id with the module id used by Omnet.
@@ -47,13 +43,11 @@ class LteBinder : public cSimpleModule
 {
   private:
     typedef std::map<MacNodeId, std::map<MacNodeId, bool> > DeployedUesMap;
-    typedef std::map<MacCellId, LteDeployer*> DeployerList;
 
     unsigned int numBands_;  // number of logical bands
     std::map<IPv4Address, MacNodeId> macNodeIdToIPAddress_;
     std::map<MacNodeId, char*> macNodeIdToModuleName_;
     std::map<MacNodeId, LteMacBase*> macNodeIdToModule_;
-    DeployerList deployersMap_;
     std::vector<MacNodeId> nextHop_; // MacNodeIdMaster --> MacNodeIdSlave
     std::map<int, OmnetId> nodeIds_;
 
@@ -158,9 +152,6 @@ class LteBinder : public cSimpleModule
         return numBands_;
     }
 
-    void registerDeployer(LteDeployer* pDeployer, MacCellId macCellId);
-    //    void nodesConfiguration();
-
     virtual ~LteBinder()
     {
         while(enbList_.size() > 0){
@@ -201,7 +192,7 @@ class LteBinder : public cSimpleModule
     void unregisterNode(MacNodeId id);
 
     /**
-     * registerNextHop() is called by LteDeployer at network startup
+     * registerNextHop() is called by the IP2LTE module at network startup
      * to bind each slave (UE or Relay) with its masters. It is also
      * called on handovers to synchronize the nextHop table:
      *

@@ -21,11 +21,11 @@ LteMacRelayEnb::~LteMacRelayEnb()
     // TODO Auto-generated destructor stub
 }
 
-LteDeployer* LteMacRelayEnb::getDeployer()
+LteCellInfo* LteMacRelayEnb::getCellInfo()
 {
     MacNodeId masterId = getAncestorPar("masterId");
     OmnetId masterOmnetId = binder_->getOmnetId(masterId);
-    return check_and_cast<LteDeployer *>(getSimulation()->getModule(masterOmnetId)->getSubmodule("deployer"));
+    return check_and_cast<LteCellInfo *>(getSimulation()->getModule(masterOmnetId)->getSubmodule("cellInfo"));
 }
 
 int LteMacRelayEnb::getNumAntennas()

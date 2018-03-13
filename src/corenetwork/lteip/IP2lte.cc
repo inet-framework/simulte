@@ -9,12 +9,12 @@
 
 #include "corenetwork/lteip/IP2lte.h"
 #include "corenetwork/binder/LteBinder.h"
-#include "corenetwork/deployer/LteDeployer.h"
 #include "inet/transportlayer/tcp_common/TCPSegment.h"
 #include "inet/transportlayer/udp/UDPPacket.h"
 #include "inet/transportlayer/udp/UDP.h"
 #include <iostream>
 
+#include "../lteCellInfo/LteCellInfo.h"
 #include "inet/common/ModuleAccess.h"
 #include "inet/networklayer/ipv4/IPv4InterfaceData.h"
 #include "inet/networklayer/common/InterfaceEntry.h"
@@ -46,8 +46,6 @@ void IP2lte::initialize(int stage)
             // TODO not so elegant
             cModule *enodeb = getParentModule()->getParentModule();
             MacNodeId cellId = getBinder()->registerNode(enodeb, nodeType_);
-            LteDeployer * deployer = check_and_cast<LteDeployer*>(enodeb->getSubmodule("deployer"));
-            binder_->registerDeployer(deployer, cellId);
             nodeId_ = cellId;
             registerInterface();
         }

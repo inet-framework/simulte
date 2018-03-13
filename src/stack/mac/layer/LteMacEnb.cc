@@ -31,7 +31,7 @@ Define_Module( LteMacEnb);
 LteMacEnb::LteMacEnb() :
     LteMacBase()
 {
-    deployer_ = NULL;
+    cellInfo_ = NULL;
     amc_ = NULL;
     enbSchedulerDl_ = NULL;
     enbSchedulerUl_ = NULL;
@@ -59,21 +59,21 @@ LteMacEnb::~LteMacEnb()
  * PROTECTED FUNCTIONS
  ***********************/
 
-LteDeployer* LteMacEnb::getDeployer()
+LteCellInfo* LteMacEnb::getCellInfo()
 {
-    // Get local deployer
-    if (deployer_ != NULL)
-        return deployer_;
+    // Get local cellInfo
+    if (cellInfo_ != NULL)
+        return cellInfo_;
 
-    return check_and_cast<LteDeployer*>(getParentModule()-> // Stack
+    return check_and_cast<LteCellInfo*>(getParentModule()-> // Stack
     getParentModule()-> // Enb
-    getSubmodule("deployer")); // Deployer
+    getSubmodule("cellInfo")); // cellInfo
 }
 
 int LteMacEnb::getNumAntennas()
 {
     /* Get number of antennas: +1 is for MACRO */
-    return deployer_->getNumRus() + 1;
+    return cellInfo_->getNumRus() + 1;
 }
 
 SchedDiscipline LteMacEnb::getSchedDiscipline(Direction dir)
@@ -225,11 +225,11 @@ void LteMacEnb::initialize(int stage)
         cellId_ = nodeId_;
 
         // TODO: read NED parameters, when will be present
-        deployer_ = getDeployer();
+        cellInfo_ = getCellInfo();
         /* Get num RB Dl */
-        numRbDl_ = deployer_->getNumRbDl();
+        numRbDl_ = cellInfo_->getNumRbDl();
         /* Get num RB Ul */
-        numRbUl_ = deployer_->getNumRbUl();
+        numRbUl_ = cellInfo_->getNumRbUl();
 
         /* Get number of antennas */
         numAntennas_ = getNumAntennas();
@@ -261,7 +261,7 @@ void LteMacEnb::initialize(int stage)
     else if (stage == 1)
     {
         /* Create and initialize AMC module */
-        amc_ = new LteAmc(this, binder_, deployer_, numAntennas_);
+        amc_ = new LteAmc(this, binder_, cellInfo_, numAntennas_);
 
         /* Insert EnbInfo in the Binder */
         EnbInfo* info = new EnbInfo();
@@ -391,7 +391,7 @@ void LteMacEnb::sendGrants(LteMacScheduleList* scheduleList)
         // acquiring remote antennas set from user info
         const std::set<Remote>& antennas = ui.readAntennaSet();
         std::set<Remote>::const_iterator antenna_it, antenna_et = antennas.end();
-        const unsigned int logicalBands = deployer_->getNumBands();
+        const unsigned int logicalBands = cellInfo_->getNumBands();
 
         //  HANDLE MULTICW
         for (; cw < codewords; ++cw)
@@ -651,9 +651,7 @@ void LteMacEnb::handleSelfMessage()
     if(nodeCount <= eNodeBCount)
         return;
 
-    EnbType nodeType = deployer_->getEnbType();
-
-    EV << "-----" << ((nodeType==MACRO_ENB)?"MACRO":"MICRO") << " ENB MAIN LOOP -----" << endl;
+    EV << "----- ENB MAIN LOOP -----" << endl;
 
     /*************
      * END DEBUG
@@ -718,7 +716,7 @@ void LteMacEnb::handleSelfMessage()
     for (it = harqTxBuffers_.begin(); it != harqTxBuffers_.end(); it++)
         it->second->sendSelectedDown();
 
-    EV << "--- END " << ((nodeType==MACRO_ENB)?"MACRO":"MICRO") << " ENB MAIN LOOP ---" << endl;
+    EV << "--- END ENB MAIN LOOP ---" << endl;
 }
 
 void LteMacEnb::macHandleFeedbackPkt(cPacket *pkt)
