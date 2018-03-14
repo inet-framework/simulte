@@ -116,6 +116,9 @@ class LteSchedulerEnb
         rb_1c, rb_2c, rb_3c, rb_4, rb_5, rb_6a, rb_7a, rb_8a, rb_6b, rb_7b,
         rb_8b, rb_6c, rb_7c, rb_8c, rb_9;
 
+    // pre-made BandLimit structure used when the no band limit is given to the scheduler
+    std::vector<BandLimit> emptyBandLim_;
+
   public:
 
     /**

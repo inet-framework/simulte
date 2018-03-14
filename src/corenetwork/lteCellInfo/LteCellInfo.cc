@@ -70,6 +70,7 @@ void LteCellInfo::initialize()
     // first RU to be registered is the MACRO
     ruSet_->addRemoteAntenna(nodeX_, nodeY_, nodebTxPower);
 
+    // REFACTORING: has no effect, as long as numRus_ == 0
     // deploy RUs
     deployRu(nodeX_, nodeY_, numRus_, ruRange);
 

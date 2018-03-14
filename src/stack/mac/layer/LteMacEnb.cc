@@ -739,7 +739,7 @@ void LteMacEnb::macHandleFeedbackPkt(cPacket *pkt)
             {
                 amc_->pushFeedback(id, DL, (*jt));
                 LteMacUe* macUe = check_and_cast<LteMacUe*>(getMacByMacNodeId(id));
-                macUe->collectCqiStatistics(id, DL, (*jt));
+//                macUe->collectCqiStatistics(id, DL, (*jt));
             }
             i++;
         }

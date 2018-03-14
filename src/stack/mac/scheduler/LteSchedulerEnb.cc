@@ -145,30 +145,33 @@ unsigned int LteSchedulerEnb::scheduleGrant(MacCid cid, unsigned int bytes,
 
     std::vector<BandLimit> tempBandLim;
 
-    if (bandLim == NULL)
+    if (bandLim == NULL )
     {
         bands_msg = "NO_BAND_SPECIFIED";
-        // Create a vector of band limit using all bands
-        bandLim = &tempBandLim;
 
         txParams.print("grant()");
-
-        unsigned int numBands = mac_->getCellInfo()->getNumBands();
-        // for each band of the band vector provided
-        for (unsigned int i = 0; i < numBands; i++)
+        // Create a vector of band limit using all bands
+        if( emptyBandLim_.empty() )
         {
-            BandLimit elem;
-            // copy the band
-            elem.band_ = Band(i);
-            EV << "Putting band " << i << endl;
-            // mark as unlimited
-            for (unsigned int j = 0; j < numCodewords; j++)
+            unsigned int numBands = mac_->getCellInfo()->getNumBands();
+            // for each band of the band vector provided
+            for (unsigned int i = 0; i < numBands; i++)
             {
-                EV << "- Codeword " << j << endl;
-                elem.limit_.push_back(-1);
+                BandLimit elem;
+                // copy the band
+                elem.band_ = Band(i);
+                EV << "Putting band " << i << endl;
+                // mark as unlimited
+                for (unsigned int j = 0; j < numCodewords; j++)
+                {
+                    EV << "- Codeword " << j << endl;
+                    elem.limit_.push_back(-1);
+                }
+                emptyBandLim_.push_back(elem);
             }
-            bandLim->push_back(elem);
         }
+        tempBandLim = emptyBandLim_;
+        bandLim = &tempBandLim;
     }
     EV << "LteSchedulerEnb::grant(" << cid << "," << bytes << "," << terminate << "," << active << "," << eligible << "," << bands_msg << "," << dasToA(antenna) << ")" << endl;
 
@@ -589,7 +592,7 @@ unsigned int LteSchedulerEnb::scheduleGrant(MacCid cid, unsigned int bytes,
                         firstSdu = false;
                     }
                 }
-            }
+            } // Closes While Loop
 
             cwAllocatedBytes += bandAllocatedBytes;
 
@@ -637,7 +640,7 @@ unsigned int LteSchedulerEnb::scheduleGrant(MacCid cid, unsigned int bytes,
 
             if (stop)
                 break;
-        }
+        } // Closes LOOP ON BANDS
 
         EV << "LteSchedulerEnb::grant Codeword allocation: " << cwAllocatedBytes << "bytes" << endl;
 
@@ -681,7 +684,7 @@ unsigned int LteSchedulerEnb::scheduleGrant(MacCid cid, unsigned int bytes,
         }
         if (stop)
             break;
-    }
+    } // Closes loop on Codewords
 
     EV << "LteSchedulerEnb::grant Total allocation: " << totalAllocatedBytes << " bytes, " << totalAllocatedBlocks << " blocks" << endl;
     EV << "LteSchedulerEnb::grant --------------------::[  END GRANT  ]::--------------------" << endl;
@@ -818,7 +821,6 @@ void LteSchedulerEnb::resourceBlockStatistics(bool sleep)
         {
             mac_->emit(cellBlocksUtilizationDl_, 0.0);
             mac_->emit(lteAvgServedBlocksDl_, (long)0);
-            mac_->emit(depletedPowerDl_, mac_->getIdleLevel(DL, MBSFN));
         }
         return;
     }
@@ -835,12 +837,7 @@ void LteSchedulerEnb::resourceBlockStatistics(bool sleep)
     unsigned int plane = 0;
     unsigned int antenna = 0;
 
-    double depletedPower = 0;
 
-    // TODO CHECK IDLE / ACTIVE STATUS
-    //if ( ... ) {
-    // For Each layer (normal/MU-MIMO)
-    //    for (; planeIt != planeItEnd; ++planeIt) {
     std::vector<unsigned int>::const_iterator antennaIt = planeIt->begin();
     std::vector<unsigned int>::const_iterator antennaItEnd = planeIt->end();
 
@@ -854,16 +851,7 @@ void LteSchedulerEnb::resourceBlockStatistics(bool sleep)
         utilization += (double) (*antennaIt);
 
         allocatedBlocks += (double) (*antennaIt);
-        if (direction_ == DL)
-        {
-            depletedPower += ((mac_->getZeroLevel(direction_,
-                mac_->getCurrentSubFrameType()))
-                + ((double) (*antennaIt) * mac_->getPowerUnit(direction_,
-                    mac_->getCurrentSubFrameType())));
-        }
-        EV << "LteSchedulerEnb::resourceBlockStatistics collecting utilization for plane" <<
-        plane << "antenna" << dasToA((Remote)antenna) << " allocated blocks "
-           << allocatedBlocks << " depletedPower " << depletedPower << endl;
+
         antenna++;
     }
     plane++;
@@ -875,13 +863,11 @@ void LteSchedulerEnb::resourceBlockStatistics(bool sleep)
     {
         mac_->emit(cellBlocksUtilizationDl_, utilization);
         mac_->emit(lteAvgServedBlocksDl_, allocatedBlocks);
-        mac_->emit(depletedPowerDl_, depletedPower);
     }
     else if (direction_ == UL)
     {
         mac_->emit(cellBlocksUtilizationUl_, utilization);
         mac_->emit(lteAvgServedBlocksUl_, allocatedBlocks);
-        mac_->emit(depletedPowerUl_, depletedPower);
     }
     else
     {

@@ -580,62 +580,66 @@ class LteSummaryFeedback
      *  @param s The name of the function that requested the debug.
      */
     void print(MacCellId cellId, MacNodeId nodeId, const Direction dir, TxMode txm, const char* s) const
+    {
+        bool debug = false;
+        if( debug )
         {
-        EV << NOW << " " << s << "     LteSummaryFeedback\n";
-        EV << NOW << " " << s << " CellId: " << cellId << "\n";
-        EV << NOW << " " << s << " NodeId: " << nodeId << "\n";
-        EV << NOW << " " << s << " Direction: " << dirToA(dir) << "\n";
-        EV << NOW << " " << s << " TxMode: " << txModeToA(txm) << "\n";
-        EV << NOW << " " << s << " -------------------------\n";
+            EV << NOW << " " << s << "     LteSummaryFeedback\n";
+            EV << NOW << " " << s << " CellId: " << cellId << "\n";
+            EV << NOW << " " << s << " NodeId: " << nodeId << "\n";
+            EV << NOW << " " << s << " Direction: " << dirToA(dir) << "\n";
+            EV << NOW << " " << s << " TxMode: " << txModeToA(txm) << "\n";
+            EV << NOW << " " << s << " -------------------------\n";
 
-        Rank ri = getRi();
-        double c = getRiConfidence();
-        EV << NOW << " " << s << " RI = " << ri << " [" << c << "]\n";
+            Rank ri = getRi();
+            double c = getRiConfidence();
+            EV << NOW << " " << s << " RI = " << ri << " [" << c << "]\n";
 
-        unsigned char codewords = getTotCodewords();
-        unsigned char bands = getTotLogicalBands();
-        for(Codeword cw = 0; cw < codewords; ++cw)
-        {
-            EV << NOW << " " << s << " CQI[" << cw << "] = {";
+            unsigned char codewords = getTotCodewords();
+            unsigned char bands = getTotLogicalBands();
+            for(Codeword cw = 0; cw < codewords; ++cw)
+            {
+                EV << NOW << " " << s << " CQI[" << cw << "] = {";
+                if(bands > 0)
+                {
+                    EV << getCqi(cw, 0);
+                    for(Band b = 1; b < bands; ++b)
+                    EV << ", " << getCqi(cw, b);
+                }
+                EV << "} [{";
+                if(bands > 0)
+                {
+                    c = getCqiConfidence(cw, 0);
+                    EV << c;
+                    for(Band b = 1; b < bands; ++b)
+                    {
+                        c = getCqiConfidence(cw, b);
+                        EV << ", " << c;
+                    }
+                }
+                EV << "}]\n";
+            }
+
+            EV << NOW << " " << s << " PMI = {";
             if(bands > 0)
             {
-                EV << getCqi(cw, 0);
+                EV << getPmi(0);
                 for(Band b = 1; b < bands; ++b)
-                EV << ", " << getCqi(cw, b);
+                EV << ", " << getPmi(b);
             }
             EV << "} [{";
             if(bands > 0)
             {
-                c = getCqiConfidence(cw, 0);
+                c = getPmiConfidence(0);
                 EV << c;
                 for(Band b = 1; b < bands; ++b)
                 {
-                    c = getCqiConfidence(cw, b);
+                    c = getPmiConfidence(b);
                     EV << ", " << c;
                 }
             }
             EV << "}]\n";
         }
-
-        EV << NOW << " " << s << " PMI = {";
-        if(bands > 0)
-        {
-            EV << getPmi(0);
-            for(Band b = 1; b < bands; ++b)
-            EV << ", " << getPmi(b);
-        }
-        EV << "} [{";
-        if(bands > 0)
-        {
-            c = getPmiConfidence(0);
-            EV << c;
-            for(Band b = 1; b < bands; ++b)
-            {
-                c = getPmiConfidence(b);
-                EV << ", " << c;
-            }
-        }
-        EV << "}]\n";
     }
 };
 
