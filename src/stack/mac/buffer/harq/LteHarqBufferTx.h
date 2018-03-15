@@ -173,6 +173,9 @@ class LteHarqBufferTx
 
     BufferStatus getBufferStatus();
 
+    std::vector<LteHarqProcessTx *> * getHarqProcesses(){ return processes_ ; }
+    unsigned int getNumProcesses() { return numProc_; }
+
     virtual ~LteHarqBufferTx();
 
   protected:

@@ -278,10 +278,7 @@ LteSchedulerEnbDl::rtxschedule()
                 continue;
         }
         LteHarqBufferTx* currHarq = it->second;
-
-        // get harq status vector
-        BufferStatus harqStatus = currHarq->getBufferStatus();
-        BufferStatus::iterator jt = harqStatus.begin(), jet= harqStatus.end();
+        std::vector<LteHarqProcessTx *> * processes = currHarq->getHarqProcesses();
 
         // Get user transmission parameters
         const UserTxParams& txParams = mac_->getAmc()->computeTxParams(nodeId, direction_);// get the user info
@@ -290,32 +287,36 @@ LteSchedulerEnbDl::rtxschedule()
 
         EV << NOW << " LteSchedulerEnbDl::rtxschedule  UE: " << nodeId << endl;
         EV << NOW << " LteSchedulerEnbDl::rtxschedule Number of codewords: " << codewords << endl;
+
+        // get the number of HARQ processes
         unsigned int process=0;
-        for(; jt != jet; ++jt,++process)
+        unsigned int maxProcesses = currHarq->getNumProcesses();
+        for(process = 0; process < maxProcesses; ++process )
         {
             // for each HARQ process
+            LteHarqProcessTx * currProc = (*processes)[process];
+
             if (allocatedCws_[nodeId] == codewords)
                 break;
             for (Codeword cw = 0; cw < codewords; ++cw)
             {
+
                 if (allocatedCws_[nodeId]==codewords)
-                break;
+                    break;
                 EV << NOW << " LteSchedulerEnbDl::rtxschedule process " << process << endl;
                 EV << NOW << " LteSchedulerEnbDl::rtxschedule ------- CODEWORD " << cw << endl;
 
                 // skip processes which are not in rtx status
-                if (jt->at(cw).second != TXHARQ_PDU_BUFFERED)
+                if (currProc->getUnitStatus(cw) != TXHARQ_PDU_BUFFERED)
                 {
-                    EV << NOW << " LteSchedulerEnbDl::rtxschedule detected Acid: " << jt->at(cw).first << " in status " << jt->at(cw).second << endl;
-
+                    EV << NOW << " LteSchedulerEnbDl::rtxschedule detected Acid: " << process << " in status " << currProc->getUnitStatus(cw) << endl;
                     continue;
                 }
 
                 EV << NOW << " LteSchedulerEnbDl::rtxschedule " << endl;
-                EV << NOW << " LteSchedulerEnbDl::rtxschedule detected RTX Acid: " << jt->at(cw).first << endl;
+                EV << NOW << " LteSchedulerEnbDl::rtxschedule detected RTX Acid: " << process << endl;
 
                 // perform the retransmission
-
                 unsigned int bytes = schedulePerAcidRtx(nodeId,cw,process);
 
                 // if a value different from zero is returned, there was a service
