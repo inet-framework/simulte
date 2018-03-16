@@ -19,9 +19,7 @@ import inet.networklayer.contract.INetworkLayer;
 import inet.networklayer.configurator.ipv4.HostAutoConfigurator;
 import inet.transportlayer.tcp.TCP;
 import inet.transportlayer.udp.UDP;
-import lte.stack.phy.ILteNic;
-import lte.stack.phy.LteNicUe;
-import lte.stack.phy.LteNicUeD2D;
+import lte.stack.ILteNic;
 
 // 
 // Car Module

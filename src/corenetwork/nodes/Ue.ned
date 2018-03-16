@@ -18,9 +18,7 @@ import inet.networklayer.contract.IRoutingTable;
 import inet.networklayer.contract.INetworkLayer;
 import inet.transportlayer.tcp.TCP;
 import inet.transportlayer.udp.UDP;
-import lte.stack.phy.ILteNic;
-import lte.stack.phy.LteNicUe;
-import lte.stack.phy.LteNicUeD2D;
+import lte.stack.ILteNic;
 
 // 
 // User Equipment Module

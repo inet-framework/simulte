@@ -20,7 +20,7 @@ import inet.transportlayer.udp.UDP;
 import lte.corenetwork.lteCellInfo.LteCellInfo;
 import lte.epc.TrafficFlowFilter;
 import lte.epc.gtp.GtpUser;
-import lte.stack.phy.LteNicEnb;
+import lte.stack.LteNicEnb;
 
 
 //

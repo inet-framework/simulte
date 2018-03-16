@@ -8,9 +8,10 @@
 // 
 
 
-package lte.stack.phy;
+package lte.stack;
 
 import inet.linklayer.contract.IWirelessNic;
+import lte.stack.phy.LtePhy;
 import lte.stack.mac.LteMac;
 import lte.stack.pdcp_rrc.LtePdcpRrc;
 import lte.stack.phy.feedback.LteDlFeedbackGenerator;

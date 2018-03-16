@@ -11,7 +11,7 @@
 package lte.corenetwork.nodes;
 
 import inet.mobility.static.StationaryMobility;
-import lte.stack.phy.LteNicRelay;
+import lte.stack.LteNicRelay;
 
 
 // 
