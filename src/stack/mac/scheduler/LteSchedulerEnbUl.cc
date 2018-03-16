@@ -10,7 +10,6 @@
 #include "stack/mac/scheduler/LteSchedulerEnbUl.h"
 #include "stack/mac/layer/LteMacEnb.h"
 #include "stack/mac/layer/LteMacEnbD2D.h"
-#include "stack/mac/layer/LteMacEnbRealisticD2D.h"
 #include "stack/mac/buffer/harq/LteHarqBufferRx.h"
 #include "stack/mac/buffer/harq_d2d/LteHarqBufferRxD2DMirror.h"
 #include "stack/mac/allocator/LteAllocationModule.h"
@@ -209,13 +208,7 @@ LteSchedulerEnbUl::rtxschedule()
         {
             // --- START Schedule D2D retransmissions --- //
             Direction dir = D2D;
-            HarqRxBuffersMirror* harqRxBuffersD2DMirror;
-            if (strcmp(mac_->getClassName(), "LteMacEnbD2D") == 0)
-                harqRxBuffersD2DMirror = check_and_cast<LteMacEnbD2D*>(mac_)->getRxHarqBufferMirror();
-            else if (strcmp(mac_->getClassName(), "LteMacEnbRealisticD2D") == 0)
-                harqRxBuffersD2DMirror = check_and_cast<LteMacEnbRealisticD2D*>(mac_)->getRxHarqBufferMirror();
-            else
-                throw cRuntimeError("LteSchedulerEnbUl::rtxschedule - unrecognized MAC type %s", mac_->getClassName());
+            HarqRxBuffersMirror* harqRxBuffersD2DMirror = check_and_cast<LteMacEnbD2D*>(mac_)->getRxHarqBufferMirror();
             HarqRxBuffersMirror::iterator it_d2d = harqRxBuffersD2DMirror->begin() , et_d2d=harqRxBuffersD2DMirror->end();
             for(; it_d2d != et_d2d; ++it_d2d)
             {
@@ -503,13 +496,7 @@ LteSchedulerEnbUl::schedulePerAcidRtxD2D(MacNodeId destId,MacNodeId senderId, Co
         EV << NOW << "LteSchedulerEnbUl::schedulePerAcidRtxD2D - Node[" << mac_->getMacNodeId() << ", User[" << senderId << ", Codeword[ " << cw << "], ACID[" << (unsigned int)acid << "] " << endl;
 
         // Get the current active HARQ process
-        HarqRxBuffersMirror* harqRxBuffersD2DMirror;
-        if (strcmp(mac_->getClassName(), "LteMacEnbD2D") == 0)
-            harqRxBuffersD2DMirror = check_and_cast<LteMacEnbD2D*>(mac_)->getRxHarqBufferMirror();
-        else if (strcmp(mac_->getClassName(), "LteMacEnbRealisticD2D") == 0)
-            harqRxBuffersD2DMirror = check_and_cast<LteMacEnbRealisticD2D*>(mac_)->getRxHarqBufferMirror();
-        else
-            throw cRuntimeError("LteSchedulerEnbUl::rtxschedule - unrecognized MAC type %s", mac_->getClassName());
+        HarqRxBuffersMirror* harqRxBuffersD2DMirror = check_and_cast<LteMacEnbD2D*>(mac_)->getRxHarqBufferMirror();
         unsigned char currentAcid = (harqStatus_.at(senderId) + 2) % (harqRxBuffersD2DMirror->at(destId)->numHarqProcesses_);
         EV << "\t the acid that should be considered is " << (unsigned int)currentAcid << endl;
 

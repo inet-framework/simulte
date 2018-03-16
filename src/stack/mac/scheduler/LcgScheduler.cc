@@ -21,8 +21,7 @@ LcgScheduler::~LcgScheduler()
     // TODO Auto-generated destructor stub
 }
 
-ScheduleList&
-LcgScheduler::schedule(unsigned int availableBytes, Direction grantDir)
+ScheduleList& LcgScheduler::schedule(unsigned int availableBytes, Direction grantDir)
 {
     /* clean up old schedule decisions
      for each cid, this map will store the the amount of sent data (in SDUs)
@@ -35,17 +34,17 @@ LcgScheduler::schedule(unsigned int availableBytes, Direction grantDir)
     statusMap_.clear();
 
     // amount of time passed since last scheduling operation
-    // simtime_t timeInterval = NOW - lastExecutionTime_;
+    simtime_t timeInterval = NOW - lastExecutionTime_;
 
     // these variables will contain the flow identifier and the priority of the lowest
     // priority flow encountered during the scheduling process
-    // int lowestBackloggedFlow = -1;
-    // int lowestBackloggedPriority = -1;
+    int lowestBackloggedFlow = -1;
+    int lowestBackloggedPriority = -1;
 
     // these variables will contain the flow identifier and the priority of the highest
     // priority flow encountered during the scheduling process
-    // int highestBackloggedFlow = -1;
-    // int highestBackloggedPriority = -1;
+    int highestBackloggedFlow = -1;
+    int highestBackloggedPriority = -1;
 
     // Considering 3GPP TS 36.321:
     //  - ConnDesc::parameters_.minReservedRate_    --> Prioritized Bit Rate (PBR) in Bytes/s
@@ -69,7 +68,7 @@ LcgScheduler::schedule(unsigned int availableBytes, Direction grantDir)
         it_pair = lcgMap.equal_range((LteTrafficClass) i);
         LcgMap::iterator it = it_pair.first, et = it_pair.second;
 
-        EV << NOW << " LteSchedulerUeUl::schedule - Node  " << mac_->getMacNodeId() << ", Starting priority service for traffic class " << i << endl;
+        EV << NOW << " LcgScheduler::schedule - Node  " << mac_->getMacNodeId() << ", Starting priority service for traffic class " << i << endl;
 
         //! FIXME Allocation of the same resource to flows with same priority not implemented - not suitable with relays
         for (; it != et; ++it)
@@ -79,23 +78,40 @@ LcgScheduler::schedule(unsigned int availableBytes, Direction grantDir)
             // get the connection virtual buffer
             LteMacBuffer* vQueue = it->second.second;
 
+            // get the buffer size
+            unsigned int queueLength = vQueue->getQueueOccupancy(); // in bytes
+
             // connection id of the processed connection
             MacCid cid = it->second.first;
 
             // get the Flow descriptor
             FlowControlInfo connDesc = mac_->getConnDesc().at(cid);
-
-            if (connDesc.getDirection() != grantDir)  // if the connection has different direction from the grant direction, skip it
-            {
-                EV << NOW << " LteSchedulerUeUl::schedule - Connection " << cid << " is " << dirToA((Direction)connDesc.getDirection()) << " whereas grant is " << dirToA(grantDir) << ". Skip. " << endl;
-                continue;
-            }
-
             // TODO get the QoS parameters
 
-//            // get a pointer to the appropriate status element: we need a tracing element
-//            // in order to store information about connections and data transmitted. These
-//            // information may be consulted at the end of the LCP algorithm
+            // connection must have the same direction of the grant
+            if (connDesc.getDirection() != grantDir)
+                continue;
+
+            unsigned int toServe = queueLength;
+            // Check whether the virtual buffer is empty
+            if (queueLength == 0)
+            {
+                EV << "LcgScheduler::schedule scheduled connection is no more active " << endl;
+                continue; // go to next connection
+            }
+            else
+            {
+                // we need to consider also the size of RLC and MAC headers
+                if (connDesc.getRlcType() == UM)
+                    toServe += RLC_HEADER_UM;
+                else if (connDesc.getRlcType() == AM)
+                    toServe += RLC_HEADER_AM;
+                toServe += MAC_HEADER;
+            }
+
+            // get a pointer to the appropriate status element: we need a tracing element
+            // in order to store information about connections and data transmitted. These
+            // information may be consulted at the end of the LCP algorithm
             StatusElem* elem;
 
             if (statusMap_.find(cid) == statusMap_.end())
@@ -113,7 +129,7 @@ LcgScheduler::schedule(unsigned int availableBytes, Direction grantDir)
                 elem = &statusMap_[cid];
             }
 
-            EV << NOW << " LteSchedulerUeUl::schedule Node " << mac_->getMacNodeId() << " , Parameters:" << endl;
+            EV << NOW << " LcgScheduler::schedule Node " << mac_->getMacNodeId() << " , Parameters:" << endl;
             EV << "\t Logical Channel ID: " << MacCidToLcid(cid) << endl;
             EV << "\t CID: " << cid << endl;
 //                fprintf(stderr, "\tGroup ID: %d\n", desc->parameters_.groupId_);
@@ -129,16 +145,16 @@ LcgScheduler::schedule(unsigned int availableBytes, Direction grantDir)
                 double bucket = elem->bucket_; // TODO parameters -> bucket ;
                 double maximumBucketSize = 10000.0; // TODO  parameters -> maxBurst;
 
-                EV << NOW << " LteSchedulerUeUl::schedule Bucket size: " << bucket << " bytes (max size " << maximumBucketSize << " bytes) - BEFORE SERVICE " << endl;
+                EV << NOW << " LcgScheduler::schedule Bucket size: " << bucket << " bytes (max size " << maximumBucketSize << " bytes) - BEFORE SERVICE " << endl;
 
                 // if the connection started before last scheduling event , use the
                 // global time interval
                 if (lastExecutionTime_ > 0)
                 { // TODO desc->parameters_.startTime_) {
-//                    // PBR*(n*TTI) where n is the number of TTI from last update
+                    // PBR*(n*TTI) where n is the number of TTI from last update
                     bucket += /* TODO desc->parameters_.minReservedRate_*/ 100.0 * TTI;
                 }
-//                // otherwise, set the bucket value accordingly to the start time
+                // otherwise, set the bucket value accordingly to the start time
                 else
                 {
                     simtime_t localTimeInterval = NOW - 0/* TODO desc->parameters_.startTime_ */;
@@ -155,31 +171,28 @@ LcgScheduler::schedule(unsigned int availableBytes, Direction grantDir)
                 // update connection's bucket
 // TODO                desc->parameters_.bucket_ = bucket;
 
-//                // update the tracing element accordingly
+                // update the tracing element accordingly
                 elem->bucket_ = 100.0; // TODO desc->parameters_.bucket_;
-                EV << NOW << " LteSchedulerUeUl::schedule Bucket size: " << bucket << " bytes (max size " << maximumBucketSize << " bytes) - AFTER SERVICE " << endl;
+                EV << NOW << " LcgScheduler::schedule Bucket size: " << bucket << " bytes (max size " << maximumBucketSize << " bytes) - AFTER SERVICE " << endl;
             }
 
-            EV << NOW << " LteSchedulerUeUl::schedule - Node " << mac_->getMacNodeId() << ", remaining grant: " << availableBytes << " bytes " << endl;
-            EV << NOW << " LteSchedulerUeUl::schedule - Node " << mac_->getMacNodeId() << " buffer Size: " << vQueue->getQueueOccupancy() << " bytes " << endl;
+            EV << NOW << " LcgScheduler::schedule - Node " << mac_->getMacNodeId() << ", remaining grant: " << availableBytes << " bytes " << endl;
+            EV << NOW << " LcgScheduler::schedule - Node " << mac_->getMacNodeId() << " buffer Size: " << toServe << " bytes " << endl;
 
-//
-//            // If priority service: (availableBytes>0) && (desc->buffer_.occupancy() > 0) && (desc->parameters_.bucket_ > 0)
-//            // If best effort service: (availableBytes>0) && (desc->buffer_.occupancy() > 0)
-            while ((availableBytes > 0) && (vQueue->getQueueOccupancy() > 0)
+
+            // If priority service: (availableBytes>0) && (desc->buffer_.occupancy() > 0) && (desc->parameters_.bucket_ > 0)
+            // If best effort service: (availableBytes>0) && (desc->buffer_.occupancy() > 0)
+            if ((availableBytes > 0) && (toServe > 0)
                 && (!priorityService || 1 /*TODO (desc->parameters_.bucket_ > 0)*/))
             {
-                // get size of hol sdu
-                unsigned int sduSize = vQueue->front().first;
-
                 // Check if it is possible to serve the sdu, depending on the constraint
-//                // of the type of service
-//                // Priority service:
-//                //    ( sdu->size() <= availableBytes) && ( sdu->size() <= desc->parameters_.bucket_)
-//                // Best Effort service:
-//                //    ( sdu->size() <= availableBytes) && (!priorityService_)
+                // of the type of service
+                // Priority service:
+                //    ( sdu->size() <= availableBytes) && ( sdu->size() <= desc->parameters_.bucket_)
+                // Best Effort service:
+                //    ( sdu->size() <= availableBytes) && (!priorityService_)
 
-                if ((sduSize <= availableBytes) /*&& ( !priorityService || ( sduSize <= 0 TODO desc->parameters_.bucket_) )*/)
+                if ((toServe <= availableBytes) /*&& ( !priorityService || ( sduSize <= 0/*TODO desc->parameters_.bucket_) )*/)
                 {
                     // remove SDU from virtual buffer
                     vQueue->popFront();
@@ -190,37 +203,100 @@ LcgScheduler::schedule(unsigned int availableBytes, Direction grantDir)
 //                        // update the tracing element accordingly
 //    TODO                    elem->bucket_ = 100.0 /* TODO desc->parameters_.bucket_*/;
                     }
-                    availableBytes -= sduSize;
 
-//
+
                     // update the tracing element
                     elem->occupancy_ = vQueue->getQueueOccupancy();
-                    elem->sentData_ += sduSize;
-                    elem->sentSdus_++;
+                    elem->sentData_ += toServe;
 
-//
-                    EV << NOW << " LteSchedulerUeUl::schedule - Node " << mac_->getMacNodeId() << ",  SDU of size " << sduSize << " selected for transmission" << endl;
-                    EV << NOW << " LteSchedulerUeUl::schedule - Node " << mac_->getMacNodeId() << ", remaining grant: " << availableBytes << " bytes" << endl;
-                    EV << NOW << " LteSchedulerUeUl::schedule - Node " << mac_->getMacNodeId() << " buffer Size: " << vQueue->getQueueOccupancy() << " bytes" << endl;
+                    // check if there is space for a SDU
+                    int alloc = toServe;
+                    alloc -= MAC_HEADER;
+                    if (connDesc.getRlcType() == UM)
+                        alloc -= RLC_HEADER_UM;
+                    else if (connDesc.getRlcType() == AM)
+                        alloc -= RLC_HEADER_AM;
+
+                    if (alloc > 0)
+                        elem->sentSdus_++;
+
+                    availableBytes -= toServe;
+
+                    while (!vQueue->isEmpty())
+                    {
+                        // remove SDUs from virtual buffer
+                        vQueue->popFront();
+                    }
+
+                    toServe = 0;
+
+                    EV << NOW << " LcgScheduler::schedule - Node " << mac_->getMacNodeId() << ",  SDU of size " << elem->sentData_ << " selected for transmission" << endl;
+                    EV << NOW << " LcgScheduler::schedule - Node " << mac_->getMacNodeId() << ", remaining grant: " << availableBytes << " bytes" << endl;
+                    EV << NOW << " LcgScheduler::schedule - Node " << mac_->getMacNodeId() << " buffer Size: " << toServe << " bytes" << endl;
                 }
                 else
                 {
-//
-                    EV << NOW << " LteSchedulerUeUl::schedule - Node " << mac_->getMacNodeId() << ",  SDU of size " << sduSize << " could not be serviced " << endl;
-                    break;// sdu can't be serviced
+
+                    if (priorityService)
+                    {
+//    TODO                        desc->parameters_.bucket_ -= sduSize;
+//                        // update the tracing element accordingly
+//    TODO                    elem->bucket_ = 100.0 /* TODO desc->parameters_.bucket_*/;
+                    }
+
+
+                    // update the tracing element
+                    elem->occupancy_ = vQueue->getQueueOccupancy();
+                    elem->sentData_ += availableBytes;
+
+                    int alloc = availableBytes;
+                    alloc -= MAC_HEADER;
+                    if (connDesc.getRlcType() == UM)
+                        alloc -= RLC_HEADER_UM;
+                    else if (connDesc.getRlcType() == AM)
+                        alloc -= RLC_HEADER_AM;
+
+                    // check if there is space for a SDU
+                    if (alloc > 0)
+                        elem->sentSdus_++;
+
+                    // update buffer
+                    while (alloc > 0)
+                    {
+                        // update pkt info
+                        PacketInfo newPktInfo = vQueue->popFront();
+                        if (newPktInfo.first > alloc)
+                        {
+                            newPktInfo.first = newPktInfo.first - alloc;
+                            vQueue->pushFront(newPktInfo);
+                            alloc = 0;
+                        }
+                        else
+                        {
+                            alloc -= newPktInfo.first;
+                        }
+
+                    }
+
+                    toServe -= availableBytes;
+                    availableBytes = 0;
+
+                    EV << NOW << " LcgScheduler::schedule - Node " << mac_->getMacNodeId() << ",  SDU of size " << elem->sentData_ << " selected for transmission" << endl;
+                    EV << NOW << " LcgScheduler::schedule - Node " << mac_->getMacNodeId() << ", remaining grant: " << availableBytes << " bytes" << endl;
+                    EV << NOW << " LcgScheduler::schedule - Node " << mac_->getMacNodeId() << " buffer Size: " << toServe << " bytes" << endl;
                 }
             }
 
-                    // check if flow is still backlogged
-            if (vQueue->getQueueLength() > 0)
+            // check if flow is still backlogged
+            if (availableBytes > 0)
             {
                 // TODO the priority is higher when the associated integer is lower ( e.g. priority 2 is
                 // greater than 4 )
 //
 //                if ( desc->parameters_.priority_ >= lowestBackloggedPriority_ ) {
 //
-//                    if(LteDebug::trace("LteSchedulerUeUl::schedule"))
-//                        fprintf(stderr,"%.9f LteSchedulerUeUl::schedule - Node %d, this flow priority: %u (old lowest priority %u) - LOWEST FOR NOW\n", NOW, nodeId_, desc->parameters_.priority_, lowestBackloggedPriority_);
+//                    if(LteDebug::trace("LcgScheduler::schedule"))
+//                        fprintf(stderr,"%.9f LcgScheduler::schedule - Node %d, this flow priority: %u (old lowest priority %u) - LOWEST FOR NOW\n", NOW, nodeId_, desc->parameters_.priority_, lowestBackloggedPriority_);
 //
 //                    // store the new lowest backlogged flow and its priority
 //                    lowestBackloggedFlow_ = fid;
@@ -230,8 +306,8 @@ LcgScheduler::schedule(unsigned int availableBytes, Direction grantDir)
 //
 //                if ( highestBackloggedPriority_ == -1 || desc->parameters_.priority_ <= highestBackloggedPriority_ ) {
 //
-//                    if(LteDebug::trace("LteSchedulerUeUl::schedule"))
-//                        fprintf(stderr,"%.9f LteSchedulerUeUl::schedule - Node %d, this flow priority: %u (old highest priority %u) - HIGHEST FOR NOW\n", NOW, nodeId_, desc->parameters_.priority_, highestBackloggedPriority_);
+//                    if(LteDebug::trace("LcgScheduler::schedule"))
+//                        fprintf(stderr,"%.9f LcgScheduler::schedule - Node %d, this flow priority: %u (old highest priority %u) - HIGHEST FOR NOW\n", NOW, nodeId_, desc->parameters_.priority_, highestBackloggedPriority_);
 //
 //                    // store the new highest backlogged flow and its priority
 //                    highestBackloggedFlow_ = fid;
@@ -266,7 +342,7 @@ LcgScheduler::schedule(unsigned int availableBytes, Direction grantDir)
                 priorityService = false;
                 //  reset traffic class
                 i = 0;
-                EV << "LteSchedulerUeUl::schedule - Node" << mac_->getMacNodeId() << ", Starting best effort service" << endl;
+                EV << "LcgScheduler::schedule - Node" << mac_->getMacNodeId() << ", Starting best effort service" << endl;
             }
         } // END of connections cycle
     } // END of Traffic Classes cycle

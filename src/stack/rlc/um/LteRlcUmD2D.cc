@@ -47,30 +47,8 @@ void LteRlcUmD2D::handleLowerMessage(cPacket *pkt)
 
 void LteRlcUmD2D::initialize(int stage)
 {
-    if (stage == 0)
+    if (stage == inet::INITSTAGE_LOCAL)
     {
-        // check the MAC module type: if it is not "RealisticD2D", abort simulation
-        std::string nodeType = getParentModule()->getParentModule()->par("nodeType").stdstringValue();
-        std::string macType = getParentModule()->getParentModule()->par("LteMacType").stdstringValue();
-        std::string pdcpType = getParentModule()->getParentModule()->par("LtePdcpRrcType").stdstringValue();
-
-        if (nodeType.compare("ENODEB") == 0)
-        {
-            nodeType_ = ENODEB;
-            if (macType.compare("LteMacEnbRealisticD2D") != 0)
-                throw cRuntimeError("LteRlcUmD2D::initialize - %s module found, must be LteMacEnbRealisticD2D. Aborting", macType.c_str());
-            if (pdcpType.compare("LtePdcpRrcEnbD2D") != 0)
-                throw cRuntimeError("LteRlcUmD2D::initialize - %s module found, must be LtePdcpRrcEnbD2D. Aborting", pdcpType.c_str());
-        }
-        else if (nodeType.compare("UE") == 0)
-        {
-            nodeType_ = UE;
-            if (macType.compare("LteMacUeRealisticD2D") != 0)
-                throw cRuntimeError("LteRlcUmD2D::initialize - %s module found, must be LteMacUeRealisticD2D. Aborting", macType.c_str());
-            if (pdcpType.compare("LtePdcpRrcUeD2D") != 0)
-                throw cRuntimeError("LteRlcUmD2D::initialize - %s module found, must be LtePdcpRrcUeD2D. Aborting", pdcpType.c_str());
-        }
-
         up_[IN] = gate("UM_Sap_up$i");
         up_[OUT] = gate("UM_Sap_up$o");
         down_[IN] = gate("UM_Sap_down$i");

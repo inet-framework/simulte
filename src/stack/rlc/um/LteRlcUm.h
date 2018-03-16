@@ -54,15 +54,6 @@ class LteRlcUm : public cSimpleModule
     }
 
     /**
-     * sendFragmented() is invoked by the TXBuffer as a direct method
-     * call and used to forward fragments to lower layers. This is needed
-     * since the TXBuffer himself has no output gates
-     *
-     * @param pkt packet to forward
-     */
-    void sendFragmented(cPacket *pkt);
-
-    /**
      * sendDefragmented() is invoked by the RXBuffer as a direct method
      * call and used to forward fragments to upper layers. This is needed
      * since the RXBuffer himself has no output gates
@@ -80,10 +71,9 @@ class LteRlcUm : public cSimpleModule
     virtual void deleteQueues(MacNodeId nodeId);
 
     /**
-     * sendToLowerLayer() is identical to sendFragmented(), but it is invoked
-     * by TxEntity instead of TxBuffer (hence it is for RlcUmRealistic) and
-     * it is a virtual function (for example, RlcUmRealistic needs to
-     * redefine the behaviour of this function)
+     * sendToLowerLayer() is invoked by the TXEntity as a direct method
+     * call and used to forward fragments to lower layers. This is needed
+     * since the TXBuffer himself has no output gates
      *
      * @param pkt packet to forward
      */

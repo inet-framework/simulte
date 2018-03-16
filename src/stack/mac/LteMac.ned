@@ -209,28 +209,8 @@ simple LteMacUeD2D extends LteMacUe {
     parameters:
         @class("LteMacUeD2D");
     
-        bool usePreconfiguredTxParams = default(true);
+        bool usePreconfiguredTxParams = default(false);
         int d2dCqi = default(7);
-}
-
-//
-// User Equipment MAC layer of LTE stack (Realistic)
-//
-simple LteMacUeRealistic extends LteMacUe {
-    @class("LteMacUeRealistic");
-}
-
-//
-// D2D-capable User Equipment MAC layer of LTE stack (Realistic)
-//
-simple LteMacUeRealisticD2D extends LteMacUeRealistic
-{
-  parameters:
-    
-    @class("LteMacUeRealisticD2D"); 
-    
-    bool usePreconfiguredTxParams = default(false);
-    int d2dCqi = default(7);
 }
 
 //
@@ -618,35 +598,16 @@ simple LteMacEnbD2D extends LteMacEnb
 {
     parameters:
         @class("LteMacEnbD2D"); 
-        
-        bool usePreconfiguredTxParams = default(true);
+       
+	    bool usePreconfiguredTxParams = default(false);
         int d2dCqi = default(7);
+        
+        // Conflict Graph parameters
+        bool buildConflictGraph = default(false);
+        double conflictGraphUpdatePeriod @unit(s) = default(1s);
+        double conflictGraphThreshold = default(-90);  // dB
 }
       
-//
-// eNodeB MAC layer of LTE stack (Realistic)
-//
-simple LteMacEnbRealistic extends LteMacEnb {
-    @class("LteMacEnbRealistic");
-}
-
-//
-// eNodeB MAC layer of LTE stack (Realistic) with support for D2D-capable UEs
-//
-simple LteMacEnbRealisticD2D extends LteMacEnbRealistic
-{
-    parameters:
-        
-	@class("LteMacEnbRealisticD2D");
-	
-	bool usePreconfiguredTxParams = default(false);
-    int d2dCqi = default(7);
-    
-    // Conflict Graph parameters
-    bool buildConflictGraph = default(false);
-    double conflictGraphUpdatePeriod @unit(s) = default(1s);
-    double conflictGraphThreshold = default(-90);  // dB
-}
 
 //
 // Relay (UE side) MAC layer of LTE stack

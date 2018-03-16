@@ -11,7 +11,9 @@
 #define _LTE_LTEMACENBD2D_H_
 
 #include "stack/mac/layer/LteMacEnb.h"
+#include "stack/mac/buffer/LteMacBuffer.h"
 #include "stack/mac/buffer/harq_d2d/LteHarqBufferRxD2DMirror.h"
+#include "stack/d2dModeSelection/D2DModeSwitchNotification_m.h"
 
 typedef std::map<MacNodeId, LteHarqBufferRxD2DMirror*> HarqRxBuffersMirror;
 
@@ -30,27 +32,12 @@ class LteMacEnbD2D : public LteMacEnb
     bool usePreconfiguredTxParams_;
     UserTxParams* preconfiguredTxParams_;
 
-    /**
-     * Reads MAC parameters for eNb and performs initialization.
-     */
-    virtual void initialize(int stage);
+    // parameters for conflict graph (needed when frequency reuse is enabled)
+    bool buildConflictGraph_;
+    simtime_t conflictGraphUpdatePeriod_;
+    double conflictGraphThreshold_;
 
-    /**
-     * creates scheduling grants (one for each nodeId) according to the Schedule List.
-     * It sends them to the  lower layer
-     */
-    virtual void sendGrants(LteMacScheduleList* scheduleList);
-
-    /**
-     * bufferizeBsr() works much alike bufferizePacket()
-     * but only saves the BSR in the corresponding virtual
-     * buffer, eventually creating it if a queue for that
-     * cid does not exists yet.
-     *
-     * @param bsr bsr to store
-     * @param cid connection id for this bsr
-     */
-    void bufferizeBsr(MacBsr* bsr, MacCid cid);
+    void clearBsrBuffers(MacNodeId ueId);
 
     /**
      * macPduUnmake() extracts SDUs from a received MAC
@@ -64,15 +51,31 @@ class LteMacEnbD2D : public LteMacEnb
      */
     virtual void macPduUnmake(cPacket* pkt);
 
+    virtual void macHandleFeedbackPkt(cPacket *pkt);
     /**
-     * macHandleFeedbackPkt is called every time a feedback pkt arrives on MAC
+     * creates scheduling grants (one for each nodeId) according to the Schedule List.
+     * It sends them to the  lower layer
      */
-    virtual void macHandleFeedbackPkt(cPacket* pkt);
+    virtual void sendGrants(LteMacScheduleList* scheduleList);
+
+    void macHandleD2DModeSwitch(cPacket* pkt);
 
   public:
 
     LteMacEnbD2D();
     virtual ~LteMacEnbD2D();
+
+    /**
+     * Reads MAC parameters for ue and performs initialization.
+     */
+    virtual void initialize(int stage);
+
+    /**
+     * Main loop
+     */
+    virtual void handleSelfMessage();
+
+    virtual void handleMessage(cMessage* msg);
 
     virtual bool isD2DCapable()
     {

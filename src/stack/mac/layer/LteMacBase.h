@@ -305,7 +305,7 @@ class LteMacBase : public cSimpleModule
      * Functions to be redefined by derivated classes
      */
 
-    virtual void macPduMake(LteMacScheduleList* scheduleList) = 0;
+    virtual void macPduMake(MacCid cid = 0) = 0;
     virtual void macPduUnmake(cPacket* pkt) = 0;
 
     /**

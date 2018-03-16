@@ -103,15 +103,6 @@ void LteRlcUm::sendDefragmented(cPacket *pkt)
     send(pkt, up_[OUT]);
 }
 
-void LteRlcUm::sendFragmented(cPacket *pkt)
-{
-    Enter_Method_Silent("sendFragmented()");                      // Direct Method Call
-    take(pkt);                                                    // Take ownership
-
-    EV << "LteRlcUm : Sending packet " << pkt->getName() << " to port UM_Sap_down$o\n";
-    send(pkt, down_[OUT]);
-}
-
 void LteRlcUm::sendToLowerLayer(cPacket *pkt)
 {
     Enter_Method_Silent("sendToLowerLayer()");                    // Direct Method Call
@@ -233,21 +224,6 @@ void LteRlcUm::deleteQueues(MacNodeId nodeId)
 
 void LteRlcUm::initialize()
 {
-    // check the MAC module type: if it is not "realistic", abort simulation
-    std::string nodeType = getParentModule()->getParentModule()->par("nodeType").stdstringValue();
-    std::string macType = getParentModule()->getParentModule()->par("LteMacType").stdstringValue();
-
-    if (nodeType.compare("ENODEB") == 0)
-    {
-        if (macType.compare("LteMacEnbRealistic") != 0)
-            throw cRuntimeError("LteRlcUm::initialize - %s module found, must be LteMacEnbRealistic. Aborting", macType.c_str());
-    }
-    else if (nodeType.compare("UE") == 0)
-    {
-        if (macType.compare("LteMacUeRealistic") != 0)
-            throw cRuntimeError("LteRlcUm::initialize - %s module found, must be LteMacUeRealistic. Aborting", macType.c_str());
-    }
-
     up_[IN] = gate("UM_Sap_up$i");
     up_[OUT] = gate("UM_Sap_up$o");
     down_[IN] = gate("UM_Sap_down$i");
@@ -260,8 +236,7 @@ void LteRlcUm::initialize()
 void LteRlcUm::handleMessage(cMessage* msg)
 {
     cPacket* pkt = check_and_cast<cPacket *>(msg);
-    EV << "LteRlcUm : Received packet " << pkt->getName() <<
-    " from port " << pkt->getArrivalGate()->getName() << endl;
+    EV << "LteRlcUm : Received packet " << pkt->getName() << " from port " << pkt->getArrivalGate()->getName() << endl;
 
     cGate* incoming = pkt->getArrivalGate();
     if (incoming == up_[IN])

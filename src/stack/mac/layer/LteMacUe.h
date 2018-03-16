@@ -29,6 +29,9 @@ class LteMacUe : public LteMacBase
     // configured grant - one each codeword
     LteSchedulingGrant* schedulingGrant_;
 
+    /// List of scheduled connection for this UE
+    LteMacScheduleList* scheduleList_;
+
     // current H-ARQ process counter
     unsigned char currentHarq_;
 
@@ -79,6 +82,25 @@ class LteMacUe : public LteMacBase
     virtual void initialize(int stage);
 
     /**
+     * Analyze gate of incoming packet
+     * and call proper handler
+     */
+    virtual void handleMessage(cMessage *msg);
+
+    /**
+     * macSduRequest() sends a message to the RLC layer
+     * requesting MAC SDUs (one for each CID),
+     * according to the Schedule List.
+     */
+    virtual bool macSduRequest();
+
+    /**
+     * bufferizePacket() is called every time a packet is
+     * received from the upper layer
+     */
+    virtual bool bufferizePacket(cPacket* pkt);
+
+    /**
      * macPduMake() creates MAC PDUs (one for each CID)
      * by extracting SDUs from Real Mac Buffers according
      * to the Schedule List.
@@ -87,7 +109,7 @@ class LteMacUe : public LteMacBase
      * On UE it also adds a BSR control element to the MAC PDU
      * containing the size of its buffer (for that CID)
      */
-    virtual void macPduMake(LteMacScheduleList* scheduleList);
+    virtual void macPduMake(MacCid cid = 0);
 
     /**
      * macPduUnmake() extracts SDUs from a received MAC
@@ -96,6 +118,12 @@ class LteMacUe : public LteMacBase
      * @param pkt container packet
      */
     virtual void macPduUnmake(cPacket* pkt);
+
+    /**
+     * handleUpperMessage() is called every time a packet is
+     * received from the upper layer
+     */
+    virtual void handleUpperMessage(cPacket* pkt);
 
     /**
      * Main loop
@@ -120,6 +148,11 @@ class LteMacUe : public LteMacBase
      * Update UserTxParam stored in every lteMacPdu when an rtx change this information
      */
     virtual void updateUserTxParam(cPacket* pkt);
+
+    /**
+     * Flush Tx H-ARQ buffers for the user
+     */
+    virtual void flushHarqBuffers();
 
   public:
     LteMacUe();

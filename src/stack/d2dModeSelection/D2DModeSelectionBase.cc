@@ -9,7 +9,6 @@
 
 #include "stack/d2dModeSelection/D2DModeSelectionBase.h"
 #include "stack/mac/layer/LteMacEnbD2D.h"
-#include "stack/mac/layer/LteMacEnbRealisticD2D.h"
 
 Define_Module(D2DModeSelectionBase);
 
@@ -125,11 +124,7 @@ void D2DModeSelectionBase::sendModeSwitchNotifications()
         LteD2DMode oldMode = it->oldMode;
         LteD2DMode newMode = it->newMode;
 
-        if (strcmp(mac_->getClassName(), "LteMacEnbD2D") == 0)
-            check_and_cast<LteMacEnbD2D*>(mac_)->sendModeSwitchNotification(srcId, dstId, oldMode, newMode);
-        else if (strcmp(mac_->getClassName(), "LteMacEnbRealisticD2D") == 0)
-            check_and_cast<LteMacEnbRealisticD2D*>(mac_)->sendModeSwitchNotification(srcId, dstId, oldMode, newMode);
-        else
-            throw cRuntimeError("D2DModeSelectionBase::sendModeSwitchNotifications - unrecognized MAC type %s", mac_->getClassName());
+        // TODO make check_and_cast in initialize
+        check_and_cast<LteMacEnbD2D*>(mac_)->sendModeSwitchNotification(srcId, dstId, oldMode, newMode);
     }
 }

@@ -271,26 +271,6 @@ simple LteRlcMux {
 }
 
 // 
-// Transmit Buffer of RLC UM
-//
-simple UmTxQueue {
-    parameters:
-        @dynamic(true);
-        @display("i=block/segm");
-        int fragmentSize @unit(B) = default(30B);        // Size of fragments
-}
-
-// 
-// Receive Buffer of RLC UM
-//
-simple UmRxQueue {
-    parameters:
-        @dynamic(true);
-        @display("i=block/segm");
-        double timeout @unit(s) = default(1s);            // Timeout for RX Buffer
-}
-
-// 
 // Transmit Buffer of RLC AM
 //
 simple AmTxQueue {
@@ -319,7 +299,7 @@ simple AmRxQueue {
 }
 
 //
-// Entities for the RLC Realistic module
+// Entities for the RLC module
 //
 
 // 

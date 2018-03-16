@@ -33,6 +33,9 @@ class LteMacEnb : public LteMacBase
     /// Number of antennas (MACRO included)
     int numAntennas_;
 
+    /// List of scheduled users - Downlink
+    LteMacScheduleList* scheduleListDl_;
+
     int eNodeBCount;
     //Statistics
     simsignal_t activatedFrames_;
@@ -98,10 +101,10 @@ class LteMacEnb : public LteMacBase
     /**
      * macPduMake() creates MAC PDUs (one for each CID)
      * by extracting SDUs from Real Mac Buffers according
-     * to the Schedule List.
+     * to the Schedule List (stored after scheduling).
      * It sends them to H-ARQ
      */
-    virtual void macPduMake(LteMacScheduleList* scheduleList);
+    virtual void macPduMake(MacCid cid);
 
     /**
      * macPduUnmake() extracts SDUs from a received MAC
@@ -114,6 +117,13 @@ class LteMacEnb : public LteMacBase
      * @param pkt container packet
      */
     virtual void macPduUnmake(cPacket* pkt);
+
+    /**
+     * macSduRequest() sends a message to the RLC layer
+     * requesting MAC SDUs (one for each CID),
+     * according to the Schedule List.
+     */
+    virtual void macSduRequest();
 
     /**
      * bufferizeBsr() works much alike bufferizePacket()
@@ -156,6 +166,11 @@ class LteMacEnb : public LteMacBase
      * Update UserTxParam stored in every lteMacPdu when an rtx change this information
      */
     virtual void updateUserTxParam(cPacket* pkt);
+
+    /**
+     * Flush Tx H-ARQ buffers for all users
+     */
+    virtual void flushHarqBuffers();
 
   public:
 

@@ -45,7 +45,7 @@ module LteNicBase like ILteNic
         string interfaceTableModule;
         string routingTableModule;
         string LtePdcpRrcType;      // One of: "LtePdcpRrcUe", "LtePdcpRrcEnb", "LtePdcpRrcRelayUe", "LtePdcpRrcRelayEnb"
-        string LteMacType;          // One of: "LteMacUe", "LteMacEnb", "LteMacEnbExperimental", "LteMacRelayUe", "LteMacRelayEnb"
+        string LteMacType;          // One of: "LteMacUe", "LteMacEnb", "LteMacRelayUe", "LteMacRelayEnb"
         string LtePhyType;
         string nodeType;
         bool d2dCapable;            // inherit the value from the parent module
@@ -126,7 +126,7 @@ module LteNicUe extends LteNicBase
 {
     parameters:
         LtePdcpRrcType = default("LtePdcpRrcUe");
-        LteMacType = default("LteMacUeRealistic");
+        LteMacType = default("LteMacUe");
         LtePhyType = default("LtePhyUe");
         d2dCapable = default(false);          // DO NOT CHANGE
 
@@ -144,7 +144,7 @@ module LteNicUeD2D extends LteNicUe
 {
     parameters:
         LtePdcpRrcType = default("LtePdcpRrcUeD2D");
-        LteMacType = default("LteMacUeRealisticD2D");
+        LteMacType = default("LteMacUeD2D");
         LtePhyType = default("LtePhyUeD2D");
         d2dCapable = default(true);             // DO NOT CHANGE
         string d2dPeerAddresses = default("");  // list of D2D peer UEs, separated by blank spaces
@@ -157,7 +157,7 @@ module LteNicEnb extends LteNicBase
 {
     parameters:
         LtePdcpRrcType = default("LtePdcpRrcEnb");
-        LteMacType = default("LteMacEnbRealistic");
+        LteMacType = default("LteMacEnb");
         LtePhyType = default("LtePhyEnb");
         d2dCapable = default(false);          // DO NOT CHANGE
         bool compEnabled = default(false);
@@ -207,7 +207,7 @@ module LteNicEnbD2D extends LteNicEnb
 {
     parameters:
         LtePdcpRrcType = default("LtePdcpRrcEnbD2D");
-        LteMacType = default("LteMacEnbRealisticD2D");
+        LteMacType = default("LteMacEnbD2D");
         LtePhyType = default("LtePhyEnbD2D");
         d2dCapable = default(true);   // DO NOT CHANGE
         string d2dModeSelectionType = default("D2DModeSelectionBase");
