@@ -28,7 +28,7 @@ module Car
 {
     parameters:
         @networkNode();
-        @display("i=car.png;bgb=400,518");
+        @display("i=device/car;is=vs;bgb=400,518");
 
         //# Mobility
         string mobilityType = default("VeinsInetMobility");
@@ -44,8 +44,7 @@ module Car
         int macCellId = default(0); // TODO: this is not a real parameter
 
         //# D2D capability
-        bool d2dCapable = default(false);
-        string nicType = d2dCapable ? "LteNicUeD2D" : "LteNicUe";
+        string nicType = default("LteNicUe");
 
         //# Network Layer specs
         string networkLayerType = default("IPv4NetworkLayer");
@@ -83,7 +82,6 @@ module Car
         // NOTE: instance must be named "lteNic"
         lteNic: <nicType> like ILteNic {
             nodeType = nodeType;
-            d2dCapable = d2dCapable;
             @display("p=250,407");
         }
         // network layer
