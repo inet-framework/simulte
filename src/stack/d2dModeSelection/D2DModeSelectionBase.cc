@@ -15,28 +15,28 @@ Define_Module(D2DModeSelectionBase);
 
 void D2DModeSelectionBase::initialize(int stage)
 {
-    if (stage != 0)
-        return;
+    if (stage == inet::INITSTAGE_LOCAL)
+    {
+        switchList_.clear();
 
-    switchList_.clear();
+        // get reference to mac layer
+        mac_ = check_and_cast<LteMacEnb*>(getParentModule()->getSubmodule("mac"));
 
-    // get reference to mac layer
-    mac_ = check_and_cast<LteMacEnb*>(getParentModule()->getSubmodule("mac"));
+        // get reference to the binder
+        binder_ = getBinder();
 
-    // get reference to the binder
-    binder_ = getBinder();
+        // get mode selection period
+        modeSelectionPeriod_ = par("modeSelectionPeriod").doubleValue();
+        if (modeSelectionPeriod_ < TTI)
+            modeSelectionPeriod_ = TTI;
 
-    // get mode selection period
-    modeSelectionPeriod_ = par("modeSelectionPeriod").doubleValue();
-    if (modeSelectionPeriod_ < TTI)
-        modeSelectionPeriod_ = TTI;
+        // get the reference to the peering map in the binder
+        peeringModeMap_ = binder_->getD2DPeeringModeMap();
 
-    // get the reference to the peering map in the binder
-    peeringModeMap_ = binder_->getD2DPeeringModeMap();
-
-    // Start mode selection tick
-    modeSelectionTick_ = new cMessage("modeSelectionTick");
-    scheduleAt(NOW + 0.05, modeSelectionTick_);
+        // Start mode selection tick
+        modeSelectionTick_ = new cMessage("modeSelectionTick");
+        scheduleAt(NOW + 0.05, modeSelectionTick_);
+    }
 }
 
 void D2DModeSelectionBase::handleMessage(cMessage *msg)
