@@ -125,10 +125,10 @@ module LteNicBase like ILteNic
 module LteNicUe extends LteNicBase
 {
     parameters:
-        LtePdcpRrcType = "LtePdcpRrcUe";
+        LtePdcpRrcType = default("LtePdcpRrcUe");
         LteMacType = default("LteMacUeRealistic");
-        LtePhyType = "LtePhyUe";
-        d2dCapable = false;
+        LtePhyType = default("LtePhyUe");
+        d2dCapable = default(false);          // DO NOT CHANGE
 
     submodules:
         // Feedback generator submodule
@@ -140,21 +140,14 @@ module LteNicUe extends LteNicBase
 //
 // D2D-capable User Equipment of LTE stack
 //
-module LteNicUeD2D extends LteNicBase
+module LteNicUeD2D extends LteNicUe
 {
     parameters:
-        LtePdcpRrcType = "LtePdcpRrcUeD2D";
+        LtePdcpRrcType = default("LtePdcpRrcUeD2D");
         LteMacType = default("LteMacUeRealisticD2D");
-        LtePhyType = "LtePhyUeD2D";
-        d2dCapable = true;
-
+        LtePhyType = default("LtePhyUeD2D");
+        d2dCapable = default(true);             // DO NOT CHANGE
         string d2dPeerAddresses = default("");  // list of D2D peer UEs, separated by blank spaces
-
-    submodules:
-        // Feedback generator submodule
-        dlFbGen: LteDlFeedbackGenerator {
-            @display("p=50,50;is=s");
-        }
 }
 
 //
@@ -163,10 +156,10 @@ module LteNicUeD2D extends LteNicBase
 module LteNicEnb extends LteNicBase
 {
     parameters:
-        LtePdcpRrcType = "LtePdcpRrcEnb";
+        LtePdcpRrcType = default("LtePdcpRrcEnb");
         LteMacType = default("LteMacEnbRealistic");
-        LtePhyType = "LtePhyEnb";
-        d2dCapable = false;
+        LtePhyType = default("LtePhyEnb");
+        d2dCapable = default(false);          // DO NOT CHANGE
         bool compEnabled = default(false);
         string LteCompManagerType = default("LteCompManagerProportional");
 
@@ -210,54 +203,18 @@ module LteNicEnb extends LteNicBase
 //
 // eNodeB of LTE stack with support for D2D-capable UEs
 //
-module LteNicEnbD2D extends LteNicBase
+module LteNicEnbD2D extends LteNicEnb
 {
     parameters:
-        LtePdcpRrcType = "LtePdcpRrcEnbD2D";
+        LtePdcpRrcType = default("LtePdcpRrcEnbD2D");
         LteMacType = default("LteMacEnbRealisticD2D");
-        LtePhyType = "LtePhyEnbD2D";
-        d2dCapable = true;
-        bool compEnabled = default(false);
-        string LteCompManagerType = default("LteCompManagerProportional");
+        LtePhyType = default("LtePhyEnbD2D");
+        d2dCapable = default(true);   // DO NOT CHANGE
         string d2dModeSelectionType = default("D2DModeSelectionBase");
         
     submodules:
-        //#
-        //# X2 manager
-        //#       
-        x2Manager: LteX2Manager {
-            @display("p=60,227,row");
-        }
-
-        //#
-        //# Modules exploiting X2 interface
-        //#
-        compManager: <LteCompManagerType> like LteCompManager if compEnabled {
-            @display("p=60,315,row");
-        }
-        handoverManager: LteHandoverManager {
-            @display("p=60,142,row");
-        }
-
         d2dModeSelection: <d2dModeSelectionType> like D2DModeSelection {
             @display("p=60,68,row");
-        }
-    connections:
-        //# connections between X2 Manager and its users
-        compManager.x2ManagerIn <-- x2Manager.dataPort$o++ if compEnabled;
-        compManager.x2ManagerOut --> x2Manager.dataPort$i++ if compEnabled;
-        handoverManager.x2ManagerIn <-- x2Manager.dataPort$o++;
-        handoverManager.x2ManagerOut --> x2Manager.dataPort$i++;
-
-		if( sizeof(x2) > 0 ){
-        	//# connections between X2 Manager and GTP (for handover)
-        	x2$i[0] --> x2Manager.x2Gtp$i;
-        	x2$o[0] <-- x2Manager.x2Gtp$o;
-		}
-        //# connections between X2 Manager and the outer world
-        for i=1..sizeof(x2)-1 {
-            x2$i[i] --> x2Manager.x2$i++;
-            x2$o[i] <-- x2Manager.x2$o++;
         }
 }
 
