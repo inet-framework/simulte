@@ -7,25 +7,25 @@
 // and cannot be removed from it.
 //
 
-#ifndef _LTE_LTERLCUMREALISTICD2D_H_
-#define _LTE_LTERLCUMREALISTICD2D_H_
+#ifndef _LTE_LTERLCUMD2D_H_
+#define _LTE_LTERLCUMD2D_H_
 
-#include "stack/rlc/um/LteRlcUmRealistic.h"
+#include "stack/rlc/um/LteRlcUm.h"
 
 /**
- * @class LteRlcUmRealisticD2D
+ * @class LteRlcUmD2D
  * @brief UM Module
  *
  * This is the UM Module of RLC (with support for D2D)
  *
  */
-class LteRlcUmRealisticD2D : public LteRlcUmRealistic
+class LteRlcUmD2D : public LteRlcUm
 {
   public:
-    LteRlcUmRealisticD2D()
+    LteRlcUmD2D()
     {
     }
-    virtual ~LteRlcUmRealisticD2D()
+    virtual ~LteRlcUmD2D()
     {
     }
 
@@ -35,7 +35,6 @@ class LteRlcUmRealisticD2D : public LteRlcUmRealistic
 
     virtual int numInitStages() const { return inet::NUM_INIT_STAGES; }
     virtual void initialize(int stage);
-    virtual void handleMessage(cMessage *msg);
 
     /**
      * UM Mode

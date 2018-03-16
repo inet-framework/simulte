@@ -140,7 +140,7 @@ void UmTxEntity::rlcPduMake(int pduLength)
     // send to MAC layer
     EV << NOW << " UmTxEntity::rlcPduMake - send PDU " << rlcPdu->getPduSequenceNumber() << " with size " << rlcPdu->getByteLength() << " bytes to lower layer" << endl;
 
-    LteRlcUm* lteRlc = check_and_cast<LteRlcUm *>(getParentModule()->getSubmodule("um"));
+    LteRlcUm* lteRlc = check_and_cast<LteRlcUm*>(getParentModule()->getSubmodule("um"));
     lteRlc->sendToLowerLayer(rlcPdu);
 }
 

@@ -13,7 +13,6 @@
 #include "common/LteControlInfo.h"
 #include "stack/rlc/packet/LteRlcPdu.h"
 #include "stack/rlc/packet/LteRlcSdu.h"
-#include "stack/rlc/um/buffer/UmFragbuf.h"
 
 /*!
  * LTE RLC AM Types

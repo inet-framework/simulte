@@ -87,7 +87,7 @@ void LtePhyUe::initialize(int stage)
         mac_ = check_and_cast<LteMacUe *>(
             getParentModule()-> // nic
             getSubmodule("mac"));
-        rlcUm_ = check_and_cast<LteRlcUm *>(
+        rlcUm_ = check_and_cast<LteRlcUm*>(
             getParentModule()-> // nic
             getSubmodule("rlc")->
                 getSubmodule("um"));
@@ -563,7 +563,7 @@ void LtePhyUe::deleteOldBuffers(MacNodeId masterId)
     /* Delete Rlc UM Buffers */
 
     // delete UmTxQueue[nodeId_] at old master
-    LteRlcUm *masterRlcUm = check_and_cast<LteRlcUm *>(getSimulation()->getModule(masterOmnetId)->
+    LteRlcUm *masterRlcUm = check_and_cast<LteRlcUm*>(getSimulation()->getModule(masterOmnetId)->
     getSubmodule("lteNic")->getSubmodule("rlc")->getSubmodule("um"));
     masterRlcUm->deleteQueues(nodeId_);
 

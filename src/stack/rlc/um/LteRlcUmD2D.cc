@@ -7,21 +7,16 @@
 // and cannot be removed from it.
 //
 
-#include "stack/rlc/um/LteRlcUmRealisticD2D.h"
+#include "stack/rlc/um/LteRlcUmD2D.h"
 #include "stack/d2dModeSelection/D2DModeSwitchNotification_m.h"
 
-Define_Module(LteRlcUmRealisticD2D);
+Define_Module(LteRlcUmD2D);
 
-void LteRlcUmRealisticD2D::handleMessage(cMessage *msg)
-{
-    LteRlcUmRealistic::handleMessage(msg);
-}
-
-void LteRlcUmRealisticD2D::handleLowerMessage(cPacket *pkt)
+void LteRlcUmD2D::handleLowerMessage(cPacket *pkt)
 {
     if (strcmp(pkt->getName(), "D2DModeSwitchNotification") == 0)
     {
-        EV << NOW << " LteRlcUmRealisticD2D::handleLowerMessage - Received packet " << pkt->getName() << " from lower layer\n";
+        EV << NOW << " LteRlcUmD2D::handleLowerMessage - Received packet " << pkt->getName() << " from lower layer\n";
 
         // add here specific behavior for handling mode switch at the RLC layer
         D2DModeSwitchNotification* switchPkt = check_and_cast<D2DModeSwitchNotification*>(pkt);
@@ -34,7 +29,7 @@ void LteRlcUmRealisticD2D::handleLowerMessage(cPacket *pkt)
             txbuf->rlcHandleD2DModeSwitch(switchPkt->getOldConnection());
 
             // forward packet to PDCP
-            EV << "LteRlcUmRealisticD2D::handleLowerMessage - Sending packet " << pkt->getName() << " to port UM_Sap_up$o\n";
+            EV << "LteRlcUmD2D::handleLowerMessage - Sending packet " << pkt->getName() << " to port UM_Sap_up$o\n";
             send(pkt, up_[OUT]);
         }
         else  // rx side
@@ -47,10 +42,10 @@ void LteRlcUmRealisticD2D::handleLowerMessage(cPacket *pkt)
         }
     }
     else
-        LteRlcUmRealistic::handleLowerMessage(pkt);
+        LteRlcUm::handleLowerMessage(pkt);
 }
 
-void LteRlcUmRealisticD2D::initialize(int stage)
+void LteRlcUmD2D::initialize(int stage)
 {
     if (stage == 0)
     {
@@ -63,17 +58,17 @@ void LteRlcUmRealisticD2D::initialize(int stage)
         {
             nodeType_ = ENODEB;
             if (macType.compare("LteMacEnbRealisticD2D") != 0)
-                throw cRuntimeError("LteRlcUmRealisticD2D::initialize - %s module found, must be LteMacEnbRealisticD2D. Aborting", macType.c_str());
+                throw cRuntimeError("LteRlcUmD2D::initialize - %s module found, must be LteMacEnbRealisticD2D. Aborting", macType.c_str());
             if (pdcpType.compare("LtePdcpRrcEnbD2D") != 0)
-                throw cRuntimeError("LteRlcUmRealisticD2D::initialize - %s module found, must be LtePdcpRrcEnbD2D. Aborting", pdcpType.c_str());
+                throw cRuntimeError("LteRlcUmD2D::initialize - %s module found, must be LtePdcpRrcEnbD2D. Aborting", pdcpType.c_str());
         }
         else if (nodeType.compare("UE") == 0)
         {
             nodeType_ = UE;
             if (macType.compare("LteMacUeRealisticD2D") != 0)
-                throw cRuntimeError("LteRlcUmRealisticD2D::initialize - %s module found, must be LteMacUeRealisticD2D. Aborting", macType.c_str());
+                throw cRuntimeError("LteRlcUmD2D::initialize - %s module found, must be LteMacUeRealisticD2D. Aborting", macType.c_str());
             if (pdcpType.compare("LtePdcpRrcUeD2D") != 0)
-                throw cRuntimeError("LteRlcUmRealisticD2D::initialize - %s module found, must be LtePdcpRrcUeD2D. Aborting", pdcpType.c_str());
+                throw cRuntimeError("LteRlcUmD2D::initialize - %s module found, must be LtePdcpRrcUeD2D. Aborting", pdcpType.c_str());
         }
 
         up_[IN] = gate("UM_Sap_up$i");

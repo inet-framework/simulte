@@ -51,8 +51,8 @@ void LteMacEnbRealistic::initialize(int stage)
         // TODO do the same for RLC AM
         std::string rlcUmType = getParentModule()->getSubmodule("rlc")->par("LteRlcUmType").stdstringValue();
         std::string macType = getParentModule()->par("LteMacType").stdstringValue();
-        if (macType.compare("LteMacEnbRealistic") == 0 && rlcUmType.compare("LteRlcUmRealistic") != 0)
-            throw cRuntimeError("LteMacEnbRealistic::initialize - %s module found, must be LteRlcUmRealistic. Aborting", rlcUmType.c_str());
+        if (macType.compare("LteMacEnbRealistic") == 0 && rlcUmType.compare("LteRlcUm") != 0)
+            throw cRuntimeError("LteMacEnbRealistic::initialize - %s module found, must be LteRlcUm. Aborting", rlcUmType.c_str());
 
         /* Create and initialize MAC Downlink scheduler */
         enbSchedulerDl_ = new LteSchedulerEnbDlRealistic();

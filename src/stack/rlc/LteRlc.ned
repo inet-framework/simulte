@@ -16,9 +16,9 @@ package lte.stack.rlc;
 module LteRlc {
     parameters:
         @display("i=block/transport");      
-        string LteRlcUmType = default("LteRlcUmRealistic");          // One of: "LteRlcUm", "LteRlcUmRealistic", "LteRlcUmRealisticD2D"      
+        string LteRlcUmType = default("LteRlcUm");                   // One of: "LteRlcUm", "LteRlcUmD2D"      
         bool d2dCapable;                                             // inherit the value from the parent module
-        string umType = d2dCapable ? "LteRlcUmRealisticD2D" : LteRlcUmType;
+        string umType = d2dCapable ? "LteRlcUmD2D" : LteRlcUmType;
 
     gates:
         //# 
@@ -172,21 +172,12 @@ simple LteRlcUm like ILteRlcUm {
 }
 
 // 
-// UM Module (realistic) for the RLC layer of LTE Stack.
+// UM Module for the RLC layer of LTE Stack (with D2D).
 //
-simple LteRlcUmRealistic extends LteRlcUm {
-    parameters:
-        @class("LteRlcUmRealistic");
-        @display("i=block/wheelbarrow");
-}
-
-// 
-// UM Module (realistic) for the RLC layer of LTE Stack (with D2D).
-//
-simple LteRlcUmRealisticD2D extends LteRlcUm
+simple LteRlcUmD2D extends LteRlcUm
 {
     parameters:
-        @class("LteRlcUmRealisticD2D");
+        @class("LteRlcUmD2D");
         @display("i=block/wheelbarrow");
 }
 

@@ -14,11 +14,13 @@
 #include "common/LteCommon.h"
 #include "common/LteControlInfo.h"
 #include "stack/rlc/packet/LteRlcSdu_m.h"
-#include "stack/rlc/um/buffer/UmTxQueue.h"
-#include "stack/rlc/um/buffer/UmRxQueue.h"
+#include "stack/rlc/um/entity/UmTxEntity.h"
+#include "stack/rlc/um/entity/UmRxEntity.h"
+#include "stack/rlc/packet/LteRlcDataPdu.h"
+#include "stack/mac/layer/LteMacBase.h"
 
-class UmTxQueue;
-class UmRxQueue;
+class UmTxEntity;
+class UmRxEntity;
 
 /**
  * @class LteRlcUm
@@ -31,8 +33,8 @@ class UmRxQueue;
  *   This mode is used for data traffic. Packets arriving on
  *   this port have been already assigned a CID.
  *   UM implements fragmentation and reassembly of packets.
- *   To perform this task there is a TXBuffer module for
- *   every CID = <NODE_ID,LCID>. Fragments are created by the
+ *   To perform this task there is a TxEntity module for
+ *   every CID = <NODE_ID,LCID>. RLC PDUs are created by the
  *   sender and reassembly is performed at the receiver by
  *   simply returning him the original packet.
  *   Traffic on this port is then forwarded on ports
@@ -97,29 +99,27 @@ class LteRlcUm : public cSimpleModule
      */
     virtual void initialize();
 
+    virtual void finish()
+    {
+    }
+
     /**
      * Analyze gate of incoming packet
      * and call proper handler
      */
     virtual void handleMessage(cMessage *msg);
 
-    virtual void finish()
-    {
-    }
-
-  private:
     /**
      * getTxBuffer() is used by the sender to gather the TXBuffer
      * for that CID. If TXBuffer was already present, a reference
      * is returned, otherwise a new TXBuffer is created,
      * added to the tx_buffers map and a reference is returned aswell.
      *
-     * @param lcid Logical Connection ID
-     * @param nodeId MAC Node Id
-     * @return pointer to the TXBuffer for that CID
+     * @param lteInfo flow-related info
+     * @return pointer to the TXBuffer for the CID of the flow
      *
      */
-    UmTxQueue* getTxBuffer(MacNodeId nodeId, LogicalCid lcid);
+    UmTxEntity* getTxBuffer(FlowControlInfo* lteInfo);
 
     /**
      * getRxBuffer() is used by the receiver to gather the RXBuffer
@@ -127,12 +127,11 @@ class LteRlcUm : public cSimpleModule
      * is returned, otherwise a new RXBuffer is created,
      * added to the rx_buffers map and a reference is returned aswell.
      *
-     * @param lcid Logical Connection ID
-     * @param nodeId MAC Node Id
+     * @param lteInfo flow-related info
      * @return pointer to the RXBuffer for that CID
      *
      */
-    UmRxQueue* getRxBuffer(MacNodeId nodeId, LogicalCid lcid);
+    UmRxEntity* getRxBuffer(FlowControlInfo* lteInfo);
 
     /**
      * handler for traffic coming
@@ -173,13 +172,13 @@ class LteRlcUm : public cSimpleModule
      */
 
     /**
-     * The buffers map associate each CID with
-     * a TX/RX Buffer , identified by its ID
+     * The entities map associate each CID with
+     * a TX/RX Entity , identified by its ID
      */
-    typedef std::map<MacCid, UmTxQueue*> UmTxBuffers;
-    typedef std::map<MacCid, UmRxQueue*> UmRxBuffers;
-    UmTxBuffers txBuffers_;
-    UmRxBuffers rxBuffers_;
+    typedef std::map<MacCid, UmTxEntity*> UmTxEntities;
+    typedef std::map<MacCid, UmRxEntity*> UmRxEntities;
+    UmTxEntities txEntities_;
+    UmRxEntities rxEntities_;
 };
 
 #endif

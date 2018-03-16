@@ -40,8 +40,8 @@ void LteMacUeRealisticD2D::initialize(int stage)
         cModule* rlc = getParentModule()->getSubmodule("rlc");
         std::string rlcUmType = rlc->par("LteRlcUmType").stdstringValue();
         bool rlcD2dCapable = rlc->par("d2dCapable").boolValue();
-        if (rlcUmType.compare("LteRlcUmRealistic") != 0 || !rlcD2dCapable)
-            throw cRuntimeError("LteMacUeRealisticD2D::initialize - %s module found, must be LteRlcUmRealisticD2D. Aborting", rlcUmType.c_str());
+        if (rlcUmType.compare("LteRlcUm") != 0 || !rlcD2dCapable)
+            throw cRuntimeError("LteMacUeRealisticD2D::initialize - %s module found, must be LteRlcUmD2D. Aborting", rlcUmType.c_str());
         if (pdcpType.compare("LtePdcpRrcUeD2D") != 0)
             throw cRuntimeError("LteMacUeRealisticD2D::initialize - %s module found, must be LtePdcpRrcUeD2D. Aborting", pdcpType.c_str());
     }

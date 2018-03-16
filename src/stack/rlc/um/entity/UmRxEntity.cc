@@ -7,10 +7,10 @@
 // and cannot be removed from it.
 //
 
+#include "stack/rlc/um/LteRlcUm.h"
 #include "stack/rlc/um/entity/UmRxEntity.h"
 #include "stack/mac/layer/LteMacBase.h"
 #include "stack/mac/layer/LteMacEnb.h"
-#include "stack/rlc/um/LteRlcUm.h"
 
 Define_Module(UmRxEntity);
 
@@ -236,7 +236,7 @@ void UmRxEntity::moveRxWindow(const int pos)
 
 void UmRxEntity::toPdcp(LteRlcSdu* rlcSdu)
 {
-    LteRlcUm* lteRlc = check_and_cast<LteRlcUm *>(getParentModule()->getSubmodule("um"));
+    LteRlcUm* lteRlc = check_and_cast<LteRlcUm*>(getParentModule()->getSubmodule("um"));
 
     FlowControlInfo* lteInfo = check_and_cast<FlowControlInfo*>(rlcSdu->getControlInfo());
     unsigned int sno = rlcSdu->getSnoMainPacket();

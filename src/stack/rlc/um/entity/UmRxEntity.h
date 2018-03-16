@@ -11,7 +11,7 @@
 #define _LTE_UMRXENTITY_H_
 
 #include <omnetpp.h>
-#include "stack/rlc/um/LteRlcUmRealistic.h"
+#include "stack/rlc/um/LteRlcUm.h"
 #include "common/timer/TTimer.h"
 #include "common/LteControlInfo.h"
 #include "stack/pdcp_rrc/packet/LtePdcpPdu_m.h"
