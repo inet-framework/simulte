@@ -42,6 +42,8 @@ class LteMacUe : public LteMacBase
     // number of MAC SDUs requested to the RLC
     int requestedSdus_;
 
+    bool debugHarq_;
+
     // RAC Handling variables
 
     bool racRequested_;

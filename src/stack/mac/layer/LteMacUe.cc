@@ -37,6 +37,7 @@ LteMacUe::LteMacUe() :
     bsrTriggered_ = false;
     requestedSdus_ = 0;
     scheduleList_ = NULL;
+    debugHarq_ = false;
 
     // TODO setup from NED
     racBackoffTimer_ = 0;
@@ -701,24 +702,27 @@ void LteMacUe::handleSelfMessage()
     }
 
     //============================ DEBUG ==========================
-    // TODO make this part optional to save computations
-    HarqTxBuffers::iterator it;
-
-    EV << "\n htxbuf.size " << harqTxBuffers_.size() << endl;
-
-    int cntOuter = 0;
-    int cntInner = 0;
-    for(it = harqTxBuffers_.begin(); it != harqTxBuffers_.end(); it++)
+    if (debugHarq_)
     {
-        LteHarqBufferTx* currHarq = it->second;
-        BufferStatus harqStatus = currHarq->getBufferStatus();
-        BufferStatus::iterator jt = harqStatus.begin(), jet= harqStatus.end();
+        // TODO make this part optional to save computations
+        HarqTxBuffers::iterator it;
 
-        EV << "\t cicloOuter " << cntOuter << " - bufferStatus.size=" << harqStatus.size() << endl;
-        for(; jt != jet; ++jt)
+        EV << "\n htxbuf.size " << harqTxBuffers_.size() << endl;
+
+        int cntOuter = 0;
+        int cntInner = 0;
+        for(it = harqTxBuffers_.begin(); it != harqTxBuffers_.end(); it++)
         {
-            EV << "\t\t cicloInner " << cntInner << " - jt->size=" << jt->size()
-               << " - statusCw(0/1)=" << jt->at(0).second << "/" << jt->at(1).second << endl;
+            LteHarqBufferTx* currHarq = it->second;
+            BufferStatus harqStatus = currHarq->getBufferStatus();
+            BufferStatus::iterator jt = harqStatus.begin(), jet= harqStatus.end();
+
+            EV << "\t cicloOuter " << cntOuter << " - bufferStatus.size=" << harqStatus.size() << endl;
+            for(; jt != jet; ++jt)
+            {
+                EV << "\t\t cicloInner " << cntInner << " - jt->size=" << jt->size()
+                   << " - statusCw(0/1)=" << jt->at(0).second << "/" << jt->at(1).second << endl;
+            }
         }
     }
     //======================== END DEBUG ==========================
