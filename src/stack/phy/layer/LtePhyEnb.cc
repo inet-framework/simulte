@@ -109,13 +109,9 @@ bool LtePhyEnb::handleControlPkt(UserControlInfo* lteinfo, LteAirFrame* frame)
 {
     EV << "Received control pkt " << endl;
     MacNodeId senderMacNodeId = lteinfo->getSourceId();
-    try
+    if (binder_->getOmnetId(senderMacNodeId) == 0)
     {
-        binder_->getOmnetId(senderMacNodeId);
-    }
-    catch (std::out_of_range& e)
-    {
-        std::cerr << "Sender (" << senderMacNodeId << ") does not exist anymore!" << std::endl;
+        EV << "Sender (" << senderMacNodeId << ") does not exist anymore!" << std::endl;
         delete frame;
         return true;    // FIXME ? make sure that nodes that left the simulation do not send
     }

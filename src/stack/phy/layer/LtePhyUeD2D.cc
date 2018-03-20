@@ -74,6 +74,15 @@ void LtePhyUeD2D::handleAirFrame(cMessage* msg)
     connectedNodeId_ = masterId_;
     LteAirFrame* frame = check_and_cast<LteAirFrame*>(msg);
     EV << "LtePhyUeD2D: received new LteAirFrame with ID " << frame->getId() << " from channel" << endl;
+
+    int sourceId = binder_->getOmnetId(lteInfo->getSourceId());
+    if(sourceId == 0 )
+    {
+        // source has left the simulation
+        delete msg;
+        return;
+    }
+
     //Update coordinates of this user
     if (lteInfo->getFrameType() == HANDOVERPKT)
     {

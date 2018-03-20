@@ -213,7 +213,7 @@ module LteNicEnbD2D extends LteNicEnb
         string d2dModeSelectionType = default("D2DModeSelectionBase");
         
     submodules:
-        d2dModeSelection: <d2dModeSelectionType> like D2DModeSelection if d2dModeSelectionType != "D2DModeSelectionBase" {
+        d2dModeSelection: <d2dModeSelectionType> like D2DModeSelection {
             @display("p=60,68,row");
         }
 }

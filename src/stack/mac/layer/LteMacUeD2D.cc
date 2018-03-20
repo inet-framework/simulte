@@ -52,7 +52,7 @@ void LteMacUeD2D::initialize(int stage)
         preconfiguredTxParams_ = getPreconfiguredTxParams();
 
         // get the reference to the eNB
-        enb_ = check_and_cast<LteMacEnbD2D*>(getSimulation()->getModule(binder_->getOmnetId(getMacCellId()))->getSubmodule("lteNic")->getSubmodule("mac"));
+        enb_ = check_and_cast<LteMacEnbD2D*>(getSimulation()->getModule(binder_->getOmnetId(cellId_))->getSubmodule("lteNic")->getSubmodule("mac"));
 
         LteAmc *amc = check_and_cast<LteMacEnb *>(getSimulation()->getModule(binder_->getOmnetId(cellId_))->getSubmodule("lteNic")->getSubmodule("mac"))->getAmc();
         amc->attachUser(nodeId_, D2D);
@@ -801,7 +801,6 @@ void LteMacUeD2D::macHandleD2DModeSwitch(cPacket* pkt)
     LteD2DMode newMode = switchPkt->getNewMode();
     LteD2DMode oldMode = switchPkt->getOldMode();
     UserControlInfo* uInfo = check_and_cast<UserControlInfo*>(pkt->removeControlInfo());
-
     if (txSide)
     {
         Direction newDirection = (newMode == DM) ? D2D : UL;

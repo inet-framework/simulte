@@ -103,7 +103,7 @@ void D2DModeSelectionBase::doModeSwitchAtHandover(MacNodeId nodeId, bool handove
             // update peering map
             jt->second = newMode;
 
-            std::cout << NOW << " D2DModeSelectionBase::doModeSwitchAtHandover - Flow: " << srcId << " --> " << dstId << " [" << d2dModeToA(newMode) << "]" << endl;
+            EV << NOW << " D2DModeSelectionBase::doModeSwitchAtHandover - Flow: " << srcId << " --> " << dstId << " [" << d2dModeToA(newMode) << "]" << endl;
         }
     }
 

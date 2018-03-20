@@ -195,6 +195,16 @@ void LtePhyEnbD2D::handleAirFrame(cMessage* msg)
     }
 
     connectedNodeId_ = lteInfo->getSourceId();
+
+    int sourceId = binder_->getOmnetId(connectedNodeId_);
+    int senderId = binder_->getOmnetId(lteInfo->getDestId());
+    if(sourceId == 0 || senderId == 0)
+    {
+        // either source or destination have left the simulation
+        delete msg;
+        return;
+    }
+
     //handle all control pkt
     if (handleControlPkt(lteInfo, frame))
         return; // If frame contain a control pkt no further action is needed

@@ -36,11 +36,7 @@ class LtePdcpRrcUeD2D : public LtePdcpRrcUe
         delete lteInfo;
     }
 
-    MacNodeId getDestId(FlowControlInfo* lteInfo)
-    {
-        // UE is subject to handovers: master may change
-        return binder_->getNextHop(nodeId_);
-    }
+    virtual MacNodeId getDestId(FlowControlInfo* lteInfo);
 
     Direction getDirection(MacNodeId destId)
     {

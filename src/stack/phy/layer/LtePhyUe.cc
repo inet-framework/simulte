@@ -279,9 +279,6 @@ void LtePhyUe::triggerHandover()
 
     handoverTrigger_ = new cMessage("handoverTrigger");
     scheduleAt(simTime() + handoverLatency_, handoverTrigger_);
-
-    if (getEnvir()->isGUI())
-        getParentModule()->getParentModule()->bubble("Starting handover");
 }
 
 void LtePhyUe::doHandover()
@@ -328,17 +325,12 @@ void LtePhyUe::doHandover()
     // collect stat
     emit(servingCell_, (long)masterId_);
 
-    if (getEnvir()->isGUI())
-        getParentModule()->getParentModule()->bubble("Handover complete!");
-
     EV << NOW << " LtePhyUe::doHandover - UE " << nodeId_ << " has completed handover to eNB " << masterId_ << "... " << endl;
     binder_->removeUeHandoverTriggered(nodeId_);
 
     // inform the eNB's IP2lte module to forward data to the target eNB
     IP2lte* enbIp2lte =  check_and_cast<IP2lte*>(getSimulation()->getModule(binder_->getOmnetId(masterId_))->getSubmodule("lteNic")->getSubmodule("ip2lte"));
     enbIp2lte->signalHandoverCompleteTarget(nodeId_,oldMaster);
-
-    // TODO: transfer buffers
 }
 
 
@@ -353,8 +345,16 @@ void LtePhyUe::handleAirFrame(cMessage* msg)
     }
     connectedNodeId_ = masterId_;
     LteAirFrame* frame = check_and_cast<LteAirFrame*>(msg);
-    EV << "LtePhy: received new LteAirFrame with ID "
-       << frame->getId() << " from channel" << endl;
+    EV << "LtePhy: received new LteAirFrame with ID " << frame->getId() << " from channel" << endl;
+
+    int sourceId = binder_->getOmnetId(lteInfo->getSourceId());
+    if(sourceId == 0 )
+    {
+        // source has left the simulation
+        delete msg;
+        return;
+    }
+
     //Update coordinates of this user
     if (lteInfo->getFrameType() == HANDOVERPKT)
     {

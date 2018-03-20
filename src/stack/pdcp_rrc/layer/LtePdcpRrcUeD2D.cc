@@ -13,6 +13,21 @@
 
 Define_Module(LtePdcpRrcUeD2D);
 
+MacNodeId LtePdcpRrcUeD2D::getDestId(FlowControlInfo* lteInfo)
+{
+    IPv4Address destAddr = IPv4Address(lteInfo->getDstAddr());
+    MacNodeId destId = binder_->getMacNodeId(destAddr);
+
+    // check if the destination is inside the LTE network
+    if (destId == 0 || getDirection(destId) == UL)  // if not, the packet is destined to the eNB
+    {
+        // UE is subject to handovers: master may change
+        return binder_->getNextHop(nodeId_);
+    }
+
+    return destId;
+}
+
 /*
  * Upper Layer handlers
  */
@@ -43,44 +58,51 @@ void LtePdcpRrcUeD2D::fromDataPort(cPacket *pkt)
         uint32 mask = ~((uint32)255 << 28);      // 0000 1111 1111 1111
         uint32 groupId = address & mask;
         lteInfo->setMulticastGroupId((int32)groupId);
+        lteInfo->setDestId(nodeId_);             // destId is meaningless for multicast D2D (we use the id of the source for statistic purposes at lower levels)
     }
     else
     {
-        if (binder_->getMacNodeId(destAddr) == 0)
-        {
-            EV << NOW << " LtePdcpRrcUeD2D::fromDataPort - Destination " << destAddr << " has left the simulation. Delete packet." << endl;
-            delete pkt;
-            return;
-        }
 
-        // This part is required for supporting D2D unicast with dynamic-created modules
-        // the first time we see a new destination address, we need to check whether the endpoint
-        // is a D2D peer and, eventually, add it to the binder
-        const char* destName = (L3AddressResolver().findHostWithAddress(destAddr))->getFullName();
-        if (d2dPeeringInit_.find(destName) == d2dPeeringInit_.end() || !d2dPeeringInit_.at(destName))
-        {
-            MacNodeId d2dPeerId = binder_->getMacNodeId(destAddr);
-            binder_->addD2DCapability(nodeId_, d2dPeerId);
-            d2dPeeringInit_[destName] = true;
-        }
-
-        // set direction based on the destination Id. If the destination can be reached
-        // using D2D, set D2D direction. Otherwise, set UL direction
         destId = binder_->getMacNodeId(destAddr);
-        lteInfo->setDirection(getDirection(destId));
+        if (destId != 0)  // the destination is a UE within the LTE network
+        {
+            // This part is required for supporting D2D unicast with dynamic-created modules
+            // the first time we see a new destination address, we need to check whether the endpoint
+            // is a D2D peer and, eventually, add it to the binder
+            const char* destName = (L3AddressResolver().findHostWithAddress(destAddr))->getFullName();
+            if (d2dPeeringInit_.find(destName) == d2dPeeringInit_.end() || !d2dPeeringInit_.at(destName))
+            {
+                binder_->addD2DCapability(nodeId_, binder_->getMacNodeId(destAddr));
+                d2dPeeringInit_[destName] = true;
+            }
 
-        if (binder_->checkD2DCapability(nodeId_, destId))
-        {
-            // this way, we record the ID of the endpoint even if the connection is in IM
-            // this is useful for mode switching
-            lteInfo->setD2dTxPeerId(nodeId_);
-            lteInfo->setD2dRxPeerId(destId);
+            // set direction based on the destination Id. If the destination can be reached
+            // using D2D, set D2D direction. Otherwise, set UL direction
+            lteInfo->setDirection(getDirection(destId));
+
+            if (binder_->checkD2DCapability(nodeId_, destId))
+            {
+                // this way, we record the ID of the endpoint even if the connection is in IM
+                // this is useful for mode switching
+                lteInfo->setD2dTxPeerId(nodeId_);
+                lteInfo->setD2dRxPeerId(destId);
+            }
+            else
+            {
+                lteInfo->setD2dTxPeerId(0);
+                lteInfo->setD2dRxPeerId(0);
+            }
+
         }
-        else
+        else  // the destination is outside the LTE network
         {
+            lteInfo->setDirection(UL);
             lteInfo->setD2dTxPeerId(0);
             lteInfo->setD2dRxPeerId(0);
         }
+
+        destId = getDestId(lteInfo);
+        lteInfo->setDestId(destId);
     }
 
     // Cid Request
@@ -124,13 +146,6 @@ void LtePdcpRrcUeD2D::fromDataPort(cPacket *pkt)
     // set some flow-related info
     lteInfo->setLcid(mylcid);
     lteInfo->setSourceId(nodeId_);
-    if (lteInfo->getDirection() == D2D)
-        lteInfo->setDestId(destId);
-    else if (lteInfo->getDirection() == D2D_MULTI)
-        lteInfo->setDestId(nodeId_);             // destId is meaningless for multicast D2D (we use the id of the source for statistic purposes at lower levels)
-    else // UL
-        lteInfo->setDestId(getDestId(lteInfo));
-
     // PDCP Packet creation
     LtePdcpPdu* pdcpPkt = new LtePdcpPdu("LtePdcpPdu");
     pdcpPkt->setByteLength(lteInfo->getRlcType() == UM ? PDCP_HEADER_UM : PDCP_HEADER_AM);
