@@ -1,0 +1,7 @@
+# workingdir,                        args,                                          simtimelimit,    fingerprint
+/simulations/d2d/,              -f omnetpp.ini -c SinglePair-UDP-D2D -r 0,              5s,         fcd3-df2f/tls
+/simulations/d2d/,              -f omnetpp.ini -c SinglePair-UDP-Infra -r 0,            5s,         0d4f-8371/tls
+/simulations/d2d/,              -f omnetpp.ini -c MultiplePairs-UDP-D2D -r 0,           5s,         51b6-965c/tls
+/simulations/d2d/,              -f omnetpp.ini -c MultiplePairs-UDP-Infra -r 0,         5s,         f1cb-a20f/tls
+/simulations/d2d/,              -f omnetpp.ini -c MultiplePairs-UDP-D2D-wReuse -r 0,    5s,         006d-970d/tls
+
