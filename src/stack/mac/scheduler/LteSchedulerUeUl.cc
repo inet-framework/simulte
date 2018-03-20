@@ -68,6 +68,9 @@ LteSchedulerUeUl::schedule()
         // the connections provided
         std::map<MacCid, unsigned int>& sdus = lcgScheduler_->schedule(availableBytes, dir);
 
+        // get the amount of bytes scheduled for each connection
+        std::map<MacCid, unsigned int>& bytes = lcgScheduler_->getScheduledBytesList();
+
         // TODO check if this jump is ok
         if (sdus.empty())
             continue;
@@ -78,6 +81,14 @@ LteSchedulerUeUl::schedule()
             // set schedule list entry
             std::pair<MacCid, Codeword> schedulePair(it->first, cw);
             scheduleList_[schedulePair] = it->second;
+        }
+
+        std::map<MacCid, unsigned int>::const_iterator bit = bytes.begin(), bet = bytes.end();
+        for (; bit != bet; ++bit)
+        {
+            // set schedule list entry
+            std::pair<MacCid, Codeword> schedulePair(bit->first, cw);
+            scheduledBytesList_[schedulePair] = bit->second;
         }
 
         MacCid highestBackloggedFlow = 0;
@@ -98,4 +109,9 @@ LteSchedulerUeUl::schedule()
         // TODO make use of above values
     }
     return &scheduleList_;
+}
+
+LteMacScheduleList* LteSchedulerUeUl::getScheduledBytesList()
+{
+    return &scheduledBytesList_;
 }

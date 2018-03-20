@@ -39,6 +39,9 @@ class LteMacUe : public LteMacBase
     unsigned int periodCounter_;
     unsigned int expirationCounter_;
 
+    // number of MAC SDUs requested to the RLC
+    int requestedSdus_;
+
     // RAC Handling variables
 
     bool racRequested_;
@@ -92,7 +95,7 @@ class LteMacUe : public LteMacBase
      * requesting MAC SDUs (one for each CID),
      * according to the Schedule List.
      */
-    virtual bool macSduRequest();
+    virtual int macSduRequest();
 
     /**
      * bufferizePacket() is called every time a packet is

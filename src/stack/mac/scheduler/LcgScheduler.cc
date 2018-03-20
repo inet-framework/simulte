@@ -28,6 +28,11 @@ ScheduleList& LcgScheduler::schedule(unsigned int availableBytes, Direction gran
      */
     scheduleList_.clear();
 
+    /* clean up old schedule decisions
+     for each cid, this map will store the the amount of sent data (in bytes, useful for macSduRequest)
+     */
+    scheduledBytesList_.clear();
+
     /*
      * Clean up scheduling support status map
      */
@@ -54,6 +59,8 @@ ScheduleList& LcgScheduler::schedule(unsigned int availableBytes, Direction gran
     // If true, assure a minimum reserved rate to all connection (LCP first
     // phase), if false, provide a best effort service (LCP second phase)
     bool priorityService = true;
+
+    bool firstSdu = true;
 
     LcgMap& lcgMap = mac_->getLcgMap();
 
@@ -106,7 +113,12 @@ ScheduleList& LcgScheduler::schedule(unsigned int availableBytes, Direction gran
                     toServe += RLC_HEADER_UM;
                 else if (connDesc.getRlcType() == AM)
                     toServe += RLC_HEADER_AM;
-                toServe += MAC_HEADER;
+
+                if (firstSdu)
+                {
+                    toServe += MAC_HEADER;
+                    firstSdu=false;
+                }
             }
 
             // get a pointer to the appropriate status element: we need a tracing element
@@ -334,6 +346,16 @@ ScheduleList& LcgScheduler::schedule(unsigned int availableBytes, Direction gran
                 servicedSdu = &scheduleList_.at(cid);
             }
 
+            // update scheduled bytes
+            if (scheduledBytesList_.find(cid) == scheduledBytesList_.end())
+            {
+                scheduledBytesList_[cid] = elem->sentData_;
+            }
+            else
+            {
+                scheduledBytesList_[cid] += elem->sentData_;
+            }
+
             // If the end of the connections map is reached and we were on priority and on last traffic class
             if (priorityService && (it == et) && ((i + 1) == (unsigned short) UNKNOWN_TRAFFIC_TYPE))
             {
@@ -348,4 +370,9 @@ ScheduleList& LcgScheduler::schedule(unsigned int availableBytes, Direction gran
     } // END of Traffic Classes cycle
 
     return scheduleList_;
+}
+
+ScheduleList& LcgScheduler::getScheduledBytesList()
+{
+    return scheduledBytesList_;
 }

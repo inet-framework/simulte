@@ -28,6 +28,9 @@ class LteSchedulerUeUl
     // Schedule List
     LteMacScheduleList scheduleList_;
 
+    // Scheduled Bytes List
+    LteMacScheduleList scheduledBytesList_;
+
     // Inner Scheduler - default to Standard LCG
     LcgScheduler* lcgScheduler_;
 
@@ -38,6 +41,11 @@ class LteSchedulerUeUl
      */
 
     LteMacScheduleList* schedule();
+
+    /* After the scheduling, returns the amount of bytes
+     * scheduled for each connection
+     */
+    LteMacScheduleList* getScheduledBytesList();
 
     /*
      * constructor

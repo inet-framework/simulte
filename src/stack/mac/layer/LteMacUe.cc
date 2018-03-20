@@ -35,6 +35,7 @@ LteMacUe::LteMacUe() :
     expirationCounter_ = 0;
     racRequested_ = false;
     bsrTriggered_ = false;
+    requestedSdus_ = 0;
     scheduleList_ = NULL;
 
     // TODO setup from NED
@@ -144,10 +145,19 @@ void LteMacUe::handleMessage(cMessage* msg)
     LteMacBase::handleMessage(msg);
 }
 
-bool LteMacUe::macSduRequest()
+int LteMacUe::macSduRequest()
 {
     EV << "----- START LteMacUe::macSduRequest -----\n";
-    bool sent = false;
+    int numRequestedSdus = 0;
+
+    // get the number of granted bytes for each codeword
+    std::vector<unsigned int> allocatedBytes;
+    for (int cw=0; cw<schedulingGrant_->getGrantedCwBytesArraySize(); cw++)
+        allocatedBytes.push_back(schedulingGrant_->getGrantedCwBytes(cw));
+
+    LteMacScheduleList* scheduledBytesList = lcgScheduler_->getScheduledBytesList();
+    bool firstSdu = true;
+
     // Ask for a MAC sdu for each scheduled user on each codeword
     LteMacScheduleList::const_iterator it;
     for (it = scheduleList_->begin(); it != scheduleList_->end(); it++)
@@ -156,22 +166,34 @@ bool LteMacUe::macSduRequest()
         Codeword cw = it->first.second;
         MacNodeId destId = MacCidToNodeId(destCid);
 
-        // get the number of granted bytes
-        unsigned int allocatedBytes = schedulingGrant_->getGrantedCwBytes(cw);
+        std::pair<MacCid,Codeword> key(destCid, cw);
+        LteMacScheduleList::const_iterator bit = scheduledBytesList->find(key);
+
+        unsigned int sduSize = bit->second;
+        if (firstSdu)
+        {
+            sduSize -= MAC_HEADER;    // do not consider MAC header size
+            firstSdu = false;
+        }
+
+        // consume bytes on this codeword
+        allocatedBytes[cw] -= sduSize;
+
+        EV << NOW <<" LteMacUe::macSduRequest - cid[" << destCid << "] - sdu size[" << sduSize<< "B] - " << allocatedBytes[cw] << " bytes left on codeword " << cw << endl;
 
         // send the request message to the upper layer
         LteMacSduRequest* macSduRequest = new LteMacSduRequest("LteMacSduRequest");
         macSduRequest->setUeId(destId);
         macSduRequest->setLcid(MacCidToLcid(destCid));
-        macSduRequest->setSduSize(allocatedBytes - MAC_HEADER);    // do not consider MAC header size
+        macSduRequest->setSduSize(sduSize);
         macSduRequest->setControlInfo((&connDesc_[destCid])->dup());
         sendUpperPackets(macSduRequest);
 
-        sent = true;
+        numRequestedSdus++;
     }
 
     EV << "------ END LteMacUe::macSduRequest ------\n";
-    return sent;
+    return numRequestedSdus;
 }
 
 bool LteMacUe::bufferizePacket(cPacket* pkt)
@@ -509,11 +531,15 @@ void LteMacUe::handleUpperMessage(cPacket* pkt)
         if (pkt->getByteLength() == 0)
             delete pkt;
 
-        // creates pdus from schedule list and puts them in harq buffers
-        macPduMake();
-
-        EV << NOW << " LteMacUe::handleUpperMessage - incrementing counter for HARQ processes " << (unsigned int)currentHarq_ << " --> " << (currentHarq_+1)%harqProcesses_ << endl;
-        currentHarq_ = (currentHarq_+1)%harqProcesses_;
+        // build a MAC PDU only after all MAC SDUs have been received from RLC
+        requestedSdus_--;
+        if (requestedSdus_ == 0)
+        {
+            macPduMake();
+            // update current harq process id
+            EV << NOW << " LteMacUe::handleMessage - incrementing counter for HARQ processes " << (unsigned int)currentHarq_ << " --> " << (currentHarq_+1)%harqProcesses_ << endl;
+            currentHarq_ = (currentHarq_+1) % harqProcesses_;
+        }
     }
     else
     {
@@ -585,7 +611,7 @@ void LteMacUe::handleSelfMessage()
         }
     }
 
-    bool requestSdu = false;
+    requestedSdus_ = 0;
     if (schedulingGrant_!=NULL) // if a grant is configured
     {
         if(!firstTx)
@@ -596,7 +622,6 @@ void LteMacUe::handleSelfMessage()
 //            currentHarq_ = harqRxBuffers_.begin()->second->getProcesses() - 2;
             currentHarq_ = UE_TX_HARQ_PROCESSES - 2;
         }
-        LteMacScheduleList* scheduleList =NULL;
         EV << "\t " << schedulingGrant_ << endl;
 
 //        //! \TEST  Grant Synchronization check
@@ -650,15 +675,13 @@ void LteMacUe::handleSelfMessage()
         if(!retx)
         {
             scheduleList_ = lcgScheduler_->schedule();
-            bool sent = macSduRequest();
-
-            if (!sent)
+            requestedSdus_ = macSduRequest();
+            if (requestedSdus_ == 0)
             {
                 // no data to send, but if bsrTriggered is set, send a BSR
                 macPduMake();
             }
 
-            requestSdu = sent;
         }
 
         // Message that triggers flushing of Tx H-ARQ buffers for all users
@@ -708,7 +731,7 @@ void LteMacUe::handleSelfMessage()
     }
     EV << NOW << " LteMacUe::handleSelfMessage Purged " << purged << " PDUS" << endl;
 
-    if (!requestSdu)
+    if (requestedSdus_ == 0)
     {
         // update current harq process id
         currentHarq_ = (currentHarq_+1) % harqProcesses_;

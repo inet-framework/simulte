@@ -70,6 +70,9 @@ class LcgScheduler
     // schedule List - returned by reference on scheduler invocation
     ScheduleList scheduleList_;
 
+    // scheduled bytes list
+    ScheduleList scheduledBytesList_;
+
     /// Cid List
     typedef std::list<MacCid> CidList;
 
@@ -102,6 +105,11 @@ class LcgScheduler
      * @return # of scheduled sdus per cid
      */
     virtual ScheduleList& schedule(unsigned int availableBytes, Direction grantDir = UL);
+
+    /* After the scheduling, returns the amount of bytes
+     * scheduled for each connection
+     */
+    virtual ScheduleList& getScheduledBytesList();
 
     // *****************************************************************************************
 

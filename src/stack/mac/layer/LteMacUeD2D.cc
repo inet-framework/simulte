@@ -636,7 +636,7 @@ void LteMacUeD2D::handleSelfMessage()
         }
     }
 
-    bool requestSdu = false;
+    requestedSdus_ = 0;
     if (schedulingGrant_!=NULL) // if a grant is configured
     {
         if(!firstTx)
@@ -708,7 +708,7 @@ void LteMacUeD2D::handleSelfMessage()
             }
             else
             {
-                requestSdu = macSduRequest(); // return a bool
+                requestedSdus_ = macSduRequest(); // returns an integer
             }
 
         }
@@ -753,7 +753,7 @@ void LteMacUeD2D::handleSelfMessage()
     }
     EV << NOW << " LteMacUeD2D::handleSelfMessage Purged " << purged << " PDUS" << endl;
 
-    if (requestSdu == false)
+    if (requestedSdus_ == 0)
     {
         // update current harq process id
         currentHarq_ = (currentHarq_+1) % harqProcesses_;
