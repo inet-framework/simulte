@@ -1,0 +1,125 @@
+//
+//                           SimuLTE
+//
+// This file is part of a software released under the license included in file
+// "license.pdf". This license can be also found at http://www.ltesimulator.com/
+// The above file and the present reference are part of the software itself,
+// and cannot be removed from it.
+//
+
+//
+//	@author	Angelo Buono
+//
+
+
+package lte.simulations.mec;
+
+
+import inet.networklayer.configurator.ipv4.IPv4NetworkConfigurator;
+import inet.networklayer.ipv4.RoutingTableRecorder;
+import inet.node.inet.AdhocHost;
+import inet.node.inet.Router;
+import inet.node.inet.StandardHost;
+import inet.node.ethernet.Eth10G;
+
+import lte.world.radio.LteChannelControl;
+import lte.epc.PgwStandardSimplified;
+import lte.corenetwork.binder.LteBinder;
+import lte.corenetwork.nodes.eNodeB;
+import lte.corenetwork.nodes.Ue;
+import lte.corenetwork.nodes.cars.Car;
+
+//mec
+import lte.corenetwork.nodes.mec.MEHost;
+
+import lte.corenetwork.nodes.mec.VirtualisationInfrastructure.VirtualisationInfrastructure;
+import lte.corenetwork.nodes.mec.MEPlatform.MEPlatform;
+
+import org.car2x.veins.subprojects.veins_inet.VeinsInetManager;
+
+
+import lte.corenetwork.nodes.mec.GtpEndpoint.GtpEndpoint;
+
+//
+// Derived by cars/Highway.ned Network
+//
+network Mec
+{
+    parameters:
+        double playgroundSizeX @unit(m); // x size of the area the nodes are in (in meters)
+        double playgroundSizeY @unit(m); // y size of the area the nodes are in (in meters)
+        double playgroundSizeZ @unit(m); // z size of the area the nodes are in (in meters)
+        @display("bgb=882,483");
+
+    submodules:
+
+        routingRecorder: RoutingTableRecorder {
+            @display("p=61,75;is=s");
+        }
+        configurator: IPv4NetworkConfigurator {
+            @display("p=61,129");
+            config = xmldoc("demo.xml");
+        }
+
+        //# Veins manager module
+        veinsManager: VeinsInetManager {
+            @display("p=61,227;is=s");
+        }
+
+        //# LTE modules
+        channelControl: LteChannelControl {
+            @display("p=62,25;is=s");
+        }
+        binder: LteBinder {
+            @display("p=61,177;is=s");
+        }
+        server: StandardHost {
+            @display("p=858,136;is=n;i=device/server");
+        }
+        router: Router {
+            @display("p=715,135;i=device/smallrouter");
+        }
+        pgw: PgwStandardSimplified {
+            nodeType = "PGW";
+            @display("p=540,136;is=l");
+        }
+        eNodeB1: eNodeB {
+            @display("p=156,136;is=vl");
+        }
+        eNodeB2: eNodeB {
+            @display("p=391,313;is=vl");
+        }
+        //# MEC module
+        meHost: MEHost {
+            @display("p=714.33746,312.315;is=vl");
+        }
+
+        //# GtpUser module
+        //gtpEndpoint: GtpEndpoint {
+        //    nodeType = "GTPENDPOINT";
+        //    @display("p=572.5775,312.315;is=l");
+        //}
+
+
+    connections allowunconnected:
+
+        server.pppg++ <--> Eth10G <--> router.pppg++;
+        router.pppg++ <--> Eth10G <--> pgw.filterGate;
+
+        pgw.pppg++ <--> Eth10G <--> eNodeB1.ppp;
+
+        //# X2 connections
+        eNodeB1.x2++ <--> Eth10G <--> eNodeB2.x2++;
+        
+       
+        //#	mec        
+        //just for now --> before modifying eNodeB traffic filter & gtpUser to support meHost
+        //meHost.ppp++ <--> Eth10G <--> eNodeB2.ppp;
+
+
+		//to change
+        pgw.pppg++ <--> Eth10G <--> eNodeB2.ppp;
+        meHost.ppp++ <--> Eth10G <--> router.pppg++;
+        //gtpEndpoint.pppg++ <--> Eth10G <--> eNodeB2.ppp;
+        //gtpEndpoint.filterGate <--> Eth10G <--> meHost.ppp++;     
+}
