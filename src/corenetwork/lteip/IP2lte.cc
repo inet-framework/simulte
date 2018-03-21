@@ -39,6 +39,8 @@ void IP2lte::initialize(int stage)
 
         hoManager_ = NULL;
 
+        ueHold_ = false;
+
         binder_ = getBinder();
 
         if (nodeType_ == ENODEB)
@@ -135,12 +137,25 @@ void IP2lte::setNodeType(std::string s)
     EV << "Node type: " << s << " -> " << nodeType_ << endl;
 }
 
-
 void IP2lte::fromIpUe(IPv4Datagram * datagram)
 {
+    EV << "IP2lte::fromIpUe - message from IP layer: send to stack" << endl;
     // Remove control info from IP datagram
     delete(datagram->removeControlInfo());
 
+    if (ueHold_)
+    {
+        // hold packets until handover is complete
+        ueHoldFromIp_.push_back(datagram);
+    }
+    else
+    {
+        toStackUe(datagram);
+    }
+}
+
+void IP2lte::toStackUe(IPv4Datagram * datagram)
+{
     // obtain the encapsulated transport packet
     cPacket * transportPacket = datagram->getEncapsulatedPacket();
 
@@ -186,7 +201,6 @@ void IP2lte::fromIpUe(IPv4Datagram * datagram)
     controlInfo->setDstAddr(destAddr.getInt());
     controlInfo->setSrcPort(srcPort);
     controlInfo->setDstPort(dstPort);
-//    controlInfo->setSequenceNumber(seqNum_++);
     controlInfo->setSequenceNumber(seqNums_[pair]++);
     controlInfo->setHeaderSize(headerSize);
     printControlInfo(controlInfo);
@@ -291,7 +305,6 @@ void IP2lte::toStackEnb(IPv4Datagram* datagram)
     controlInfo->setDstAddr(destAddr.getInt());
     controlInfo->setSrcPort(srcPort);
     controlInfo->setDstPort(dstPort);
-//    controlInfo->setSequenceNumber(seqNum_++);
     controlInfo->setSequenceNumber(seqNums_[pair]++);
     controlInfo->setHeaderSize(headerSize);
 
@@ -450,6 +463,33 @@ void IP2lte::signalHandoverCompleteTarget(MacNodeId ueId, MacNodeId sourceEnb)
     }
 
     hoHolding_.erase(ueId);
+
+}
+
+void IP2lte::triggerHandoverUe()
+{
+    EV << NOW << " IP2lte::triggerHandoverUe - start holding packets" << endl;
+
+    // reception of handover command from X2
+    ueHold_ = true;
+}
+
+
+void IP2lte::signalHandoverCompleteUe()
+{
+    Enter_Method("signalHandoverCompleteUe");
+
+    // send held packets
+    while (!ueHoldFromIp_.empty())
+    {
+        IPv4Datagram* pkt = ueHoldFromIp_.front();
+        ueHoldFromIp_.pop_front();
+
+        // send pkt down
+        take(pkt);
+        toStackUe(pkt);
+    }
+    ueHold_ = false;
 
 }
 

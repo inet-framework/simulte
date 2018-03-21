@@ -329,34 +329,60 @@ void LteMacEnb::macSduRequest()
 
 void LteMacEnb::bufferizeBsr(MacBsr* bsr, MacCid cid)
 {
-    PacketInfo vpkt(bsr->getSize(), bsr->getTimestamp());
-
     LteMacBufferMap::iterator it = bsrbuf_.find(cid);
     if (it == bsrbuf_.end())
     {
-        // Queue not found for this cid: create
-        LteMacBuffer* bsrqueue = new LteMacBuffer();
+        if (bsr->getSize() > 0)
+        {
+            // Queue not found for this cid: create
+            LteMacBuffer* bsrqueue = new LteMacBuffer();
 
-        bsrqueue->pushBack(vpkt);
-        bsrbuf_[cid] = bsrqueue;
+            PacketInfo vpkt(bsr->getSize(), bsr->getTimestamp());
+            bsrqueue->pushBack(vpkt);
+            bsrbuf_[cid] = bsrqueue;
 
-        EV << "LteBsrBuffers : Added new BSR buffer for node: "
-           << MacCidToNodeId(cid) << " for Lcid: " << MacCidToLcid(cid)
-           << " Current BSR size: " << bsr->getSize() << "\n";
+            EV << "LteBsrBuffers : Added new BSR buffer for node: "
+               << MacCidToNodeId(cid) << " for Lcid: " << MacCidToLcid(cid)
+               << " Current BSR size: " << bsr->getSize() << "\n";
+
+            // signal backlog to Uplink scheduler
+            enbSchedulerUl_->backlog(cid);
+        }
+        // do not store if BSR size = 0
     }
     else
     {
         // Found
         LteMacBuffer* bsrqueue = it->second;
-        bsrqueue->pushBack(vpkt);
+        if (bsr->getSize() > 0)
+        {
+            // update buffer
+            PacketInfo queuedBsr;
+            if (!bsrqueue->isEmpty())
+                queuedBsr = bsrqueue->popFront();
 
-        EV << "LteBsrBuffers : Using old buffer for node: " << MacCidToNodeId(
-            cid) << " for Lcid: " << MacCidToLcid(cid)
-           << " Current BSR size: " << bsr->getSize() << "\n";
+            queuedBsr.first = bsr->getSize();
+            queuedBsr.second = bsr->getTimestamp();
+            bsrqueue->pushBack(queuedBsr);
+
+            EV << "LteBsrBuffers : Using old buffer for node: " << MacCidToNodeId(
+                cid) << " for Lcid: " << MacCidToLcid(cid)
+               << " Current BSR size: " << bsr->getSize() << "\n";
+
+            // signal backlog to Uplink scheduler
+            enbSchedulerUl_->backlog(cid);
+        }
+        else
+        {
+            // the UE has no backlog, remove BSR
+            if (!bsrqueue->isEmpty())
+                bsrqueue->popFront();
+
+            EV << "LteBsrBuffers : Using old buffer for node: " << MacCidToNodeId(
+                cid) << " for Lcid: " << MacCidToLcid(cid)
+               << " - now empty" << "\n";
+        }
     }
-
-        // signal backlog to Uplink scheduler
-    enbSchedulerUl_->backlog(cid);
 }
 
 void LteMacEnb::sendGrants(LteMacScheduleList* scheduleList)

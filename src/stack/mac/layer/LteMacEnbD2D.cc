@@ -299,6 +299,12 @@ void LteMacEnbD2D::clearBsrBuffers(MacNodeId ueId)
     }
 }
 
+void LteMacEnbD2D::deleteQueues(MacNodeId nodeId)
+{
+    LteMacEnb::deleteQueues(nodeId);
+    deleteRxHarqBufferMirror(nodeId);
+}
+
 void LteMacEnbD2D::storeRxHarqBufferMirror(MacNodeId id, LteHarqBufferRxD2DMirror* mirbuff)
 {
     // TODO optimize
@@ -324,6 +330,7 @@ void LteMacEnbD2D::deleteRxHarqBufferMirror(MacNodeId id)
 
         if (senderId == id || destId == id)
         {
+            delete it->second;
             harqRxBuffersD2DMirror_.erase(it++);
         }
         else

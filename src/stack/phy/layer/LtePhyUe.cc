@@ -273,6 +273,10 @@ void LtePhyUe::triggerHandover()
 
     binder_->addUeHandoverTriggered(nodeId_);
 
+    // inform the UE's IP2lte module to start holding downstream packets
+    IP2lte* ip2lte =  check_and_cast<IP2lte*>(getParentModule()->getSubmodule("ip2lte"));
+    ip2lte->triggerHandoverUe();
+
     // inform the eNB's IP2lte module to forward data to the target eNB
     IP2lte* enbIp2lte =  check_and_cast<IP2lte*>(getSimulation()->getModule(binder_->getOmnetId(masterId_))->getSubmodule("lteNic")->getSubmodule("ip2lte"));
     enbIp2lte->triggerHandoverSource(nodeId_,candidateMasterId_);
@@ -327,6 +331,10 @@ void LtePhyUe::doHandover()
 
     EV << NOW << " LtePhyUe::doHandover - UE " << nodeId_ << " has completed handover to eNB " << masterId_ << "... " << endl;
     binder_->removeUeHandoverTriggered(nodeId_);
+
+    // inform the UE's IP2lte module to forward held packets
+    IP2lte* ip2lte =  check_and_cast<IP2lte*>(getParentModule()->getSubmodule("ip2lte"));
+    ip2lte->signalHandoverCompleteUe();
 
     // inform the eNB's IP2lte module to forward data to the target eNB
     IP2lte* enbIp2lte =  check_and_cast<IP2lte*>(getSimulation()->getModule(binder_->getOmnetId(masterId_))->getSubmodule("lteNic")->getSubmodule("ip2lte"));

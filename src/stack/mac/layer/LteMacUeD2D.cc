@@ -577,24 +577,32 @@ void LteMacUeD2D::handleSelfMessage()
     // For each D2D communication, the status of the HARQRxBuffer must be known to the eNB
     // For each HARQ-RX Buffer corresponding to a D2D communication, store "mirror" buffer at the eNB
     HarqRxBuffers::iterator buffIt = harqRxBuffers_.begin();
-    for (; buffIt != harqRxBuffers_.end(); ++buffIt)
+    for (; buffIt != harqRxBuffers_.end(); )
     {
         MacNodeId senderId = buffIt->first;
         LteHarqBufferRx* buff = buffIt->second;
 
-        // skip the H-ARQ buffer corresponding to DL transmissions
-        if (senderId == cellId_)
+        // skip the H-ARQ buffer corresponding to DL and D2D_MULTI transmissions
+        if (senderId == cellId_ || buff->isMulticast())
+        {
+            ++buffIt;
             continue;
+        }
 
-        // skip the H-ARQ buffers corresponding to D2D_MULTI transmissions
-        if (buff->isMulticast())
+        if (binder_->getOmnetId(senderId) == 0)
+        {
+            // the sender has left the simulation, remove the Rx buffer
+            delete buffIt->second;
+            harqRxBuffers_.erase(buffIt++);
             continue;
+        }
 
         //The constructor "extracts" all the useful information from the harqRxBuffer and put them in a LteHarqBufferRxD2DMirror object
         //That object resides in enB. Because this operation is done after the enb main loop the enb is 1 TTI backward respect to the Receiver
         //This means that enb will check the buffer for retransmission 3 TTI before
         LteHarqBufferRxD2DMirror* mirbuff = new LteHarqBufferRxD2DMirror(buff, (unsigned char)this->par("maxHarqRtx"), senderId);
         enb_->storeRxHarqBufferMirror(nodeId_, mirbuff);
+        ++buffIt;
     }
 
     EV << NOW << "LteMacUeD2D::handleSelfMessage " << nodeId_ << " - HARQ process " << (unsigned int)currentHarq_ << endl;

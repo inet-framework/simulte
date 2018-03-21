@@ -82,6 +82,14 @@ class LteMacEnbD2D : public LteMacEnb
         return true;
     }
 
+    /**
+     * deleteQueues() on ENB performs actions
+     * from base classes and also deletes mirror buffers
+     *
+     * @param nodeId id of node performig handover
+     */
+    virtual void deleteQueues(MacNodeId nodeId);
+
     // update the status of the "mirror" RX-Harq Buffer for this node
     void storeRxHarqBufferMirror(MacNodeId id, LteHarqBufferRxD2DMirror* mirbuff);
     // get the reference to the "mirror" buffers

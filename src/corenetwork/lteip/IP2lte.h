@@ -59,6 +59,9 @@ class IP2lte : public cSimpleModule
     std::map<MacNodeId, IpDatagramQueue> hoFromX2_;
     std::map<MacNodeId, IpDatagramQueue> hoFromIp_;
 
+    bool ueHold_;
+    IpDatagramQueue ueHoldFromIp_;
+
     /**
      * Handle packets from transport layer and forward them to the stack
      */
@@ -69,6 +72,10 @@ class IP2lte : public cSimpleModule
      * and forward them to transport layer.
      */
     void toIpUe(IPv4Datagram *datagram);
+    /**
+     * Forward packets to the LTE stack
+     */
+    void toStackUe(IPv4Datagram* datagram);
 
     void fromIpEnb(IPv4Datagram * datagram);
     void toIpEnb(cMessage * msg);
@@ -95,14 +102,24 @@ class IP2lte : public cSimpleModule
     virtual void handleMessage(cMessage *msg);
     virtual void finish();
   public:
+
+    /*
+     * Handover management at the eNB side
+     */
     void triggerHandoverSource(MacNodeId ueId, MacNodeId targetEnb);
     void triggerHandoverTarget(MacNodeId ueId, MacNodeId sourceEnb);
     void sendTunneledPacketOnHandover(IPv4Datagram* datagram, MacNodeId targetEnb);
     void receiveTunneledPacketOnHandover(IPv4Datagram* datagram, MacNodeId sourceEnb);
     void signalHandoverCompleteSource(MacNodeId ueId, MacNodeId targetEnb);
     void signalHandoverCompleteTarget(MacNodeId ueId, MacNodeId sourceEnb);
-    virtual ~IP2lte();
 
+    /*
+     * Handover management at the UE side
+     */
+    void triggerHandoverUe();
+    void signalHandoverCompleteUe();
+
+    virtual ~IP2lte();
 };
 
 #endif
