@@ -21,7 +21,7 @@
 /simulations/demo/,                  -f omnetpp.ini -c VoIP_PF -r 0,           5s,              e9af-e979/tls
 #/simulations/demo/,                  -f omnetpp.ini -c Large-VoIP_PF -r 0,     5s,             ada5-c3af/tls
 #/simulations/demo/,                  -f omnetpp.ini -c Large-VoIP_MaxCI -r 0,  5s,             981a-be0c/tls
-/simulations/demo/,                  -f omnetpp.ini -c VoIP_DL-UL -r 0,        5s,              d387-3cf6/tls
+/simulations/demo/,                  -f omnetpp.ini -c VoIP_DL-UL -r 0,        5s,              a49e-8557/tls
 /simulations/demo/,                  -f omnetpp.ini -c VoIP-DL -r 0,           5s,              6f9d-0511/tls
 /simulations/demo/,                  -f omnetpp.ini -c VoIP-UL -r 0,           5s,              2067-16c4/tls
 
