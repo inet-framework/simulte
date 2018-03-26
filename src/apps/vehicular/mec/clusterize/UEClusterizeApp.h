@@ -22,6 +22,7 @@
 #include "inet/networklayer/common/L3AddressResolver.h"
 
 #include "inet/common/geometry/common/Coord.h"
+#include "inet/common/geometry/common/EulerAngles.h"
 #include "inet/mobility/contract/IMobility.h"
 
 #include "apps/vehicular/mec/clusterize/packets/ClusterizePacket_m.h"
@@ -69,6 +70,8 @@ class UEClusterizeApp : public cSimpleModule
     inet::IMobility *mobility;
     inet::Coord position;
     inet::Coord speed;
+    inet::EulerAngles angularPosition;
+    inet::EulerAngles angularSpeed;
 
     simsignal_t clusterizeInfoSentMsg_;
     simsignal_t clusterizeConfigRcvdMsg_;

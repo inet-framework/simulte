@@ -91,30 +91,35 @@ void V2vAlertSender::handleMessage(cMessage *msg)
 
 void V2vAlertSender::sendV2vAlertPacket()
 {
-    EV << "V2vAlertSender::sendV2vAlertPacket - Sending message SeqN[" << nextSno_ << "]\n";
-
-    if( txMode == UNICAST_TX_MODE){//sending in unicast to all the addresses!
+    //sending in unicast to all the addresses!
+    if( txMode == UNICAST_TX_MODE){
 
         std::vector<std::string> v2vPeerAddresses = splitString(v2vPeerList, " ");
 
-        for(int i = 0; i < v2vPeerAddresses.size(); i++){
+        if(v2vPeerAddresses.size() > 0){
 
-            V2vAlertPacket* packet = new V2vAlertPacket("V2vAlert");
-            packet->setSno(nextSno_);
-            packet->setTimestamp(simTime());
-            packet->setByteLength(size_);
+            EV << "V2vAlertSender::sendV2vAlertPacket - Sending V2vAlert SeqN[" << nextSno_ << "]\n";
+            EV << "V2vAlertSender::sendV2vAlertPacket - ClusterID: " << clusterID << " TxMode: " << txMode << endl;
 
-            if(strcmp(getParentModule()->getFullName() ,v2vPeerAddresses.at(i).c_str())){
+            for(int i = 0; i < v2vPeerAddresses.size(); i++){
 
-                EV << "V2vAlertSender::sendV2vAlertPacket - Sending message to " << v2vPeerAddresses.at(i).c_str() << endl;
-                destAddress_ = inet::L3AddressResolver().resolve(v2vPeerAddresses.at(i).c_str());
-                socket.sendTo(packet, destAddress_, destPort_);
+                V2vAlertPacket* packet = new V2vAlertPacket("V2vAlert");
+                packet->setSno(nextSno_);
+                packet->setTimestamp(simTime());
+                packet->setByteLength(size_);
+
+                if(strcmp(getParentModule()->getFullName() ,v2vPeerAddresses.at(i).c_str())){
+
+                    EV << "V2vAlertSender::sendV2vAlertPacket - \tsending V2vAlert to " << v2vPeerAddresses.at(i).c_str() << endl;
+                    destAddress_ = inet::L3AddressResolver().resolve(v2vPeerAddresses.at(i).c_str());
+                    socket.sendTo(packet, destAddress_, destPort_);
+                }
+                else
+                    EV << "V2vAlertSender::sendV2vAlertPacket - \tWARNING: can't send message to myself!" << endl;
             }
-            else
-                EV << "V2vAlertSender::sendV2vAlertPacket - \tWARNING: can't send message to myself!" << endl;
+            nextSno_++;
         }
     }
-    nextSno_++;
 
     emit(v2vAlertSentMsg_, (long)1);
 
@@ -149,6 +154,7 @@ void V2vAlertSender::setClusterConfiguration(ClusterizeConfigPacket* pkt){
     txMode = pkt->getTxMode();
     v2vPeerList = pkt->getV2vPeerList();                //list of Car[*] module names!
 
+    //d2dConfiguration dynamic
     if(lteNic->hasPar("d2dPeerAddresses"))
         lteNic->par("d2dPeerAddresses") = v2vPeerList;
     else

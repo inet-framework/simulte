@@ -126,6 +126,8 @@ void MEClusterizeApp::handleClusterizeInfo(ClusterizeInfoPacket *pkt){
     emit(clusterizeInfoRcvdMsg_, (long)1);
 
     //testing
-    EV << "MEClusterizeApp::handleClusterizeInfo position: [" << pkt->getPositionX() << " ; " << pkt->getPositionY() << "]" << endl;
-    EV << "MEClusterizeApp::handleClusterizeInfo speed: [" << pkt->getSpeedX() << " ; " << pkt->getSpeedY() << "]" << endl;
+    EV << "MEClusterizeApp::handleClusterizeInfo position: [" << pkt->getPositionX() << " ; " << pkt->getPositionY() << " ; " << "]" << pkt->getPositionZ() << "]" << endl;
+    EV << "MEClusterizeApp::handleClusterizeInfo speed: [" << pkt->getSpeedX() << " ; " << pkt->getSpeedY() << " ; " << pkt->getSpeedZ() << "]" << endl;
+    EV << "MEClusterizeApp::handleClusterizeInfo AngularPosition: [" << pkt->getAngularPositionA() << " ; " << pkt->getAngularPositionB() << " ; " << pkt->getAngularPositionC() << "]" << endl;
+    EV << "MEClusterizeApp::handleClusterizeInfo AngularSpeed: [" << pkt->getAngularSpeedA() << " ; " << pkt->getAngularSpeedB() << " ; " << pkt->getAngularSpeedC() << "]" << endl;
 }

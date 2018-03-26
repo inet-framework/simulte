@@ -24,6 +24,10 @@
 #include "apps/vehicular/mec/clusterize/packets/ClusterizePacketTypes.h"
 
 #include "inet/common/geometry/common/Coord.h"
+#include "inet/common/geometry/common/EulerAngles.h"
+
+#define MAX_PROXIMITY 30                //meters
+#define MAX_DIRECTION_ANGLE PI/32       //radiant
 
 /**
  * MEClusterizeService
@@ -35,14 +39,20 @@ struct ueLocalInfo{
     std::string carSimbolicAddress;
     inet::Coord position;
     inet::Coord speed;
+    inet::EulerAngles angularPosition;
+    inet::EulerAngles angularSpeed;
+
+    //control info
+    bool checked;
 };
 
 struct ueClusterConfig{
 
     std::string carSimbolicAddress;
     int clusterID;
-    std::string v2vLocalReceivers;
     int txMode;
+
+    std::stringstream v2vLocalReceivers;
 };
 
 class MEClusterizeService : public cSimpleModule
@@ -65,6 +75,14 @@ class MEClusterizeService : public cSimpleModule
     //
     std::map<int, ueClusterConfig> v2vConfig;                       //i.e. key = gateIndex to the MEClusterizeApp
 
+    int clusterSN;                              //Cluster Sequence Number
+    double proximityThreshold;                  // meter: threshold within two cars can communicate v2v
+    double directionDelimiterThreshold;         // radiant: threshold within two cars are going in the same direction
+
+    public:
+
+        ~MEClusterizeService();
+        MEClusterizeService();
 
     protected:
 
@@ -73,7 +91,10 @@ class MEClusterizeService : public cSimpleModule
         virtual void handleMessage(cMessage *msg);
 
         // executing periodically the clustering algorithm & updating the v2vConfig map
-        void compute();
+        // chain clustering alforithm:
+        //      building up a chain of cars -> each car is able to send to the car behind!
+        //      using the proximityTreshold and directionDelimiterThreshold
+        void computeChainCluster();
 
         // sending, after compute(), the configurations in v2vConfig map
         void sendConfig();

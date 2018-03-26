@@ -203,16 +203,28 @@ void UEClusterizeApp::sendClusterizeInfoPacket()
     if(mobility != NULL){
         position = mobility->getCurrentPosition();
         speed = mobility->getCurrentSpeed();
+        angularPosition = mobility->getCurrentAngularPosition();
+        angularSpeed = mobility->getCurrentAngularSpeed();
     }
 
     packet->setPositionX(position.x);
     packet->setPositionY(position.y);
+    packet->setPositionZ(position.z);
     packet->setSpeedX(speed.x);
     packet->setSpeedY(speed.y);
+    packet->setSpeedZ(speed.z);
+    packet->setAngularPositionA(angularPosition.alpha);
+    packet->setAngularPositionB(angularPosition.beta);
+    packet->setAngularPositionC(angularPosition.gamma);
+    packet->setAngularSpeedA(angularSpeed.alpha);
+    packet->setAngularSpeedB(angularSpeed.beta);
+    packet->setAngularSpeedC(angularSpeed.gamma);
 
     //testing
-    EV << "Position: [" << position.x << " ; " << position.y << "]" << endl ;
-    EV << "Speed: [" << speed.x << " ; " << speed.y << "]" << endl ;
+    EV << "UEClusterizeApp::sendClusterizeInfoPacket - Position: [" << position.x << " ; " << position.y << " ; " << position.z << "]" << endl ;
+    EV << "UEClusterizeApp::sendClusterizeInfoPacket - Speed: [" << speed.x << " ; " << speed.y << " ; " << speed.z << "]" << endl ;
+    EV << "UEClusterizeApp::sendClusterizeInfoPacket - AngularPosition: [" << angularPosition.alpha << " ; " << angularPosition.beta << " ; " << angularPosition.gamma << "]" << endl ;
+    EV << "UEClusterizeApp::sendClusterizeInfoPacket - AngularSpeed: [" << angularSpeed.alpha << " ; " << angularSpeed.beta << " ; " << angularSpeed.gamma << "]" << endl ;
 
     socket.sendTo(packet, destAddress_, destPort_);
     nextSnoInfo_++;
@@ -274,6 +286,12 @@ void UEClusterizeApp::handleClusterizeAckStop(ClusterizePacket* pkt){
     cancelEvent(selfStop_);
     //this->callFinish();
     //this->deleteModule();
+
+    //Stop the v2vApp
+    if(v2vApp != NULL){
+        v2vApp->callFinish();
+        //v2vApp->deleteModule();
+    }
 }
 
 void UEClusterizeApp::handleClusterizeConfig(ClusterizeConfigPacket* pkt){
