@@ -101,6 +101,8 @@ void LteRlcUm::sendDefragmented(cPacket *pkt)
 
     EV << "LteRlcUm : Sending packet " << pkt->getName() << " to port UM_Sap_up$o\n";
     send(pkt, up_[OUT]);
+
+    emit(sentPacketToUpperLayer, pkt);
 }
 
 void LteRlcUm::sendToLowerLayer(cPacket *pkt)
@@ -109,6 +111,8 @@ void LteRlcUm::sendToLowerLayer(cPacket *pkt)
     take(pkt);                                                    // Take ownership
     EV << "LteRlcUm : Sending packet " << pkt->getName() << " to port UM_Sap_down$o\n";
     send(pkt, down_[OUT]);
+
+    emit(sentPacketToLowerLayer, pkt);
 }
 
 void LteRlcUm::handleUpperMessage(cPacket *pkt)
@@ -143,6 +147,8 @@ void LteRlcUm::handleUpperMessage(cPacket *pkt)
     // Bufferize RLC SDU
     EV << "LteRlcUm::handleUpperMessage - Enque packet " << rlcPkt->getName() << " into the Tx Buffer\n";
     txbuf->enque(rlcPkt);
+
+    emit(receivedPacketFromUpperLayer, pkt);
 }
 
 void LteRlcUm::handleLowerMessage(cPacket *pkt)
@@ -168,6 +174,8 @@ void LteRlcUm::handleLowerMessage(cPacket *pkt)
     }
     else
     {
+        emit(receivedPacketFromLowerLayer, pkt);
+
         // Extract informations from fragment
         UmRxEntity* rxbuf = getRxBuffer(lteInfo);
         drop(pkt);
@@ -228,6 +236,12 @@ void LteRlcUm::initialize()
     up_[OUT] = gate("UM_Sap_up$o");
     down_[IN] = gate("UM_Sap_down$i");
     down_[OUT] = gate("UM_Sap_down$o");
+
+    // statistics
+    receivedPacketFromUpperLayer = registerSignal("receivedPacketFromUpperLayer");
+    receivedPacketFromLowerLayer = registerSignal("receivedPacketFromLowerLayer");
+    sentPacketToUpperLayer = registerSignal("sentPacketToUpperLayer");
+    sentPacketToLowerLayer = registerSignal("sentPacketToLowerLayer");
 
     WATCH_MAP(txEntities_);
     WATCH_MAP(rxEntities_);

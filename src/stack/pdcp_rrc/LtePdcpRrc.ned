@@ -39,17 +39,7 @@ simple LtePdcpRrcBase like LtePdcpRrc {
         int interactiveRlc @enum(TM, UM, AM, UNKNOWN_RLC_TYPE) = default(1);
         int backgroundRlc @enum(TM, UM, AM, UNKNOWN_RLC_TYPE) = default(1);
 
-        //#
-        //# Statistic recording: end2end delay and throughput at the mac layer
-        //#
-        @signal[pdcpdrop0];
-        @statistic[pdcpdrop0](title="Drop at PDCP layer 0"; unit=""; source="pdcpdrop0"; record=mean);
-        @signal[pdcpdrop1];
-        @statistic[pdcpdrop1](title="Drop at PDCP layer 1"; unit=""; source="pdcpdrop1"; record=mean);
-        @signal[pdcpdrop2];
-        @statistic[pdcpdrop2](title="Drop at PDCP layer 2"; unit=""; source="pdcpdrop2"; record=mean);
-        @signal[pdcpdrop3];
-        @statistic[pdcpdrop3](title="Drop at PDCP layer 3"; unit=""; source="pdcpdrop3"; record=mean);
+        //# Statistics
         @signal[receivedPacketFromUpperLayer];
         @statistic[receivedPacketFromUpperLayer](source="receivedPacketFromUpperLayer"; record=count,"sum(packetBytes)","vector(packetBytes)"; interpolationmode=none);
         @signal[receivedPacketFromLowerLayer];

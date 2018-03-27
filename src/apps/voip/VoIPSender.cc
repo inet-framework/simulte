@@ -56,6 +56,10 @@ void VoIPSender::initialize(int stage)
     destPort_ = par("destPort");
     silences_ = par("silences");
 
+    totalSentBytes_ = 0;
+    warmUpPer_ = getSimulation()->getWarmupPeriod();
+    voIPGeneratedThroughtput_ = registerSignal("voIPGeneratedThroughput");
+
     initTraffic_ = new cMessage("initTraffic");
     initTraffic();
 }
@@ -140,7 +144,6 @@ void VoIPSender::selectPeriodTime()
         }
 
         EV << "VoIPSender::selectPeriodTime - Silence Period: " << "Duration[" << durSil_ << "/" << durSil2 << "] seconds\n";
-//        durSil_ = durSil2;
         scheduleAt(simTime() + durSil_, selfSource_);
         isTalk_ = true;
     }
@@ -149,7 +152,6 @@ void VoIPSender::selectPeriodTime()
         durTalk_ = weibull(scaleTalk_, shapeTalk_);
         double durTalk2 = round(SIMTIME_DBL(durTalk_)*1000) / 1000;
         EV << "VoIPSender::selectPeriodTime - Talkspurt[" << iDtalk_ << "] - Duration[" << durTalk_ << "/" << durTalk2 << "] seconds\n";
-//        durTalk_ = durTalk2;
         talkspurt(durTalk_);
         scheduleAt(simTime() + durTalk_, selfSource_);
         isTalk_ = false;
@@ -163,13 +165,21 @@ void VoIPSender::sendVoIPPacket()
     packet->setNframes(nframes_);
     packet->setIDframe(iDframe_);
     packet->setTimestamp(simTime());
-    //packet->setSize(size);
     packet->setByteLength(size_);
     EV << "VoIPSender::sendVoIPPacket - Talkspurt[" << iDtalk_-1 << "] - Sending frame[" << iDframe_ << "]\n";
 
     socket.sendTo(packet, destAddress_, destPort_);
     --nframesTmp_;
     ++iDframe_;
+
+    // emit throughput sample
+    totalSentBytes_ += size_;
+    double interval = SIMTIME_DBL(simTime() - warmUpPer_);
+    if (interval > 0.0)
+    {
+        double tputSample = (double)totalSentBytes_ / interval;
+        emit(voIPGeneratedThroughtput_, tputSample );
+    }
 
     if (nframesTmp_ > 0)
         scheduleAt(simTime() + sampling_time, selfSender_);

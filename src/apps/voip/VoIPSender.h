@@ -40,6 +40,8 @@ class VoIPSender : public cSimpleModule
 
     bool silences_;
 
+    unsigned int totalSentBytes_;
+    simtime_t warmUpPer_;
 
     simsignal_t voIPGeneratedThroughtput_;
     // ----------------------------

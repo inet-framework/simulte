@@ -37,10 +37,6 @@ class LteMacEnb : public LteMacBase
     LteMacScheduleList* scheduleListDl_;
 
     int eNodeBCount;
-    //Statistics
-    simsignal_t activatedFrames_;
-    simsignal_t sleepFrames_;
-    simsignal_t wastedFrames_;
 
     /**
      * Variable used for Downlink energy consumption computation

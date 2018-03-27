@@ -107,14 +107,6 @@ class LteSchedulerEnb
     simsignal_t cellBlocksUtilizationUl_;
     simsignal_t lteAvgServedBlocksDl_;
     simsignal_t lteAvgServedBlocksUl_;
-    simsignal_t depletedPowerDl_;
-    simsignal_t depletedPowerUl_;
-    simsignal_t prf_0, prf_1a, prf_2a, prf_3a, prf_1b, prf_2b, prf_3b,
-        prf_1c, prf_2c, prf_3c, prf_4, prf_5, prf_6a, prf_7a, prf_8a, prf_6b, prf_7b,
-        prf_8b, prf_6c, prf_7c, prf_8c, prf_9;
-    simsignal_t rb_0, rb_1a, rb_2a, rb_3a, rb_1b, rb_2b, rb_3b,
-        rb_1c, rb_2c, rb_3c, rb_4, rb_5, rb_6a, rb_7a, rb_8a, rb_6b, rb_7b,
-        rb_8b, rb_6c, rb_7c, rb_8c, rb_9;
 
     // pre-made BandLimit structure used when the no band limit is given to the scheduler
     std::vector<BandLimit> emptyBandLim_;

@@ -78,8 +78,6 @@ void LteSchedulerEnb::initialize(Direction dir, LteMacEnb* mac)
     cellBlocksUtilizationUl_ = mac_->registerSignal("cellBlocksUtilizationUl");
     lteAvgServedBlocksDl_ = mac_->registerSignal("avgServedBlocksDl");
     lteAvgServedBlocksUl_ = mac_->registerSignal("avgServedBlocksUl");
-    depletedPowerDl_ = mac_->registerSignal("depletedPowerDl");
-    depletedPowerUl_ = mac_->registerSignal("depletedPowerUl");
 }
 
 LteMacScheduleList* LteSchedulerEnb::schedule()

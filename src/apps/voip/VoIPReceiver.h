@@ -39,6 +39,9 @@ class VoIPReceiver : public cSimpleModule
 
     bool mInit_;
 
+    unsigned int totalRcvdBytes_;
+    simtime_t warmUpPer_;
+
     simsignal_t voIPFrameLossSignal_;
     simsignal_t voIPFrameDelaySignal_;
     simsignal_t voIPPlayoutDelaySignal_;
@@ -46,7 +49,7 @@ class VoIPReceiver : public cSimpleModule
     simsignal_t voIPTaildropLossSignal_;
     simsignal_t voIPPlayoutLossSignal_;
     simsignal_t voIPJitterSignal_;
-    simsignal_t voipReceivedThroughtput_;
+    simsignal_t voIPReceivedThroughput_;
 
     virtual void finish();
 

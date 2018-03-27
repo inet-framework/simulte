@@ -11,6 +11,8 @@
 #define _LTE_LTEHARQUNITTXD2D_H_
 
 #include "stack/mac/buffer/harq/LteHarqUnitTx.h"
+#include "stack/mac/layer/LteMacUeD2D.h"
+#include "stack/mac/layer/LteMacEnbD2D.h"
 
 /**
  * An LteHarqUnit is an HARQ mac pdu container,

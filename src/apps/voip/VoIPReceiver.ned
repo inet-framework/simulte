@@ -27,7 +27,7 @@ simple VoIPReceiver like IUDPApp
 		@signal[voIPFrameLoss];
         @statistic[voIPFrameLoss](title="VoIP Frame Loss"; unit="ratio"; source="voIPFrameLoss"; record=mean);
         @signal[voIPFrameDelay];
-        @statistic[voIPFrameDelay](title="VoIP Frame Delay"; unit="s"; source="voIPFrameDelay"; record=mean,);
+        @statistic[voIPFrameDelay](title="VoIP Frame Delay"; unit="s"; source="voIPFrameDelay"; record=mean,vector);
         @signal[voIPPlayoutDelay];
         @statistic[voIPPlayoutDelay](title="VoIP Playout Delay"; unit="s"; source="voIPPlayoutDelay"; record=mean,);
         @signal[voIPPlayoutLoss];
@@ -38,9 +38,8 @@ simple VoIPReceiver like IUDPApp
         @statistic[voIPMos](title="VoIP Mos Signal"; unit="MOS"; source="voIPMos"; record=mean);
         @signal[voIPTaildropLoss];
         @statistic[voIPTaildropLoss](title="VoIP Tail Drop Loss"; unit="ratio"; source="voIPTaildropLoss"; record=mean);
-        
-        @signal[voipReceivedThroughtput];
-        @statistic[voipReceivedThroughtput](title="Throughput received at the application level"; unit="Bps"; source="voipReceivedThroughtput"; record=timeavg,mean,vector,sum);
+        @signal[voIPReceivedThroughput];
+        @statistic[voIPReceivedThroughput](title="Throughput received at the application level"; unit="Bps"; source="voIPReceivedThroughput"; record=mean,vector);
         @display("i=block/source");
     gates:
         output udpOut;

@@ -94,9 +94,6 @@ class LteMacBase : public cSimpleModule
     /// MacCellId
     MacCellId cellId_;
 
-    /// Maximum bytes per TTI scheduler can serve
-    int maxBytesPerTti_;
-
     /// Mac Buffers maximum queue size
     int queueSize_;
 

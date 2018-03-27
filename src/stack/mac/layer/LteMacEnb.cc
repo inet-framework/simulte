@@ -252,10 +252,6 @@ void LteMacEnb::initialize(int stage)
         //Initialize the current sub frame type with the first subframe of the MBSFN pattern
         currentSubFrameType_ = NORMAL_FRAME_TYPE;
 
-        activatedFrames_ = registerSignal("activatedFrames");
-        sleepFrames_ = registerSignal("sleepFrames");
-        wastedFrames_ = registerSignal("wastedFrames");
-
         eNodeBCount = par("eNodeBCount");
         WATCH(numAntennas_);
         WATCH_MAP(bsrbuf_);

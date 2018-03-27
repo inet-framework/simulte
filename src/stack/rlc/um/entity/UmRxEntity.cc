@@ -712,12 +712,15 @@ void UmRxEntity::initialize()
         rlcCellPacketLoss_ = nodeB_->registerSignal("rlcCellPacketLossDl");
     }
 
-    rlcPacketLossD2D_ = parent->registerSignal("rlcPacketLossD2D");
-    rlcPduPacketLossD2D_ = parent->registerSignal("rlcPduPacketLossD2D");
-    rlcDelayD2D_ = parent->registerSignal("rlcDelayD2D");
-    rlcThroughputD2D_ = parent->registerSignal("rlcThroughputD2D");
-    rlcPduDelayD2D_ = parent->registerSignal("rlcPduDelayD2D");
-    rlcPduThroughputD2D_ = parent->registerSignal("rlcPduThroughputD2D");
+    if (mac->isD2DCapable())
+    {
+        rlcPacketLossD2D_ = parent->registerSignal("rlcPacketLossD2D");
+        rlcPduPacketLossD2D_ = parent->registerSignal("rlcPduPacketLossD2D");
+        rlcDelayD2D_ = parent->registerSignal("rlcDelayD2D");
+        rlcThroughputD2D_ = parent->registerSignal("rlcThroughputD2D");
+        rlcPduDelayD2D_ = parent->registerSignal("rlcPduDelayD2D");
+        rlcPduThroughputD2D_ = parent->registerSignal("rlcPduThroughputD2D");
+    }
 
     rlcPacketLossTotal_ = parent->registerSignal("rlcPacketLossTotal");
 

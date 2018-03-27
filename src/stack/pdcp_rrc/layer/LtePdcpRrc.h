@@ -223,31 +223,6 @@ class LtePdcpRrcBase : public cSimpleModule
     cGate* umSap_[2];
     cGate* amSap_[2];
 
-    // FIXME D2 support
-
-    struct DropInfo
-    {
-        unsigned int layer;
-        bool drop;
-        double probability;
-
-        DropInfo()
-        {
-            layer = 0;
-            drop = false;
-            probability = 0.;
-        }
-
-        void clear()
-        {
-            layer = 0;
-            drop = false;
-            probability = 0.;
-        }
-    };
-
-    std::map<MacCid, DropInfo> dropMap_;
-
     /**
      * The entities map associate each LCID with a PDCP Entity, identified by its ID
      */
@@ -266,20 +241,11 @@ class LtePdcpRrcBase : public cSimpleModule
      */
     LtePdcpEntity* getEntity(LogicalCid lcid);
 
-    simsignal_t pdcpdrop0_;
-    simsignal_t pdcpdrop1_;
-    simsignal_t pdcpdrop2_;
-    simsignal_t pdcpdrop3_;
-
+    // statistics
     simsignal_t receivedPacketFromUpperLayer;
     simsignal_t receivedPacketFromLowerLayer;
     simsignal_t sentPacketToUpperLayer;
     simsignal_t sentPacketToLowerLayer;
-
-  public:
-
-    void setDrop(MacCid cid, unsigned int layer, double probability);
-    void clearDrop(MacCid cid);
 };
 
 class LtePdcpRrcUe : public LtePdcpRrcBase

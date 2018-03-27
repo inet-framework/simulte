@@ -54,6 +54,12 @@ void LteRlcUmD2D::initialize(int stage)
         down_[IN] = gate("UM_Sap_down$i");
         down_[OUT] = gate("UM_Sap_down$o");
 
+        // statistics
+        receivedPacketFromUpperLayer = registerSignal("receivedPacketFromUpperLayer");
+        receivedPacketFromLowerLayer = registerSignal("receivedPacketFromLowerLayer");
+        sentPacketToUpperLayer = registerSignal("sentPacketToUpperLayer");
+        sentPacketToLowerLayer = registerSignal("sentPacketToLowerLayer");
+
         WATCH_MAP(txEntities_);
         WATCH_MAP(rxEntities_);
     }

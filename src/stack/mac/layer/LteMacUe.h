@@ -164,11 +164,6 @@ class LteMacUe : public LteMacBase
     virtual ~LteMacUe();
 
     /*
-     * Record CQI-related statistics
-     */
-    void collectCqiStatistics(MacNodeId id, Direction dir, LteFeedback fb);
-
-    /*
      * Access scheduling grant
      */
     inline const LteSchedulingGrant* getSchedulingGrant() const

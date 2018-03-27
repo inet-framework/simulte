@@ -13,6 +13,8 @@
 #include "stack/mac/packet/LteHarqFeedback_m.h"
 #include "stack/mac/layer/LteMacBase.h"
 #include "stack/mac/layer/LteMacEnb.h"
+#include "stack/mac/layer/LteMacUeD2D.h"
+#include "stack/mac/layer/LteMacEnbD2D.h"
 
 LteHarqBufferRxD2D::LteHarqBufferRxD2D(unsigned int num, LteMacBase *owner, MacNodeId nodeId, bool isMulticast)
 {
@@ -48,9 +50,9 @@ LteHarqBufferRxD2D::LteHarqBufferRxD2D(unsigned int num, LteMacBase *owner, MacN
         // if D2D is enabled, register also D2D statistics
         if (macOwner_->isD2DCapable())
         {
-            macThroughputD2D_ = macOwner_->registerSignal("macThroughputD2D");
-            macCellThroughputD2D_ = nodeB_->registerSignal("macCellThroughputD2D");
-            macDelayD2D_ = macOwner_->registerSignal("macDelayD2D");
+            macThroughputD2D_ = check_and_cast<LteMacUeD2D*>(macOwner_)->registerSignal("macThroughputD2D");
+            macDelayD2D_ = check_and_cast<LteMacUeD2D*>(macOwner_)->registerSignal("macDelayD2D");
+            macCellThroughputD2D_ = check_and_cast<LteMacEnbD2D*>(nodeB_)->registerSignal("macCellThroughputD2D");
         }
     }
 }
@@ -124,7 +126,7 @@ std::list<LteMacPdu *> LteHarqBufferRxD2D::extractCorrectPdus()
                 // emit delay statistic
                 if (info->getDirection() == D2D)
                 {
-                    macOwner_->emit(macDelayD2D_, (NOW - temp->getCreationTime()).dbl());
+                    check_and_cast<LteMacUeD2D*>(macOwner_)->emit(macDelayD2D_, (NOW - temp->getCreationTime()).dbl());
                 }
                 else
                 {
@@ -140,8 +142,8 @@ std::list<LteMacPdu *> LteHarqBufferRxD2D::extractCorrectPdus()
                 // emit throughput statistics
                 if (info->getDirection() == D2D)
                 {
-                    nodeB_->emit(macCellThroughputD2D_, cellTputSample);
-                    macOwner_->emit(macThroughputD2D_, tputSample);
+                    check_and_cast<LteMacEnbD2D*>(nodeB_)->emit(macCellThroughputD2D_, cellTputSample);
+                    check_and_cast<LteMacUeD2D*>(macOwner_)->emit(macThroughputD2D_, tputSample);
                 }
                 else
                 {

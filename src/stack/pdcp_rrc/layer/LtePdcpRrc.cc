@@ -240,11 +240,6 @@ void LtePdcpRrcBase::initialize(int stage)
         nodeId_ = getAncestorPar("macNodeId");
 
         // statistics
-
-        pdcpdrop0_ = registerSignal("pdcpdrop0");
-        pdcpdrop1_ = registerSignal("pdcpdrop1");
-        pdcpdrop2_ = registerSignal("pdcpdrop2");
-        pdcpdrop3_ = registerSignal("pdcpdrop3");
         receivedPacketFromUpperLayer = registerSignal("receivedPacketFromUpperLayer");
         receivedPacketFromLowerLayer = registerSignal("receivedPacketFromLowerLayer");
         sentPacketToUpperLayer = registerSignal("sentPacketToUpperLayer");
@@ -281,22 +276,6 @@ void LtePdcpRrcBase::handleMessage(cMessage* msg)
         toDataPort(pkt);
     }
     return;
-}
-
-void LtePdcpRrcBase::setDrop(MacCid cid, unsigned int layer,
-    double probability)
-{
-    Enter_Method("setDrop");
-
-    dropMap_[cid].drop = true;
-    dropMap_[cid].layer = layer;
-    dropMap_[cid].probability = probability;
-}
-
-void LtePdcpRrcBase::clearDrop(MacCid cid)
-{
-    Enter_Method("clearDrop");
-    dropMap_[cid].clear();
 }
 
 LtePdcpEntity* LtePdcpRrcBase::getEntity(LogicalCid lcid)

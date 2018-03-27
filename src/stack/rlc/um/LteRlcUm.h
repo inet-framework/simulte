@@ -84,6 +84,12 @@ class LteRlcUm : public cSimpleModule
     cGate* up_[2];
     cGate* down_[2];
 
+    // statistics
+    simsignal_t receivedPacketFromUpperLayer;
+    simsignal_t receivedPacketFromLowerLayer;
+    simsignal_t sentPacketToUpperLayer;
+    simsignal_t sentPacketToLowerLayer;
+
     /**
      * Initialize watches
      */

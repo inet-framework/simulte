@@ -112,6 +112,7 @@ simple LteRlcUm like ILteRlcUm {
         
         @display("i=block/wheelbarrow");
         
+        //# SDU-level statistics
         @signal[rlcDelayDl];
         @statistic[rlcDelayDl](title="Delay at the rlc layer UL"; unit="s"; source="rlcDelayDl"; record=mean);
         @signal[rlcThroughputDl];
@@ -120,10 +121,23 @@ simple LteRlcUm like ILteRlcUm {
         @statistic[rlcDelayUl](title="Delay at the rlc layer UL"; unit="s"; source="rlcDelayUl"; record=mean);
         @signal[rlcThroughputUl];
         @statistic[rlcThroughputUl](title="Throughput at the rlc layer UL"; unit="Bps"; source="rlcThroughputUl"; record=mean);
-        @signal[rlcDelayD2D];
-        @statistic[rlcDelayD2D](title="Delay at the rlc layer D2D"; unit="s"; source="rlcDelayD2D"; record=mean);
-        @signal[rlcThroughputD2D];
-        @statistic[rlcThroughputD2D](title="Throughput at the rlc layer D2D"; unit="Bps"; source="rlcThroughputD2D"; record=mean);
+        @signal[rlcPacketLossUl];
+        @statistic[rlcPacketLossUl](title="rlc Packet Loss"; unit=""; source="rlcPacketLossUl"; record=mean);
+        @signal[rlcPacketLossDl];
+        @statistic[rlcPacketLossDl](title="rlc Packet Loss"; unit=""; source="rlcPacketLossDl"; record=mean);
+        @signal[rlcPacketLossTotal];
+        @statistic[rlcPacketLossTotal](title="rlc Packet Loss"; unit=""; source="rlcPacketLossTotal"; record=mean);
+
+        @signal[rlcCellThroughputUl];
+        @statistic[rlcCellThroughputUl](title="Cell Throughput at the rlc layer UL"; unit="Bps"; source="rlcCellThroughputUl"; record=mean);
+        @signal[rlcCellThroughputDl];
+        @statistic[rlcCellThroughputDl](title="Cell Throughput at the rlc layer DL"; unit="Bps"; source="rlcCellThroughputDl"; record=mean);
+        @signal[rlcCellPacketLossDl];
+        @statistic[rlcCellPacketLossDl](title="rlc Cell Packet Loss"; unit=""; source="rlcCellPacketLossDl"; record=mean);
+        @signal[rlcCellPacketLossUl];
+        @statistic[rlcCellPacketLossUl](title="rlc Cell Packet Loss"; unit=""; source="rlcCellPacketLossUl"; record=mean); 
+        
+        //# PDU-level statistics                 
         @signal[rlcPduDelayDl];
         @statistic[rlcPduDelayDl](title="Delay at the rlc layer UL"; unit="s"; source="rlcPduDelayDl"; record=mean);
         @signal[rlcPduThroughputDl];
@@ -132,36 +146,19 @@ simple LteRlcUm like ILteRlcUm {
         @statistic[rlcPduDelayUl](title="Delay at the rlc layer UL"; unit="s"; source="rlcPduDelayUl"; record=mean);
         @signal[rlcPduThroughputUl];
         @statistic[rlcPduThroughputUl](title="Throughput at the rlc layer UL"; unit="Bps"; source="rlcPduThroughputUl"; record=mean);
-        @signal[rlcPduDelayD2D];
-        @statistic[rlcPduDelayD2D](title="Delay at the rlc layer D2D"; unit="s"; source="rlcPduDelayD2D"; record=mean);
-        @signal[rlcPduThroughputD2D];
-        @statistic[rlcPduThroughputD2D](title="Throughput at the rlc layer D2D"; unit="Bps"; source="rlcPduThroughputD2D"; record=mean);
-        @signal[rlcCellThroughputUl];
-        @statistic[rlcCellThroughputUl](title="Cell Throughput at the rlc layer UL"; unit="Bps"; source="rlcCellThroughputUl"; record=mean);
-        @signal[rlcCellThroughputDl];
-        @statistic[rlcCellThroughputDl](title="Cell Throughput at the rlc layer DL"; unit="Bps"; source="rlcCellThroughputDl"; record=mean);
-        @signal[rlcCellThroughputD2D];
-        @statistic[rlcCellThroughputD2D](title="Cell Throughput at the rlc layer D2D"; unit="Bps"; source="rlcCellThroughputD2D"; record=mean);
-        @signal[rlcCellPacketLossDl];
-        @statistic[rlcCellPacketLossDl](title="rlc Cell Packet Loss"; unit=""; source="rlcCellPacketLossDl"; record=mean);
-        @signal[rlcCellPacketLossUl];
-        @statistic[rlcCellPacketLossUl](title="rlc Cell Packet Loss"; unit=""; source="rlcCellPacketLossUl"; record=mean);
-        @signal[rlcCellPacketLossD2D];
-        @statistic[rlcCellPacketLossD2D](title="rlc Cell Packet Loss"; unit=""; source="rlcCellPacketLossD2D"; record=mean);
-        @signal[rlcPacketLossUl];
-        @statistic[rlcPacketLossUl](title="rlc Packet Loss"; unit=""; source="rlcPacketLossUl"; record=mean);
-        @signal[rlcPacketLossDl];
-        @statistic[rlcPacketLossDl](title="rlc Packet Loss"; unit=""; source="rlcPacketLossDl"; record=mean);
-        @signal[rlcPacketLossD2D];
-        @statistic[rlcPacketLossD2D](title="rlc Packet Loss"; unit=""; source="rlcPacketLossD2D"; record=mean);
-        @signal[rlcPacketLossTotal];
-        @statistic[rlcPacketLossTotal](title="rlc Packet Loss"; unit=""; source="rlcPacketLossTotal"; record=mean);
         @signal[rlcPduPacketLossUl];
         @statistic[rlcPduPacketLossUl](title="rlc Packet Loss"; unit=""; source="rlcPduPacketLossUl"; record=mean);
         @signal[rlcPduPacketLossDl];
         @statistic[rlcPduPacketLossDl](title="rlc Packet Loss"; unit=""; source="rlcPduPacketLossDl"; record=mean);
-        @signal[rlcPduPacketLossD2D];
-        @statistic[rlcPduPacketLossD2D](title="rlc Packet Loss"; unit=""; source="rlcPduPacketLossD2D"; record=mean);
+        
+        @signal[receivedPacketFromUpperLayer];
+        @statistic[receivedPacketFromUpperLayer](source="receivedPacketFromUpperLayer"; record=count,"sum(packetBytes)","vector(packetBytes)"; interpolationmode=none);
+        @signal[receivedPacketFromLowerLayer];
+        @statistic[receivedPacketFromLowerLayer](source="receivedPacketFromLowerLayer"; record=count,"sum(packetBytes)","vector(packetBytes)"; interpolationmode=none);
+        @signal[sentPacketToUpperLayer];
+        @statistic[sentPacketToUpperLayer](source="sentPacketToUpperLayer"; record=count,"sum(packetBytes)","vector(packetBytes)"; interpolationmode=none);
+        @signal[sentPacketToLowerLayer];
+        @statistic[sentPacketToLowerLayer](source="sentPacketToLowerLayer"; record=count,"sum(packetBytes)","vector(packetBytes)"; interpolationmode=none);
         
     gates:
         //# 
@@ -179,6 +176,27 @@ simple LteRlcUmD2D extends LteRlcUm
     parameters:
         @class("LteRlcUmD2D");
         @display("i=block/wheelbarrow");
+        
+        //# SDU-level statistics
+        @signal[rlcDelayD2D];
+        @statistic[rlcDelayD2D](title="Delay at the rlc layer D2D"; unit="s"; source="rlcDelayD2D"; record=mean);
+        @signal[rlcThroughputD2D];
+        @statistic[rlcThroughputD2D](title="Throughput at the rlc layer D2D"; unit="Bps"; source="rlcThroughputD2D"; record=mean);
+        @signal[rlcPacketLossD2D];
+        @statistic[rlcPacketLossD2D](title="rlc Packet Loss"; unit=""; source="rlcPacketLossD2D"; record=mean);        
+      
+        @signal[rlcCellPacketLossD2D];
+        @statistic[rlcCellPacketLossD2D](title="rlc Cell Packet Loss"; unit=""; source="rlcCellPacketLossD2D"; record=mean);
+        @signal[rlcCellThroughputD2D];
+        @statistic[rlcCellThroughputD2D](title="Cell Throughput at the rlc layer D2D"; unit="Bps"; source="rlcCellThroughputD2D"; record=mean);     
+      
+        //# PDU-level statistics
+        @signal[rlcPduDelayD2D];
+        @statistic[rlcPduDelayD2D](title="Delay at the rlc layer D2D"; unit="s"; source="rlcPduDelayD2D"; record=mean);
+        @signal[rlcPduThroughputD2D];
+        @statistic[rlcPduThroughputD2D](title="Throughput at the rlc layer D2D"; unit="Bps"; source="rlcPduThroughputD2D"; record=mean);
+        @signal[rlcPduPacketLossD2D];
+        @statistic[rlcPduPacketLossD2D](title="rlc Packet Loss"; unit=""; source="rlcPduPacketLossD2D"; record=mean);
 }
 
 // 
@@ -196,10 +214,6 @@ simple LteRlcAm {
         @statistic[rlcDelayUl](title="Delay at the rlc layer UL"; unit="s"; source="rlcDelayUl"; record=mean);
         @signal[rlcThroughputUl];
         @statistic[rlcThroughputUl](title="Throughput at the rlc layer UL"; unit="Bps"; source="rlcThroughputUl"; record=mean);
-        @signal[rlcDelayD2D];
-        @statistic[rlcDelayD2D](title="Delay at the rlc layer D2D"; unit="s"; source="rlcDelayD2D"; record=mean);
-        @signal[rlcThroughputD2D];
-        @statistic[rlcThroughputD2D](title="Throughput at the rlc layer D2D"; unit="Bps"; source="rlcThroughputD2D"; record=mean);
         @signal[rlcPduDelayDl];
         @statistic[rlcPduDelayDl](title="Delay at the rlc layer UL"; unit="s"; source="rlcPduDelayDl"; record=mean);
         @signal[rlcPduThroughputDl];
@@ -208,36 +222,24 @@ simple LteRlcAm {
         @statistic[rlcPduDelayUl](title="Delay at the rlc layer UL"; unit="s"; source="rlcPduDelayUl"; record=mean);
         @signal[rlcPduThroughputUl];
         @statistic[rlcPduThroughputUl](title="Throughput at the rlc layer UL"; unit="Bps"; source="rlcPduThroughputUl"; record=mean);
-        @signal[rlcPduDelayD2D];
-        @statistic[rlcPduDelayD2D](title="Delay at the rlc layer D2D"; unit="s"; source="rlcPduDelayD2D"; record=mean);
-        @signal[rlcPduThroughputD2D];
-        @statistic[rlcPduThroughputD2D](title="Throughput at the rlc layer D2D"; unit="Bps"; source="rlcPduThroughputD2D"; record=mean);
         @signal[rlcCellThroughputUl];
         @statistic[rlcCellThroughputUl](title="Cell Throughput at the rlc layer UL"; unit="Bps"; source="rlcCellThroughputUl"; record=mean);
         @signal[rlcCellThroughputDl];
         @statistic[rlcCellThroughputDl](title="Cell Throughput at the rlc layer DL"; unit="Bps"; source="rlcCellThroughputDl"; record=mean);
-        @signal[rlcCellThroughputD2D];
-        @statistic[rlcCellThroughputD2D](title="Cell Throughput at the rlc layer D2D"; unit="Bps"; source="rlcCellThroughputD2D"; record=mean);
         @signal[rlcCellPacketLossDl];
         @statistic[rlcCellPacketLossDl](title="rlc Cell Packet Loss"; unit=""; source="rlcCellPacketLossDl"; record=mean);
         @signal[rlcCellPacketLossUl];
         @statistic[rlcCellPacketLossUl](title="rlc Cell Packet Loss"; unit=""; source="rlcCellPacketLossUl"; record=mean);
-        @signal[rlcCellPacketLossD2D];
-        @statistic[rlcCellPacketLossD2D](title="rlc Cell Packet Loss"; unit=""; source="rlcCellPacketLossD2D"; record=mean);
         @signal[rlcPacketLossUl];
         @statistic[rlcPacketLossUl](title="rlc Packet Loss"; unit=""; source="rlcPacketLossUl"; record=mean);
         @signal[rlcPacketLossDl];
         @statistic[rlcPacketLossDl](title="rlc Packet Loss"; unit=""; source="rlcPacketLossDl"; record=mean);
-        @signal[rlcPacketLossD2D];
-        @statistic[rlcPacketLossD2D](title="rlc Packet Loss"; unit=""; source="rlcPacketLossD2D"; record=mean);
         @signal[rlcPacketLossTotal];
         @statistic[rlcPacketLossTotal](title="rlc Packet Loss"; unit=""; source="rlcPacketLossTotal"; record=mean);
         @signal[rlcPduPacketLossUl];
         @statistic[rlcPduPacketLossUl](title="rlc Packet Loss"; unit=""; source="rlcPduPacketLossUl"; record=mean);
         @signal[rlcPduPacketLossDl];
         @statistic[rlcPduPacketLossDl](title="rlc Packet Loss"; unit=""; source="rlcPduPacketLossDl"; record=mean);
-        @signal[rlcPduPacketLossD2D];
-        @statistic[rlcPduPacketLossD2D](title="rlc Packet Loss"; unit=""; source="rlcPduPacketLossD2D"; record=mean);
         
     gates:
         //# 

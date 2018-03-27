@@ -309,7 +309,6 @@ void LteMacBase::initialize(int stage)
 
         /* Create buffers */
         queueSize_ = par("queueSize");
-        maxBytesPerTti_ = par("maxBytesPerTti");
 
         /* Get reference to binder */
         binder_ = getBinder();
@@ -325,10 +324,10 @@ void LteMacBase::initialize(int stage)
         ttiTick_->setSchedulingPriority(1);        // TTI TICK after other messages
         scheduleAt(NOW + TTI, ttiTick_);
         totalOverflowedBytes_ = 0;
-        macBufferOverflowDl_ = registerSignal("macBufferOverflowDl");
-        macBufferOverflowUl_ = registerSignal("macBufferOverflowUl");
+        macBufferOverflowDl_ = registerSignal("macBufferOverFlowDl");
+        macBufferOverflowUl_ = registerSignal("macBufferOverFlowUl");
         if (isD2DCapable())
-            macBufferOverflowD2D_ = registerSignal("macBufferOverflowD2D");
+            macBufferOverflowD2D_ = registerSignal("macBufferOverFlowD2D");
         receivedPacketFromUpperLayer = registerSignal("receivedPacketFromUpperLayer");
         receivedPacketFromLowerLayer = registerSignal("receivedPacketFromLowerLayer");
         sentPacketToUpperLayer = registerSignal("sentPacketToUpperLayer");
@@ -336,7 +335,6 @@ void LteMacBase::initialize(int stage)
 
         measuredItbs_ = registerSignal("measuredItbs");
         WATCH(queueSize_);
-        WATCH(maxBytesPerTti_);
         WATCH(nodeId_);
         WATCH_MAP(mbuf_);
         WATCH_MAP(macBuffers_);

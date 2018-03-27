@@ -50,6 +50,9 @@ void VoIPReceiver::initialize(int stage)
         socket.bind(port);
     }
 
+    totalRcvdBytes_ = 0;
+    warmUpPer_ = getSimulation()->getWarmupPeriod();
+
     voIPFrameLossSignal_ = registerSignal("voIPFrameLoss");
     voIPFrameDelaySignal_ = registerSignal("voIPFrameDelay");
     voIPPlayoutDelaySignal_ = registerSignal("voIPPlayoutDelay");
@@ -57,7 +60,7 @@ void VoIPReceiver::initialize(int stage)
     voIPTaildropLossSignal_ = registerSignal("voIPTaildropLoss");
     voIPJitterSignal_ = registerSignal("voIPJitter");
     voIPPlayoutLossSignal_ = registerSignal("voIPPlayoutLoss");
-    voipReceivedThroughtput_ = registerSignal("voipReceivedThroughtput");
+    voIPReceivedThroughput_ = registerSignal("voIPReceivedThroughput");
 }
 
 void VoIPReceiver::handleMessage(cMessage *msg)
@@ -87,7 +90,14 @@ void VoIPReceiver::handleMessage(cMessage *msg)
 
     EV << "VoIPReceiver::handleMessage - Packet received: TALK[" << pPacket->getIDtalk() << "] - FRAME[" << pPacket->getIDframe() << " size: " << (int)pPacket->getByteLength() << " bytes]\n";
 
-    emit(voipReceivedThroughtput_, (int)pPacket->getByteLength() );
+    // emit throughput sample
+    totalRcvdBytes_ += (int)pPacket->getByteLength();
+    double interval = SIMTIME_DBL(simTime() - warmUpPer_);
+    if (interval > 0.0)
+    {
+        double tputSample = (double)totalRcvdBytes_ / interval;
+        emit(voIPReceivedThroughput_, tputSample );
+    }
 
     pPacket->setArrivalTime(simTime());
     mPacketsList_.push_back(pPacket);
@@ -103,7 +113,6 @@ void VoIPReceiver::playout(bool finish)
     VoipPacket* pPacket = mPacketsList_.front();
 
     simtime_t firstPlayoutTime = pPacket->getArrivalTime() + mPlayoutDelay_;
-    unsigned int firstFrameId = pPacket->getIDframe();
     unsigned int n_frames = pPacket->getNframes();
     unsigned int playoutLoss = 0;
     unsigned int tailDropLoss = 0;
