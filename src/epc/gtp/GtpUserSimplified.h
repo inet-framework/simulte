@@ -51,6 +51,20 @@ class GtpUserSimplified : public cSimpleModule
 
     EpcNodeType selectOwnerType(const char * type);
 
+
+    //mec
+    //@author Angelo Buono
+    //
+    //only if owner type is ENB
+    MacNodeId myMacNodeID;
+    // to intercept traffic for ME Host
+    std::string meHostVirtualisationInfrastructure;
+    inet::L3Address meHostVirtualisationInfrastructureAddress;
+    // to tunnel traffic for ME Host
+    std::string meHostGtpEndpoint;
+    inet::L3Address meHostGtpEndpointAddress;
+    //end mec
+
   protected:
 
     virtual int numInitStages() const { return inet::NUM_INIT_STAGES; }

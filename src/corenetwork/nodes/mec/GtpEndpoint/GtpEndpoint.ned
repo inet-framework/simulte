@@ -30,7 +30,8 @@ module GtpEndpoint extends NodeBase
 {
     parameters:
         string nodeType; // must be one between ENB and PGW
-        @display("bgb=1338.645,462;i=device/mainframe");
+        @display("bgb=1496.33,580.415;i=device/mainframe");
+
     gates:
         inout filterGate @labels(PPPFrame-conn);
 
@@ -51,14 +52,43 @@ module GtpEndpoint extends NodeBase
         }
     connections:
         
+		//# connecting UDP Layer with NETWORK Layer
+		//
         udp.ipOut --> networkLayer.transportIn++;
         udp.ipIn <-- networkLayer.transportOut++;
-
-        pppInterface.upperLayerOut --> trafficFlowFilter.internetFilterGateIn;
-        pppInterface.upperLayerIn <-- gtp_user.pppGate;
+        //
+        //# connecting the pppInterface to the external-gate to the ME Host (Virtualisation Infrastructure!)
+        //
         pppInterface.phys <--> filterGate;
 
-        udp.appOut++ --> gtp_user.udpIn;
-        gtp_user.udpOut --> udp.appIn++;
+
+		//# UPLINK --> from ME Host to the eNodeB
+		//
+		//# from pppInterface to the trafficFlowFilter (UPLINK)
+		//
+        pppInterface.upperLayerOut --> trafficFlowFilter.internetFilterGateIn;
+        //
+        //# from the trafficFlowFilter to the gtpUser (UPLINK)
+        //
         trafficFlowFilter.gtpUserGateOut --> gtp_user.trafficFlowFilterGate;
+        //
+        //# from the gtpUser to the UDP Layer (UPLINK)
+        //
+        gtp_user.udpOut --> udp.appIn++;
+        //
+        //# at this point the traffic from ME Host to the eNodeB is tunneled at TRANSPORT LAYER!
+        
+               
+        
+        //# DOWNLINK --> from eNodeB to the ME Host
+		//
+		//# from the UDP Layer to the gtpUser (DOWNLINK)
+		//
+        udp.appOut++ --> gtp_user.udpIn;
+        //
+        //# from gtpUser to the pppInterface (DOWNLINK)
+        //
+        pppInterface.upperLayerIn <-- gtp_user.pppGate;
+		//
+		//# at this point the tunneled traffic is decapsulated and sent to the PPP Layer!
 }

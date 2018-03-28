@@ -61,6 +61,7 @@ module PgwStandardSimplified extends NodeBase
     parameters:
         string nodeType; // must be one between ENB and PGW
         @display("bgb=920,462;i=device/mainframe");
+                
     gates:
         inout filterGate @labels(PPPFrame-conn);
 

@@ -44,6 +44,19 @@ class TrafficFlowFilterSimplified : public cSimpleModule
     TrafficFilterTemplateTable filterTable_;
 
     EpcNodeType selectOwnerType(const char * type);
+
+    //mec
+    //@author Angelo Buono
+    //
+    //only if owner type is ENB
+    std::string meHost;
+    inet::L3Address meHostAddress;
+    //only if owner type is GTPENDPOINT
+    std::string eNodeB[];
+    inet::L3Address eNodeBAddress;
+    int eNodeBMacId;
+    //end mec
+
   protected:
     virtual int numInitStages() const { return INITSTAGE_LAST+1; }
     virtual void initialize(int stage);

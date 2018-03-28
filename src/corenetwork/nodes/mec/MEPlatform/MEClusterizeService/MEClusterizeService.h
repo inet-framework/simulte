@@ -26,8 +26,6 @@
 #include "inet/common/geometry/common/Coord.h"
 #include "inet/common/geometry/common/EulerAngles.h"
 
-#define MAX_PROXIMITY 30                //meters
-#define MAX_DIRECTION_ANGLE PI/32       //radiant
 
 /**
  * MEClusterizeService

@@ -20,7 +20,10 @@ enum EpcNodeType
 {
     ENB,
     PGW,
-    SGW
+    SGW,
+    //mec
+    //@author Angelo Buono
+    GTPENDPOINT
 };
 
 #define LOCAL_ADDRESS_TEID -1

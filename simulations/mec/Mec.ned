@@ -38,8 +38,6 @@ import lte.corenetwork.nodes.mec.MEPlatform.MEPlatform;
 import org.car2x.veins.subprojects.veins_inet.VeinsInetManager;
 
 
-import lte.corenetwork.nodes.mec.GtpEndpoint.GtpEndpoint;
-
 //
 // Derived by cars/Highway.ned Network
 //
@@ -91,14 +89,8 @@ network Mec
         }
         //# MEC module
         meHost: MEHost {
-            @display("p=714.33746,312.315;is=vl");
+            @display("p=155.05,312.315;is=vl");
         }
-
-        //# GtpUser module
-        //gtpEndpoint: GtpEndpoint {
-        //    nodeType = "GTPENDPOINT";
-        //    @display("p=572.5775,312.315;is=l");
-        //}
 
 
     connections allowunconnected:
@@ -107,19 +99,14 @@ network Mec
         router.pppg++ <--> Eth10G <--> pgw.filterGate;
 
         pgw.pppg++ <--> Eth10G <--> eNodeB1.ppp;
+        pgw.pppg++ <--> Eth10G <--> eNodeB2.ppp;
 
         //# X2 connections
         eNodeB1.x2++ <--> Eth10G <--> eNodeB2.x2++;
-        
-       
-        //#	mec        
-        //just for now --> before modifying eNodeB traffic filter & gtpUser to support meHost
-        //meHost.ppp++ <--> Eth10G <--> eNodeB2.ppp;
 
+        //#	mec
+        // direct connection between eNodeB2 and meHost
+        meHost.pppENB++ <--> Eth10G <--> eNodeB2.pppMEHost;
+        meHost.pppENB++ <--> Eth10G <--> eNodeB1.pppMEHost;
 
-		//to change
-        pgw.pppg++ <--> Eth10G <--> eNodeB2.ppp;
-        meHost.ppp++ <--> Eth10G <--> router.pppg++;
-        //gtpEndpoint.pppg++ <--> Eth10G <--> eNodeB2.ppp;
-        //gtpEndpoint.filterGate <--> Eth10G <--> meHost.ppp++;     
 }

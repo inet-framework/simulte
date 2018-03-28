@@ -18,7 +18,7 @@ import lte.corenetwork.nodes.mec.VirtualisationInfrastructure.VirtualisationInfr
 import lte.corenetwork.nodes.mec.MEPlatform.MEPlatform;
 
 //lte tunneling endpoint to connect externally with an eNodeB
-import lte.epc.PgwStandardSimplified;
+import lte.corenetwork.nodes.mec.GtpEndpoint.GtpEndpoint;
 import inet.node.ethernet.Eth10G;
 
 // 
@@ -29,7 +29,7 @@ import inet.node.ethernet.Eth10G;
 module MEHost
 {
     parameters:
-        @display("i=device/pc2;bgb=352.17334,262.70667");
+        @display("i=device/pc2;bgb=634,262");
 
         //# Node specs
         string nodeType = "MEHost";						// DO NOT CHANGE
@@ -49,26 +49,41 @@ module MEHost
 
     gates:
 
-        inout ppp[];
+        inout pppENB[];
 
     submodules:
 
         virtualisationInfrastructure: VirtualisationInfrastructure {
             parameters:
-                @display("p=243.18668,169.98668;is=s");
+                @display("p=518,159;is=s");
         }
 
         mePlatform: MEPlatform {
             parameters:
-                @display("p=243.18668,82.14667;is=s");
+                @display("p=518,79;is=s");
         }
 
         //gtp endpoint to connect directly with an eNodeB
+        gtpEndpoint: GtpEndpoint {
+            parameters:
+                nodeType = "GTPENDPOINT";
+                @display("p=161,159;is=l");
+        }
 
     connections allowunconnected:
 
-		ppp++ <--> virtualisationInfrastructure.ppp++;
-        //virtualisationInfrastructure.ppp++ <--> Eth10G <--> gtpEndpoint.filterGate;
-		//allowing external connection with eNodeB
-        //ppp++ <--> gtpEndpoint.pppg++;
+        //ppp++ <--> virtualisationInfrastructure.ppp++;
+
+        //#
+        //# internal connection between GtpEndpoint and VirtualisationInfrastrcuture
+        //#
+        virtualisationInfrastructure.ppp++ <--> Eth10G <--> gtpEndpoint.filterGate;
+
+        for i=0..sizeof(pppENB)-1 {
+
+            //#
+    		//# external connection to the eNodeB
+    		//#
+            pppENB++ <--> gtpEndpoint.pppg++;
+        }
 }

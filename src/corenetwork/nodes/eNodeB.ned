@@ -56,10 +56,18 @@ module eNodeB
         int numUdpApps = default(0);  // no of UDP apps. Specify the app types in INI file with udpApp[0..1].typename="UDPVideoStreamCli" syntax
         int numX2Apps = default(0);   // no of X2 apps. Specify the app types in INI file with x2App[0..1].typename="X2AppClient" syntax
 
+        //#mec	
+        //@author Angelo Buono
+        string meHost = default("");		// symbolic name of the connected MEHost in the Network
+
     gates:
         inout ppp;                // connection to the Core Network
         input radioIn @directIn;  // connection to the radio interface
         inout x2[];               // connection to the X2 interface
+
+        //#mec
+        //@author Angelo Buono
+        inout pppMEHost;		// connection to the GtpEndpoint module inside MEHost
 
     submodules:
 
@@ -91,9 +99,17 @@ module eNodeB
         pppIf: PPPInterface {
             @display("p=501,363");
         }
-        
+
         x2ppp[sizeof(x2)]: PPPInterface {
             @display("p=683,363");
+        }
+
+        //#
+        //#mec	
+        //#
+        //@author Angelo Buono
+        pppMEHostIf: PPPInterface {
+            @display("p=721.885,268.9175");
         }
 
         //#
@@ -211,4 +227,12 @@ module eNodeB
         tcp.ipIn <-- networkLayer.transportOut++ if numTcpApps>0;
         sctp.to_ip --> networkLayer.transportIn++ if numX2Apps>0;
         sctp.from_ip <-- networkLayer.transportOut++ if numX2Apps>0;
+
+        //#
+        //#mec	
+        //#
+        //@author Angelo Buono
+		pppMEHostIf.upperLayerIn <-- networkLayer.ifOut++;
+		pppMEHostIf.upperLayerOut --> networkLayer.ifIn++; 
+		pppMEHost <--> pppMEHostIf.phys; 
 }
