@@ -27,8 +27,8 @@
 
 
 # D2D Multicast
-/simulations/d2d_multicast/,        -f omnetpp.ini -c D2DMulticast-1to2 -r 0,               5s,             8f8d-a52a/tplx
-/simulations/d2d_multicast/,        -f omnetpp.ini -c D2DMulticast-1toM -r 0,               5s,             2e47-3e92/tplx
+/simulations/d2d_multicast/,        -f omnetpp.ini -c D2DMulticast-1to2 -r 0,               5s,             8178-596e/tplx
+/simulations/d2d_multicast/,        -f omnetpp.ini -c D2DMulticast-1toM -r 0,               5s,             7456-e2bc/tplx
 
 # D2D Unicast
 /simulations/d2d/,                  -f omnetpp.ini -c SinglePair-UDP-D2D -r 0,              5s,             19e8-9302/tplx

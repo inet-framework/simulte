@@ -271,7 +271,7 @@ void LtePhyUeD2D::handleUpperMessage(cMessage* msg)
         double cqi = lteInfo->getUserTxParams()->readCqiVector()[lteInfo->getCw()];
         if (lteInfo->getDirection() == UL)
             emit(averageCqiUl_, cqi);
-        else if (lteInfo->getDirection() == D2D)
+        else if (lteInfo->getDirection() == D2D || lteInfo->getDirection() == D2D_MULTI)
             emit(averageCqiD2D_, cqi);
     }
 
@@ -307,7 +307,7 @@ void LtePhyUeD2D::handleUpperMessage(cMessage* msg)
     // if this is a multicast/broadcast connection, send the frame to all neighbors in the hearing range
     // otherwise, send unicast to the destination
     if (lteInfo->getDirection() == D2D_MULTI)
-        sendBroadcast(frame);
+        sendMulticast(frame);
     else
         sendUnicast(frame);
 }

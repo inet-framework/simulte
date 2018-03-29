@@ -125,6 +125,16 @@ OmnetId LteBinder::getOmnetId(MacNodeId nodeId)
     return 0;
 }
 
+std::map<int, OmnetId>::const_iterator LteBinder::getNodeIdListBegin()
+{
+    return nodeIds_.begin();
+}
+
+std::map<int, OmnetId>::const_iterator LteBinder::getNodeIdListEnd()
+{
+    return nodeIds_.end();
+}
+
 MacNodeId LteBinder::getMacNodeIdFromOmnetId(OmnetId id){
 	std::map<int, OmnetId>::iterator it;
 	for (it = nodeIds_.begin(); it != nodeIds_.end(); ++it )

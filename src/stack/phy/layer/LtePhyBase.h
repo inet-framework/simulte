@@ -202,6 +202,13 @@ class LtePhyBase : public ChannelAccess
     virtual void sendBroadcast(LteAirFrame *airFrame);
 
     /**
+     * Sends a frame to the modules registered to the multicast group indicated in the frame
+     *
+     * Frames are sent with zero transmission delay.
+     */
+    virtual void sendMulticast(LteAirFrame *frame);
+
+    /**
      * Sends a frame uniquely to the dest specified in carried control info.
      *
      * Delay is calculated based on sender's and receiver's positions.

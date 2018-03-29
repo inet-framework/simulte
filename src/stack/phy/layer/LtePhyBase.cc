@@ -273,6 +273,32 @@ LteAmc *LtePhyBase::getAmcModule(MacNodeId id)
     return amc;
 }
 
+void LtePhyBase::sendMulticast(LteAirFrame *frame)
+{
+    UserControlInfo *ci = check_and_cast<UserControlInfo *>(frame->getControlInfo());
+
+    // get the group Id
+    int32 groupId = ci->getMulticastGroupId();
+    if (groupId < 0)
+        throw cRuntimeError("LtePhyBase::sendMulticast - Error. Group ID %d is not valid.", groupId);
+
+    // send the frame to nodes belonging to the multicast group only
+    std::map<int, OmnetId>::const_iterator nodeIt = binder_->getNodeIdListBegin();
+    for (; nodeIt != binder_->getNodeIdListEnd(); ++nodeIt)
+    {
+        if (nodeIt->first != nodeId_ && binder_->isInMulticastGroup(nodeIt->first, groupId))
+        {
+            EV << NOW << " LtePhyBase::sendMulticast - sending frame to node " << nodeIt->first << endl;
+            // get a pointer to receiving module
+            cModule *receiver = getSimulation()->getModule(nodeIt->second);
+            sendDirect(frame->dup(), 0, frame->getDuration(), receiver, "radioIn");
+        }
+    }
+
+    // delete the original frame
+    delete frame;
+}
+
 void LtePhyBase::sendUnicast(LteAirFrame *frame)
 {
     UserControlInfo *ci = check_and_cast<UserControlInfo *>(

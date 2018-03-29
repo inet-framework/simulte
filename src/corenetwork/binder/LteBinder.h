@@ -173,6 +173,12 @@ class LteBinder : public cSimpleModule
      */
     OmnetId getOmnetId(MacNodeId nodeId);
 
+    /*
+     * get iterators for the list of nodes
+     */
+    std::map<int, OmnetId>::const_iterator getNodeIdListBegin();
+    std::map<int, OmnetId>::const_iterator getNodeIdListEnd();
+
     /**
      * getMacNodeIdFromOmnetId() returns the MacNodeId of the module
      * given its OmnetId
