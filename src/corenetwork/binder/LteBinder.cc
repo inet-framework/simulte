@@ -252,7 +252,7 @@ void LteBinder::addD2DCapability(MacNodeId src, MacNodeId dst)
 bool LteBinder::checkD2DCapability(MacNodeId src, MacNodeId dst)
 {
     if (src < UE_MIN_ID || src >= macNodeIdCounter_[2] || dst < UE_MIN_ID || dst >= macNodeIdCounter_[2])
-        throw cRuntimeError("LteBinder::checkD2DCapability - Node Id not valid. Src %d Dst %d", src, dst);
+        return false;
 
     if (d2dPeeringCapability_.find(src) != d2dPeeringCapability_.end() && d2dPeeringCapability_[src].find(dst) != d2dPeeringCapability_[src].end())
         return d2dPeeringCapability_[src][dst];
