@@ -1,15 +1,16 @@
-SimuLTE
+﻿SimuLTE
 =======
 
-LTE user plane simulation model, compatible with the INET Framework.
+LTE/LTE-A user-plane simulation model, compatible with the INET Framework.
 
 Dependencies
 ------------
 
 The current master/head version requires either of
 
-- OMNeT++ 5.0 and INET 3.4
-- OMNeT++ 5.1 and INET 3.5
+- OMNeT++ 5.1.1 and INET 3.6
+- OMNeT++ 5.2 and INET 3.6.2
+- OMNeT++ 5.2.1 and INET 3.6.4
 
 Features
 --------
@@ -17,7 +18,7 @@ Features
 General
 
 - eNodeB and UE models
-- Form-based configuration editor
+- Full LTE protocol stack
 
 PDCP-RRC
 
@@ -43,23 +44,24 @@ PHY
 - Channel Feedback management
 - Dummy channel model
 - Realistic channel model with
-  - cell interference
+  - inter-cell interference
   - path-loss
   - fast fading
   - shadowing 
-  - (an-isotropic antennas - work in progress)
+  - (an)isotropic antennas
 
 Other
 
 - X2 communication support
-- (Relay support - work in progress)
-- Distributed Antenna System - DAS (Testing)
+- X2-based handover
+- Device-to-device communications
+- Support for vehicular mobility
 
 Applications
 
-- VoIP
-- Gaming
-- Trace Based traffic
+- Voice-over-IP (VoIP)
+- Constant Bit Rate (CBR)
+- Trace-based Video-on-demand traffic
 
 
 Limitations
@@ -73,14 +75,5 @@ Limitations
 - radio bearers not implemented, not even statically configured radio 
   bearers (dynamically allocating bearers would need the RRC protocol, 
   which is Control Plane so not implemented)
-- handovers not implemented (no X2-based handover, that is; S1-based 
-  handover would require an S-GW model)
 
 
-Using the configuration editor
-------------------------------
-
-SimuLTE also contains a form-based configuration editor to edit the most 
-often used simulation parameters. To use it, right-click an Ini file, and choose
-'Open With | SimuLTE Configuration Editor' from the context menu. Try it on 
-'simulations/demo/gui.ini'.
