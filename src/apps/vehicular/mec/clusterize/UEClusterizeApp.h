@@ -27,7 +27,7 @@
 
 #include "apps/vehicular/mec/clusterize/packets/ClusterizePacket_m.h"
 
-#include "apps/vehicular/v2v/v2vAlert/V2vAlertSender.h"
+#include "apps/vehicular/v2v/v2vAlert/V2vAlertChainApp.h"
 #include "apps/vehicular/mec/clusterize/packets/ClusterizePacketTypes.h"
 
 
@@ -64,8 +64,8 @@ class UEClusterizeApp : public cSimpleModule
     cMessage *selfSender_;
     cMessage *selfStop_;
 
-    cModule* v2vApp;                        //v2vAppSender module
-    const char* v2vAppName;                 //v2vAppSender Class Name
+    cModule* v2vApp;                        //v2vApp module
+    const char* v2vAppName;                 //v2vApp Class Name
 
     inet::IMobility *mobility;
     inet::Coord position;

@@ -7,8 +7,13 @@
 // and cannot be removed from it.
 //
 
-#ifndef __SIMULTE_UECLUSTERIZESENDER_H_
-#define __SIMULTE_UECLUSTERIZESENDER_H_
+//
+//  @author Angelo Buono
+//
+
+
+#ifndef __SIMULTE_V2VALERTCHAINAPP_H_
+#define __SIMULTE_V2VALERTCHAINAPP_H_
 
 #include <omnetpp.h>
 
@@ -21,6 +26,9 @@
 #include "apps/vehicular/mec/clusterize/packets/ClusterizePacket_m.h"
 #include "apps/vehicular/mec/clusterize/packets/ClusterizePacketTypes.h"
 
+using namespace omnetpp;
+
+
 /**
  * V2vAlertSender
  *
@@ -28,34 +36,38 @@
  *       1) Sending according the txMode the V2vAlertPacket to the v2vPeerAddresses
  */
 
-class V2vAlertSender : public cSimpleModule
+
+class V2vAlertChainApp : public cSimpleModule
 {
-        inet::UDPSocket socket;
+    inet::UDPSocket socket;
 
-        int nextSno_;
-        int size_;
-        simtime_t period_;
+    int nextSno_;
+    int size_;
+    simtime_t period_;
 
-        simsignal_t v2vAlertSentMsg_;
+    cMessage *selfSender_;
 
-        cMessage *selfSender_;
+    int localPort_;
+    int destPort_;
+    inet::L3Address destAddress_;
 
-        int localPort_;
-        int destPort_;
-        inet::L3Address destAddress_;
+    std::string carSymbolicAddress;
 
-        cModule* lteNic;
+    cModule* lteNic;
 
-        int clusterID;
-        int txMode;
-        std::string v2vPeerList;
+    int clusterID;
+    int txMode;
+    std::string v2vPeerList;
 
-        void sendV2vAlertPacket();
+    simsignal_t v2vAlertChainSentMsg_;
+
+    simsignal_t v2vAlertChainDelay_;
+    simsignal_t v2vAlertChainRcvdMsg_;
 
     public:
 
-        ~V2vAlertSender();
-        V2vAlertSender();
+        ~V2vAlertChainApp();
+        V2vAlertChainApp();
 
         //allowing the UEClusterizeApp instance connected with this instance
         //to set the computed cluster configuration!
@@ -67,7 +79,15 @@ class V2vAlertSender : public cSimpleModule
         void initialize(int stage);
         virtual void handleMessage(cMessage *msg);
 
-        // split a string by the delimiter chars
+        //
+        // send the alertPacket
+        void sendV2vAlertPacket(V2vAlertPacket* pkt);
+        //
+        // emits statistics and propagates the alertPacket
+        void handleV2vAlertPacket(V2vAlertPacket* pkt);
+
+        // utility:
+        //          split a string by the delimiter chars
         std::vector<std::string> splitString(std::string, const char* delimiter);
 };
 

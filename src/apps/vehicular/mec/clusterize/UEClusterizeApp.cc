@@ -299,10 +299,10 @@ void UEClusterizeApp::handleClusterizeConfig(ClusterizeConfigPacket* pkt){
     EV << "UEClusterizeApp::handleClusterizeConfig - Packet received: "<< pkt->getSourceAddress() <<" SeqNo[" << pkt->getSno() << "]" << endl;
 
     //configure the Cluster parameters for V2vAlertSender IUDPApp
-    if(v2vApp != NULL && !strcmp(v2vAppName, "V2vAlertSender")){
+    if(v2vApp != NULL && !strcmp(v2vAppName, "V2vAlertChainApp")){
 
         EV << "UEClusterizeApp::handleClusterizeConfig - Configuring V2vAlertSender!" << endl;
-        (check_and_cast<V2vAlertSender*>(v2vApp))->setClusterConfiguration(pkt);
+        (check_and_cast<V2vAlertChainApp*>(v2vApp))->setClusterConfiguration(pkt);
     }
 
     // emit statistics

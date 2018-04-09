@@ -15,4 +15,9 @@ packet V2vAlertPacket {
     
     unsigned int sno;
     simtime_t timestamp;
+    
+    string sourceAddress;
+    string destinationAddress;
+    
+    string forwarderAddress;
 }
