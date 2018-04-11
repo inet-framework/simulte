@@ -96,7 +96,7 @@ simple LtePhyEnb extends LtePhyBase {
 simple LtePhyEnbD2D extends LtePhyEnb {
     parameters:
         @class("LtePhyEnbD2D");
-        bool enableD2DCqiReporting = default(false);
+        bool enableD2DCqiReporting = default(true);
 }
 
 // 
