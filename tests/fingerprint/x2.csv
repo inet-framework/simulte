@@ -1,4 +1,4 @@
 # workingdir,                            args,                                          simtimelimit,    fingerprint
-/simulations/x2/,                         -f omnetpp.ini -c X2-Mesh-balanced -r 0,      5s,              004a-e749/tplx
-/simulations/x2/,                         -f omnetpp.ini -c X2-Mesh-unbalanced -r 0,    5s,              1d7a-727e/tplx
+/simulations/x2/,                         -f omnetpp.ini -c X2-Mesh-balanced -r 0,      5s,              18f7-ab0e/tplx
+/simulations/x2/,                         -f omnetpp.ini -c X2-Mesh-unbalanced -r 0,    5s,              4632-1c6a/tplx
 

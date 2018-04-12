@@ -58,6 +58,15 @@ void LtePhyUeD2D::handleSelfMessage(cMessage *msg)
         delete msg;
         d2dDecodingTimer_ = NULL;
     }
+    else if (msg->isName("doModeSwitchAtHandover"))
+    {
+        // call mode selection module to check if DM connections are possible
+        cModule* enb = getSimulation()->getModule(binder_->getOmnetId(masterId_));
+        D2DModeSelectionBase *d2dModeSelection = check_and_cast<D2DModeSelectionBase*>(enb->getSubmodule("lteNic")->getSubmodule("d2dModeSelection"));
+        d2dModeSelection->doModeSwitchAtHandover(nodeId_, true);
+
+        delete msg;
+    }
     else
         LtePhyUe::handleSelfMessage(msg);
 }
@@ -234,10 +243,10 @@ void LtePhyUeD2D::doHandover()
 
     LtePhyUe::doHandover();
 
-    // call mode selection module to check if DM connections are possible
-    cModule* enb = getSimulation()->getModule(binder_->getOmnetId(masterId_));
-    D2DModeSelectionBase *d2dModeSelection = check_and_cast<D2DModeSelectionBase*>(enb->getSubmodule("lteNic")->getSubmodule("d2dModeSelection"));
-    d2dModeSelection->doModeSwitchAtHandover(nodeId_, true);
+    // send a self-message to schedule the possible mode switch at the end of the TTI (after all UEs have performed the handover)
+    cMessage* msg = new cMessage("doModeSwitchAtHandover");
+    msg->setSchedulingPriority(10);
+    scheduleAt(NOW, msg);
 }
 
 void LtePhyUeD2D::handleUpperMessage(cMessage* msg)
