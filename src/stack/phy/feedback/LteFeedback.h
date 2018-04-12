@@ -465,7 +465,7 @@ class LteSummaryFeedback
         ri_ = NORANK;
         tRi_ = simTime();
 
-        cqi_ = std::vector<CqiVector>(totCodewords_, CqiVector(logicalBandsTot_, NOSIGNALCQI)); // XXX DUMMY VALUE USED FOR TESTING: replace with NOSIGNALCQI
+        cqi_ = std::vector<CqiVector>(totCodewords_, CqiVector(logicalBandsTot_, NOSIGNALCQI));
         tCqi_ = std::vector<std::vector<simtime_t> >(totCodewords_,
             std::vector<simtime_t>(logicalBandsTot_, simTime()));
 
