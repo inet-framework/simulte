@@ -18,8 +18,8 @@ simple ExtCell
         @display("i=device/antennatower;bgb=300,300");
 
         // coordinates
-        int position_x @unit("m") = default(0m);
-        int position_y @unit("m") = default(0m);
+        double position_x @unit("m") = default(0m);
+        double position_y @unit("m") = default(0m);
         
         // transmission power
         double txPower = default(46);
