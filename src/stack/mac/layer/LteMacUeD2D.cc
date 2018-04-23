@@ -692,11 +692,25 @@ void LteMacUeD2D::handleSelfMessage()
             bool ready = currHarq->getProcess(currentHarq_)->hasReadyUnits();
             CwList cwListRetx = currHarq->getProcess(currentHarq_)->readyUnitsIds();
 
-            EV << "\t [process=" << (unsigned int)currentHarq_ << "] , [retx=" << ((retx)?"true":"false")
+            EV << "\t [process=" << (unsigned int)currentHarq_ << "] , [retx=" << ((ready)?"true":"false")
                << "] , [n=" << cwListRetx.size() << "]" << endl;
 
+            // check if one 'ready' unit has the same direction of the grant
+            bool checkDir = false;
+            CwList::iterator cit = cwListRetx.begin();
+            for (; cit != cwListRetx.end(); ++cit)
+            {
+                Codeword cw = *cit;
+                UserControlInfo* info = check_and_cast<UserControlInfo*>(currHarq->getProcess(currentHarq_)->getPdu(cw)->getControlInfo());
+                if (info->getDirection() == schedulingGrant_->getDirection())
+                {
+                    checkDir = true;
+                    break;
+                }
+            }
+
             // if a retransmission is needed
-            if(ready)
+            if(ready && checkDir)
             {
                 UnitList signal;
                 signal.first=currentHarq_;
