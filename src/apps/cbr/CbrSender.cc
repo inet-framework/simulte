@@ -39,16 +39,11 @@ void CbrSender::initialize(int stage)
     }
     else if (stage == INITSTAGE_APPLICATION_LAYER)
     {
-        destAddress_ = L3AddressResolver().resolve(par("destAddress").stringValue());
-        socket.setOutputGate(gate("udpOut"));
-        socket.bind(localPort_);
-
-        EV << "CbrSender::initialize - binding to port: local:" << localPort_ << " , dest:" << destPort_ << endl;
-
         // calculating traffic starting time
         startTime_ = par("startTime");
         finishTime_ = par("finishTime");
 
+        EV << " finish time " << finishTime_ << endl;
         nframes_ = (finishTime_ - startTime_) / sampling_time;
 
         initTraffic_ = new cMessage("initTraffic");

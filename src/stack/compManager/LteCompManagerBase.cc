@@ -179,6 +179,7 @@ void LteCompManagerBase::sendClientRequest(X2CompRequestIE* requestIe)
     {
         compMsg->setSourceId(nodeId_);
         handleClientRequest(compMsg);
+        delete compMsg;
     }
     else
     {
@@ -208,6 +209,7 @@ void LteCompManagerBase::sendCoordinatorReply(X2NodeId clientId, X2CompReplyIE* 
 
         compMsg->setSourceId(nodeId_);
         handleCoordinatorReply(compMsg);
+        delete compMsg;
     }
     else
     {
