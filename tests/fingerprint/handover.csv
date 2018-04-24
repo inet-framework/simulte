@@ -3,7 +3,7 @@
 /simulations/test_handover/,              -f omnetpp.ini -c VoIP-DL -r 0,               5s,              82ed-cdaf/tplx
 /simulations/test_handover/,              -f omnetpp.ini -c VoIP-UL -r 0,               5s,              6806-6276/tplx
 /simulations/test_handover/,              -f omnetpp.ini -c VoIP-DL_UL -r 0,            5s,              9d6c-4a3a/tplx
-/simulations/test_handover/,              -f omnetpp.ini -c VoIP-D2D -r 0,              5s,              183b-804e/tplx
+/simulations/test_handover/,              -f omnetpp.ini -c VoIP-D2D -r 0,              5s,              af32-d677/tplx
 /simulations/test_handover/,              -f omnetpp.ini -c FileTransfer-DL_UL -r 0,    5s,              3c78-0b12/tplx
-/simulations/test_handover/,              -f omnetpp.ini -c FileTransfer-D2D -r 0,      5s,              3437-82c9/tplx
+/simulations/test_handover/,              -f omnetpp.ini -c FileTransfer-D2D -r 0,      5s,              1e36-d9ba/tplx
 

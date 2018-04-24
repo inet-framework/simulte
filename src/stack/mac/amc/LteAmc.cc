@@ -492,7 +492,8 @@ LteSummaryFeedback LteAmc::getFeedbackD2D(MacNodeId id, Remote antenna, TxMode t
         }
 
         // default feedback: when there is no feedback from peers yet (NOSIGNALCQI)
-        return d2dFeedbackHistory_.at(0).at(MACRO).at(0).at(txMode).get();
+        if (peerId == 0)
+            return d2dFeedbackHistory_.at(0).at(MACRO).at(0).at(txMode).get();
     }
     return d2dFeedbackHistory_.at(peerId).at(antenna).at(d2dNodeIndex_.at(id)).at(txMode).get();
 }

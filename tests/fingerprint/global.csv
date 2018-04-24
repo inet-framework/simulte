@@ -31,11 +31,11 @@
 /simulations/d2d_multicast/,        -f omnetpp.ini -c D2DMulticast-1toM -r 0,               5s,             7456-e2bc/tplx
 
 # D2D Unicast
-/simulations/d2d/,                  -f omnetpp.ini -c SinglePair-UDP-D2D -r 0,              5s,             5a33-da3c/tplx
+/simulations/d2d/,                  -f omnetpp.ini -c SinglePair-UDP-D2D -r 0,              5s,             19e8-9302/tplx
 /simulations/d2d/,                  -f omnetpp.ini -c SinglePair-UDP-Infra -r 0,            5s,             6bcd-73f0/tplx
-/simulations/d2d/,                  -f omnetpp.ini -c MultiplePairs-UDP-D2D -r 0,           5s,             6991-d2fd/tplx
+/simulations/d2d/,                  -f omnetpp.ini -c MultiplePairs-UDP-D2D -r 0,           5s,             a0ec-0c8b/tplx
 /simulations/d2d/,                  -f omnetpp.ini -c MultiplePairs-UDP-Infra -r 0,         5s,             0913-8b4b/tplx
-/simulations/d2d/,                  -f omnetpp.ini -c MultiplePairs-UDP-D2D-wReuse -r 0,    5s,             d280-daaf/tplx
+/simulations/d2d/,                  -f omnetpp.ini -c MultiplePairs-UDP-D2D-wReuse -r 0,    5s,             858c-6194/tplx
 
 # Eutran_epc
 /simulations/eutran_epc/,           -f omnetpp.ini -c VoIP-DL -r 0,                         5s,             cb6e-d7b3/tplx
@@ -54,9 +54,9 @@
 /simulations/test_handover/,        -f omnetpp.ini -c VoIP-DL -r 0,                         5s,              82ed-cdaf/tplx
 /simulations/test_handover/,        -f omnetpp.ini -c VoIP-UL -r 0,                         5s,              6806-6276/tplx
 /simulations/test_handover/,        -f omnetpp.ini -c VoIP-DL_UL -r 0,                      5s,              9d6c-4a3a/tplx
-/simulations/test_handover/,        -f omnetpp.ini -c VoIP-D2D -r 0,                        5s,              183b-804e/tplx
+/simulations/test_handover/,        -f omnetpp.ini -c VoIP-D2D -r 0,                        5s,              af32-d677/tplx
 /simulations/test_handover/,        -f omnetpp.ini -c FileTransfer-DL_UL -r 0,              5s,              3c78-0b12/tplx
-/simulations/test_handover/,        -f omnetpp.ini -c FileTransfer-D2D -r 0,                5s,              3437-82c9/tplx
+/simulations/test_handover/,        -f omnetpp.ini -c FileTransfer-D2D -r 0,                5s,              1e36-d9ba/tplx
 
 # X2
 /simulations/x2/,                   -f omnetpp.ini -c X2-Mesh-balanced -r 0,                5s,              18f7-ab0e/tplx

@@ -38,6 +38,8 @@ backups
 
 
 *.FAILED
+*.UPDATED
+*.ERROR
 .cproject
 .project
 ui/com.simulte.configeditor/bin/
