@@ -53,7 +53,7 @@ class AmcPilotD2D : public AmcPilot
     // TODO reimplement these functions
     virtual std::vector<Cqi>  getMultiBandCqi(MacNodeId id, const Direction dir){}
     virtual void setUsableBands(MacNodeId id , UsableBands usableBands){}
-    virtual UsableBands* getUsableBands(MacNodeId id){}
+    virtual bool getUsableBands(MacNodeId id, UsableBands*& uBands){ return false; }
 };
 
 #endif

@@ -59,14 +59,15 @@ class AmcPilotAuto : public AmcPilot
      */
     void setUsableBands(MacNodeId id , UsableBands usableBands);
     /*
-     * returns the subset of bands that will be used in scheduling operation.
+     * returns as a parameter the subset of bands that will be used in scheduling operation.
      * e.g. limit the set of bands that will be considered in the "scheduleGrant" function
      * If the node id refers to a UE and usable bands are not defined for it, then
      * usable bands corresponding to the id of its serving eNB are returned. If usable
      * bands for the eNB are missing too, then the function returns a NULL pointer (i.e.,
      * bands will not be limited)
+     * The method returns false if ALL bands are usable (hence, ignore the pointer), otherwise returns true
      */
-    UsableBands* getUsableBands(MacNodeId id);
+    bool getUsableBands(MacNodeId id, UsableBands*& uBands);
 
     // returns a vector with one CQI for each band ( for the given user )
     std::vector<Cqi>  getMultiBandCqi(MacNodeId id, const Direction dir);

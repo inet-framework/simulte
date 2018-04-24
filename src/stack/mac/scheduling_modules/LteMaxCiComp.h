@@ -21,7 +21,8 @@ class LteMaxCiComp : public virtual LteScheduler
     typedef std::priority_queue<ScoreDesc> ScoreList;
 
     // get the bandLimit for the given user
-    void getBandLimit(std::vector<BandLimit>* bandLimit, MacNodeId ueId);
+    // return false if ALL bands are usable
+    bool getBandLimit(std::vector<BandLimit>* bandLimit, MacNodeId ueId);
 
   public:
 

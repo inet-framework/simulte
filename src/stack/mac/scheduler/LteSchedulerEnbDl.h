@@ -67,6 +67,9 @@ class LteSchedulerEnbDl : public LteSchedulerEnb
      */
     virtual unsigned int schedulePerAcidRtx(MacNodeId nodeId, Codeword cw, unsigned char acid,
         std::vector<BandLimit>* bandLim = NULL, Remote antenna = MACRO, bool limitBl = false);
+
+    bool getBandLimit(std::vector<BandLimit>* bandLimit, MacNodeId ueId);
+
 };
 
 #endif // _LTE_LTE_SCHEDULER_ENB_DL_H_

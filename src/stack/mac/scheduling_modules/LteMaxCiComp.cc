@@ -10,17 +10,17 @@
 #include "stack/mac/scheduling_modules/LteMaxCiComp.h"
 #include "stack/mac/scheduler/LteSchedulerEnb.h"
 
-void LteMaxCiComp::getBandLimit(std::vector<BandLimit>* bandLimit, MacNodeId ueId)
+bool LteMaxCiComp::getBandLimit(std::vector<BandLimit>* bandLimit, MacNodeId ueId)
 {
     bandLimit->clear();
 
     // get usable bands for this user
-    UsableBands* usableBands = eNbScheduler_->mac_->getAmc()->getPilotUsableBands(ueId);
-    if (usableBands == NULL)
+    UsableBands* usableBands = NULL;
+    bool ret = eNbScheduler_->mac_->getAmc()->getPilotUsableBands(ueId, usableBands);
+    if (!ret)
     {
-//        bandLimit = NULL; // all bands available
         // leave the bandLimit empty
-        return;
+        return false;
     }
 
     // check the number of codewords
@@ -52,6 +52,8 @@ void LteMaxCiComp::getBandLimit(std::vector<BandLimit>* bandLimit, MacNodeId ueI
 
         bandLimit->push_back(elem);
     }
+
+    return true;
 }
 
 void LteMaxCiComp::prepareSchedule()
@@ -139,8 +141,8 @@ void LteMaxCiComp::prepareSchedule()
 
         // Get the bandLimit for the current user
         std::vector<BandLimit>* bandLim;
-        getBandLimit(&usableBands, MacCidToNodeId(current.x_));
-        if (usableBands.empty())
+        bool ret = getBandLimit(&usableBands, MacCidToNodeId(current.x_));
+        if (!ret)
             bandLim = NULL;
         else
             bandLim = &usableBands;

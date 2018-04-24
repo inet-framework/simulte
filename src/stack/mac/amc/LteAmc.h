@@ -140,7 +140,7 @@ class LteAmc
     unsigned int computeBytesOnNRbs_MB(MacNodeId id, Band b, unsigned int blocks, const Direction dir);
     unsigned int computeBitsOnNRbs_MB(MacNodeId id, Band b, unsigned int blocks, const Direction dir);
     bool setPilotUsableBands(MacNodeId id , std::vector<unsigned short> usableBands);
-    std::vector<unsigned short>* getPilotUsableBands(MacNodeId id);
+    bool getPilotUsableBands(MacNodeId id, std::vector<unsigned short>*& usableBands);
 
     // utilities - do not involve pilot invocation
     unsigned int getItbsPerCqi(Cqi cqi, const Direction dir);

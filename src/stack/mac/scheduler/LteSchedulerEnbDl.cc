@@ -75,6 +75,7 @@ LteSchedulerEnbDl::schedulePerAcidRtx(MacNodeId nodeId, Codeword cw, unsigned ch
             bandLim->push_back(elem);
         }
     }
+
     EV << NOW << "LteSchedulerEnbDl::rtxAcid - Node [" << mac_->getMacNodeId() << "], User[" << nodeId << "],  Codeword [" << cw << "]  of [" << codewords << "] , ACID [" << (int)acid << "] " << endl;
     //! \test REALISTIC!!!  Multi User MIMO support
     if (mac_->muMimo() && (txParams.readTxMode() == MULTI_USER))
@@ -142,8 +143,16 @@ LteSchedulerEnbDl::schedulePerAcidRtx(MacNodeId nodeId, Codeword cw, unsigned ch
     {
         // save the band and the relative limit
         Band b = bandLim->at(i).band_;
-
         int limit = bandLim->at(i).limit_.at(remappedCw);
+
+        EV << "LteSchedulerEnbDl::schedulePerAcidRtx --- BAND " << b << " LIMIT " << limit << "---" << endl;
+        // if the limit flag is set to skip, jump off
+        if (limit == -2)
+        {
+            EV << "LteSchedulerEnbDl::schedulePerAcidRtx - skipping logical band according to limit value" << endl;
+            continue;
+        }
+
         unsigned int available = 0;
         // if a codeword has been already scheduled for retransmission, limit available blocks to what's been  allocated on that codeword
         if ((allocatedCw != 0))
@@ -263,6 +272,8 @@ LteSchedulerEnbDl::rtxschedule()
     HarqTxBuffers::iterator it = harqQueues->begin();
     HarqTxBuffers::iterator et = harqQueues->end();
 
+    std::vector<BandLimit> usableBands;
+
     // examination of HARQ process in rtx status, adding them to scheduling list
     for(; it != et; ++it)
     {
@@ -288,6 +299,7 @@ LteSchedulerEnbDl::rtxschedule()
 
         EV << NOW << " LteSchedulerEnbDl::rtxschedule  UE: " << nodeId << endl;
         EV << NOW << " LteSchedulerEnbDl::rtxschedule Number of codewords: " << codewords << endl;
+
 
         // get the number of HARQ processes
         unsigned int process=0;
@@ -317,8 +329,16 @@ LteSchedulerEnbDl::rtxschedule()
                 EV << NOW << " LteSchedulerEnbDl::rtxschedule " << endl;
                 EV << NOW << " LteSchedulerEnbDl::rtxschedule detected RTX Acid: " << process << endl;
 
+                // Get the bandLimit for the current user
+                std::vector<BandLimit>* bandLim;
+                bool ret = getBandLimit(&usableBands, nodeId);
+                if (!ret)
+                    bandLim = NULL;
+                else
+                    bandLim = &usableBands;
+
                 // perform the retransmission
-                unsigned int bytes = schedulePerAcidRtx(nodeId,cw,process);
+                unsigned int bytes = schedulePerAcidRtx(nodeId,cw,process,bandLim);
 
                 // if a value different from zero is returned, there was a service
                 if(bytes > 0)
@@ -337,4 +357,51 @@ LteSchedulerEnbDl::rtxschedule()
     EV << "    LteSchedulerEnbDl::rtxschedule --------------------::[  END RTX-SCHEDULE  ]::-------------------- " << endl;
 
     return (availableBlocks == 0);
+}
+
+bool LteSchedulerEnbDl::getBandLimit(std::vector<BandLimit>* bandLimit, MacNodeId ueId)
+{
+    bandLimit->clear();
+
+    // get usable bands for this user
+    UsableBands* usableBands = NULL;
+    bool ret = mac_->getAmc()->getPilotUsableBands(ueId, usableBands);
+    if (!ret)
+    {
+//        bandLimit = NULL; // all bands available
+        // leave the bandLimit empty
+        return false;
+    }
+
+    // check the number of codewords
+    unsigned int numCodewords = 1;
+    unsigned int numBands = mac_->getCellInfo()->getNumBands();
+    // for each band of the band vector provided
+    for (unsigned int i = 0; i < numBands; i++)
+    {
+        BandLimit elem;
+        elem.band_ = Band(i);
+
+        int limit = -2;
+
+        // check whether band i is in the set of usable bands
+        UsableBands::iterator it = usableBands->begin();
+        for (; it != usableBands->end(); ++it)
+        {
+            if (*it == i)
+            {
+                // band i must be marked as unlimited
+                limit = -1;
+                break;
+            }
+        }
+
+        elem.limit_.clear();
+        for (unsigned int j = 0; j < numCodewords; j++)
+            elem.limit_.push_back(limit);
+
+        bandLimit->push_back(elem);
+    }
+
+    return true;
 }
