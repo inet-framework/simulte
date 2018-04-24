@@ -46,36 +46,40 @@ struct ueLocalInfo{
 
 struct ueClusterConfig{
 
-    std::string carSimbolicAddress;
-    int clusterID;
-    int txMode;
+    std::string carSimbolicAddress = "";
+    int clusterID = -1;
+    int txMode = -1;
 
-    std::stringstream v2vLocalReceivers;
+    std::string following;
+    int followingKey = -1;
+    std::string follower;
+    int followerKey = -1;
+
+    std::string platoonList;
 };
 
 class MEClusterizeService : public cSimpleModule
 {
-    cMessage *selfSender_;
-    simtime_t period_;
+protected:
+        cMessage *selfSender_;
+        simtime_t period_;
 
-    cModule* mePlatform;
-    cModule* meHost;
+        cModule* mePlatform;
+        cModule* meHost;
 
-    int maxMEApps;
+        int maxMEApps;
 
-    //for each MEClusterizeApp (linked to the UEClusterizeApp & V2VApp supported)
-    //storing the more recent ClusterizeInfoPacket containing the car-local info
-    //
-    std::map<int, ueLocalInfo> v2vInfo;                             //i.e. key = gateIndex to the MEClusterizeApp
+        //for each MEClusterizeApp (linked to the UEClusterizeApp & V2VApp supported)
+        //storing the more recent ClusterizeInfoPacket containing the car-local info
+        //
+        std::map<int, ueLocalInfo> v2vInfo;                             //i.e. key = gateIndex to the MEClusterizeApp
 
-    //for each MEClusterizeApp (linked to the UEClusterizeApp & V2VApp supported)
-    //storing the newest ClusterizeConfigPacket to send to the UEClusterizeApp
-    //
-    std::map<int, ueClusterConfig> v2vConfig;                       //i.e. key = gateIndex to the MEClusterizeApp
+        //for each MEClusterizeApp (linked to the UEClusterizeApp & V2VApp supported)
+        //storing the newest ClusterizeConfigPacket to send to the UEClusterizeApp
+        //
+        std::map<int, ueClusterConfig> v2vConfig;                       //i.e. key = gateIndex to the MEClusterizeApp
 
-    int clusterSN;                              //Cluster Sequence Number
-    double proximityThreshold;                  // meter: threshold within two cars can communicate v2v
-    double directionDelimiterThreshold;         // radiant: threshold within two cars are going in the same direction
+        int clusterSN;                              //Cluster Sequence Number
 
     public:
 
@@ -85,25 +89,25 @@ class MEClusterizeService : public cSimpleModule
     protected:
 
         virtual int numInitStages() const { return inet::NUM_INIT_STAGES; }
-        void initialize(int stage);
+        virtual void initialize(int stage);
         virtual void handleMessage(cMessage *msg);
 
         // executing periodically the clustering algorithm & updating the v2vConfig map
         // chain clustering alforithm:
         //      building up a chain of cars -> each car is able to send to the car behind!
         //      using the proximityTreshold and directionDelimiterThreshold
-        void computeChainCluster();
+        virtual void compute(){};
 
         // sending, after compute(), the configurations in v2vConfig map
-        void sendConfig();
+        virtual void sendConfig();
 
         // updating the v2vInfo map
         // by modifying the values in the correspondent v2vInfo entry (arrival-gate index)
-        void handleClusterizeInfo(ClusterizeInfoPacket*);
+        virtual void handleClusterizeInfo(ClusterizeInfoPacket*);
 
         // updating the v2vInfo & v2vConfig maps
         // by erasing the correspondent v2vInfo entry (arrival-gate index)
-        void handleClusterizeStop(ClusterizePacket*);
+        virtual void handleClusterizeStop(ClusterizePacket*);
 };
 
 #endif

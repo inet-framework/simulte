@@ -33,8 +33,8 @@ simple MEClusterizeApp like IMEApp
         @display("i=block/app");
         
         double ram @unit("B") = default(100MB);
-        double disk @unit("B") = default(2GB);
-        double cpu = default(0.1);
+        double disk @unit("B") = default(1GB);
+        double cpu = default(0.01);
         
         string v2vAppName = default(""); 					//to differentiate the instance based on the V2V Sender Class Name
                 

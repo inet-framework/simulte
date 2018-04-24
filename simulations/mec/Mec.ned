@@ -109,4 +109,5 @@ network Mec
         meHost.pppENB++ <--> Eth10G <--> eNodeB2.pppMEHost;
         meHost.pppENB++ <--> Eth10G <--> eNodeB1.pppMEHost;
 
+		//meHost.ppp <--> Eth10G <--> router.pppg++;
 }

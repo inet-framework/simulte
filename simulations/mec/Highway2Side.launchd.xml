@@ -1,0 +1,6 @@
+<launch>
+  <copy file="Highway2Side.net.xml"/>
+  <copy file="Highway2Side.rou.xml"/>
+  <copy file="Highway2Side.sumocfg" type="config"/>
+  <copy file="gui-settings.xml"/>
+</launch>

@@ -1,0 +1,10 @@
+<configuration>
+    <input>
+        <net-file value="Highway2Side.net.xml"/>
+        <route-files value="Highway2Side.rou.xml"/>
+    </input>
+    <time>
+        <begin value="0"/>
+        <end value="10000"/>
+    </time>
+</configuration>

@@ -1,0 +1,25 @@
+<routes>
+    <vType accel="1.0" decel="5.0" id="Car" length="2.0" maxSpeed="100.0" sigma="0.0" />
+    <route id="routeA1lExit" edges="A1ltoA1lB2r A1lB2rtoB2r"/>
+    <route id="routeA1lContinue" edges="A1ltoA1lB2r A1lB2rtoA2l"/>
+
+    <route id="routeA1rExit" edges="A1rtoA1rB2l A1rB2ltoB2l"/>
+    <route id="routeA1rContinue" edges="A1rtoA1rB2l A1rB2ltoA2r"/>
+
+    <vehicle depart="1" route="routeA1lExit" type="Car" id="0" />
+    <vehicle depart="1" route="routeA1lContinue" type="Car" id="1" />
+    <vehicle depart="1" route="routeA1lContinue" type="Car" id="2" />
+    <vehicle depart="1" route="routeA1rExit" type="Car" id="3" />
+    <vehicle depart="1" route="routeA1rContinue" type="Car" id="4" />
+    <vehicle depart="1" route="routeA1rContinue" type="Car" id="5" />
+    <vehicle depart="2" route="routeA1lExit" type="Car" id="6" />
+    <vehicle depart="2" route="routeA1rExit" type="Car" id="7" />
+    <vehicle depart="3" route="routeA1lContinue" type="Car" id="8" />
+    <vehicle depart="3" route="routeA1lContinue" type="Car" id="9" />
+    <vehicle depart="3" route="routeA1rContinue" type="Car" id="10" />
+    <vehicle depart="3" route="routeA1rContinue" type="Car" id="11" />
+    <vehicle depart="4" route="routeA1lContinue" type="Car" id="12" />
+    <vehicle depart="5" route="routeA1lContinue" type="Car" id="13" />
+    <vehicle depart="5" route="routeA1rContinue" type="Car" id="14" />
+    <vehicle depart="6" route="routeA1rContinue" type="Car" id="15" />
+</routes>

@@ -203,6 +203,7 @@ void UEClusterizeApp::sendClusterizeInfoPacket()
     if(mobility != NULL){
         position = mobility->getCurrentPosition();
         speed = mobility->getCurrentSpeed();
+        maxSpeed = mobility->getMaxSpeed();
         angularPosition = mobility->getCurrentAngularPosition();
         angularSpeed = mobility->getCurrentAngularSpeed();
     }
@@ -223,6 +224,7 @@ void UEClusterizeApp::sendClusterizeInfoPacket()
     //testing
     EV << "UEClusterizeApp::sendClusterizeInfoPacket - Position: [" << position.x << " ; " << position.y << " ; " << position.z << "]" << endl ;
     EV << "UEClusterizeApp::sendClusterizeInfoPacket - Speed: [" << speed.x << " ; " << speed.y << " ; " << speed.z << "]" << endl ;
+    EV << "UEClusterizeApp::sendClusterizeInfoPacket - Max Speed: [" << maxSpeed << "]" << endl ;
     EV << "UEClusterizeApp::sendClusterizeInfoPacket - AngularPosition: [" << angularPosition.alpha << " ; " << angularPosition.beta << " ; " << angularPosition.gamma << "]" << endl ;
     EV << "UEClusterizeApp::sendClusterizeInfoPacket - AngularSpeed: [" << angularSpeed.alpha << " ; " << angularSpeed.beta << " ; " << angularSpeed.gamma << "]" << endl ;
 
@@ -301,7 +303,7 @@ void UEClusterizeApp::handleClusterizeConfig(ClusterizeConfigPacket* pkt){
     //configure the Cluster parameters for V2vAlertSender IUDPApp
     if(v2vApp != NULL && !strcmp(v2vAppName, "V2vAlertChainApp")){
 
-        EV << "UEClusterizeApp::handleClusterizeConfig - Configuring V2vAlertSender!" << endl;
+        EV << "UEClusterizeApp::handleClusterizeConfig - Configuring " << v2vAppName << endl;
         (check_and_cast<V2vAlertChainApp*>(v2vApp))->setClusterConfiguration(pkt);
     }
 

@@ -16,7 +16,7 @@ package lte.corenetwork.nodes.mec.MEPlatform.MEClusterizeService;
 import lte.corenetwork.nodes.mec.MEPlatform.IMEService;
 
 //
-// TODO auto-generated module
+//
 //
 
 simple MEClusterizeService like IMEService
@@ -25,10 +25,6 @@ simple MEClusterizeService like IMEService
         
         double period @unit("s") = default(0.2s);
         double startTime @unit("s") = default(0s);
-        
-        double proximityThreshold @unit("m");                  // meter: threshold within two cars can communicate v2v
-    	double directionDelimiterThreshold @unit("rad");         // radiant: threshold within two cars are going in the same direction
-
         
     gates:
         

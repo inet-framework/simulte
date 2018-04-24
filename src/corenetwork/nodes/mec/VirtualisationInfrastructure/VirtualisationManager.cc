@@ -286,8 +286,8 @@ void VirtualisationManager::stopClusterize(ClusterizePacket* pkt){
         meClusterizeService->gate("meClusterizeAppIn", index)->disconnect();
 
         //disconnecting MEPlatform gates to the MEClusterizeApp gates
-        mePlatform->gate("meClusterizeAppOut", index)->disconnect();
-        mePlatform->gate("meClusterizeAppIn", index)->disconnect();
+        mePlatform->gate("meAppOut", index)->disconnect();
+        mePlatform->gate("meAppIn", index)->disconnect();
 
         //update map
         std::map<std::string, meAppMapEntry>::iterator it1;
@@ -348,12 +348,12 @@ void VirtualisationManager::instantiateMEClusterizeApp(ClusterizePacket* pkt){
         check_and_cast<MEClusterizeApp*>(module)->gate("virtualisationInfrastructureOut")->connectTo(virtualisationInfr->gate("meAppIn", index));
 
         //connecting MEPlatform gates to the MEClusterizeApp gates
-        mePlatform->gate("meClusterizeAppOut", index)->connectTo(check_and_cast<MEClusterizeApp*>(module)->gate("mePlatformIn"));
-        check_and_cast<MEClusterizeApp*>(module)->gate("mePlatformOut")->connectTo(mePlatform->gate("meClusterizeAppIn", index));
+        mePlatform->gate("meAppOut", index)->connectTo(check_and_cast<MEClusterizeApp*>(module)->gate("mePlatformIn"));
+        check_and_cast<MEClusterizeApp*>(module)->gate("mePlatformOut")->connectTo(mePlatform->gate("meAppIn", index));
 
         //connecting internal MEPlatform gates to the MEClusterizeService gates
-        meClusterizeService->gate("meClusterizeAppOut", index)->connectTo(mePlatform->gate("meClusterizeAppOut", index));
-        mePlatform->gate("meClusterizeAppIn", index)->connectTo(meClusterizeService->gate("meClusterizeAppIn", index));
+        meClusterizeService->gate("meClusterizeAppOut", index)->connectTo(mePlatform->gate("meAppOut", index));
+        mePlatform->gate("meAppIn", index)->connectTo(meClusterizeService->gate("meClusterizeAppIn", index));
 
         module->buildInside();
         module->scheduleStart(simTime());

@@ -72,6 +72,7 @@ class UEClusterizeApp : public cSimpleModule
     inet::Coord speed;
     inet::EulerAngles angularPosition;
     inet::EulerAngles angularSpeed;
+    double maxSpeed;
 
     simsignal_t clusterizeInfoSentMsg_;
     simsignal_t clusterizeConfigRcvdMsg_;

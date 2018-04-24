@@ -29,8 +29,8 @@ module MEPlatform
 
     gates:
         
-        input meClusterizeAppIn[];
-        output meClusterizeAppOut[];
+        input meAppIn[];
+        output meAppOut[];
 
     submodules:
         

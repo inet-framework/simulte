@@ -49,7 +49,11 @@ module MEHost
 
     gates:
 
+		//to local radio networks
         inout pppENB[];
+
+		//to external networks (internet)
+		inout ppp[];
 
     submodules:
 
@@ -85,5 +89,12 @@ module MEHost
     		//# external connection to the eNodeB
     		//#
             pppENB++ <--> gtpEndpoint.pppg++;
+        }
+        
+        for i=0..sizeof(ppp)-1{
+            //#
+    		//# external connection to external networks
+    		//#
+        	virtualisationInfrastructure.ppp++ <--> ppp++;
         }
 }
