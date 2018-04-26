@@ -25,6 +25,8 @@ void CbrReceiver::initialize(int stage)
         numReceived_ = 0;
 
         recvBytes_ = 0;
+
+        cbrRcvdPkt_ = registerSignal("cbrRcvdPkt");
     }
     else if (stage == INITSTAGE_APPLICATION_LAYER)
     {
@@ -67,6 +69,8 @@ void CbrReceiver::handleMessage(cMessage *msg)
 
     EV << "CbrReceiver::handleMessage - Packet received: FRAME[" << pPacket->getIDframe() << "/" << pPacket->getNframes() << "] with delay["<< delay << "]" << endl;
 
+    emit(cbrRcvdPkt_, (long)pPacket->getIDframe());
+
     delete msg;
 }
 
@@ -74,7 +78,7 @@ void CbrReceiver::finish()
 {
     double lossRate = 0;
     if(totFrames_ > 0)
-        lossRate = numReceived_/(totFrames_*1.0);
+        lossRate = 1.0-(numReceived_/(totFrames_*1.0));
 
     emit(cbrFrameLossSignal_,lossRate);
 }

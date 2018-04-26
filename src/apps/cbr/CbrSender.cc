@@ -36,6 +36,8 @@ void CbrSender::initialize(int stage)
         sampling_time = par("sampling_time");
         localPort_ = par("localPort");
         destPort_ = par("destPort");
+
+        cbrSentPkt_ = registerSignal("cbrSentPkt");
     }
     else if (stage == INITSTAGE_APPLICATION_LAYER)
     {
@@ -103,13 +105,15 @@ void CbrSender::initTraffic()
 
 void CbrSender::sendCbrPacket()
 {
+    EV << "CbrSender::sendCbrPacket - Sending frame[" << iDframe_ << "/" << nframes_ << "], next packet at "<< simTime() + sampling_time << endl;
+
+    emit(cbrSentPkt_, (long)iDframe_);
+
     CbrPacket* packet = new CbrPacket("Cbr");
     packet->setNframes(nframes_);
-    packet->setIDframe(iDframe_);
+    packet->setIDframe(iDframe_++);
     packet->setTimestamp(simTime());
     packet->setByteLength(size_);
-
-    EV << "CbrSender::sendCbrPacket - Sending frame[" << iDframe_ << "/" << nframes_ << "], next packet at "<< simTime() + sampling_time << endl;
 
     socket.sendTo(packet, destAddress_, destPort_);
 

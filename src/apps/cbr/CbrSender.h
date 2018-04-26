@@ -35,6 +35,7 @@ class CbrSender : public cSimpleModule
     bool silences_;
 
     simsignal_t cbrGeneratedThroughtput_;
+    simsignal_t cbrSentPkt_;
     // ----------------------------
 
     cMessage *selfSender_;
