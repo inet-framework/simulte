@@ -1288,7 +1288,7 @@ std::vector<double> LteRealisticChannelModel::getSINR_D2D(LteAirFrame *frame, Us
     return snrVector;
 }
 
-std::vector<double> LteRealisticChannelModel::getSINR_D2D(LteAirFrame *frame, UserControlInfo* lteInfo_1, MacNodeId destId, Coord destCoord,MacNodeId enbId,std::vector<double> rsrpVector)
+std::vector<double> LteRealisticChannelModel::getSINR_D2D(LteAirFrame *frame, UserControlInfo* lteInfo_1, MacNodeId destId, Coord destCoord,MacNodeId enbId,const std::vector<double>& rsrpVector)
 {
     std::vector<double> snrVector = rsrpVector;
 
@@ -1709,7 +1709,7 @@ bool LteRealisticChannelModel::error(LteAirFrame *frame,
     return true;
 }
 
-bool LteRealisticChannelModel::error_D2D(LteAirFrame *frame, UserControlInfo* lteInfo, std::vector<double> rsrpVector)
+bool LteRealisticChannelModel::error_D2D(LteAirFrame *frame, UserControlInfo* lteInfo, const std::vector<double>& rsrpVector)
 {
     EV << "LteRealisticChannelModel::error_D2D" << endl;
 

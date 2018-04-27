@@ -64,7 +64,7 @@ std::vector<double> LteDummyChannelModel::getSINR_D2D(LteAirFrame *frame, UserCo
     return tmp;
 }
 
-std::vector<double> LteDummyChannelModel::getSINR_D2D(LteAirFrame *frame, UserControlInfo* lteInfo_1, MacNodeId destId, inet::Coord destCoord,MacNodeId enbId,std::vector<double> rsrpVector)
+std::vector<double> LteDummyChannelModel::getSINR_D2D(LteAirFrame *frame, UserControlInfo* lteInfo_1, MacNodeId destId, inet::Coord destCoord,MacNodeId enbId,const std::vector<double>& rsrpVector)
 {
     std::vector<double> tmp;
     tmp.push_back(10000);
@@ -109,7 +109,7 @@ bool LteDummyChannelModel::error(LteAirFrame *frame, UserControlInfo* lteInfo)
     return true;
 }
 
-bool LteDummyChannelModel::error_D2D(LteAirFrame *frame, UserControlInfo* lteInfo,std::vector<double> rsrpVector)
+bool LteDummyChannelModel::error_D2D(LteAirFrame *frame, UserControlInfo* lteInfo,const std::vector<double>& rsrpVector)
 {
     // Number of RTX
     unsigned char nTx = lteInfo->getTxNumber();
