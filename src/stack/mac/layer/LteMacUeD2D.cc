@@ -44,6 +44,8 @@ void LteMacUeD2D::initialize(int stage)
             throw cRuntimeError("LteMacUeD2D::initialize - %s module found, must be LteRlcUmD2D. Aborting", rlcUmType.c_str());
         if (pdcpType.compare("LtePdcpRrcUeD2D") != 0)
             throw cRuntimeError("LteMacUeD2D::initialize - %s module found, must be LtePdcpRrcUeD2D. Aborting", pdcpType.c_str());
+
+        rcvdD2DModeSwitchNotification_ = registerSignal("rcvdD2DModeSwitchNotification");
     }
     if (stage == inet::INITSTAGE_NETWORK_LAYER_3)
     {
@@ -828,6 +830,8 @@ void LteMacUeD2D::macHandleD2DModeSwitch(cPacket* pkt)
     UserControlInfo* uInfo = check_and_cast<UserControlInfo*>(pkt->removeControlInfo());
     if (txSide)
     {
+        emit(rcvdD2DModeSwitchNotification_,(long)1);
+
         Direction newDirection = (newMode == DM) ? D2D : UL;
         Direction oldDirection = (oldMode == DM) ? D2D : UL;
 
@@ -868,25 +872,28 @@ void LteMacUeD2D::macHandleD2DModeSwitch(cPacket* pkt)
                         mbuf_.erase(mBuf_it);
                     }
 
-                    // interrupt H-ARQ processes for SL
-                    unsigned int id = peerId;
-                    HarqTxBuffers::iterator hit = harqTxBuffers_.find(id);
-                    if (hit != harqTxBuffers_.end())
+                    if (switchPkt->getInterruptHarq())
                     {
-                        for (int proc = 0; proc < (unsigned int) UE_TX_HARQ_PROCESSES; proc++)
+                        // interrupt H-ARQ processes for SL
+                        unsigned int id = peerId;
+                        HarqTxBuffers::iterator hit = harqTxBuffers_.find(id);
+                        if (hit != harqTxBuffers_.end())
                         {
-                            hit->second->forceDropProcess(proc);
+                            for (int proc = 0; proc < (unsigned int) UE_TX_HARQ_PROCESSES; proc++)
+                            {
+                                hit->second->forceDropProcess(proc);
+                            }
                         }
-                    }
 
-                    // interrupt H-ARQ processes for UL
-                    id = getMacCellId();
-                    hit = harqTxBuffers_.find(id);
-                    if (hit != harqTxBuffers_.end())
-                    {
-                        for (int proc = 0; proc < (unsigned int) UE_TX_HARQ_PROCESSES; proc++)
+                        // interrupt H-ARQ processes for UL
+                        id = getMacCellId();
+                        hit = harqTxBuffers_.find(id);
+                        if (hit != harqTxBuffers_.end())
                         {
-                            hit->second->forceDropProcess(proc);
+                            for (int proc = 0; proc < (unsigned int) UE_TX_HARQ_PROCESSES; proc++)
+                            {
+                                hit->second->forceDropProcess(proc);
+                            }
                         }
                     }
                 }
@@ -948,26 +955,30 @@ void LteMacUeD2D::macHandleD2DModeSwitch(cPacket* pkt)
                 EV << NOW << " LteMacUeD2D::macHandleD2DModeSwitch - found old connection with cid " << cid << ", send signal to the RLC RX entity" << endl;
                 if (oldDirection != newDirection)
                 {
-                    // interrupt H-ARQ processes for SL
-                    unsigned int id = peerId;
-                    HarqRxBuffers::iterator hit = harqRxBuffers_.find(id);
-                    if (hit != harqRxBuffers_.end())
+                    if (switchPkt->getInterruptHarq())
                     {
-                        for (unsigned int proc = 0; proc < (unsigned int) UE_RX_HARQ_PROCESSES; proc++)
+                        // interrupt H-ARQ processes for SL
+                        unsigned int id = peerId;
+                        HarqRxBuffers::iterator hit = harqRxBuffers_.find(id);
+                        if (hit != harqRxBuffers_.end())
                         {
-                            unsigned int numUnits = hit->second->getProcess(proc)->getNumHarqUnits();
-                            for (unsigned int i=0; i < numUnits; i++)
+                            for (unsigned int proc = 0; proc < (unsigned int) UE_RX_HARQ_PROCESSES; proc++)
                             {
-
-                                hit->second->getProcess(proc)->purgeCorruptedPdu(i); // delete contained PDU
-                                hit->second->getProcess(proc)->resetCodeword(i);     // reset unit
+                                unsigned int numUnits = hit->second->getProcess(proc)->getNumHarqUnits();
+                                for (unsigned int i=0; i < numUnits; i++)
+                                {
+                                    hit->second->getProcess(proc)->purgeCorruptedPdu(i); // delete contained PDU
+                                    hit->second->getProcess(proc)->resetCodeword(i);     // reset unit
+                                }
                             }
                         }
-                    }
-                    enb_->deleteRxHarqBufferMirror(nodeId_);
 
-                    // notify that this UE is switching during this TTI
-                    resetHarq_[peerId] = NOW;
+                        // clear mirror H-ARQ RX buffers
+                        enb_->deleteRxHarqBufferMirror(nodeId_);
+
+                        // notify that this UE is switching during this TTI
+                        resetHarq_[peerId] = NOW;
+                    }
 
                     D2DModeSwitchNotification* switchPkt_dup = switchPkt->dup();
                     switchPkt_dup->setControlInfo(lteInfo->dup());

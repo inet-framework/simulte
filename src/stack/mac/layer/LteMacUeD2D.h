@@ -28,6 +28,8 @@ class LteMacUeD2D : public LteMacUe
     // Multicast D2D BSR handling
     bool bsrD2DMulticastTriggered_;
 
+    simsignal_t rcvdD2DModeSwitchNotification_;
+
     // if true, use the preconfigured TX params for transmission, else use that signaled by the eNB
     bool usePreconfiguredTxParams_;
     UserTxParams* preconfiguredTxParams_;

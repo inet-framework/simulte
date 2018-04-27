@@ -155,6 +155,9 @@ simple LteMacUeD2D extends LteMacUe {
         @statistic[macDelayD2D](title="Delay at the MAC layer D2D"; unit="s"; source="macDelayD2D"; record=mean,vector);
         @signal[macThroughputD2D];
         @statistic[macThroughputD2D](title="Throughput at the MAC layer D2D"; unit="Bps"; source="macThroughputD2D"; record=mean);
+        
+        @signal[rcvdD2DModeSwitchNotification];
+        @statistic[rcvdD2DModeSwitchNotification](title="Reception of mode switch notification (tx side)"; unit=""; source="rcvdD2DModeSwitchNotification"; record=count,vector);
 }
 
 //
@@ -429,6 +432,9 @@ simple LteMacEnbD2D extends LteMacEnb
         bool buildConflictGraph = default(false);
         double conflictGraphUpdatePeriod @unit(s) = default(1s);
         double conflictGraphThreshold = default(-90);  // dB
+        
+        // handling of D2D mode switch
+        bool msHarqInterrupt = default(true);
         
         @signal[macCellThroughputD2D];
         @statistic[macCellThroughputD2D](title="Cell Throughput at the MAC layer D2D"; unit="Bps"; source="macCellThroughputD2D"; record=mean); 

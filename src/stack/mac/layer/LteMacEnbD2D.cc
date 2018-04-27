@@ -43,6 +43,8 @@ void LteMacEnbD2D::initialize(int stage)
         Cqi d2dCqi = par("d2dCqi");
         if (usePreconfiguredTxParams_)
             check_and_cast<AmcPilotD2D*>(amc_->getPilot())->setPreconfiguredTxParams(d2dCqi);
+
+        msHarqInterrupt_ = par("msHarqInterrupt").boolValue();
     }
     else if (stage == INITSTAGE_LAST)  // be sure that all UEs have been initialized
     {
@@ -352,6 +354,7 @@ void LteMacEnbD2D::sendModeSwitchNotification(MacNodeId srcId, MacNodeId dstId, 
     switchPktTx->setPeerId(dstId);
     switchPktTx->setOldMode(oldMode);
     switchPktTx->setNewMode(newMode);
+    switchPktTx->setInterruptHarq(msHarqInterrupt_);
     UserControlInfo* uinfoTx = new UserControlInfo();
     uinfoTx->setSourceId(nodeId_);
     uinfoTx->setDestId(srcId);
@@ -364,6 +367,7 @@ void LteMacEnbD2D::sendModeSwitchNotification(MacNodeId srcId, MacNodeId dstId, 
     switchPktRx->setPeerId(srcId);
     switchPktRx->setOldMode(oldMode);
     switchPktRx->setNewMode(newMode);
+    switchPktRx->setInterruptHarq(msHarqInterrupt_);
     UserControlInfo* uinfoRx = new UserControlInfo();
     uinfoRx->setSourceId(nodeId_);
     uinfoRx->setDestId(dstId);
@@ -423,23 +427,25 @@ void LteMacEnbD2D::macHandleD2DModeSwitch(cPacket* pkt)
             FlowControlInfo* lteInfo = check_and_cast<FlowControlInfo*>(&(jt->second));
             if (MacCidToNodeId(cid) == nodeId)
             {
-                // interrupt H-ARQ processes for UL
-                HarqRxBuffers::iterator hit = harqRxBuffers_.find(nodeId);
-                if (hit != harqRxBuffers_.end())
+                if (msHarqInterrupt_) // interrupt H-ARQ processes for UL
                 {
-                    for (unsigned int proc = 0; proc < (unsigned int) ENB_RX_HARQ_PROCESSES; proc++)
+                    HarqRxBuffers::iterator hit = harqRxBuffers_.find(nodeId);
+                    if (hit != harqRxBuffers_.end())
                     {
-                        unsigned int numUnits = hit->second->getProcess(proc)->getNumHarqUnits();
-                        for (unsigned int i=0; i < numUnits; i++)
+                        for (unsigned int proc = 0; proc < (unsigned int) ENB_RX_HARQ_PROCESSES; proc++)
                         {
-                            hit->second->getProcess(proc)->purgeCorruptedPdu(i); // delete contained PDU
-                            hit->second->getProcess(proc)->resetCodeword(i);     // reset unit
+                            unsigned int numUnits = hit->second->getProcess(proc)->getNumHarqUnits();
+                            for (unsigned int i=0; i < numUnits; i++)
+                            {
+                                hit->second->getProcess(proc)->purgeCorruptedPdu(i); // delete contained PDU
+                                hit->second->getProcess(proc)->resetCodeword(i);     // reset unit
+                            }
                         }
                     }
-                }
 
-                // notify that this UE is switching during this TTI
-                resetHarq_[nodeId] = NOW;
+                    // notify that this UE is switching during this TTI
+                    resetHarq_[nodeId] = NOW;
+                }
 
                 EV << NOW << " LteMacEnbD2D::sendModeSwitchNotification - send signal for RX entity to upper layers in the eNB (cid=" << cid << ")" << endl;
                 D2DModeSwitchNotification* switchPktRx = switchPkt->dup();

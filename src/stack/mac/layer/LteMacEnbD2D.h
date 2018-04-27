@@ -37,6 +37,10 @@ class LteMacEnbD2D : public LteMacEnb
     simtime_t conflictGraphUpdatePeriod_;
     double conflictGraphThreshold_;
 
+    // handling of D2D mode switch
+    bool msHarqInterrupt_;   // if true, H-ARQ processes of D2D flows are interrupted at mode switch
+                             // otherwise, they are terminated using the old communication mode
+
     void clearBsrBuffers(MacNodeId ueId);
 
     /**
@@ -98,6 +102,8 @@ class LteMacEnbD2D : public LteMacEnb
     void deleteRxHarqBufferMirror(MacNodeId id);
     // send the D2D Mode Switch signal to the transmitter of the given flow
     void sendModeSwitchNotification(MacNodeId srcId, MacNodeId dst, LteD2DMode oldMode, LteD2DMode newMode);
+
+    bool isMsHarqInterrupt() { return msHarqInterrupt_; }
 };
 
 #endif

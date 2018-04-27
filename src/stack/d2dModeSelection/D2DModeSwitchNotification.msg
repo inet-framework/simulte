@@ -20,4 +20,5 @@ packet D2DModeSwitchNotification
     LteD2DMode oldMode;
     LteD2DMode newMode;
     bool oldConnection;
+    bool interruptHarq;
 }

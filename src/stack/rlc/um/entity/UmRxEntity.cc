@@ -809,8 +809,10 @@ void UmRxEntity::rlcHandleD2DModeSwitch(bool oldConnection, bool oldMode)
         // reset sequence numbering
         rxWindowDesc_.clear();
 
-        // reset counters
-        lastPduReassembled_ = 0;
-        lastSnoDelivered_ = 0;
+        resetFlag_ = true;
+
+//        // reset counters
+//        lastPduReassembled_ = 0;
+//        lastSnoDelivered_ = 0;
     }
 }
