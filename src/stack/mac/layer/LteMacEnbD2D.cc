@@ -45,6 +45,7 @@ void LteMacEnbD2D::initialize(int stage)
             check_and_cast<AmcPilotD2D*>(amc_->getPilot())->setPreconfiguredTxParams(d2dCqi);
 
         msHarqInterrupt_ = par("msHarqInterrupt").boolValue();
+        msClearRlcBuffer_ = par("msClearRlcBuffer").boolValue();
     }
     else if (stage == INITSTAGE_LAST)  // be sure that all UEs have been initialized
     {
@@ -369,6 +370,7 @@ void LteMacEnbD2D::sendModeSwitchNotification(MacNodeId srcId, MacNodeId dstId, 
     switchPktTx->setOldMode(oldMode);
     switchPktTx->setNewMode(newMode);
     switchPktTx->setInterruptHarq(msHarqInterrupt_);
+    switchPktTx->setClearRlcBuffer(msClearRlcBuffer_);
     UserControlInfo* uinfoTx = new UserControlInfo();
     uinfoTx->setSourceId(nodeId_);
     uinfoTx->setDestId(srcId);
@@ -382,6 +384,7 @@ void LteMacEnbD2D::sendModeSwitchNotification(MacNodeId srcId, MacNodeId dstId, 
     switchPktRx->setOldMode(oldMode);
     switchPktRx->setNewMode(newMode);
     switchPktRx->setInterruptHarq(msHarqInterrupt_);
+    switchPktTx->setClearRlcBuffer(msClearRlcBuffer_);
     UserControlInfo* uinfoRx = new UserControlInfo();
     uinfoRx->setSourceId(nodeId_);
     uinfoRx->setDestId(dstId);

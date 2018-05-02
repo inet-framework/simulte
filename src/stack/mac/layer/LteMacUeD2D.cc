@@ -814,31 +814,38 @@ void LteMacUeD2D::macHandleD2DModeSwitch(cPacket* pkt)
                 EV << NOW << " LteMacUeD2D::macHandleD2DModeSwitch - found old connection with cid " << cid << ", erasing buffered data" << endl;
                 if (oldDirection != newDirection)
                 {
-                    // empty virtual buffer for the selected cid
-                    LteMacBufferMap::iterator macBuff_it = macBuffers_.find(cid);
-                    if (macBuff_it != macBuffers_.end())
+                    if (switchPkt->getClearRlcBuffer())
                     {
-                        while (!(macBuff_it->second->isEmpty()))
-                            macBuff_it->second->popFront();
-                        delete macBuff_it->second;
-                        macBuffers_.erase(macBuff_it);
-                    }
+                        EV << NOW << " LteMacUeD2D::macHandleD2DModeSwitch - erasing buffered data" << endl;
 
-                    // empty real buffer for the selected cid (they should be already empty)
-                    LteMacBuffers::iterator mBuf_it = mbuf_.find(cid);
-                    if (mBuf_it != mbuf_.end())
-                    {
-                        while (mBuf_it->second->getQueueLength() > 0)
+                        // empty virtual buffer for the selected cid
+                        LteMacBufferMap::iterator macBuff_it = macBuffers_.find(cid);
+                        if (macBuff_it != macBuffers_.end())
                         {
-                            cPacket* pdu = mBuf_it->second->popFront();
-                            delete pdu;
+                            while (!(macBuff_it->second->isEmpty()))
+                                macBuff_it->second->popFront();
+                            delete macBuff_it->second;
+                            macBuffers_.erase(macBuff_it);
                         }
-                        delete mBuf_it->second;
-                        mbuf_.erase(mBuf_it);
+
+                        // empty real buffer for the selected cid (they should be already empty)
+                        LteMacBuffers::iterator mBuf_it = mbuf_.find(cid);
+                        if (mBuf_it != mbuf_.end())
+                        {
+                            while (mBuf_it->second->getQueueLength() > 0)
+                            {
+                                cPacket* pdu = mBuf_it->second->popFront();
+                                delete pdu;
+                            }
+                            delete mBuf_it->second;
+                            mbuf_.erase(mBuf_it);
+                        }
                     }
 
                     if (switchPkt->getInterruptHarq())
                     {
+                        EV << NOW << " LteMacUeD2D::macHandleD2DModeSwitch - interrupting H-ARQ processes" << endl;
+
                         // interrupt H-ARQ processes for SL
                         unsigned int id = peerId;
                         HarqTxBuffers::iterator hit = harqTxBuffers_.find(id);
@@ -871,8 +878,10 @@ void LteMacUeD2D::macHandleD2DModeSwitch(cPacket* pkt)
                 switchPkt_dup->setOldConnection(true);
                 sendUpperPackets(switchPkt_dup);
 
-                if (oldDirection != newDirection)
+                if (oldDirection != newDirection && switchPkt->getClearRlcBuffer())
                 {
+                    EV << NOW << " LteMacUeD2D::macHandleD2DModeSwitch - clearing LCG map" << endl;
+
                     // remove entry from lcgMap
                     LcgMap::iterator lt = lcgMap_.begin();
                     for (; lt != lcgMap_.end(); )

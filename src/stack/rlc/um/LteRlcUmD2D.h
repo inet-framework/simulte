@@ -28,6 +28,8 @@ class LteRlcUmD2D : public LteRlcUm
     virtual ~LteRlcUmD2D()
     {
     }
+    virtual void resumeDownstreamInPackets(MacNodeId peerId);
+    virtual bool isEmptyingTxBuffer(MacNodeId peerId);
 
   protected:
 
@@ -35,6 +37,18 @@ class LteRlcUmD2D : public LteRlcUm
 
     virtual int numInitStages() const { return inet::NUM_INIT_STAGES; }
     virtual void initialize(int stage);
+
+    /**
+     * getTxBuffer() is used by the sender to gather the TXBuffer
+     * for that CID. If TXBuffer was already present, a reference
+     * is returned, otherwise a new TXBuffer is created,
+     * added to the tx_buffers map and a reference is returned aswell.
+     *
+     * @param lteInfo flow-related info
+     * @return pointer to the TXBuffer for the CID of the flow
+     *
+     */
+    virtual UmTxEntity* getTxBuffer(FlowControlInfo* lteInfo);
 
     /**
      * UM Mode
@@ -52,6 +66,10 @@ class LteRlcUmD2D : public LteRlcUm
      * @param pkt packet to process
      */
     virtual void handleLowerMessage(cPacket *pkt);
+
+  private:
+
+    std::map<MacNodeId, std::set<UmTxEntity*> > perPeerTxEntities_;
 };
 
 #endif

@@ -41,6 +41,7 @@ class LteMacEnbD2D : public LteMacEnb
     // handling of D2D mode switch
     bool msHarqInterrupt_;   // if true, H-ARQ processes of D2D flows are interrupted at mode switch
                              // otherwise, they are terminated using the old communication mode
+    bool msClearRlcBuffer_;  // if true, SDUs stored in the RLC buffer of D2D flows are dropped
 
     void clearBsrBuffers(MacNodeId ueId);
 

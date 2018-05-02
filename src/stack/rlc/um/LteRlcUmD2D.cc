@@ -12,6 +12,54 @@
 
 Define_Module(LteRlcUmD2D);
 
+UmTxEntity* LteRlcUmD2D::getTxBuffer(FlowControlInfo* lteInfo)
+{
+    MacNodeId nodeId = ctrlInfoToUeId(lteInfo);
+    LogicalCid lcid = lteInfo->getLcid();
+
+    // Find TXBuffer for this CID
+    MacCid cid = idToMacCid(nodeId, lcid);
+    UmTxEntities::iterator it = txEntities_.find(cid);
+    if (it == txEntities_.end())
+    {
+        // Not found: create
+        std::stringstream buf;
+        // FIXME HERE
+
+        buf << "UmTxEntity Lcid: " << lcid;
+        cModuleType* moduleType = cModuleType::get("lte.stack.rlc.UmTxEntity");
+        UmTxEntity* txEnt = check_and_cast<UmTxEntity *>(moduleType->createScheduleInit(buf.str().c_str(), getParentModule()));
+        txEntities_[cid] = txEnt;    // Add to tx_entities map
+
+        if (lteInfo != NULL)
+        {
+            // store control info for this flow
+            txEnt->setFlowControlInfo(lteInfo->dup());
+        }
+
+        EV << "LteRlcUm : Added new UmTxEntity: " << txEnt->getId() <<
+        " for node: " << nodeId << " for Lcid: " << lcid << "\n";
+
+        // store per-peer map
+        MacNodeId d2dPeer = lteInfo->getD2dRxPeerId();
+        if (d2dPeer != 0)
+            perPeerTxEntities_[d2dPeer].insert(txEnt);
+
+        if (isEmptyingTxBuffer(d2dPeer))
+            txEnt->startHoldingDownstreamInPackets();
+
+        return txEnt;
+    }
+    else
+    {
+        // Found
+        EV << "LteRlcUm : Using old UmTxBuffer: " << it->second->getId() <<
+        " for node: " << nodeId << " for Lcid: " << lcid << "\n";
+
+        return it->second;
+    }
+}
+
 void LteRlcUmD2D::handleLowerMessage(cPacket *pkt)
 {
     if (strcmp(pkt->getName(), "D2DModeSwitchNotification") == 0)
@@ -26,7 +74,7 @@ void LteRlcUmD2D::handleLowerMessage(cPacket *pkt)
         {
             // get the corresponding Rx buffer & call handler
             UmTxEntity* txbuf = getTxBuffer(lteInfo);
-            txbuf->rlcHandleD2DModeSwitch(switchPkt->getOldConnection());
+            txbuf->rlcHandleD2DModeSwitch(switchPkt->getOldConnection(), switchPkt->getClearRlcBuffer());
 
             // forward packet to PDCP
             EV << "LteRlcUmD2D::handleLowerMessage - Sending packet " << pkt->getName() << " to port UM_Sap_up$o\n";
@@ -63,4 +111,33 @@ void LteRlcUmD2D::initialize(int stage)
         WATCH_MAP(txEntities_);
         WATCH_MAP(rxEntities_);
     }
+}
+
+void LteRlcUmD2D::resumeDownstreamInPackets(MacNodeId peerId)
+{
+    if (peerId == 0 || (perPeerTxEntities_.find(peerId) == perPeerTxEntities_.end()))
+        return;
+
+    std::set<UmTxEntity*>::iterator it = perPeerTxEntities_.at(peerId).begin();
+    std::set<UmTxEntity*>::iterator et = perPeerTxEntities_.at(peerId).end();
+    for (; it != et; ++it)
+    {
+        if ((*it)->isHoldingDownstreamInPackets())
+            (*it)->resumeDownstreamInPackets();
+    }
+}
+
+bool LteRlcUmD2D::isEmptyingTxBuffer(MacNodeId peerId)
+{
+    if (peerId == 0 || (perPeerTxEntities_.find(peerId) == perPeerTxEntities_.end()))
+        return false;
+
+    std::set<UmTxEntity*>::iterator it = perPeerTxEntities_.at(peerId).begin();
+    std::set<UmTxEntity*>::iterator et = perPeerTxEntities_.at(peerId).end();
+    for (; it != et; ++it)
+    {
+        if ((*it)->isEmptyingBuffer())
+            return true;
+    }
+    return false;
 }

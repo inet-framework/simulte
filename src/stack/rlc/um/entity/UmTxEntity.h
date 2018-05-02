@@ -14,6 +14,8 @@
 #include "stack/rlc/um/LteRlcUm.h"
 #include "stack/rlc/LteRlcDefs.h"
 
+class LteRlcUm;
+
 /**
  * @class UmTxEntity
  * @brief Transmission entity for UM
@@ -43,6 +45,7 @@ class UmTxEntity : public cSimpleModule
     UmTxEntity()
     {
         flowControlInfo_ = NULL;
+        lteRlc_ = NULL;
     }
     virtual ~UmTxEntity()
     {
@@ -72,10 +75,31 @@ class UmTxEntity : public cSimpleModule
     // remove the last SDU from the queue
     void removeDataFromQueue();
 
+    // clear the TX buffer
+    void clearQueue();
+
+    // set holdingDownstreamInPackets_
+    void startHoldingDownstreamInPackets() { holdingDownstreamInPackets_ = true; }
+
+    // return true is the entity is not buffering in the TX queue
+    bool isHoldingDownstreamInPackets();
+
+    // store the packet in the holding buffer
+    void enqueHoldingPackets(cPacket* pkt);
+
+    // resume sending packets in the downstream
+    void resumeDownstreamInPackets();
+
+    // return the value of notifyEmptyBuffer_
+    bool isEmptyingBuffer() { return notifyEmptyBuffer_; }
+
     // called when a D2D mode switch is triggered
-    void rlcHandleD2DModeSwitch(bool oldConnection);
+    void rlcHandleD2DModeSwitch(bool oldConnection, bool clearBuffer=true);
 
   protected:
+
+    // reference to the parent's RLC layer
+    LteRlcUm* lteRlc_;
 
     /*
      * Flow-related info.
@@ -92,6 +116,21 @@ class UmTxEntity : public cSimpleModule
      * Determine whether the first item in the queue is a fragment or a whole SDU
      */
     bool firstIsFragment_;
+
+    /*
+     * If true, the entity check when the queue becomes empty
+     */
+    bool notifyEmptyBuffer_;
+
+    /*
+     * If true, the entity temporarily store incoming SDUs in the holding queue (useful at D2D mode switching)
+     */
+    bool holdingDownstreamInPackets_;
+
+    /*
+     * The SDU holding buffer.
+     */
+    cPacketQueue sduHoldingQueue_;
 
     /**
      * Initialize fragmentSize and

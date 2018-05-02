@@ -19,16 +19,21 @@ void UmTxEntity::initialize()
 {
     sno_ = 0;
     firstIsFragment_ = false;
+    notifyEmptyBuffer_ = false;
+    holdingDownstreamInPackets_ = false;
 
     // store the node id of the owner module
     LteMacBase* mac = check_and_cast<LteMacBase*>(getParentModule()->getParentModule()->getSubmodule("mac"));
     ownerNodeId_ = mac->getMacNodeId();
+
+    // get the reference to the RLC module
+    lteRlc_ = check_and_cast<LteRlcUm*>(getParentModule()->getSubmodule("um"));
 }
 
 void UmTxEntity::enque(cPacket* pkt)
 {
     EV << NOW << " UmTxEntity::enque - bufferize new SDU  " << endl;
-    // Buffer the SDU
+    // Buffer the SDU in the TX buffer
     sduQueue_.insert(pkt);
 }
 
@@ -47,7 +52,7 @@ void UmTxEntity::rlcPduMake(int pduLength)
     bool startFrag = firstIsFragment_;
     bool endFrag = false;
 
-    while (!sduQueue_.empty() && pduLength > 0)
+    while (!sduQueue_.isEmpty() && pduLength > 0)
     {
         // detach data from the SDU buffer
         cPacket* pkt = sduQueue_.front();
@@ -139,9 +144,16 @@ void UmTxEntity::rlcPduMake(int pduLength)
 
     // send to MAC layer
     EV << NOW << " UmTxEntity::rlcPduMake - send PDU " << rlcPdu->getPduSequenceNumber() << " with size " << rlcPdu->getByteLength() << " bytes to lower layer" << endl;
+    lteRlc_->sendToLowerLayer(rlcPdu);
 
-    LteRlcUm* lteRlc = check_and_cast<LteRlcUm*>(getParentModule()->getSubmodule("um"));
-    lteRlc->sendToLowerLayer(rlcPdu);
+    // if incoming connection was halted
+    if (notifyEmptyBuffer_ && sduQueue_.isEmpty())
+    {
+        notifyEmptyBuffer_ = false;
+
+        // tell the RLC UM to resume packets for the new mode
+        lteRlc_->resumeDownstreamInPackets(flowControlInfo_->getD2dRxPeerId());
+    }
 }
 
 void UmTxEntity::removeDataFromQueue()
@@ -156,7 +168,57 @@ void UmTxEntity::removeDataFromQueue()
     delete retPkt;
 }
 
-void UmTxEntity::rlcHandleD2DModeSwitch(bool oldConnection)
+void UmTxEntity::clearQueue()
+{
+    // empty buffer
+    while (!sduQueue_.isEmpty())
+        delete sduQueue_.pop();
+
+    // reset variables except for sequence number
+    firstIsFragment_ = false;
+}
+
+bool UmTxEntity::isHoldingDownstreamInPackets()
+{
+    return holdingDownstreamInPackets_;
+}
+
+void UmTxEntity::enqueHoldingPackets(cPacket* pkt)
+{
+    EV << NOW << " UmTxEntity::enqueHoldingPackets - storing new SDU into the holding buffer " << endl;
+    sduHoldingQueue_.insert(pkt);
+}
+
+
+void UmTxEntity::resumeDownstreamInPackets()
+{
+    EV << NOW << " UmTxEntity::resumeDownstreamInPackets - resume buffering incoming downstream packets of the RLC entity associated to the new mode" << endl;
+
+    holdingDownstreamInPackets_ = false;
+
+    // move all SDUs in the holding buffer to the TX buffer
+    while (!sduHoldingQueue_.isEmpty())
+    {
+        LteRlcSdu* rlcPkt = check_and_cast<LteRlcSdu*>(sduHoldingQueue_.front());
+        sduHoldingQueue_.pop();
+
+        // create a message so as to notify the MAC layer that the queue contains new data
+        LteRlcPdu* newDataPkt = new LteRlcPdu("newDataPkt");
+        // make a copy of the RLC SDU
+        LteRlcSdu* rlcPktDup = rlcPkt->dup();
+        FlowControlInfo* lteInfo = check_and_cast<FlowControlInfo*>(rlcPkt->getControlInfo());
+        // the MAC will only be interested in the size of this packet
+        newDataPkt->encapsulate(rlcPktDup);
+        newDataPkt->setControlInfo(lteInfo->dup());
+
+        lteRlc_->sendToLowerLayer(newDataPkt);
+
+        // store the SDU in the TX buffer
+        enque(rlcPkt);
+    }
+}
+
+void UmTxEntity::rlcHandleD2DModeSwitch(bool oldConnection, bool clearBuffer)
 {
     if (oldConnection)
     {
@@ -166,18 +228,33 @@ void UmTxEntity::rlcHandleD2DModeSwitch(bool oldConnection)
             return;
         }
 
-        EV << NOW << " UmTxEntity::rlcHandleD2DModeSwitch - clear TX buffer of the RLC entity associated to the old mode" << endl;
-
-        // empty buffer
-        while (!sduQueue_.isEmpty())
-            delete sduQueue_.pop();
-
-        // reset variables except for sequence number
-        firstIsFragment_ = false;
+        if (clearBuffer)
+        {
+            EV << NOW << " UmTxEntity::rlcHandleD2DModeSwitch - clear TX buffer of the RLC entity associated to the old mode" << endl;
+            clearQueue();
+        }
+        else
+        {
+            if (!sduQueue_.isEmpty())
+            {
+                EV << NOW << " UmTxEntity::rlcHandleD2DModeSwitch - check when TX buffer the RLC entity associated to the old mode becomes empty " << endl;
+                notifyEmptyBuffer_ = true;
+            }
+        }
     }
     else
     {
         EV << " UmTxEntity::rlcHandleD2DModeSwitch - reset numbering of the RLC TX entity corresponding to the new mode" << endl;
         sno_ = 0;
+
+        if (!clearBuffer)
+        {
+            if (lteRlc_->isEmptyingTxBuffer(flowControlInfo_->getD2dRxPeerId()))
+            {
+                // stop incoming connections, until
+                EV << NOW << " UmTxEntity::rlcHandleD2DModeSwitch - halt incoming downstream connections of the RLC entity associated to the new mode" << endl;
+                startHoldingDownstreamInPackets();
+            }
+        }
     }
 }

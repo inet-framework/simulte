@@ -79,6 +79,11 @@ class LteRlcUm : public cSimpleModule
      */
     virtual void sendToLowerLayer(cPacket *pkt);
 
+    virtual void resumeDownstreamInPackets(MacNodeId peerId) {}
+
+    virtual bool isEmptyingTxBuffer(MacNodeId peerId) { return false; }
+
+
   protected:
 
     cGate* up_[2];
@@ -115,7 +120,7 @@ class LteRlcUm : public cSimpleModule
      * @return pointer to the TXBuffer for the CID of the flow
      *
      */
-    UmTxEntity* getTxBuffer(FlowControlInfo* lteInfo);
+    virtual UmTxEntity* getTxBuffer(FlowControlInfo* lteInfo);
 
     /**
      * getRxBuffer() is used by the receiver to gather the RXBuffer
@@ -127,7 +132,7 @@ class LteRlcUm : public cSimpleModule
      * @return pointer to the RXBuffer for that CID
      *
      */
-    UmRxEntity* getRxBuffer(FlowControlInfo* lteInfo);
+    virtual UmRxEntity* getRxBuffer(FlowControlInfo* lteInfo);
 
     /**
      * handler for traffic coming

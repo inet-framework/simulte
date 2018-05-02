@@ -435,6 +435,7 @@ simple LteMacEnbD2D extends LteMacEnb
         
         // handling of D2D mode switch
         bool msHarqInterrupt = default(true);
+        bool msClearRlcBuffer = default(true);
         
         @signal[macCellThroughputD2D];
         @statistic[macCellThroughputD2D](title="Cell Throughput at the MAC layer D2D"; unit="Bps"; source="macCellThroughputD2D"; record=mean); 

@@ -128,25 +128,33 @@ void LteRlcUm::handleUpperMessage(cPacket *pkt)
     rlcPkt->setSnoMainPacket(lteInfo->getSequenceNumber());
     rlcPkt->setLengthMainPacket(pkt->getByteLength());
     rlcPkt->encapsulate(pkt);
-
-    // create a message so as to notify the MAC layer that the queue contains new data
-    LteRlcPdu* newDataPkt = new LteRlcPdu("newDataPkt");
-    // make a copy of the RLC SDU
-    LteRlcSdu* rlcPktDup = rlcPkt->dup();
-    // the MAC will only be interested in the size of this packet
-    newDataPkt->encapsulate(rlcPktDup);
-    newDataPkt->setControlInfo(lteInfo->dup());
-
-    EV << "LteRlcUm::handleUpperMessage - Sending message " << newDataPkt->getName() << " to port UM_Sap_down$o\n";
-    send(newDataPkt, down_[OUT]);
-
     rlcPkt->setControlInfo(lteInfo);
 
     drop(rlcPkt);
 
-    // Bufferize RLC SDU
-    EV << "LteRlcUm::handleUpperMessage - Enque packet " << rlcPkt->getName() << " into the Tx Buffer\n";
-    txbuf->enque(rlcPkt);
+    if (txbuf->isHoldingDownstreamInPackets())
+    {
+        // do not store in the TX buffer and do not signal the MAC layer
+        txbuf->enqueHoldingPackets(rlcPkt);
+    }
+    else
+    {
+        // create a message so as to notify the MAC layer that the queue contains new data
+        LteRlcPdu* newDataPkt = new LteRlcPdu("newDataPkt");
+        // make a copy of the RLC SDU
+        LteRlcSdu* rlcPktDup = rlcPkt->dup();
+        // the MAC will only be interested in the size of this packet
+        newDataPkt->encapsulate(rlcPktDup);
+        newDataPkt->setControlInfo(lteInfo->dup());
+
+        EV << "LteRlcUm::handleUpperMessage - Sending message " << newDataPkt->getName() << " to port UM_Sap_down$o\n";
+        send(newDataPkt, down_[OUT]);
+
+        // Bufferize RLC SDU
+        EV << "LteRlcUm::handleUpperMessage - Enque packet " << rlcPkt->getName() << " into the Tx Buffer\n";
+        txbuf->enque(rlcPkt);
+
+    }
 
     emit(receivedPacketFromUpperLayer, pkt);
 }

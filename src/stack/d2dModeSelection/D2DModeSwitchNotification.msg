@@ -21,4 +21,5 @@ packet D2DModeSwitchNotification
     LteD2DMode newMode;
     bool oldConnection;
     bool interruptHarq;
+    bool clearRlcBuffer;
 }
