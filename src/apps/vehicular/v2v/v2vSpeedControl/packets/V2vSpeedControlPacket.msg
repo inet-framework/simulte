@@ -9,9 +9,9 @@
 
 
 //
-// Packet used by the V2vAlertChainApp
+// Packet used by the V2vSpeedControlApp
 
-packet V2vAlertPacket {
+packet V2vSpeedControlPacket {
     
     unsigned int sno;
     simtime_t timestamp;
@@ -20,4 +20,8 @@ packet V2vAlertPacket {
     string destinationAddress;
     
     string forwarderAddress;
+    
+    double clusterSpeed;
+    double clusterDistance;
+    double clusterSlowDownTime;	//ms in which to reach the given clusterSpeed
 }

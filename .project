@@ -5,6 +5,7 @@
 	<projects>
 		<project>inet</project>
 		<project>veins_inet</project>
+		<project>veins-veins-4.6</project>
 	</projects>
 	<buildSpec>
 		<buildCommand>

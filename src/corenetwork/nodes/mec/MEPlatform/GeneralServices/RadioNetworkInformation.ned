@@ -7,17 +7,16 @@
 // and cannot be removed from it.
 //
 
+//
+//  @author Angelo Buono
+//
+
+
+package lte.corenetwork.nodes.mec.MEPlatform.GeneralServices;
 
 //
-// Packet used by the V2vAlertChainApp
-
-packet V2vAlertPacket {
-    
-    unsigned int sno;
-    simtime_t timestamp;
-    
-    string sourceAddress;
-    string destinationAddress;
-    
-    string forwarderAddress;
+// TODO auto-generated module
+//
+simple RadioNetworkInformation
+{
 }

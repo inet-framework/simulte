@@ -23,12 +23,15 @@
 
 #include "inet/common/geometry/common/Coord.h"
 #include "inet/common/geometry/common/EulerAngles.h"
-#include "inet/mobility/contract/IMobility.h"
+
+//#include "inet/mobility/contract/IMobility.h"
+#include "veins_inet/VeinsInetMobility.h"
 
 #include "apps/vehicular/mec/clusterize/packets/ClusterizePacket_m.h"
-
-#include "apps/vehicular/v2v/v2vAlert/V2vAlertChainApp.h"
 #include "apps/vehicular/mec/clusterize/packets/ClusterizePacketTypes.h"
+
+//to get the V2v Cluster App reference and to configure the cluster configuration --> calling setClusterConfiguration cross-module Call
+#include "../../v2v/V2vClusterBaseApp.h"
 
 
 /*
@@ -66,8 +69,11 @@ class UEClusterizeApp : public cSimpleModule
 
     cModule* v2vApp;                        //v2vApp module
     const char* v2vAppName;                 //v2vApp Class Name
+    V2vClusterBaseApp *v2vClusterApp;
 
-    inet::IMobility *mobility;
+    cModule* car;
+    Veins::VeinsInetMobility *mobility;
+
     inet::Coord position;
     inet::Coord speed;
     inet::EulerAngles angularPosition;
@@ -112,7 +118,6 @@ class UEClusterizeApp : public cSimpleModule
         // handling CONFIG_CLUSTERIZE ClusterizeConfigPacket
         // by invoking on the v2vApp instance the public method to update its clustering configurations
         void handleClusterizeConfig(ClusterizeConfigPacket *);
-
 };
 
 #endif

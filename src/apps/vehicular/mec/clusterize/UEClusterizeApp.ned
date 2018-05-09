@@ -34,8 +34,7 @@ simple UEClusterizeApp like IUDPApp
         parameters:
         
         string v2vAppPath;		//specify module path in the Car (parent module) of the v2vAppSender UDP App!  --> i.e. ".udpApp[1]"
-     	string v2vAppName;		//v2vAppSender UDP App Class Name --> i.e. V2vAlertSender
-                     
+    
         int localPort = default(5000);
         
         int destPort = default(4000);

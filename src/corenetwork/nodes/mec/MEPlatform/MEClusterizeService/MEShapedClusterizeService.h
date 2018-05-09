@@ -16,6 +16,7 @@
 #define __SIMULTE_MESHAPEDCLUSTERIZESERVICE_H_
 
 #include "MEClusterizeService.h"
+#include "../../MEPlatform/GeneralServices/RadioNetworkInformation.h"
 
 
 class MEShapedClusterizeService : public MEClusterizeService{
@@ -26,6 +27,8 @@ class MEShapedClusterizeService : public MEClusterizeService{
 
     double roadLaneSize;                        // meter: for rectangular platooning
     double triangleAngle;                       // radiant: for triangel platooning
+
+    RadioNetworkInformation* rni;
 
     public:
         MEShapedClusterizeService();
@@ -42,12 +45,13 @@ class MEShapedClusterizeService : public MEClusterizeService{
         void computeTriangleAdiacences(std::map<int, std::vector<int>> &adiacences);
         void computeRectangleAdiacences(std::map<int, std::vector<int>> &adiacences);
         void selectFollowers(std::map<int, std::vector<int>> &adiacences);
-        void updatePlatoonList();
+        void updateClusters();
 
         bool isInTriangle(inet::Coord P, inet::Coord A, inet::Coord B, inet::Coord C);
         bool isInRectangle(inet::Coord P, inet::Coord A, inet::Coord B, inet::Coord C, inet::Coord D);
 
-        void resetMapFlags();
+        void resetCarFlagsAndControls();
+        void resetClusters();
 };
 
 #endif

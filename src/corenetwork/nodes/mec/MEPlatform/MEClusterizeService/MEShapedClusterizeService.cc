@@ -48,7 +48,8 @@ void MEShapedClusterizeService::initialize(int stage)
 
 void MEShapedClusterizeService::compute(){
 
-    resetMapFlags();
+    resetCarFlagsAndControls();
+    resetClusters();
 
     computePlatoon("rectangle");
     //computePlatoon("triangle");
@@ -78,38 +79,44 @@ void MEShapedClusterizeService::computePlatoon(std::string shape){
     selectFollowers(adiacences);
 
     // Scan the v2vConfig to update the platoonList filed!
-    EV << "MEClusterizeService::computePlatoon - Updating PlatoonList...";
-    updatePlatoonList();
+    EV << "MEClusterizeService::computePlatoon - Updating Clusters...";
+    updateClusters();
 
 
-    //TESTING PRINT
+    //TESTING PRINT                                                                                             //TESTING
     EV << "\nMEClusterizeService::computePlatoon - FOLLOWERS:\n\n";
-    std::map<int, ueClusterConfig>::iterator it;
-    for(it = v2vConfig.begin(); it != v2vConfig.end(); it++){
+    std::map<int, car>::iterator it;
+    for(it = cars.begin(); it != cars.end(); it++){
 
-          EV << it->second.carSimbolicAddress << "\tfollowed by:\t" << it->second.follower << "\t[following:\t" << it->second.following << "]\n";
+          EV << it->second.simbolicAddress << "\tfollowed by:\t" << it->second.follower << "\t[following:\t" << it->second.following << "]\n";
     }
 
-    EV << "\nMEClusterizeService::computePlatoon - PLATOONS:\n\n";
+    EV << "\nMEClusterizeService::computePlatoon - CLUSTERS:\n\n";
 
-    for(it = v2vConfig.begin(); it != v2vConfig.end(); it++){
+    std::map<int, cluster>::iterator cit;
 
-          if(it->second.followingKey == -1)
-            EV << "Platoon: " << it->second.platoonList << "\n\n";
+    for(cit = clusters.begin(); cit != clusters.end(); cit++){
+
+            EV << "Cluster #" << cit->second.id << ": " << cit->second.membersList << "\n";
+
+            EV << "cluster members keys: ";
+            for(std::vector<int>::iterator i = cit->second.members.begin(); i != cit->second.members.end(); i++)
+                EV << *i << " ";
+            EV << endl << endl;
     }
 }
 
 void MEShapedClusterizeService::computeTriangleAdiacences(std::map<int, std::vector<int>> &adiacences){
 
-    std::map<int, ueLocalInfo>::iterator it, it2;
-    for(it = v2vInfo.begin(); it != v2vInfo.end(); it++){
+    std::map<int, car>::iterator it, it2;
+    for(it = cars.begin(); it != cars.end(); it++){
 
         inet::Coord A(it->second.position);
         double a = it->second.angularPosition.alpha;
         inet::Coord B( A.x + proximityThreshold*cos(PI+a-triangleAngle) , A.y + proximityThreshold*sin(PI+a-triangleAngle) );
         inet::Coord C( A.x + proximityThreshold*cos(PI+a+triangleAngle) , A.y + proximityThreshold*sin(PI+a+triangleAngle) );
 
-        for(it2 = v2vInfo.begin(); it2 != v2vInfo.end(); it2++){
+        for(it2 = cars.begin(); it2 != cars.end(); it2++){
 
             //cars going in the same direction
             if( (it != it2) && (abs(it->second.angularPosition.alpha - it2->second.angularPosition.alpha) <= directionDelimiterThreshold)){
@@ -126,8 +133,8 @@ void MEShapedClusterizeService::computeTriangleAdiacences(std::map<int, std::vec
 
 void MEShapedClusterizeService::computeRectangleAdiacences(std::map<int, std::vector<int>> &adiacences){
 
-    std::map<int, ueLocalInfo>::iterator it, it2;
-    for(it = v2vInfo.begin(); it != v2vInfo.end(); it++){
+    std::map<int, car>::iterator it, it2;
+    for(it = cars.begin(); it != cars.end(); it++){
 
         double a = it->second.angularPosition.alpha;
         inet::Coord pos(it->second.position);
@@ -136,7 +143,7 @@ void MEShapedClusterizeService::computeRectangleAdiacences(std::map<int, std::ve
         inet::Coord C( B.x + proximityThreshold*cos(PI+a), B.y + proximityThreshold*sin(PI+a) );            // behind side
         inet::Coord D( A.x + proximityThreshold*cos(PI+a), A.y + proximityThreshold*sin(PI+a) );            // behind side
 
-        for(it2 = v2vInfo.begin(); it2 != v2vInfo.end(); it2++){
+        for(it2 = cars.begin(); it2 != cars.end(); it2++){
 
             //cars going in the same direction
             if( (it != it2) && (abs(it->second.angularPosition.alpha - it2->second.angularPosition.alpha) <= directionDelimiterThreshold)){
@@ -163,48 +170,49 @@ void MEShapedClusterizeService::selectFollowers(std::map<int, std::vector<int>> 
 
         for( it2; it2 != it->second.end(); it2++){
 
-            if(!v2vInfo[*it2].checked){
+            if(!cars[*it2].isFollower){
                 // update follower if it2 car (v2vInfo[*it2] entry) has distance lesser than the follower one!
-                if(v2vInfo[it->first].position.distance(v2vInfo[*it2].position) <= v2vInfo[it->first].position.distance(v2vInfo[follower].position)){
+                if(cars[it->first].position.distance(cars[*it2].position) <= cars[it->first].position.distance(cars[follower].position)){
                     follower = *it2;
                     found = true;
                 }
             }
         }
         if(found){
-            v2vConfig[it->first].follower = v2vInfo[follower].carSimbolicAddress;
-            v2vConfig[it->first].followerKey = follower;
+            cars[it->first].follower = cars[follower].simbolicAddress;
+            cars[it->first].followerKey = follower;
 
-            v2vConfig[follower].following = v2vInfo[it->first].carSimbolicAddress;
-            v2vConfig[follower].followingKey = it->first;
-            v2vInfo[follower].checked = true;
+            cars[follower].following = cars[it->first].simbolicAddress;
+            cars[follower].followingKey = it->first;
+            cars[follower].isFollower = true;
         }
     }
 }
 
-void MEShapedClusterizeService::updatePlatoonList(){
+void MEShapedClusterizeService::updateClusters(){
 
+    int colorSize = colors.size();
     // Scan the v2vConfig to update the platoonList filed!
-    std::map<int, ueClusterConfig>::iterator it;
-    for(it = v2vConfig.begin(); it != v2vConfig.end(); it++){
+    std::map<int, car>::iterator it;
+    for(it = cars.begin(); it != cars.end(); it++){
 
         if(it->second.followingKey == -1){
 
             std::stringstream platoonList;
             int k = it->first;
 
+            // update clusters
             while(k != -1){
-
-                platoonList << v2vConfig[k].carSimbolicAddress << " -> ";
-                k = v2vConfig[k].followerKey;
+                clusters[(it->second).id].members.push_back(k);
+                cars[k].clusterID = (it->second).id;
+                                                                                                    //TODO
+                                                                                                    //  adding the txMode computation!
+                platoonList << cars[k].simbolicAddress << " -> ";
+                k = cars[k].followerKey;
             }
-
-            k = it->first;
-
-            while(k != -1){
-                v2vConfig[k].platoonList = platoonList.str();
-                k = v2vConfig[k].followerKey;
-            }
+            clusters[(it->second).id].membersList = platoonList.str();
+            clusters[(it->second).id].id = (it->second).id;
+            clusters[(it->second).id].color = colors.at( ( it->first ) % colorSize);
         }
     }
 }
@@ -236,15 +244,22 @@ bool MEShapedClusterizeService::isInRectangle(inet::Coord P, inet::Coord A, inet
       return isInTriangle(P, A, B, C) || isInTriangle(P, D, B, C);
 }
 
-void MEShapedClusterizeService::resetMapFlags(){
+void MEShapedClusterizeService::resetCarFlagsAndControls(){
 
-    // Scan the v2vConfig to update the platoonList filed!
-    std::map<int, ueClusterConfig>::iterator it;
-    for(it = v2vConfig.begin(); it != v2vConfig.end(); it++){
+    // Scan the cars to update the flags and control fields!
+    std::map<int, car>::iterator it;
+    for(it = cars.begin(); it != cars.end(); it++){
 
         it->second.followingKey = -1;
         it->second.followerKey = -1;
-        v2vInfo[it->first].checked = false;
+        it->second.isFollower = false;
+
+        it->second.following = "";
+        it->second.follower = "";
     }
 }
 
+void MEShapedClusterizeService::resetClusters(){
+
+    clusters.clear();
+}

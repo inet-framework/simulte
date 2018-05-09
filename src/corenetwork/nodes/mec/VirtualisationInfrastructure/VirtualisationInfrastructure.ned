@@ -64,7 +64,7 @@ module VirtualisationInfrastructure
         //#
 
         pppIf[sizeof(ppp)]: PPPInterface {
-            @display("p=413.504,473.712");
+            @display("p=252,473");
         }
 
         //#
@@ -72,7 +72,7 @@ module VirtualisationInfrastructure
         //#
         networkLayer: <networkLayerType> like INetworkLayer {
             parameters:
-                @display("p=413.504,343.072;q=queue");
+                @display("p=252,343;q=queue");
         }
 
         //#
@@ -80,18 +80,18 @@ module VirtualisationInfrastructure
         //#
 		// =============== UDP ============== //
         virtualisationManager: VirtualisationManager {
-            @display("p=413.504,124.96,row");
+            @display("p=252,124,row");
         }
 
         udp: UDP {
-            @display("p=413.504,231.744");
+            @display("p=252,231");
         }
 
         //#
         //# Resource Manager module
         //#
         resourceManager: ResourceManager {
-            @display("p=591.856,124.96,row");
+            @display("p=430,124,row");
         }
 
     connections allowunconnected:
@@ -116,13 +116,13 @@ module VirtualisationInfrastructure
         //#
         virtualisationManager.udpIn <-- udp.appOut++;
         virtualisationManager.udpOut --> udp.appIn++;
-        
+
         //# 
         //# VirtualisationManager to ResourceManager connections
         //#
         virtualisationManager.resourceManagerIn <-- resourceManager.virtualisationManagerOut;
         virtualisationManager.resourceManagerOut --> resourceManager.virtualisationManagerIn;
-        
+
 
         //# 
         //# Internal connections: meAppIn & meAppOut gates to virtualisationManager.meAppIn & virtualisationManager.meAppOut

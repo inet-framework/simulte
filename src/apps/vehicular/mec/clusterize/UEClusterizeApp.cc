@@ -32,8 +32,8 @@ UEClusterizeApp::~UEClusterizeApp()
 
     cancelAndDelete(selfStart_);
     cancelAndDelete(selfSender_);
+    cancelAndDelete(selfStop_);
 }
-
 
 void UEClusterizeApp::initialize(int stage)
 {
@@ -62,6 +62,15 @@ void UEClusterizeApp::initialize(int stage)
     socket.bind(localPort_);
     EV << "UEClusterizeApp::initialize - binding to port: local:" << localPort_ << " , dest:" << destPort_ << endl;
 
+    car = this->getParentModule();
+    //getting mobility module
+        cModule *temp = getParentModule()->getSubmodule("mobility");
+        if(temp != NULL){
+            mobility = check_and_cast<Veins::VeinsInetMobility*>(temp);
+           EV << "UEClusterizeApp::initialize - Mobility module found!" << endl;
+        }
+        else
+            EV << "UEClusterizeApp::initialize - \tWARNING: Mobility module NOT FOUND!" << endl;
 
     selfSender_ = new cMessage("selfSender");
     selfStart_ = new cMessage("selfStart");
@@ -72,19 +81,8 @@ void UEClusterizeApp::initialize(int stage)
         EV << "UEClusterizeApp::initialize - ERROR getting v2vApp module!" << endl;
         throw cRuntimeError("UEClusterizeApp::initialize - \tFATAL! Error when getting v2vApp!");
     }
-
-    v2vAppName = par("v2vAppName");
-
-
-    //getting mobility module
-    cModule *temp = getParentModule()->getSubmodule("mobility");
-    if(temp != NULL){
-        mobility = check_and_cast<inet::IMobility*>(temp);
-       EV << "UEClusterizeApp::initialize - Mobility module found!" << endl;
-    }
-    else
-        EV << "UEClusterizeApp::initialize - \tWARNING: Mobility module NOT FOUND!" << endl;
-
+    v2vClusterApp = check_and_cast<V2vClusterBaseApp*>(v2vApp);
+    v2vAppName = v2vClusterApp->getClassName();
 
     //statics signals
     clusterizeInfoSentMsg_ = registerSignal("clusterizeInfoSentMsg");
@@ -135,7 +133,7 @@ void UEClusterizeApp::handleMessage(cMessage *msg)
         //ACK_STOP_CLUSTERIZE_PACKET
         else if(!strcmp(pkt->getType(), ACK_STOP_CLUSTERIZE) ){
 
-                    handleClusterizeAckStop(pkt);
+                handleClusterizeAckStop(pkt);
             }
         //CONFIG_CLUSTERIZE_PACKET
         else if(!strcmp(pkt->getType(), CONFIG_CLUSTERIZE)){
@@ -172,6 +170,7 @@ void UEClusterizeApp::sendClusterizeStartPacket()
 
     packet->setType(START_CLUSTERIZE);
 
+    packet->setCarID(car->getId());
     packet->setV2vAppName(v2vAppName);
     packet->setSourceAddress(sourceSimbolicAddress);
     packet->setDestinationAddress(destSimbolicAddress);
@@ -194,6 +193,7 @@ void UEClusterizeApp::sendClusterizeInfoPacket()
 
     packet->setType(INFO_CLUSTERIZE);
 
+    packet->setCarID(car->getId());
     packet->setV2vAppName(v2vAppName);
     packet->setSourceAddress(sourceSimbolicAddress);
     packet->setDestinationAddress(destSimbolicAddress);
@@ -222,6 +222,7 @@ void UEClusterizeApp::sendClusterizeInfoPacket()
     packet->setAngularSpeedC(angularSpeed.gamma);
 
     //testing
+    EV << "UEClusterizeApp::sendClusterizeInfoPacket - Info: carID " << car->getId() << " sourceAddr " << sourceSimbolicAddress << " destAddr " << destSimbolicAddress << "]" << endl ;
     EV << "UEClusterizeApp::sendClusterizeInfoPacket - Position: [" << position.x << " ; " << position.y << " ; " << position.z << "]" << endl ;
     EV << "UEClusterizeApp::sendClusterizeInfoPacket - Speed: [" << speed.x << " ; " << speed.y << " ; " << speed.z << "]" << endl ;
     EV << "UEClusterizeApp::sendClusterizeInfoPacket - Max Speed: [" << maxSpeed << "]" << endl ;
@@ -247,6 +248,7 @@ void UEClusterizeApp::sendClusterizeStopPacket()
 
     packet->setType(STOP_CLUSTERIZE);
 
+    packet->setCarID(car->getId());
     packet->setV2vAppName(v2vAppName);
     packet->setSourceAddress(sourceSimbolicAddress);
     packet->setDestinationAddress(destSimbolicAddress);
@@ -289,6 +291,22 @@ void UEClusterizeApp::handleClusterizeAckStop(ClusterizePacket* pkt){
     //this->callFinish();
     //this->deleteModule();
 
+    //updating V2vApp Clustering inforamtion
+    if(v2vApp != NULL){
+
+        ClusterizeConfigPacket* pkt = new ClusterizeConfigPacket(CONFIG_CLUSTERIZE);
+        pkt->setTimestamp(simTime());
+        pkt->setType(CONFIG_CLUSTERIZE);
+        pkt->setClusterFollower("");
+        pkt->setClusterFollowing("");
+
+        EV << "UEClusterizeApp::handleClusterizeAckStop - Stop Cluster Configuration " << v2vAppName << endl;
+        v2vClusterApp->setClusterConfiguration(pkt);
+
+        //updating runtime color of the car icon background
+        car->getDisplayString().setTagArg("i",1,"white");
+    }
+
     //Stop the v2vApp
     if(v2vApp != NULL){
         v2vApp->callFinish();
@@ -301,10 +319,13 @@ void UEClusterizeApp::handleClusterizeConfig(ClusterizeConfigPacket* pkt){
     EV << "UEClusterizeApp::handleClusterizeConfig - Packet received: "<< pkt->getSourceAddress() <<" SeqNo[" << pkt->getSno() << "]" << endl;
 
     //configure the Cluster parameters for V2vAlertSender IUDPApp
-    if(v2vApp != NULL && !strcmp(v2vAppName, "V2vAlertChainApp")){
+    if(v2vApp != NULL){
 
         EV << "UEClusterizeApp::handleClusterizeConfig - Configuring " << v2vAppName << endl;
-        (check_and_cast<V2vAlertChainApp*>(v2vApp))->setClusterConfiguration(pkt);
+        v2vClusterApp->setClusterConfiguration(pkt);
+
+        //updating runtime color of the car icon background
+        car->getDisplayString().setTagArg("i",1, pkt->getClusterColor());
     }
 
     // emit statistics

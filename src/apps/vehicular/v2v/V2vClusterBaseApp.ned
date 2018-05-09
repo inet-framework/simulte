@@ -11,14 +11,13 @@
 //  @author Angelo Buono
 //
 
-package lte.apps.vehicular.v2v.v2vAlert;
-
+package lte.apps.vehicular.v2v;
 import inet.applications.contract.IUDPApp;
 
 //
 // TODO auto-generated module
 //
-simple V2vAlertChainApp like IUDPApp
+simple V2vClusterBaseApp like IUDPApp
 {
     parameters:
                         
@@ -31,18 +30,9 @@ simple V2vAlertChainApp like IUDPApp
         double startTime @unit("s") = default(0s);
         string interfaceTableModule;
         
-        //sender side signals       
-        @signal[v2vAlertChainSentMsg];
-        @statistic[v2vAlertChainSentMsg](title="V2vAlertChain messages sent"; unit=""; source="v2vAlertChainSentMsg"; record=sum,vector);
-
-        //receiver side signals
-        @signal[v2vAlertChainDelay];
-        @statistic[v2vAlertChainDelay](title="V2vAlertChainDelay Message Delay"; unit="s"; source="v2vAlertChainDelay"; record=mean,vector);
-           
-        @signal[v2vAlertChainRcvdMsg]; 
-        @statistic[v2vAlertChainRcvdMsg](title="V2vAlertChainRcvdMsg Messages Received"; unit="s"; source="v2vAlertChainRcvdMsg"; record=sum,vector);
-              
         @display("i=block/source");
+        
+        //extending eventually with signals
         
     gates:
         

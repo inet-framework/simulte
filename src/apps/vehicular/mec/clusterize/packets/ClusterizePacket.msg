@@ -31,6 +31,7 @@ packet ClusterizePacket {
     
     string type;
     
+    int carID;
     string sourceAddress;
     string destinationAddress;
     
@@ -43,9 +44,15 @@ packet ClusterizePacket {
 
 packet ClusterizeConfigPacket extends ClusterizePacket{
     
+    // cluster identification
     int clusterID;
+    string clusterColor;
+    string clusterList;
+    
+    //cluster communication strategy
+    string clusterFollowing;
+    string clusterFollower;
     int txMode;
-    string v2vPeerList;	// destAddresses for v2vSupportedSender
 }
 
 

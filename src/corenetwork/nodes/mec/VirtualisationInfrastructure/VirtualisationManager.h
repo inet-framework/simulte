@@ -65,6 +65,7 @@ class VirtualisationManager : public cSimpleModule
     cModule* meHost;
     cModule* mePlatform;
 
+    //needed to configure the ME Application dynamically created
     const char* interfaceTableModule;
 
     int maxMEApps;
@@ -119,14 +120,20 @@ class VirtualisationManager : public cSimpleModule
         void downstreamClusterize(ClusterizeConfigPacket*);
 
         // handling STOP_CLUSTERIZE ClusterizePacket
-        // by terminating the correspondent MEClusterizeApp & by forwarding the packet to the ResourceManager
+        // forwarding the packet to the ResourceManager
         void stopClusterize(ClusterizePacket*);
 
         // instancing the requested MEClusterizeApp (called by handleResource)
         void instantiateMEClusterizeApp(ClusterizePacket*);
 
-        // sending ACK_START_CLUSTERIZE or ACK_STOP_CLUSTERIZE (called by instantiateMEClusterizeApp or handleResource)
+        // terminating the correspondent MEClusterizeApp (called by handleResource)
+        //
+        void terminateMEClusterizeApp(ClusterizePacket*);
+
+        // sending ACK_START_CLUSTERIZE or ACK_STOP_CLUSTERIZE (called by instantiateMEClusterizeApp or terminateMEClusterizeApp)
+        //
         void ackClusterize(ClusterizePacket*, const char*);
+
 };
 
 #endif

@@ -12,8 +12,9 @@
 //
 
 
-#ifndef __SIMULTE_V2VALERTCHAINAPP_H_
-#define __SIMULTE_V2VALERTCHAINAPP_H_
+
+#ifndef __SIMULTE_V2VCLUSTERBASEAPP_H_
+#define __SIMULTE_V2VCLUSTERBASEAPP_H_
 
 #include <omnetpp.h>
 
@@ -21,53 +22,48 @@
 #include "inet/networklayer/common/L3Address.h"
 #include "inet/networklayer/common/L3AddressResolver.h"
 
-#include "apps/vehicular/v2v/v2vAlert/packets/V2vAlertPacket_m.h"
-
 #include "apps/vehicular/mec/clusterize/packets/ClusterizePacket_m.h"
 #include "apps/vehicular/mec/clusterize/packets/ClusterizePacketTypes.h"
 
 using namespace omnetpp;
 
-
 /**
- * V2vAlertSender
+ * V2vClusterBaseApp
  *
  *  The task of this class is:
- *       1) Sending according the txMode the V2vAlertPacket to the v2vPeerAddresses
+ *       1) providing a Base Simple Module for implementing V2v Applications running paired with UEClusterizeApp
+ *          and being configured as member of a cluster of vehicles
+
  */
-
-
-class V2vAlertChainApp : public cSimpleModule
+class V2vClusterBaseApp : public cSimpleModule
 {
-    inet::UDPSocket socket;
+    protected:
 
-    int nextSno_;
-    int size_;
-    simtime_t period_;
+        inet::UDPSocket socket;
 
-    cMessage *selfSender_;
+        int nextSno_;
+        int size_;
+        simtime_t period_;
 
-    int localPort_;
-    int destPort_;
-    inet::L3Address destAddress_;
+        cMessage *selfSender_;
 
-    std::string carSymbolicAddress;
+        int localPort_;
+        int destPort_;
+        inet::L3Address destAddress_;
 
-    cModule* lteNic;
+        std::string carSymbolicAddress;
 
-    int clusterID;
-    int txMode;
-    std::string v2vPeerList;
+        cModule* lteNic;
 
-    simsignal_t v2vAlertChainSentMsg_;
-
-    simsignal_t v2vAlertChainDelay_;
-    simsignal_t v2vAlertChainRcvdMsg_;
+        bool clusterLeader;
+        int clusterID;
+        int txMode;
+        std::string v2vReceivers;
 
     public:
 
-        ~V2vAlertChainApp();
-        V2vAlertChainApp();
+        ~V2vClusterBaseApp();
+        V2vClusterBaseApp();
 
         //allowing the UEClusterizeApp instance connected with this instance
         //to set the computed cluster configuration!
@@ -75,16 +71,9 @@ class V2vAlertChainApp : public cSimpleModule
 
     protected:
 
+        virtual void initialize(int stage);
         virtual int numInitStages() const { return inet::NUM_INIT_STAGES; }
-        void initialize(int stage);
         virtual void handleMessage(cMessage *msg);
-
-        //
-        // send the alertPacket
-        void sendV2vAlertPacket(V2vAlertPacket* pkt);
-        //
-        // emits statistics and propagates the alertPacket
-        void handleV2vAlertPacket(V2vAlertPacket* pkt);
 
         // utility:
         //          split a string by the delimiter chars

@@ -32,30 +32,36 @@
  *
  */
 
-struct ueLocalInfo{
+struct cluster{
 
-    std::string carSimbolicAddress;
+    int id;
+    std::string color;
+
+    std::vector<int> members;          //array of cars belonging the cluster: key in cars (map)
+    std::string membersList;
+};
+
+struct car{
+
+    int id;
+    std::string simbolicAddress;
+
+    //local-info
     inet::Coord position;
     inet::Coord speed;
     inet::EulerAngles angularPosition;
     inet::EulerAngles angularSpeed;
 
-    //control info
-    bool checked;
-};
-
-struct ueClusterConfig{
-
-    std::string carSimbolicAddress = "";
-    int clusterID = -1;
-    int txMode = -1;
-
+    //cluster-info
+    int clusterID;
     std::string following;
-    int followingKey = -1;
     std::string follower;
-    int followerKey = -1;
+    int txMode;
 
-    std::string platoonList;
+    //flags/control
+    bool isFollower;
+    int followingKey = -1;
+    int followerKey = -1;
 };
 
 class MEClusterizeService : public cSimpleModule
@@ -68,18 +74,18 @@ protected:
         cModule* meHost;
 
         int maxMEApps;
+        std::vector<std::string> colors;            //Cluster Colors
 
-        //for each MEClusterizeApp (linked to the UEClusterizeApp & V2VApp supported)
-        //storing the more recent ClusterizeInfoPacket containing the car-local info
+        // for each MEClusterizeApp (linked to the UEClusterizeApp & V2VApp supported)
+        // storing the more recent car-local info (from  ClusterizeInfoPacket )
+        // and cluster-info computed
         //
-        std::map<int, ueLocalInfo> v2vInfo;                             //i.e. key = gateIndex to the MEClusterizeApp
+        std::map<int, car> cars;                             //i.e. key = gateIndex to the MEClusterizeApp
 
-        //for each MEClusterizeApp (linked to the UEClusterizeApp & V2VApp supported)
-        //storing the newest ClusterizeConfigPacket to send to the UEClusterizeApp
+        // for each Clusters computed
+        // storing its informations
         //
-        std::map<int, ueClusterConfig> v2vConfig;                       //i.e. key = gateIndex to the MEClusterizeApp
-
-        int clusterSN;                              //Cluster Sequence Number
+        std::map<int, cluster> clusters;
 
     public:
 

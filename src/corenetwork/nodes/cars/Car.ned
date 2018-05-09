@@ -21,6 +21,8 @@ import inet.transportlayer.tcp.TCP;
 import inet.transportlayer.udp.UDP;
 import lte.stack.ILteNic;
 
+
+import org.car2x.veins.base.modules.*;
 // 
 // Car Module
 //
@@ -32,6 +34,9 @@ module Car
 
         //# Mobility
         string mobilityType = default("VeinsInetMobility");
+        
+        //# Veins Mobility
+        //string veinsMobilityType = default("org.car2x.veins.modules.mobility.traci.TraCIMobility");
 
         //# Apps
         int numTcpApps = default(0);  // no of TCP apps
@@ -59,6 +64,12 @@ module Car
         mobility: <mobilityType> like IMobility {
             @display("p=50,175;is=s");
         }
+        
+        //veinsmobility: <veinsMobilityType> like org.car2x.veins.base.modules.IMobility {
+        //    parameters:
+        //        @display("p=50,225;i=block/cogwheel;is=s");
+        //}
+        
         interfaceTable: InterfaceTable {
             @display("p=50,75;is=s");
         }

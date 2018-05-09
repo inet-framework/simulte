@@ -16,6 +16,7 @@ package lte.corenetwork.nodes.mec.MEPlatform;
 
 import lte.corenetwork.nodes.mec.MEPlatform.IMEService;
 
+import lte.corenetwork.nodes.mec.MEPlatform.GeneralServices.RadioNetworkInformation;
 // 
 //# MEPlatform
 //
@@ -27,17 +28,22 @@ module MEPlatform
 		//# Num Services
         int numServices = default(0); // no of UDP ME Services. Specify the service types in INI file with udpManager.udpService[0..1].typename="UDPServ" syntax
 
+        @display("bgb=343,109");
     gates:
-        
+
         input meAppIn[];
         output meAppOut[];
 
     submodules:
-        
-        udpService[numServices]: <> like  IMEService{
-            @display("p=555,48,row");
-        }  
-    
+
+        udpService[numServices]: <> like IMEService {
+            @display("p=174,54,row");
+        }
+
+		rniService: RadioNetworkInformation{
+			@display("p=24,24,row");
+		}
+
     connections allowunconnected:
 }
 

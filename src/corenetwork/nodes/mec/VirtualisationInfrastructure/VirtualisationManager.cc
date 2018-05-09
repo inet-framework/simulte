@@ -125,8 +125,8 @@ void VirtualisationManager::handleResource(cMessage* msg){
     }
     else if(!strcmp(pkt->getType(), STOP_CLUSTERIZE)){
         //Sending ACK to the UEClusterizeApp
-        EV << "VirtualisationManager::handleResource - calling ackClusterize with  "<< ACK_STOP_CLUSTERIZE << endl;
-        ackClusterize(pkt, ACK_STOP_CLUSTERIZE);
+        EV << "VirtualisationManager::handleResource - calling terminateMEClusterizeApp" << endl;
+        terminateMEClusterizeApp(pkt);
     }
 }
 /*
@@ -274,34 +274,6 @@ void VirtualisationManager::stopClusterize(ClusterizePacket* pkt){
 
     if(!meAppMapTable.empty() && meAppMapTable.find(key.str()) != meAppMapTable.end()){
 
-        EV << "VirtualisationManager::stopClusterize - currentMEApps: " << currentMEApps << " / " << maxMEApps << endl;
-
-        int index = meAppMapTable[key.str()].meAppGateIndex;
-
-        meAppMapTable[key.str()].meAppModule->callFinish();
-        meAppMapTable[key.str()].meAppModule->deleteModule();
-
-        //disconnecting internal MEPlatform gates to the MEClusterizeService gates
-        meClusterizeService->gate("meClusterizeAppOut", index)->disconnect();
-        meClusterizeService->gate("meClusterizeAppIn", index)->disconnect();
-
-        //disconnecting MEPlatform gates to the MEClusterizeApp gates
-        mePlatform->gate("meAppOut", index)->disconnect();
-        mePlatform->gate("meAppIn", index)->disconnect();
-
-        //update map
-        std::map<std::string, meAppMapEntry>::iterator it1;
-        it1 = meAppMapTable.find(key.str());
-        if (it1 != meAppMapTable.end())
-            meAppMapTable.erase (it1);
-
-        freeGates.push_back(index);
-
-        currentMEApps--;
-
-        EV << "VirtualisationManager::stopClusterize - MEClusterizeApp[" << key.str() << "] terminated!" << endl;
-        EV << "VirtualisationManager::stopClusterize - currentMEApps: " << currentMEApps << " / " << maxMEApps << endl;
-
         //Asking to free resources  to the Resource Manager
         EV << "VirtualisationManager::stopClusterize - forwarding "<< pkt->getType() << " to Resource Manager!" << endl;
         send(pkt, "resourceManagerOut");
@@ -375,6 +347,56 @@ void VirtualisationManager::instantiateMEClusterizeApp(ClusterizePacket* pkt){
     }
 }
 
+void VirtualisationManager::terminateMEClusterizeApp(ClusterizePacket* pkt){
+
+    //creating the map key
+    std::stringstream key;
+    key << pkt->getSourceAddress() << pkt->getV2vAppName();
+
+    if(!meAppMapTable.empty() && meAppMapTable.find(key.str()) != meAppMapTable.end()){
+
+        //Sending ACK to the UEClusterizeApp
+        EV << "VirtualisationManager::terminateMEClusterizeApp - calling ackClusterize with  "<< ACK_STOP_CLUSTERIZE << endl;
+        //before to remove the map entry!
+        ackClusterize(pkt, ACK_STOP_CLUSTERIZE);
+
+        EV << "VirtualisationManager::terminateMEClusterizeApp - currentMEApps: " << currentMEApps << " / " << maxMEApps << endl;
+
+        int index = meAppMapTable[key.str()].meAppGateIndex;
+
+        meAppMapTable[key.str()].meAppModule->callFinish();
+        meAppMapTable[key.str()].meAppModule->deleteModule();
+
+        //disconnecting internal MEPlatform gates to the MEClusterizeService gates
+        meClusterizeService->gate("meClusterizeAppOut", index)->disconnect();
+        meClusterizeService->gate("meClusterizeAppIn", index)->disconnect();
+
+        //disconnecting MEPlatform gates to the MEClusterizeApp gates
+        mePlatform->gate("meAppOut", index)->disconnect();
+        mePlatform->gate("meAppIn", index)->disconnect();
+
+        //update map
+        std::map<std::string, meAppMapEntry>::iterator it1;
+        it1 = meAppMapTable.find(key.str());
+        if (it1 != meAppMapTable.end())
+            meAppMapTable.erase (it1);
+
+        freeGates.push_back(index);
+
+        currentMEApps--;
+
+        EV << "VirtualisationManager::terminateMEClusterizeApp - MEClusterizeApp[" << key.str() << "] terminated!" << endl;
+        EV << "VirtualisationManager::terminateMEClusterizeApp - currentMEApps: " << currentMEApps << " / " << maxMEApps << endl;
+    }
+    else{
+        //Sending ACK to the UEClusterizeApp
+        EV << "VirtualisationManager::terminateMEClusterizeApp - calling ackClusterize with  "<< ACK_STOP_CLUSTERIZE << endl;
+        ackClusterize(pkt, ACK_STOP_CLUSTERIZE);
+
+        EV << "VirtualisationManager::terminateMEClusterizeApp - \tWARNING: NO MEClusterizeApp INSTANCE FOUND!" << endl;
+    }
+}
+
 void VirtualisationManager::ackClusterize(ClusterizePacket* pkt, const char* type){
 
     //creating the map key
@@ -390,12 +412,11 @@ void VirtualisationManager::ackClusterize(ClusterizePacket* pkt, const char* typ
         //checking if the Car is in the network & sending by socket
         MacNodeId destId = binder_->getMacNodeId(destAddress_.toIPv4());
         if(destId == 0){
-            EV << "VirtualisationeManager::ackClusterize - \tWARNING " << destSimbolicAddr << "has left the network!" << endl;
+            EV << "VirtualisationManager::ackClusterize - \tWARNING " << destSimbolicAddr << "has left the network!" << endl;
             //throw cRuntimeError("VirtualisationManager::ackClusterize - \tFATAL! Error destination has left the network!");
         }
         else{
-
-            EV << "VirtualisationeManager::ackClusterize - sending ack " << type <<" to "<< destSimbolicAddr << ": [" << destAddress_.str() <<"]" << endl;
+            EV << "VirtualisationManager::ackClusterize - sending ack " << type <<" to "<< destSimbolicAddr << ": [" << destAddress_.str() <<"]" << endl;
 
             ClusterizePacket* ack = new ClusterizePacket(type);
             ack->setTimestamp(simTime());
@@ -409,7 +430,7 @@ void VirtualisationManager::ackClusterize(ClusterizePacket* pkt, const char* typ
         }
     }
     else
-        EV << "VirtualisationeManager::ackClusterize - \tWARNING sending ack " << type <<" to "<< destSimbolicAddr << ": map entry "<< key.str() <<" not found!" << endl;
+        EV << "VirtualisationManager::ackClusterize - \tWARNING sending ack " << type <<" to "<< destSimbolicAddr << ": map entry "<< key.str() <<" not found!" << endl;
 
     delete(pkt);
 }
