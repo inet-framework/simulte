@@ -11,6 +11,7 @@
 #define _LTE_LTEHARQPROCESSRXD2D_H_
 
 #include "stack/mac/buffer/harq/LteHarqProcessRx.h"
+#include "stack/mac/packet/LteHarqFeedback_m.h"
 
 /**
  * H-ARQ RX processes contain pdus received from phy layer for which
@@ -39,6 +40,13 @@ class LteHarqProcessRxD2D : public LteHarqProcessRx
      * @return feedback message to be sent.
      */
     virtual LteHarqFeedback *createFeedback(Codeword cw);
+
+    /**
+     * Creates a feedback message based on the evaluation result for this pdu.
+     * This is the feedback sent to the eNB
+     * @return feedback message to be sent.
+     */
+    virtual LteHarqFeedbackMirror* createFeedbackMirror(Codeword cw);
 
     virtual ~LteHarqProcessRxD2D();
 };

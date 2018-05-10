@@ -83,3 +83,36 @@ LteHarqFeedback *LteHarqProcessRxD2D::createFeedback(Codeword cw)
 
     return fb;
 }
+
+LteHarqFeedbackMirror* LteHarqProcessRxD2D::createFeedbackMirror(Codeword cw)
+{
+    if (!isEvaluated(cw))
+        throw cRuntimeError("Cannot send feedback for a pdu not in EVALUATING state");
+
+    UserControlInfo *pduInfo = check_and_cast<UserControlInfo *>(pdu_.at(cw)->getControlInfo());
+    LteHarqFeedbackMirror *fb;
+
+    if (pduInfo->getDirection() == D2D_MULTI)
+    {
+        // if the PDU belongs to a multicast connection, then do not create feedback
+        fb = NULL;
+    }
+    else
+    {
+        fb = new LteHarqFeedbackMirror();
+        fb->setAcid(acid_);
+        fb->setCw(cw);
+        fb->setResult(result_.at(cw));
+        fb->setFbMacPduId(pdu_.at(cw)->getId());
+        fb->setByteLength(0);
+        fb->setPduLength(pdu_.at(cw)->getByteLength());
+        fb->setD2dSenderId(pduInfo->getSourceId());
+        fb->setD2dReceiverId(pduInfo->getDestId());
+        UserControlInfo *fbInfo = new UserControlInfo();
+        fbInfo->setSourceId(pduInfo->getDestId());
+        fbInfo->setDestId(macOwner_->getMacCellId());
+        fbInfo->setFrameType(HARQPKT);
+        fb->setControlInfo(fbInfo);
+    }
+    return fb;
+}

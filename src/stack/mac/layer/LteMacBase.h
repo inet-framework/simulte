@@ -346,13 +346,11 @@ class LteMacBase : public cSimpleModule
      */
     virtual void updateUserTxParam(cPacket* pkt)=0;
 
-  private:
-
     /// Upper Layer Handler
-    void fromRlc(cPacket *pkt);
+    virtual void fromRlc(cPacket *pkt);
 
     /// Lower Layer Handler
-    void fromPhy(cPacket *pkt);
+    virtual void fromPhy(cPacket *pkt);
 };
 
 #endif

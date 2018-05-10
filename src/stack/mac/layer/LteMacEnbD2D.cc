@@ -301,39 +301,53 @@ void LteMacEnbD2D::clearBsrBuffers(MacNodeId ueId)
     }
 }
 
+HarqBuffersMirrorD2D* LteMacEnbD2D::getHarqBuffersMirrorD2D()
+{
+    return &harqBuffersMirrorD2D_;
+}
+
 void LteMacEnbD2D::deleteQueues(MacNodeId nodeId)
 {
     LteMacEnb::deleteQueues(nodeId);
-    deleteRxHarqBufferMirror(nodeId);
+    deleteHarqBuffersMirrorD2D(nodeId);
 }
 
-void LteMacEnbD2D::storeRxHarqBufferMirror(MacNodeId id, LteHarqBufferRxD2DMirror* mirbuff)
+void LteMacEnbD2D::deleteHarqBuffersMirrorD2D(MacNodeId nodeId)
 {
-    // TODO optimize
-
-    if ( harqRxBuffersD2DMirror_.find(id) != harqRxBuffersD2DMirror_.end() )
-        delete harqRxBuffersD2DMirror_[id];
-    harqRxBuffersD2DMirror_[id] = mirbuff;
-}
-
-HarqRxBuffersMirror* LteMacEnbD2D::getRxHarqBufferMirror()
-{
-    return &harqRxBuffersD2DMirror_;
-}
-
-void LteMacEnbD2D::deleteRxHarqBufferMirror(MacNodeId id)
-{
-    HarqRxBuffersMirror::iterator it = harqRxBuffersD2DMirror_.begin() , et=harqRxBuffersD2DMirror_.end();
+    // delete all "mirror" buffers that have nodeId as sender or receiver
+    HarqBuffersMirrorD2D::iterator it = harqBuffersMirrorD2D_.begin() , et=harqBuffersMirrorD2D_.end();
     for(; it != et;)
     {
         // get current nodeIDs
-        MacNodeId senderId = it->second->peerId_; // Transmitter
-        MacNodeId destId = it->first;             // Receiver
+        MacNodeId senderId = (it->first).first; // Transmitter
+        MacNodeId destId = (it->first).second;  // Receiver
 
-        if (senderId == id || destId == id)
+        if (senderId == nodeId || destId == nodeId)
         {
             delete it->second;
-            harqRxBuffersD2DMirror_.erase(it++);
+            harqBuffersMirrorD2D_.erase(it++);
+        }
+        else
+        {
+            ++it;
+        }
+    }
+}
+
+void LteMacEnbD2D::deleteHarqBuffersMirrorD2D(MacNodeId txPeer, MacNodeId rxPeer)
+{
+    // delete all "mirror" buffers that have nodeId as sender or receiver
+    HarqBuffersMirrorD2D::iterator it = harqBuffersMirrorD2D_.begin() , et=harqBuffersMirrorD2D_.end();
+    for(; it != et;)
+    {
+        // get current nodeIDs
+        MacNodeId senderId = (it->first).first; // Transmitter
+        MacNodeId destId = (it->first).second;  // Receiver
+
+        if (senderId == txPeer && destId == rxPeer)
+        {
+            delete it->second;
+            harqBuffersMirrorD2D_.erase(it++);
         }
         else
         {
@@ -461,3 +475,66 @@ void LteMacEnbD2D::macHandleD2DModeSwitch(cPacket* pkt)
         }
     }
 }
+
+void LteMacEnbD2D::flushHarqBuffers()
+{
+    HarqTxBuffers::iterator it;
+    for (it = harqTxBuffers_.begin(); it != harqTxBuffers_.end(); it++)
+        it->second->sendSelectedDown();
+
+    // flush mirror buffer
+    HarqBuffersMirrorD2D::iterator mit;
+    for (mit = harqBuffersMirrorD2D_.begin(); mit != harqBuffersMirrorD2D_.end(); mit++)
+        mit->second->markSelectedAsWaiting();
+}
+
+/*
+ * Lower layer handler
+ */
+void LteMacEnbD2D::fromPhy(cPacket *pkt)
+{
+    // TODO: harq test (comment fromPhy: it has only to pass pdus to proper rx buffer and
+    // to manage H-ARQ feedback)
+    UserControlInfo *userInfo = check_and_cast<UserControlInfo *>(pkt->getControlInfo());
+    if (userInfo->getFrameType() == HARQPKT)
+    {
+        MacNodeId src = userInfo->getSourceId();
+
+        // this feedback refers to a mirrored H-ARQ buffer
+        LteHarqFeedback *hfbpkt = check_and_cast<LteHarqFeedback *>(pkt);
+        if (!hfbpkt->getD2dFeedback())   // this is not a mirror feedback
+        {
+            LteMacBase::fromPhy(pkt);
+            return;
+        }
+
+        // H-ARQ feedback, send it to mirror buffer of the D2D pair
+        MacNodeId d2dSender = check_and_cast<LteHarqFeedbackMirror*>(hfbpkt)->getD2dSenderId();
+        MacNodeId d2dReceiver = check_and_cast<LteHarqFeedbackMirror*>(hfbpkt)->getD2dReceiverId();
+        D2DPair pair(d2dSender, d2dReceiver);
+        HarqBuffersMirrorD2D::iterator hit = harqBuffersMirrorD2D_.find(pair);
+        EV << NOW << "LteMacEnbD2D::fromPhy - node " << nodeId_ << " Received HARQ Feedback pkt (mirrored)" << endl;
+        if (hit == harqBuffersMirrorD2D_.end())
+        {
+            // if a feedback arrives, a buffer should exists (unless it is an handover scenario
+            // where the harq buffer was deleted but a feedback was in transit)
+            // this case must be taken care of
+            if (binder_->hasUeHandoverTriggered(src))
+                return;
+
+            // create buffer
+            LteHarqBufferMirrorD2D* hb = new LteHarqBufferMirrorD2D((unsigned int) UE_TX_HARQ_PROCESSES, (unsigned char)par("maxHarqRtx"));
+            harqBuffersMirrorD2D_[pair] = hb;
+            hb->receiveHarqFeedback(check_and_cast<LteHarqFeedbackMirror*>(hfbpkt));
+        }
+        else
+        {
+            hit->second->receiveHarqFeedback(check_and_cast<LteHarqFeedbackMirror*>(hfbpkt));
+        }
+    }
+    else
+    {
+        LteMacBase::fromPhy(pkt);
+    }
+}
+

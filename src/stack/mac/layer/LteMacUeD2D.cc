@@ -13,7 +13,6 @@
 #include "stack/mac/packet/LteSchedulingGrant.h"
 #include "stack/mac/scheduler/LteSchedulerUeUl.h"
 #include "stack/mac/layer/LteMacEnb.h"
-#include "stack/mac/buffer/harq_d2d/LteHarqBufferRxD2DMirror.h"
 #include "stack/d2dModeSelection/D2DModeSwitchNotification_m.h"
 #include "stack/mac/packet/LteRac_m.h"
 
@@ -576,41 +575,7 @@ void LteMacUeD2D::handleSelfMessage()
         }
     }
 
-    // For each D2D communication, the status of the HARQRxBuffer must be known to the eNB
-    // For each HARQ-RX Buffer corresponding to a D2D communication, store "mirror" buffer at the eNB
-    HarqRxBuffers::iterator buffIt = harqRxBuffers_.begin();
-    for (; buffIt != harqRxBuffers_.end(); )
-    {
-        MacNodeId senderId = buffIt->first;
-        LteHarqBufferRx* buff = buffIt->second;
-
-        // skip the H-ARQ buffer corresponding to DL and D2D_MULTI transmissions
-        if (senderId == cellId_ || buff->isMulticast())
-        {
-            ++buffIt;
-            continue;
-        }
-
-        if (binder_->getOmnetId(senderId) == 0)
-        {
-            // the sender has left the simulation, remove the Rx buffer
-            delete buffIt->second;
-            harqRxBuffers_.erase(buffIt++);
-            continue;
-        }
-
-        //The constructor "extracts" all the useful information from the harqRxBuffer and put them in a LteHarqBufferRxD2DMirror object
-        //That object resides in enB. Because this operation is done after the enb main loop the enb is 1 TTI backward respect to the Receiver
-        //This means that enb will check the buffer for retransmission 3 TTI before
-        LteHarqBufferRxD2DMirror* mirbuff = new LteHarqBufferRxD2DMirror(buff, (unsigned char)this->par("maxHarqRtx"), senderId);
-        enb_->storeRxHarqBufferMirror(nodeId_, mirbuff);
-        ++buffIt;
-    }
-
     EV << NOW << "LteMacUeD2D::handleSelfMessage " << nodeId_ << " - HARQ process " << (unsigned int)currentHarq_ << endl;
-    // updating current HARQ process for next TTI
-
-    //unsigned char currentHarq = currentHarq_;
 
     // no grant available - if user has backlogged data, it will trigger scheduling request
     // no harq counter is updated since no transmission is sent.
@@ -973,8 +938,8 @@ void LteMacUeD2D::macHandleD2DModeSwitch(cPacket* pkt)
                             }
                         }
 
-                        // clear mirror H-ARQ RX buffers
-                        enb_->deleteRxHarqBufferMirror(nodeId_);
+                        // clear mirror H-ARQ buffers
+                        enb_->deleteHarqBuffersMirrorD2D(peerId, nodeId_);
 
                         // notify that this UE is switching during this TTI
                         resetHarq_[peerId] = NOW;

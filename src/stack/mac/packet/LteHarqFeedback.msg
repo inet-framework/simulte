@@ -17,4 +17,18 @@ packet LteHarqFeedback
     bool result;
     // Id of the pdu to which the feedback is addressed
     long fbMacPduId;
+    // if this flag is true, then the feedback refers to a D2D connection
+    bool d2dFeedback = false;
+}
+
+packet LteHarqFeedbackMirror extends LteHarqFeedback
+{
+    d2dFeedback = true;
+    
+    // Id of the D2D Transmitter
+    long d2dSenderId;
+    // Id of the D2D Receiver
+    long d2dReceiverId;   
+    // Length (in bytes) of the corresponding PDU
+    long pduLength;
 }

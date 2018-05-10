@@ -85,6 +85,18 @@ void LteHarqBufferRxD2D::sendFeedback()
         {
             if (processes_[i]->isEvaluated(cw))
             {
+                // create a copy of the feedback to be sent to the eNB
+                LteHarqFeedbackMirror *mirrorHfb = check_and_cast<LteHarqProcessRxD2D*>(processes_[i])->createFeedbackMirror(cw);
+                if (mirrorHfb == NULL)
+                {
+                    EV<<NOW<<"LteHarqBufferRxD2D::sendFeedback - cw "<< cw << " of process " << i
+                            << " contains a pdu belonging to a multicast/broadcast connection. Don't send feedback mirror." << endl;
+                }
+                else
+                {
+                    macOwner_->sendLowerPackets(mirrorHfb);
+                }
+
                 LteHarqFeedback *hfb = processes_[i]->createFeedback(cw);
                 if (hfb == NULL)
                 {

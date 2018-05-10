@@ -11,7 +11,6 @@
 #include "stack/mac/layer/LteMacEnb.h"
 #include "stack/mac/layer/LteMacEnbD2D.h"
 #include "stack/mac/buffer/harq/LteHarqBufferRx.h"
-#include "stack/mac/buffer/harq_d2d/LteHarqBufferRxD2DMirror.h"
 #include "stack/mac/allocator/LteAllocationModule.h"
 
 // TODO
@@ -208,14 +207,14 @@ LteSchedulerEnbUl::rtxschedule()
         {
             // --- START Schedule D2D retransmissions --- //
             Direction dir = D2D;
-            HarqRxBuffersMirror* harqRxBuffersD2DMirror = check_and_cast<LteMacEnbD2D*>(mac_)->getRxHarqBufferMirror();
-            HarqRxBuffersMirror::iterator it_d2d = harqRxBuffersD2DMirror->begin() , et_d2d=harqRxBuffersD2DMirror->end();
+            HarqBuffersMirrorD2D* harqBuffersMirrorD2D = check_and_cast<LteMacEnbD2D*>(mac_)->getHarqBuffersMirrorD2D();
+            HarqBuffersMirrorD2D::iterator it_d2d = harqBuffersMirrorD2D->begin() , et_d2d=harqBuffersMirrorD2D->end();
             for(; it_d2d != et_d2d; ++it_d2d)
             {
 
                 // get current nodeIDs
-                MacNodeId senderId = it_d2d->second->peerId_; // Transmitter
-                MacNodeId destId = it_d2d->first;             // Receiver
+                MacNodeId senderId = (it_d2d->first).first; // Transmitter
+                MacNodeId destId = (it_d2d->first).second;  // Receiver
 
                 // get current Harq Process for nodeId
                 unsigned char currentAcid = harqStatus_.at(senderId);
@@ -223,12 +222,12 @@ LteSchedulerEnbUl::rtxschedule()
                 // check whether the UE has a H-ARQ process waiting for retransmission. If not, skip UE.
                 bool skip = true;
                 unsigned char acid = (currentAcid + 2) % (it_d2d->second->getProcesses());
-                LteHarqProcessRxD2DMirror* currentProcess = it_d2d->second->getProcess(acid);
-                std::vector<RxUnitStatus> procStatus = currentProcess->getProcessStatus();
-                std::vector<RxUnitStatus>::iterator pit = procStatus.begin();
+                LteHarqProcessMirrorD2D* currentProcess = it_d2d->second->getProcess(acid);
+                std::vector<TxHarqPduStatus> procStatus = currentProcess->getProcessStatus();
+                std::vector<TxHarqPduStatus>::iterator pit = procStatus.begin();
                 for (; pit != procStatus.end(); ++pit )
                 {
-                    if (pit->second == RXHARQ_PDU_CORRUPTED)
+                    if (*pit == TXHARQ_PDU_BUFFERED)
                     {
                         skip = false;
                         break;
@@ -495,13 +494,15 @@ LteSchedulerEnbUl::schedulePerAcidRtxD2D(MacNodeId destId,MacNodeId senderId, Co
 
         EV << NOW << "LteSchedulerEnbUl::schedulePerAcidRtxD2D - Node[" << mac_->getMacNodeId() << ", User[" << senderId << ", Codeword[ " << cw << "], ACID[" << (unsigned int)acid << "] " << endl;
 
+        D2DPair pair(senderId, destId);
+
         // Get the current active HARQ process
-        HarqRxBuffersMirror* harqRxBuffersD2DMirror = check_and_cast<LteMacEnbD2D*>(mac_)->getRxHarqBufferMirror();
-        unsigned char currentAcid = (harqStatus_.at(senderId) + 2) % (harqRxBuffersD2DMirror->at(destId)->numHarqProcesses_);
+        HarqBuffersMirrorD2D* harqBuffersMirrorD2D = check_and_cast<LteMacEnbD2D*>(mac_)->getHarqBuffersMirrorD2D();
+        unsigned char currentAcid = (harqStatus_.at(senderId) + 2) % (harqBuffersMirrorD2D->at(pair)->getProcesses());
         EV << "\t the acid that should be considered is " << (unsigned int)currentAcid << endl;
 
-        LteHarqProcessRxD2DMirror* currentProcess = harqRxBuffersD2DMirror->at(destId)->processes_[currentAcid];
-        if (currentProcess->status_.at(cw) != RXHARQ_PDU_CORRUPTED)
+        LteHarqProcessMirrorD2D* currentProcess = harqBuffersMirrorD2D->at(pair)->getProcess(currentAcid);
+        if (currentProcess->getUnitStatus(cw) != TXHARQ_PDU_BUFFERED)
         {
             // exit if the current active HARQ process is not ready for retransmission
             EV << NOW << " LteSchedulerEnbUl::schedulePerAcidRtxD2D User is on ACID " << (unsigned int)currentAcid << " HARQ process is IDLE. No RTX scheduled ." << endl;
@@ -520,7 +521,7 @@ LteSchedulerEnbUl::schedulePerAcidRtxD2D(MacNodeId destId,MacNodeId senderId, Co
             allocatedCw = MAX_CODEWORDS - cw - 1;
         }
         // get current process buffered PDU byte length
-        unsigned int bytes = currentProcess->pdu_length_.at(cw);
+        unsigned int bytes = currentProcess->getPduLength(cw);
         // bytes to serve
         unsigned int toServe = bytes;
         // blocks to allocate for each band
@@ -623,9 +624,12 @@ LteSchedulerEnbUl::schedulePerAcidRtxD2D(MacNodeId destId,MacNodeId senderId, Co
 
             EV << NOW << " LteSchedulerEnbUl::schedulePerAcidRtxD2D HARQ Process " << (unsigned int)currentAcid << " : " << bytes << " bytes served! " << endl;
 
+            currentProcess->markSelected(cw);
+
             delete(bandLim);
             return bytes;
         }
+
     }
     catch(std::exception& e)
     {

@@ -12,21 +12,22 @@
 
 #include "stack/mac/layer/LteMacEnb.h"
 #include "stack/mac/buffer/LteMacBuffer.h"
-#include "stack/mac/buffer/harq_d2d/LteHarqBufferRxD2DMirror.h"
+#include "stack/mac/buffer/harq_d2d/LteHarqBufferMirrorD2D.h"
 #include "stack/d2dModeSelection/D2DModeSwitchNotification_m.h"
 
-typedef std::map<MacNodeId, LteHarqBufferRxD2DMirror*> HarqRxBuffersMirror;
+
+typedef std::pair<MacNodeId, MacNodeId> D2DPair;
+typedef std::map<D2DPair, LteHarqBufferMirrorD2D*> HarqBuffersMirrorD2D;
 
 class LteMacEnbD2D : public LteMacEnb
 {
   protected:
 
     /*
-     * Map associating a nodeId with the corresponding RX H-ARQ buffer.
-     * Used in eNB for D2D communications. The key value of the map is
-     * the *receiver* of the D2D flow
+     * Stores the mirrored status of H-ARQ buffers for D2D transmissions.
+     * The key value of the map is the pair <sender,receiver> of the D2D flow
      */
-    HarqRxBuffersMirror harqRxBuffersD2DMirror_;
+    HarqBuffersMirrorD2D harqBuffersMirrorD2D_;
 
     // if true, use the preconfigured TX params for transmission, else use that signaled by the eNB
     bool usePreconfiguredTxParams_;
@@ -64,6 +65,14 @@ class LteMacEnbD2D : public LteMacEnb
 
     void macHandleD2DModeSwitch(cPacket* pkt);
 
+    /**
+     * Flush Tx H-ARQ buffers for all users
+     */
+    virtual void flushHarqBuffers();
+
+    /// Lower Layer Handler
+    virtual void fromPhy(cPacket *pkt);
+
   public:
 
     LteMacEnbD2D();
@@ -94,16 +103,19 @@ class LteMacEnbD2D : public LteMacEnb
      */
     virtual void deleteQueues(MacNodeId nodeId);
 
-    // update the status of the "mirror" RX-Harq Buffer for this node
-    void storeRxHarqBufferMirror(MacNodeId id, LteHarqBufferRxD2DMirror* mirbuff);
     // get the reference to the "mirror" buffers
-    HarqRxBuffersMirror* getRxHarqBufferMirror();
-    // delete the "mirror" RX-Harq Buffer for this node (useful at mode switch)
-    void deleteRxHarqBufferMirror(MacNodeId id);
+    HarqBuffersMirrorD2D* getHarqBuffersMirrorD2D();
+
+    // delete the "mirror" Harq Buffer for this pair (useful at mode switch)
+    void deleteHarqBuffersMirrorD2D(MacNodeId txPeer, MacNodeId rxPeer);
+    // delete the "mirror" Harq Buffer for this node (useful at handover)
+    void deleteHarqBuffersMirrorD2D(MacNodeId nodeId);
+
     // send the D2D Mode Switch signal to the transmitter of the given flow
     void sendModeSwitchNotification(MacNodeId srcId, MacNodeId dst, LteD2DMode oldMode, LteD2DMode newMode);
 
     bool isMsHarqInterrupt() { return msHarqInterrupt_; }
+
 };
 
 #endif
