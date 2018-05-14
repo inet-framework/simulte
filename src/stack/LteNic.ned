@@ -156,7 +156,6 @@ module LteNicUeD2D extends LteNicUe
         LteMacType = default("LteMacUeD2D");
         LtePhyType = default("LtePhyUeD2D");
         d2dCapable = default(true);             // DO NOT CHANGE
-        string d2dPeerAddresses = default("");  // list of D2D peer UEs, separated by blank spaces
 }
 
 //

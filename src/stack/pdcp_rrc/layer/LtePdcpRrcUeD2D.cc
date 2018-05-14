@@ -69,11 +69,10 @@ void LtePdcpRrcUeD2D::fromDataPort(cPacket *pkt)
             // This part is required for supporting D2D unicast with dynamic-created modules
             // the first time we see a new destination address, we need to check whether the endpoint
             // is a D2D peer and, eventually, add it to the binder
-            const char* destName = (L3AddressResolver().findHostWithAddress(destAddr))->getFullName();
-            if (d2dPeeringInit_.find(destName) == d2dPeeringInit_.end() || !d2dPeeringInit_.at(destName))
+            if (d2dPeeringInit_.find(destAddr) == d2dPeeringInit_.end())
             {
                 binder_->addD2DCapability(nodeId_, binder_->getMacNodeId(destAddr));
-                d2dPeeringInit_[destName] = true;
+                d2dPeeringInit_[destAddr] = true;
             }
 
             // set direction based on the destination Id. If the destination can be reached
@@ -162,27 +161,6 @@ void LtePdcpRrcUeD2D::fromDataPort(cPacket *pkt)
     // Send message
     send(pdcpPkt, (lteInfo->getRlcType() == UM ? umSap_[OUT] : amSap_[OUT]));
     emit(sentPacketToLowerLayer, pdcpPkt);
-}
-
-void LtePdcpRrcUeD2D::initialize(int stage)
-{
-    EV << "LtePdcpRrcUeD2D::initialize() - stage " << stage << endl;
-    LtePdcpRrcUe::initialize(stage);
-    if (stage == INITSTAGE_NETWORK_LAYER_3+1)
-    {
-        // inform the Binder about the D2D capabilities of this node
-        // i.e. the (possibly) D2D peering UEs
-        const char *d2dPeerAddresses = getAncestorPar("d2dPeerAddresses");
-        cStringTokenizer tokenizer(d2dPeerAddresses);
-        const char *token;
-        while ((token = tokenizer.nextToken()) != NULL)
-        {
-            std::pair<const char*, bool> p(token,false);
-            d2dPeeringInit_.insert(p);
-
-            // delay initialization D2D capabilities to once arrive the first packet to the destination
-        }
-    }
 }
 
 void LtePdcpRrcUeD2D::handleMessage(cMessage* msg)
