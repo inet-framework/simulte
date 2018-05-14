@@ -37,7 +37,7 @@ UmTxEntity* LteRlcUmD2D::getTxBuffer(FlowControlInfo* lteInfo)
             txEnt->setFlowControlInfo(lteInfo->dup());
         }
 
-        EV << "LteRlcUm : Added new UmTxEntity: " << txEnt->getId() <<
+        EV << "LteRlcUmD2D : Added new UmTxEntity: " << txEnt->getId() <<
         " for node: " << nodeId << " for Lcid: " << lcid << "\n";
 
         // store per-peer map
@@ -53,7 +53,7 @@ UmTxEntity* LteRlcUmD2D::getTxBuffer(FlowControlInfo* lteInfo)
     else
     {
         // Found
-        EV << "LteRlcUm : Using old UmTxBuffer: " << it->second->getId() <<
+        EV << "LteRlcUmD2D : Using old UmTxBuffer: " << it->second->getId() <<
         " for node: " << nodeId << " for Lcid: " << lcid << "\n";
 
         return it->second;
@@ -129,6 +129,8 @@ void LteRlcUmD2D::resumeDownstreamInPackets(MacNodeId peerId)
 
 bool LteRlcUmD2D::isEmptyingTxBuffer(MacNodeId peerId)
 {
+    EV << NOW << " LteRlcUmD2D::isEmptyingTxBuffer - peerId " << peerId << endl;
+
     if (peerId == 0 || (perPeerTxEntities_.find(peerId) == perPeerTxEntities_.end()))
         return false;
 
@@ -137,7 +139,10 @@ bool LteRlcUmD2D::isEmptyingTxBuffer(MacNodeId peerId)
     for (; it != et; ++it)
     {
         if ((*it)->isEmptyingBuffer())
+        {
+            EV << NOW << " LteRlcUmD2D::isEmptyingTxBuffer - found " << endl;
             return true;
+        }
     }
     return false;
 }

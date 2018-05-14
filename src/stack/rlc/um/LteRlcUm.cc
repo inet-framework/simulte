@@ -135,6 +135,7 @@ void LteRlcUm::handleUpperMessage(cPacket *pkt)
     if (txbuf->isHoldingDownstreamInPackets())
     {
         // do not store in the TX buffer and do not signal the MAC layer
+        EV << "LteRlcUm::handleUpperMessage - Enque packet " << rlcPkt->getName() << " into the Holding Buffer\n";
         txbuf->enqueHoldingPackets(rlcPkt);
     }
     else

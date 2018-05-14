@@ -21,6 +21,7 @@ void BurstReceiver::initialize(int stage)
         recvBytes_ = 0;
 
         burstRcvdPkt_ = registerSignal("burstRcvdPkt");
+        burstPktDelay_ = registerSignal("burstPktDelay");
     }
     else if (stage == INITSTAGE_APPLICATION_LAYER)
     {
@@ -49,6 +50,7 @@ void BurstReceiver::handleMessage(cMessage *msg)
     simtime_t delay = simTime()-pPacket->getTimestamp();
     EV << "BurstReceiver::handleMessage - Packet received: FRAME[" << pPacket->getMsgId() << "] with delay["<< delay << "]" << endl;
 
+    emit(burstPktDelay_, delay);
     emit(burstRcvdPkt_, (long)pPacket->getMsgId());
 
     delete msg;

@@ -24,6 +24,7 @@ class BurstReceiver : public cSimpleModule
     bool mInit_;
 
     simsignal_t burstRcvdPkt_;
+    simsignal_t burstPktDelay_;
 
   protected:
 

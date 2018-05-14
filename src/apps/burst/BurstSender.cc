@@ -116,7 +116,8 @@ void BurstSender::sendPacket()
 {
     EV << "BurstSender::sendPacket - Sending frame[" << idFrame_ << "] of burst [" << idBurst_ << "], next packet at "<< simTime() + intraBurstTime_ << endl;
 
-    unsigned int msgId = (idBurst_ << 16) | idFrame_;
+    //unsigned int msgId = (idBurst_ << 16) | idFrame_;
+    unsigned int msgId = (idBurst_ * burstSize_) + idFrame_;
 
     BurstPacket* packet = new BurstPacket("Burst");
     packet->setMsgId(msgId);

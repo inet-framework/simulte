@@ -906,6 +906,7 @@ void LteMacUeD2D::macHandleD2DModeSwitch(cPacket* pkt)
                     D2DModeSwitchNotification* switchPkt_dup = switchPkt->dup();
                     switchPkt_dup->setOldConnection(false);
                     switchPkt_dup->setControlInfo(lteInfo->dup());
+                    switchPkt_dup->setSchedulingPriority(1);        // always after the old mode
                     sendUpperPackets(switchPkt_dup);
                 }
             }

@@ -348,15 +348,17 @@ void UmRxEntity::reassemble(unsigned int index)
 
         if (i==0) // first SDU
         {
+            bool ignoreFragment = false;
             if (resetFlag_)
             {
                 // by doing this, the first extracted SDU will be considered in order. For example, when D2D is enabled,
                 // this helps to retrieve the synchronization between SNs at the tx and rx after a mode switch
                 lastSnoDelivered_ = sduSno-1;
                 resetFlag_ = false;
+                ignoreFragment = true;
             }
 
-            if (i == numSdu-1) // there is only one SDU iOT_n this PDU
+            if (i == numSdu-1) // there is only one SDU in this PDU
             {
                 // read the FI field
                 switch(fi)
@@ -387,7 +389,6 @@ void UmRxEntity::reassemble(unsigned int index)
 
                         // buffer the SDU and wait for the missing portion
                         buffered_ = rlcSdu->dup();
-
                         EV << NOW << " UmRxEntity::reassemble Wait for the missing part..." << endl;
 
                         break;
@@ -397,7 +398,7 @@ void UmRxEntity::reassemble(unsigned int index)
                         EV << NOW << " UmRxEntity::reassemble The PDU includes the last part [" << sduLength <<" B] of a SDU [sno=" << sduSno << "]" << endl;
 
                         // check SDU SN
-                        if (buffered_ == NULL || (rlcSdu->getSnoMainPacket() != buffered_->getSnoMainPacket()))
+                        if (buffered_ == NULL || (rlcSdu->getSnoMainPacket() != buffered_->getSnoMainPacket()) || ignoreFragment)
                         {
                             if (buffered_ != NULL)
                             {
@@ -506,7 +507,7 @@ void UmRxEntity::reassemble(unsigned int index)
                         EV << NOW << " UmRxEntity::reassemble This is the last part [" << sduLength <<" B] of a SDU [sno=" << sduSno << "]" << endl;
 
                         // check SDU SN
-                        if (buffered_ == NULL || (rlcSdu->getSnoMainPacket() != buffered_->getSnoMainPacket()))
+                        if (buffered_ == NULL || (rlcSdu->getSnoMainPacket() != buffered_->getSnoMainPacket()) || ignoreFragment)
                         {
                             if (buffered_ != NULL)
                             {

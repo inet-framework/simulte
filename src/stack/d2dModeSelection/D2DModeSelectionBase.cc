@@ -34,6 +34,7 @@ void D2DModeSelectionBase::initialize(int stage)
 
         // Start mode selection tick
         modeSelectionTick_ = new cMessage("modeSelectionTick");
+        modeSelectionTick_->setSchedulingPriority(1);  // do mode selection after the (possible) reception of data from the upper layers
         scheduleAt(NOW + 0.05, modeSelectionTick_);
     }
 }
