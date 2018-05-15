@@ -20,6 +20,7 @@ simple AlertSender like IUDPApp
         int packetSize = default(10);
         double period @unit("s") = default(0.02s);
         double startTime @unit("s") = default(0s);
+        double stopTime @unit("s") = default(0s); // 0 means "never stops" 
         string interfaceTableModule;
                
         @signal[alertSentMsg];

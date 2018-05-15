@@ -26,6 +26,8 @@ class AlertSender : public cSimpleModule
     int size_;
     simtime_t period_;
 
+    simtime_t stopTime_;
+
     simsignal_t alertSentMsg_;
     // ----------------------------
 

@@ -63,6 +63,7 @@ void AlertSender::initialize(int stage)
 
     // calculating traffic starting time
     simtime_t startTime = par("startTime");
+    stopTime_ = par("stopTime");
 
     // TODO maybe un-necesessary
     // this conversion is made in order to obtain ms-aligned start time, even in case of random generated ones
@@ -96,5 +97,8 @@ void AlertSender::sendAlertPacket()
 
     emit(alertSentMsg_, (long)1);
 
-    scheduleAt(simTime() + period_, selfSender_);
+    if( simTime()< stopTime_ || stopTime_ == 0 )
+        scheduleAt(simTime() + period_, selfSender_);
+    else
+        EV << "AlertSender::sendAlertPacket - Stop time reached, stopping transmissions" << endl;
 }
