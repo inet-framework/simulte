@@ -45,6 +45,9 @@ void LtePhyBase::initialize(int stage)
         carrierFrequency_ = 2.1e+9;
         WATCH(numAirFrameReceived_);
         WATCH(numAirFrameNotReceived_);
+
+        multicastD2DRange_ = par("multicastD2DRange");
+        enableMulticastD2DRangeCheck_ = par("enableMulticastD2DRangeCheck");
     }
     else if (stage == inet::INITSTAGE_PHYSICAL_ENVIRONMENT_2)
     {
@@ -288,9 +291,27 @@ void LtePhyBase::sendMulticast(LteAirFrame *frame)
     {
         if (nodeIt->first != nodeId_ && binder_->isInMulticastGroup(nodeIt->first, groupId))
         {
-            EV << NOW << " LtePhyBase::sendMulticast - sending frame to node " << nodeIt->first << endl;
+            EV << NOW << " LtePhyBase::sendMulticast - node " << nodeIt->first << " is in the multicast group"<< endl;
+
             // get a pointer to receiving module
             cModule *receiver = getSimulation()->getModule(nodeIt->second);
+            LtePhyBase * recvPhy;
+            double dist;
+
+            if( enableMulticastD2DRangeCheck_ )
+            {
+                recvPhy =  check_and_cast<LtePhyBase *>(receiver->getSubmodule("lteNic")->getSubmodule("phy"));
+                dist = recvPhy->getRadioPosition().distance(getRadioPosition());
+
+                if( dist > multicastD2DRange_ )
+                {
+                    EV << NOW << " LtePhyBase::sendMulticast - node too far (" << dist << " > " << multicastD2DRange_ << ". skipping transmission" << endl;
+                    continue;
+                }
+            }
+
+            EV << NOW << " LtePhyBase::sendMulticast - sending frame to node " << nodeIt->first << endl;
+
             sendDirect(frame->dup(), 0, frame->getDuration(), receiver, "radioIn");
         }
     }

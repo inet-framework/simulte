@@ -43,6 +43,10 @@ simple LtePhyBase like LtePhy {
         // switch for handover messages handling on UEs
         bool enableHandover = default(false);
         double handoverLatency @unit(s) = default(0.05s);
+        
+        // TODO move to LtePhyUeD2D module
+        bool enableMulticastD2DRangeCheck = default(false);
+        double multicastD2DRange @unit(m) = default(1000m);
                
     gates:
         input upperGateIn;       // from upper layer

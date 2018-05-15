@@ -92,6 +92,12 @@ class LtePhyBase : public ChannelAccess
     /// Reference to LteCellInfo
     LteCellInfo* cellInfo_;
 
+    // used in multicast D2D to prevent a send direct towards out-of-range UEs. Range is expressed via multicastD2DRange_
+    bool enableMulticastD2DRangeCheck_;
+
+    // used with the enableMulticastD2DRangeCheck_ parameter
+    double multicastD2DRange_;
+
     /*
      * If true, UEs associate to the best serving cell at initialization
      */
