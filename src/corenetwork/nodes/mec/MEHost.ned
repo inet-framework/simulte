@@ -33,12 +33,15 @@ module MEHost
 
         //# Node specs
         string nodeType = "MEHost";						// DO NOT CHANGE
-
+        
         //#	ME Host Resources
         int maxMEApps = default(0);
         double maxRam @unit("B") = default(32GB);
         double maxDisk @unit("B") = default(100TB);
         double maxCpu = default(1);						// percentage of available CPU
+
+		//#connections
+		string eNBList = default("");
 
         //# Supported ME Service Paths
         //

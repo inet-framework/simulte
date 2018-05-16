@@ -16,8 +16,10 @@
 #define __SIMULTE_RADIONETWORKINFORMATION_H_
 
 #include <omnetpp.h>
+#include <string>
 
 #include "corenetwork/binder/LteBinder.h"
+#include "common/LteCommon.h"
 
 using namespace omnetpp;
 
@@ -32,12 +34,28 @@ class RadioNetworkInformation : public cSimpleModule
     cModule* mePlatform;
     cModule* meHost;
 
+    //eNodeB connected to the ME Host
+    //
+    std::vector<std::string> enb;
+
+
+
     protected:
 
         virtual int numInitStages() const { return inet::NUM_INIT_STAGES; }
         void initialize(int stage);
         virtual void handleMessage(cMessage *msg);
 
+    public:
+
+        //return txPwr value from the UeInfo structure in the binder
+        //
+        double getUETxPower(std::string car);
+
+
+        //return the cqi for the given car
+        //
+        Cqi getUEcqi(std::string car);
 };
 
 #endif

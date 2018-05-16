@@ -28,6 +28,8 @@ class MEShapedClusterizeService : public MEClusterizeService{
     double roadLaneSize;                        // meter: for rectangular platooning
     double triangleAngle;                       // radiant: for triangel platooning
 
+    std::string shape;
+
     RadioNetworkInformation* rni;
 
     public:
@@ -52,6 +54,8 @@ class MEShapedClusterizeService : public MEClusterizeService{
 
         void resetCarFlagsAndControls();
         void resetClusters();
+
+        void updateRniInfo();
 };
 
 #endif

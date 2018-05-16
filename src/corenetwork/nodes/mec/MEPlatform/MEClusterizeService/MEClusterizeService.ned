@@ -23,6 +23,13 @@ simple MEClusterizeService like IMEService
 {
     parameters:
         
+        //# mode how to send the cluster configuration to the UEClusterizeApp
+        // V2V_UNICAST_TX_MODE :				0
+		// V2V_MULTICAST_TX_MODE :				1
+		// INFRASTRUCTURE_UNICAST_TX_MODE : 	2
+		// INFRASTRUCTURE_MULTICAST_TX_MODE :	3
+       	int preconfiguredTxMode = default(2);
+       	
         double period @unit("s") = default(0.2s);
         double startTime @unit("s") = default(0s);
         

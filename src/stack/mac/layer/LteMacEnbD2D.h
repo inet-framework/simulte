@@ -138,6 +138,13 @@ class LteMacEnbD2D : public LteMacEnb
 
     bool isMsHarqInterrupt() { return msHarqInterrupt_; }
 
+    /*
+     * getter
+     */
+    UserTxParams* getPreconfiguredTxParams(){
+
+        return preconfiguredTxParams_;
+    }
 };
 
 #endif

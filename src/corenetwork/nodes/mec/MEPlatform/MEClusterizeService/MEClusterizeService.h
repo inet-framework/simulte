@@ -26,6 +26,8 @@
 #include "inet/common/geometry/common/Coord.h"
 #include "inet/common/geometry/common/EulerAngles.h"
 
+#include "common/LteCommon.h"
+
 
 /**
  * MEClusterizeService
@@ -52,10 +54,15 @@ struct car{
     inet::EulerAngles angularPosition;
     inet::EulerAngles angularSpeed;
 
+    //rni info
+    double txPower;
+    Cqi cqi;
+
     //cluster-info
     int clusterID;
     std::string following;
     std::string follower;
+
     int txMode;
 
     //flags/control
@@ -75,6 +82,8 @@ protected:
 
         int maxMEApps;
         std::vector<std::string> colors;            //Cluster Colors
+
+        int preconfiguredTxMode;
 
         // for each MEClusterizeApp (linked to the UEClusterizeApp & V2VApp supported)
         // storing the more recent car-local info (from  ClusterizeInfoPacket )

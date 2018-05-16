@@ -41,6 +41,11 @@ void MEShapedClusterizeService::initialize(int stage)
     triangleAngle = par("triangleAngle").doubleValue();                                             //radiant
 
     EV << "MEShapedClusterizeService::initialize - proximityThreshold: " << proximityThreshold << " - directionDelimiterThreshold: " << directionDelimiterThreshold << endl;
+
+    //shape for clustering
+    shape = par("shape").stringValue();
+
+    rni = check_and_cast<RadioNetworkInformation*>(mePlatform->getSubmodule("rniService"));
 }
 /*
  * #########################################################################################################################################
@@ -48,11 +53,14 @@ void MEShapedClusterizeService::initialize(int stage)
 
 void MEShapedClusterizeService::compute(){
 
+    //cleaning cluster-info and control/flags in data structures: clusters and cars
     resetCarFlagsAndControls();
     resetClusters();
 
-    computePlatoon("rectangle");
-    //computePlatoon("triangle");
+    //updating rni-info in data structures cars
+    updateRniInfo();
+
+    computePlatoon(shape);  //shape is "rectangle" or "triangle"
 }
 
 /*
@@ -73,6 +81,8 @@ void MEShapedClusterizeService::computePlatoon(std::string shape){
         EV << "MEClusterizeService::computePlatoon - computing Rectangle Adiacences..." << endl;
         computeRectangleAdiacences(adiacences);
     }
+    else
+        throw cRuntimeError("MEShapedClusterizeService::computePlatoon - \tFATAL! Error in the shape value!");
 
     // Select Best Follower
     EV << "MEClusterizeService::computePlatoon - selecting Followers..." << endl;
@@ -207,6 +217,15 @@ void MEShapedClusterizeService::updateClusters(){
                 cars[k].clusterID = (it->second).id;
                                                                                                     //TODO
                                                                                                     //  adding the txMode computation!
+
+                if(preconfiguredTxMode != -1)
+                {                                                                               // using -1 for the hybrid approach
+                    cars[k].txMode = preconfiguredTxMode;
+                }else
+                {
+                    //compute the best txMode according to some policy --> CQI or TxPower.. for each cluster!
+                }
+
                 platoonList << cars[k].simbolicAddress << " -> ";
                 k = cars[k].followerKey;
             }
@@ -262,4 +281,23 @@ void MEShapedClusterizeService::resetCarFlagsAndControls(){
 void MEShapedClusterizeService::resetClusters(){
 
     clusters.clear();
+}
+
+void MEShapedClusterizeService::updateRniInfo(){
+
+    EV << "MEShapedClusterizeService::updateRniInfo\n";
+
+    std::map<int, car>::iterator it;
+    for(it = cars.begin(); it != cars.end(); it++){
+
+        double txPower = rni->getUETxPower(it->second.simbolicAddress);
+        it->second.txPower = txPower;
+
+        Cqi cqi = rni->getUEcqi(it->second.simbolicAddress);
+        it->second.cqi = cqi;
+
+        //TESTING
+        EV << "MEShapedClusterizeService::updateRniInfo - " << it->second.simbolicAddress << " tx power: " << txPower << endl;
+        EV << "MEShapedClusterizeService::updateRniInfo - " << it->second.simbolicAddress << " cqi: " << cqi << endl;
+    }
 }

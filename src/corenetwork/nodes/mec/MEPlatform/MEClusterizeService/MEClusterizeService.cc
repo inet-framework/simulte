@@ -69,6 +69,8 @@ void MEClusterizeService::initialize(int stage)
         throw cRuntimeError("MEClusterizeService::initialize - \tFATAL! Error when getting getParentModule()");
     }
 
+    preconfiguredTxMode = par("preconfiguredTxMode").longValue();
+
     simtime_t startTime = par("startTime");
     scheduleAt(simTime() + startTime, selfSender_);
     EV << "\t starting computations in " << startTime << " seconds " << endl;
@@ -113,29 +115,67 @@ void MEClusterizeService::sendConfig(){
     if(cars.empty())
         return;
 
-    std::map<int, car>::iterator it;
+    std::map<int, cluster>::iterator cl_it;
 
-    for(it = cars.begin(); it != cars.end(); it++){
+    //sending directly to all the cars the configuration computed
+    if (preconfiguredTxMode == INFRASTRUCTURE_UNICAST_TX_MODE){
 
-        ClusterizeConfigPacket* pkt = new ClusterizeConfigPacket(CONFIG_CLUSTERIZE);
-        pkt->setTimestamp(simTime());
-        pkt->setType(CONFIG_CLUSTERIZE);
+        for(cl_it = clusters.begin(); cl_it != clusters.end(); cl_it++){
 
-        pkt->setClusterID((it->second).clusterID);
-        pkt->setTxMode((it->second).txMode);
-        pkt->setClusterFollower((it->second).follower.c_str());
-        pkt->setClusterFollowing((it->second).following.c_str());
-        pkt->setClusterList(clusters[(it->second).clusterID].membersList.c_str());
-        pkt->setClusterColor(clusters[(it->second).clusterID].color.c_str());
+            for(int memberKey : cl_it->second.members){
 
+                ClusterizeConfigPacket* pkt = new ClusterizeConfigPacket(CONFIG_CLUSTERIZE);
+                pkt->setTimestamp(simTime());
+                pkt->setType(CONFIG_CLUSTERIZE);
 
-        //testing
-        EV << "MEClusterizeService::sendConfig - sending ClusterizeConfigPacket to: " << (it->second).simbolicAddress << endl;
-        EV << "MEClusterizeService::sendConfig - \t\t\t\tcars[" << it->first << "].follower: " << it->second.follower << endl;
-        EV << "MEClusterizeService::sendConfig - \t\t\t\tcars[" << it->first << "].clusterID: " << (it->second).clusterID << endl;
+                pkt->setClusterID(cars[memberKey].clusterID);
+                pkt->setTxMode(cars[memberKey].txMode);
+                pkt->setClusterFollower(cars[memberKey].follower.c_str());
+                pkt->setClusterFollowing(cars[memberKey].following.c_str());
+                pkt->setClusterList(cl_it->second.membersList.c_str());
+                pkt->setClusterColor(cl_it->second.color.c_str());
 
-        //sending to the MEClusterizeApp (on the corresponded gate!)
-        send(pkt, "meClusterizeAppOut", it->first);
+                //testing
+                EV << "MEClusterizeService::sendConfig - sending ClusterizeConfigPacket to cluster member:"  << cars[memberKey].simbolicAddress << " (txMode: INFRASTRUCTURE_UNICAST_TX_MODE) " << endl;
+                EV << "MEClusterizeService::sendConfig - \t\t\t\tcars[" << memberKey << "].clusterID: " << cars[memberKey].clusterID << endl;
+                EV << "MEClusterizeService::sendConfig - \t\t\t\tclusters[" << cars[memberKey].clusterID << "].membersList: " << cl_it->second.membersList.c_str() << endl;
+
+                //sending to the MEClusterizeApp (on the corresponded gate!)
+                send(pkt, "meClusterizeAppOut", memberKey);
+            }
+        }
+    }
+    //sending directly only to the cluster leader
+    else if(preconfiguredTxMode == V2V_UNICAST_TX_MODE || preconfiguredTxMode == V2V_MULTICAST_TX_MODE){
+
+        for(cl_it = clusters.begin(); cl_it != clusters.end(); cl_it++){
+
+            int leaderKey = cl_it->second.members.at(0);
+
+            ClusterizeConfigPacket* pkt = new ClusterizeConfigPacket(CONFIG_CLUSTERIZE);
+            pkt->setTimestamp(simTime());
+            pkt->setType(CONFIG_CLUSTERIZE);
+
+            pkt->setClusterID(cars[leaderKey].clusterID);
+            pkt->setTxMode(cars[leaderKey].txMode);
+            pkt->setClusterFollower(cars[leaderKey].follower.c_str());
+            pkt->setClusterFollowing(cars[leaderKey].following.c_str());
+            pkt->setClusterList(cl_it->second.membersList.c_str());
+            pkt->setClusterColor(cl_it->second.color.c_str());
+
+            //testing
+            std::string txmode = (preconfiguredTxMode == V2V_UNICAST_TX_MODE)? "V2V_UNICAST_TX_MODE" : "V2V_MULTICAST_TX_MODE";
+            EV << "MEClusterizeService::sendConfig - sending ClusterizeConfigPacket to cluster leader: " << cars[leaderKey].simbolicAddress << " (txMode: "<< txmode << ") " << endl;
+            EV << "MEClusterizeService::sendConfig - \t\t\t\tcars[" << leaderKey << "].clusterID: " << cars[leaderKey].clusterID  << endl;
+            EV << "MEClusterizeService::sendConfig - \t\t\t\tclusters[" << cars[leaderKey].clusterID << "].membersList: " << cl_it->second.membersList.c_str() << endl;
+
+            //sending to the MEClusterizeApp (on the corresponded gate!)
+            send(pkt, "meClusterizeAppOut", leaderKey);
+        }
+    }
+    else{
+        //hybrid approach!
+        //check for every car in the clusters the txMode choosen!
     }
 }
 

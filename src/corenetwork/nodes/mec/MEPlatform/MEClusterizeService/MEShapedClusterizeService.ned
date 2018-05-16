@@ -22,6 +22,8 @@ simple MEShapedClusterizeService extends MEClusterizeService
     parameters:
         @class("MEShapedClusterizeService");
         
+        string shape = default("rectangle");		//shape supported "rectangle" and "triangle"
+        
         double proximityThreshold @unit("m");                  // meter: threshold within two cars can communicate v2v
     	double directionDelimiterThreshold @unit("rad");         // radiant: threshold within two cars are going in the same direction
 

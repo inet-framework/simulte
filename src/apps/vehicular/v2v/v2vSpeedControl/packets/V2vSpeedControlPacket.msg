@@ -24,4 +24,8 @@ packet V2vSpeedControlPacket {
     double clusterSpeed;
     double clusterDistance;
     double clusterSlowDownTime;	//ms in which to reach the given clusterSpeed
+    
+    double followingPositionX;
+    double followingPositionY;
+    double followingPositionZ;    
 }
