@@ -27,6 +27,15 @@ void TrafficFlowFilterSimplified::initialize(int stage)
 
     // reading and setting owner type
     ownerType_ = selectOwnerType(par("ownerType"));
+
+    if (ownerType_ == ENB)
+    {
+        // find connected mec server, if any
+        std::string mecServerName = getAncestorPar("mecServerAddress").stdstringValue();
+        mecServerAddress_ = inet::L3AddressResolver().resolve(mecServerName.c_str());
+
+        EV << "TrafficFlowFilterSimplified::initialize - meHost: " << mecServerName << " meHostAddress: " << mecServerAddress_.str() << endl;
+    }
 }
 
 EpcNodeType TrafficFlowFilterSimplified::selectOwnerType(const char * type)
@@ -80,6 +89,14 @@ void TrafficFlowFilterSimplified::handleMessage(cMessage *msg)
 
 TrafficFlowTemplateId TrafficFlowFilterSimplified::findTrafficFlow(L3Address srcAddress, L3Address destAddress)
 {
+    // if dest is mec
+    if (ownerType_ == ENB && destAddress == mecServerAddress_)
+    {
+        // the destination is the ME Host
+        EV << "TrafficFlowFilterSimplified::findTrafficFlow - returning flowId (-3) for tunneling to the connected MEC server" << endl;
+        return -3;
+    }
+
     MacNodeId destId = binder_->getMacNodeId(destAddress.toIPv4());
     if (destId == 0)
     {

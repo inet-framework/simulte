@@ -35,6 +35,24 @@ void GtpUserSimplified::initialize(int stage)
     pgwAddress_ = L3AddressResolver().resolve("pgw");
 
     ownerType_ = selectOwnerType(getAncestorPar("nodeType"));
+
+    if (ownerType_ == ENB)
+    {
+        // find connected mec server, if any
+        std::string mecServerName = getAncestorPar("mecServerAddress").stdstringValue();
+        if (mecServerName.compare("") != 0)
+        {
+            mecServerAddress_ = inet::L3AddressResolver().resolve(mecServerName.c_str());
+
+            MacNodeId enbId = getAncestorPar("macNodeId");
+
+            // store the pairing between eNB and MEC server to the binder
+            binder_->setMecAddressEnbId(mecServerAddress_, enbId);
+
+            EV << "GtpUserSimplified::initialize - meHost: " << mecServerName << " meHostAddress: " << mecServerAddress_.str() << endl;
+        }
+    }
+
 }
 
 EpcNodeType GtpUserSimplified::selectOwnerType(const char * type)
@@ -64,6 +82,41 @@ void GtpUserSimplified::handleMessage(cMessage *msg)
         GtpUserMsg * gtpMsg = check_and_cast<GtpUserMsg *>(msg);
         handleFromUdp(gtpMsg);
     }
+    else if(strcmp(msg->getArrivalGate()->getFullName(),"pppMecIn")==0)
+    {
+        EV << "GtpUserSimplified::handleMessage - message from MEC Server" << endl;
+        // obtain the encapsulated IPv4 datagram
+        IPv4Datagram * datagram = check_and_cast<IPv4Datagram*>(msg);
+        handleFromLocalMecServer(datagram);
+    }
+}
+
+void GtpUserSimplified::handleFromLocalMecServer(IPv4Datagram * datagram)
+{
+    if (ownerType_ == ENB)
+    {
+        MacNodeId enbId = getAncestorPar("macNodeId");
+        IPv4Address& destAddr = datagram->getDestAddress();
+        MacNodeId destId = binder_->getMacNodeId(destAddr);
+
+        if (destId != 0 && binder_->getNextHop(destId) == enbId) // destination is a UE under this eNB's coverage
+        {
+            // local delivery
+            send(datagram, "pppGate");
+        }
+        else   // destination is either a UE under another eNB's coverage or a node outside the LTE network
+        {
+            // encapsulate and send to the PGW
+
+            // create a new GtpUserSimplifiedMessage
+            GtpUserMsg * gtpMsg = new GtpUserMsg();
+            gtpMsg->setName("GtpUserMessage");
+
+            // encapsulate the datagram within the GtpUserSimplifiedMessage
+            gtpMsg->encapsulate(datagram);
+            socket_.sendTo(gtpMsg, pgwAddress_, tunnelPeerPort_);
+        }
+    }
 }
 
 void GtpUserSimplified::handleFromTrafficFlowFilter(IPv4Datagram * datagram)
@@ -80,6 +133,11 @@ void GtpUserSimplified::handleFromTrafficFlowFilter(IPv4Datagram * datagram)
     {
         // local delivery
         send(datagram,"pppGate");
+    }
+    else if (flowId == -3)
+    {
+        // send directly to the local MEC server
+        send(datagram,"pppMecOut");
     }
     else
     {
@@ -132,6 +190,33 @@ void GtpUserSimplified::handleFromUdp(GtpUserMsg * gtpMsg)
              L3Address tunnelPeerAddress = L3AddressResolver().resolve(symbolicName);
              socket_.sendTo(gtpMsg, tunnelPeerAddress, tunnelPeerPort_);
              return;
+        }
+
+        // check if the destination is a mec server
+        MacNodeId mecEnbId = binder_->getMecAddressEnbId(destAddr);
+        if (mecEnbId != 0)  // send to the corresponding eNB
+        {
+            // create a new GtpUserSimplifiedMessage
+            GtpUserMsg * gtpMsg = new GtpUserMsg();
+            gtpMsg->setName("GtpUserMessage");
+
+            // encapsulate the datagram within the GtpUserSimplifiedMessage
+            gtpMsg->encapsulate(datagram);
+
+            // get the address of the eNB
+            const char* symbolicName = binder_->getModuleNameByMacNodeId(mecEnbId);
+            L3Address tunnelPeerAddress = L3AddressResolver().resolve(symbolicName);
+            socket_.sendTo(gtpMsg, tunnelPeerAddress, tunnelPeerPort_);
+            return;
+        }
+    }
+    else if (ownerType_ == ENB)
+    {
+        L3Address destAddr = datagram->getDestAddress();
+        if (destAddr == mecServerAddress_)
+        {
+            send(datagram,"pppMecOut");
+            return;
         }
     }
 

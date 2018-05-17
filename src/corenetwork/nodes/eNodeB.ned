@@ -56,10 +56,16 @@ module eNodeB
         int numUdpApps = default(0);  // no of UDP apps. Specify the app types in INI file with udpApp[0..1].typename="UDPVideoStreamCli" syntax
         int numX2Apps = default(0);   // no of X2 apps. Specify the app types in INI file with x2App[0..1].typename="X2AppClient" syntax
 
+        //# MEC
+        string mecServerAddress = default("");		// symbolic name of the connected MecServer
+
     gates:
         inout ppp;                // connection to the Core Network
         input radioIn @directIn;  // connection to the radio interface
         inout x2[];               // connection to the X2 interface
+
+        //# MEC
+        inout pppMec;		      // connection to the local MEC Server
 
     submodules:
 
@@ -87,13 +93,18 @@ module eNodeB
             //d2dCapable = d2dCapable;
             @display("p=250,407");
         }
-        
+
         pppIf: PPPInterface {
             @display("p=501,363");
         }
-        
+
         x2ppp[sizeof(x2)]: PPPInterface {
             @display("p=683,363");
+        }
+
+        //# MEC interface
+        pppMecIf: PPPInterface {
+            @display("p=514.3175,47.035");
         }
 
         //#
@@ -109,7 +120,7 @@ module eNodeB
         //#
 		// =============== UDP ============== //
         udpApp[numUdpApps]: <> like IUDPApp {
-            @display("p=555,48,row");
+            @display("p=650.31,47.035,row");
         }
         udp: UDP {
             @display("p=501,148");
@@ -117,7 +128,7 @@ module eNodeB
 
         // =============== TCP ============== //
         tcpApp[numTcpApps]: <> like ITCPApp {
-            @display("p=683,48,row");
+            @display("p=748.47003,47.035,row");
         }
         tcp: TCP if numTcpApps>0 {
             @display("p=683,148");
@@ -158,6 +169,10 @@ module eNodeB
         gtpUser.udpOut --> udp.appIn++;
         gtpUser.udpIn <-- udp.appOut++;
 
+        //# GTP-to-MEC interface
+        gtpUser.pppMecIn <-- pppMecIf.upperLayerOut;
+        gtpUser.pppMecOut --> pppMecIf.upperLayerIn;
+        pppMecIf.phys <--> pppMec;
 
         //#
         //# PPP interface to network layer connections
@@ -171,6 +186,8 @@ module eNodeB
         gtpUserX2.lteStackIn <-- lteNic.x2$o++;
         gtpUserX2.udpOut --> udp.appIn++;
         gtpUserX2.udpIn <-- udp.appOut++;
+
+
 
         //#
         //# X2 interface to network layer connections

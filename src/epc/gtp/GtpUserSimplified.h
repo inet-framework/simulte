@@ -49,6 +49,9 @@ class GtpUserSimplified : public cSimpleModule
     // specifies the type of the node that contains this filter (it can be ENB or PGW)
     EpcNodeType ownerType_;
 
+    // IP address of the connected MEC Server (eNB only)
+    L3Address mecServerAddress_;
+
     EpcNodeType selectOwnerType(const char * type);
 
   protected:
@@ -62,6 +65,10 @@ class GtpUserSimplified : public cSimpleModule
 
     // receive a GTP-U packet from UDP, reads the TEID and decides whether performing label switching or removal
     void handleFromUdp(GtpUserMsg * gtpMsg);
+
+    // receive an IP Datagram from the local MEC server and forwards it to the proper next hop
+    void handleFromLocalMecServer(IPv4Datagram * datagram);
+
 };
 
 #endif

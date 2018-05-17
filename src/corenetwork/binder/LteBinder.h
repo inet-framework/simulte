@@ -51,6 +51,9 @@ class LteBinder : public cSimpleModule
     std::vector<MacNodeId> nextHop_; // MacNodeIdMaster --> MacNodeIdSlave
     std::map<int, OmnetId> nodeIds_;
 
+    // store the ID of the eNB connected to a MEC server
+    std::map<L3Address, MacNodeId> mecAddressToEnbId_;
+
     // list of static external cells. Used for intercell interference evaluation
     ExtCellList extCellList_;
 
@@ -239,6 +242,30 @@ class LteBinder : public cSimpleModule
     {
         macNodeIdToIPAddress_[address] = nodeId;
     }
+
+    /**
+     * Associates the given IP address with the given MacNodeId.
+     *
+     * @param address IP address
+     */
+    void setMecAddressEnbId(L3Address address, MacNodeId nodeId)
+    {
+        mecAddressToEnbId_[address] = nodeId;
+    }
+
+    /**
+     * Returns the MacNodeId for the given IP address
+     *
+     * @param address IP address
+     * @return MacNodeId corresponding to the IP addres
+     */
+    MacNodeId getMecAddressEnbId(IPv4Address address)
+    {
+        if (mecAddressToEnbId_.find(address) == mecAddressToEnbId_.end())
+            return 0;
+        return mecAddressToEnbId_[address];
+    }
+
     /**
      * Associates the given IP address with the given X2NodeId.
      *

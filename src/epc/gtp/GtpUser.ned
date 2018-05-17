@@ -51,6 +51,10 @@ simple GtpUserSimplified
 
         input trafficFlowFilterGate;
         output pppGate;
+        
+        //# MEC connections
+        input pppMecIn;
+        output pppMecOut;
 }
 
 //

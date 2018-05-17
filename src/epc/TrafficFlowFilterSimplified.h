@@ -43,6 +43,9 @@ class TrafficFlowFilterSimplified : public cSimpleModule
 
     TrafficFilterTemplateTable filterTable_;
 
+    // IP address of the connected MEC Server (eNB only)
+    L3Address mecServerAddress_;
+
     EpcNodeType selectOwnerType(const char * type);
   protected:
     virtual int numInitStages() const { return INITSTAGE_LAST+1; }
