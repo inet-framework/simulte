@@ -19,7 +19,6 @@
 #include "common/timer/TTimer.h"
 #include "common/timer/TTimerMsg_m.h"
 #include "stack/phy/feedback/LteFeedbackComputation.h"
-#include "stack/phy/feedback/LteFeedbackComputationDummy.h"
 
 class DasFilter;
 /**

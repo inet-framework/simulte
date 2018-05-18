@@ -296,71 +296,7 @@ LteFeedbackComputation* LteDlFeedbackGenerator::getFeedbackComputationFromName(
     std::string name, ParameterMap& params)
 {
     ParameterMap::iterator it;
-    if (name == "DUMMY")
-    {
-        feedbackComputationPisa_ = false;
-        //default value
-        double channelVariationProb = 0.1;
-        it = params.find("variation");
-        if (it != params.end())
-        {
-            channelVariationProb = params["variation"].doubleValue();
-        }
-        int channelVariationStep = 2;
-        it = params.find("maxStepVariation");
-        if (it != params.end())
-        {
-            channelVariationStep = (int) params["maxStepVariation"].longValue();
-        }
-        int txDivMin = 2;
-        it = params.find("txDivMin");
-        if (it != params.end())
-        {
-            txDivMin = (int) params["txDivMin"].longValue();
-        }
-        int txDivMax = 7;
-        it = params.find("txDivMax");
-        if (it != params.end())
-        {
-            txDivMax = (int) params["txDivMax"].longValue();
-        }
-        int sMuxMin = -5;
-        it = params.find("sMuxMin");
-        if (it != params.end())
-        {
-            sMuxMin = (int) params["sMuxMin"].longValue();
-        }
-        int sMuxMax = -2;
-        it = params.find("sMuxMax");
-        if (it != params.end())
-        {
-            sMuxMax = (int) params["sMuxMax"].longValue();
-        }
-        int muMimoMin = -2;
-        it = params.find("muMimoMin");
-        if (it != params.end())
-        {
-            muMimoMin = (int) params["muMimoMin"].longValue();
-        }
-        int muMimoMax = 0;
-        it = params.find("muMimoMax");
-        if (it != params.end())
-        {
-            muMimoMax = (int) params["muMimoMax"].longValue();
-        }
-        double rankVariation = 0;
-        it = params.find("rankVariationProb");
-        if (it != params.end())
-        {
-            rankVariation = params["rankVariationProb"].doubleValue();
-        }
-        LteFeedbackComputation* fbcomp = new LteFeedbackComputationDummy(
-            channelVariationProb, channelVariationStep, txDivMin, txDivMax,
-            sMuxMin, sMuxMax, muMimoMin, muMimoMax, rankVariation,
-            numBands_);
-        return fbcomp;
-    }
-    else if (name == "REAL")
+    if (name == "REAL")
     {
         feedbackComputationPisa_ = true;
         return 0;
