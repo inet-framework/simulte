@@ -7,74 +7,78 @@
 // and cannot be removed from it.
 //
 
-#ifndef _LTE_LTEDUMMYCHANNELMODEL_H_
-#define _LTE_LTEDUMMYCHANNELMODEL_H_
+#ifndef STACK_PHY_CHANNELMODEL_LTEDUMMYCHANNELMODEL_H_
+#define STACK_PHY_CHANNELMODEL_LTEDUMMYCHANNELMODEL_H_
 
 #include "stack/phy/ChannelModel/LteChannelModel.h"
 
 class LteDummyChannelModel : public LteChannelModel
 {
-  protected:
-    double per_;
-    double harqReduction_;
-    public:
-    LteDummyChannelModel(ParameterMap& params, int band);
-    virtual ~LteDummyChannelModel();
-    /*
-     * Compute the error probability of the transmitted packet
-     *
-     * @param frame pointer to the packet
-     * @param lteinfo pointer to the user control info
-     */
-    virtual bool error(LteAirFrame *frame, UserControlInfo* lteInfo);
-    /*
-     * Compute Attenuation caused by pathloss and shadowing (optional)
-     */
-    virtual double getAttenuation(MacNodeId nodeId, Direction dir, inet::Coord coord)
-    {
-        return 0;
-    }
-    /*
-     * Compute FAKE sir for each band for user nodeId according to multipath fading
-     *
-     * @param frame pointer to the packet
-     * @param lteinfo pointer to the user control info
-     */
-    virtual std::vector<double> getSIR(LteAirFrame *frame, UserControlInfo* lteInfo);
-    /*
-     * Compute FAKE sinr for each band for user nodeId according to pathloss, shadowing (optional) and multipath fading
-     *
-     * @param frame pointer to the packet
-     * @param lteinfo pointer to the user control info
-     */
-    virtual std::vector<double> getSINR(LteAirFrame *frame, UserControlInfo* lteInfo);
-    /*
-     * Compute the error probability of the transmitted packet according to cqi used, txmode, and the received power
-     * after that it throws a random number in order to check if this packet will be corrupted or not
-     *
-     * @param frame pointer to the packet
-     * @param lteinfo pointer to the user control info
-     * @param rsrpVector the received signal for each RB, if it has already been computed
-     */
-    virtual bool error_D2D(LteAirFrame *frame, UserControlInfo* lteInfo, const std::vector<double>& rsrpVector);
-    /*
-     * Compute Received useful signal for D2D transmissions
-     */
-    virtual std::vector<double> getRSRP_D2D(LteAirFrame *frame, UserControlInfo* lteInfo_1, MacNodeId destId, inet::Coord destCoord);
-    /*
-     * Compute FAKE sinr (D2D) for each band for user nodeId according to pathloss, shadowing (optional) and multipath fading
-     *
-     * @param frame pointer to the packet
-     * @param lteinfo pointer to the user control info
-     */
-    virtual std::vector<double> getSINR_D2D(LteAirFrame *frame, UserControlInfo* lteInfo_1, MacNodeId destId, inet::Coord destCoord,MacNodeId enbId);
-    virtual std::vector<double> getSINR_D2D(LteAirFrame *frame, UserControlInfo* lteInfo_1, MacNodeId destId, inet::Coord destCoord,MacNodeId enbId,const std::vector<double>& rsrpVector);
-    //TODO
-    virtual bool errorDas(LteAirFrame *frame, UserControlInfo* lteI)
-    {
-        throw cRuntimeError("DAS PHY LAYER TO BE IMPLEMENTED");
-        return false;
-    }
+     private:
+   double per_;
+   double harqReduction_;
+ public:
+   void initialize();
+
+   virtual void setBand( unsigned int band );
+   virtual void setPhy( LtePhyBase * phy );
+
+   /*
+    * Compute the error probability of the transmitted packet
+    *
+    * @param frame pointer to the packet
+    * @param lteinfo pointer to the user control info
+    */
+   virtual bool error(LteAirFrame *frame, UserControlInfo* lteInfo);
+   /*
+    * Compute Attenuation caused by pathloss and shadowing (optional)
+    */
+   virtual double getAttenuation(MacNodeId nodeId, Direction dir, inet::Coord coord)
+   {
+       return 0;
+   }
+   /*
+    * Compute FAKE sir for each band for user nodeId according to multipath fading
+    *
+    * @param frame pointer to the packet
+    * @param lteinfo pointer to the user control info
+    */
+   virtual std::vector<double> getSIR(LteAirFrame *frame, UserControlInfo* lteInfo);
+   /*
+    * Compute FAKE sinr for each band for user nodeId according to pathloss, shadowing (optional) and multipath fading
+    *
+    * @param frame pointer to the packet
+    * @param lteinfo pointer to the user control info
+    */
+   virtual std::vector<double> getSINR(LteAirFrame *frame, UserControlInfo* lteInfo);
+   /*
+    * Compute the error probability of the transmitted packet according to cqi used, txmode, and the received power
+    * after that it throws a random number in order to check if this packet will be corrupted or not
+    *
+    * @param frame pointer to the packet
+    * @param lteinfo pointer to the user control info
+    * @param rsrpVector the received signal for each RB, if it has already been computed
+    */
+   virtual bool error_D2D(LteAirFrame *frame, UserControlInfo* lteInfo, const std::vector<double>& rsrpVector);
+   /*
+    * Compute Received useful signal for D2D transmissions
+    */
+   virtual std::vector<double> getRSRP_D2D(LteAirFrame *frame, UserControlInfo* lteInfo_1, MacNodeId destId, inet::Coord destCoord);
+   /*
+    * Compute FAKE sinr (D2D) for each band for user nodeId according to pathloss, shadowing (optional) and multipath fading
+    *
+    * @param frame pointer to the packet
+    * @param lteinfo pointer to the user control info
+    */
+   virtual std::vector<double> getSINR_D2D(LteAirFrame *frame, UserControlInfo* lteInfo_1, MacNodeId destId, inet::Coord destCoord,MacNodeId enbId);
+   virtual std::vector<double> getSINR_D2D(LteAirFrame *frame, UserControlInfo* lteInfo_1, MacNodeId destId, inet::Coord destCoord,MacNodeId enbId,const std::vector<double>& rsrpVector);
+   //TODO
+   virtual bool errorDas(LteAirFrame *frame, UserControlInfo* lteI)
+   {
+       throw cRuntimeError("DAS PHY LAYER TO BE IMPLEMENTED");
+       return false;
+   }
+
 };
 
-#endif
+#endif /* STACK_PHY_CHANNELMODEL_LTEDUMMYCHANNELMODEL_H_ */

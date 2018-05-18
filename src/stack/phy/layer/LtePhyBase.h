@@ -24,8 +24,8 @@
 #include "stack/mac/amc/LteAmc.h"
 #include "stack/phy/ChannelModel/LteChannelModel.h"
 #include "stack/phy/feedback/LteFeedbackComputationRealistic.h"
-#include "stack/phy/ChannelModel/LteRealisticChannelModel.h"
-#include "stack/phy/ChannelModel/LteDummyChannelModel.h"
+//#include "stack/phy/ChannelModel/LteRealisticChannelModel.h"
+//#include "stack/phy/ChannelModel/LteDummyChannelModel.h"
 
 /**
  * @class LtePhy
@@ -43,6 +43,8 @@
  * then decapsulates the inner packet and sends it to the
  * LteStack with LteDeciderControlInfo attached.
  */
+
+class LteChannelModel;
 
 class LtePhyBase : public ChannelAccess
 {
@@ -277,50 +279,8 @@ class LtePhyBase : public ChannelAccess
 
     virtual void handleControlMsg(LteAirFrame *frame, UserControlInfo *userInfo);
 
-    /**
-     * Initializes the ChannelModels with the data from the
-     * passed XML-config element.
-     *
-     * @param xmlConfig The XML element specified in the ini file (ie the
-     *                  XML analog models configuration file)
-     */
-    void initializeChannelModel(cXMLElement* xmlConfig);
+    void initializeChannelModel();
 
-    /**
-     * Creates and returns an instance of the LteChannelModel with the
-     * specified name.
-     *
-     * The returned AnalogueModel has to be
-     * generated with the "new" command. The LtePhy
-     * keeps the ownership of the returned AnalogueModel.
-     *
-     * This method is used by the LtePhy during
-     * initialization to load the ChannelModels which
-     * have been specified in the xml file.
-     *
-     * If a new channelModel must be used, add its name to the
-     * if-else-if clause of this method.
-     *
-     * @param name analog model name read from xml file
-     * @param params map that contains the parameters read from xml file
-     */
-    LteChannelModel* getChannelModelFromName(std::string name, ParameterMap& params);
-    /**
-     * Creates and initializes a LteRealisticChannelModel with the
-     * passed parameter values.
-     *
-     * @param params map that contains the parameters read from the
-     *               xml file, used to initialize this object.
-     */
-    LteChannelModel* initializeChannelModel(ParameterMap& params);
-    /**
-     * Creates and initializes a LteDummyChannelModel with the
-     * passed parameter values.
-     *
-     * @param params map that contains the parameters read from the
-     *               xml file, used to initialize this object.
-     */
-    LteChannelModel* initializeDummyChannelModel(ParameterMap& params);
 
     /**
      * Utility.

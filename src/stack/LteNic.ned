@@ -22,12 +22,14 @@ import lte.stack.compManager.LteCompManager;
 import lte.stack.d2dModeSelection.D2DModeSelection;
 import lte.stack.handoverManager.LteHandoverManager;
 
+import lte.stack.phy.ChannelModel.LteChannelModelInterface;
+
 // 
 // Interface for the LTE Stack.
 //
 moduleinterface ILteNic extends IWirelessNic
 {
-        string nodeType;
+    string nodeType;
         //bool d2dCapable;            // inherit the value from the parent module
     gates:
         inout EUTRAN_RRC_Sap;   // Control of RRC Layer
@@ -48,8 +50,11 @@ module LteNicBase like ILteNic
         string LteMacType;          // One of: "LteMacUe", "LteMacEnb", "LteMacRelayUe", "LteMacRelayEnb"
         string LtePhyType;
         string nodeType;
+
+        string LteChannelModelType = default("LteRealisticChannelModel");
+
         bool d2dCapable;            // inherit the value from the parent module
-        
+
     gates:
         //#
         //# Gates connecting UE/eNB and LTE Stack
@@ -87,6 +92,10 @@ module LteNicBase like ILteNic
         phy: <LtePhyType> like LtePhy {
             @display("p=151,390");
             @class(LtePhyType);
+        }
+
+        channelModel: <LteChannelModelType> like LteChannelModelInterface {
+            @display("p=44.8,389.75998");
         }
 
     connections:
@@ -188,11 +197,11 @@ module LteNicEnb extends LteNicBase
         handoverManager.x2ManagerIn <-- x2Manager.dataPort$o++;
         handoverManager.x2ManagerOut --> x2Manager.dataPort$i++;
 
-		if( sizeof(x2) > 0 ){
+        if ( sizeof(x2) > 0 ) {
             //# connections between X2 Manager and GTP (for handover)
             x2$i[0] --> x2Manager.x2Gtp$i;
             x2$o[0] <-- x2Manager.x2Gtp$o;
-		}
+        }
         //# connections between X2 Manager and the outer world
         for i=1..sizeof(x2)-1 {
             x2$i[i] --> x2Manager.x2$i++;
@@ -211,7 +220,7 @@ module LteNicEnbD2D extends LteNicEnb
         LtePhyType = default("LtePhyEnbD2D");
         d2dCapable = default(true);   // DO NOT CHANGE
         string d2dModeSelectionType = default("D2DModeSelectionBase");
-        
+
     submodules:
         d2dModeSelection: <d2dModeSelectionType> like D2DModeSelection {
             @display("p=60,68,row");
