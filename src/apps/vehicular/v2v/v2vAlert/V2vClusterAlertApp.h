@@ -71,14 +71,6 @@ class V2vClusterAlertApp : public V2vClusterBaseApp
         //
         void sendV2vMulticast(V2vAlertPacket* pkt);         //TODO
 
-        //
-        //
-        void sendLteUnicast(V2vAlertPacket* pkt);
-
-        //
-        //
-        void sendLteMulticast(V2vAlertPacket* pkt);         //TODO
-
 
         //utility
         //

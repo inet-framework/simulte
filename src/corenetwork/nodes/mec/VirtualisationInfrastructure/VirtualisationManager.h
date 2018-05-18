@@ -30,6 +30,7 @@
 // UE/ME Packets & UE/ME App to Handle
 #include "apps/vehicular/mec/clusterize/packets/ClusterizePacket_m.h"
 #include "apps/vehicular/mec/clusterize/packets/ClusterizePacketTypes.h"
+#include "apps/vehicular/mec/clusterize/packets/ClusterizePacketBuilder.h"
 
 
 struct meAppMapEntry{

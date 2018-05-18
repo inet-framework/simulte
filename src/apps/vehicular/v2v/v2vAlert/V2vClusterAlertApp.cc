@@ -66,18 +66,8 @@ void V2vClusterAlertApp::sendV2vAlertPacket(V2vAlertPacket* rcvdPkt)
 {
     EV << "V2vClusterAlertApp::sendV2vAlertPacket - Sending V2vAlert\n";
 
-    if(txMode == V2V_UNICAST_TX_MODE)
-        sendV2vUnicast(rcvdPkt);
-
-    else if(txMode == V2V_MULTICAST_TX_MODE)
-        sendV2vMulticast(rcvdPkt);
-
-    else if(txMode == INFRASTRUCTURE_UNICAST_TX_MODE)
-        sendLteUnicast(rcvdPkt);
-
-    else if(txMode == INFRASTRUCTURE_MULTICAST_TX_MODE)
-        sendLteMulticast(rcvdPkt);
-
+    //for now just using V2V UNICAST MODE!
+    sendV2vUnicast(rcvdPkt);
 
     if(!selfSender_->isScheduled())
         scheduleAt(simTime() + period_, selfSender_);
@@ -143,14 +133,6 @@ void V2vClusterAlertApp::sendV2vUnicast(V2vAlertPacket* rcvdPkt){
 
 
 void V2vClusterAlertApp::sendV2vMulticast(V2vAlertPacket* pkt){
-
-}
-
-void V2vClusterAlertApp::sendLteUnicast(V2vAlertPacket* pkt){
-
-}
-
-void V2vClusterAlertApp::sendLteMulticast(V2vAlertPacket* pkt){
 
 }
 

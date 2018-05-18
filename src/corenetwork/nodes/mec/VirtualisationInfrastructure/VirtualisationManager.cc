@@ -236,18 +236,14 @@ void VirtualisationManager::downstreamClusterize(ClusterizeConfigPacket* pkt){
             EV << "VirtualisationeManager::downstreamClusterize - \tWARNING " << destSimbolicAddr << "has left the network!" << endl;
             //throw cRuntimeError("VirtualisationManager::downstreamClusterize - \tFATAL! Error destination has left the network!");
 
-            //NOTE: in case the STOP_CLUSTERIZE sent from the UEClusterizeApp is not receivide correctly!
+            //NOTE: in case the STOP_CLUSTERIZE sent from the UEClusterizeApp is not received correctly!
             //
             //starting the MEClusterizeApp termination procedure
             //
             //creating the STOP_CLUSTERIZE ClusterizePacket
-            ClusterizePacket* spkt = new ClusterizePacket(STOP_CLUSTERIZE);
-            spkt->setTimestamp(simTime());
-            spkt->setByteLength(pkt->getByteLength());
-            spkt->setType(STOP_CLUSTERIZE);
-            spkt->setV2vAppName(pkt->getV2vAppName());
-            spkt->setSourceAddress(pkt->getDestinationAddress());
-            spkt->setDestinationAddress(pkt->getSourceAddress());
+
+            ClusterizePacket* spkt = ClusterizePacketBuilder().buildClusterizePacket(STOP_CLUSTERIZE, pkt->getSno(), simTime(), pkt->getByteLength(), pkt->getCarID(), pkt->getV2vAppName(), pkt->getDestinationAddress(), pkt->getSourceAddress());
+
             //
             EV << "VirtualisationeManager::downstreamClusterize - calling stopClusterize for " << destSimbolicAddr << endl;
             //calling the stopClusterize to handle the MEClusterizeApp termination
@@ -305,6 +301,9 @@ void VirtualisationManager::instantiateMEClusterizeApp(ClusterizePacket* pkt){
         // creating MEClusterizeApp instance
         cModuleType *moduleType = cModuleType::get("lte.apps.vehicular.mec.clusterize.MEClusterizeApp");
         cModule *module = moduleType->create("MEClusterizeApp", meHost);     //name & its Parent Module
+        std::stringstream appName;
+        appName << "MEClusterizeApp-" <<  key.str().c_str();
+        module->setName(appName.str().c_str());
 
         module->par("sourceAddress") = pkt->getDestinationAddress();
         module->par("destAddress") = pkt->getSourceAddress();
@@ -418,13 +417,7 @@ void VirtualisationManager::ackClusterize(ClusterizePacket* pkt, const char* typ
         else{
             EV << "VirtualisationManager::ackClusterize - sending ack " << type <<" to "<< destSimbolicAddr << ": [" << destAddress_.str() <<"]" << endl;
 
-            ClusterizePacket* ack = new ClusterizePacket(type);
-            ack->setTimestamp(simTime());
-            ack->setSno(pkt->getSno());
-            ack->setType(type);
-            ack->setV2vAppName(pkt->getV2vAppName());
-            ack->setSourceAddress(pkt->getDestinationAddress());
-            ack->setDestinationAddress(destSimbolicAddr);
+            ClusterizePacket* ack = ClusterizePacketBuilder().buildClusterizePacket(type, pkt->getSno(), simTime(), pkt->getByteLength(), pkt->getCarID(), pkt->getV2vAppName(), pkt->getDestinationAddress(), destSimbolicAddr);
 
             socket.sendTo(ack, destAddress_, destPort_);
         }

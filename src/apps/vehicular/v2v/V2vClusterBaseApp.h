@@ -50,6 +50,7 @@ class V2vClusterBaseApp : public cSimpleModule
         int localPort_;
         int destPort_;
         inet::L3Address destAddress_;
+        std::string follower;
 
         std::string carSymbolicAddress;
 

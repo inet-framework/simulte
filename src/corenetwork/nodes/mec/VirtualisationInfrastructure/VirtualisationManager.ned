@@ -33,7 +33,7 @@ simple VirtualisationManager like IUDPApp{
     parameters:
         
         int localPort = default(4000);			// ALL UEApps have to send UDP Packets to this Port!
-        int destPort = default(5000);
+        int destPort = default(4000);
         
         string interfaceTableModule;
         

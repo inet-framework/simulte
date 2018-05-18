@@ -112,20 +112,29 @@ void V2vClusterBaseApp::setClusterConfiguration(ClusterizeConfigPacket* pkt){
 
     clusterID = pkt->getClusterID();
     txMode = pkt->getTxMode();
-    v2vReceivers = pkt->getClusterFollower();                //list of Car[*] module names!
+    follower = pkt->getClusterFollower();                //list of Car[*] module names!
 
     std::string following = pkt->getClusterFollowing();
     clusterLeader = following.empty();                      //if following string is empty I'm a cluster leader!
 
-    //d2dConfiguration dynamic
-    if(v2vReceivers.compare("") != 0)
+
+    // update receivers v2v (for now jsut the follower!)
+    if(follower.compare("") != 0)
     {
+        v2vReceivers = follower;
+
+        //configuring the D2D LTE NIC
         if(lteNic->hasPar("d2dPeerAddresses"))
         {
-            lteNic->par("d2dPeerAddresses") = v2vReceivers;
-            EV << "V2vClusterAlertApp::setClusterConfiguration - lteNic.d2dPeerAddresses: " << pkt->getClusterFollower() << "configured!" << endl;
+            lteNic->par("d2dPeerAddresses") = follower;
+            EV << "V2vClusterAlertApp::setClusterConfiguration - lteNic.d2dPeerAddresses: " << follower << " configured!" << endl;
         }
         else
             EV << "V2vClusterAlertApp::setClusterConfiguration - \tERROR configuring lteNic.d2dPeerAddresses!" << endl;
     }
+
+    EV << "V2vClusterBaseApp::setClusterConfiguration - Cluster: " << pkt->getClusterString() << endl;
+
+    EV << "V2vClusterBaseApp::setClusterConfiguration - Following: " << pkt->getClusterFollowing() << endl;
+    EV << "V2vClusterBaseApp::setClusterConfiguration - Follower: " << pkt->getClusterFollower() << endl;
 }
