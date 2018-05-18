@@ -25,7 +25,6 @@ MEClusterizeService::MEClusterizeService(){
     colors.push_back("orange");
     colors.push_back("black");
     colors.push_back("purple");
-    colors.push_back("cyan");
     colors.push_back("magenta");
     colors.push_back("violet");
 }
@@ -124,21 +123,12 @@ void MEClusterizeService::sendConfig(){
 
             for(int memberKey : cl_it->second.members){
 
-                ClusterizeConfigPacket* pkt = new ClusterizeConfigPacket(CONFIG_CLUSTERIZE);
-                pkt->setTimestamp(simTime());
-                pkt->setType(CONFIG_CLUSTERIZE);
-
-                pkt->setClusterID(cars[memberKey].clusterID);
-                pkt->setTxMode(cars[memberKey].txMode);
-                pkt->setClusterFollower(cars[memberKey].follower.c_str());
-                pkt->setClusterFollowing(cars[memberKey].following.c_str());
-                pkt->setClusterList(cl_it->second.membersList.c_str());
-                pkt->setClusterColor(cl_it->second.color.c_str());
+                ClusterizeConfigPacket* pkt = ClusterizePacketBuilder().buildClusterizeConfigPacket(0, 0, 0, 0, "", "", "", cars[memberKey].clusterID, cl_it->second.color.c_str(), cars[memberKey].txMode, cars[memberKey].following.c_str(), cars[memberKey].follower.c_str(),cl_it->second.membersList.c_str());
 
                 //testing
-                EV << "MEClusterizeService::sendConfig - sending ClusterizeConfigPacket to cluster member:"  << cars[memberKey].simbolicAddress << " (txMode: INFRASTRUCTURE_UNICAST_TX_MODE) " << endl;
-                EV << "MEClusterizeService::sendConfig - \t\t\t\tcars[" << memberKey << "].clusterID: " << cars[memberKey].clusterID << endl;
-                EV << "MEClusterizeService::sendConfig - \t\t\t\tclusters[" << cars[memberKey].clusterID << "].membersList: " << cl_it->second.membersList.c_str() << endl;
+                EV << "MEClusterizeService::sendConfig - sending ClusterizeConfig to CM: "  << cars[memberKey].simbolicAddress << " (txMode: INFRASTRUCTURE_UNICAST_TX_MODE) " << endl;
+                EV << "MEClusterizeService::sendConfig - \t\tcars[" << memberKey << "].clusterID: " << cars[memberKey].clusterID << endl;
+                EV << "MEClusterizeService::sendConfig - \t\tclusters[" << cars[memberKey].clusterID << "].membersList: " << cl_it->second.membersList.c_str() << endl;
 
                 //sending to the MEClusterizeApp (on the corresponded gate!)
                 send(pkt, "meClusterizeAppOut", memberKey);
@@ -152,22 +142,13 @@ void MEClusterizeService::sendConfig(){
 
             int leaderKey = cl_it->second.members.at(0);
 
-            ClusterizeConfigPacket* pkt = new ClusterizeConfigPacket(CONFIG_CLUSTERIZE);
-            pkt->setTimestamp(simTime());
-            pkt->setType(CONFIG_CLUSTERIZE);
-
-            pkt->setClusterID(cars[leaderKey].clusterID);
-            pkt->setTxMode(cars[leaderKey].txMode);
-            pkt->setClusterFollower(cars[leaderKey].follower.c_str());
-            pkt->setClusterFollowing(cars[leaderKey].following.c_str());
-            pkt->setClusterList(cl_it->second.membersList.c_str());
-            pkt->setClusterColor(cl_it->second.color.c_str());
+            ClusterizeConfigPacket* pkt = ClusterizePacketBuilder().buildClusterizeConfigPacket(0, 0, 0, 0, "", "", "", cars[leaderKey].clusterID, cl_it->second.color.c_str(), cars[leaderKey].txMode, cars[leaderKey].following.c_str(), cars[leaderKey].follower.c_str(),cl_it->second.membersList.c_str());
 
             //testing
             std::string txmode = (preconfiguredTxMode == V2V_UNICAST_TX_MODE)? "V2V_UNICAST_TX_MODE" : "V2V_MULTICAST_TX_MODE";
-            EV << "MEClusterizeService::sendConfig - sending ClusterizeConfigPacket to cluster leader: " << cars[leaderKey].simbolicAddress << " (txMode: "<< txmode << ") " << endl;
-            EV << "MEClusterizeService::sendConfig - \t\t\t\tcars[" << leaderKey << "].clusterID: " << cars[leaderKey].clusterID  << endl;
-            EV << "MEClusterizeService::sendConfig - \t\t\t\tclusters[" << cars[leaderKey].clusterID << "].membersList: " << cl_it->second.membersList.c_str() << endl;
+            EV << "MEClusterizeService::sendConfig - sending ClusterizeConfig to CL: " << cars[leaderKey].simbolicAddress << " (txMode: "<< txmode << ") " << endl;
+            EV << "MEClusterizeService::sendConfig - \t\tcars[" << leaderKey << "].clusterID: " << cars[leaderKey].clusterID  << endl;
+            EV << "MEClusterizeService::sendConfig - \t\tclusters[" << cars[leaderKey].clusterID << "].membersList: " << cl_it->second.membersList.c_str() << endl << endl;
 
             //sending to the MEClusterizeApp (on the corresponded gate!)
             send(pkt, "meClusterizeAppOut", leaderKey);
@@ -176,6 +157,17 @@ void MEClusterizeService::sendConfig(){
     else{
         //hybrid approach!
         //check for every car in the clusters the txMode choosen!
+    }
+
+    //
+    // triggering the MEClusterize App to emit statistics!
+    for(cl_it = clusters.begin(); cl_it != clusters.end(); cl_it++){
+
+        for(int memberKey : cl_it->second.members){
+
+            cMessage* trigger = new cMessage("triggerClusterizeConfigStatistics");
+            send(trigger, "meClusterizeAppOut", memberKey);
+        }
     }
 }
 
@@ -200,7 +192,6 @@ void MEClusterizeService::handleClusterizeInfo(ClusterizeInfoPacket* pkt){
     cars[key].isFollower = false;
 
     EV << "MEClusterizeService::handleClusterizeInfo - Updating cars[" << key <<"] --> " << cars[key].simbolicAddress << "( "<< cars[key].id << " ) " << pkt->getV2vAppName() << endl;
-
 
     //testing
     EV << "MEClusterizeService::handleClusterizeInfo - cars[" << key << "].position = " << "[" << cars[key].position.x << " ; "<< cars[key].position.y << " ; " << cars[key].position.z  << "]" << endl;

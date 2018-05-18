@@ -107,7 +107,7 @@ void MEShapedClusterizeService::computePlatoon(std::string shape){
 
     for(cit = clusters.begin(); cit != clusters.end(); cit++){
 
-            EV << "Cluster #" << cit->second.id << ": " << cit->second.membersList << "\n";
+            EV << "Cluster #" << cit->second.id << " (" << cit->second.color << ") : " << cit->second.membersList << "\n";
 
             EV << "cluster members keys: ";
             for(std::vector<int>::iterator i = cit->second.members.begin(); i != cit->second.members.end(); i++)
@@ -160,11 +160,13 @@ void MEShapedClusterizeService::computeRectangleAdiacences(std::map<int, std::ve
 
             inet::Coord P(it2->second.position);
 
-            //adding to the vector of adiacences of car it
-            if(isInRectangle(P, A, B, C, D))
-                adiacences[it->first].push_back(it2->first);
+                //adding to the vector of adiacences of car it
+                if(isInRectangle(P, A, B, C, D))
+                    adiacences[it->first].push_back(it2->first);
+
             }
         }
+
     }
 }
 
@@ -181,7 +183,7 @@ void MEShapedClusterizeService::selectFollowers(std::map<int, std::vector<int>> 
         for( it2; it2 != it->second.end(); it2++){
 
             if(!cars[*it2].isFollower){
-                // update follower if it2 car (v2vInfo[*it2] entry) has distance lesser than the follower one!
+                // update follower if it2 car has distance lesser than the follower one!
                 if(cars[it->first].position.distance(cars[*it2].position) <= cars[it->first].position.distance(cars[follower].position)){
                     follower = *it2;
                     found = true;
@@ -210,10 +212,12 @@ void MEShapedClusterizeService::updateClusters(){
 
             std::stringstream platoonList;
             int k = it->first;
+            int clusterID = (it->second).id;
 
             // update clusters
             while(k != -1){
-                clusters[(it->second).id].members.push_back(k);
+
+                clusters[clusterID].members.push_back(k);
                 cars[k].clusterID = (it->second).id;
                                                                                                     //TODO
                                                                                                     //  adding the txMode computation!
@@ -229,9 +233,9 @@ void MEShapedClusterizeService::updateClusters(){
                 platoonList << cars[k].simbolicAddress << " -> ";
                 k = cars[k].followerKey;
             }
-            clusters[(it->second).id].membersList = platoonList.str();
-            clusters[(it->second).id].id = (it->second).id;
-            clusters[(it->second).id].color = colors.at( ( it->first ) % colorSize);
+            clusters[clusterID].membersList = platoonList.str();
+            clusters[clusterID].id = clusterID;
+            clusters[clusterID].color = colors.at( clusterID % colorSize);
         }
     }
 }
@@ -290,10 +294,10 @@ void MEShapedClusterizeService::updateRniInfo(){
     std::map<int, car>::iterator it;
     for(it = cars.begin(); it != cars.end(); it++){
 
-        double txPower = rni->getUETxPower(it->second.simbolicAddress);
+        double txPower = rni->getUETxPower(it->second.simbolicAddress);     //check if != -1
         it->second.txPower = txPower;
 
-        Cqi cqi = rni->getUEcqi(it->second.simbolicAddress);
+        Cqi cqi = rni->getUEcqi(it->second.simbolicAddress);     //check if != -1
         it->second.cqi = cqi;
 
         //TESTING

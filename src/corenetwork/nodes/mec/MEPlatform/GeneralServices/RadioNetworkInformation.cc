@@ -77,14 +77,18 @@ void RadioNetworkInformation::handleMessage(cMessage *msg)
 
 double RadioNetworkInformation::getUETxPower(std::string car){
 
-    int carOmnetID = getSimulation()->getModuleByPath(car.c_str())->getId();
+    cModule* module = getSimulation()->getModuleByPath(car.c_str());
 
-    std::vector<UeInfo*>::const_iterator it = binder_->getUeList()->begin();
-    std::vector<UeInfo*>::const_iterator et = binder_->getUeList()->end();
+    if(module != NULL){
+        int carOmnetID = module->getId();
 
-    for (;it!=et;++it)
-        if((*it)->ue->getId() == carOmnetID)
-            return (*it)->phy->getTxPwr(D2D);
+        std::vector<UeInfo*>::const_iterator it = binder_->getUeList()->begin();
+        std::vector<UeInfo*>::const_iterator et = binder_->getUeList()->end();
+
+        for (;it!=et;++it)
+            if((*it)->ue->getId() == carOmnetID)
+                return (*it)->phy->getTxPwr(D2D);
+    }
 
     return -1;
 }
@@ -92,39 +96,44 @@ double RadioNetworkInformation::getUETxPower(std::string car){
 
 Cqi RadioNetworkInformation::getUEcqi(std::string car){
 
-    int carOmnetID = getSimulation()->getModuleByPath(car.c_str())->getId();
+    cModule* module = getSimulation()->getModuleByPath(car.c_str());
 
-    std::vector<UeInfo*>::const_iterator it = binder_->getUeList()->begin();
-    std::vector<UeInfo*>::const_iterator et = binder_->getUeList()->end();
+    if(module != NULL){
 
-    for (;it!=et;++it){
+        int carOmnetID = module->getId();
 
-        if((*it)->ue->getId() == carOmnetID){
+        std::vector<UeInfo*>::const_iterator it = binder_->getUeList()->begin();
+        std::vector<UeInfo*>::const_iterator et = binder_->getUeList()->end();
 
-            cModule* enb =  getSimulation()->getModule(getBinder()->getOmnetId((*it)->cellId));
+        for (;it!=et;++it){
 
-            if(enb != NULL){
+            if((*it)->ue->getId() == carOmnetID){
 
-                LteMacBase* mac = check_and_cast<LteMacBase*> (enb->getSubmodule("lteNic")->getSubmodule("mac"));
+                cModule* enb =  getSimulation()->getModule(getBinder()->getOmnetId((*it)->cellId));
 
-                if(mac->isD2DCapable()){
+                if(enb != NULL){
 
-                    LteMacEnbD2D* macD2D = check_and_cast<LteMacEnbD2D*> (mac);
+                    LteMacBase* mac = check_and_cast<LteMacBase*> (enb->getSubmodule("lteNic")->getSubmodule("mac"));
 
-                    std::vector<Cqi> cqiVector = macD2D->getAmc()->computeTxParams((*it)->id, D2D).readCqiVector();
+                    if(mac->isD2DCapable()){
 
-                    if(!cqiVector.empty()){
+                        LteMacEnbD2D* macD2D = check_and_cast<LteMacEnbD2D*> (mac);
 
-                        EV << "RadioNetworkInformation::getUEcqi - cqi: " << car << ": " << cqiVector.at(0) << endl;
+                        std::vector<Cqi> cqiVector = macD2D->getAmc()->computeTxParams((*it)->id, D2D).readCqiVector();
 
-                        return cqiVector.at(0);
-                    }
-                    else{
-                        //maybe it is not necessary (preconfigured parameters are automatically loaded!)
+                        if(!cqiVector.empty()){
 
-                        EV << "RadioNetworkInformation::getUEcqi - preconfigured cqi: " << car << ": " << macD2D->getPreconfiguredTxParams()->readCqiVector().at(0) << endl;
+                            EV << "RadioNetworkInformation::getUEcqi - cqi: " << car << ": " << cqiVector.at(0) << endl;
 
-                        return macD2D->getPreconfiguredTxParams()->readCqiVector().at(0);
+                            return cqiVector.at(0);
+                        }
+                        else{
+                            //maybe it is not necessary (preconfigured parameters are automatically loaded!)
+
+                            EV << "RadioNetworkInformation::getUEcqi - preconfigured cqi: " << car << ": " << macD2D->getPreconfiguredTxParams()->readCqiVector().at(0) << endl;
+
+                            return macD2D->getPreconfiguredTxParams()->readCqiVector().at(0);
+                        }
                     }
                 }
             }

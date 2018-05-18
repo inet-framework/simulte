@@ -47,7 +47,8 @@ packet ClusterizeConfigPacket extends ClusterizePacket{
     // cluster identification
     int clusterID;
     string clusterColor;
-    string clusterList;
+    string clusterString;
+    string clusterList[];
     
     //cluster communication strategy
     string clusterFollowing;
