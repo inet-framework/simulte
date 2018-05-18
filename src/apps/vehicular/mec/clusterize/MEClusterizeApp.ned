@@ -54,6 +54,11 @@ simple MEClusterizeApp like IMEApp
 		//#Receiver Side
         @signal[clusterizeInfoRcvdMsg]; 
         @statistic[clusterizeInfoRcvdMsg](title="ClusterizeInfo Messages Received"; unit="s"; source="clusterizeInfoRcvdMsg"; record=sum,vector);
+        
+        @signal[clusterizeInfoDelay]; 
+        @statistic[clusterizeInfoDelay](title="ClusterizeInfo Delay"; unit="s"; source="clusterizeInfoDelay"; record=mean,vector);
+        
+        
                       
     gates:
         

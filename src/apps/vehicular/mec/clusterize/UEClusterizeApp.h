@@ -29,6 +29,7 @@
 
 #include "apps/vehicular/mec/clusterize/packets/ClusterizePacket_m.h"
 #include "apps/vehicular/mec/clusterize/packets/ClusterizePacketTypes.h"
+#include "apps/vehicular/mec/clusterize/packets/ClusterizePacketBuilder.h"
 
 //to get the V2v Cluster App reference and to configure the cluster configuration --> calling setClusterConfiguration cross-module Call
 #include "../../v2v/V2vClusterBaseApp.h"
@@ -60,29 +61,42 @@ class UEClusterizeApp : public cSimpleModule
     int destPort_;
     inet::L3Address destAddress_;
 
+    inet::L3Address v2vFollowerAddress_;
+
     char* sourceSimbolicAddress;            //Car[x]
     char* destSimbolicAddress;              //meHost.virtualisationInfrastructure
+
+    char* v2vFollowerSimbolicAddress;
+
+    char* multicastGoupAddress;
+    inet::L3Address multicastAddress_;
+
 
     cMessage *selfStart_;
     cMessage *selfSender_;
     cMessage *selfStop_;
 
+    // v2v app who uses the cluster configuration received from MEClusterizeService
+    //
     cModule* v2vApp;                        //v2vApp module
-    const char* v2vAppName;                 //v2vApp Class Name
+    char* v2vAppName;                 //v2vApp Class Name
     V2vClusterBaseApp *v2vClusterApp;
 
+    // mobility information for MEClusterizeService computatations
+    //
+    cModule* lteNic;
     cModule* car;
     Veins::VeinsInetMobility *mobility;
-
     inet::Coord position;
     inet::Coord speed;
     inet::EulerAngles angularPosition;
     inet::EulerAngles angularSpeed;
     double maxSpeed;
 
+    //signals
     simsignal_t clusterizeInfoSentMsg_;
     simsignal_t clusterizeConfigRcvdMsg_;
-
+    simsignal_t clusterizeConfigDelay_;
     public:
 
         ~UEClusterizeApp();
@@ -116,8 +130,22 @@ class UEClusterizeApp : public cSimpleModule
         void handleClusterizeAckStop(ClusterizePacket*);
 
         // handling CONFIG_CLUSTERIZE ClusterizeConfigPacket
-        // by invoking on the v2vApp instance the public method to update its clustering configurations
+        // by calling handleClusterizeConfigFromMEHost or handleClusterizeConfigFromUE and emitting statistics
         void handleClusterizeConfig(ClusterizeConfigPacket *);
+
+        // handling CONFIG_CLUSTERIZE ClusterizeConfigPacket from ME Host:
+        // setting info on the V2V ClusterBase App
+        // eventually propagating in V2V UNICAST or V2V MULTICAST
+        void handleClusterizeConfigFromMEHost(ClusterizeConfigPacket *);
+
+        // handling CONFIG_CLUSTERIZE ClusterizeConfigPacket from UE (car):
+        // retrieving following and follower UE (car)
+        // setting info on the V2V ClusterBase App
+        // eventually propagating in V2V UNICAST
+        void handleClusterizeConfigFromUE(ClusterizeConfigPacket *);
+
+        std::string getFollower(ClusterizeConfigPacket *);
+        std::string getFollowing(ClusterizeConfigPacket *);
 };
 
 #endif

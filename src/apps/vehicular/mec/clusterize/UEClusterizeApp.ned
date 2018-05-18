@@ -33,13 +33,15 @@ simple UEClusterizeApp like IUDPApp
 {
         parameters:
         
-        string v2vAppPath;		//specify module path in the Car (parent module) of the v2vAppSender UDP App!  --> i.e. ".udpApp[1]"
+        string v2vAppPath = default("");		//specify module path in the Car (parent module) of the v2vAppSender UDP App!  --> i.e. ".udpApp[1]"
     
-        int localPort = default(5000);
-        
+        int localPort = default(4000);
         int destPort = default(4000);
         string destAddress;
         int packetSize = default(10);
+        
+        string multicastGoupAddress = default("224.0.0.10");
+        
         
         double period @unit("s") = default(0.02s);
         double startTime @unit("s") = default(0s); 
@@ -54,6 +56,9 @@ simple UEClusterizeApp like IUDPApp
 		//#Receiver Side          
         @signal[clusterizeConfigRcvdMsg]; 
         @statistic[clusterizeConfigRcvdMsg](title="ClusterizeConfig Messages Received"; unit="s"; source="clusterizeConfigRcvdMsg"; record=sum,vector);
+                        
+        @signal[clusterizeConfigDelay]; 
+        @statistic[clusterizeConfigDelay](title="ClusterizeConfig Delay"; unit="s"; source="clusterizeConfigDelay"; record=mean,vector);
               
         @display("i=block/source");    
             

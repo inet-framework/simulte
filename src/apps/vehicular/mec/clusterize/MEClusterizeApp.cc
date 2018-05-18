@@ -56,6 +56,13 @@ void MEClusterizeApp::initialize(int stage)
 
 void MEClusterizeApp::handleMessage(cMessage *msg)
 {
+    // handle trigger emit statistic (from MEClusterizeService)
+    if( strcmp(msg->getName(), "triggerClusterizeConfigStatistics") == 0){
+
+        emit(clusterizeConfigSentMsg_, (long)1);
+        delete msg;
+        return;
+    }
 
     ClusterizePacket* pkt = check_and_cast<ClusterizePacket*>(msg);
     if (pkt == 0)
@@ -103,6 +110,7 @@ void MEClusterizeApp::handleClusterizeConfig(ClusterizeConfigPacket* packet){
 
     //attaching info to the ClusterizeConfigPacket created by the MEClusterizeService
     packet->setSno(nextSnoConfig_);
+    packet->setTimestamp(simTime());
     packet->setByteLength(size_);
     packet->setV2vAppName(v2vAppName);
     packet->setSourceAddress(sourceSimbolicAddress);
@@ -112,8 +120,6 @@ void MEClusterizeApp::handleClusterizeConfig(ClusterizeConfigPacket* packet){
 
     send(packet, "virtualisationInfrastructureOut");
     nextSnoConfig_++;
-
-    emit(clusterizeConfigSentMsg_, (long)1);
 }
 
 void MEClusterizeApp::handleClusterizeInfo(ClusterizeInfoPacket *pkt){

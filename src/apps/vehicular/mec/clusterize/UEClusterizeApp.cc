@@ -14,6 +14,7 @@
 
 #include <cmath>
 #include "UEClusterizeApp.h"
+#include "inet/common/ModuleAccess.h"  // for multicast support
 
 Define_Module(UEClusterizeApp);
 
@@ -25,6 +26,8 @@ UEClusterizeApp::UEClusterizeApp()
     nextSnoStart_ = 0;
     nextSnoInfo_ = 0;
     nextSnoStop_ = 0;
+
+    v2vAppName = "";
 }
 
 UEClusterizeApp::~UEClusterizeApp()
@@ -58,9 +61,23 @@ void UEClusterizeApp::initialize(int stage)
     destAddress_ = inet::L3AddressResolver().resolve(destSimbolicAddress);
     EV << "UEClusterizeApp::initialize - destAddress: " << destSimbolicAddress << " [" << destAddress_.str()  <<"]"<< endl;
 
+    multicastGoupAddress = (char*) par("multicastGoupAddress").stringValue();
+    multicastAddress_ = inet::L3AddressResolver().resolve(multicastGoupAddress);
+    EV << "UEClusterizeApp::initialize - multicastGoupAddress: " << multicastGoupAddress << endl;
+
     socket.setOutputGate(gate("udpOut"));
     socket.bind(localPort_);
     EV << "UEClusterizeApp::initialize - binding to port: local:" << localPort_ << " , dest:" << destPort_ << endl;
+
+    // for multicast support
+    inet::IInterfaceTable *ift = inet::getModuleFromPar< inet::IInterfaceTable >(par("interfaceTableModule"), this);
+    inet::InterfaceEntry *ie = ift->getInterfaceByName("wlan");
+    if (!ie)
+        throw cRuntimeError("Wrong multicastInterface setting: no interface named wlan");
+    inet::MulticastGroupList mgl = ift->collectMulticastGroups();
+    socket.joinLocalMulticastGroups(mgl);
+    socket.setMulticastOutputInterface(ie->getInterfaceId());
+    // -------------------- //
 
     car = this->getParentModule();
     //getting mobility module
@@ -72,21 +89,30 @@ void UEClusterizeApp::initialize(int stage)
         else
             EV << "UEClusterizeApp::initialize - \tWARNING: Mobility module NOT FOUND!" << endl;
 
+    lteNic = car->getModuleByPath(".lteNic");
+        if(lteNic == NULL){
+            EV << "V2vClusterBaseApp::initialize - ERROR getting lteNic module!" << endl;
+            throw cRuntimeError("V2vClusterAlertApp::initialize - \tFATAL! Error when getting lteNIC!");
+        }
+
     selfSender_ = new cMessage("selfSender");
     selfStart_ = new cMessage("selfStart");
     selfStop_ = new cMessage("selfStop");
 
     v2vApp = getParentModule()->getModuleByPath(par("v2vAppPath"));
     if(v2vApp == NULL){
-        EV << "UEClusterizeApp::initialize - ERROR getting v2vApp module!" << endl;
-        throw cRuntimeError("UEClusterizeApp::initialize - \tFATAL! Error when getting v2vApp!");
+        EV << "UEClusterizeApp::initialize - ERROR getting v2vApp module!\nRunning without ..." << endl;
+        //throw cRuntimeError("UEClusterizeApp::initialize - \tFATAL! Error when getting v2vApp!");
     }
-    v2vClusterApp = check_and_cast<V2vClusterBaseApp*>(v2vApp);
-    v2vAppName = v2vClusterApp->getClassName();
+    else{
+        v2vClusterApp = check_and_cast<V2vClusterBaseApp*>(v2vApp);
+        v2vAppName = (char*) v2vClusterApp->getClassName();
+    }
 
     //statics signals
     clusterizeInfoSentMsg_ = registerSignal("clusterizeInfoSentMsg");
     clusterizeConfigRcvdMsg_ = registerSignal("clusterizeConfigRcvdMsg");
+    clusterizeConfigDelay_ = registerSignal("clusterizeConfigDelay");
 
     simtime_t startTime = par("startTime");
     EV << "\t starting sendClusterizeStartPacket() in " << startTime << " seconds " << endl;
@@ -97,6 +123,7 @@ void UEClusterizeApp::initialize(int stage)
     EV << "\t starting sendClusterizeStopPacket() in " << stopTime << " seconds " << endl;
     // starting sendClusterizeSopPacket() to terminate the ME App on the ME Host
     scheduleAt(simTime() + stopTime, selfStop_);
+
 }
 
 
@@ -163,17 +190,7 @@ void UEClusterizeApp::sendClusterizeStartPacket()
 {
     EV << "UEClusterizeApp::sendClusterizeStartPacket - Sending message SeqNo[" << nextSnoStart_ << "]\n";
 
-    ClusterizePacket* packet = new ClusterizePacket(START_CLUSTERIZE);
-    packet->setSno(nextSnoStart_);
-    packet->setTimestamp(simTime());
-    packet->setByteLength(size_);
-
-    packet->setType(START_CLUSTERIZE);
-
-    packet->setCarID(car->getId());
-    packet->setV2vAppName(v2vAppName);
-    packet->setSourceAddress(sourceSimbolicAddress);
-    packet->setDestinationAddress(destSimbolicAddress);
+    ClusterizePacket* packet = ClusterizePacketBuilder().buildClusterizePacket(START_CLUSTERIZE, nextSnoStart_, simTime(), size_, car->getId(), v2vAppName, sourceSimbolicAddress, destSimbolicAddress);
 
     socket.sendTo(packet, destAddress_, destPort_);
     nextSnoStart_++;
@@ -186,18 +203,6 @@ void UEClusterizeApp::sendClusterizeInfoPacket()
 {
     EV << "UEClusterizeApp::sendClusterizeInfoPacket - Sending message SeqNo[" << nextSnoInfo_ << "]\n";
 
-    ClusterizeInfoPacket* packet = new ClusterizeInfoPacket(INFO_CLUSTERIZE);
-    packet->setSno(nextSnoInfo_);
-    packet->setTimestamp(simTime());
-    packet->setByteLength(size_);
-
-    packet->setType(INFO_CLUSTERIZE);
-
-    packet->setCarID(car->getId());
-    packet->setV2vAppName(v2vAppName);
-    packet->setSourceAddress(sourceSimbolicAddress);
-    packet->setDestinationAddress(destSimbolicAddress);
-
     //position = m and speed = m/s..    --> setted in the simulation "*.rou.xml" config files for SUMO
     //w.r.t. top-left edge in the Network with Coord [0 ; 0]
     if(mobility != NULL){
@@ -208,18 +213,7 @@ void UEClusterizeApp::sendClusterizeInfoPacket()
         angularSpeed = mobility->getCurrentAngularSpeed();
     }
 
-    packet->setPositionX(position.x);
-    packet->setPositionY(position.y);
-    packet->setPositionZ(position.z);
-    packet->setSpeedX(speed.x);
-    packet->setSpeedY(speed.y);
-    packet->setSpeedZ(speed.z);
-    packet->setAngularPositionA(angularPosition.alpha);
-    packet->setAngularPositionB(angularPosition.beta);
-    packet->setAngularPositionC(angularPosition.gamma);
-    packet->setAngularSpeedA(angularSpeed.alpha);
-    packet->setAngularSpeedB(angularSpeed.beta);
-    packet->setAngularSpeedC(angularSpeed.gamma);
+    ClusterizeInfoPacket* packet = ClusterizePacketBuilder().buildClusterizeInfoPacket(nextSnoInfo_, simTime(), size_, car->getId(), v2vAppName, sourceSimbolicAddress, destSimbolicAddress, position, speed, angularPosition, angularSpeed);
 
     //testing
     EV << "UEClusterizeApp::sendClusterizeInfoPacket - Info: carID " << car->getId() << " sourceAddr " << sourceSimbolicAddress << " destAddr " << destSimbolicAddress << "]" << endl ;
@@ -241,17 +235,7 @@ void UEClusterizeApp::sendClusterizeStopPacket()
 {
     EV << "UEClusterizeApp::sendClusterizeStopPacket - Sending message SeqNo[" << nextSnoStop_ << "]\n";
 
-    ClusterizePacket* packet = new ClusterizePacket(STOP_CLUSTERIZE);
-    packet->setSno(nextSnoStop_);
-    packet->setTimestamp(simTime());
-    packet->setByteLength(size_);
-
-    packet->setType(STOP_CLUSTERIZE);
-
-    packet->setCarID(car->getId());
-    packet->setV2vAppName(v2vAppName);
-    packet->setSourceAddress(sourceSimbolicAddress);
-    packet->setDestinationAddress(destSimbolicAddress);
+    ClusterizePacket* packet = ClusterizePacketBuilder().buildClusterizePacket(STOP_CLUSTERIZE, nextSnoStart_, simTime(), size_, car->getId(), v2vAppName, sourceSimbolicAddress, destSimbolicAddress);
 
     socket.sendTo(packet, destAddress_, destPort_);
     nextSnoStop_++;
@@ -318,16 +302,157 @@ void UEClusterizeApp::handleClusterizeConfig(ClusterizeConfigPacket* pkt){
 
     EV << "UEClusterizeApp::handleClusterizeConfig - Packet received: "<< pkt->getSourceAddress() <<" SeqNo[" << pkt->getSno() << "]" << endl;
 
-    //configure the Cluster parameters for V2vAlertSender IUDPApp
-    if(v2vApp != NULL){
+    // if message received from MEHost
+    if( strcmp(pkt->getSourceAddress(), destSimbolicAddress) == 0 ){
 
-        EV << "UEClusterizeApp::handleClusterizeConfig - Configuring " << v2vAppName << endl;
-        v2vClusterApp->setClusterConfiguration(pkt);
-
-        //updating runtime color of the car icon background
-        car->getDisplayString().setTagArg("i",1, pkt->getClusterColor());
+        handleClusterizeConfigFromMEHost(pkt);
+    }
+    else{
+        // message propagated by another car
+        handleClusterizeConfigFromUE(pkt);
     }
 
     // emit statistics
     emit(clusterizeConfigRcvdMsg_, (long)1);
+    emit(clusterizeConfigDelay_, simTime()-pkt->getTimestamp());
+
+    EV << "UEClusterizeApp::handleClusterizeConfig - \tClusterizeConfig Delay: " << (simTime()-pkt->getTimestamp()) << endl;
+}
+
+
+void UEClusterizeApp::handleClusterizeConfigFromMEHost(ClusterizeConfigPacket *pkt){
+
+    //configure the Cluster parameters for V2vClusterBaseApp
+    if(v2vApp != NULL){
+
+        EV << "UEClusterizeApp::handleClusterizeConfigFromMEHost - Configuring " << v2vAppName << endl;
+        v2vClusterApp->setClusterConfiguration(pkt);
+    }
+    //updating runtime color of the car icon background
+    car->getDisplayString().setTagArg("i",1, pkt->getClusterColor());
+
+    // propagating in D2D UNICAST to the Follower
+    if(pkt->getTxMode() == V2V_UNICAST_TX_MODE){
+
+        if(strcmp(pkt->getClusterFollower(), "") != 0)
+        {
+            v2vFollowerSimbolicAddress = (char*) pkt->getClusterFollower();
+            v2vFollowerAddress_ = inet::L3AddressResolver().resolve(v2vFollowerSimbolicAddress);
+
+            //configuring the D2D LTE NIC
+            if(lteNic->hasPar("d2dPeerAddresses"))
+            {
+                lteNic->par("d2dPeerAddresses") = v2vFollowerSimbolicAddress;
+                EV << "UEClusterizeApp::handleClusterizeConfigFromMEHost - lteNic.d2dPeerAddresses: " << v2vFollowerSimbolicAddress << " configured!" << endl;
+
+                ClusterizeConfigPacket* packet = new ClusterizeConfigPacket(*pkt);
+                packet->setSourceAddress(sourceSimbolicAddress);
+
+                //propagate configuration to the follower
+                socket.sendTo(packet, v2vFollowerAddress_ , destPort_);
+                EV << "UEClusterizeApp::handleClusterizeConfigFromMEHost - propagating ClusterizeConfig to: " << v2vFollowerSimbolicAddress << endl;
+            }
+            else
+                EV << "UEClusterizeApp::handleClusterizeConfigFromMEHost - \tERROR configuring lteNic.d2dPeerAddresses!" << endl;
+        }
+    }
+    // propagating in D2D MULTICAST
+    else if(pkt->getTxMode() == V2V_MULTICAST_TX_MODE && pkt->getClusterListArraySize() > 1)
+    {
+        ClusterizeConfigPacket* packet = new ClusterizeConfigPacket(*pkt);
+        packet->setSourceAddress(sourceSimbolicAddress);
+
+        //propagate on the multicast address
+        socket.sendTo(packet, multicastAddress_, destPort_);
+        EV << "UEClusterizeApp::handleClusterizeConfigFromMEHost - propagating ClusterizeConfig to multicast: " << multicastGoupAddress << endl;
+    }
+
+}
+
+
+void UEClusterizeApp::handleClusterizeConfigFromUE(ClusterizeConfigPacket *pkt){
+
+    // Update Follower and Following ( retrieve from the Cluster Member Ordered List)
+    std::string follower = getFollower(pkt);
+    std::string following = getFollowing(pkt);
+
+    if(following.compare("") == 0 && follower.compare("") == 0 )
+    {
+        EV << "UEClusterizeApp::handleClusterizeConfigFromUE - received ClusterizeConfig for another Cluster ... discarding!" << endl;
+    }
+    else
+    {
+        pkt->setClusterFollower(follower.c_str());
+        pkt->setClusterFollowing(following.c_str());
+
+        //configure the Cluster parameters for V2vClusterBaseApp (with the updated follower and following)
+        if(v2vApp != NULL){
+
+            EV << "UEClusterizeApp::handleClusterizeConfigFromUE - Configuring " << v2vAppName << endl;
+            v2vClusterApp->setClusterConfiguration(pkt);
+        }
+
+        //updating runtime color of the car icon background
+        car->getDisplayString().setTagArg("i",1, pkt->getClusterColor());
+
+        // propagating in D2D UNICAST to the Follower
+        if(pkt->getTxMode() == V2V_UNICAST_TX_MODE){
+
+            if(strcmp(pkt->getClusterFollower(), "") != 0)
+            {
+                v2vFollowerSimbolicAddress = (char*) pkt->getClusterFollower();
+                v2vFollowerAddress_ = inet::L3AddressResolver().resolve(v2vFollowerSimbolicAddress);
+
+                //configuring the D2D LTE NIC
+                if(lteNic->hasPar("d2dPeerAddresses"))
+                {
+                    lteNic->par("d2dPeerAddresses") = v2vFollowerSimbolicAddress;
+                    EV << "UEClusterizeApp::handleClusterizeConfigFromUE - lteNic.d2dPeerAddresses: " << v2vFollowerSimbolicAddress << " configured!" << endl;
+
+                    ClusterizeConfigPacket* packet = new ClusterizeConfigPacket(*pkt);
+                    packet->setSourceAddress(sourceSimbolicAddress);
+
+                    //propagate configuration to the follower
+                    socket.sendTo(packet, v2vFollowerAddress_ , destPort_);
+                    EV << "UEClusterizeApp::handleClusterizeConfigFromUE - propagating ClusterizeConfig to: " << v2vFollowerSimbolicAddress << endl;
+                }
+                else
+                    EV << "UEClusterizeApp::handleClusterizeConfigFromUE - \tERROR configuring lteNic.d2dPeerAddresses!" << endl;
+            }
+        }
+    }
+}
+
+/*
+ * -------------------------------------------------------------------------------------------------------------------------------
+ * UTILITIES
+ */
+std::string UEClusterizeApp::getFollower(ClusterizeConfigPacket* pkt){
+
+    int i=0;
+    for(; i < pkt->getClusterListArraySize(); i++){
+       if(strcmp(pkt->getClusterList(i), sourceSimbolicAddress) == 0){
+           break;
+       }
+    }
+
+    if(i+1 < pkt->getClusterListArraySize() && strcmp(pkt->getClusterList(i+1), "") != 0)
+       return pkt->getClusterList(i+1);
+
+    return "";
+}
+
+std::string UEClusterizeApp::getFollowing(ClusterizeConfigPacket* pkt){
+
+    int i=0;
+    for(; i < pkt->getClusterListArraySize(); i++){
+       if(strcmp(pkt->getClusterList(i), sourceSimbolicAddress) == 0){
+           break;
+       }
+    }
+
+    if(i-1 >= 0)
+       return pkt->getClusterList(i-1);
+
+    return "";
 }
