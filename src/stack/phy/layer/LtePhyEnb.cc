@@ -59,7 +59,7 @@ void LtePhyEnb::initialize(int stage)
     }
     else if (stage == 1)
     {
-        initializeFeedbackComputation(par("feedbackComputation").xmlValue());
+        initializeFeedbackComputation();
 
         //check eNb type and set TX power
         if (cellInfo_->getEnbType() == MICRO_ENB)
@@ -422,48 +422,57 @@ LteFeedbackComputation* LtePhyEnb::getFeedbackComputationFromName(
         return 0;
 }
 
-void LtePhyEnb::initializeFeedbackComputation(cXMLElement* xmlConfig)
+void LtePhyEnb::initializeFeedbackComputation()
 {
     lteFeedbackComputation_ = 0;
 
-    if (xmlConfig == 0)
-    {
-        error("No feedback computation configuration file specified.");
-        return;
-    }
+//    if (xmlConfig == 0)
+//    {
+//        error("No feedback computation configuration file specified.");
+//        return;
+//    }
+//
+//    cXMLElementList fbComputationList = xmlConfig->getElementsByTagName(
+//        "FeedbackComputation");
+//
+//    if (fbComputationList.empty())
+//    {
+//        error(
+//            "No feedback computation configuration found in configuration file.");
+//        return;
+//    }
+//
+//    if (fbComputationList.size() > 1)
+//    {
+//        error(
+//            "More than one feedback computation configuration found in configuration file.");
+//        return;
+//    }
+//
+//    cXMLElement* fbComputationData = fbComputationList.front();
 
-    cXMLElementList fbComputationList = xmlConfig->getElementsByTagName(
-        "FeedbackComputation");
+    const char* name = "REAL";
 
-    if (fbComputationList.empty())
-    {
-        error(
-            "No feedback computation configuration found in configuration file.");
-        return;
-    }
+//    if (name == 0)
+//    {
+//        error(
+//            "Could not read type of feedback computation from configuration file.");
+//        return;
+//    }
 
-    if (fbComputationList.size() > 1)
-    {
-        error(
-            "More than one feedback computation configuration found in configuration file.");
-        return;
-    }
+//    ParameterMap params;
+//    getParametersFromXML(fbComputationData, params);
 
-    cXMLElement* fbComputationData = fbComputationList.front();
+//    lteFeedbackComputation_ = getFeedbackComputationFromName(name, params);
 
-    const char* name = fbComputationData->getAttribute("type");
+    double targetBler = par("targetBler");
+    double lambdaMinTh = par("lambdaMinTh");
+    double lambdaMaxTh = par("lambdaMaxTh");
+    double lambdaRatioTh = par("lambdaRatioTh");
 
-    if (name == 0)
-    {
-        error(
-            "Could not read type of feedback computation from configuration file.");
-        return;
-    }
-
-    ParameterMap params;
-    getParametersFromXML(fbComputationData, params);
-
-    lteFeedbackComputation_ = getFeedbackComputationFromName(name, params);
+    lteFeedbackComputation_ = new LteFeedbackComputationRealistic(
+        targetBler, cellInfo_->getLambda(), lambdaMinTh, lambdaMaxTh,
+        lambdaRatioTh, cellInfo_->getNumBands());
 
     EV << "Feedback Computation \"" << name << "\" loaded." << endl;
 }

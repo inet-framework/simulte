@@ -81,16 +81,9 @@ class LteDlFeedbackGenerator : public cSimpleModule
      */
     void sendFeedback(LteFeedbackDoubleVector fb, FbPeriodicity per);
 
-    /**
-     * Utility function used to create the feedback
-     * for current txMode and current remote set.
-     * Results are written in periodic or aperiodic FeedbackMaps.
-     */
-    void createFeedback(FbPeriodicity per);
 
     LteFeedbackComputation* getFeedbackComputationFromName(std::string name, ParameterMap& params);
 
-    void initializeFeedbackComputation(cXMLElement* xmlConfig);
 
   protected:
 

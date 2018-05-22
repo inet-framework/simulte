@@ -16,7 +16,6 @@ package lte.stack.phy;
 moduleinterface LtePhy {
     parameters:
         @display("i=block/wrxtx");
-        xml channelModel;
         
     gates:
         input upperGateIn;
@@ -30,7 +29,6 @@ moduleinterface LtePhy {
 simple LtePhyBase like LtePhy {
     parameters:
         @display("i=block/wrxtx");
-        xml channelModel;
         double ueTxPower =default(26);
         double eNodeBTxPower =default(46);
         double relayTxPower =default(20);
@@ -91,7 +89,11 @@ simple LtePhyUeD2D extends LtePhyUe {
 //
 simple LtePhyEnb extends LtePhyBase {
     @class("LtePhyEnb");
-    xml feedbackComputation;
+    
+    double targetBler = default(0.001);
+    double lambdaMinTh = default(0.02);
+    double lambdaMaxTh = default(0.2);
+    double lambdaRatioTh = default(20);
 }
 
 // 

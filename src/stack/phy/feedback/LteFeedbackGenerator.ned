@@ -41,7 +41,7 @@ simple LteDlFeedbackGenerator {
         
         //Feedback Computation (warning, this should be compatible with
         // analogue model and Decider
-        xml feedbackComputation;
+//        xml feedbackComputation;
         
         //Type of generator: ideal, real, das_aware
         //ideal: feedback generator reports feedback for each txmode and for each rus

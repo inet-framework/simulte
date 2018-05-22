@@ -48,7 +48,7 @@ class LtePhyEnb : public LtePhyBase
     DasFilter* getDasFilter();
     // Feedback computation for PisaPhy
     LteFeedbackComputation* getFeedbackComputationFromName(std::string name, ParameterMap& params);
-    void initializeFeedbackComputation(cXMLElement* xmlConfig);
+    void initializeFeedbackComputation();
 
   public:
     LtePhyEnb();

@@ -16,77 +16,7 @@ Define_Module(LteDlFeedbackGenerator);
  *    PRIVATE FUNCTIONS
  *****************************/
 
-void LteDlFeedbackGenerator::createFeedback(FbPeriodicity per)
-{
-    EV << NOW << " LteDlFeedbackGenerator::createFeedback " << periodicityToA(per) << endl;
 
-    LteFeedbackDoubleVector *fb;
-
-    if (per == PERIODIC)
-    {
-        fb = &periodicFeedback;
-    }
-    else if (per == APERIODIC)
-    {
-        fb = &aperiodicFeedback;
-    }
-    else
-    {
-        error("UNKNOWN PERIODICITY");
-    }
-    if (feedbackComputationPisa_)
-    return;
-    // Clear feedback map before feedback computation.
-    fb->clear();
-    //Feedback computation
-    //get number of RU
-    int nRus = cellInfo_->getNumRus();
-    std::vector<double> dummy;
-    EV << NOW << " LteDlFeedbackGenerator::createFeedback " << fbGeneratorTypeToA(generatorType_)
-       << " Feedback " << endl;
-
-    if (generatorType_ == IDEAL)
-    {
-        *fb = lteFeedbackComputation_->computeFeedback(fbType_,
-            rbAllocationType_, currentTxMode_, antennaCws_,
-            numPreferredBands_, generatorType_, nRus, dummy);
-    }
-    else if (generatorType_ == REAL)
-    {
-        EV << NOW << " Remote Units: " << nRus << endl;
-        //for each RU is called the computation feedback function
-        RemoteSet::iterator it;
-        fb->resize(dasFilter_->getReportingSet().size());
-        for (it = dasFilter_->getReportingSet().begin();
-            it != dasFilter_->getReportingSet().end(); ++it)
-        {
-            (*fb)[(*it)].resize((int) currentTxMode_);
-            (*fb)[(*it)][(int) currentTxMode_] =
-            lteFeedbackComputation_->computeFeedback(*it,
-                currentTxMode_, fbType_, rbAllocationType_,
-                antennaCws_[*it], numPreferredBands_,
-                generatorType_, nRus, dummy);
-        }
-    }
-    // the reports are computed only for the antenna in the reporting set
-    else if (generatorType_ == DAS_AWARE)
-    {
-        EV << NOW << " Remote Units: " << nRus << endl;
-        RemoteSet::iterator it;
-        fb->resize(dasFilter_->getReportingSet().size());
-        for (it = dasFilter_->getReportingSet().begin();
-            it != dasFilter_->getReportingSet().end(); ++it)
-        {
-            (*fb)[(*it)] = lteFeedbackComputation_->computeFeedback(*it,
-                fbType_, rbAllocationType_, currentTxMode_,
-                antennaCws_[*it], numPreferredBands_, generatorType_, nRus,
-                dummy);
-        }
-    }
-    EV << "LteDlFeedbackGenerator::createFeedback Feedback Generated for nodeId: " << nodeId_
-       << " with generator type " << fbGeneratorTypeToA(generatorType_)
-       << " Fb size: " << fb->size() << endl;
-}
 
     /******************************
      *    PROTECTED FUNCTIONS
@@ -154,7 +84,12 @@ void LteDlFeedbackGenerator::initialize(int stage)
         dasFilter_ = tmp->getDasFilter();
         EV << "DLFeedbackGenerator Stage " << stage << " nodeid: " << nodeId_
            << " phyUe used" << endl;
-        initializeFeedbackComputation(par("feedbackComputation").xmlValue());
+//        initializeFeedbackComputation(par("feedbackComputation").xmlValue());
+
+
+        // TODO: remove this parameter
+        feedbackComputationPisa_ = true;
+
         EV << "DLFeedbackGenerator Stage " << stage << " nodeid: " << nodeId_
            << " feedback computation initialize" << endl;
         WATCH(numBands_);
@@ -225,14 +160,11 @@ void LteDlFeedbackGenerator::sensing(FbPeriodicity per)
         tPeriodicTx_->stop();
     }
 
-    // Create feedback
-    createFeedback(per);
-
     // Schedule feedback transmission
     if (per == PERIODIC)
-    tPeriodicTx_->start(fbDelay_);
+        tPeriodicTx_->start(fbDelay_);
     else if (per == APERIODIC)
-    tAperiodicTx_->start(fbDelay_);
+        tAperiodicTx_->start(fbDelay_);
 }
 
         /***************************
@@ -305,39 +237,6 @@ LteFeedbackComputation* LteDlFeedbackGenerator::getFeedbackComputationFromName(
         return 0;
 }
 
-void LteDlFeedbackGenerator::initializeFeedbackComputation(
-    cXMLElement* xmlConfig)
-{
-    lteFeedbackComputation_ = 0;
-
-    if (xmlConfig == 0)
-        throw cRuntimeError("No feedback computation configuration file specified.");
-
-    cXMLElementList fbComputationList = xmlConfig->getElementsByTagName("FeedbackComputation");
-
-    if (fbComputationList.empty())
-        throw cRuntimeError("No feedback computation configuration found in configuration file.");
-
-    if (fbComputationList.size() > 1)
-        throw cRuntimeError("More than one feedback computation configuration found in configuration file.");
-
-    cXMLElement* fbComputationData = fbComputationList.front();
-
-    const char* name = fbComputationData->getAttribute("type");
-
-    if (name == 0)
-        throw cRuntimeError("Could not read type of feedback computation from configuration file.");
-
-    ParameterMap params;
-    getParametersFromXML(fbComputationData, params);
-
-    lteFeedbackComputation_ = getFeedbackComputationFromName(name, params);
-
-    if (lteFeedbackComputation_ == 0 && !feedbackComputationPisa_)
-        throw cRuntimeError("Could not find a feedback computation with the name \"%s\".", name);
-
-    EV << "Feedback Computation \"" << name << "\" loaded." << endl;
-}
 
 void LteDlFeedbackGenerator::handleHandover(MacCellId newEnbId)
 {
