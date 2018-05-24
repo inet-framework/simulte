@@ -979,3 +979,7 @@ unsigned int LteMacEnb::getPrevBandStatus(Band b)
     return i;
 }
 
+ConflictGraph* LteMacEnb::getConflictGraph()
+{
+    return NULL;
+}

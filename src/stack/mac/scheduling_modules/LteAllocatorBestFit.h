@@ -13,6 +13,7 @@
 #include "stack/mac/scheduler/LteScheduler.h"
 #include "stack/mac/allocator/LteAllocatorUtils.h"
 #include "stack/mac/allocator/LteAllocationModule.h"
+#include "stack/mac/conflict_graph/ConflictGraph.h"
 
 struct Candidate {
     Band index;
@@ -27,6 +28,8 @@ class LteAllocatorBestFit : public virtual LteScheduler
 
     typedef SortedDesc<MacCid, unsigned int> ScoreDesc;
     typedef std::priority_queue<ScoreDesc> ScoreList;
+
+    ConflictGraph* conflictGraph_;
 
     /**
      * e.g. allocatedRbsBand_ [ <plane> ] [ <antenna> ] [ <band> ] give the the amount of blocks allocated for each UE
@@ -51,10 +54,6 @@ class LteAllocatorBestFit : public virtual LteScheduler
     std::map<Band,AllocationType_Set> bandStatusMap_;
 
     /**
-     * Parameter that specify if the Allocator puts D2D and Infrastructure UEs on dedicated resources
-     */
-    bool dedicated_;
-    /**
      * Enumerator specified for the return of mutualExclusiveAllocation() function.
      * @see mutualExclusiveAllocation()
      */
@@ -62,6 +61,8 @@ class LteAllocatorBestFit : public virtual LteScheduler
     // returns the next "hole" in the subframe where the UEs can be eventually allocated
     void checkHole(Candidate& candidate, Band holeIndex, unsigned int holeLen, unsigned int req);
 
+    // returns true if the two nodes cannot transmit on the same block
+    bool checkConflict(const CGMatrix* cgMatrix, MacNodeId nodeIdA, MacNodeId nodeIdB);
 
   public:
 

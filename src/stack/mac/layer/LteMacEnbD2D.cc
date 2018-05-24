@@ -14,6 +14,7 @@
 #include "stack/mac/amc/AmcPilotD2D.h"
 #include "stack/mac/scheduler/LteSchedulerEnbUl.h"
 #include "stack/mac/packet/LteSchedulingGrant.h"
+#include "stack/mac/conflict_graph/DistanceBasedConflictGraph.h"
 
 Define_Module(LteMacEnbD2D);
 
@@ -49,14 +50,25 @@ void LteMacEnbD2D::initialize(int stage)
     }
     else if (stage == INITSTAGE_LAST)  // be sure that all UEs have been initialized
     {
-        buildConflictGraph_ = par("buildConflictGraph").boolValue();
-        if (buildConflictGraph_)
+        reuseD2D_ = par("reuseD2D");
+        reuseD2DMulti_ = par("reuseD2DMulti");
+
+        if (reuseD2D_ || reuseD2DMulti_)
         {
             conflictGraphUpdatePeriod_ = par("conflictGraphUpdatePeriod");
             conflictGraphThreshold_ = par("conflictGraphThreshold");
 
-            meshMaster_ = new MeshMaster(this, conflictGraphThreshold_);
-            meshMaster_->initStructure();
+            CGType cgType = CG_DISTANCE;  // TODO make this parametric
+            switch(cgType)
+            {
+                case CG_DISTANCE:
+                {
+                    conflictGraph_ = new DistanceBasedConflictGraph(this, reuseD2D_, reuseD2DMulti_, conflictGraphThreshold_);
+                    break;
+                }
+                default: { throw cRuntimeError("LteMacEnbD2D::initialize - CG type unknown. Aborting"); }
+            }
+
             scheduleAt(NOW + 0.05, new cMessage("updateConflictGraph"));
         }
     }
@@ -106,10 +118,10 @@ void LteMacEnbD2D::handleMessage(cMessage* msg)
     else if (msg->isSelfMessage() && msg->isName("updateConflictGraph"))
     {
         // compute conflict graph for resource allocation
+        conflictGraph_->computeConflictGraph();
 
-        meshMaster_->computeStruct();
-//        // for debug purposes
-//        meshMaster_->printConflictMap();
+//        // debug
+//        conflictGraph_->printConflictGraph();
 
         scheduleAt(NOW + conflictGraphUpdatePeriod_, msg);
     }
@@ -540,4 +552,3 @@ void LteMacEnbD2D::fromPhy(cPacket *pkt)
         LteMacBase::fromPhy(pkt);
     }
 }
-

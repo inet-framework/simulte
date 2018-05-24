@@ -22,10 +22,6 @@ class LteAllocationModuleFrequencyReuse : public LteAllocationModule
     virtual void storeAllocation( std::vector<std::vector<AllocatedRbsPerBandMapA> > allocatedRbsPerBand,std::set<Band>* untouchableBands = NULL);
     // Get the bands already allocated by RAC and RTX ( Debug purpose)
     virtual std::set<Band> getAllocatorOccupiedBands();
-    // Check if the allocation respects the allocation constraints
-    virtual void checkAllocation(std::set<Band>* untouchableBands);
-
-
 };
 
 #endif

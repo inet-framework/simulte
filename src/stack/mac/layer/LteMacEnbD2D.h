@@ -14,10 +14,11 @@
 #include "stack/mac/buffer/LteMacBuffer.h"
 #include "stack/mac/buffer/harq_d2d/LteHarqBufferMirrorD2D.h"
 #include "stack/d2dModeSelection/D2DModeSwitchNotification_m.h"
-
+#include "stack/mac/conflict_graph/ConflictGraph.h"
 
 typedef std::pair<MacNodeId, MacNodeId> D2DPair;
 typedef std::map<D2DPair, LteHarqBufferMirrorD2D*> HarqBuffersMirrorD2D;
+class ConflictGraph;
 
 class LteMacEnbD2D : public LteMacEnb
 {
@@ -33,8 +34,13 @@ class LteMacEnbD2D : public LteMacEnb
     bool usePreconfiguredTxParams_;
     UserTxParams* preconfiguredTxParams_;
 
+    // Conflict Graph builder
+    ConflictGraph* conflictGraph_;
+
     // parameters for conflict graph (needed when frequency reuse is enabled)
-    bool buildConflictGraph_;
+    bool reuseD2D_;
+    bool reuseD2DMulti_;
+
     simtime_t conflictGraphUpdatePeriod_;
     double conflictGraphThreshold_;
 
@@ -94,6 +100,21 @@ class LteMacEnbD2D : public LteMacEnb
     virtual bool isD2DCapable()
     {
         return true;
+    }
+
+    virtual bool isReuseD2DEnabled()
+    {
+        return reuseD2D_;
+    }
+
+    virtual bool isReuseD2DMultiEnabled()
+    {
+        return reuseD2DMulti_;
+    }
+
+    virtual ConflictGraph* getConflictGraph()
+    {
+        return conflictGraph_;
     }
 
     /**

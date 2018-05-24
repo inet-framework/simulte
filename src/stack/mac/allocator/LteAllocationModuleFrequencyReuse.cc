@@ -9,7 +9,6 @@
 
 #include "stack/mac/allocator/LteAllocationModuleFrequencyReuse.h"
 #include "stack/mac/layer/LteMacEnb.h"
-#include "stack/mac/conflict_graph_utilities/meshMaster.h"
 
 LteAllocationModuleFrequencyReuse::LteAllocationModuleFrequencyReuse(LteMacEnb* mac,Direction direction)
         : LteAllocationModule(mac,direction)
@@ -95,51 +94,3 @@ std::set<Band>  LteAllocationModuleFrequencyReuse::getAllocatorOccupiedBands()
     }
     return vectorBand;
 }
-
-/**
- * Check if the allocation respects the allocation constraints
- */
-void LteAllocationModuleFrequencyReuse::checkAllocation(std::set<Band>* untouchableBands)
-{
-    Plane plane = MAIN_PLANE;
-    const Remote antenna = MACRO;
-    const std::map<MacNodeId,std::set<MacNodeId> >* conflictMap = mac_->getMeshMaster()->getConflictMap();
-    // Create an empty vector
-    if(untouchableBands==NULL)
-    {
-        std::set<Band> tempBand;
-        untouchableBands = &tempBand;
-        untouchableBands->clear();
-    }
-    // Fer every bands in the system
-    for(unsigned int band=0;band<bands_;band++)
-    {
-        // Skip allocation if the band is untouchable (this means that the informations are already allocated)
-        if( untouchableBands->find(band) == untouchableBands->end() )
-        {
-            // Copy the ueAllocatedRbsMap
-            UeAllocatedBlocksMapA::iterator ref_it_ext = allocatedRbsPerBand_[plane][antenna][band].ueAllocatedRbsMap_.begin();
-            UeAllocatedBlocksMapA::iterator et_ext = allocatedRbsPerBand_[plane][antenna][band].ueAllocatedRbsMap_.end();
-            while(ref_it_ext!=et_ext)
-            {
-                // Set the iterator
-                UeAllocatedBlocksMapA::iterator it_ext = allocatedRbsPerBand_[plane][antenna][band].ueAllocatedRbsMap_.begin();
-
-                // If the node is present in the conflict map we have to check if there was an error in the allocation
-                if(conflictMap->find(ref_it_ext->first)!=conflictMap->end())
-                {
-                    // For every nodeId in the band map
-                    while(it_ext!=et_ext)
-                    {
-                        if(conflictMap->at(ref_it_ext->first).find(it_ext->first)!=conflictMap->at(ref_it_ext->first).end())
-                            throw cRuntimeError("checkAllocation(): error two conflicting nodes (%d and %d) are sharing the same band: %d",ref_it_ext->first,it_ext->first,band);
-                        ++it_ext;
-                    }
-
-                }
-                ++ref_it_ext;
-            }
-        }
-    }
-}
-

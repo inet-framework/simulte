@@ -230,6 +230,11 @@ Cqi LteBinder::meanCqi(std::vector<Cqi> bandCqi,MacNodeId id,Direction dir)
     return mean;
 }
 
+std::map<MacNodeId, std::map<MacNodeId, bool> >* LteBinder::getD2DCapabilityMap()
+{
+    return &d2dPeeringCapability_;
+}
+
 void LteBinder::addD2DCapability(MacNodeId src, MacNodeId dst)
 {
     if (src < UE_MIN_ID || src >= macNodeIdCounter_[2] || dst < UE_MIN_ID || dst >= macNodeIdCounter_[2])
@@ -315,6 +320,17 @@ bool LteBinder::isInMulticastGroup(MacNodeId nodeId, int32 groupId)
 
     return true;
 }
+
+void LteBinder::addD2DMulticastTransmitter(MacNodeId nodeId)
+{
+    multicastTransmitterSet_.insert(nodeId);
+}
+
+std::set<MacNodeId>& LteBinder::getD2DMulticastTransmitters()
+{
+    return multicastTransmitterSet_;
+}
+
 
 void LteBinder::updateUeInfoCellId(MacNodeId id, MacCellId newCellId)
 {

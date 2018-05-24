@@ -14,12 +14,11 @@
 #include "stack/mac/layer/LteMacBase.h"
 #include "stack/mac/amc/LteAmc.h"
 #include "common/LteCommon.h"
-#include "stack/mac/conflict_graph_utilities/meshMaster.h"
 
 class MacBsr;
 class LteSchedulerEnbDl;
 class LteSchedulerEnbUl;
-class MeshMaster;
+class ConflictGraph;
 
 class LteMacEnb : public LteMacBase
 {
@@ -73,9 +72,6 @@ class LteMacEnb : public LteMacBase
 
     /// Number of RB Ul
     int numRbUl_;
-
-    // conflict graph builder
-    MeshMaster* meshMaster_;
 
     /**
      * Reads MAC parameters for eNb and performs initialization.
@@ -322,13 +318,17 @@ class LteMacEnb : public LteMacBase
     unsigned int getBandStatus(Band b);
     unsigned int getPrevBandStatus(Band b);
 
-    /**
-     * Return a reference of the Mesh Master
-     */
-    MeshMaster* getMeshMaster()
+    virtual bool isReuseD2DEnabled()
     {
-        return meshMaster_;
+        return false;
     }
+
+    virtual bool isReuseD2DMultiEnabled()
+    {
+        return false;
+    }
+
+    virtual ConflictGraph* getConflictGraph();
 
 };
 

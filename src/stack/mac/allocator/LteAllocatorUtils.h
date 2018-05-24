@@ -101,9 +101,9 @@
      */
     enum AllocationUeType
     {
-        CELLT,
-        D2DT,
-        NONE,
+        EXCLUSIVE,
+        SHARED,
+        UNUSED,
     };
 
 

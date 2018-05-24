@@ -217,40 +217,47 @@ public:
       return -1;
   }
   /*
+   * Compute the path-loss attenuation according to the selected scenario
+   *
+   * @param distance between UE and eNodeB
+   * @param los line-of-sight flag
+   */
+  virtual double computePathLoss(double distance, double dbp, bool los);
+  /*
    * Compute attenuation for indoor scenario
    *
    * @param distance between UE and eNodeB
-   * @param nodeid mac node id of UE
+   * @param los line-of-sight flag
    */
-  double computeIndoor(double distance, MacNodeId nodeId);
+  double computeIndoor(double distance, bool los);
   /*
    * Compute attenuation for Urban Micro cell
    *
    * @param distance between UE and eNodeB
-   * @param nodeid mac node id of UE
+   * @param los line-of-sight flag
    */
-  double computeUrbanMicro(double distance, MacNodeId nodeId);
+  double computeUrbanMicro(double distance, bool los);
   /*
    * compute scenario for Urban Macro cell
    *
    * @param distance between UE and eNodeB
-   * @param nodeid mac node id of UE
+   * @param los line-of-sight flag
    */
-  double computeUrbanMacro(double distance, MacNodeId nodeId);
+  double computeUrbanMacro(double distance, bool los);
   /*
    * compute scenario for Sub Urban Macro cell
    *
    * @param distance between UE and eNodeB
-   * @param nodeid mac node id of UE
+   * @param los line-of-sight flag
    */
-  double computeSubUrbanMacro(double distance, double& dbp, MacNodeId nodeId);
+  double computeSubUrbanMacro(double distance, double& dbp, bool los);
   /*
    * Compute scenario for rural macro cell
    *
    * @param distance between UE and eNodeB
-   * @param nodeid mac node id of UE
+   * @param los line-of-sight flag
    */
-  double computeRuralMacro(double distance, double& dbp, MacNodeId nodeId);
+  double computeRuralMacro(double distance, double& dbp, bool los);
   /*
    * compute std deviation of shadowing according to scenario and visibility
    *

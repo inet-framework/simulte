@@ -50,6 +50,13 @@ class LteChannelModel : public cSimpleModule
      */
     virtual double getAttenuation(MacNodeId nodeId, Direction dir, inet::Coord coord){};
     /*
+     * Compute the path-loss attenuation according to the selected scenario
+     *
+     * @param distance between UE and eNodeB
+     * @param los line-of-sight flag
+     */
+    virtual double computePathLoss(double distance, double dbp, bool los){};
+    /*
      * Compute sir for each band for user nodeId according to multipath fading
      *
      * @param frame pointer to the packet

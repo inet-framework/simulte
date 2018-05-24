@@ -55,7 +55,7 @@ void LteRealisticChannelModel::initialize()
    fixedLos_ = par("fixed_los");
 
    fading_ = par("fading");
-   string fType = par("fading_type");
+   std::string fType = par("fading_type");
    if (fType.compare("JAKES") == 0)
        fadingType_ = JAKES;
    else if (fType.compare("RAYLEIGH") == 0)
@@ -100,28 +100,10 @@ double LteRealisticChannelModel::getAttenuation(MacNodeId nodeId, Direction dir,
    }
 
    //compute attenuation based on selected scenario and based on LOS or NLOS
-   double attenuation = 0;
+   bool los = losMap_[nodeId];
    double dbp = 0;
-   switch (scenario_)
-   {
-   case INDOOR_HOTSPOT:
-       attenuation = computeIndoor(sqrDistance, nodeId);
-       break;
-   case URBAN_MICROCELL:
-       attenuation = computeUrbanMicro(sqrDistance, nodeId);
-       break;
-   case URBAN_MACROCELL:
-       attenuation = computeUrbanMacro(sqrDistance, nodeId);
-       break;
-   case RURAL_MACROCELL:
-       attenuation = computeRuralMacro(sqrDistance, dbp, nodeId);
-       break;
-   case SUBURBAN_MACROCELL:
-       attenuation = computeSubUrbanMacro(sqrDistance, dbp, nodeId);
-       break;
-   default:
-       throw cRuntimeError("Wrong value %d for path-loss scenario", scenario_);
-   }
+   double attenuation = computePathLoss(sqrDistance, dbp, los);
+
    //    Applying shadowing only if it is enabled by configuration
    //    log-normal shadowing
    if (shadowing_)
@@ -223,28 +205,10 @@ double LteRealisticChannelModel::getAttenuation_D2D(MacNodeId nodeId, Direction 
    }
 
    //compute attenuation based on selected scenario and based on LOS or NLOS
-   double attenuation = 0;
+   bool los = losMap_[nodeId];
    double dbp = 0;
-   switch (scenario_)
-   {
-       case INDOOR_HOTSPOT:
-           attenuation = computeIndoor(sqrDistance, nodeId);
-           break;
-       case URBAN_MICROCELL:
-           attenuation = computeUrbanMicro(sqrDistance, nodeId);
-           break;
-       case URBAN_MACROCELL:
-           attenuation = computeUrbanMacro(sqrDistance, nodeId);
-           break;
-       case RURAL_MACROCELL:
-           attenuation = computeRuralMacro(sqrDistance, dbp, nodeId);
-           break;
-       case SUBURBAN_MACROCELL:
-           attenuation = computeSubUrbanMacro(sqrDistance, dbp, nodeId);
-           break;
-       default:
-           throw cRuntimeError("Wrong value %d for path-loss scenario", scenario_);
-   }
+   double attenuation = computePathLoss(sqrDistance, dbp, los);
+
    //    Applying shadowing only if it is enabled by configuration
    //    log-normal shadowing
    if (shadowing_)
@@ -1646,10 +1610,37 @@ void LteRealisticChannelModel::computeLosProbability(double d,
        losMap_[nodeId] = false;
 }
 
-double LteRealisticChannelModel::computeIndoor(double d, MacNodeId nodeId)
+double LteRealisticChannelModel::computePathLoss(double distance, double dbp, bool los)
+{
+    //compute attenuation based on selected scenario and based on LOS or NLOS
+    double pathLoss = 0;
+    switch (scenario_)
+    {
+    case INDOOR_HOTSPOT:
+        pathLoss = computeIndoor(distance, los);
+        break;
+    case URBAN_MICROCELL:
+        pathLoss = computeUrbanMicro(distance, los);
+        break;
+    case URBAN_MACROCELL:
+        pathLoss = computeUrbanMacro(distance, los);
+        break;
+    case RURAL_MACROCELL:
+        pathLoss = computeRuralMacro(distance, dbp, los);
+        break;
+    case SUBURBAN_MACROCELL:
+        pathLoss = computeSubUrbanMacro(distance, dbp, los);
+        break;
+    default:
+        throw cRuntimeError("Wrong value %d for path-loss scenario", scenario_);
+    }
+    return pathLoss;
+}
+
+double LteRealisticChannelModel::computeIndoor(double d, bool los)
 {
    double a, b;
-   if (losMap_[nodeId])
+   if (los)
    {
        if (d > 150 || d < 3)
            throw cRuntimeError("Error LOS indoor path loss model is valid for 3<d<150");
@@ -1666,14 +1657,14 @@ double LteRealisticChannelModel::computeIndoor(double d, MacNodeId nodeId)
    return a * log10(d) + b + 20 * log10(carrierFrequency_);
 }
 
-double LteRealisticChannelModel::computeUrbanMicro(double d, MacNodeId nodeId)
+double LteRealisticChannelModel::computeUrbanMicro(double d, bool los)
 {
    if (d < 10)
        d = 10;
 
    double dbp = 4 * (hNodeB_ - 1) * (hUe_ - 1)
                        * ((carrierFrequency_ * 1000000000) / SPEED_OF_LIGHT);
-   if (losMap_[nodeId])
+   if (los)
    {
        // LOS situation
        if (d > 5000){
@@ -1700,14 +1691,14 @@ double LteRealisticChannelModel::computeUrbanMicro(double d, MacNodeId nodeId)
    return 36.7 * log10(d) + 22.7 + 26 * log10(carrierFrequency_);
 }
 
-double LteRealisticChannelModel::computeUrbanMacro(double d, MacNodeId nodeId)
+double LteRealisticChannelModel::computeUrbanMacro(double d, bool los)
 {
    if (d < 10)
        d = 10;
 
    double dbp = 4 * (hNodeB_ - 1) * (hUe_ - 1)
                        * ((carrierFrequency_ * 1000000000) / SPEED_OF_LIGHT);
-   if (losMap_[nodeId])
+   if (los)
    {
        if (d > 5000){
            if(tolerateMaxDistViolation_)
@@ -1739,15 +1730,14 @@ double LteRealisticChannelModel::computeUrbanMacro(double d, MacNodeId nodeId)
    return att;
 }
 
-double LteRealisticChannelModel::computeSubUrbanMacro(double d, double& dbp,
-       MacNodeId nodeId)
+double LteRealisticChannelModel::computeSubUrbanMacro(double d, double& dbp, bool los)
 {
    if (d < 10)
        d = 10;
 
    dbp = 4 * (hNodeB_ - 1) * (hUe_ - 1)
                        * ((carrierFrequency_ * 1000000000) / SPEED_OF_LIGHT);
-   if (losMap_[nodeId])
+   if (los)
    {
        if (d > 5000) {
            if(tolerateMaxDistViolation_)
@@ -1785,15 +1775,14 @@ double LteRealisticChannelModel::computeSubUrbanMacro(double d, double& dbp,
    return att;
 }
 
-double LteRealisticChannelModel::computeRuralMacro(double d, double& dbp,
-       MacNodeId nodeId)
+double LteRealisticChannelModel::computeRuralMacro(double d, double& dbp, bool los)
 {
    if (d < 10)
        d = 10;
 
    dbp = 4 * (hNodeB_ - 1) * (hUe_ - 1)
                        * ((carrierFrequency_ * 1000000000) / SPEED_OF_LIGHT);
-   if (losMap_[nodeId])
+   if (los)
    {
        // LOS situation
        if (d > 10000) {
@@ -1958,28 +1947,9 @@ double LteRealisticChannelModel::computeExtCellPathLoss(double dist, MacNodeId n
    //    EV << "LteRealisticChannelModel::computeExtCellPathLoss:" << scenario_ << "-" << shadowing_ << "\n";
 
    //compute attenuation based on selected scenario and based on LOS or NLOS
-   double attenuation = 0;
+   bool los = losMap_[nodeId];
    double dbp = 0;
-   switch (scenario_)
-   {
-   case INDOOR_HOTSPOT:
-       attenuation = computeIndoor(dist, nodeId);
-       break;
-   case URBAN_MICROCELL:
-       attenuation = computeUrbanMicro(dist, nodeId);
-       break;
-   case URBAN_MACROCELL:
-       attenuation = computeUrbanMacro(dist, nodeId);
-       break;
-   case RURAL_MACROCELL:
-       attenuation = computeRuralMacro(dist, dbp, nodeId);
-       break;
-   case SUBURBAN_MACROCELL:
-       attenuation = computeSubUrbanMacro(dist, dbp, nodeId);
-       break;
-   default:
-       throw cRuntimeError("Wrong path-loss scenario value %d", scenario_);
-   }
+   double attenuation = computePathLoss(dist, dbp, los);
 
    //TODO Apply shadowing to each interfering extCell signal
 

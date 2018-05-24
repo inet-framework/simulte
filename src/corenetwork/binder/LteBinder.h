@@ -85,6 +85,7 @@ class LteBinder : public cSimpleModule
     // register here the IDs of the multicast group where UEs participate
     typedef std::set<uint32> MulticastGroupIdSet;
     std::map<MacNodeId, MulticastGroupIdSet> multicastGroupMap_;
+    std::set<MacNodeId> multicastTransmitterSet_;
 
     /*
      * Handover support
@@ -319,8 +320,10 @@ class LteBinder : public cSimpleModule
     /*
      * D2D Support
      */
+    std::map<MacNodeId, std::map<MacNodeId, bool> >* getD2DCapabilityMap();
     void addD2DCapability(MacNodeId src, MacNodeId dst);
     bool checkD2DCapability(MacNodeId src, MacNodeId dst);
+
     std::map<MacNodeId, std::map<MacNodeId, LteD2DMode> >* getD2DPeeringModeMap();
     void setD2DMode(MacNodeId src, MacNodeId dst, LteD2DMode mode);
     LteD2DMode getD2DMode(MacNodeId src, MacNodeId dst);
@@ -332,7 +335,10 @@ class LteBinder : public cSimpleModule
     void registerMulticastGroup(MacNodeId nodeId, int32 groupId);
     // check if the node is enrolled in the group
     bool isInMulticastGroup(MacNodeId nodeId, int32 groupId);
-
+    // add one multicast transmitter
+    void addD2DMulticastTransmitter(MacNodeId nodeId);
+    // get multicast transmitters
+    std::set<MacNodeId>& getD2DMulticastTransmitters();
     /*
      *  Handover support
      */

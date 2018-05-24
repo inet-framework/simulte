@@ -31,6 +31,13 @@ class LteDummyChannelModel : public LteChannelModel
     */
    virtual bool error(LteAirFrame *frame, UserControlInfo* lteInfo);
    /*
+    * Compute the path-loss attenuation according to the selected scenario
+    */
+   virtual double computePathLoss(double distance, double dbp, bool los)
+   {
+       return 0;
+   }
+   /*
     * Compute Attenuation caused by pathloss and shadowing (optional)
     */
    virtual double getAttenuation(MacNodeId nodeId, Direction dir, inet::Coord coord)

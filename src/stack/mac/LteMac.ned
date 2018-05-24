@@ -428,10 +428,11 @@ simple LteMacEnbD2D extends LteMacEnb
 	    bool usePreconfiguredTxParams = default(false);
         int d2dCqi = default(7);
         
-        // Conflict Graph parameters
-        bool buildConflictGraph = default(false);
+        // frequency reuse parameters
+        bool reuseD2D = default(false);
+        bool reuseD2DMulti = default(false);
         double conflictGraphUpdatePeriod @unit(s) = default(1s);
-        double conflictGraphThreshold = default(-90);  // dB
+        double conflictGraphThreshold = default(90);  // dBm
         
         // handling of D2D mode switch
         bool msHarqInterrupt = default(true);

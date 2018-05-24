@@ -48,6 +48,8 @@ void LtePdcpRrcUeD2D::fromDataPort(cPacket *pkt)
     // else the direction will be selected according to the current status of the UE, i.e. D2D or UL
     if (destAddr.isMulticast())
     {
+        binder_->addD2DMulticastTransmitter(nodeId_);
+
         lteInfo->setDirection(D2D_MULTI);
 
         // assign a multicast group id

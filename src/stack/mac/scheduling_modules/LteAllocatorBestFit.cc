@@ -10,10 +10,11 @@
 #include "stack/mac/scheduling_modules/LteAllocatorBestFit.h"
 #include "stack/mac/scheduler/LteSchedulerEnb.h"
 #include "stack/mac/buffer/LteMacBuffer.h"
-#include "stack/mac/conflict_graph_utilities/meshMaster.h"
+#include "stack/mac/conflict_graph/ConflictGraph.h"
 
 LteAllocatorBestFit::LteAllocatorBestFit()
 {
+    conflictGraph_ = NULL;
 }
 
 void LteAllocatorBestFit::checkHole(Candidate& candidate, Band holeIndex, unsigned int holeLen, unsigned int req)
@@ -62,6 +63,36 @@ void LteAllocatorBestFit::checkHole(Candidate& candidate, Band holeIndex, unsign
 
 }
 
+bool LteAllocatorBestFit::checkConflict(const CGMatrix* cgMatrix, MacNodeId nodeIdA, MacNodeId nodeIdB)
+{
+    bool conflict = false;
+
+    CGMatrix::const_iterator it = cgMatrix->begin(), et = cgMatrix->end();
+    for(; it != et; ++it)
+    {
+        if (it->first.srcId != nodeIdA)
+            continue;
+
+        std::map<CGVertex,bool>::const_iterator conf_it = it->second.begin(), conf_et = it->second.end();
+        for (; conf_it != conf_et; ++conf_it)
+        {
+            if (conf_it->first.srcId != nodeIdB)
+                continue;
+
+            if (conf_it->second)
+            {
+                conflict = true;
+                break;
+            }
+        }
+
+        if (conflict)
+            break;
+    }
+
+    return conflict;
+}
+
 void LteAllocatorBestFit::prepareSchedule()
 {
     EV << NOW << " LteAllocatorBestFit::schedule " << eNbScheduler_->mac_->getMacNodeId() << endl;
@@ -69,8 +100,22 @@ void LteAllocatorBestFit::prepareSchedule()
     if (binder_ == NULL)
         binder_ = getBinder();
 
+    if (conflictGraph_ == NULL)
+        conflictGraph_ = mac_->getConflictGraph();
+
     // Initialize SchedulerAllocation structures
     initAndReset();
+
+    bool reuseD2D = mac_->isReuseD2DEnabled();
+    bool reuseD2DMulti = mac_->isReuseD2DMultiEnabled();
+
+    const CGMatrix* cgMatrix = NULL;
+    if (reuseD2D || reuseD2DMulti)
+    {
+        if (conflictGraph_ == NULL)
+            throw cRuntimeError("LteAllocatorBestFit::prepareSchedule - conflictGraph is a NULL pointer");
+        cgMatrix = conflictGraph_->getConflictGraph();
+    }
 
     // Get the bands occupied by RAC and RTX
     std::set<Band> alreadyAllocatedBands = eNbScheduler_->getOccupiedBands();
@@ -88,16 +133,12 @@ void LteAllocatorBestFit::prepareSchedule()
     // Get the active connection Set
     activeConnectionTempSet_ = activeConnectionSet_;
 
-    // Create a Conflict Map wich, for every nodeId, have a set of conflicting nodes
-    const std::map<MacNodeId,std::set<MacNodeId> >* conflictMap = mac_->getMeshMaster()->getConflictMap();
-
     // record the amount of allocated bytes (for optimal comparison)
     unsigned int totalAllocatedBytes = 0;
 
     // Resume a MaxCi scoreList build mode
     // Build the score list by cycling through the active connections.
     ScoreList score;
-    ScoreList conflicting_score;
     MacCid cid = 0;
     unsigned int blocks = 0;
     unsigned int byPs = 0;
@@ -112,17 +153,7 @@ void LteAllocatorBestFit::prepareSchedule()
         cid = *it1;
 
         MacNodeId nodeId = MacCidToNodeId(cid);
-        bool enableFrequencyReuse = binder_->isFrequencyReuseEnabled(nodeId);
 
-//        if( enableFrequencyReuse )
-//        {
-//            // Abort scheduling if cid is found (if cid is present means that there's priority for Ul RETX)
-//            if ( eNbScheduler_->rtxUlMap_.find( MacCidToNodeId(cid) ) != eNbScheduler_->rtxUlMap_.end() )
-//            {
-//                EV << NOW << " LteAllocatorBestFit::schedule ABORT SCHEDULING: " << MacCidToNodeId(cid)  << endl;
-//                continue;
-//            }
-//        }
         // Get virtual buffer reference
         LteMacBuffer* conn = eNbScheduler_->bsrbuf_->at(cid);
         // Check whether the virtual buffer is empty
@@ -137,7 +168,7 @@ void LteAllocatorBestFit::prepareSchedule()
 
         // Set the right direction for nodeId
         Direction dir;
-        if (enableFrequencyReuse && direction_ == UL)
+        if (direction_ == UL)
             dir = (MacCidToLcid(cid) == D2D_SHORT_BSR) ? D2D : (MacCidToLcid(cid) == D2D_MULTI_SHORT_BSR) ? D2D_MULTI : direction_;
         else
             dir = DL;
@@ -186,7 +217,7 @@ void LteAllocatorBestFit::prepareSchedule()
         // Create a new score descriptor for the connection, where the score is equal to the ratio between bytes per slot and long term rate
         ScoreDesc desc(cid,byPs);
         // Insert the cid score in the right list
-        conflicting_score.push (desc);
+        score.push (desc);
 
         EV << NOW << " LteAllocatorBestFit::schedule computed for cid " << cid << " score of " << desc.score_ << endl;
     }
@@ -198,43 +229,29 @@ void LteAllocatorBestFit::prepareSchedule()
     }
 
     // Schedule the connections in score order.
-    while ( !conflicting_score.empty()  )
+    while ( !score.empty()  )
     {
         // Pop the top connection from the list.
-        ScoreDesc current;
-        if(!conflicting_score.empty())
-        {
-            current = conflicting_score.top();
-        }
+        ScoreDesc current = score.top();
+
+        // Get the CID
+        MacCid cid = current.x_;
+
+        // get the node Id
+        MacNodeId nodeId = MacCidToNodeId(cid);
 
         //Set the right direction for nodeId
         Direction dir;
-        MacNodeId nodeId = MacCidToNodeId(current.x_);
-        bool enableFrequencyReuse = binder_->isFrequencyReuseEnabled(nodeId);
-        if( enableFrequencyReuse && direction_ != DL )
-        {
-            if (MacCidToLcid(current.x_) == D2D_MULTI_SHORT_BSR)
-                dir = D2D_MULTI;
-            else
-                dir = (MacCidToLcid(cid) == D2D_SHORT_BSR) ? D2D : direction_;
-        }
+        if (direction_ == UL)
+            dir = (MacCidToLcid(cid) == D2D_SHORT_BSR) ? D2D : (MacCidToLcid(cid) == D2D_MULTI_SHORT_BSR) ? D2D_MULTI : direction_;
         else
-        {
-            if (direction_ != DL && MacCidToLcid(cid) == D2D_MULTI_SHORT_BSR)
-                dir = D2D_MULTI;
-            else
-                dir = direction_;
-        }
+            dir = DL;
 
-        EV << NOW << " LteAllocatorBestFit::schedule scheduling connection " << current.x_ << " with score of " << current.score_ << endl;
-
-        // Get the node ID
-        MacCid cid = current.x_;
+        EV << NOW << " LteAllocatorBestFit::schedule scheduling connection " << cid << " with score of " << current.score_ << endl;
 
         // Compute Tx params for the extracted node
         const UserTxParams& txParams = mac_->getAmc()->computeTxParams(nodeId,dir);
         // Get virtual buffer reference
-        // TODO After debug reenable conn
         LteMacBuffer* conn = eNbScheduler_->bsrbuf_->at(cid);
 
         // Get a reference of the first BSR
@@ -279,57 +296,44 @@ void LteAllocatorBestFit::prepareSchedule()
         Band holeIndex = 0;
         unsigned int holeLen = 0;
 
-        // TODO: Find a better way to allocate IM from the end of the frame
-        if (enableFrequencyReuse || dir == D2D_MULTI)
+        // frequency reuse-enabled connection are allocated starting from the beginning of the subframe,
+        // whereas non-reuse-enabled ones are allocated from the end of the subframe
+
+        bool enableFrequencyReuse = (reuseD2D && dir==D2D) || (reuseD2DMulti && dir==D2D_MULTI);
+        if (enableFrequencyReuse)  // if frequency reuse is possible for the connection's direction
         {
 //            std::cout << NOW << " UE " << nodeId << " is D2D enabled" << endl;
+            EV << NOW << " Connection " << cid << " can exploit frequency reuse, dir[" << dirToA(dir) << "]" << endl;
 
             // Check if the allocation is possible starting from the first unallocated band
             for( band=firstUnallocatedBand; band<numBands; band++ )
             {
                 bool jump_band = false;
-                // Jump to the next band if this have been already allocated
-                if( alreadyAllocatedBands.find(band) != alreadyAllocatedBands.end() ) { jump_band = true; }
+                // Jump to the next band if this have been already allocated to this node
+                if( alreadyAllocatedBands.find(band) != alreadyAllocatedBands.end() )
+                    jump_band = true;
                 /*
                  * Jump to the next band if:
-                 * - dedicated is true
-                 * - the node is a D2D one
-                 * - the band is occupied by an INFRASTRCUCTURE node.
-                 *  If dedicated is "false" a D2D UE can
-                 * share a band with one or more INFRASTRUCTURE UEs.
+                 * - the band is occupied by a non-reuse-enabled node.
                  */
-                if( enableFrequencyReuse && bandStatusMap_[band].first == CELLT && dedicated_ ) { jump_band = true; }
-                /*
-                 * Jump to the next band if the current band is occupied by a conflicting node (i.e. there's an edge in the
-                 * conflict graph)
-                 */
-                if( conflictMap->find(nodeId)!=conflictMap->end() )
-                {
-                    std::set<MacNodeId>::const_iterator conf_it = conflictMap->find(nodeId)->second.begin();
-                    std::set<MacNodeId>::const_iterator conf_et = conflictMap->find(nodeId)->second.end();
-                    for(;conf_it!=conf_et;++conf_it)
-                    {
-                        // Check if this band is occupied by an interfering node for the nodeId
-                        if(bandStatusMap_[band].second.find(*conf_it) != bandStatusMap_[band].second.end())
-                        {
-                            // Set jump_band to "true" cause we have to jump to the next band
-                            jump_band = true;
-                            break;
-                        }
-                    }
-                }
+                if(bandStatusMap_[band].first == EXCLUSIVE)
+                    jump_band = true;
 
-                // Check if this band is occupied by a node for whom the nodeId is an interfering node
-                std::set<MacNodeId>::const_iterator it =  bandStatusMap_[band].second.begin();
-                for(;it!=bandStatusMap_[band].second.end();++it)
+
+                /*
+                 * Jump to the next band if the current band is occupied by a conflicting node
+                 * (i.e. there's an edge in the conflict graph)
+                 */
+                // scan the nodes already allocated on this band
+                std::set<MacNodeId>::iterator it = bandStatusMap_[band].second.begin();
+                std::set<MacNodeId>::iterator et = bandStatusMap_[band].second.end();
+                for ( ; it != et; ++it)
                 {
-                    if(conflictMap->find(*it)!=conflictMap->end())
+                    MacNodeId allocatedNodeId = *it;
+                    if (checkConflict(cgMatrix, nodeId, allocatedNodeId))
                     {
-                        if(conflictMap->find(*it)->second.find(nodeId)!=conflictMap->find(*it)->second.end())
-                        {
-                            jump_band = true;
-                            break;
-                        }
+                        jump_band = true;
+                        break;
                     }
                 }
 
@@ -364,28 +368,21 @@ void LteAllocatorBestFit::prepareSchedule()
         }
         else
         {
+            EV << NOW << " Connection " << cid << " cannot exploit frequency reuse, dir[" << dirToA(dir) << "]" << endl;
+
             bool jump_band = false;
 
             // Check if the allocation is possible starting from the first unallocated band (going back)
             for( band=firstUnallocatedBandIM; band>=0; band-- )
             {
                 // Jump to the next band if this have been already allocated
-                if( alreadyAllocatedBands.find(band) != alreadyAllocatedBands.end() ) jump_band = true;
+                if( alreadyAllocatedBands.find(band) != alreadyAllocatedBands.end() )
+                    jump_band = true;
                 /*
-                 * Jump to the next band if the node is on Infrastructure and the band is already
-                 * allocated to an Infrastructure node (As standard, the same bands are not shared
-                 *  between two,or more, nodes in Infrastructure mode).
+                 * Jump to the next band if the band is allocated to another node
                  */
-                if( !enableFrequencyReuse && bandStatusMap_[band].first == CELLT ) jump_band = true;
-                /*
-                 * Jump to the next band if:
-                 * - the node is an Infrastructure one
-                 * - dedicated is true
-                 * - the band is occupied by a D2D node.
-                 *  If dedicated is "false" an Infrastructure UE can share a band with one or more D2D UEs.
-                 */
-                if( !enableFrequencyReuse && bandStatusMap_[band].first == D2DT && dedicated_ ) jump_band = true;
-
+                if( bandStatusMap_[band].first != UNUSED )
+                    jump_band = true;
 
                 if(jump_band)
                 {
@@ -417,7 +414,7 @@ void LteAllocatorBestFit::prepareSchedule()
 
         checkHole(candidate, holeIndex, holeLen, req_RBs);
 
-        if (enableFrequencyReuse || dir == D2D_MULTI)
+        if (enableFrequencyReuse)
         {
             // allocate contiguous RBs in the best candidate
             for( band=candidate.index; band < candidate.index+candidate.len; band++ )
@@ -435,10 +432,11 @@ void LteAllocatorBestFit::prepareSchedule()
         {
             // allocate contiguous RBs in the best candidate
             unsigned int end = (candidate.len > candidate.index) ? 0 : candidate.index-candidate.len;
-//            for( band=candidate.index; band > candidate.index-candidate.len && band >= 0; band-- )
             for( band=candidate.index; band > end; band-- )
             {
                 blocks++;
+
+                EV << NOW << " LteAllocatorBestFit - UE " << nodeId << ": allocated RB " << band << " [" <<blocks<<"]" << endl;
 
                 // Book the bands that must be allocated
                 bookedBands.push_back(band);
@@ -464,21 +462,18 @@ void LteAllocatorBestFit::prepareSchedule()
 
             // Add the nodeId to the scheduleList (needed for Grants)
             std::pair<unsigned int, Codeword> scListId;
-//            scListId.first = nodeId;
             scListId.first = cid;
             scListId.second = 0; // TODO add support for codewords different from 0
             eNbScheduler_->storeScListId(scListId,blocks);
-//            eNbScheduler_->storeScListId(scListId,1);
-
 
             // If it is a Cell UE we must reserve the bands
-            if (dir == DL || dir == UL)
+            if (!enableFrequencyReuse)
             {
-                setAllocationType(bookedBands,CELLT,nodeId);
+                setAllocationType(bookedBands,EXCLUSIVE,nodeId);
             }
             else
             {
-                setAllocationType(bookedBands,D2DT,nodeId);
+                setAllocationType(bookedBands,SHARED,nodeId);
             }
 
             double byte_served = 0.0;
@@ -499,19 +494,12 @@ void LteAllocatorBestFit::prepareSchedule()
             totalAllocatedBytes += byte_served;
         }
 
-        //Extract the node from the right set
-        if(!conflicting_score.empty()) conflicting_score.pop();
-        // If the lists are empty we have finished the allocation
-        if( conflicting_score.empty()  ) break;
-
+        // Extract the node from the right set
+        if(!score.empty())
+            score.pop();
     }
 
     eNbScheduler_->storeAllocationEnb(allocatedRbsPerBand_, &alreadyAllocatedBands);
-
-    // Reset direction to default direction if changed
-    direction_ = (direction_ == D2D)? UL : direction_;
-
-    return;
 }
 
 void LteAllocatorBestFit::commitSchedule()
@@ -560,11 +548,8 @@ void LteAllocatorBestFit::initAndReset()
     //Set all bands to non-exclusive
     for(int i=0;i<numbands;i++)
     {
-        bandStatusMap_[i].first = NONE;
+        bandStatusMap_[i].first = UNUSED;
     }
-
-    // Set the dedicated parameter
-    dedicated_ = false;
 }
 
 void LteAllocatorBestFit::setAllocationType(std::vector<Band> bookedBands,AllocationUeType type,MacNodeId nodeId)
