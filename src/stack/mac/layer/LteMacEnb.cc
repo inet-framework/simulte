@@ -842,6 +842,10 @@ void LteMacEnb::handleSelfMessage()
 
     /*UPLINK*/
     EV << "============================================== UPLINK ==============================================" << endl;
+    // init and reset global allocation information
+    if (binder_->getLastUpdateUlTransmissionInfo() < NOW)  // once per TTI, even in case of multicell scenarios
+        binder_->initAndResetUlTransmissionInfo();
+
     //TODO enable sleep mode also for UPLINK???
     (enbSchedulerUl_->resourceBlocks()) = getNumRbUl();
 
@@ -967,13 +971,13 @@ void LteMacEnb::allocatedRB(unsigned int rb)
     lastTtiAllocatedRb_ = rb;
 }
 
-unsigned int LteMacEnb::getBandStatus(Band b)
+unsigned int LteMacEnb::getDlBandStatus(Band b)
 {
     unsigned int i = enbSchedulerDl_->readPerBandAllocatedBlocks(MAIN_PLANE, MACRO, b);
     return i;
 }
 
-unsigned int LteMacEnb::getPrevBandStatus(Band b)
+unsigned int LteMacEnb::getDlPrevBandStatus(Band b)
 {
     unsigned int i = enbSchedulerDl_->getInterferringBlocks(MAIN_PLANE, MACRO, b);
     return i;

@@ -106,6 +106,7 @@ LteMacScheduleList* LteSchedulerEnb::schedule()
 
     // record assigned resource blocks statistics
     resourceBlockStatistics();
+
     return &scheduleList_;
 }
 

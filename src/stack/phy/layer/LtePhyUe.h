@@ -94,15 +94,6 @@ class LtePhyUe : public LtePhyBase
 
     simtime_t lastFeedback_;
 
-    // for UL interference management
-    // store the map of RBs used by the UE for transmission
-    struct UsedRBs
-    {
-        simtime_t time_;
-        RbMap rbMap_;
-    };
-    std::vector<UsedRBs> usedRbs_;
-
     virtual void initialize(int stage);
     virtual void handleSelfMessage(cMessage *msg);
     virtual void handleAirFrame(cMessage* msg);
@@ -146,25 +137,6 @@ class LtePhyUe : public LtePhyBase
     {
         double fd = (speed / SPEED_OF_LIGHT) * carrierFrequency_;
         return 0.1 / fd;
-    }
-    unsigned int getUsedRbs(const Remote antenna, Band b)
-    {
-        std::vector<UsedRBs>::iterator it = usedRbs_.begin();
-        for (; it != usedRbs_.end(); ++it)
-        {
-            if (it->time_ == NOW)
-                return it->rbMap_[antenna][b];
-        }
-    }
-    unsigned int getPrevUsedRbs(const Remote antenna, Band b)
-    {
-        std::vector<UsedRBs>::iterator it = usedRbs_.begin();
-        for (; it != usedRbs_.end(); ++it)
-        {
-            if (it->time_ == NOW-0.001)
-                return it->rbMap_[antenna][b];
-        }
-        return 0;
     }
 };
 

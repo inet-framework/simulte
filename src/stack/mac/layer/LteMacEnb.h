@@ -315,9 +315,8 @@ class LteMacEnb : public LteMacBase
     void cqiStatistics(MacNodeId id, Direction dir, LteFeedback fb);
 
     // get band occupation for this/previous TTI. Used for interference computation purposes
-    unsigned int getBandStatus(Band b);
-    unsigned int getPrevBandStatus(Band b);
-
+    unsigned int getDlBandStatus(Band b);
+    unsigned int getDlPrevBandStatus(Band b);
     virtual bool isReuseD2DEnabled()
     {
         return false;

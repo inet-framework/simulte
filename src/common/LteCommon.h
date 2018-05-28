@@ -788,6 +788,14 @@ struct UeInfo
     LtePhyBase* phy;
 };
 
+// uplink interference support
+struct UeAllocationInfo{
+    MacNodeId nodeId;
+    MacCellId cellId;
+    LtePhyBase* phy;
+    Direction dir;
+};
+
 typedef std::vector<ExtCell*> ExtCellList;
 
 /*****************

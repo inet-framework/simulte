@@ -16,6 +16,7 @@
 #include "common/LteCommon.h"
 #include "corenetwork/nodes/ExtCell.h"
 #include "stack/phy/layer/LtePhyUe.h"
+#include "stack/mac/layer/LteMacEnbD2D.h"
 
 // attenuation value to be returned if max. distance of a scenario has been violated
 // and tolerating the maximum distance violation is enabled
@@ -65,9 +66,9 @@ void LteRealisticChannelModel::initialize()
 
    fadingPaths_ = par("fading_paths");
    enableExtCellInterference_ = par("extCell_interference");
-   enableMultiCellInterference_ = par("multiCell_interference");
-   enableInCellInterference_ = par("inCell_interference");
-   enableD2DInCellInterference_ = par("inCellD2D_interference");
+   enableDownlinkInterference_ = par("downlink_interference");
+   enableUplinkInterference_ = par("uplink_interference");
+   enableD2DInterference_ = par("d2d_interference");
    delayRMS_ = par("delay_rms");
 
    //get binder
@@ -190,11 +191,7 @@ double LteRealisticChannelModel::getAttenuation_D2D(MacNodeId nodeId, Direction 
    //COMPUTE DISTANCE between ue1 and ue2
    //double sqrDistance = phy_->getCoord().distance(coord);
    double sqrDistance = coord.distance(coord_2);
-
-   if (dir == DL) // sender is UE
-       speed = computeSpeed(nodeId, phy_->getCoord());
-   else //UL or D2D
-       speed = computeSpeed(nodeId, coord);
+   speed = computeSpeed(nodeId, coord);
 
    //If traveled distance is greater than correlation distance UE could have changed its state and
    // its visibility from eNodeb, hence it is correct to recompute the los probability
@@ -273,15 +270,7 @@ double LteRealisticChannelModel::getAttenuation_D2D(MacNodeId nodeId, Direction 
    }
 
    // update current user position
-
-   //if sender is a eNodeB
-   if (dir == DL)
-       //store the position of user
-       updatePositionHistory(nodeId, phy_->getCoord());
-
-   else
-       //sender is an UE
-       updatePositionHistory(nodeId, coord);
+   updatePositionHistory(nodeId, coord);
 
    EV << "LteRealisticChannelModel::getAttenuation - computed attenuation at distance " << sqrDistance << " for UE2 is " << attenuation << endl;
 
@@ -608,17 +597,21 @@ std::vector<double> LteRealisticChannelModel::getSINR(LteAirFrame *frame, UserCo
     */
 
    //============ MULTI CELL INTERFERENCE COMPUTATION =================
-   //vector containing the sum of multiCell interference for each band
+   //vector containing the sum of multicell interference for each band
    std::vector<double> multiCellInterference; // Linear value (mW)
    // prepare data structure
    multiCellInterference.resize(band_, 0);
-   if (enableMultiCellInterference_ && dir == DL)
+   if (enableDownlinkInterference_ && dir == DL)
    {
-       computeMultiCellInterference(eNbId, ueId, ueCoord, (lteInfo->getFrameType() == FEEDBACKPKT), &multiCellInterference);
+       computeDownlinkInterference(eNbId, ueId, ueCoord, (lteInfo->getFrameType() == FEEDBACKPKT), &multiCellInterference);
+   }
+   else if (enableUplinkInterference_ && dir == UL)
+   {
+       computeUplinkInterference(eNbId, ueId, (lteInfo->getFrameType() == FEEDBACKPKT), &multiCellInterference);
    }
 
    //============ EXTCELL INTERFERENCE COMPUTATION =================
-   //vector containing the sum of multiCell interference for each band
+   //vector containing the sum of ext-cell interference for each band
    std::vector<double> extCellInterference; // Linear value (mW)
    // prepare data structure
    extCellInterference.resize(band_, 0);
@@ -628,40 +621,27 @@ std::vector<double> LteRealisticChannelModel::getSINR(LteAirFrame *frame, UserCo
    }
 
    //===================== SINR COMPUTATION ========================
-   if ((enableExtCellInterference_ || enableMultiCellInterference_) && dir == DL)
+   // compute and linearize total noise
+   double totN = dBmToLinear(thermalNoise_ + noiseFigure);
+
+   // denominator expressed in dBm as (N+extCell+multiCell)
+   double den;
+   EV << "LteRealisticChannelModel::getSINR - distance from my eNb=" << enbCoord.distance(ueCoord) << " - DIR=" << (( dir==DL )?"DL" : "UL") << endl;
+
+   // add interference for each band
+   for (unsigned int i = 0; i < band_; i++)
    {
-       // compute and linearize total noise
-       double totN = dBmToLinear(thermalNoise_ + noiseFigure);
+       //               (      mW            +  mW  +        mW            )
+       den = linearToDBm(extCellInterference[i] + totN + multiCellInterference[i]);
 
-       // denominator expressed in dBm as (N+extCell+multiCell)
-       double den;
-       EV << "LteRealisticChannelModel::getSINR - distance from my eNb=" << enbCoord.distance(ueCoord) << " - DIR=" << (( dir==DL )?"DL" : "UL") << endl;
+       EV << "\t ext[" << extCellInterference[i] << "] - multi[" << multiCellInterference[i] << "] - recvPwr["
+          << dBmToLinear(snrVector[i]) << "] - sinr[" << snrVector[i]-den << "]\n";
 
-       // add interference for each band
-       for (unsigned int i = 0; i < band_; i++)
-       {
-           //               (      mW            +  mW  +        mW            )
-           den = linearToDBm(extCellInterference[i] + totN + multiCellInterference[i]);
-
-           EV << "\t ext[" << extCellInterference[i] << "] - multi[" << multiCellInterference[i] << "] - recvPwr["
-              << dBmToLinear(snrVector[i]) << "] - sinr[" << snrVector[i]-den << "]\n";
-
-           // compute final SINR
-           snrVector[i] -= den;
-       }
-   }
-   // compute snr with no intercell interference
-   else
-   {
-       for (unsigned int i = 0; i < band_; i++)
-       {
-           // compute final SINR
-           snrVector[i] = snrVector[i] - noiseFigure - thermalNoise_;
-           EV << "LteRealisticChannelModel::getSINR - distance from eNb=" << enbCoord.distance(coord) << " - DIR=" << (( dir==DL )?"DL" : "UL") << " - snr[" << snrVector[i] << "]\n";
-       }
+       // compute final SINR
+       snrVector[i] -= den;
    }
 
-           //if sender is an eNodeB
+   //if sender is an eNodeB
    if (dir == DL)
        //store the position of user
        updatePositionHistory(ueId, phy_->getCoord());
@@ -813,30 +793,19 @@ std::vector<double> LteRealisticChannelModel::getSINR_D2D(LteAirFrame *frame, Us
    std::vector<double> snrVector;
 
    // True if we use the jakes map in the UE side (D2D is like DL for the receivers)
-   bool cqiDl = false;
+   bool cqiDl = true;
    // Get the direction
-   Direction dir = (Direction) lteInfo->getDirection();
-   dir = D2D;
+   Direction dir = D2D;
 
-   EV << "------------ GET SINR D2D----------------" << endl;
+   EV << "------------ GET SINR D2D ----------------" << endl;
 
    //===================== PARAMETERS SETUP ============================
 
-   // D2D CQI or D2D error computation
+   // antenna gain is antennaGainUe for both tx and rx
+   antennaGainTx = antennaGainRx = antennaGainUe_;
+   // In D2D case the noise figure is the ueNoiseFigure_
+   noiseFigure = ueNoiseFigure_;
 
-   if( dir == UL || dir==DL)
-   {
-       //consistency check
-        throw cRuntimeError("Direction should neither be UL or DL");
-   }
-   else
-   {
-       antennaGainTx = antennaGainRx = antennaGainUe_;
-       //In D2D case the noise figure is the ueNoiseFigure_
-       noiseFigure = ueNoiseFigure_;
-       // use the jakes map in the UE side
-       cqiDl = true;
-   }
    // Compute speed
    speed = computeSpeed(sourceId, sourceCoord);
 
@@ -926,9 +895,9 @@ std::vector<double> LteRealisticChannelModel::getSINR_D2D(LteAirFrame *frame, Us
     * N = thermalNoise_ + noiseFigure (measured in dBm)
     * I = extCellInterference + inCellInterference (measured in mW)
     */
-   //============ IN CELL D2D INTERFERENCE COMPUTATION =================
+   //============ D2D INTERFERENCE COMPUTATION =================
    /*
-    * In calculating a D2D CQI the Interference from others D2D UEs discriminates between calculating a CQI
+    * In calculating a D2D CQI the Interference from others UEs discriminates between calculating a CQI
     * following direction D2D_Tx--->D2D_Rx or D2D_Tx<---D2D_Rx (This happens due to the different positions of the
     * interfering UEs relative to the position of the UE for whom we are calculating the CQI). We need that the CQI
     * for the D2D_Tx is the same of the D2D_Rx(This is an help for the simulator because when the eNodeB allocates
@@ -937,17 +906,16 @@ std::vector<double> LteRealisticChannelModel::getSINR_D2D(LteAirFrame *frame, Us
     * is so we swap the ueId with the one of his Peer(D2D_Rx). We do the same for the coord.
     */
    //vector containing the sum of inCell interference for each band
-   std::vector<double> inCellInterference; // Linear value (mW)
+   std::vector<double> d2dInterference; // Linear value (mW)
    // prepare data structure
-   inCellInterference.resize(band_, 0);
-   if (enableD2DInCellInterference_ && dir == D2D)
+   d2dInterference.resize(band_, 0);
+   if (enableD2DInterference_)
    {
-       // TODO this function must be implemented
-       computeInCellD2DInterference(enbId, sourceId, sourceCoord, destId, destCoord, (lteInfo->getFrameType() == FEEDBACKPKT), &inCellInterference,dir);
+       computeD2DInterference(enbId, sourceId, sourceCoord, destId, destCoord, (lteInfo->getFrameType() == FEEDBACKPKT), &d2dInterference,dir);
    }
 
    //===================== SINR COMPUTATION ========================
-   if( enableD2DInCellInterference_ && dir==D2D  )
+   if( enableD2DInterference_)
    {
            // compute and linearize total noise
            double totN = dBmToLinear(thermalNoise_ + noiseFigure);
@@ -960,16 +928,16 @@ std::vector<double> LteRealisticChannelModel::getSINR_D2D(LteAirFrame *frame, Us
            for (unsigned int i = 0; i < band_; i++)
            {
                //               (      mW            +  mW  +        mW            )
-               den = linearToDBm(extCellInterference + totN + inCellInterference[i]);
+               den = linearToDBm(extCellInterference + totN + d2dInterference[i]);
 
-               EV << "\t ext[" << extCellInterference << "] - in[" << inCellInterference[i] << "] - recvPwr["
+               EV << "\t ext[" << extCellInterference << "] - in[" << d2dInterference[i] << "] - recvPwr["
                        << dBmToLinear(snrVector[i]) << "] - sinr[" << snrVector[i]-den << "]\n";
 
                // compute final SINR. Subtraction in dB is equivalent to linear division
                snrVector[i] -= den;
            }
    }
-   // compute snr with no incellD2D interference
+   // compute snr with no D2D interference
    else
    {
        for (unsigned int i = 0; i < band_; i++)
@@ -999,21 +967,14 @@ std::vector<double> LteRealisticChannelModel::getSINR_D2D(LteAirFrame *frame, Us
    Coord sourceCoord = lteInfo_1->getCoord();
 
    // Get the direction
-   Direction dir = (Direction) lteInfo_1->getDirection();
-   dir = D2D;
+   Direction dir = D2D;
 
    double noiseFigure = 0.0;
    double extCellInterference = 0.0;
-   if( dir == UL || dir==DL)
-   {
-       //consistency check
-        throw cRuntimeError("Direction should neither be UL or DL");
-   }
-   else
-   {
-       //In D2D case the noise figure is the ueNoiseFigure_
-       noiseFigure = ueNoiseFigure_;
-   }
+
+   //In D2D case the noise figure is the ueNoiseFigure_
+   noiseFigure = ueNoiseFigure_;
+
 
    EV << "------------ GET SINR D2D----------------" << endl;
 
@@ -1038,16 +999,16 @@ std::vector<double> LteRealisticChannelModel::getSINR_D2D(LteAirFrame *frame, Us
     * is so we swap the ueId with the one of his Peer(D2D_Rx). We do the same for the coord.
     */
    //vector containing the sum of inCell interference for each band
-   std::vector<double> inCellInterference; // Linear value (mW)
+   std::vector<double> d2dInterference; // Linear value (mW)
    // prepare data structure
-   inCellInterference.resize(band_, 0);
-   if (enableD2DInCellInterference_ && dir == D2D)
+   d2dInterference.resize(band_, 0);
+   if (enableD2DInterference_)
    {
-       computeInCellD2DInterference(enbId, sourceId, sourceCoord, destId, destCoord, (lteInfo_1->getFrameType() == FEEDBACKPKT), &inCellInterference,dir);
+       computeD2DInterference(enbId, sourceId, sourceCoord, destId, destCoord, (lteInfo_1->getFrameType() == FEEDBACKPKT), &d2dInterference,dir);
    }
 
    //===================== SINR COMPUTATION ========================
-   if( enableD2DInCellInterference_ && dir==D2D  )
+   if (enableD2DInterference_)
    {
            // compute and linearize total noise
            double totN = dBmToLinear(thermalNoise_ + noiseFigure);
@@ -1060,16 +1021,16 @@ std::vector<double> LteRealisticChannelModel::getSINR_D2D(LteAirFrame *frame, Us
            for (unsigned int i = 0; i < band_; i++)
            {
                //               (      mW            +  mW  +        mW            )
-               den = linearToDBm(extCellInterference + totN + inCellInterference[i]);
+               den = linearToDBm(extCellInterference + totN + d2dInterference[i]);
 
-               EV << "\t ext[" << extCellInterference << "] - in[" << inCellInterference[i] << "] - recvPwr["
+               EV << "\t ext[" << extCellInterference << "] - in[" << d2dInterference[i] << "] - recvPwr["
                        << dBmToLinear(snrVector[i]) << "] - sinr[" << snrVector[i]-den << "]\n";
 
                // compute final SINR. Subtraction in dB is equivalent to linear division
                snrVector[i] -= den;
            }
    }
-   // compute snr with no incellD2D interference
+   // compute snr with no D2D interference
    else
    {
        for (unsigned int i = 0; i < band_; i++)
@@ -2011,10 +1972,10 @@ LteRealisticChannelModel::JakesFadingMap * LteRealisticChannelModel::obtainUeJak
    return j;
 }
 
-bool LteRealisticChannelModel::computeMultiCellInterference(MacNodeId eNbId, MacNodeId ueId, Coord coord, bool isCqi,
+bool LteRealisticChannelModel::computeDownlinkInterference(MacNodeId eNbId, MacNodeId ueId, Coord coord, bool isCqi,
        std::vector<double> * interference)
 {
-   EV << "**** Multi Cell Interference ****" << endl;
+   EV << "**** Downlink Interference ****" << endl;
 
    // reference to the mac/phy/channel of each cell
    LtePhyBase * ltePhy;
@@ -2092,7 +2053,7 @@ bool LteRealisticChannelModel::computeMultiCellInterference(MacNodeId eNbId, Mac
            for(unsigned int i=0;i<band_;i++)
            {
                // compute the number of occupied slot (unnecessary)
-               temp = (*it)->mac->getBandStatus(i);
+               temp = (*it)->mac->getDlBandStatus(i);
                if(temp!=0)
                    (*interference)[i] += dBmToLinear(txPwr-att);//(dBm-dB)=dBm
 
@@ -2104,7 +2065,7 @@ bool LteRealisticChannelModel::computeMultiCellInterference(MacNodeId eNbId, Mac
            for(unsigned int i=0;i<band_;i++)
            {
                // compute the number of occupied slot (unnecessary)
-               temp = (*it)->mac->getPrevBandStatus(i);
+               temp = (*it)->mac->getDlPrevBandStatus(i);
                if(temp!=0)
                    (*interference)[i] += dBmToLinear(txPwr-att);//(dBm-dB)=dBm
 
@@ -2117,113 +2078,191 @@ bool LteRealisticChannelModel::computeMultiCellInterference(MacNodeId eNbId, Mac
    return true;
 }
 
-bool LteRealisticChannelModel::computeInCellD2DInterference(MacNodeId eNbId, MacNodeId senderId, Coord senderCoord, MacNodeId destId, Coord destCoord, bool isCqi,
-   std::vector<double> * interference,Direction dir)
+bool LteRealisticChannelModel::computeUplinkInterference(MacNodeId eNbId, MacNodeId senderId, bool isCqi, std::vector<double> * interference)
 {
-   EV << "**** In Cell D2D Interference for cellId[" << eNbId << "] node["<<destId<<"] ****" << endl;
+   EV << "**** Uplink Interference for cellId[" << eNbId << "] node["<<senderId<<"] ****" << endl;
 
-   // Reference to the Physical Channel  of the UeId
-   LtePhyBase * ltePhy_destId;
-   // Reference to the Physical Channel  of the Interfering UE
-   LtePhyBase * ltePhy;
 
-   int temp;
-   double att;
-   double txPwr;
-   // Vector that report if a band must be excluded or not
-   std::vector<bool> band_status;
-   band_status.resize(band_,false);
+   const std::vector<UeAllocationInfo>* allocatedUes;
+   std::vector<UeAllocationInfo>::const_iterator ue_it, ue_et;
 
-   // Get PhyData from the destId
-   ltePhy_destId = check_and_cast<LtePhyBase*>(getSimulation()->getModule(binder_->getOmnetId(destId))->getSubmodule("lteNic")->getSubmodule("phy"));
-   EV<<NOW<<"ComputeInCellD2DInterference for Node: "<<destId<<endl;
-
-   // Get the list of all UEs
-   std::vector<UeInfo*> * ueList = binder_->getUeList();
-   std::vector<UeInfo*>::iterator it = ueList->begin(), et = ueList->end();
-
-   // For all the UEs
-   for(;it!=et;it++)
+   if(isCqi)// check slot occupation for this TTI
    {
-       //Get the id of the interfering node
-       MacNodeId interferringId = (*it)->id;
-
-       // initialize UE data structures
-       if(!(*it)->init)
+       for(unsigned int i=0;i<band_;i++)
        {
-           // get real Channel
-           (*it)->realChan = dynamic_cast<LteRealisticChannelModel *>((*it)->phy->getChannelModel());
+           // compute the number of occupied slot (unnecessary)
+           allocatedUes = binder_->getUlTransmissionInfo(i);
+           if (allocatedUes->empty()) // no UEs allocated on this band
+               continue;
 
-           (*it)->init = true;
-       }
-       ltePhy = (*it)->phy;
-
-       if (isCqi && ltePhy->getLastActive() != NOW)  // if we are computing feedback and the interfering UE has not transmitted in this TTI, skip
-           continue;
-       if (!isCqi && ltePhy->getLastActive() != NOW - TTI)  // if we are decoding a transmission and the interfering UE has not transmitted in the previous TTI, skip
-           continue;
-
-       // Skip Self-Interference and useful signal
-       if (interferringId == destId || interferringId == senderId)
-           continue;
-
-       EV<<NOW<<" ComputeInCellD2DInterference.Interference from Node: "<<interferringId<<endl;
-
-       // Compute attenuation using data structures within the Macro Cell.
-       att = getAttenuation_D2D(interferringId, dir, ltePhy->getCoord(), destId, destCoord); // dB
-
-       txPwr = ltePhy->getTxPwr(dir) - cableLoss_ + 2 * antennaGainUe_;
-       EV << "NodeId [" << interferringId << "] - attenuation [" << att << "]" << endl;
-
-       // The antenna set in computeTxParams is always "MACRO". Here create a fake set with MACRO as the only element
-       std::set<Remote> antennas;
-       antennas.insert(MACRO);
-       std::set<Remote>::const_iterator antenna_it = antennas.begin();
-       std::set<Remote>::const_iterator antenna_et = antennas.end();
-
-       // CQI computation. We need to check the slot occupation of the actual TTI
-       if(isCqi)
-       {
-           // For each band we have to check if the Band is occupied by the interferringId
-           for(unsigned int i=0;i<band_;i++)
+           ue_it = allocatedUes->begin(), ue_et = allocatedUes->end();
+           for (; ue_it != ue_et; ++ue_it)
            {
-               for (antenna_it = antennas.begin(); antenna_it != antenna_et; ++antenna_it)
-               {
-                   temp = check_and_cast<LtePhyUe*>(ltePhy)->getUsedRbs(*antenna_it, i);
-                   // Compute interference only if the band is occupied by an Interfering Node
-                   if( temp!=0 )
-                   {
-                       // Add the interference
-                       (*interference)[i] += dBmToLinear(txPwr-att);
-                   }
-               }
+               MacNodeId ueId = ue_it->nodeId;
+               MacCellId cellId = ue_it->cellId;
+               LtePhyUe* uePhy = check_and_cast<LtePhyUe*>(ue_it->phy);
+               Direction dir = ue_it->dir;
+
+               // no self interference
+               if (ueId == senderId)
+                   continue;
+
+               // no interference from UL/D2D connections of the same cell  (no D2D-UL reuse allowed)
+               if (cellId == eNbId)
+                   continue;
+
+               EV<<NOW<<" LteRealisticChannelModel::computeUplinkInterference - Interference from UE: "<< ueId << "(dir " << dirToA(dir) << ") on band[" << i << "]" << endl;
+
+               // get tx power and attenuation from this UE
+               double txPwr = uePhy->getTxPwr(dir) - cableLoss_ + antennaGainUe_ + antennaGainEnB_;
+               double att = getAttenuation(ueId, UL, uePhy->getCoord());
+               (*interference)[i] += dBmToLinear(txPwr-att);//(dBm-dB)=dBm
+
+               EV << "\t band " << i << "/pwr[" << txPwr-att << "]-int[" << (*interference)[i] << "]" << endl;
            }
        }
-       else // Error computation. We need to check the slot occupation of the previous TTI
+   }
+   else // Error computation. We need to check the slot occupation of the previous TTI
+   {
+       // For each band we have to check if the Band in the previous TTI was occupied by the interferringId
+       for(unsigned int i=0;i<band_;i++)
        {
-           // For each band we have to check if the Band in the previous TTI was occupied by the interferringId
-           for(unsigned int i=0;i<band_;i++)
+           allocatedUes = binder_->getUlPrevTransmissionInfo(i);
+           if (allocatedUes->empty()) // no UEs allocated on this band
+               continue;
+
+           ue_it = allocatedUes->begin(), ue_et = allocatedUes->end();
+           for (; ue_it != ue_et; ++ue_it)
            {
-               for (antenna_it = antennas.begin(); antenna_it != antenna_et; ++antenna_it)
-               {
-                   temp = check_and_cast<LtePhyUe*>(ltePhy)->getPrevUsedRbs(*antenna_it, i);
-                   // Compute interference only if the band was occupied by an interfering Node
-                   if( temp!=0 )
-                   {
-                       // Add the interference
-                       (*interference)[i] += dBmToLinear(txPwr-att);
-                   }
-               }
+               MacNodeId ueId = ue_it->nodeId;
+               MacCellId cellId = ue_it->cellId;
+               LtePhyUe* uePhy = check_and_cast<LtePhyUe*>(ue_it->phy);
+               Direction dir = ue_it->dir;
+
+               // no self interference
+               if (ueId == senderId)
+                   continue;
+
+               // no interference from UL connections of the same cell (no D2D-UL reuse allowed)
+               if (cellId == eNbId)
+                   continue;
+
+               EV<<NOW<<" LteRealisticChannelModel::computeUplinkInterference - Interference from UE: "<< ueId << "(dir " << dirToA(dir) << ") on band[" << i << "]" << endl;
+
+               // get tx power and attenuation from this UE
+               double txPwr = uePhy->getTxPwr(dir) - cableLoss_ + antennaGainUe_ + antennaGainEnB_;
+               double att = getAttenuation(ueId, UL, uePhy->getCoord());
+               (*interference)[i] += dBmToLinear(txPwr-att);//(dBm-dB)=dBm
+
+               EV << "\t band " << i << "/pwr[" << txPwr-att << "]-int[" << (*interference)[i] << "]" << endl;
            }
        }
    }
 
    // Debug Output
-   EV<<NOW<<"LteRealisticChannelModel::computeInCellD2DInterference() Final Band Interference Status: "<<endl;
+   EV << NOW << " LteRealisticChannelModel::computeUplinkInterference - Final Band Interference Status: "<<endl;
    for(unsigned int i=0;i<band_;i++)
-   {
        EV << "\t band " << i << " int[" << (*interference)[i] << "]" << endl;
+
+   return true;
+}
+
+bool LteRealisticChannelModel::computeD2DInterference(MacNodeId eNbId, MacNodeId senderId, Coord senderCoord, MacNodeId destId, Coord destCoord, bool isCqi,
+   std::vector<double> * interference,Direction dir)
+{
+   EV << "**** D2D Interference for cellId[" << eNbId << "] node["<<destId<<"] ****" << endl;
+
+   // get the reference to the MAC of the eNodeB
+   LteMacEnbD2D* macEnb = check_and_cast<LteMacEnbD2D*>(binder_->getMacFromMacNodeId(eNbId));
+
+   const std::vector<UeAllocationInfo>* allocatedUes;
+   std::vector<UeAllocationInfo>::const_iterator ue_it, ue_et;
+
+   if(isCqi)// check slot occupation for this TTI
+   {
+       for(unsigned int i=0;i<band_;i++)
+       {
+           // compute the number of occupied slot (unnecessary)
+           allocatedUes = binder_->getUlTransmissionInfo(i);
+           if (allocatedUes->empty()) // no UEs allocated on this band
+               continue;
+
+           ue_it = allocatedUes->begin(), ue_et = allocatedUes->end();
+           for (; ue_it != ue_et; ++ue_it)
+           {
+               MacNodeId ueId = ue_it->nodeId;
+               MacCellId cellId = ue_it->cellId;
+               LtePhyUe* uePhy = check_and_cast<LtePhyUe*>(ue_it->phy);
+               Direction dir = ue_it->dir;
+
+               // no self interference
+               if (ueId == senderId || ueId == destId)
+                   continue;
+
+               // no interference from UL connections of the same cell (no D2D-UL reuse allowed)
+               if (dir == UL && cellId == eNbId)
+                   continue;
+
+               // no interference from D2D connections of the same cell when reuse is disabled (otherwise, computation of CQI is misleading)
+               if (cellId == eNbId && (!macEnb->isReuseD2DEnabled() && !macEnb->isReuseD2DMultiEnabled()))
+                   continue;
+
+               EV<<NOW<<" LteRealisticChannelModel::computeD2DInterference - Interference from UE: "<< ueId << "(dir " << dirToA(dir) << ") on band[" << i << "]" << endl;
+
+               // get tx power and attenuation from this UE
+               double txPwr = uePhy->getTxPwr(dir) - cableLoss_ + 2 * antennaGainUe_;
+               double att = getAttenuation_D2D(ueId, D2D, uePhy->getCoord(), destId, destCoord);
+               (*interference)[i] += dBmToLinear(txPwr-att);//(dBm-dB)=dBm
+
+               EV << "\t band " << i << "/pwr[" << txPwr-att << "]-int[" << (*interference)[i] << "]" << endl;
+           }
+       }
    }
+   else // Error computation. We need to check the slot occupation of the previous TTI
+   {
+       // For each band we have to check if the Band in the previous TTI was occupied by the interferringId
+       for(unsigned int i=0;i<band_;i++)
+       {
+           allocatedUes = binder_->getUlPrevTransmissionInfo(i);
+           if (allocatedUes->empty()) // no UEs allocated on this band
+               continue;
+
+           ue_it = allocatedUes->begin(), ue_et = allocatedUes->end();
+           for (; ue_it != ue_et; ++ue_it)
+           {
+               MacNodeId ueId = ue_it->nodeId;
+               MacCellId cellId = ue_it->cellId;
+               LtePhyUe* uePhy = check_and_cast<LtePhyUe*>(ue_it->phy);
+               Direction dir = ue_it->dir;
+
+               // no self interference
+               if (ueId == senderId || ueId == destId)
+                   continue;
+
+               // no interference from UL connections of the same cell (no D2D-UL reuse allowed)
+               if (dir == UL && cellId == eNbId)
+                   continue;
+
+               // no interference from D2D connections of the same cell when reuse is disabled
+               if (cellId == eNbId && (!macEnb->isReuseD2DEnabled() && !macEnb->isReuseD2DMultiEnabled()))
+                   continue;
+
+               EV<<NOW<<" LteRealisticChannelModel::computeD2DInterference - Interference from UE: "<< ueId << "(dir " << dirToA(dir) << ") on band[" << i << "]" << endl;
+
+               // get tx power and attenuation from this UE
+               double txPwr = uePhy->getTxPwr(dir) - cableLoss_ + 2 * antennaGainUe_;
+               double att = getAttenuation_D2D(ueId, D2D, uePhy->getCoord(), destId, destCoord);
+               (*interference)[i] += dBmToLinear(txPwr-att);//(dBm-dB)=dBm
+
+               EV << "\t band " << i << "/pwr[" << txPwr-att << "]-int[" << (*interference)[i] << "]" << endl;
+           }
+       }
+   }
+
+   // Debug Output
+   EV << NOW << " LteRealisticChannelModel::computeD2DInterference - Final Band Interference Status: "<<endl;
+   for(unsigned int i=0;i<band_;i++)
+       EV << "\t band " << i << " int[" << (*interference)[i] << "]" << endl;
 
    return true;
 }

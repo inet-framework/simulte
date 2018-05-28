@@ -91,14 +91,14 @@ simple LteRealisticChannelModel like LteChannelModelInterface
 
     double delay_rms = default(363e-9);
 
-    // if true, enables the inter-cell interference computation -->  
+    // if true, enables the inter-cell interference computation for DL connections from external cells -->  
     bool extCell_interference = default(true);
-    // if true, enables the multi-cell interference computation -->  
-    bool multiCell_interference = default(false);
-    // if true, enables the in-cell interference computation -->
-    bool inCell_interference = default(true);
-	// if true, enables the d2d-incell interference computation -->  
-    bool inCellD2D_interference = default(true);
+    // if true, enables the inter-cell interference computation for DL connections -->  
+    bool downlink_interference = default(false);
+    // if true, enables the interference computation for UL connections -->
+    bool uplink_interference = default(false);
+	// if true, enables the interference computation for D2D connections -->  
+    bool d2d_interference = default(true);
 }
 
 simple LteMagicChannelModel like LteChannelModelInterface

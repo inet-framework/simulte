@@ -257,23 +257,14 @@ void LtePhyUeD2D::handleUpperMessage(cMessage* msg)
 
     UserControlInfo* lteInfo = check_and_cast<UserControlInfo*>(msg->removeControlInfo());
 
-    // Store the RBs used for transmission. For interference computation
-    RbMap rbMap = lteInfo->getGrantedBlocks();
-    UsedRBs info;
-    info.time_ = NOW;
-    info.rbMap_ = rbMap;
-
-    usedRbs_.push_back(info);
-
-    std::vector<UsedRBs>::iterator it = usedRbs_.begin();
-    while (it != usedRbs_.end())  // purge old allocations
+    if (lteInfo->getFrameType() == DATAPKT && (channelModel_->isUplinkInterferenceEnabled() || channelModel_->isD2DInterferenceEnabled()))
     {
-        if (it->time_ < NOW - 0.002)
-            usedRbs_.erase(it++);
-        else
-            ++it;
+        // Store the RBs used for data transmission to the binder (for UL interference computation)
+        RbMap rbMap = lteInfo->getGrantedBlocks();
+        Remote antenna = MACRO;  // TODO fix for multi-antenna
+        Direction dir = (Direction)lteInfo->getDirection();
+        binder_->storeUlTransmissionInfo(antenna, rbMap, nodeId_, mac_->getMacCellId(), this, dir);
     }
-    lastActive_ = NOW;
 
     if (lteInfo->getFrameType() == DATAPKT && lteInfo->getUserTxParams() != NULL)
     {

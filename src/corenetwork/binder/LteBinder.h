@@ -64,6 +64,17 @@ class LteBinder : public cSimpleModule
     DeployedUesMap dMap_; // DeployedUes --> Master Mapping
 
     /*
+     * Uplink interference support
+     */
+    typedef std::vector< std::vector<UeAllocationInfo> > UplinkTransmissionInfo;
+    // for each RB, stores the UE (nodeId and ref to the PHY module) that are transmitting within that RB during the current TTI
+    UplinkTransmissionInfo ulBandStatus_;
+    // for each RB, stores the UE (nodeId and ref to the PHY module) that transmitted within that RB during the previous TTI
+    UplinkTransmissionInfo ulPrevBandStatus_;
+    // TTI of the last update of the UL band status
+    simtime_t lastUpdateUplinkTransmissionInfo_;
+
+    /*
      * X2 Support
      */
     typedef std::map<X2NodeId, std::list<int> > X2ListeningPortMap;
@@ -311,6 +322,14 @@ class LteBinder : public cSimpleModule
 
     Cqi meanCqi(std::vector<Cqi> bandCqi,MacNodeId id,Direction dir);
 
+    /*
+     * Uplink interference support
+     */
+    simtime_t getLastUpdateUlTransmissionInfo();
+    void initAndResetUlTransmissionInfo();
+    void storeUlTransmissionInfo(Remote antenna, RbMap& rbMap, MacNodeId nodeId, MacCellId cellId, LtePhyBase* phy, Direction dir);
+    const std::vector<UeAllocationInfo>* getUlTransmissionInfo(Band b);
+    const std::vector<UeAllocationInfo>* getUlPrevTransmissionInfo(Band b);
     /*
      * X2 Support
      */

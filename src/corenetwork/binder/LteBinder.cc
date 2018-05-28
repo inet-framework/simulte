@@ -189,6 +189,50 @@ ConnectedUesMap LteBinder::getDeployedUes(MacNodeId localId, Direction dir)
     return dMap_[localId];
 }
 
+simtime_t LteBinder::getLastUpdateUlTransmissionInfo()
+{
+    return lastUpdateUplinkTransmissionInfo_;
+}
+
+void LteBinder::initAndResetUlTransmissionInfo()
+{
+    ulPrevBandStatus_.clear();
+    ulPrevBandStatus_ = ulBandStatus_;
+
+    ulBandStatus_.clear();
+    ulBandStatus_.resize(numBands_);
+
+    lastUpdateUplinkTransmissionInfo_ = NOW;
+}
+
+void LteBinder::storeUlTransmissionInfo(Remote antenna, RbMap& rbMap, MacNodeId nodeId, MacCellId cellId, LtePhyBase* phy, Direction dir)
+{
+    UeAllocationInfo info;
+    info.nodeId = nodeId;
+    info.cellId = cellId;
+    info.phy = phy;
+    info.dir = dir;
+
+    // for each allocated band, store the UE info
+    std::map<Band, unsigned int>::iterator it = rbMap[antenna].begin(), et = rbMap[antenna].end();
+    for ( ; it != et; ++it)
+    {
+        Band b = it->first;
+        if (it->second > 0)
+            ulBandStatus_[b].push_back(info);
+    }
+}
+
+const std::vector<UeAllocationInfo>* LteBinder::getUlTransmissionInfo(Band b)
+{
+    return &(ulBandStatus_[b]);
+}
+
+const std::vector<UeAllocationInfo>* LteBinder::getUlPrevTransmissionInfo(Band b)
+{
+    return &(ulPrevBandStatus_[b]);
+}
+
 void LteBinder::registerX2Port(X2NodeId nodeId, int port)
 {
     if (x2ListeningPorts_.find(nodeId) == x2ListeningPorts_.end() )

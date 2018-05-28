@@ -47,9 +47,9 @@ private:
 
   // enable/disable intercell interference computation
   bool enableExtCellInterference_;
-  bool enableMultiCellInterference_;
-  bool enableD2DInCellInterference_;
-  bool enableInCellInterference_;
+  bool enableDownlinkInterference_;
+  bool enableUplinkInterference_;
+  bool enableD2DInterference_;
 
   typedef std::pair<simtime_t, inet::Coord> Position;
 
@@ -294,6 +294,8 @@ public:
       return &jakesFadingMap_;
   }
 
+  virtual bool isUplinkInterferenceEnabled() { return enableUplinkInterference_; }
+  virtual bool isD2DInterferenceEnabled() { return enableD2DInterference_; }
 protected:
 
   /* compute speed (m/s) for a given node
@@ -309,24 +311,27 @@ protected:
   void updatePositionHistory(const MacNodeId nodeId, const inet::Coord coord);
 
   /*
-   * compute total interference due to eNB coexistence
+   * compute total interference due to eNB coexistence for the DL direction
    * @param eNbId id of the considered eNb
    * @param isCqi if we are computing a CQI
    */
-  bool computeMultiCellInterference(MacNodeId eNbId, MacNodeId ueId, inet::Coord coord, bool isCqi,
-      std::vector<double> * interference);
+  bool computeDownlinkInterference(MacNodeId eNbId, MacNodeId ueId, inet::Coord coord, bool isCqi, std::vector<double> * interference);
 
   /*
-   * compute total interference due to D2D transmissions within the same cell
+   * compute interference coming from neighboring cells for the UL direction
    */
-  bool computeInCellD2DInterference(MacNodeId eNbId, MacNodeId senderId, inet::Coord senderCoord, MacNodeId destId, inet::Coord destCoord, bool isCqi,std::vector<double>* interference,Direction dir);
+  bool computeUplinkInterference(MacNodeId eNbId, MacNodeId senderId, bool isCqi, std::vector<double> * interference);
 
   /*
-   * evaluates total intercell interference seen from the spot given by coord
+   * compute interference coming from neighboring UEs for the D2D/D2D_MULTI direction
+   */
+  bool computeD2DInterference(MacNodeId eNbId, MacNodeId senderId, inet::Coord senderCoord, MacNodeId destId, inet::Coord destCoord, bool isCqi,std::vector<double>* interference,Direction dir);
+
+  /*
+   * evaluates total interference from external cells seen from the spot given by coord
    * @return total interference expressed in dBm
    */
-  bool computeExtCellInterference(MacNodeId eNbId, MacNodeId nodeId, inet::Coord coord, bool isCqi,
-      std::vector<double>* interference);
+  bool computeExtCellInterference(MacNodeId eNbId, MacNodeId nodeId, inet::Coord coord, bool isCqi, std::vector<double>* interference);
 
   /*
    * compute attenuation due to path loss and shadowing
