@@ -52,6 +52,7 @@ void MEClusterizeApp::initialize(int stage)
 
     clusterizeConfigSentMsg_ = registerSignal("clusterizeConfigSentMsg");
     clusterizeInfoRcvdMsg_ = registerSignal("clusterizeInfoRcvdMsg");
+    clusterizeInfoDelay_ = registerSignal("clusterizeInfoDelay");
 }
 
 void MEClusterizeApp::handleMessage(cMessage *msg)
@@ -124,12 +125,13 @@ void MEClusterizeApp::handleClusterizeConfig(ClusterizeConfigPacket* packet){
 
 void MEClusterizeApp::handleClusterizeInfo(ClusterizeInfoPacket *pkt){
 
-    EV << "MEClusterizeApp::handleClusterizeInfo - Packet received: "<< pkt->getSourceAddress() <<" SeqNo[" << pkt->getSno() << "]" << endl;
-
+    simtime_t delay = simTime()-pkt->getTimestamp();
+    EV << "MEClusterizeApp::handleClusterizeInfo - Packet received: "<< pkt->getSourceAddress() <<" SeqNo[" << pkt->getSno() << "] delay: "<< delay << endl;
     //simply forward to the MEClusterizeService
     send(pkt, "mePlatformOut");
 
     emit(clusterizeInfoRcvdMsg_, (long)1);
+    emit(clusterizeInfoDelay_, delay);
 
     //testing
     EV << "MEClusterizeApp::handleClusterizeInfo position: [" << pkt->getPositionX() << " ; " << pkt->getPositionY() << " ; " << pkt->getPositionZ() << "]" << endl;

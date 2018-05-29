@@ -72,24 +72,24 @@ network Mec
             @display("p=61,177;is=s");
         }
         server: StandardHost {
-            @display("p=858,136;is=n;i=device/server");
+            @display("p=857.205,116.2875;is=n;i=device/server");
         }
         router: Router {
-            @display("p=715,135;i=device/smallrouter");
+            @display("p=714.33746,115.18;i=device/smallrouter");
         }
         pgw: PgwStandardSimplified {
             nodeType = "PGW";
-            @display("p=540,136;is=l");
+            @display("p=536.02997,116.2875;is=l");
         }
         eNodeB1: eNodeB {
-            @display("p=156,136;is=vl");
+            @display("p=146.19,116.2875;is=vl");
         }
         eNodeB2: eNodeB {
-            @display("p=391,313;is=vl");
+            @display("p=336.68,376.55;is=vl");
         }
         //# MEC module
         meHost: MEHost {
-            @display("p=155.05,312.315;is=vl");
+            @display("p=146.19,376.55;is=vl");
         }
 
 
@@ -109,5 +109,5 @@ network Mec
         meHost.pppENB++ <--> Eth10G <--> eNodeB2.pppMEHost;
         meHost.pppENB++ <--> Eth10G <--> eNodeB1.pppMEHost;
 
-		//meHost.ppp <--> Eth10G <--> router.pppg++;
+		//meHost.ppp++ <--> Eth10G <--> router.pppg++;
 }

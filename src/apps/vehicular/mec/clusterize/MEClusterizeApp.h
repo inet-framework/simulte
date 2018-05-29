@@ -48,6 +48,7 @@ class MEClusterizeApp : public cSimpleModule
 
     simsignal_t clusterizeConfigSentMsg_;
     simsignal_t clusterizeInfoRcvdMsg_;
+    simsignal_t clusterizeInfoDelay_;
 
     public:
 

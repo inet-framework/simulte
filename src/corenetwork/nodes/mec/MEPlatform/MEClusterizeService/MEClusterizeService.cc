@@ -18,14 +18,20 @@ Define_Module(MEClusterizeService);
 
 MEClusterizeService::MEClusterizeService(){
 
-    colors.push_back("red");
-    colors.push_back("green");
-    colors.push_back("yellow");
-    colors.push_back("blue");
-    colors.push_back("orange");
     colors.push_back("black");
+    colors.push_back("grey");
+    colors.push_back("brown");
     colors.push_back("purple");
     colors.push_back("magenta");
+    colors.push_back("red");
+    colors.push_back("orange");
+    colors.push_back("yellow");
+    colors.push_back("green");
+    colors.push_back("celery");
+    colors.push_back("olive");
+    colors.push_back("cyan");
+    colors.push_back("blue");
+    colors.push_back("navy");
     colors.push_back("violet");
 }
 

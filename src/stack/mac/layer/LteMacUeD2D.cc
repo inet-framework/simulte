@@ -344,7 +344,7 @@ void LteMacUeD2D::macPduMake(MacCid cid)
         //        } */
 
         // Attach BSR to PDU if RAC is won and wasn't already made
-        if ((bsrTriggered_ || bsrD2DMulticastTriggered_) && !bsrAlreadyMade )
+        if ( !bsrAlreadyMade )
         {
             MacBsr* bsr = new MacBsr();
             bsr->setTimestamp(simTime().dbl());

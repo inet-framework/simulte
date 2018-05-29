@@ -29,19 +29,19 @@ import inet.node.ethernet.Eth10G;
 module MEHost
 {
     parameters:
-        @display("i=device/pc2;bgb=634,262");
+        @display("i=device/pc2;bgb=1000,500");
 
         //# Node specs
         string nodeType = "MEHost";						// DO NOT CHANGE
-        
+
         //#	ME Host Resources
         int maxMEApps = default(0);
         double maxRam @unit("B") = default(32GB);
         double maxDisk @unit("B") = default(100TB);
         double maxCpu = default(1);						// percentage of available CPU
 
-		//#connections
-		string eNBList = default("");
+        //#connections
+        string eNBList = default("");
 
         //# Supported ME Service Paths
         //
@@ -55,26 +55,26 @@ module MEHost
 		//to local radio networks
         inout pppENB[];
 
-		//to external networks (internet)
-		inout ppp[];
+        //to external networks (internet)
+        inout ppp[];
 
     submodules:
 
         virtualisationInfrastructure: VirtualisationInfrastructure {
             parameters:
-                @display("p=518,159;is=s");
+                @display("p=500,400");
         }
 
         mePlatform: MEPlatform {
             parameters:
-                @display("p=518,79;is=s");
+                @display("p=500,50;is=m");
         }
 
         //gtp endpoint to connect directly with an eNodeB
         gtpEndpoint: GtpEndpoint {
             parameters:
                 nodeType = "GTPENDPOINT";
-                @display("p=161,159;is=l");
+                @display("p=150,400;is=l");
         }
 
     connections allowunconnected:
@@ -87,17 +87,13 @@ module MEHost
         virtualisationInfrastructure.ppp++ <--> Eth10G <--> gtpEndpoint.filterGate;
 
         for i=0..sizeof(pppENB)-1 {
-
-            //#
-    		//# external connection to the eNodeB
-    		//#
             pppENB++ <--> gtpEndpoint.pppg++;
         }
-        
-        for i=0..sizeof(ppp)-1{
+
+        for i=0..sizeof(ppp)-1 {
             //#
-    		//# external connection to external networks
-    		//#
-        	virtualisationInfrastructure.ppp++ <--> ppp++;
+            //# external connection to external networks
+            //#
+            virtualisationInfrastructure.ppp++ <--> ppp++;
         }
 }

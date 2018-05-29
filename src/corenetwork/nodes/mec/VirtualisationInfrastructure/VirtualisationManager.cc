@@ -84,6 +84,8 @@ void VirtualisationManager::initialize(int stage)
 
 void VirtualisationManager::handleMessage(cMessage *msg)
 {
+    EV << "VirtualisationManager::handleMessage" << endl;
+
     if (msg->isSelfMessage())
         return;
 
@@ -139,6 +141,8 @@ void VirtualisationManager::handleResource(cMessage* msg){
 
 void VirtualisationManager::handleClusterize(ClusterizePacket* pkt){
 
+    EV << "VirtualisationManager::handleClusterize - received "<< pkt->getType()<<" Delay: " << (simTime()-pkt->getTimestamp()) << endl;
+
     /* -------------------------------
      * Handling ClusterizeStartPacket */
     if(!strcmp(pkt->getType(), START_CLUSTERIZE)){
@@ -177,8 +181,6 @@ void VirtualisationManager::startClusterize(ClusterizePacket* pkt){
     std::stringstream key;
     key << pkt->getSourceAddress() << pkt->getV2vAppName();
 
-    EV << "VirtualisationManager::startClusterize - test: " << key.str() << endl;
-
     //checking if there are available slots for MEClusterizeApp && the MEClusterizeApp is not already instantiated!
     if(currentMEApps < maxMEApps && meAppMapTable.find(key.str()) == meAppMapTable.end()){
 
@@ -188,10 +190,13 @@ void VirtualisationManager::startClusterize(ClusterizePacket* pkt){
         send(pkt, "resourceManagerOut");
     }
     else{
-        if(meAppMapTable.find(key.str()) != meAppMapTable.end())
+        if(meAppMapTable.find(key.str()) != meAppMapTable.end()){
 
             EV << "VirtualisationManager::startClusterize - \tWARNING: MEClusterizeApp ALREADY STARTED!" << endl;
-        else
+            //Sending ACK to the UEClusterizeApp to confirm the instantiation in case of previous ack lost!
+            EV << "VirtualisationManager::startClusterize  - calling ackClusterize with  "<< ACK_START_CLUSTERIZE << endl;
+            ackClusterize(pkt, ACK_START_CLUSTERIZE);
+        }else
             EV << "VirtualisationManager::startClusterize - \tWARNING: maxMEApp LIMIT REACHED!" << endl;
     }
 }
@@ -302,8 +307,13 @@ void VirtualisationManager::instantiateMEClusterizeApp(ClusterizePacket* pkt){
         cModuleType *moduleType = cModuleType::get("lte.apps.vehicular.mec.clusterize.MEClusterizeApp");
         cModule *module = moduleType->create("MEClusterizeApp", meHost);     //name & its Parent Module
         std::stringstream appName;
-        appName << "MEClusterizeApp-" <<  key.str().c_str();
+        appName << "MEApp[" <<  key.str().c_str() << "]";
         module->setName(appName.str().c_str());
+
+
+        std::stringstream display;
+        display << "p=" << (50 + ((index%10)*100)%1000) << "," << (100 + (50*(index/10)%350)) << ";is=vs";
+        module->setDisplayString(display.str().c_str());
 
         module->par("sourceAddress") = pkt->getDestinationAddress();
         module->par("destAddress") = pkt->getSourceAddress();

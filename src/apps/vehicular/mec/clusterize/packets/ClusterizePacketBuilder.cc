@@ -27,6 +27,7 @@ ClusterizePacket* ClusterizePacketBuilder::buildClusterizePacket(const char* typ
 
 
         ClusterizePacket* packet = new ClusterizePacket(type);
+        packet->setName(type);
         packet->setSno(sqn);
         packet->setTimestamp(time);
         packet->setByteLength(size);
@@ -44,6 +45,7 @@ ClusterizePacket* ClusterizePacketBuilder::buildClusterizePacket(const char* typ
 ClusterizeInfoPacket* ClusterizePacketBuilder::buildClusterizeInfoPacket(unsigned int sqn, simtime_t time, long int size, int carID, const char* v2vAppName, const char* srcAddr, const char* destAddr, inet::Coord position, inet::Coord speed, inet::EulerAngles angularPosition, inet::EulerAngles angularSpeed){
 
     ClusterizeInfoPacket* packet = new ClusterizeInfoPacket(INFO_CLUSTERIZE);
+    packet->setName(INFO_CLUSTERIZE);
     packet->setSno(sqn);
     packet->setTimestamp(time);
     packet->setByteLength(size);
@@ -74,6 +76,7 @@ ClusterizeInfoPacket* ClusterizePacketBuilder::buildClusterizeInfoPacket(unsigne
 ClusterizeConfigPacket* ClusterizePacketBuilder::buildClusterizeConfigPacket(unsigned int sqn, simtime_t time, long int size, int carID, const char* v2vAppName, const char* srcAddr, const char* destAddr, int clusterID, const char* clusterColor, int txMode, const char* following, const char* follower, const char* clusterString){
 
     ClusterizeConfigPacket* packet = new ClusterizeConfigPacket(CONFIG_CLUSTERIZE);
+    packet->setName(CONFIG_CLUSTERIZE);
     packet->setSno(sqn);
     packet->setTimestamp(time);
     packet->setByteLength(size);

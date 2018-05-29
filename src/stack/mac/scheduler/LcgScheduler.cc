@@ -333,34 +333,36 @@ ScheduleList& LcgScheduler::schedule(unsigned int availableBytes, Direction gran
 //
 //            }
 //
-            // update the last schedule time
-            lastExecutionTime_ = NOW;
-
-            // signal service for current connection
-            unsigned int* servicedSdu = NULL;
-
-            if (scheduleList_.find(cid) == scheduleList_.end())
+            if(elem->sentSdus_ > 0)
             {
-                // the element does not exist, initialize it
-                servicedSdu = &scheduleList_[cid];
-                *servicedSdu = elem->sentSdus_;
-            }
-            else
-            {
-                // connection already scheduled during this TTI
-                servicedSdu = &scheduleList_.at(cid);
-            }
+                // update the last schedule time
+                lastExecutionTime_ = NOW;
 
-            // update scheduled bytes
-            if (scheduledBytesList_.find(cid) == scheduledBytesList_.end())
-            {
-                scheduledBytesList_[cid] = elem->sentData_;
-            }
-            else
-            {
-                scheduledBytesList_[cid] += elem->sentData_;
-            }
+                // signal service for current connection
+                unsigned int* servicedSdu = NULL;
 
+                if (scheduleList_.find(cid) == scheduleList_.end())
+                {
+                    // the element does not exist, initialize it
+                    servicedSdu = &scheduleList_[cid];
+                    *servicedSdu = elem->sentSdus_;
+                }
+                else
+                {
+                    // connection already scheduled during this TTI
+                    servicedSdu = &scheduleList_.at(cid);
+                }
+
+                // update scheduled bytes
+                if (scheduledBytesList_.find(cid) == scheduledBytesList_.end())
+                {
+                    scheduledBytesList_[cid] = elem->sentData_;
+                }
+                else
+                {
+                    scheduledBytesList_[cid] += elem->sentData_;
+                }
+            }
             // If the end of the connections map is reached and we were on priority and on last traffic class
             if (priorityService && (it == et) && ((i + 1) == (unsigned short) UNKNOWN_TRAFFIC_TYPE))
             {
