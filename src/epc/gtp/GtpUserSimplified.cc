@@ -108,7 +108,7 @@ void GtpUserSimplified::handleFromTrafficFlowFilter(IPv4Datagram * datagram)
 
 void GtpUserSimplified::handleFromUdp(GtpUserMsg * gtpMsg)
 {
-    EV << "GtpUserSimplified::handleFromUdp - Decapsulating and sending to local connection." << endl;
+    EV << "GtpUserSimplified::handleFromUdp - Decapsulating datagram from GTP tunnel" << endl;
 
     // obtain the original IP datagram and send it to the local network
     IPv4Datagram * datagram = check_and_cast<IPv4Datagram*>(gtpMsg->decapsulate());
@@ -131,10 +131,40 @@ void GtpUserSimplified::handleFromUdp(GtpUserMsg * gtpMsg)
              const char* symbolicName = binder_->getModuleNameByMacNodeId(destMaster);
              L3Address tunnelPeerAddress = L3AddressResolver().resolve(symbolicName);
              socket_.sendTo(gtpMsg, tunnelPeerAddress, tunnelPeerPort_);
-             return;
+             EV << "GtpUserSimplified::handleFromUdp - Destination is a MEC server. Sending GTP packet to " << symbolicName << endl;
+        }
+        else
+        {
+            // destination is outside the LTE network
+            EV << "GtpUserSimplified::handleFromUdp - Deliver datagram to the internet " << endl;
+            send(datagram,"pppGate");
         }
     }
+    else if (ownerType_ == ENB)
+    {
+        IPv4Address& destAddr = datagram->getDestAddress();
+        MacNodeId destId = binder_->getMacNodeId(destAddr);
+        if (destId != 0)
+        {
+            MacNodeId enbId = getAncestorPar("macNodeId");
+            MacNodeId destMaster = binder_->getNextHop(destId);
+            if (destMaster == enbId)
+            {
+                EV << "GtpUserSimplified::handleFromUdp - Deliver datagram to the LTE NIC " << endl;
+                send(datagram,"pppGate");
+                return;
+            }
+        }
+        // send the message to the correct eNB or to the internet, through the PGW
+        // create a new GtpUserSimplifiedMessage
+        GtpUserMsg * gtpMsg = new GtpUserMsg();
+        gtpMsg->setName("GtpUserMessage");
 
-    // destination is outside the LTE network
-    send(datagram,"pppGate");
+        // encapsulate the datagram within the GtpUserSimplifiedMessage
+        gtpMsg->encapsulate(datagram);
+
+        socket_.sendTo(gtpMsg, pgwAddress_, tunnelPeerPort_);
+
+        EV << "GtpUserSimplified::handleFromUdp - Destination is not served by this eNodeB. Sending GTP packet to the PGW"<< endl;
+    }
 }
