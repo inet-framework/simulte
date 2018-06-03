@@ -27,7 +27,11 @@
 #include "inet/common/geometry/common/Coord.h"
 #include "inet/common/geometry/common/EulerAngles.h"
 
+#include "corenetwork/binder/LteBinder.h"
 #include "common/LteCommon.h"
+
+//to build V2V statistics records to emit in UEClusterizeApp
+#include "apps/d2dMultihop/statistics/MultihopD2DStatistics.h"
 
 
 /**
@@ -48,6 +52,7 @@ struct car{
 
     int id;
     std::string simbolicAddress;
+    MacNodeId macID;
 
     //local-info
     inet::Coord position;
@@ -84,7 +89,7 @@ protected:
         int maxMEApps;
         std::vector<std::string> colors;            //Cluster Colors
 
-        int preconfiguredTxMode;
+        int preconfiguredTxMode;                    //from INI: chosing INFRASTRUCTURE_UNICAST - V2V_UNICAST - V2V_MULTICAST
 
         // for each MEClusterizeApp (linked to the UEClusterizeApp & V2VApp supported)
         // storing the more recent car-local info (from  ClusterizeInfoPacket )
@@ -97,6 +102,13 @@ protected:
         //
         std::map<int, cluster> clusters;
 
+
+        LteBinder* binder_;
+
+        // reference to the statistics manager
+        MultihopD2DStatistics* stat_;
+        unsigned long eventID;
+
     public:
 
         ~MEClusterizeService();
@@ -108,21 +120,18 @@ protected:
         virtual void initialize(int stage);
         virtual void handleMessage(cMessage *msg);
 
-        // executing periodically the clustering algorithm & updating the v2vConfig map
-        // chain clustering alforithm:
-        //      building up a chain of cars -> each car is able to send to the car behind!
-        //      using the proximityTreshold and directionDelimiterThreshold
+        // executing periodically the clustering algorithm & updating the vclusters map
         virtual void compute(){};
 
-        // sending, after compute(), the configurations in v2vConfig map
+        // sending, after compute(), the configurations in clusters map
         virtual void sendConfig();
 
-        // updating the v2vInfo map
-        // by modifying the values in the correspondent v2vInfo entry (arrival-gate index)
+        // updating the cars map
+        // by modifying the values in the correspondent entry (arrival-gate index)
         virtual void handleClusterizeInfo(ClusterizeInfoPacket*);
 
-        // updating the v2vInfo & v2vConfig maps
-        // by erasing the correspondent v2vInfo entry (arrival-gate index)
+        // updating the cars maps
+        // by erasing the correspondent entry (arrival-gate index)
         virtual void handleClusterizeStop(ClusterizePacket*);
 };
 

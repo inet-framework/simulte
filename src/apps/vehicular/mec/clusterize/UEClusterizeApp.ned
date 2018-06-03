@@ -40,6 +40,7 @@ simple UEClusterizeApp like IUDPApp
         string destAddress;
         int packetSize = default(10);
         
+        int multicastPort = default(5000);
         string multicastGoupAddress = default("224.0.0.10");
         
         

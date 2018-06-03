@@ -27,12 +27,13 @@ MEClusterizeService::MEClusterizeService(){
     colors.push_back("orange");
     colors.push_back("yellow");
     colors.push_back("green");
-    colors.push_back("celery");
     colors.push_back("olive");
     colors.push_back("cyan");
     colors.push_back("blue");
     colors.push_back("navy");
     colors.push_back("violet");
+
+    eventID = 0;
 }
 
 MEClusterizeService::~MEClusterizeService(){
@@ -75,6 +76,11 @@ void MEClusterizeService::initialize(int stage)
     }
 
     preconfiguredTxMode = par("preconfiguredTxMode").longValue();
+
+    binder_ = getBinder();
+
+    // global statistics recorder
+    stat_ = check_and_cast<MultihopD2DStatistics*>(getModuleByPath("d2dMultihopStatistics"));
 
     simtime_t startTime = par("startTime");
     scheduleAt(simTime() + startTime, selfSender_);
@@ -129,7 +135,7 @@ void MEClusterizeService::sendConfig(){
 
             for(int memberKey : cl_it->second.members){
 
-                ClusterizeConfigPacket* pkt = ClusterizePacketBuilder().buildClusterizeConfigPacket(0, 0, 0, 0, "", "", "", cars[memberKey].clusterID, cl_it->second.color.c_str(), cars[memberKey].txMode, cars[memberKey].following.c_str(), cars[memberKey].follower.c_str(),cl_it->second.membersList.c_str());
+                ClusterizeConfigPacket* pkt = ClusterizePacketBuilder().buildClusterizeConfigPacket(0, 0, eventID, 1, 0, 0, "", "", "", cars[memberKey].clusterID, cl_it->second.color.c_str(), cars[memberKey].txMode, cars[memberKey].following.c_str(), cars[memberKey].follower.c_str(),cl_it->second.membersList.c_str());
 
                 //testing
                 EV << "MEClusterizeService::sendConfig - sending ClusterizeConfig to CM: "  << cars[memberKey].simbolicAddress << " (txMode: INFRASTRUCTURE_UNICAST_TX_MODE) " << endl;
@@ -139,6 +145,12 @@ void MEClusterizeService::sendConfig(){
                 //sending to the MEClusterizeApp (on the corresponded gate!)
                 send(pkt, "meClusterizeAppOut", memberKey);
             }
+            //creating global-statistics event record
+            std::set<MacNodeId> targetSet;
+            for(int memberKey : cl_it->second.members)
+                targetSet.insert(cars[memberKey].macID);
+            stat_->recordNewBroadcast(eventID, targetSet);
+            eventID++;
         }
     }
     //sending directly only to the cluster leader
@@ -148,7 +160,7 @@ void MEClusterizeService::sendConfig(){
 
             int leaderKey = cl_it->second.members.at(0);
 
-            ClusterizeConfigPacket* pkt = ClusterizePacketBuilder().buildClusterizeConfigPacket(0, 0, 0, 0, "", "", "", cars[leaderKey].clusterID, cl_it->second.color.c_str(), cars[leaderKey].txMode, cars[leaderKey].following.c_str(), cars[leaderKey].follower.c_str(),cl_it->second.membersList.c_str());
+            ClusterizeConfigPacket* pkt = ClusterizePacketBuilder().buildClusterizeConfigPacket(0, 0, eventID, 1, 0, 0, "", "", "", cars[leaderKey].clusterID, cl_it->second.color.c_str(), cars[leaderKey].txMode, cars[leaderKey].following.c_str(), cars[leaderKey].follower.c_str(),cl_it->second.membersList.c_str());
 
             //testing
             std::string txmode = (preconfiguredTxMode == V2V_UNICAST_TX_MODE)? "V2V_UNICAST_TX_MODE" : "V2V_MULTICAST_TX_MODE";
@@ -158,6 +170,13 @@ void MEClusterizeService::sendConfig(){
 
             //sending to the MEClusterizeApp (on the corresponded gate!)
             send(pkt, "meClusterizeAppOut", leaderKey);
+
+            //creating global-statistics event record
+            std::set<MacNodeId> targetSet;
+            for(int memberKey : cl_it->second.members)
+                targetSet.insert(cars[memberKey].macID);
+            stat_->recordNewBroadcast(eventID,targetSet);
+            eventID++;
         }
     }
     else{
@@ -183,6 +202,7 @@ void MEClusterizeService::handleClusterizeInfo(ClusterizeInfoPacket* pkt){
 
     cars[key].id = pkt->getCarID();
     cars[key].simbolicAddress = pkt->getSourceAddress();
+    cars[key].macID = binder_->getMacNodeIdFromOmnetId(cars[key].id);
     cars[key].position.x = pkt->getPositionX();
     cars[key].position.y = pkt->getPositionY();
     cars[key].position.z = pkt->getPositionZ();
@@ -197,7 +217,7 @@ void MEClusterizeService::handleClusterizeInfo(ClusterizeInfoPacket* pkt){
     cars[key].angularSpeed.gamma = pkt->getAngularSpeedC();
     cars[key].isFollower = false;
 
-    EV << "MEClusterizeService::handleClusterizeInfo - Updating cars[" << key <<"] --> " << cars[key].simbolicAddress << "( "<< cars[key].id << " ) " << pkt->getV2vAppName() << endl;
+    EV << "MEClusterizeService::handleClusterizeInfo - Updating cars[" << key <<"] --> " << cars[key].simbolicAddress << " (carID: "<< cars[key].id << ") " << pkt->getV2vAppName() << endl;
 
     //testing
     EV << "MEClusterizeService::handleClusterizeInfo - cars[" << key << "].position = " << "[" << cars[key].position.x << " ; "<< cars[key].position.y << " ; " << cars[key].position.z  << "]" << endl;

@@ -54,6 +54,10 @@ packet ClusterizeConfigPacket extends ClusterizePacket{
     string clusterFollowing;
     string clusterFollower;
     int txMode;
+    
+    //statistic info
+    int hops;
+    unsigned long eventID;
 }
 
 

@@ -21,15 +21,20 @@
 #include "inet/networklayer/common/L3Address.h"
 #include "inet/networklayer/common/L3AddressResolver.h"
 
+#include "corenetwork/binder/LteBinder.h"
+
 #include "inet/common/geometry/common/Coord.h"
 #include "inet/common/geometry/common/EulerAngles.h"
 
-//#include "inet/mobility/contract/IMobility.h"
+#include "inet/mobility/contract/IMobility.h"
 #include "veins_inet/VeinsInetMobility.h"
 
 #include "apps/vehicular/mec/clusterize/packets/ClusterizePacket_m.h"
 #include "apps/vehicular/mec/clusterize/packets/ClusterizePacketTypes.h"
 #include "apps/vehicular/mec/clusterize/packets/ClusterizePacketBuilder.h"
+
+//to emit V2V statistics
+#include "apps/d2dMultihop/statistics/MultihopD2DStatistics.h"
 
 //to get the V2v Cluster App reference and to configure the cluster configuration --> calling setClusterConfiguration cross-module Call
 #include "../../v2v/V2vClusterBaseApp.h"
@@ -49,49 +54,54 @@
 
 class UEClusterizeApp : public cSimpleModule
 {
+    //unicast
     inet::UDPSocket socket;
-
     int nextSnoStart_;
     int nextSnoInfo_;
     int nextSnoStop_;
     int size_;
     simtime_t period_;
-
     int localPort_;
     int destPort_;
     inet::L3Address destAddress_;
 
-    inet::L3Address v2vFollowerAddress_;
-
     char* sourceSimbolicAddress;            //Car[x]
     char* destSimbolicAddress;              //meHost.virtualisationInfrastructure
+    MacNodeId macID;
 
-    char* v2vFollowerSimbolicAddress;
+    char* v2vFollowerSimbolicAddress;       //Car[y]
+    inet::L3Address v2vFollowerAddress_;
 
+    //multicast
+    inet::UDPSocket multicastSocket;
+    int multicastPort_;
     char* multicastGoupAddress;
     inet::L3Address multicastAddress_;
-
 
     cMessage *selfStart_;
     cMessage *selfSender_;
     cMessage *selfStop_;
 
-    // v2v app who uses the cluster configuration received from MEClusterizeService
-    //
-    cModule* v2vApp;                        //v2vApp module
-    char* v2vAppName;                 //v2vApp Class Name
-    V2vClusterBaseApp *v2vClusterApp;
-
-    // mobility information for MEClusterizeService computatations
+    // mobility information for MEClusterizeService computations
     //
     cModule* lteNic;
     cModule* car;
-    Veins::VeinsInetMobility *mobility;
+    Veins::VeinsInetMobility *veins_mobility;
+    inet::IMobility *mobility;
     inet::Coord position;
     inet::Coord speed;
     inet::EulerAngles angularPosition;
     inet::EulerAngles angularSpeed;
     double maxSpeed;
+
+    // reference to the statistics manager
+    MultihopD2DStatistics* stat_;
+
+    // v2v app who uses the cluster configuration received from MEClusterizeService (optional usage)
+    //
+    cModule* v2vApp;                        //v2vApp module
+    char* v2vAppName;                   //v2vApp Class Name
+    V2vClusterBaseApp *v2vClusterApp;
 
     //signals
     simsignal_t clusterizeInfoSentMsg_;

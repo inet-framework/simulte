@@ -21,7 +21,6 @@ import inet.transportlayer.tcp.TCP;
 import inet.transportlayer.udp.UDP;
 import lte.stack.ILteNic;
 
-
 import org.car2x.veins.base.modules.*;
 // 
 // Car Module
@@ -30,7 +29,7 @@ module Car
 {
     parameters:
         @networkNode();
-        @display("i=device/car;is=vs;bgb=400,518");
+        @display("i=device/car_vs;is=vs;bgb=400,518");
 
         //# Mobility
         string mobilityType = default("VeinsInetMobility");

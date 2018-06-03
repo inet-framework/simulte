@@ -61,39 +61,57 @@ void UEClusterizeApp::initialize(int stage)
     destAddress_ = inet::L3AddressResolver().resolve(destSimbolicAddress);
     EV << "UEClusterizeApp::initialize - destAddress: " << destSimbolicAddress << " [" << destAddress_.str()  <<"]"<< endl;
 
-    multicastGoupAddress = (char*) par("multicastGoupAddress").stringValue();
-    multicastAddress_ = inet::L3AddressResolver().resolve(multicastGoupAddress);
-    EV << "UEClusterizeApp::initialize - multicastGoupAddress: " << multicastGoupAddress << endl;
-
     socket.setOutputGate(gate("udpOut"));
     socket.bind(localPort_);
     EV << "UEClusterizeApp::initialize - binding to port: local:" << localPort_ << " , dest:" << destPort_ << endl;
 
+
     // for multicast support
+    multicastPort_ = par("multicastPort").longValue();
+    multicastGoupAddress = (char*) par("multicastGoupAddress").stringValue();
+    multicastAddress_ = inet::L3AddressResolver().resolve(multicastGoupAddress);
+    EV << "UEClusterizeApp::initialize - multicastGoupAddress: " << multicastGoupAddress << endl;
+
+    multicastSocket.setOutputGate(gate("udpOut"));
+    multicastSocket.bind(multicastPort_);
+    EV << "UEClusterizeApp::initialize - binding to multicast port:" << multicastPort_ << endl;
+
     inet::IInterfaceTable *ift = inet::getModuleFromPar< inet::IInterfaceTable >(par("interfaceTableModule"), this);
     inet::InterfaceEntry *ie = ift->getInterfaceByName("wlan");
     if (!ie)
         throw cRuntimeError("Wrong multicastInterface setting: no interface named wlan");
     inet::MulticastGroupList mgl = ift->collectMulticastGroups();
-    socket.joinLocalMulticastGroups(mgl);
-    socket.setMulticastOutputInterface(ie->getInterfaceId());
+    multicastSocket.joinLocalMulticastGroups(mgl);
+    multicastSocket.setMulticastOutputInterface(ie->getInterfaceId());
     // -------------------- //
 
+
     car = this->getParentModule();
-    //getting mobility module
+        //getting mobility module
         cModule *temp = getParentModule()->getSubmodule("mobility");
         if(temp != NULL){
-            mobility = check_and_cast<Veins::VeinsInetMobility*>(temp);
-           EV << "UEClusterizeApp::initialize - Mobility module found!" << endl;
+            mobility = check_and_cast<inet::IMobility*>(temp);
+
+            if(!strcmp(car->par("mobilityType").stringValue(),"VeinsInetMobility")){
+                veins_mobility = check_and_cast<Veins::VeinsInetMobility*>(temp);
+                EV << "UEClusterizeApp::initialize - Mobility module found!" << endl;
+            }
+            else{
+                // necessary for using inet mobility (in sendClusterizeInfo needs to reverse the angle!)
+                veins_mobility = NULL;
+            }
         }
         else
             EV << "UEClusterizeApp::initialize - \tWARNING: Mobility module NOT FOUND!" << endl;
 
-    lteNic = car->getModuleByPath(".lteNic");
+    lteNic = car->getSubmodule("lteNic");
         if(lteNic == NULL){
             EV << "V2vClusterBaseApp::initialize - ERROR getting lteNic module!" << endl;
             throw cRuntimeError("V2vClusterAlertApp::initialize - \tFATAL! Error when getting lteNIC!");
         }
+
+    LteMacBase* mac = check_and_cast<LteMacBase*>(lteNic->getSubmodule("mac"));
+    macID = mac->getMacNodeId();
 
     selfSender_ = new cMessage("selfSender");
     selfStart_ = new cMessage("selfStart");
@@ -114,11 +132,17 @@ void UEClusterizeApp::initialize(int stage)
     clusterizeConfigRcvdMsg_ = registerSignal("clusterizeConfigRcvdMsg");
     clusterizeConfigDelay_ = registerSignal("clusterizeConfigDelay");
 
+
+    // global statistics recorder
+    stat_ = check_and_cast<MultihopD2DStatistics*>(getModuleByPath("d2dMultihopStatistics"));
+
+    //START app
     simtime_t startTime = par("startTime");
     EV << "\t starting sendClusterizeStartPacket() in " << startTime << " seconds " << endl;
     // starting sendClusterizeStartPacket() to initialize the ME App on the ME Host
     scheduleAt(simTime() + startTime, selfStart_);
 
+    //STOP app
     simtime_t  stopTime = par("stopTime");
     EV << "\t starting sendClusterizeStopPacket() in " << stopTime << " seconds " << endl;
     // starting sendClusterizeSopPacket() to terminate the ME App on the ME Host
@@ -205,13 +229,23 @@ void UEClusterizeApp::sendClusterizeInfoPacket()
 
     //position = m and speed = m/s..    --> setted in the simulation "*.rou.xml" config files for SUMO
     //w.r.t. top-left edge in the Network with Coord [0 ; 0]
-    if(mobility != NULL){
+    if(veins_mobility == NULL){
         position = mobility->getCurrentPosition();
         speed = mobility->getCurrentSpeed();
         maxSpeed = mobility->getMaxSpeed();
-        angularPosition = mobility->getCurrentAngularPosition();
         angularSpeed = mobility->getCurrentAngularSpeed();
+        angularPosition = mobility->getCurrentAngularPosition();
+        angularPosition.alpha *= -1.0;
+        EV << "UEClusterizeApp::sendClusterizeInfoPacket - No VeinsMobility: reverting the angular position!"<< endl;
     }
+    else{
+        position = veins_mobility->getCurrentPosition();
+        speed = veins_mobility->getCurrentSpeed();
+        maxSpeed = veins_mobility->getMaxSpeed();
+        angularSpeed = veins_mobility->getCurrentAngularSpeed();
+        angularPosition = veins_mobility->getCurrentAngularPosition();
+        }
+
 
     ClusterizeInfoPacket* packet = ClusterizePacketBuilder().buildClusterizeInfoPacket(nextSnoInfo_, simTime(), size_, car->getId(), v2vAppName, sourceSimbolicAddress, destSimbolicAddress, position, speed, angularPosition, angularSpeed);
 
@@ -227,6 +261,9 @@ void UEClusterizeApp::sendClusterizeInfoPacket()
     nextSnoInfo_++;
 
     emit(clusterizeInfoSentMsg_, (long)1);
+
+    if(selfSender_->isScheduled())
+        cancelEvent(selfSender_);
 
     scheduleAt(simTime() + period_, selfSender_);
 }
@@ -244,6 +281,8 @@ void UEClusterizeApp::sendClusterizeStopPacket()
     if(selfSender_->isScheduled())
         cancelEvent(selfSender_);
 
+    if(selfStop_->isScheduled())
+        cancelEvent(selfStop_);
     // trying to terminate the MECLusterizeApp until receiving the ack
     scheduleAt(simTime() + period_, selfStop_);
 }
@@ -257,13 +296,13 @@ void UEClusterizeApp::handleClusterizeAckStart(ClusterizePacket* pkt){
 
     cancelEvent(selfStart_);
 
-    simtime_t startTime = par("startTime");
-
     // starting sending local-info updates
     if(!selfSender_->isScheduled()){
         //check to avoid multiple scheduling by receiving duplicated acks!
-        scheduleAt(simTime() + startTime, selfSender_);
-        EV << "\t starting traffic in " << startTime << " seconds " << endl;
+
+        simtime_t startTime = par("startTime");
+        scheduleAt(simTime() + period_, selfSender_);
+        EV << "\t starting traffic in " << period_ << " seconds " << endl;
     }
 }
 
@@ -301,6 +340,7 @@ void UEClusterizeApp::handleClusterizeAckStop(ClusterizePacket* pkt){
 void UEClusterizeApp::handleClusterizeConfig(ClusterizeConfigPacket* pkt){
 
     EV << "UEClusterizeApp::handleClusterizeConfig - Packet received: "<< pkt->getSourceAddress() <<" SeqNo[" << pkt->getSno() << "]" << endl;
+    EV << "UEClusterizeApp::handleClusterizeConfig - Cluster "<< pkt->getClusterID() << " (" << pkt->getClusterColor() <<"): " << pkt->getClusterString() << endl;
 
     // if message received from MEHost
     if( strcmp(pkt->getSourceAddress(), destSimbolicAddress) == 0 ){
@@ -312,15 +352,21 @@ void UEClusterizeApp::handleClusterizeConfig(ClusterizeConfigPacket* pkt){
         handleClusterizeConfigFromUE(pkt);
     }
 
+    simtime_t delay = simTime()-pkt->getTimestamp();
     // emit statistics
     emit(clusterizeConfigRcvdMsg_, (long)1);
-    emit(clusterizeConfigDelay_, simTime()-pkt->getTimestamp());
+    emit(clusterizeConfigDelay_, delay);
 
-    EV << "UEClusterizeApp::handleClusterizeConfig - \tClusterizeConfig Delay: " << (simTime()-pkt->getTimestamp()) << endl;
+    // emit global-statistics
+    stat_->recordReception(macID, pkt->getEventID(), delay, pkt->getHops());
+
+    EV << "UEClusterizeApp::handleClusterizeConfig - \tClusterizeConfig Delay: " << delay << endl;
 }
 
 
 void UEClusterizeApp::handleClusterizeConfigFromMEHost(ClusterizeConfigPacket *pkt){
+
+    EV << "UEClusterizeApp::handleClusterizeConfigFromMEHost" <<endl;
 
     //configure the Cluster parameters for V2vClusterBaseApp
     if(v2vApp != NULL){
@@ -337,6 +383,13 @@ void UEClusterizeApp::handleClusterizeConfigFromMEHost(ClusterizeConfigPacket *p
         if(strcmp(pkt->getClusterFollower(), "") != 0)
         {
             v2vFollowerSimbolicAddress = (char*) pkt->getClusterFollower();
+
+            //check if car has left the network!
+            if(getSimulation()->getModuleByPath(v2vFollowerSimbolicAddress) == NULL){
+                EV << "UEClusterizeApp::handleClusterizeConfigFromMEHost - \tERROR! Cannot propagate Configuration: " << v2vFollowerSimbolicAddress << " left the Network!" << endl;
+                return;
+            }
+
             v2vFollowerAddress_ = inet::L3AddressResolver().resolve(v2vFollowerSimbolicAddress);
 
             //configuring the D2D LTE NIC
@@ -361,16 +414,22 @@ void UEClusterizeApp::handleClusterizeConfigFromMEHost(ClusterizeConfigPacket *p
     {
         ClusterizeConfigPacket* packet = new ClusterizeConfigPacket(*pkt);
         packet->setSourceAddress(sourceSimbolicAddress);
+        packet->setHops(packet->getHops()+1);
+
+        packet->setName(v2vAppName);
 
         //propagate on the multicast address
-        socket.sendTo(packet, multicastAddress_, destPort_);
-        EV << "UEClusterizeApp::handleClusterizeConfigFromMEHost - propagating ClusterizeConfig to multicast: " << multicastGoupAddress << endl;
+        multicastSocket.sendTo(packet, multicastAddress_, multicastPort_);
+        EV << "UEClusterizeApp::handleClusterizeConfigFromMEHost - propagating ClusterizeConfig to multicast: " << multicastGoupAddress << " : " << multicastPort_<< endl;
     }
 
 }
 
 
 void UEClusterizeApp::handleClusterizeConfigFromUE(ClusterizeConfigPacket *pkt){
+
+
+    EV << "UEClusterizeApp::handleClusterizeConfigFromUE" <<endl;
 
     // Update Follower and Following ( retrieve from the Cluster Member Ordered List)
     std::string follower = getFollower(pkt);
@@ -401,7 +460,14 @@ void UEClusterizeApp::handleClusterizeConfigFromUE(ClusterizeConfigPacket *pkt){
             if(strcmp(pkt->getClusterFollower(), "") != 0)
             {
                 v2vFollowerSimbolicAddress = (char*) pkt->getClusterFollower();
-                v2vFollowerAddress_ = inet::L3AddressResolver().resolve(v2vFollowerSimbolicAddress);
+
+                //check if car has left the network!
+                if(getSimulation()->getModuleByPath(v2vFollowerSimbolicAddress) == NULL){
+                    EV << "UEClusterizeApp::handleClusterizeConfigFromUE - \tERROR! Cannot propagate Configuration: " << v2vFollowerSimbolicAddress << " left the Network!" << endl;
+                    return;
+                }
+
+                v2vFollowerAddress_ = inet::L3AddressResolver().resolve(v2vFollowerSimbolicAddress);                                            //CONTROLLARE SE CAR è USCITA!
 
                 //configuring the D2D LTE NIC
                 if(lteNic->hasPar("d2dPeerAddresses"))
@@ -411,6 +477,7 @@ void UEClusterizeApp::handleClusterizeConfigFromUE(ClusterizeConfigPacket *pkt){
 
                     ClusterizeConfigPacket* packet = new ClusterizeConfigPacket(*pkt);
                     packet->setSourceAddress(sourceSimbolicAddress);
+                    packet->setHops(packet->getHops()+1);
 
                     //propagate configuration to the follower
                     socket.sendTo(packet, v2vFollowerAddress_ , destPort_);

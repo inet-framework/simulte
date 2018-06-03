@@ -310,7 +310,7 @@ void VirtualisationManager::instantiateMEClusterizeApp(ClusterizePacket* pkt){
         appName << "MEApp[" <<  key.str().c_str() << "]";
         module->setName(appName.str().c_str());
 
-
+        //displaying ME App dynamically created (after 70 they will overlap..)
         std::stringstream display;
         display << "p=" << (50 + ((index%10)*100)%1000) << "," << (100 + (50*(index/10)%350)) << ";is=vs";
         module->setDisplayString(display.str().c_str());

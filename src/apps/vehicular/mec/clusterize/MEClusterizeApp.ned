@@ -30,7 +30,7 @@ import lte.corenetwork.nodes.mec.MEPlatform.IMEApp;
 simple MEClusterizeApp like IMEApp
 {
     parameters:
-        @display("i=block/app");
+        @display("i=block/app;is=s");
         
         double ram @unit("B") = default(100MB);
         double disk @unit("B") = default(1GB);
@@ -57,7 +57,6 @@ simple MEClusterizeApp like IMEApp
         
         @signal[clusterizeInfoDelay]; 
         @statistic[clusterizeInfoDelay](title="ClusterizeInfo Delay"; unit="s"; source="clusterizeInfoDelay"; record=mean,vector);
-        
         
                       
     gates:

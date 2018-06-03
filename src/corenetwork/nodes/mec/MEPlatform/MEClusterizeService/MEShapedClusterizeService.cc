@@ -98,7 +98,8 @@ void MEShapedClusterizeService::computePlatoon(std::string shape){
     std::map<int, car>::iterator it;
     for(it = cars.begin(); it != cars.end(); it++){
 
-          EV << it->second.simbolicAddress << "\tfollowed by:\t" << it->second.follower << "\t[following:\t" << it->second.following << "]\n";
+          EV << it->second.simbolicAddress << "\tfollowed by:\t" << it->second.follower << "\t[following:\t" << it->second.following << "] ";
+          EV << "\t\t" << it->second.position << " " << it->second.angularPosition.alpha << endl;
     }
 
     EV << "\nMEClusterizeService::computePlatoon - CLUSTERS:\n\n";
@@ -120,7 +121,9 @@ void MEShapedClusterizeService::computeTriangleAdiacences(std::map<int, std::vec
 
     std::map<int, car>::iterator it, it2;
     for(it = cars.begin(); it != cars.end(); it++){
-
+                                                                                                                                                //TODO
+                                                                                                                                                //  adding the proximityThreashold computation for
+                                                                                                                                                // V2V TX MODES  CQI e TX POWER
         inet::Coord A(it->second.position);
         double a = it->second.angularPosition.alpha;
         inet::Coord B( A.x + proximityThreshold*cos(PI+a-triangleAngle) , A.y + proximityThreshold*sin(PI+a-triangleAngle) );
@@ -128,14 +131,21 @@ void MEShapedClusterizeService::computeTriangleAdiacences(std::map<int, std::vec
 
         for(it2 = cars.begin(); it2 != cars.end(); it2++){
 
+            //EV << it->second.simbolicAddress << it->second.position << " - " << it2->second.simbolicAddress << it2->second.position <<" ";
+
             //cars going in the same direction
             if( (it != it2) && (abs(it->second.angularPosition.alpha - it2->second.angularPosition.alpha) <= directionDelimiterThreshold)){
 
-            inet::Coord P(it2->second.position);
+                //EV << "same direction! ";
 
-            //adding to the vector of adiacences of car it
-            if(isInTriangle(P,A,B,C))
-                adiacences[it->first].push_back(it2->first);
+                inet::Coord P(it2->second.position);
+
+                //adding to the vector of adiacences of car it
+                if(isInTriangle(P,A,B,C)){
+                    adiacences[it->first].push_back(it2->first);
+                }
+
+                //EV << "\nTriangle: [A: " << A << "B: " << B << "C: " << C << "] P: " << P << endl <<endl;
             }
         }
     }
@@ -145,7 +155,9 @@ void MEShapedClusterizeService::computeRectangleAdiacences(std::map<int, std::ve
 
     std::map<int, car>::iterator it, it2;
     for(it = cars.begin(); it != cars.end(); it++){
-
+                                                                                                                                                //TODO
+                                                                                                                                                //  adding the proximityThreashold computation for
+                                                                                                                                                // V2V TX MODES on CQI e TX POWER
         double a = it->second.angularPosition.alpha;
         inet::Coord pos(it->second.position);
         inet::Coord A( pos.x + (roadLaneSize/2)*cos(a+PI/2), pos.y + (roadLaneSize/2)*sin(a+PI/2) );        // left-right side
@@ -155,15 +167,21 @@ void MEShapedClusterizeService::computeRectangleAdiacences(std::map<int, std::ve
 
         for(it2 = cars.begin(); it2 != cars.end(); it2++){
 
+            //EV << it->second.simbolicAddress << it->second.position << " - " << it2->second.simbolicAddress << it2->second.position <<" ";
+
             //cars going in the same direction
             if( (it != it2) && (abs(it->second.angularPosition.alpha - it2->second.angularPosition.alpha) <= directionDelimiterThreshold)){
 
-            inet::Coord P(it2->second.position);
+                //EV << "same direction! ";
 
-                //adding to the vector of adiacences of car it
-                if(isInRectangle(P, A, B, C, D))
+                inet::Coord P(it2->second.position);
+
+                //adding to the vector of adjacencies of car it
+                if(isInRectangle(P, A, B, C, D)){
+                    //EV << "inside!";
                     adiacences[it->first].push_back(it2->first);
-
+                }
+                //EV << "\nRectangle: [A: " << A << "B: " << B << "C: " << C << "D: " << D << "] P: " << P << endl <<endl;
             }
         }
 
@@ -235,7 +253,7 @@ void MEShapedClusterizeService::updateClusters(){
             }
             clusters[clusterID].membersList = platoonList.str();
             clusters[clusterID].id = clusterID;
-            clusters[clusterID].color = colors.at( clusterID % colorSize);
+            clusters[clusterID].color = colors.at( (rand() + clusterID) % colorSize);             //every time random color or not!?
         }
     }
 }
@@ -255,11 +273,16 @@ bool MEShapedClusterizeService::isInTriangle(inet::Coord P, inet::Coord A, inet:
       double u = ( ((v1*v1) * (v2*v0)) - ((v1*v0) * (v2*v1)) ) / den;
       double v = ( ((v0*v0) * (v2*v1)) - ((v0*v1) * (v2*v0)) ) / den;
 
-      // checking if coefficientes u and v are constrained in [0-1], that means inside the triangle ABC
+      // checking if coefficients u and v are constrained in [0-1], that means inside the triangle ABC
       if(u>=0 && v>=0 && u+v<=1)
-      return true;
-      else
-      return false;
+      {
+          //EV << "inside!";
+          return true;
+      }
+      else{
+          //EV << "outside!";
+          return false;
+      }
 }
 
 bool MEShapedClusterizeService::isInRectangle(inet::Coord P, inet::Coord A, inet::Coord B, inet::Coord C, inet::Coord D)
