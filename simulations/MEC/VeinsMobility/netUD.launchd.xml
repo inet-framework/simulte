@@ -1,6 +1,0 @@
-<launch>
-<basedir path="/home/angelo/mecSimulteWS/simulte/simulations/MEC/VeinsMobility" />
-	<copy file="netUD.net.xml" />
-	<copy file="netUD.rou.xml" />
-	<copy file="netUD.sumocfg" type="config" />
-</launch>
