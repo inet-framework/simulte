@@ -484,7 +484,7 @@ LteSummaryFeedback LteAmc::getFeedbackD2D(MacNodeId id, Remote antenna, TxMode t
             if (it->first == 0) // skip fake UE 0
                 continue;
 
-            if (binder_->checkD2DCapability(id, it->first))
+            if (binder_->getD2DCapability(id, it->first))
             {
                 peerId = it->first;
                 break;

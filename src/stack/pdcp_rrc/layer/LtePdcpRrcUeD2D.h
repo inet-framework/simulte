@@ -39,7 +39,7 @@ class LtePdcpRrcUeD2D : public LtePdcpRrcUe
 
     Direction getDirection(MacNodeId destId)
     {
-        if (binder_->checkD2DCapability(nodeId_, destId) && binder_->getD2DMode(nodeId_, destId) == DM)
+        if (binder_->getD2DCapability(nodeId_, destId) && binder_->getD2DMode(nodeId_, destId) == DM)
             return D2D;
         return UL;
     }

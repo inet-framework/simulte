@@ -64,26 +64,12 @@ void LtePdcpRrcUeD2D::fromDataPort(cPacket *pkt)
     }
     else
     {
-
         destId = binder_->getMacNodeId(destAddr);
         if (destId != 0)  // the destination is a UE within the LTE network
         {
-            // This part is required for supporting D2D unicast with dynamic-created modules
-            // the first time we see a new destination address, we need to check whether the endpoint
-            // is a D2D peer and, eventually, add it to the binder
-            if (d2dPeeringInit_.find(destAddr) == d2dPeeringInit_.end())
-            {
-                binder_->addD2DCapability(nodeId_, binder_->getMacNodeId(destAddr));
-                d2dPeeringInit_[destAddr] = true;
-            }
-
-            // set direction based on the destination Id. If the destination can be reached
-            // using D2D, set D2D direction. Otherwise, set UL direction
-            lteInfo->setDirection(getDirection(destId));
-
             if (binder_->checkD2DCapability(nodeId_, destId))
             {
-                // this way, we record the ID of the endpoint even if the connection is in IM
+                // this way, we record the ID of the endpoints even if the connection is currently in IM
                 // this is useful for mode switching
                 lteInfo->setD2dTxPeerId(nodeId_);
                 lteInfo->setD2dRxPeerId(destId);
@@ -94,6 +80,8 @@ void LtePdcpRrcUeD2D::fromDataPort(cPacket *pkt)
                 lteInfo->setD2dRxPeerId(0);
             }
 
+            // set actual flow direction based (D2D/UL) based on the current mode (DM/IM) of this peering
+            lteInfo->setDirection(getDirection(destId));
         }
         else  // the destination is outside the LTE network
         {

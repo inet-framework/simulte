@@ -340,8 +340,8 @@ class LteBinder : public cSimpleModule
      * D2D Support
      */
     std::map<MacNodeId, std::map<MacNodeId, bool> >* getD2DCapabilityMap();
-    void addD2DCapability(MacNodeId src, MacNodeId dst);
     bool checkD2DCapability(MacNodeId src, MacNodeId dst);
+    bool getD2DCapability(MacNodeId src, MacNodeId dst);
 
     std::map<MacNodeId, std::map<MacNodeId, LteD2DMode> >* getD2DPeeringModeMap();
     void setD2DMode(MacNodeId src, MacNodeId dst, LteD2DMode mode);

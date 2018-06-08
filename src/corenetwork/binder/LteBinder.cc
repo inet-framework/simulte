@@ -279,33 +279,48 @@ std::map<MacNodeId, std::map<MacNodeId, bool> >* LteBinder::getD2DCapabilityMap(
     return &d2dPeeringCapability_;
 }
 
-void LteBinder::addD2DCapability(MacNodeId src, MacNodeId dst)
+bool LteBinder::checkD2DCapability(MacNodeId src, MacNodeId dst)
 {
     if (src < UE_MIN_ID || src >= macNodeIdCounter_[2] || dst < UE_MIN_ID || dst >= macNodeIdCounter_[2])
         throw cRuntimeError("LteBinder::addD2DCapability - Node Id not valid. Src %d Dst %d", src, dst);
 
-    d2dPeeringCapability_[src][dst] = true;
+    // if the entry is missing, check if the receiver is D2D capable and update the map
+    if (d2dPeeringCapability_.find(src) == d2dPeeringCapability_.end() || d2dPeeringCapability_[src].find(dst) == d2dPeeringCapability_[src].end())
+    {
+        LteMacBase* dstMac = getMacFromMacNodeId(dst);
+        bool d2dCapable = dstMac->isD2DCapable();
 
-    // insert initial communication mode
-    // TODO make it configurable from NED
+        d2dPeeringCapability_[src][dst] = d2dCapable;
 
-    // enable DM only if the two endpoints are served by the same cell
-    if (nextHop_[src] == nextHop_[dst])
-        d2dPeeringMode_[src][dst] = DM;
-    else
-        d2dPeeringMode_[src][dst] = IM;
+        if (d2dCapable)
+        {
 
-    EV << "LteBinder::addD2DCapability - UE " << src << " may transmit to UE " << dst << " using D2D (current mode " << ((d2dPeeringMode_[src][dst] == DM) ? "DM)" : "IM)") << endl;
+            // by default, if the endpoints are D2D capable and are served by the same eNB, then they are in DM
+            // TODO make this configurable
+            if (nextHop_[src] == nextHop_[dst])
+                d2dPeeringMode_[src][dst] = DM;
+            else
+                d2dPeeringMode_[src][dst] = IM;
+
+            EV << "LteBinder::checkD2DCapability - UE " << src << " may transmit to UE " << dst << " using D2D (current mode " << ((d2dPeeringMode_[src][dst] == DM) ? "DM)" : "IM)") << endl;
+        }
+        else
+            EV << "LteBinder::checkD2DCapability - UE " << src << " may not transmit to UE " << dst << " using D2D (UE " << dst << " is not D2D capable)" << endl;
+
+    }
+    return d2dPeeringCapability_[src][dst];
 }
 
-bool LteBinder::checkD2DCapability(MacNodeId src, MacNodeId dst)
+bool LteBinder::getD2DCapability(MacNodeId src, MacNodeId dst)
 {
     if (src < UE_MIN_ID || src >= macNodeIdCounter_[2] || dst < UE_MIN_ID || dst >= macNodeIdCounter_[2])
+        throw cRuntimeError("LteBinder::addD2DCapability - Node Id not valid. Src %d Dst %d", src, dst);
+
+    // if the entry is missing, returns false
+    if (d2dPeeringCapability_.find(src) == d2dPeeringCapability_.end() || d2dPeeringCapability_[src].find(dst) == d2dPeeringCapability_[src].end())
         return false;
 
-    if (d2dPeeringCapability_.find(src) != d2dPeeringCapability_.end() && d2dPeeringCapability_[src].find(dst) != d2dPeeringCapability_[src].end())
-        return d2dPeeringCapability_[src][dst];
-    return false;
+    return d2dPeeringCapability_[src][dst];
 }
 
 std::map<MacNodeId, std::map<MacNodeId, LteD2DMode> >* LteBinder::getD2DPeeringModeMap()
