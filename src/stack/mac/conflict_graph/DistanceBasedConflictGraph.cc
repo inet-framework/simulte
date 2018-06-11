@@ -56,13 +56,13 @@ void DistanceBasedConflictGraph::findVertices(std::vector<CGVertex>& vertices)
     {
         // get the list of point-to-point D2D connections
 
-        typedef std::map<MacNodeId, std::map<MacNodeId, bool> > PeeringMap;
-        PeeringMap* peeringMap = binder->getD2DCapabilityMap();
+        typedef std::map<MacNodeId, std::map<MacNodeId, LteD2DMode> > PeeringMap;
+        PeeringMap* peeringMap = binder->getD2DPeeringMap();
 
         PeeringMap::iterator pit = peeringMap->begin(), pet = peeringMap->end();
         for (; pit != pet; ++pit)
         {
-            std::map<MacNodeId, bool>::iterator it = pit->second.begin(), et = pit->second.end();
+            std::map<MacNodeId, LteD2DMode>::iterator it = pit->second.begin(), et = pit->second.end();
             for (; it != et; ++it)
             {
                 CGVertex v(pit->first, it->first);

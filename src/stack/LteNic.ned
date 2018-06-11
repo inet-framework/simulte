@@ -156,6 +156,7 @@ module LteNicUeD2D extends LteNicUe
         LteMacType = default("LteMacUeD2D");
         LtePhyType = default("LtePhyUeD2D");
         d2dCapable = default(true);             // DO NOT CHANGE
+        bool d2dInitialMode = default(false);
 }
 
 //

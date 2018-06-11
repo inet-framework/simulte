@@ -85,10 +85,8 @@ class LteBinder : public cSimpleModule
     /*
      * D2D Support
      */
-    // determines if two UEs can communicate using D2D
-    std::map<MacNodeId, std::map<MacNodeId, bool> > d2dPeeringCapability_;
     // determines if two D2D-capable UEs are communicating in D2D mode or Infrastructure Mode
-    std::map<MacNodeId, std::map<MacNodeId, LteD2DMode> > d2dPeeringMode_;
+    std::map<MacNodeId, std::map<MacNodeId, LteD2DMode> > d2dPeeringMap_;
 
     /*
      * Multicast support
@@ -339,11 +337,10 @@ class LteBinder : public cSimpleModule
     /*
      * D2D Support
      */
-    std::map<MacNodeId, std::map<MacNodeId, bool> >* getD2DCapabilityMap();
     bool checkD2DCapability(MacNodeId src, MacNodeId dst);
     bool getD2DCapability(MacNodeId src, MacNodeId dst);
 
-    std::map<MacNodeId, std::map<MacNodeId, LteD2DMode> >* getD2DPeeringModeMap();
+    std::map<MacNodeId, std::map<MacNodeId, LteD2DMode> >* getD2DPeeringMap();
     void setD2DMode(MacNodeId src, MacNodeId dst, LteD2DMode mode);
     LteD2DMode getD2DMode(MacNodeId src, MacNodeId dst);
     bool isFrequencyReuseEnabled(MacNodeId nodeId);

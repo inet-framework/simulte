@@ -30,7 +30,7 @@ void D2DModeSelectionBase::initialize(int stage)
             modeSelectionPeriod_ = TTI;
 
         // get the reference to the peering map in the binder
-        peeringModeMap_ = binder_->getD2DPeeringModeMap();
+        peeringModeMap_ = binder_->getD2DPeeringMap();
 
         // Start mode selection tick
         modeSelectionTick_ = new cMessage("modeSelectionTick");
