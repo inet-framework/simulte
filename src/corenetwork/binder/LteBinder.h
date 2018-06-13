@@ -66,11 +66,9 @@ class LteBinder : public cSimpleModule
     /*
      * Uplink interference support
      */
-    typedef std::vector< std::vector<UeAllocationInfo> > UplinkTransmissionInfo;
-    // for each RB, stores the UE (nodeId and ref to the PHY module) that are transmitting within that RB during the current TTI
-    UplinkTransmissionInfo ulBandStatus_;
-    // for each RB, stores the UE (nodeId and ref to the PHY module) that transmitted within that RB during the previous TTI
-    UplinkTransmissionInfo ulPrevBandStatus_;
+    typedef std::vector< std::vector< std::vector<UeAllocationInfo> > > UplinkTransmissionMap;
+    // for both previous and current TTIs, for each RB, stores the UE (nodeId and ref to the PHY module) that transmitted/are transmitting within that RB
+    UplinkTransmissionMap ulTransmissionMap_;
     // TTI of the last update of the UL band status
     simtime_t lastUpdateUplinkTransmissionInfo_;
 
@@ -116,6 +114,8 @@ class LteBinder : public cSimpleModule
         macNodeIdCounter_[0] = ENB_MIN_ID;
         macNodeIdCounter_[1] = RELAY_MIN_ID;
         macNodeIdCounter_[2] = UE_MIN_ID;
+
+        ulTransmissionMap_.resize(2); // store transmission map of previous and current TTI
     }
 
     unsigned int getNumBands()
@@ -325,9 +325,8 @@ class LteBinder : public cSimpleModule
      */
     simtime_t getLastUpdateUlTransmissionInfo();
     void initAndResetUlTransmissionInfo();
-    void storeUlTransmissionInfo(Remote antenna, RbMap& rbMap, MacNodeId nodeId, MacCellId cellId, LtePhyBase* phy, Direction dir);
-    const std::vector<UeAllocationInfo>* getUlTransmissionInfo(Band b);
-    const std::vector<UeAllocationInfo>* getUlPrevTransmissionInfo(Band b);
+    void storeUlTransmissionMap(Remote antenna, RbMap& rbMap, MacNodeId nodeId, MacCellId cellId, LtePhyBase* phy, Direction dir);
+    const std::vector<UeAllocationInfo>* getUlTransmissionMap(UlTransmissionMapTTI t, Band b);
     /*
      * X2 Support
      */

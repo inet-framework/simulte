@@ -499,7 +499,7 @@ void LtePhyUe::handleUpperMessage(cMessage* msg)
         // Store the RBs used for data transmission to the binder (for UL interference computation)
         RbMap rbMap = lteInfo->getGrantedBlocks();
         Remote antenna = MACRO;  // TODO fix for multi-antenna
-        binder_->storeUlTransmissionInfo(antenna, rbMap, nodeId_, mac_->getMacCellId(), this, UL);
+        binder_->storeUlTransmissionMap(antenna, rbMap, nodeId_, mac_->getMacCellId(), this, UL);
     }
 
     if (lteInfo->getFrameType() == DATAPKT && lteInfo->getUserTxParams() != NULL)

@@ -176,6 +176,12 @@ enum LteRlcType
 // Attenuation vector for analogue models
 typedef std::vector<double> AttenuationVector;
 
+/// Index for UL transmission map
+enum UlTransmissionMapTTI
+{
+    PREV_TTI, CURR_TTI
+};
+
 /// D2D Modes
 // IM = Infastructure Mode
 // DM = Direct (D2D) Mode

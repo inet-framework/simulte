@@ -196,16 +196,14 @@ simtime_t LteBinder::getLastUpdateUlTransmissionInfo()
 
 void LteBinder::initAndResetUlTransmissionInfo()
 {
-    ulPrevBandStatus_.clear();
-    ulPrevBandStatus_ = ulBandStatus_;
-
-    ulBandStatus_.clear();
-    ulBandStatus_.resize(numBands_);
+    ulTransmissionMap_[PREV_TTI] = ulTransmissionMap_[1];
+    ulTransmissionMap_[CURR_TTI].clear();
+    ulTransmissionMap_[CURR_TTI].resize(numBands_);
 
     lastUpdateUplinkTransmissionInfo_ = NOW;
 }
 
-void LteBinder::storeUlTransmissionInfo(Remote antenna, RbMap& rbMap, MacNodeId nodeId, MacCellId cellId, LtePhyBase* phy, Direction dir)
+void LteBinder::storeUlTransmissionMap(Remote antenna, RbMap& rbMap, MacNodeId nodeId, MacCellId cellId, LtePhyBase* phy, Direction dir)
 {
     UeAllocationInfo info;
     info.nodeId = nodeId;
@@ -219,18 +217,13 @@ void LteBinder::storeUlTransmissionInfo(Remote antenna, RbMap& rbMap, MacNodeId 
     {
         Band b = it->first;
         if (it->second > 0)
-            ulBandStatus_[b].push_back(info);
+            ulTransmissionMap_[CURR_TTI][b].push_back(info);
     }
 }
 
-const std::vector<UeAllocationInfo>* LteBinder::getUlTransmissionInfo(Band b)
+const std::vector<UeAllocationInfo>* LteBinder::getUlTransmissionMap(UlTransmissionMapTTI t, Band b)
 {
-    return &(ulBandStatus_[b]);
-}
-
-const std::vector<UeAllocationInfo>* LteBinder::getUlPrevTransmissionInfo(Band b)
-{
-    return &(ulPrevBandStatus_[b]);
+    return &(ulTransmissionMap_[t][b]);
 }
 
 void LteBinder::registerX2Port(X2NodeId nodeId, int port)

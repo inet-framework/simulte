@@ -263,7 +263,7 @@ void LtePhyUeD2D::handleUpperMessage(cMessage* msg)
         RbMap rbMap = lteInfo->getGrantedBlocks();
         Remote antenna = MACRO;  // TODO fix for multi-antenna
         Direction dir = (Direction)lteInfo->getDirection();
-        binder_->storeUlTransmissionInfo(antenna, rbMap, nodeId_, mac_->getMacCellId(), this, dir);
+        binder_->storeUlTransmissionMap(antenna, rbMap, nodeId_, mac_->getMacCellId(), this, dir);
     }
 
     if (lteInfo->getFrameType() == DATAPKT && lteInfo->getUserTxParams() != NULL)

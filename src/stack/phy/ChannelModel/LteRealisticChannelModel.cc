@@ -2091,7 +2091,7 @@ bool LteRealisticChannelModel::computeUplinkInterference(MacNodeId eNbId, MacNod
        for(unsigned int i=0;i<band_;i++)
        {
            // compute the number of occupied slot (unnecessary)
-           allocatedUes = binder_->getUlTransmissionInfo(i);
+           allocatedUes = binder_->getUlTransmissionMap(CURR_TTI, i);
            if (allocatedUes->empty()) // no UEs allocated on this band
                continue;
 
@@ -2127,7 +2127,7 @@ bool LteRealisticChannelModel::computeUplinkInterference(MacNodeId eNbId, MacNod
        // For each band we have to check if the Band in the previous TTI was occupied by the interferringId
        for(unsigned int i=0;i<band_;i++)
        {
-           allocatedUes = binder_->getUlPrevTransmissionInfo(i);
+           allocatedUes = binder_->getUlTransmissionMap(PREV_TTI, i);
            if (allocatedUes->empty()) // no UEs allocated on this band
                continue;
 
@@ -2183,7 +2183,7 @@ bool LteRealisticChannelModel::computeD2DInterference(MacNodeId eNbId, MacNodeId
        for(unsigned int i=0;i<band_;i++)
        {
            // compute the number of occupied slot (unnecessary)
-           allocatedUes = binder_->getUlTransmissionInfo(i);
+           allocatedUes = binder_->getUlTransmissionMap(CURR_TTI, i);
            if (allocatedUes->empty()) // no UEs allocated on this band
                continue;
 
@@ -2223,7 +2223,7 @@ bool LteRealisticChannelModel::computeD2DInterference(MacNodeId eNbId, MacNodeId
        // For each band we have to check if the Band in the previous TTI was occupied by the interferringId
        for(unsigned int i=0;i<band_;i++)
        {
-           allocatedUes = binder_->getUlPrevTransmissionInfo(i);
+           allocatedUes = binder_->getUlTransmissionMap(PREV_TTI, i);
            if (allocatedUes->empty()) // no UEs allocated on this band
                continue;
 
