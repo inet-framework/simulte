@@ -31,6 +31,9 @@ void MultihopD2DStatistics::initialize()
     d2dMultihopEventSentMsg_ = registerSignal("d2dMultihopEventSentMsg");
     d2dMultihopEventTrickleSuppressedMsg_ = registerSignal("d2dMultihopEventTrickleSuppressedMsg");
     d2dMultihopEventRcvdDupMsg_ = registerSignal("d2dMultihopEventRcvdDupMsg");
+
+
+    d2dMultihopEventCompleteDeliveries_ = registerSignal("d2dMultihopEventCompleteDeliveries");
 }
 
 
@@ -159,6 +162,10 @@ void MultihopD2DStatistics::finish()
 
         double deliveryRatio = (double)deliveredMsgCounter / eit->second.size();
         emit(d2dMultihopEventDeliveryRatio_, deliveryRatio);
+
+        // cluster complete covered with a delivery
+        int completeDelivery = (deliveredMsgCounter == eit->second.size())? 1 : 0;
+        emit(d2dMultihopEventCompleteDeliveries_, completeDelivery);
 
         // sort the delays and get the percentile you desire
         std::sort(sortedDelays.begin(),sortedDelays.end());

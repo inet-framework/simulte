@@ -27,6 +27,7 @@
 #include "inet/common/geometry/common/EulerAngles.h"
 
 #include "inet/mobility/contract/IMobility.h"
+#include "inet/mobility/single/LinearMobility.h"
 #include "veins_inet/VeinsInetMobility.h"
 
 #include "apps/vehicular/mec/clusterize/packets/ClusterizePacket_m.h"

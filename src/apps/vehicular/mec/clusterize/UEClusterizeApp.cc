@@ -141,13 +141,6 @@ void UEClusterizeApp::initialize(int stage)
     EV << "\t starting sendClusterizeStartPacket() in " << startTime << " seconds " << endl;
     // starting sendClusterizeStartPacket() to initialize the ME App on the ME Host
     scheduleAt(simTime() + startTime, selfStart_);
-
-    //STOP app
-    simtime_t  stopTime = par("stopTime");
-    EV << "\t starting sendClusterizeStopPacket() in " << stopTime << " seconds " << endl;
-    // starting sendClusterizeSopPacket() to terminate the ME App on the ME Host
-    scheduleAt(simTime() + stopTime, selfStop_);
-
 }
 
 
@@ -237,6 +230,12 @@ void UEClusterizeApp::sendClusterizeInfoPacket()
         angularPosition = mobility->getCurrentAngularPosition();
         angularPosition.alpha *= -1.0;
         EV << "UEClusterizeApp::sendClusterizeInfoPacket - No VeinsMobility: reverting the angular position!"<< endl;
+
+        //Coord max = mobility->getConstraintAreaMax();
+        //Coord min = mobility->getConstraintAreaMin();
+        //EV << "UEClusterizeApp::sendClusterizeInfoPacket - Area: "<<max<<" - "<<min<< endl;
+        //if(position.x<=min.x+10 || position.x >= max.x-10 || position.y <= min.y+10 || position.y >= max.y-10)
+            //this->callFinish();
     }
     else{
         position = veins_mobility->getCurrentPosition();
@@ -304,6 +303,14 @@ void UEClusterizeApp::handleClusterizeAckStart(ClusterizePacket* pkt){
         scheduleAt(simTime() + period_, selfSender_);
         EV << "\t starting traffic in " << period_ << " seconds " << endl;
     }
+
+    if(!selfSender_->isScheduled()){
+        //STOP app
+        simtime_t  stopTime = par("stopTime");
+        EV << "\t starting sendClusterizeStopPacket() in " << stopTime << " seconds " << endl;
+        // starting sendClusterizeSopPacket() to terminate the ME App on the ME Host
+        scheduleAt(simTime() + stopTime, selfStop_);
+    }
 }
 
 void UEClusterizeApp::handleClusterizeAckStop(ClusterizePacket* pkt){
@@ -351,6 +358,9 @@ void UEClusterizeApp::handleClusterizeConfig(ClusterizeConfigPacket* pkt){
         // message propagated by another car
         handleClusterizeConfigFromUE(pkt);
     }
+
+    //check_and_cast<LinearMobility*>(mobility)->setSpeed(15);
+    //check_and_cast<LinearMobility*>(mobility)->setAcceleration(0.2);
 
     simtime_t delay = simTime()-pkt->getTimestamp();
     // emit statistics

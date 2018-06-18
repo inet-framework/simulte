@@ -66,6 +66,9 @@ class MultihopD2DStatistics : public cSimpleModule
     simsignal_t d2dMultihopEventTrickleSuppressedMsg_;   // number of message relaying suppressed by the Trickle algorithm (if enabled)
     simsignal_t d2dMultihopEventRcvdDupMsg_;      // number of duplicates within the target area
 
+
+    simsignal_t d2dMultihopEventCompleteDeliveries_;   // percentage of clusters completely-covered within the target area
+
 protected:
 
     virtual void initialize();
