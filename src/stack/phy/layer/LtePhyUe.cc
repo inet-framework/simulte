@@ -115,6 +115,7 @@ void LtePhyUe::initialize(int stage)
                 cInfo->setSourceId(cellId);
                 cInfo->setTxPower(cellTxPower);
                 cInfo->setCoord(cellPos);
+                cInfo->setFrameType(FEEDBACKPKT);
 
                 // get RSSI from the eNB
                 std::vector<double>::iterator it;

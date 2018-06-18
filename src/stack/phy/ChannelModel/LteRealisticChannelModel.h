@@ -315,17 +315,17 @@ protected:
    * @param eNbId id of the considered eNb
    * @param isCqi if we are computing a CQI
    */
-  bool computeDownlinkInterference(MacNodeId eNbId, MacNodeId ueId, inet::Coord coord, bool isCqi, std::vector<double> * interference);
+  bool computeDownlinkInterference(MacNodeId eNbId, MacNodeId ueId, inet::Coord coord, bool isCqi, const RbMap& rbmap, std::vector<double> * interference);
 
   /*
    * compute interference coming from neighboring cells for the UL direction
    */
-  bool computeUplinkInterference(MacNodeId eNbId, MacNodeId senderId, bool isCqi, std::vector<double> * interference);
+  bool computeUplinkInterference(MacNodeId eNbId, MacNodeId senderId, bool isCqi, const RbMap& rbmap, std::vector<double> * interference);
 
   /*
    * compute interference coming from neighboring UEs for the D2D/D2D_MULTI direction
    */
-  bool computeD2DInterference(MacNodeId eNbId, MacNodeId senderId, inet::Coord senderCoord, MacNodeId destId, inet::Coord destCoord, bool isCqi,std::vector<double>* interference,Direction dir);
+  bool computeD2DInterference(MacNodeId eNbId, MacNodeId senderId, inet::Coord senderCoord, MacNodeId destId, inet::Coord destCoord, bool isCqi, const RbMap& rbmap, std::vector<double>* interference,Direction dir);
 
   /*
    * evaluates total interference from external cells seen from the spot given by coord

@@ -379,9 +379,11 @@ double computeAngolarAttenuation(double angle) {
 }
 std::vector<double> LteRealisticChannelModel::getSINR(LteAirFrame *frame, UserControlInfo* lteInfo)
 {
-   AttenuationVector::iterator it;
    //get tx power
    double recvPower = lteInfo->getTxPower(); // dBm
+
+   //Get the Resource Blocks used to transmit this packet
+   RbMap rbmap = lteInfo->getGrantedBlocks();
 
    //get move object associated to the packet
    //this object is refereed to eNodeB if direction is DL or UE if direction is UL
@@ -539,13 +541,16 @@ std::vector<double> LteRealisticChannelModel::getSINR(LteAirFrame *frame, UserCo
    //=============== END ANGOLAR ATTENUATION =================
 
    std::vector<double> snrVector;
+   snrVector.resize(band_, 0.0);
 
    // compute and add interference due to fading
    // Apply fading for each band
    // if the phy layer is localized we can assume that for each logical band we have different fading attenuation
    // if the phy layer is distributed the number of logical band should be set to 1
    double fadingAttenuation = 0;
-   //for each logical band
+
+   // for each logical band
+   // FIXME compute fading only for used RBs
    for (unsigned int i = 0; i < band_; i++)
    {
        fadingAttenuation = 0;
@@ -581,7 +586,7 @@ std::vector<double> LteRealisticChannelModel::getSINR(LteAirFrame *frame, UserCo
           << " speed " << speed << " thermal noise " << thermalNoise_
           << " fading attenuation " << fadingAttenuation << endl;
 
-       snrVector.push_back(finalRecvPower);
+       snrVector[i] = finalRecvPower;
    }
    //============ END PATH LOSS + SHADOWING + FADING ===============
 
@@ -603,11 +608,11 @@ std::vector<double> LteRealisticChannelModel::getSINR(LteAirFrame *frame, UserCo
    multiCellInterference.resize(band_, 0);
    if (enableDownlinkInterference_ && dir == DL)
    {
-       computeDownlinkInterference(eNbId, ueId, ueCoord, (lteInfo->getFrameType() == FEEDBACKPKT), &multiCellInterference);
+       computeDownlinkInterference(eNbId, ueId, ueCoord, (lteInfo->getFrameType() == FEEDBACKPKT), rbmap, &multiCellInterference);
    }
    else if (enableUplinkInterference_ && dir == UL)
    {
-       computeUplinkInterference(eNbId, ueId, (lteInfo->getFrameType() == FEEDBACKPKT), &multiCellInterference);
+       computeUplinkInterference(eNbId, ueId, (lteInfo->getFrameType() == FEEDBACKPKT), rbmap, &multiCellInterference);
    }
 
    //============ EXTCELL INTERFERENCE COMPUTATION =================
@@ -631,6 +636,11 @@ std::vector<double> LteRealisticChannelModel::getSINR(LteAirFrame *frame, UserCo
    // add interference for each band
    for (unsigned int i = 0; i < band_; i++)
    {
+       // if we are decoding a data transmission and this RB has not been used, skip it
+       // TODO fix for multi-antenna case
+       if (lteInfo->getFrameType() == DATAPKT && rbmap[MACRO][i] == 0)
+           continue;
+
        //               (      mW            +  mW  +        mW            )
        den = linearToDBm(extCellInterference[i] + totN + multiCellInterference[i]);
 
@@ -780,6 +790,9 @@ std::vector<double> LteRealisticChannelModel::getSINR_D2D(LteAirFrame *frame, Us
    // Get Tx power
    double recvPower = lteInfo->getD2dTxPower(); // dBm
 
+   // Get allocated RBs
+   RbMap rbmap = lteInfo->getGrantedBlocks();
+
    // Coordinate of the Sender of the Feedback packet
    Coord sourceCoord =  lteInfo->getCoord();
 
@@ -791,6 +804,7 @@ std::vector<double> LteRealisticChannelModel::getSINR_D2D(LteAirFrame *frame, Us
    // Get MacId for Ue and his peer
    MacNodeId sourceId = lteInfo->getSourceId();
    std::vector<double> snrVector;
+   snrVector.resize(band_, 0.0);
 
    // True if we use the jakes map in the UE side (D2D is like DL for the receivers)
    bool cqiDl = true;
@@ -881,7 +895,7 @@ std::vector<double> LteRealisticChannelModel::getSINR_D2D(LteAirFrame *frame, Us
           << " fading attenuation " << fadingAttenuation << endl;
 
        // Store the calculated receive power
-       snrVector.push_back(finalRecvPower);
+       snrVector[i] = finalRecvPower;
    }
    //============ END PATH LOSS + SHADOWING + FADING ===============
 
@@ -911,7 +925,7 @@ std::vector<double> LteRealisticChannelModel::getSINR_D2D(LteAirFrame *frame, Us
    d2dInterference.resize(band_, 0);
    if (enableD2DInterference_)
    {
-       computeD2DInterference(enbId, sourceId, sourceCoord, destId, destCoord, (lteInfo->getFrameType() == FEEDBACKPKT), &d2dInterference,dir);
+       computeD2DInterference(enbId, sourceId, sourceCoord, destId, destCoord, (lteInfo->getFrameType() == FEEDBACKPKT), rbmap, &d2dInterference,dir);
    }
 
    //===================== SINR COMPUTATION ========================
@@ -927,6 +941,11 @@ std::vector<double> LteRealisticChannelModel::getSINR_D2D(LteAirFrame *frame, Us
            // Add interference for each band
            for (unsigned int i = 0; i < band_; i++)
            {
+               // if we are decoding a data transmission and this RB has not been used, skip it
+               // TODO fix for multi-antenna case
+               if (lteInfo->getFrameType() == DATAPKT && rbmap[MACRO][i] == 0)
+                   continue;
+
                //               (      mW            +  mW  +        mW            )
                den = linearToDBm(extCellInterference + totN + d2dInterference[i]);
 
@@ -942,6 +961,11 @@ std::vector<double> LteRealisticChannelModel::getSINR_D2D(LteAirFrame *frame, Us
    {
        for (unsigned int i = 0; i < band_; i++)
        {
+           // if we are decoding a data transmission and this RB has not been used, skip it
+           // TODO fix for multi-antenna case
+           if (lteInfo->getFrameType() == DATAPKT && rbmap[MACRO][i] == 0)
+               continue;
+
            /*
            std::cout<<"SNR "<<i<<" "<<snrVector[i]<<endl;
            std::cout<<"noise figure "<<i<<" "<<noiseFigure<<endl;
@@ -965,6 +989,9 @@ std::vector<double> LteRealisticChannelModel::getSINR_D2D(LteAirFrame *frame, Us
 
    MacNodeId sourceId = lteInfo_1->getSourceId();
    Coord sourceCoord = lteInfo_1->getCoord();
+
+   // Get allocated RBs
+   RbMap rbmap = lteInfo_1->getGrantedBlocks();
 
    // Get the direction
    Direction dir = D2D;
@@ -1004,7 +1031,7 @@ std::vector<double> LteRealisticChannelModel::getSINR_D2D(LteAirFrame *frame, Us
    d2dInterference.resize(band_, 0);
    if (enableD2DInterference_)
    {
-       computeD2DInterference(enbId, sourceId, sourceCoord, destId, destCoord, (lteInfo_1->getFrameType() == FEEDBACKPKT), &d2dInterference,dir);
+       computeD2DInterference(enbId, sourceId, sourceCoord, destId, destCoord, (lteInfo_1->getFrameType() == FEEDBACKPKT), rbmap, &d2dInterference,dir);
    }
 
    //===================== SINR COMPUTATION ========================
@@ -1020,6 +1047,11 @@ std::vector<double> LteRealisticChannelModel::getSINR_D2D(LteAirFrame *frame, Us
            // Add interference for each band
            for (unsigned int i = 0; i < band_; i++)
            {
+               // if we are decoding a data transmission and this RB has not been used, skip it
+               // TODO fix for multi-antenna case
+               if (lteInfo_1->getFrameType() == DATAPKT && rbmap[MACRO][i] == 0)
+                   continue;
+
                //               (      mW            +  mW  +        mW            )
                den = linearToDBm(extCellInterference + totN + d2dInterference[i]);
 
@@ -1035,6 +1067,11 @@ std::vector<double> LteRealisticChannelModel::getSINR_D2D(LteAirFrame *frame, Us
    {
        for (unsigned int i = 0; i < band_; i++)
        {
+           // if we are decoding a data transmission and this RB has not been used, skip it
+           // TODO fix for multi-antenna case
+           if (lteInfo_1->getFrameType() == DATAPKT && rbmap[MACRO][i] == 0)
+               continue;
+
            // compute final SINR
            snrVector[i] -=  (noiseFigure + thermalNoise_);
 
@@ -1972,7 +2009,7 @@ LteRealisticChannelModel::JakesFadingMap * LteRealisticChannelModel::obtainUeJak
    return j;
 }
 
-bool LteRealisticChannelModel::computeDownlinkInterference(MacNodeId eNbId, MacNodeId ueId, Coord coord, bool isCqi,
+bool LteRealisticChannelModel::computeDownlinkInterference(MacNodeId eNbId, MacNodeId ueId, Coord coord, bool isCqi, const RbMap& rbmap,
        std::vector<double> * interference)
 {
    EV << "**** Downlink Interference ****" << endl;
@@ -2064,6 +2101,11 @@ bool LteRealisticChannelModel::computeDownlinkInterference(MacNodeId eNbId, MacN
        {
            for(unsigned int i=0;i<band_;i++)
            {
+               // if we are decoding a data transmission and this RB has not been used, skip it
+               // TODO fix for multi-antenna case
+               if (rbmap.at(MACRO).at(i) == 0)
+                   continue;
+
                // compute the number of occupied slot (unnecessary)
                temp = (*it)->mac->getDlPrevBandStatus(i);
                if(temp!=0)
@@ -2078,7 +2120,7 @@ bool LteRealisticChannelModel::computeDownlinkInterference(MacNodeId eNbId, MacN
    return true;
 }
 
-bool LteRealisticChannelModel::computeUplinkInterference(MacNodeId eNbId, MacNodeId senderId, bool isCqi, std::vector<double> * interference)
+bool LteRealisticChannelModel::computeUplinkInterference(MacNodeId eNbId, MacNodeId senderId, bool isCqi, const RbMap& rbmap, std::vector<double> * interference)
 {
    EV << "**** Uplink Interference for cellId[" << eNbId << "] node["<<senderId<<"] ****" << endl;
 
@@ -2127,6 +2169,11 @@ bool LteRealisticChannelModel::computeUplinkInterference(MacNodeId eNbId, MacNod
        // For each band we have to check if the Band in the previous TTI was occupied by the interferringId
        for(unsigned int i=0;i<band_;i++)
        {
+           // if we are decoding a data transmission and this RB has not been used, skip it
+           // TODO fix for multi-antenna case
+           if (rbmap.at(MACRO).at(i) == 0)
+               continue;
+
            allocatedUes = binder_->getUlTransmissionMap(PREV_TTI, i);
            if (allocatedUes->empty()) // no UEs allocated on this band
                continue;
@@ -2167,7 +2214,7 @@ bool LteRealisticChannelModel::computeUplinkInterference(MacNodeId eNbId, MacNod
    return true;
 }
 
-bool LteRealisticChannelModel::computeD2DInterference(MacNodeId eNbId, MacNodeId senderId, Coord senderCoord, MacNodeId destId, Coord destCoord, bool isCqi,
+bool LteRealisticChannelModel::computeD2DInterference(MacNodeId eNbId, MacNodeId senderId, Coord senderCoord, MacNodeId destId, Coord destCoord, bool isCqi, const RbMap& rbmap,
    std::vector<double> * interference,Direction dir)
 {
    EV << "**** D2D Interference for cellId[" << eNbId << "] node["<<destId<<"] ****" << endl;
@@ -2223,6 +2270,11 @@ bool LteRealisticChannelModel::computeD2DInterference(MacNodeId eNbId, MacNodeId
        // For each band we have to check if the Band in the previous TTI was occupied by the interferringId
        for(unsigned int i=0;i<band_;i++)
        {
+//           // if we are decoding a data transmission and this RB has not been used, skip it
+//           // TODO fix for multi-antenna case
+//           if (rbmap.at(MACRO).at(i) == 0)
+//               continue;
+
            allocatedUes = binder_->getUlTransmissionMap(PREV_TTI, i);
            if (allocatedUes->empty()) // no UEs allocated on this band
                continue;
