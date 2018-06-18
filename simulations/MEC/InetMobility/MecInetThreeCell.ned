@@ -37,16 +37,18 @@ import org.car2x.veins.subprojects.veins_inet.VeinsInetManager;
 import lte.apps.d2dMultihop.statistics.MultihopD2DStatistics;
 
 
-network MecInetThreeCellCell
+network MecInetThreeCell
 {
     parameters:
 
         int numCars = default(0);
+        int numClusters = default(0);
+        int numRoads = default(0);
 
         double playgroundSizeX @unit(m); // x size of the area the nodes are in (in meters)
         double playgroundSizeY @unit(m); // y size of the area the nodes are in (in meters)
         double playgroundSizeZ @unit(m); // z size of the area the nodes are in (in meters)
-        @display("bgb=1100,800");
+        @display("bgb=1100,900");
 
     submodules:
 
@@ -73,25 +75,25 @@ network MecInetThreeCellCell
         }
 
         eNodeB1: eNodeB {
-            @display("p=100,120;is=vl");
+            @display("p=100,150;is=vl");
         }
 
         eNodeB2: eNodeB {
-            @display("p=200,340;is=vl");
+            @display("p=200,450;is=vl");
         }
 
         eNodeB3: eNodeB {
-            @display("p=100,560;is=vl");
+            @display("p=100,750;is=vl");
         }
 
         pgw: PgwStandardSimplified {
             nodeType = "PGW";
-            @display("p=479.912,558.224;is=l");
+            @display("p=479.912,610;is=l");
         }
 
         //# MEC module
         meHost: MEHost {
-            @display("p=481.91998,132.528;is=l");
+            @display("p=481.91998,150;is=l");
         }
 
 
