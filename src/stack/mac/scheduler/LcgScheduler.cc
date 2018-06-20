@@ -115,10 +115,7 @@ ScheduleList& LcgScheduler::schedule(unsigned int availableBytes, Direction gran
                     toServe += RLC_HEADER_AM;
 
                 if (firstSdu)
-                {
                     toServe += MAC_HEADER;
-                    firstSdu=false;
-                }
             }
 
             // get a pointer to the appropriate status element: we need a tracing element
@@ -223,7 +220,11 @@ ScheduleList& LcgScheduler::schedule(unsigned int availableBytes, Direction gran
 
                     // check if there is space for a SDU
                     int alloc = toServe;
-                    alloc -= MAC_HEADER;
+                    if (firstSdu)
+                    {
+                        alloc -= MAC_HEADER;
+                        firstSdu = false;
+                    }
                     if (connDesc.getRlcType() == UM)
                         alloc -= RLC_HEADER_UM;
                     else if (connDesc.getRlcType() == AM)
@@ -262,7 +263,11 @@ ScheduleList& LcgScheduler::schedule(unsigned int availableBytes, Direction gran
                     elem->sentData_ += availableBytes;
 
                     int alloc = availableBytes;
-                    alloc -= MAC_HEADER;
+                    if (firstSdu)
+                    {
+                        alloc -= MAC_HEADER;
+                        firstSdu = false;
+                    }
                     if (connDesc.getRlcType() == UM)
                         alloc -= RLC_HEADER_UM;
                     else if (connDesc.getRlcType() == AM)
