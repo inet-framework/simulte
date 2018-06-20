@@ -23,7 +23,7 @@ ClusterizePacketBuilder::~ClusterizePacketBuilder() {
     // TODO Auto-generated destructor stub
 }
 
-ClusterizePacket* ClusterizePacketBuilder::buildClusterizePacket(const char* type, unsigned int sqn, simtime_t time, long int size, int carID, const char* v2vAppName, const char* srcAddr, const char* destAddr){
+ClusterizePacket* ClusterizePacketBuilder::buildClusterizePacket(const char* type, unsigned int sqn, simtime_t time, long int size, int carID, const char* srcAddr, const char* destAddr){
 
 
         ClusterizePacket* packet = new ClusterizePacket(type);
@@ -35,14 +35,13 @@ ClusterizePacket* ClusterizePacketBuilder::buildClusterizePacket(const char* typ
         packet->setType(type);
 
         packet->setCarID(carID);
-        packet->setV2vAppName(v2vAppName);
         packet->setSourceAddress(srcAddr);
         packet->setDestinationAddress(destAddr);
 
         return packet;
 }
 
-ClusterizeInfoPacket* ClusterizePacketBuilder::buildClusterizeInfoPacket(unsigned int sqn, simtime_t time, long int size, int carID, const char* v2vAppName, const char* srcAddr, const char* destAddr, inet::Coord position, inet::Coord speed, inet::EulerAngles angularPosition, inet::EulerAngles angularSpeed){
+ClusterizeInfoPacket* ClusterizePacketBuilder::buildClusterizeInfoPacket(unsigned int sqn, simtime_t time, long int size, int carID, const char* srcAddr, const char* destAddr, inet::Coord position, inet::Coord speed, inet::EulerAngles angularPosition, inet::EulerAngles angularSpeed){
 
     ClusterizeInfoPacket* packet = new ClusterizeInfoPacket(INFO_CLUSTERIZE);
     packet->setName(INFO_CLUSTERIZE);
@@ -53,7 +52,6 @@ ClusterizeInfoPacket* ClusterizePacketBuilder::buildClusterizeInfoPacket(unsigne
     packet->setType(INFO_CLUSTERIZE);
 
     packet->setCarID(carID);
-    packet->setV2vAppName(v2vAppName);
     packet->setSourceAddress(srcAddr);
     packet->setDestinationAddress(destAddr);
 
@@ -73,7 +71,7 @@ ClusterizeInfoPacket* ClusterizePacketBuilder::buildClusterizeInfoPacket(unsigne
     return packet;
 }
 
-ClusterizeConfigPacket* ClusterizePacketBuilder::buildClusterizeConfigPacket(unsigned int sqn, simtime_t time,  unsigned long eventID, int hops, long int size, int carID, const char* v2vAppName, const char* srcAddr, const char* destAddr, int clusterID, const char* clusterColor, int txMode, const char* following, const char* follower, const char* clusterString){
+ClusterizeConfigPacket* ClusterizePacketBuilder::buildClusterizeConfigPacket(unsigned int sqn, simtime_t time,  unsigned long eventID, int hops, long int size, int carID, const char* srcAddr, const char* destAddr, int clusterID, const char* clusterColor, int txMode, const char* following, const char* follower, const char* clusterString, std::vector<double> accelerations){
 
     ClusterizeConfigPacket* packet = new ClusterizeConfigPacket(CONFIG_CLUSTERIZE);
     packet->setName(CONFIG_CLUSTERIZE);
@@ -87,7 +85,6 @@ ClusterizeConfigPacket* ClusterizePacketBuilder::buildClusterizeConfigPacket(uns
     packet->setType(CONFIG_CLUSTERIZE);
 
     packet->setCarID(carID);
-    packet->setV2vAppName(v2vAppName);
     packet->setSourceAddress(srcAddr);
     packet->setDestinationAddress(destAddr);
 
@@ -97,6 +94,11 @@ ClusterizeConfigPacket* ClusterizePacketBuilder::buildClusterizeConfigPacket(uns
     packet->setClusterFollowing(following);
     packet->setClusterFollower(follower);
     packet->setClusterString(clusterString);
+
+    //build list of accelerations
+    packet->setAccelerationsArraySize(accelerations.size());
+    for(int i=0; i < accelerations.size(); i++)
+        packet->setAccelerations(i, accelerations.at(i));
 
     //split clusterString
     std::vector<std::string> clusterVector = splitString(clusterString, " -> ");

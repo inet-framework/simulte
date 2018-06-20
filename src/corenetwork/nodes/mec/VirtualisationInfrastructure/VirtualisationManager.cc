@@ -179,7 +179,7 @@ void VirtualisationManager::startClusterize(ClusterizePacket* pkt){
 
     //creating the map key
     std::stringstream key;
-    key << pkt->getSourceAddress() << pkt->getV2vAppName();
+    key << pkt->getSourceAddress();
 
     //checking if there are available slots for MEClusterizeApp && the MEClusterizeApp is not already instantiated!
     if(currentMEApps < maxMEApps && meAppMapTable.find(key.str()) == meAppMapTable.end()){
@@ -207,7 +207,7 @@ void VirtualisationManager::upstreamClusterize(ClusterizeInfoPacket* pkt){
 
     //creating the map key
     std::stringstream key;
-    key << pkt->getSourceAddress() << pkt->getV2vAppName();
+    key << pkt->getSourceAddress();
 
     if(!meAppMapTable.empty() && meAppMapTable.find(key.str()) != meAppMapTable.end()){
 
@@ -225,7 +225,7 @@ void VirtualisationManager::downstreamClusterize(ClusterizeConfigPacket* pkt){
 
     //creating the map key
     std::stringstream key;
-    key << pkt->getDestinationAddress() << pkt->getV2vAppName();
+    key << pkt->getDestinationAddress();
 
     const char* destSimbolicAddr = pkt->getDestinationAddress();
 
@@ -247,7 +247,7 @@ void VirtualisationManager::downstreamClusterize(ClusterizeConfigPacket* pkt){
             //
             //creating the STOP_CLUSTERIZE ClusterizePacket
 
-            ClusterizePacket* spkt = ClusterizePacketBuilder().buildClusterizePacket(STOP_CLUSTERIZE, pkt->getSno(), simTime(), pkt->getByteLength(), pkt->getCarID(), pkt->getV2vAppName(), pkt->getDestinationAddress(), pkt->getSourceAddress());
+            ClusterizePacket* spkt = ClusterizePacketBuilder().buildClusterizePacket(STOP_CLUSTERIZE, pkt->getSno(), simTime(), pkt->getByteLength(), pkt->getCarID(), pkt->getDestinationAddress(), pkt->getSourceAddress());
 
             //
             EV << "VirtualisationeManager::downstreamClusterize - calling stopClusterize for " << destSimbolicAddr << endl;
@@ -271,7 +271,7 @@ void VirtualisationManager::stopClusterize(ClusterizePacket* pkt){
 
     //creating the map key
     std::stringstream key;
-    key << pkt->getSourceAddress() << pkt->getV2vAppName();
+    key << pkt->getSourceAddress();
 
     if(!meAppMapTable.empty() && meAppMapTable.find(key.str()) != meAppMapTable.end()){
 
@@ -288,7 +288,7 @@ void VirtualisationManager::instantiateMEClusterizeApp(ClusterizePacket* pkt){
 
     //creating the map key
     std::stringstream key;
-    key << pkt->getSourceAddress() << pkt->getV2vAppName();
+    key << pkt->getSourceAddress();
 
     if(currentMEApps < maxMEApps &&  meAppMapTable.find(key.str()) == meAppMapTable.end()){
 
@@ -317,12 +317,11 @@ void VirtualisationManager::instantiateMEClusterizeApp(ClusterizePacket* pkt){
 
         module->par("sourceAddress") = pkt->getDestinationAddress();
         module->par("destAddress") = pkt->getSourceAddress();
-        module->par("v2vAppName") = pkt->getV2vAppName();
         module->par("interfaceTableModule") = interfaceTableModule;
 
         module->finalizeParameters();
 
-        EV << "VirtualisationManager::instantiateMEClusterizeApp - UEAppSimbolicAddress: " << pkt->getSourceAddress() << " - v2vSenderName: " << pkt->getV2vAppName() << endl;
+        EV << "VirtualisationManager::instantiateMEClusterizeApp - UEAppSimbolicAddress: " << pkt->getSourceAddress()<< endl;
 
         //connecting VirtualisationInfrastructure gates to the MEClusterizeApp gates
         virtualisationInfr->gate("meAppOut", index)->connectTo(check_and_cast<MEClusterizeApp*>(module)->gate("virtualisationInfrastructureIn"));
@@ -360,7 +359,7 @@ void VirtualisationManager::terminateMEClusterizeApp(ClusterizePacket* pkt){
 
     //creating the map key
     std::stringstream key;
-    key << pkt->getSourceAddress() << pkt->getV2vAppName();
+    key << pkt->getSourceAddress();
 
     if(!meAppMapTable.empty() && meAppMapTable.find(key.str()) != meAppMapTable.end()){
 
@@ -410,7 +409,7 @@ void VirtualisationManager::ackClusterize(ClusterizePacket* pkt, const char* typ
 
     //creating the map key
     std::stringstream key;
-    key << pkt->getSourceAddress() << pkt->getV2vAppName();
+    key << pkt->getSourceAddress();
 
     const char* destSimbolicAddr = pkt->getSourceAddress();
 
@@ -427,7 +426,7 @@ void VirtualisationManager::ackClusterize(ClusterizePacket* pkt, const char* typ
         else{
             EV << "VirtualisationManager::ackClusterize - sending ack " << type <<" to "<< destSimbolicAddr << ": [" << destAddress_.str() <<"]" << endl;
 
-            ClusterizePacket* ack = ClusterizePacketBuilder().buildClusterizePacket(type, pkt->getSno(), simTime(), pkt->getByteLength(), pkt->getCarID(), pkt->getV2vAppName(), pkt->getDestinationAddress(), destSimbolicAddr);
+            ClusterizePacket* ack = ClusterizePacketBuilder().buildClusterizePacket(type, pkt->getSno(), simTime(), pkt->getByteLength(), pkt->getCarID(), pkt->getDestinationAddress(), destSimbolicAddr);
 
             socket.sendTo(ack, destAddress_, destPort_);
         }

@@ -97,7 +97,6 @@ void MEClusterizeApp::finish(){
 
         packet->setType(STOP_CLUSTERIZE);
 
-        packet->setV2vAppName(v2vAppName);
         packet->setSourceAddress(sourceSimbolicAddress);
         packet->setDestinationAddress(destSimbolicAddress);
 
@@ -113,7 +112,6 @@ void MEClusterizeApp::handleClusterizeConfig(ClusterizeConfigPacket* packet){
     packet->setSno(nextSnoConfig_);
     packet->setTimestamp(simTime());
     packet->setByteLength(size_);
-    packet->setV2vAppName(v2vAppName);
     packet->setSourceAddress(sourceSimbolicAddress);
     packet->setDestinationAddress(destSimbolicAddress);
 

@@ -26,9 +26,14 @@
 #include "inet/common/geometry/common/Coord.h"
 #include "inet/common/geometry/common/EulerAngles.h"
 
+//inet mobility
 #include "inet/mobility/contract/IMobility.h"
 #include "inet/mobility/single/LinearMobility.h"
+
+//veins mobility
 #include "veins_inet/VeinsInetMobility.h"
+//#include "veins_inet/VeinsInetManager.h"
+//#include "veins/modules/mobility/traci/TraCICommandInterface.h"
 
 #include "apps/vehicular/mec/clusterize/packets/ClusterizePacket_m.h"
 #include "apps/vehicular/mec/clusterize/packets/ClusterizePacketTypes.h"
@@ -36,9 +41,6 @@
 
 //to emit V2V statistics
 #include "apps/d2dMultihop/statistics/MultihopD2DStatistics.h"
-
-//to get the V2v Cluster App reference and to configure the cluster configuration --> calling setClusterConfiguration cross-module Call
-#include "../../v2v/V2vClusterBaseApp.h"
 
 
 /*
@@ -50,7 +52,6 @@
  *
  *  Receiver Side task is:
  *       1) Receiving CONFIG_CLUSTERIZE ClsuterizeConfigPacket from the MEClusterizeApp
- *          and configuring the V2V App, with the received configuration, by calling the V2V App public set method
  */
 
 class UEClusterizeApp : public cSimpleModule
@@ -70,8 +71,12 @@ class UEClusterizeApp : public cSimpleModule
     char* destSimbolicAddress;              //meHost.virtualisationInfrastructure
     MacNodeId macID;
 
+    //cluster info
+    int cluserID;
     char* v2vFollowerSimbolicAddress;       //Car[y]
     inet::L3Address v2vFollowerAddress_;
+    double requiredAcceleration;
+
 
     //multicast
     inet::UDPSocket multicastSocket;
@@ -79,35 +84,40 @@ class UEClusterizeApp : public cSimpleModule
     char* multicastGoupAddress;
     inet::L3Address multicastAddress_;
 
-    cMessage *selfStart_;
-    cMessage *selfSender_;
-    cMessage *selfStop_;
-
     // mobility information for MEClusterizeService computations
     //
     cModule* lteNic;
     cModule* car;
+    //veins
     Veins::VeinsInetMobility *veins_mobility;
+    std::string carVeinsID;
+    //Veins::VeinsInetManager *veinsManager;
+    //Veins::TraCICommandInterface* traci;
+    //Veins::TraCICommandInterface::Vehicle *traciVehicle;
+    //inet
     inet::IMobility *mobility;
+
+    //info
     inet::Coord position;
     inet::Coord speed;
     inet::EulerAngles angularPosition;
     inet::EulerAngles angularSpeed;
     double maxSpeed;
 
+
+    //scheduling
+    cMessage *selfStart_;
+    cMessage *selfSender_;
+    cMessage *selfStop_;
+
     // reference to the statistics manager
     MultihopD2DStatistics* stat_;
-
-    // v2v app who uses the cluster configuration received from MEClusterizeService (optional usage)
-    //
-    cModule* v2vApp;                        //v2vApp module
-    char* v2vAppName;                   //v2vApp Class Name
-    V2vClusterBaseApp *v2vClusterApp;
 
     //signals
     simsignal_t clusterizeInfoSentMsg_;
     simsignal_t clusterizeConfigRcvdMsg_;
     simsignal_t clusterizeConfigDelay_;
+
     public:
 
         ~UEClusterizeApp();
@@ -157,6 +167,9 @@ class UEClusterizeApp : public cSimpleModule
 
         std::string getFollower(ClusterizeConfigPacket *);
         std::string getFollowing(ClusterizeConfigPacket *);
+        double updateAcceleration(ClusterizeConfigPacket *);
+
+        void getVehicleInterface();
 };
 
 #endif

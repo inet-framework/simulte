@@ -26,8 +26,7 @@ UEClusterizeApp::UEClusterizeApp()
     nextSnoStart_ = 0;
     nextSnoInfo_ = 0;
     nextSnoStop_ = 0;
-
-    v2vAppName = "";
+    requiredAcceleration = 0;
 }
 
 UEClusterizeApp::~UEClusterizeApp()
@@ -117,16 +116,6 @@ void UEClusterizeApp::initialize(int stage)
     selfStart_ = new cMessage("selfStart");
     selfStop_ = new cMessage("selfStop");
 
-    v2vApp = getParentModule()->getModuleByPath(par("v2vAppPath"));
-    if(v2vApp == NULL){
-        EV << "UEClusterizeApp::initialize - ERROR getting v2vApp module!\nRunning without ..." << endl;
-        //throw cRuntimeError("UEClusterizeApp::initialize - \tFATAL! Error when getting v2vApp!");
-    }
-    else{
-        v2vClusterApp = check_and_cast<V2vClusterBaseApp*>(v2vApp);
-        v2vAppName = (char*) v2vClusterApp->getClassName();
-    }
-
     //statics signals
     clusterizeInfoSentMsg_ = registerSignal("clusterizeInfoSentMsg");
     clusterizeConfigRcvdMsg_ = registerSignal("clusterizeConfigRcvdMsg");
@@ -207,7 +196,7 @@ void UEClusterizeApp::sendClusterizeStartPacket()
 {
     EV << "UEClusterizeApp::sendClusterizeStartPacket - Sending message SeqNo[" << nextSnoStart_ << "]\n";
 
-    ClusterizePacket* packet = ClusterizePacketBuilder().buildClusterizePacket(START_CLUSTERIZE, nextSnoStart_, simTime(), size_, car->getId(), v2vAppName, sourceSimbolicAddress, destSimbolicAddress);
+    ClusterizePacket* packet = ClusterizePacketBuilder().buildClusterizePacket(START_CLUSTERIZE, nextSnoStart_, simTime(), size_, car->getId(), sourceSimbolicAddress, destSimbolicAddress);
 
     socket.sendTo(packet, destAddress_, destPort_);
     nextSnoStart_++;
@@ -246,7 +235,7 @@ void UEClusterizeApp::sendClusterizeInfoPacket()
         }
 
 
-    ClusterizeInfoPacket* packet = ClusterizePacketBuilder().buildClusterizeInfoPacket(nextSnoInfo_, simTime(), size_, car->getId(), v2vAppName, sourceSimbolicAddress, destSimbolicAddress, position, speed, angularPosition, angularSpeed);
+    ClusterizeInfoPacket* packet = ClusterizePacketBuilder().buildClusterizeInfoPacket(nextSnoInfo_, simTime(), size_, car->getId(), sourceSimbolicAddress, destSimbolicAddress, position, speed, angularPosition, angularSpeed);
 
     //testing
     EV << "UEClusterizeApp::sendClusterizeInfoPacket - Info: carID " << car->getId() << " sourceAddr " << sourceSimbolicAddress << " destAddr " << destSimbolicAddress << "]" << endl ;
@@ -271,7 +260,7 @@ void UEClusterizeApp::sendClusterizeStopPacket()
 {
     EV << "UEClusterizeApp::sendClusterizeStopPacket - Sending message SeqNo[" << nextSnoStop_ << "]\n";
 
-    ClusterizePacket* packet = ClusterizePacketBuilder().buildClusterizePacket(STOP_CLUSTERIZE, nextSnoStart_, simTime(), size_, car->getId(), v2vAppName, sourceSimbolicAddress, destSimbolicAddress);
+    ClusterizePacket* packet = ClusterizePacketBuilder().buildClusterizePacket(STOP_CLUSTERIZE, nextSnoStart_, simTime(), size_, car->getId(), sourceSimbolicAddress, destSimbolicAddress);
 
     socket.sendTo(packet, destAddress_, destPort_);
     nextSnoStop_++;
@@ -292,6 +281,12 @@ void UEClusterizeApp::sendClusterizeStopPacket()
 void UEClusterizeApp::handleClusterizeAckStart(ClusterizePacket* pkt){
 
     EV << "UEClusterizeApp::handleClusterizeAckStart - Packet received: "<< pkt->getSourceAddress() <<" SeqNo[" << pkt->getSno() << "]" << endl;
+
+    if(veins_mobility != NULL){
+
+        EV << "UEClusterizeApp::handleClusterizeAckStart - Retrieving VehicleInterface (TRACI)" << endl;
+        getVehicleInterface();
+    }
 
     cancelEvent(selfStart_);
 
@@ -321,27 +316,8 @@ void UEClusterizeApp::handleClusterizeAckStop(ClusterizePacket* pkt){
     //this->callFinish();
     //this->deleteModule();
 
-    //updating V2vApp Clustering inforamtion
-    if(v2vApp != NULL){
-
-        ClusterizeConfigPacket* pkt = new ClusterizeConfigPacket(CONFIG_CLUSTERIZE);
-        pkt->setTimestamp(simTime());
-        pkt->setType(CONFIG_CLUSTERIZE);
-        pkt->setClusterFollower("");
-        pkt->setClusterFollowing("");
-
-        EV << "UEClusterizeApp::handleClusterizeAckStop - Stop Cluster Configuration " << v2vAppName << endl;
-        v2vClusterApp->setClusterConfiguration(pkt);
-
-        //updating runtime color of the car icon background
-        car->getDisplayString().setTagArg("i",1,"white");
-    }
-
-    //Stop the v2vApp
-    if(v2vApp != NULL){
-        v2vApp->callFinish();
-        //v2vApp->deleteModule();
-    }
+    //updating runtime color of the car icon background
+    car->getDisplayString().setTagArg("i",1,"white");
 }
 
 void UEClusterizeApp::handleClusterizeConfig(ClusterizeConfigPacket* pkt){
@@ -359,8 +335,17 @@ void UEClusterizeApp::handleClusterizeConfig(ClusterizeConfigPacket* pkt){
         handleClusterizeConfigFromUE(pkt);
     }
 
-    //check_and_cast<LinearMobility*>(mobility)->setSpeed(15);
-    //check_and_cast<LinearMobility*>(mobility)->setAcceleration(0.2);
+    // retrieving the acceleration and updating the mobility
+    //
+    double acceleration = updateAcceleration(pkt);
+    if(veins_mobility != NULL){
+        //slowDown with traciVehicle
+    }
+    else{
+        //slow down with inet mobility                                                                  //TODO
+        //check_and_cast<LinearMobility*>(mobility)->setSpeed(15);
+        //check_and_cast<LinearMobility*>(mobility)->setAcceleration(0.2);
+    }
 
     simtime_t delay = simTime()-pkt->getTimestamp();
     // emit statistics
@@ -378,12 +363,6 @@ void UEClusterizeApp::handleClusterizeConfigFromMEHost(ClusterizeConfigPacket *p
 
     EV << "UEClusterizeApp::handleClusterizeConfigFromMEHost" <<endl;
 
-    //configure the Cluster parameters for V2vClusterBaseApp
-    if(v2vApp != NULL){
-
-        EV << "UEClusterizeApp::handleClusterizeConfigFromMEHost - Configuring " << v2vAppName << endl;
-        v2vClusterApp->setClusterConfiguration(pkt);
-    }
     //updating runtime color of the car icon background
     car->getDisplayString().setTagArg("i",1, pkt->getClusterColor());
 
@@ -426,8 +405,6 @@ void UEClusterizeApp::handleClusterizeConfigFromMEHost(ClusterizeConfigPacket *p
         packet->setSourceAddress(sourceSimbolicAddress);
         packet->setHops(packet->getHops()+1);
 
-        packet->setName(v2vAppName);
-
         //propagate on the multicast address
         multicastSocket.sendTo(packet, multicastAddress_, multicastPort_);
         EV << "UEClusterizeApp::handleClusterizeConfigFromMEHost - propagating ClusterizeConfig to multicast: " << multicastGoupAddress << " : " << multicastPort_<< endl;
@@ -453,13 +430,6 @@ void UEClusterizeApp::handleClusterizeConfigFromUE(ClusterizeConfigPacket *pkt){
     {
         pkt->setClusterFollower(follower.c_str());
         pkt->setClusterFollowing(following.c_str());
-
-        //configure the Cluster parameters for V2vClusterBaseApp (with the updated follower and following)
-        if(v2vApp != NULL){
-
-            EV << "UEClusterizeApp::handleClusterizeConfigFromUE - Configuring " << v2vAppName << endl;
-            v2vClusterApp->setClusterConfiguration(pkt);
-        }
 
         //updating runtime color of the car icon background
         car->getDisplayString().setTagArg("i",1, pkt->getClusterColor());
@@ -532,4 +502,29 @@ std::string UEClusterizeApp::getFollowing(ClusterizeConfigPacket* pkt){
        return pkt->getClusterList(i-1);
 
     return "";
+}
+
+double UEClusterizeApp::updateAcceleration(ClusterizeConfigPacket *pkt){
+
+    for(int i=0; i < pkt->getAccelerationsArraySize(); i++){
+       if(strcmp(pkt->getClusterList(i), sourceSimbolicAddress) == 0){
+           requiredAcceleration = pkt->getAccelerations(i);
+       }
+    }
+    return requiredAcceleration;
+}
+
+void UEClusterizeApp::getVehicleInterface(){
+/*
+    std::map<std::string, cModule*> cars = veinsManager->getManagedHosts();
+    std::map<std::string, cModule*>::iterator it;
+    for(it = cars.begin(); it != cars.end(); it++)
+        if(it->second == car)
+            carVeinsID = it->first;
+
+    EV << "UEClusterizeApp::getVehicleInterface - carVeinsID: " << carVeinsID << endl;
+
+    traciVehicle = new Veins::TraCICommandInterface::Vehicle(traci->vehicle(carVeinsID));
+*/
+
 }

@@ -34,8 +34,6 @@ packet ClusterizePacket {
     int carID;
     string sourceAddress;
     string destinationAddress;
-    
-    string v2vAppName;
 }
 
 //
@@ -50,11 +48,14 @@ packet ClusterizeConfigPacket extends ClusterizePacket{
     string clusterString;
     string clusterList[];
     
+    //cluster formation
+    double accelerations[];
+    
     //cluster communication strategy
     string clusterFollowing;
     string clusterFollower;
-    int txMode;
-    
+    int txMode;    
+
     //statistic info
     int hops;
     unsigned long eventID;

@@ -61,6 +61,10 @@ void MEShapedClusterizeService::compute(){
     updateRniInfo();
 
     computePlatoon(shape);  //shape is "rectangle" or "triangle"
+
+    //compute accelerations for each platoon member!                                                                        //TODO ACCELERATIONS
+    //
+    // populate the accelerations field in clusters
 }
 
 /*

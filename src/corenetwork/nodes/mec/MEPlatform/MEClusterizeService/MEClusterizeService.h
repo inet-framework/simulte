@@ -46,6 +46,8 @@ struct cluster{
 
     std::vector<int> members;          //array of cars belonging the cluster: key in cars (map)
     std::string membersList;
+
+    std::vector<double> accelerations;
 };
 
 struct car{

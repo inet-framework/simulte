@@ -27,9 +27,9 @@ class ClusterizePacketBuilder {
         ClusterizePacketBuilder();
         virtual ~ClusterizePacketBuilder();
 
-        ClusterizePacket* buildClusterizePacket(const char* type, unsigned int sqn, simtime_t time, long int size, int carID, const char* v2vAppName, const char* srcAddr, const char* destAddr);
-        ClusterizeInfoPacket* buildClusterizeInfoPacket(unsigned int sqn, simtime_t time, long int size, int carID, const char* v2vAppName, const char* srcAddr, const char* destAddr, inet::Coord position, inet::Coord speed, inet::EulerAngles angularPosition, inet::EulerAngles angularSpeed);
-        ClusterizeConfigPacket* buildClusterizeConfigPacket(unsigned int sqn, simtime_t time, unsigned long eventID, int hops, long int size, int carID, const char* v2vAppName, const char* srcAddr, const char* destAddr, int clusterID, const char* clusterColor, int txMode, const char* following, const char* follower, const char* clusterString);
+        ClusterizePacket* buildClusterizePacket(const char* type, unsigned int sqn, simtime_t time, long int size, int carID, const char* srcAddr, const char* destAddr);
+        ClusterizeInfoPacket* buildClusterizeInfoPacket(unsigned int sqn, simtime_t time, long int size, int carID, const char* srcAddr, const char* destAddr, inet::Coord position, inet::Coord speed, inet::EulerAngles angularPosition, inet::EulerAngles angularSpeed);
+        ClusterizeConfigPacket* buildClusterizeConfigPacket(unsigned int sqn, simtime_t time, unsigned long eventID, int hops, long int size, int carID, const char* srcAddr, const char* destAddr, int clusterID, const char* clusterColor, int txMode, const char* following, const char* follower, const char* clusterString, std::vector<double> accelerations);
 
         // utility:
         //          split a string by the delimiter chars

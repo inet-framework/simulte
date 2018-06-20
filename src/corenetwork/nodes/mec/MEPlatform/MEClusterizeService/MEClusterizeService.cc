@@ -135,7 +135,7 @@ void MEClusterizeService::sendConfig(){
 
             for(int memberKey : cl_it->second.members){
 
-                ClusterizeConfigPacket* pkt = ClusterizePacketBuilder().buildClusterizeConfigPacket(0, 0, eventID, 1, 0, 0, "", "", "", cars[memberKey].clusterID, cl_it->second.color.c_str(), cars[memberKey].txMode, cars[memberKey].following.c_str(), cars[memberKey].follower.c_str(),cl_it->second.membersList.c_str());
+                ClusterizeConfigPacket* pkt = ClusterizePacketBuilder().buildClusterizeConfigPacket(0, 0, eventID, 1, 0, 0, "", "", cars[memberKey].clusterID, cl_it->second.color.c_str(), cars[memberKey].txMode, cars[memberKey].following.c_str(), cars[memberKey].follower.c_str(),cl_it->second.membersList.c_str(), cl_it->second.accelerations);
 
                 //testing
                 EV << "MEClusterizeService::sendConfig - sending ClusterizeConfig to CM: "  << cars[memberKey].simbolicAddress << " (txMode: INFRASTRUCTURE_UNICAST_TX_MODE) " << endl;
@@ -160,7 +160,7 @@ void MEClusterizeService::sendConfig(){
 
             int leaderKey = cl_it->second.members.at(0);
 
-            ClusterizeConfigPacket* pkt = ClusterizePacketBuilder().buildClusterizeConfigPacket(0, 0, eventID, 1, 0, 0, "", "", "", cars[leaderKey].clusterID, cl_it->second.color.c_str(), cars[leaderKey].txMode, cars[leaderKey].following.c_str(), cars[leaderKey].follower.c_str(),cl_it->second.membersList.c_str());
+            ClusterizeConfigPacket* pkt = ClusterizePacketBuilder().buildClusterizeConfigPacket(0, 0, eventID, 1, 0, 0, "", "", cars[leaderKey].clusterID, cl_it->second.color.c_str(), cars[leaderKey].txMode, cars[leaderKey].following.c_str(), cars[leaderKey].follower.c_str(),cl_it->second.membersList.c_str(), cl_it->second.accelerations);
 
             //testing
             std::string txmode = (preconfiguredTxMode == V2V_UNICAST_TX_MODE)? "V2V_UNICAST_TX_MODE" : "V2V_MULTICAST_TX_MODE";
@@ -217,7 +217,7 @@ void MEClusterizeService::handleClusterizeInfo(ClusterizeInfoPacket* pkt){
     cars[key].angularSpeed.gamma = pkt->getAngularSpeedC();
     cars[key].isFollower = false;
 
-    EV << "MEClusterizeService::handleClusterizeInfo - Updating cars[" << key <<"] --> " << cars[key].simbolicAddress << " (carID: "<< cars[key].id << ") " << pkt->getV2vAppName() << endl;
+    EV << "MEClusterizeService::handleClusterizeInfo - Updating cars[" << key <<"] --> " << cars[key].simbolicAddress << " (carID: "<< cars[key].id << ") " << endl;
 
     //testing
     EV << "MEClusterizeService::handleClusterizeInfo - cars[" << key << "].position = " << "[" << cars[key].position.x << " ; "<< cars[key].position.y << " ; " << cars[key].position.z  << "]" << endl;

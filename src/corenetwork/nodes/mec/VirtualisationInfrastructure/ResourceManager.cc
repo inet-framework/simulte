@@ -97,12 +97,12 @@ void ResourceManager::handleClusterizeResources(ClusterizePacket* pkt){
             allocatedRam += reqRam;
             allocatedDisk += reqDisk;
             allocatedCPU += reqCPU;
-            EV << "ResourceManager::handleClusterizeResources - resources allocated for " << pkt->getSourceAddress() << " - " << pkt->getV2vAppName() << endl;
+            EV << "ResourceManager::handleClusterizeResources - resources allocated for " << pkt->getSourceAddress() << endl;
             //Sending back the START_CLUSTERIZE packet to Virtualisation Manager to instantiate the MEClusterizeApp & ACK_START
             send(pkt, "virtualisationManagerOut");
         }
         else{
-            EV << "ResourceManager::handleClusterizeResources - resources NOT AVAILABLE for " << pkt->getSourceAddress() << " - " << pkt->getV2vAppName() << endl;
+            EV << "ResourceManager::handleClusterizeResources - resources NOT AVAILABLE for " << pkt->getSourceAddress() << endl;
             delete(pkt);
         }
     }
@@ -114,7 +114,7 @@ void ResourceManager::handleClusterizeResources(ClusterizePacket* pkt){
         allocatedDisk -= reqDisk;
         allocatedCPU -= reqCPU;
 
-        EV << "ResourceManager::handleClusterizeResources - resources deallocated for " << pkt->getSourceAddress() << " - " << pkt->getV2vAppName()  << endl;
+        EV << "ResourceManager::handleClusterizeResources - resources deallocated for " << pkt->getSourceAddress() << endl;
 
         //Sending back the STOP_CLUSTERIZE packet to Virtualisation Manager to ACK_STOP
         send(pkt, "virtualisationManagerOut");
