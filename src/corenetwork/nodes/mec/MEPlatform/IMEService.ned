@@ -22,6 +22,11 @@ moduleinterface IMEService
 {
     parameters:
         @display("i=block/app");  
+                
+    gates:
+        
+        input meAppIn[];
+        output meAppOut[];
 }
 
 

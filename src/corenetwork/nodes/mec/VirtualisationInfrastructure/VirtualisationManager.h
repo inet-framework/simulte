@@ -138,7 +138,6 @@ class VirtualisationManager : public cSimpleModule
         // sending ACK_START_CLUSTERIZE or ACK_STOP_CLUSTERIZE (called by instantiateMEClusterizeApp or terminateMEClusterizeApp)
         //
         void ackClusterize(ClusterizePacket*, const char*);
-
 };
 
 #endif

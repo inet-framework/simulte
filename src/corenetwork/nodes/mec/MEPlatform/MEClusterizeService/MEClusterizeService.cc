@@ -67,8 +67,8 @@ void MEClusterizeService::initialize(int stage)
             mePlatform->setGateSize("meAppOut", maxMEApps);
             mePlatform->setGateSize("meAppIn", maxMEApps);
         }
-        this->setGateSize("meClusterizeAppOut", maxMEApps);
-        this->setGateSize("meClusterizeAppIn", maxMEApps);
+        this->setGateSize("meAppOut", maxMEApps);
+        this->setGateSize("meAppIn", maxMEApps);
     }
     else{
         EV << "MEClusterizeService::initialize - ERROR getting mePlatform cModule!" << endl;
@@ -143,7 +143,7 @@ void MEClusterizeService::sendConfig(){
                 EV << "MEClusterizeService::sendConfig - \t\tclusters[" << cars[memberKey].clusterID << "].membersList: " << cl_it->second.membersList.c_str() << endl;
 
                 //sending to the MEClusterizeApp (on the corresponded gate!)
-                send(pkt, "meClusterizeAppOut", memberKey);
+                send(pkt, "meAppOut", memberKey);
             }
             //creating global-statistics event record
             std::set<MacNodeId> targetSet;
@@ -169,7 +169,7 @@ void MEClusterizeService::sendConfig(){
             EV << "MEClusterizeService::sendConfig - \t\tclusters[" << cars[leaderKey].clusterID << "].membersList: " << cl_it->second.membersList.c_str() << endl << endl;
 
             //sending to the MEClusterizeApp (on the corresponded gate!)
-            send(pkt, "meClusterizeAppOut", leaderKey);
+            send(pkt, "meAppOut", leaderKey);
 
             //creating global-statistics event record
             std::set<MacNodeId> targetSet;
@@ -191,7 +191,7 @@ void MEClusterizeService::sendConfig(){
         for(int memberKey : cl_it->second.members){
 
             cMessage* trigger = new cMessage("triggerClusterizeConfigStatistics");
-            send(trigger, "meClusterizeAppOut", memberKey);
+            send(trigger, "meAppOut", memberKey);
         }
     }
 }

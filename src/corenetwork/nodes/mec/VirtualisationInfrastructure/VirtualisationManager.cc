@@ -94,16 +94,19 @@ void VirtualisationManager::handleMessage(cMessage *msg)
         handleResource(msg);
     }
     else{
-        /*
-         * Handling Packets for the clustering service:  UEClusterizeApp - MEClusterizeApp - MEClusterizeService
-         */
-        ClusterizePacket* pkt = check_and_cast<ClusterizePacket*>(msg);
-        if (pkt == 0){
-            EV << "VirtualisationManager::handleMessage - \tFATAL! Error when casting to ClusterizePacket" << endl;
-            throw cRuntimeError("VirtualisationManager::handleMessage - \tFATAL! Error when casting to ClusterizePacket");
+        MEAppPacket* mepkt = check_and_cast<MEAppPacket*>(msg);
+        if(mepkt == 0){
+            EV << "VirtualisationManager::handleMessage - \tFATAL! Error when casting to MEAppPacket" << endl;
+            throw cRuntimeError("VirtualisationManager::handleMessage - \tFATAL! Error when casting to MEAppPacket");
         }
-        else
+        else if(!strcmp(mepkt->getName(), START_CLUSTERIZE) || !strcmp(mepkt->getName(), STOP_CLUSTERIZE)
+                                || !strcmp(mepkt->getName(), CONFIG_CLUSTERIZE) || !strcmp(mepkt->getName(), INFO_CLUSTERIZE)){
+            /*
+             * HANDLING CLUSTERIZE PACKETS
+             */
+            ClusterizePacket* pkt = check_and_cast<ClusterizePacket*>(msg);
             handleClusterize(pkt);
+        }
     }
 }
 
@@ -112,20 +115,24 @@ void VirtualisationManager::handleMessage(cMessage *msg)
  */
 
 void VirtualisationManager::handleResource(cMessage* msg){
-    /*
-     * Handling Packets for the clusterizing service:  MEClusterizeApp
-     */
-    ClusterizePacket* pkt = check_and_cast<ClusterizePacket*>(msg);
-    if (pkt == 0){
-        EV << "VirtualisationManager::handleResource - \tFATAL! Error when casting to ClusterizePacket" << endl;
-        throw cRuntimeError("VirtualisationManager::handleResource - \tFATAL! Error when casting to ClusterizePacket");
-    }
-    else if(!strcmp(pkt->getType(), START_CLUSTERIZE)){
 
+    MEAppPacket* mepkt = check_and_cast<MEAppPacket*>(msg);
+    if(mepkt == 0){
+        EV << "VirtualisationManager::handleMessage - \tFATAL! Error when casting to MEAppPacket" << endl;
+        throw cRuntimeError("VirtualisationManager::handleMessage - \tFATAL! Error when casting to MEAppPacket");
+    }
+    /*
+     * HANDLING CLUSTERIZE PACKETS for RESOURCES ALLOCATION/DEALLOCATION
+     */
+    else if(!strcmp(mepkt->getName(), START_CLUSTERIZE)){
+
+        ClusterizePacket* pkt = check_and_cast<ClusterizePacket*>(msg);
         EV << "VirtualisationManager::handleMessage - calling instantiateMEClusterizeApp" << endl;
         instantiateMEClusterizeApp(pkt);
     }
-    else if(!strcmp(pkt->getType(), STOP_CLUSTERIZE)){
+    else if(!strcmp(mepkt->getName(), STOP_CLUSTERIZE)){
+
+        ClusterizePacket* pkt = check_and_cast<ClusterizePacket*>(msg);
         //Sending ACK to the UEClusterizeApp
         EV << "VirtualisationManager::handleResource - calling terminateMEClusterizeApp" << endl;
         terminateMEClusterizeApp(pkt);
@@ -201,6 +208,7 @@ void VirtualisationManager::startClusterize(ClusterizePacket* pkt){
     }
 }
 
+
 void VirtualisationManager::upstreamClusterize(ClusterizeInfoPacket* pkt){
 
     EV << "VirtualisationManager::upstreamClusterize - processing..."<< endl;
@@ -264,6 +272,7 @@ void VirtualisationManager::downstreamClusterize(ClusterizeConfigPacket* pkt){
         EV << "VirtualisationeManager::downstreamClusterize - \tWARNING forwarding to "<< destSimbolicAddr << ": map entry "<< key.str() <<" not found!" << endl;
 
 }
+
 
 void VirtualisationManager::stopClusterize(ClusterizePacket* pkt){
 
@@ -332,8 +341,8 @@ void VirtualisationManager::instantiateMEClusterizeApp(ClusterizePacket* pkt){
         check_and_cast<MEClusterizeApp*>(module)->gate("mePlatformOut")->connectTo(mePlatform->gate("meAppIn", index));
 
         //connecting internal MEPlatform gates to the MEClusterizeService gates
-        meClusterizeService->gate("meClusterizeAppOut", index)->connectTo(mePlatform->gate("meAppOut", index));
-        mePlatform->gate("meAppIn", index)->connectTo(meClusterizeService->gate("meClusterizeAppIn", index));
+        meClusterizeService->gate("meAppOut", index)->connectTo(mePlatform->gate("meAppOut", index));
+        mePlatform->gate("meAppIn", index)->connectTo(meClusterizeService->gate("meAppIn", index));
 
         module->buildInside();
         module->scheduleStart(simTime());
@@ -376,8 +385,8 @@ void VirtualisationManager::terminateMEClusterizeApp(ClusterizePacket* pkt){
         meAppMapTable[key.str()].meAppModule->deleteModule();
 
         //disconnecting internal MEPlatform gates to the MEClusterizeService gates
-        meClusterizeService->gate("meClusterizeAppOut", index)->disconnect();
-        meClusterizeService->gate("meClusterizeAppIn", index)->disconnect();
+        meClusterizeService->gate("meAppOut", index)->disconnect();
+        meClusterizeService->gate("meAppIn", index)->disconnect();
 
         //disconnecting MEPlatform gates to the MEClusterizeApp gates
         mePlatform->gate("meAppOut", index)->disconnect();

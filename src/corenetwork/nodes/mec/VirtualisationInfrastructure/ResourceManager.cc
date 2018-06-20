@@ -58,14 +58,20 @@ void ResourceManager::handleMessage(cMessage *msg)
 {
     if (msg->isSelfMessage())
         return;
+
+    MEAppPacket* mepkt = check_and_cast<MEAppPacket*>(msg);
+    if(mepkt == 0){
+        EV << "VirtualisationManager::handleMessage - \tFATAL! Error when casting to MEAppPacket" << endl;
+        throw cRuntimeError("VirtualisationManager::handleMessage - \tFATAL! Error when casting to MEAppPacket");
+    }
     /*
-     * Handling Resources for the clusterizing service: MEClusterizeApp
+     * HANDLING RESOURCES for ME CLUSTERIZE APP
      */
-    ClusterizePacket* pkt = check_and_cast<ClusterizePacket*>(msg);
-    if (pkt == 0)
-        throw cRuntimeError("ResourceManager::handleMessage - \tFATAL! Error when casting to ClusterizePacket");
-    else
+    else if(!strcmp(mepkt->getName(), START_CLUSTERIZE) || !strcmp(mepkt->getName(), STOP_CLUSTERIZE)){
+
+        ClusterizePacket* pkt = check_and_cast<ClusterizePacket*>(msg);
         handleClusterizeResources(pkt);
+    }
 }
 
 void ResourceManager::finish(){
@@ -79,7 +85,7 @@ void ResourceManager::finish(){
 
 void ResourceManager::handleClusterizeResources(ClusterizePacket* pkt){
 
-    EV << "ResourceManager::handleClusterize - "<< pkt->getType() << " received: "<< pkt->getSourceAddress() <<" SeqNo[" << pkt->getSno() << "]"<< endl;
+    EV << "ResourceManager::handleClusterize - "<< pkt->getName() << " received: "<< pkt->getSourceAddress() <<" SeqNo[" << pkt->getSno() << "]"<< endl;
 
     bool availableResources = true;
 
@@ -89,7 +95,7 @@ void ResourceManager::handleClusterizeResources(ClusterizePacket* pkt){
 
     /* -------------------------------
      * Handling ClusterizeStartPacket */
-    if(!strcmp(pkt->getType(), START_CLUSTERIZE)){
+    if(!strcmp(pkt->getName(), START_CLUSTERIZE)){
 
         availableResources = ((maxRam-allocatedRam-reqRam >= 0) && (maxDisk-allocatedDisk-reqDisk >= 0) && (maxCPU-allocatedCPU-reqCPU >= 0))? true : false;
 
@@ -108,7 +114,7 @@ void ResourceManager::handleClusterizeResources(ClusterizePacket* pkt){
     }
     /* -------------------------------
      * Handling ClusterizeStopPacket */
-    else if(!strcmp(pkt->getType(), STOP_CLUSTERIZE)){
+    else if(!strcmp(pkt->getName(), STOP_CLUSTERIZE)){
 
         allocatedRam -= reqRam;
         allocatedDisk -= reqDisk;

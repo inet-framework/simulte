@@ -35,6 +35,9 @@ simple MEClusterizeService like IMEService
         
     gates:
         
-        input meClusterizeAppIn[];
-        output meClusterizeAppOut[];
+        input meAppIn[];
+        output meAppOut[];     
+           
+        input mePlatformIn;
+        output mePlatformOut;
 }
