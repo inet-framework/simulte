@@ -24,6 +24,10 @@
 #include "apps/vehicular/mec/clusterize/packets/ClusterizePacket_m.h"
 #include "apps/vehicular/mec/clusterize/packets/ClusterizePacketTypes.h"
 
+
+#include "corenetwork/nodes/mec/MEPlatform/MEAppPacket_Types.h"
+#include "corenetwork/nodes/mec/MEPlatform/MEAppPacket_m.h"
+
 /**
  * ResourceManager
  *

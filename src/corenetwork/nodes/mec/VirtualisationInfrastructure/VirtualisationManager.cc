@@ -145,13 +145,13 @@ void VirtualisationManager::handleClusterize(ClusterizePacket* pkt){
 
     /* -------------------------------
      * Handling ClusterizeStartPacket */
-    if(!strcmp(pkt->getType(), START_CLUSTERIZE)){
+    if(!strcmp(pkt->getName(), START_CLUSTERIZE)){
 
        startClusterize(pkt);
     }
     /* -------------------------------
      * Handling ClusterizeInfoPacket */
-    else if(!strcmp(pkt->getType(), INFO_CLUSTERIZE)){
+    else if(!strcmp(pkt->getName(), INFO_CLUSTERIZE)){
 
         ClusterizeInfoPacket* ipkt = check_and_cast<ClusterizeInfoPacket*>(pkt);
 
@@ -159,7 +159,7 @@ void VirtualisationManager::handleClusterize(ClusterizePacket* pkt){
     }
     /* -------------------------------
      * Handling ClusterizeConfigPacket */
-    else if(!strcmp(pkt->getType(), CONFIG_CLUSTERIZE)){
+    else if(!strcmp(pkt->getName(), CONFIG_CLUSTERIZE)){
 
         ClusterizeConfigPacket* cpkt = check_and_cast<ClusterizeConfigPacket*>(pkt);
 
@@ -167,7 +167,7 @@ void VirtualisationManager::handleClusterize(ClusterizePacket* pkt){
     }
     /* -------------------------------
      * Handling ClusterizeStopPacket */
-    else if(!strcmp(pkt->getType(), STOP_CLUSTERIZE)){
+    else if(!strcmp(pkt->getName(), STOP_CLUSTERIZE)){
 
         stopClusterize(pkt);
     }
@@ -247,7 +247,7 @@ void VirtualisationManager::downstreamClusterize(ClusterizeConfigPacket* pkt){
             //
             //creating the STOP_CLUSTERIZE ClusterizePacket
 
-            ClusterizePacket* spkt = ClusterizePacketBuilder().buildClusterizePacket(STOP_CLUSTERIZE, pkt->getSno(), simTime(), pkt->getByteLength(), pkt->getCarID(), pkt->getDestinationAddress(), pkt->getSourceAddress());
+            ClusterizePacket* spkt = ClusterizePacketBuilder().buildClusterizePacket(STOP_CLUSTERIZE, pkt->getSno(), simTime(), pkt->getByteLength(), pkt->getCarOmnetID(), pkt->getDestinationAddress(), pkt->getSourceAddress());
 
             //
             EV << "VirtualisationeManager::downstreamClusterize - calling stopClusterize for " << destSimbolicAddr << endl;
@@ -426,7 +426,7 @@ void VirtualisationManager::ackClusterize(ClusterizePacket* pkt, const char* typ
         else{
             EV << "VirtualisationManager::ackClusterize - sending ack " << type <<" to "<< destSimbolicAddr << ": [" << destAddress_.str() <<"]" << endl;
 
-            ClusterizePacket* ack = ClusterizePacketBuilder().buildClusterizePacket(type, pkt->getSno(), simTime(), pkt->getByteLength(), pkt->getCarID(), pkt->getDestinationAddress(), destSimbolicAddr);
+            ClusterizePacket* ack = ClusterizePacketBuilder().buildClusterizePacket(type, pkt->getSno(), simTime(), pkt->getByteLength(), pkt->getCarOmnetID(), pkt->getDestinationAddress(), destSimbolicAddr);
 
             socket.sendTo(ack, destAddress_, destPort_);
         }

@@ -25,15 +25,15 @@
 //			ClusterizeInfo
 //			ClusterizeCommand
 
-packet ClusterizePacket {
-    unsigned int sno;
-    simtime_t timestamp;
+cplusplus {{
+#include "corenetwork/nodes/mec/MEPlatform/MEAppPacket_m.h"
+}}
+packet MEAppPacket;
+
+
+packet ClusterizePacket extends MEAppPacket{
     
-    string type;
-    
-    int carID;
-    string sourceAddress;
-    string destinationAddress;
+    int carOmnetID;	
 }
 
 //

@@ -159,17 +159,17 @@ void UEClusterizeApp::handleMessage(cMessage *msg)
             throw cRuntimeError("UEClusterizeApp::handleMessage - \tFATAL! Error when casting to ClusterizePacket");
 
         //ACK_START_CLUSTERIZE_PACKET
-        if(!strcmp(pkt->getType(), ACK_START_CLUSTERIZE)){
+        if(!strcmp(pkt->getName(), ACK_START_CLUSTERIZE)){
 
                 handleClusterizeAckStart(pkt);
         }
         //ACK_STOP_CLUSTERIZE_PACKET
-        else if(!strcmp(pkt->getType(), ACK_STOP_CLUSTERIZE) ){
+        else if(!strcmp(pkt->getName(), ACK_STOP_CLUSTERIZE) ){
 
                 handleClusterizeAckStop(pkt);
             }
         //CONFIG_CLUSTERIZE_PACKET
-        else if(!strcmp(pkt->getType(), CONFIG_CLUSTERIZE)){
+        else if(!strcmp(pkt->getName(), CONFIG_CLUSTERIZE)){
 
             ClusterizeConfigPacket* cpkt = check_and_cast<ClusterizeConfigPacket*>(msg);
             handleClusterizeConfig(cpkt);
@@ -219,12 +219,6 @@ void UEClusterizeApp::sendClusterizeInfoPacket()
         angularPosition = mobility->getCurrentAngularPosition();
         angularPosition.alpha *= -1.0;
         EV << "UEClusterizeApp::sendClusterizeInfoPacket - No VeinsMobility: reverting the angular position!"<< endl;
-
-        //Coord max = mobility->getConstraintAreaMax();
-        //Coord min = mobility->getConstraintAreaMin();
-        //EV << "UEClusterizeApp::sendClusterizeInfoPacket - Area: "<<max<<" - "<<min<< endl;
-        //if(position.x<=min.x+10 || position.x >= max.x-10 || position.y <= min.y+10 || position.y >= max.y-10)
-            //this->callFinish();
     }
     else{
         position = veins_mobility->getCurrentPosition();

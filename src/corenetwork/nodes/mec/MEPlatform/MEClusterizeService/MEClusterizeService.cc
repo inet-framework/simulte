@@ -105,13 +105,13 @@ void MEClusterizeService::handleMessage(cMessage *msg)
             throw cRuntimeError("MEClusterizeService::handleMessage - \tFATAL! Error when casting to ClusterizePacket");
 
         //INFO_CLUSTERIZE_PACKET
-        if(!strcmp(pkt->getType(), INFO_CLUSTERIZE)){
+        if(!strcmp(pkt->getName(), INFO_CLUSTERIZE)){
 
             ClusterizeInfoPacket* ipkt = check_and_cast<ClusterizeInfoPacket*>(msg);
             handleClusterizeInfo(ipkt);
         }
         //STOP_CLUSTERIZE_PACKET
-       else if(!strcmp(pkt->getType(), STOP_CLUSTERIZE)){
+       else if(!strcmp(pkt->getName(), STOP_CLUSTERIZE)){
 
            handleClusterizeStop(pkt);
        }
@@ -200,7 +200,7 @@ void MEClusterizeService::handleClusterizeInfo(ClusterizeInfoPacket* pkt){
 
     int key = pkt->getArrivalGate()->getIndex();
 
-    cars[key].id = pkt->getCarID();
+    cars[key].id = pkt->getCarOmnetID();
     cars[key].simbolicAddress = pkt->getSourceAddress();
     cars[key].macID = binder_->getMacNodeIdFromOmnetId(cars[key].id);
     cars[key].position.x = pkt->getPositionX();

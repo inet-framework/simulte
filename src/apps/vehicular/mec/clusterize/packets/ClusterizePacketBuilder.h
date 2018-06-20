@@ -22,12 +22,14 @@
 #include "apps/vehicular/mec/clusterize/packets/ClusterizePacket_m.h"
 #include "apps/vehicular/mec/clusterize/packets/ClusterizePacketTypes.h"
 
+#include "corenetwork/nodes/mec/MEPlatform/MEAppPacket_Types.h"
+
 class ClusterizePacketBuilder {
     public:
         ClusterizePacketBuilder();
         virtual ~ClusterizePacketBuilder();
 
-        ClusterizePacket* buildClusterizePacket(const char* type, unsigned int sqn, simtime_t time, long int size, int carID, const char* srcAddr, const char* destAddr);
+        ClusterizePacket* buildClusterizePacket(const char* type, unsigned int sqn, simtime_t time, long int size, int carOmnetID, const char* srcAddr, const char* destAddr);
         ClusterizeInfoPacket* buildClusterizeInfoPacket(unsigned int sqn, simtime_t time, long int size, int carID, const char* srcAddr, const char* destAddr, inet::Coord position, inet::Coord speed, inet::EulerAngles angularPosition, inet::EulerAngles angularSpeed);
         ClusterizeConfigPacket* buildClusterizeConfigPacket(unsigned int sqn, simtime_t time, unsigned long eventID, int hops, long int size, int carID, const char* srcAddr, const char* destAddr, int clusterID, const char* clusterColor, int txMode, const char* following, const char* follower, const char* clusterString, std::vector<double> accelerations);
 

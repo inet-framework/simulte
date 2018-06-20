@@ -33,6 +33,10 @@
 #include "apps/vehicular/mec/clusterize/packets/ClusterizePacketBuilder.h"
 
 
+#include "corenetwork/nodes/mec/MEPlatform/MEAppPacket_Types.h"
+#include "corenetwork/nodes/mec/MEPlatform/MEAppPacket_m.h"
+
+
 struct meAppMapEntry{
     int meAppGateIndex;
     cModule* meAppModule;

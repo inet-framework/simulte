@@ -23,38 +23,58 @@ ClusterizePacketBuilder::~ClusterizePacketBuilder() {
     // TODO Auto-generated destructor stub
 }
 
-ClusterizePacket* ClusterizePacketBuilder::buildClusterizePacket(const char* type, unsigned int sqn, simtime_t time, long int size, int carID, const char* srcAddr, const char* destAddr){
-
+ClusterizePacket* ClusterizePacketBuilder::buildClusterizePacket(const char* type, unsigned int sqn, simtime_t time, long int size, int carOmnetID, const char* srcAddr, const char* destAddr){
 
         ClusterizePacket* packet = new ClusterizePacket(type);
-        packet->setName(type);
+
+        //MEAppPacket info
         packet->setSno(sqn);
         packet->setTimestamp(time);
         packet->setByteLength(size);
-
         packet->setType(type);
-
-        packet->setCarID(carID);
         packet->setSourceAddress(srcAddr);
         packet->setDestinationAddress(destAddr);
+
+        //ClusterizePacket info
+        if(!strcmp(type, START_MEAPP)){
+            packet->setName(START_CLUSTERIZE);
+
+            //important to instantiate the MEClusterizeApp by the Virtualisation Manager!
+            packet->setMEModuleType("lte.apps.vehicular.mec.clusterize.MEClusterizeApp");
+            packet->setMEModuleName("MEClusterizeApp");
+
+        }else
+            if(!strcmp(type, STOP_MEAPP))
+                packet->setName(STOP_CLUSTERIZE);
+        else
+            if(!strcmp(type, ACK_START_MEAPP))
+                packet->setName(ACK_START_CLUSTERIZE);
+        else
+            if(!strcmp(type, ACK_STOP_MEAPP))
+                packet->setName(ACK_STOP_CLUSTERIZE);
+
+        packet->setCarOmnetID(carOmnetID);
 
         return packet;
 }
 
-ClusterizeInfoPacket* ClusterizePacketBuilder::buildClusterizeInfoPacket(unsigned int sqn, simtime_t time, long int size, int carID, const char* srcAddr, const char* destAddr, inet::Coord position, inet::Coord speed, inet::EulerAngles angularPosition, inet::EulerAngles angularSpeed){
+ClusterizeInfoPacket* ClusterizePacketBuilder::buildClusterizeInfoPacket(unsigned int sqn, simtime_t time, long int size, int carOmnetID, const char* srcAddr, const char* destAddr, inet::Coord position, inet::Coord speed, inet::EulerAngles angularPosition, inet::EulerAngles angularSpeed){
 
     ClusterizeInfoPacket* packet = new ClusterizeInfoPacket(INFO_CLUSTERIZE);
-    packet->setName(INFO_CLUSTERIZE);
+
+    //MEAppPacket info
     packet->setSno(sqn);
     packet->setTimestamp(time);
     packet->setByteLength(size);
-
-    packet->setType(INFO_CLUSTERIZE);
-
-    packet->setCarID(carID);
+    packet->setType(INFO_UEAPP);
     packet->setSourceAddress(srcAddr);
     packet->setDestinationAddress(destAddr);
 
+    //ClusterizePacket info
+    packet->setName(INFO_CLUSTERIZE);
+    packet->setCarOmnetID(carOmnetID);
+
+    //ClusterizeInfoPacket info
     packet->setPositionX(position.x);
     packet->setPositionY(position.y);
     packet->setPositionZ(position.z);
@@ -71,23 +91,25 @@ ClusterizeInfoPacket* ClusterizePacketBuilder::buildClusterizeInfoPacket(unsigne
     return packet;
 }
 
-ClusterizeConfigPacket* ClusterizePacketBuilder::buildClusterizeConfigPacket(unsigned int sqn, simtime_t time,  unsigned long eventID, int hops, long int size, int carID, const char* srcAddr, const char* destAddr, int clusterID, const char* clusterColor, int txMode, const char* following, const char* follower, const char* clusterString, std::vector<double> accelerations){
+ClusterizeConfigPacket* ClusterizePacketBuilder::buildClusterizeConfigPacket(unsigned int sqn, simtime_t time,  unsigned long eventID, int hops, long int size, int carOmnetID, const char* srcAddr, const char* destAddr, int clusterID, const char* clusterColor, int txMode, const char* following, const char* follower, const char* clusterString, std::vector<double> accelerations){
 
     ClusterizeConfigPacket* packet = new ClusterizeConfigPacket(CONFIG_CLUSTERIZE);
-    packet->setName(CONFIG_CLUSTERIZE);
+
+    //MEAppPacket info
     packet->setSno(sqn);
     packet->setTimestamp(time);
     packet->setByteLength(size);
-
-    packet->setEventID(eventID);
-    packet->setHops(hops);
-
-    packet->setType(CONFIG_CLUSTERIZE);
-
-    packet->setCarID(carID);
+    packet->setType(INFO_UEAPP);
     packet->setSourceAddress(srcAddr);
     packet->setDestinationAddress(destAddr);
 
+    //ClusterizePacket info
+    packet->setName(CONFIG_CLUSTERIZE);
+    packet->setCarOmnetID(carOmnetID);
+
+    //ClusterizeConfigPacket info
+    packet->setEventID(eventID);
+    packet->setHops(hops);
     packet->setClusterID(clusterID);
     packet->setClusterColor(clusterColor);
     packet->setTxMode(txMode);

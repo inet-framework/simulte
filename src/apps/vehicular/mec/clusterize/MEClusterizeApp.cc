@@ -70,13 +70,13 @@ void MEClusterizeApp::handleMessage(cMessage *msg)
         throw cRuntimeError("UEClusterizeApp::handleMessage - \tFATAL! Error when casting to ClusterizePacket");
 
     // handling INFO_CLUSTERIZE
-    if(!strcmp(pkt->getType(), INFO_CLUSTERIZE)){
+    if(!strcmp(pkt->getName(), INFO_CLUSTERIZE)){
 
         ClusterizeInfoPacket* ipkt = check_and_cast<ClusterizeInfoPacket*>(msg);
         handleClusterizeInfo(ipkt);
     }
     // handling CONFIG_CLUSTERIZE
-    else if(!strcmp(pkt->getType(), CONFIG_CLUSTERIZE)){
+    else if(!strcmp(pkt->getName(), CONFIG_CLUSTERIZE)){
 
         ClusterizeConfigPacket* cpkt = check_and_cast<ClusterizeConfigPacket*>(msg);
         handleClusterizeConfig(cpkt);
