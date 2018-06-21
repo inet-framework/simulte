@@ -92,18 +92,23 @@ void VirtualisationManager::handleMessage(cMessage *msg)
     if (msg->isSelfMessage())
         return;
 
+    //handling resource allocation confirmation
     if(msg->arrivedOn("resourceManagerIn")){
 
+        EV << "VirtualisationManager::handleMessage - received message from ResourceManager" << endl;
         handleResource(msg);
     }
+    //handling MEAppPacket between UEApp and MEApp
     else{
         MEAppPacket* mePkt = check_and_cast<MEAppPacket*>(msg);
         if(mePkt == 0){
             EV << "VirtualisationManager::handleMessage - \tFATAL! Error when casting to MEAppPacket" << endl;
             throw cRuntimeError("VirtualisationManager::handleMessage - \tFATAL! Error when casting to MEAppPacket");
         }
-        else
+        else{
+            EV << "VirtualisationManager::handleMessage - received MEAppPacket from " << mePkt->getSourceAddress() << endl;
             handleMEAppPacket(mePkt);
+        }
     }
 }
 
@@ -115,21 +120,19 @@ void VirtualisationManager::handleResource(cMessage* msg){
 
     MEAppPacket* mePkt = check_and_cast<MEAppPacket*>(msg);
     if(mePkt == 0){
-        EV << "VirtualisationManager::handleMessage - \tFATAL! Error when casting to MEAppPacket" << endl;
-        throw cRuntimeError("VirtualisationManager::handleMessage - \tFATAL! Error when casting to MEAppPacket");
+        EV << "VirtualisationManager::handleResource - \tFATAL! Error when casting to MEAppPacket" << endl;
+        throw cRuntimeError("VirtualisationManager::handleResource - \tFATAL! Error when casting to MEAppPacket");
     }
-    /*
-     * HANDLING CLUSTERIZE PACKETS for RESOURCES ALLOCATION/DEALLOCATION
-     */
+    //handling MEAPP instantiation
     else if(!strcmp(mePkt->getType(), START_MEAPP)){
 
-        EV << "VirtualisationManager::handleMessage - calling instantiateMEClusterizeApp" << endl;
+        EV << "VirtualisationManager::handleResource - calling instantiateMEApp" << endl;
         instantiateMEApp(mePkt);
     }
+    //handling MEAPP termination
     else if(!strcmp(mePkt->getType(), STOP_MEAPP)){
 
-        //Sending ACK to the UEClusterizeApp
-        EV << "VirtualisationManager::handleResource - calling terminateMEClusterizeApp" << endl;
+        EV << "VirtualisationManager::handleResource - calling terminateMEApp" << endl;
         terminateMEApp(mePkt);
     }
 }
@@ -145,20 +148,16 @@ void VirtualisationManager::handleMEAppPacket(MEAppPacket* pkt){
 
     EV << "VirtualisationManager::handleClusterize - received "<< pkt->getType()<<" Delay: " << (simTime()-pkt->getTimestamp()) << endl;
 
-    /* -------------------------------
-     * Handling ClusterizeStartPacket */
+    /* Handling START_MEAPP */
     if(!strcmp(pkt->getType(), START_MEAPP))        startMEApp(pkt);
 
-    /* -------------------------------
-     * Handling ClusterizeInfoPacket */
+    /* Handling INFO_UEAPP */
     else if(!strcmp(pkt->getType(), INFO_UEAPP))    upstreamToMEApp(pkt);
 
-    /* -------------------------------
-     * Handling ClusterizeConfigPacket */
+    /* Handling INFO_MEAPP */
     else if(!strcmp(pkt->getType(), INFO_MEAPP))    downstreamToUEApp(pkt);
 
-    /* -------------------------------
-     * Handling ClusterizeStopPacket */
+    /* Handling STOP_MEAPP */
     else if(!strcmp(pkt->getType(), STOP_MEAPP))    stopMEApp(pkt);
 
 }
@@ -176,9 +175,9 @@ void VirtualisationManager::startMEApp(MEAppPacket* pkt){
 
     //creating the map key
     std::stringstream key;
-    key << pkt->getSourceAddress();
+    key << pkt->getSourceAddress() << pkt->getMEModuleName();
 
-    //checking if there are available slots for MEClusterizeApp && the MEClusterizeApp is not already instantiated!
+    //checking if there are available slots for MEApp && the required MEApp instance is not already instantiated!
     if(currentMEApps < maxMEApps && meAppMapTable.find(key.str()) == meAppMapTable.end()){
 
         EV << "VirtualisationManager::startMEApp - currentMEApps: " << currentMEApps << " / " << maxMEApps << endl;
@@ -189,9 +188,9 @@ void VirtualisationManager::startMEApp(MEAppPacket* pkt){
     else{
         if(meAppMapTable.find(key.str()) != meAppMapTable.end()){
 
-            EV << "VirtualisationManager::startMEApp - \tWARNING: MEClusterizeApp ALREADY STARTED!" << endl;
-            //Sending ACK to the UEClusterizeApp to confirm the instantiation in case of previous ack lost!
-            EV << "VirtualisationManager::startClusterize  - calling ackClusterize with  "<< ACK_START_MEAPP << endl;
+            EV << "VirtualisationManager::startMEApp - \tWARNING: required MEApp instance ALREADY STARTED!" << endl;
+            //Sending ACK to the UEApp to confirm the instantiation in case of previous ack lost!
+            EV << "VirtualisationManager::startClusterize  - calling ackMEAppPacket with  "<< ACK_START_MEAPP << endl;
             ackMEAppPacket(pkt, ACK_START_MEAPP);
         }else
             EV << "VirtualisationManager::startMEApp - \tWARNING: maxMEApp LIMIT REACHED!" << endl;
@@ -205,16 +204,14 @@ void VirtualisationManager::upstreamToMEApp(MEAppPacket* pkt){
 
     //creating the map key
     std::stringstream key;
-    key << pkt->getSourceAddress();
+    key << pkt->getSourceAddress() << pkt->getMEModuleName();
 
     if(!meAppMapTable.empty() && meAppMapTable.find(key.str()) != meAppMapTable.end()){
 
+        EV << "VirtualisationManager::upstreamToMEApp - forwarding " << pkt->getName() << " to meAppOut["<< meAppMapTable[key.str()].meAppGateIndex << "] gate" << endl;
         send(pkt, "meAppOut", meAppMapTable[key.str()].meAppGateIndex);
-
-        EV << "VirtualisationManager::ToMEApp - forwarding " << pkt->getName() << " to meAppOut["<< meAppMapTable[key.str()].meAppGateIndex << "] gate" << endl;
     }
     else{
-
         EV << "VirtualisationManager::upstreamToMEApp - \tWARNING: NO " << pkt->getMEModuleName() << " INSTANCE FOUND!" << endl;
     }
 }
@@ -223,15 +220,14 @@ void VirtualisationManager::downstreamToUEApp(MEAppPacket* pkt){
 
     //creating the map key
     std::stringstream key;
-    key << pkt->getDestinationAddress();
+    key << pkt->getDestinationAddress() << pkt->getMEModuleName();
 
     const char* destSimbolicAddr = pkt->getDestinationAddress();
 
     if(!meAppMapTable.empty() && meAppMapTable.find(key.str()) != meAppMapTable.end()){
 
         destAddress_ = meAppMapTable[key.str()].ueAddress;
-
-        EV << "VirtualisationManager::downstreamToUEApp - forwarding" << pkt->getName() << " to "<< destSimbolicAddr << ": [" << destAddress_.str() <<"]" << endl;
+        EV << "VirtualisationManager::downstreamToUEApp - forwarding " << pkt->getName() << " to "<< destSimbolicAddr << ": [" << destAddress_.str() <<"]" << endl;
 
         //checking if the Car is in the network & sending by socket
         MacNodeId destId = binder_->getMacNodeId(destAddress_.toIPv4());
@@ -239,9 +235,9 @@ void VirtualisationManager::downstreamToUEApp(MEAppPacket* pkt){
             EV << "VirtualisationeManager::downstreamToUEApp - \tWARNING " << destSimbolicAddr << "has left the network!" << endl;
             //throw cRuntimeError("VirtualisationManager::downstreamClusterize - \tFATAL! Error destination has left the network!");
 
-            //starting the MEClusterizeApp termination procedure
-            //creating the STOP_CLUSTERIZE ClusterizePacket
-            MEAppPacket* spkt = new MEAppPacket();
+            //starting the MEApp termination procedure
+            //creating the STOP_MEAPP type MEAppPacket
+            MEAppPacket* spkt = new MEAppPacket(STOP_MEAPP);
             spkt->setType(STOP_MEAPP);
             spkt->setSno(pkt->getSno());
             spkt->setByteLength(pkt->getByteLength());
@@ -249,10 +245,8 @@ void VirtualisationManager::downstreamToUEApp(MEAppPacket* pkt){
             spkt->setSourceAddress(pkt->getSourceAddress());
             spkt->setMEModuleName(pkt->getMEModuleName());
 
-            //
             EV << "VirtualisationeManager::downstreamToUEApp - calling stopMEApp for " << destSimbolicAddr << endl;
-            //calling the stopClusterize to handle the MEClusterizeApp termination
-            //due to correspondent Car exit the network
+            //calling the stopClusterize to handle the MEClusterizeApp termination due to correspondent Car exit the network
             stopMEApp(spkt);
 
             delete(pkt);
@@ -271,7 +265,7 @@ void VirtualisationManager::stopMEApp(MEAppPacket* pkt){
 
     //creating the map key
     std::stringstream key;
-    key << pkt->getSourceAddress();
+    key << pkt->getSourceAddress() << pkt->getMEModuleName();
 
     if(!meAppMapTable.empty() && meAppMapTable.find(key.str()) != meAppMapTable.end()){
 
@@ -280,7 +274,7 @@ void VirtualisationManager::stopMEApp(MEAppPacket* pkt){
         send(pkt, "resourceManagerOut");
     }
     else{
-        EV << "VirtualisationManager::stopMEApp - \tWARNING: NO MEClusterizeApp INSTANCE FOUND!" << endl;
+        EV << "VirtualisationManager::stopMEApp - \tWARNING: " << pkt->getMEModuleName() << " INSTANCE NOT FOUND!" << endl;
     }
 }
 
@@ -290,7 +284,7 @@ void VirtualisationManager::instantiateMEApp(MEAppPacket* pkt){
 
     //creating the map key
     std::stringstream key;
-    key << pkt->getSourceAddress();
+    key << pkt->getSourceAddress() << pkt->getMEModuleName();
 
     if(currentMEApps < maxMEApps &&  meAppMapTable.find(key.str()) == meAppMapTable.end()){
 
@@ -301,13 +295,13 @@ void VirtualisationManager::instantiateMEApp(MEAppPacket* pkt){
         freeGates.erase(freeGates.begin());
         EV << "VirtualisationManager::instantiateMEApp - freeGate: " << index << endl;
 
-        //getting the UEClusterizeApp L3Address
+        //getting the UEApp L3Address
         inet::L3Address ueAppAddress = inet::L3AddressResolver().resolve(pkt->getSourceAddress());
         EV << "VirtualisationManager::instantiateMEApp - UEAppL3Address: " << ueAppAddress.str() << endl;
 
-        // creating MEClusterizeApp instance
-        cModuleType *moduleType = cModuleType::get(pkt->getMEModuleType());
-        cModule *module = moduleType->create(pkt->getMEModuleName(), meHost);     //name & its Parent Module
+        // creating MEApp module instance
+        cModuleType *moduleType = cModuleType::get(pkt->getMEModuleType());         //MEAPP module package (i.e. path!)
+        cModule *module = moduleType->create(pkt->getMEModuleName(), meHost);       //MEAPP module-name & its Parent Module
         std::stringstream appName;
         appName << pkt->getMEModuleName() << "[" <<  key.str().c_str() << "]";
         module->setName(appName.str().c_str());
@@ -325,7 +319,7 @@ void VirtualisationManager::instantiateMEApp(MEAppPacket* pkt){
 
         EV << "VirtualisationManager::instantiateMEApp - UEAppSimbolicAddress: " << pkt->getSourceAddress()<< endl;
 
-        //connecting VirtualisationInfrastructure gates to the MEClusterizeApp gates
+        //connecting VirtualisationInfrastructure gates to the MEApp gates
         virtualisationInfr->gate("meAppOut", index)->connectTo(module->gate("virtualisationInfrastructureIn"));
         module->gate("virtualisationInfrastructureOut")->connectTo(virtualisationInfr->gate("meAppIn", index));
 
@@ -333,16 +327,16 @@ void VirtualisationManager::instantiateMEApp(MEAppPacket* pkt){
         if(serviceIndex != NO_SERVICE){
 
             EV << "VirtualisationManager::instantiateMEApp - Connecting to the: " << pkt->getRequiredService()<< endl;
-            //connecting MEPlatform gates to the MEClusterizeApp gates
+            //connecting MEPlatform gates to the MEApp gates
             mePlatform->gate("meAppOut", index)->connectTo(module->gate("mePlatformIn"));
             module->gate("mePlatformOut")->connectTo(mePlatform->gate("meAppIn", index));
 
-            //connecting internal MEPlatform gates to the MEClusterizeService gates
+            //connecting internal MEPlatform gates to the required MEService gates
             (meServices.at(serviceIndex))->gate("meAppOut", index)->connectTo(mePlatform->gate("meAppOut", index));
             mePlatform->gate("meAppIn", index)->connectTo((meServices.at(serviceIndex))->gate("meAppIn", index));
         }
         else
-            EV << "VirtualisationManager::instantiateMEApp - NO ME Service required!"<< endl;
+            EV << "VirtualisationManager::instantiateMEApp - NO MEService required!"<< endl;
 
         module->buildInside();
         module->scheduleStart(simTime());
@@ -373,11 +367,11 @@ void VirtualisationManager::terminateMEApp(MEAppPacket* pkt){
 
     //creating the map key
     std::stringstream key;
-    key << pkt->getSourceAddress();
+    key << pkt->getSourceAddress() << pkt->getMEModuleName();
 
     if(!meAppMapTable.empty() && meAppMapTable.find(key.str()) != meAppMapTable.end()){
 
-        //Sending ACK to the UEClusterizeApp
+        //Sending ACK_STOP_MEAPP to the UEApp
         EV << "VirtualisationManager::terminateMEApp - calling ackMEAppPacket with  "<< ACK_STOP_MEAPP << endl;
         //before to remove the map entry!
         ackMEAppPacket(pkt, ACK_STOP_MEAPP);
@@ -389,11 +383,11 @@ void VirtualisationManager::terminateMEApp(MEAppPacket* pkt){
         meAppMapTable[key.str()].meAppModule->callFinish();
         meAppMapTable[key.str()].meAppModule->deleteModule();
 
-        //disconnecting internal MEPlatform gates to the MEClusterizeService gates
+        //disconnecting internal MEPlatform gates to the MEService gates
         (meServices.at(serviceIndex))->gate("meAppOut", index)->disconnect();
         (meServices.at(serviceIndex))->gate("meAppIn", index)->disconnect();
 
-        //disconnecting MEPlatform gates to the MEClusterizeApp gates
+        //disconnecting MEPlatform gates to the MEApp gates
         mePlatform->gate("meAppOut", index)->disconnect();
         mePlatform->gate("meAppIn", index)->disconnect();
 
@@ -411,11 +405,10 @@ void VirtualisationManager::terminateMEApp(MEAppPacket* pkt){
         EV << "VirtualisationManager::terminateMEApp - currentMEApps: " << currentMEApps << " / " << maxMEApps << endl;
     }
     else{
-        //Sending ACK to the UEClusterizeApp
-        EV << "VirtualisationManager::terminateMEClusterizeApp - calling ackClusterize with  "<< ACK_STOP_CLUSTERIZE << endl;
+        EV << "VirtualisationManager::terminateMEClusterizeApp - \tWARNING: NO" << pkt->getMEModuleName() << " INSTANCE FOUND!" << endl;
+        //Sending ACK_STOP_MEAPP to the UEApp
+        EV << "VirtualisationManager::terminateMEClusterizeApp - calling ackMEAppPacket with  "<< ACK_STOP_MEAPP << endl;
         ackMEAppPacket(pkt, ACK_STOP_MEAPP);
-
-        EV << "VirtualisationManager::terminateMEClusterizeApp - \tWARNING: NO MEClusterizeApp INSTANCE FOUND!" << endl;
     }
 }
 
@@ -423,7 +416,7 @@ void VirtualisationManager::ackMEAppPacket(MEAppPacket* pkt, const char* type){
 
     //creating the map key
     std::stringstream key;
-    key << pkt->getSourceAddress();
+    key << pkt->getSourceAddress() << pkt->getMEModuleName();
 
     const char* destSimbolicAddr = pkt->getSourceAddress();
 
@@ -452,7 +445,7 @@ void VirtualisationManager::ackMEAppPacket(MEAppPacket* pkt, const char* type){
         }
     }
     else
-        EV << "VirtualisationManager::ackMEAppPacket - \tWARNING sending ack " << type <<" to "<< destSimbolicAddr << ": map entry "<< key.str() <<" not found!" << endl;
+        EV << "VirtualisationManager::ackMEAppPacket - \tWARNING in sending ack " << type <<" to "<< destSimbolicAddr << ": map entry "<< key.str() <<" not found!" << endl;
 
     delete(pkt);
 }

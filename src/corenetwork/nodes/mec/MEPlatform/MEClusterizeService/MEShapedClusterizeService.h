@@ -44,17 +44,21 @@ class MEShapedClusterizeService : public MEClusterizeService{
 
         void computePlatoon(std::string shape);
 
+        //platoon computation
         void computeTriangleAdiacences(std::map<int, std::vector<int>> &adiacences);
         void computeRectangleAdiacences(std::map<int, std::vector<int>> &adiacences);
         void selectFollowers(std::map<int, std::vector<int>> &adiacences);
         void updateClusters();
 
+        //adjacences computation
         bool isInTriangle(inet::Coord P, inet::Coord A, inet::Coord B, inet::Coord C);
         bool isInRectangle(inet::Coord P, inet::Coord A, inet::Coord B, inet::Coord C, inet::Coord D);
 
+        //rcleaning structures
         void resetCarFlagsAndControls();
         void resetClusters();
 
+        //using the RNI service
         void updateRniInfo();
 };
 

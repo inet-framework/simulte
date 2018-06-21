@@ -109,6 +109,7 @@ class UEClusterizeApp : public cSimpleModule
     cMessage *selfStart_;
     cMessage *selfSender_;
     cMessage *selfStop_;
+    bool stopped;
 
     // reference to the statistics manager
     MultihopD2DStatistics* stat_;

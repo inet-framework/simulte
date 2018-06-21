@@ -97,7 +97,7 @@ void MEShapedClusterizeService::computePlatoon(std::string shape){
     updateClusters();
 
 
-    //TESTING PRINT                                                                                             //TESTING
+    //TESTING PRINT                                                                                                                         //PRINTS
     EV << "\nMEClusterizeService::computePlatoon - FOLLOWERS:\n\n";
     std::map<int, car>::iterator it;
     for(it = cars.begin(); it != cars.end(); it++){
@@ -107,9 +107,7 @@ void MEShapedClusterizeService::computePlatoon(std::string shape){
     }
 
     EV << "\nMEClusterizeService::computePlatoon - CLUSTERS:\n\n";
-
     std::map<int, cluster>::iterator cit;
-
     for(cit = clusters.begin(); cit != clusters.end(); cit++){
 
             EV << "Cluster #" << cit->second.id << " (" << cit->second.color << ") : " << cit->second.membersList << "\n";
@@ -135,21 +133,14 @@ void MEShapedClusterizeService::computeTriangleAdiacences(std::map<int, std::vec
 
         for(it2 = cars.begin(); it2 != cars.end(); it2++){
 
-            //EV << it->second.simbolicAddress << it->second.position << " - " << it2->second.simbolicAddress << it2->second.position <<" ";
-
             //cars going in the same direction
             if( (it != it2) && (abs(it->second.angularPosition.alpha - it2->second.angularPosition.alpha) <= directionDelimiterThreshold)){
 
-                //EV << "same direction! ";
-
                 inet::Coord P(it2->second.position);
-
                 //adding to the vector of adiacences of car it
                 if(isInTriangle(P,A,B,C)){
                     adiacences[it->first].push_back(it2->first);
                 }
-
-                //EV << "\nTriangle: [A: " << A << "B: " << B << "C: " << C << "] P: " << P << endl <<endl;
             }
         }
     }
@@ -171,24 +162,17 @@ void MEShapedClusterizeService::computeRectangleAdiacences(std::map<int, std::ve
 
         for(it2 = cars.begin(); it2 != cars.end(); it2++){
 
-            //EV << it->second.simbolicAddress << it->second.position << " - " << it2->second.simbolicAddress << it2->second.position <<" ";
-
             //cars going in the same direction
             if( (it != it2) && (abs(it->second.angularPosition.alpha - it2->second.angularPosition.alpha) <= directionDelimiterThreshold)){
 
-                //EV << "same direction! ";
-
                 inet::Coord P(it2->second.position);
-
                 //adding to the vector of adjacencies of car it
                 if(isInRectangle(P, A, B, C, D)){
                     //EV << "inside!";
                     adiacences[it->first].push_back(it2->first);
                 }
-                //EV << "\nRectangle: [A: " << A << "B: " << B << "C: " << C << "D: " << D << "] P: " << P << endl <<endl;
             }
         }
-
     }
 }
 
@@ -257,7 +241,7 @@ void MEShapedClusterizeService::updateClusters(){
             }
             clusters[clusterID].membersList = platoonList.str();
             clusters[clusterID].id = clusterID;
-            clusters[clusterID].color = colors.at( (rand() + clusterID) % colorSize);             //every time random color or not!?
+            clusters[clusterID].color = colors.at( (rand() + clusterID) % colorSize);                           //every time random color or not!?
         }
     }
 }

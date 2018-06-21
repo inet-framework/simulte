@@ -69,13 +69,13 @@ void MEClusterizeApp::handleMessage(cMessage *msg)
     if (pkt == 0)
         throw cRuntimeError("UEClusterizeApp::handleMessage - \tFATAL! Error when casting to ClusterizePacket");
 
-    // handling INFO_CLUSTERIZE
+    // handling INFO_CLUSTERIZE (INFO_UEAPP)
     if(!strcmp(pkt->getType(), INFO_UEAPP)){
 
         ClusterizeInfoPacket* ipkt = check_and_cast<ClusterizeInfoPacket*>(msg);
         handleClusterizeInfo(ipkt);
     }
-    // handling CONFIG_CLUSTERIZE
+    // handling CONFIG_CLUSTERIZE (INFO_MEAPP)
     else if(!strcmp(pkt->getType(), INFO_MEAPP)){
 
         ClusterizeConfigPacket* cpkt = check_and_cast<ClusterizeConfigPacket*>(msg);
@@ -105,6 +105,8 @@ void MEClusterizeApp::handleClusterizeConfig(ClusterizeConfigPacket* packet){
     packet->setByteLength(size_);
     packet->setSourceAddress(sourceSimbolicAddress);
     packet->setDestinationAddress(destSimbolicAddress);
+    packet->setMEModuleName(ME_CLUSTERIZE_APP_MODULE_NAME);
+    packet->setMEModuleType(ME_CLUSTERIZE_APP_MODULE_TYPE);
 
     EV << "MEClusterizeApp::handleClusterizeConfig - Sending ClusterizeConfigPacket SeqNo[" << nextSnoConfig_ << "]\n";
 

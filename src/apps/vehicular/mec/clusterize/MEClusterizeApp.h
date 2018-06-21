@@ -28,10 +28,10 @@
 /**
  * MEClusterizeApp
  *
- *      1) Forwarding INFO_CLUSTERIZE ClusterizeInfoPacket to the MEClusterizeService
- *      2) Receiving CONFIG_CLUSTERIZE ClusterizeConfigPacket from theMEClusterizeService
+ *      1) Forwarding INFO_CLUSTERIZE (INFO_UEAPP) ClusterizeInfoPacket to the MEClusterizeService
+ *      2) Receiving CONFIG_CLUSTERIZE (INFO_MEAPP) ClusterizeConfigPacket from theMEClusterizeService
  *          updating with UEClusterizeApp specific information and forwarding to VirtualisationManager
- *      3) Sending STOP_CLUSTERIZE ClusterizePacket to the MEClusterizeService when calling finish()
+ *      3) Sending STOP_CLUSTERIZE (STOP_MEAPP) ClusterizePacket to the MEClusterizeService when calling finish()
  */
 
 class MEClusterizeApp : public cSimpleModule
@@ -61,15 +61,15 @@ class MEClusterizeApp : public cSimpleModule
         void initialize(int stage);
         virtual void handleMessage(cMessage *msg);
 
-        // sending a STOP_CLUSTERIZE ClusterizePacket to the MEClusterizeService
+        // sending a STOP_CLUSTERIZE (STOP_MEAPP) ClusterizePacket to the MEClusterizeService
         // to trigger to erase the correspondent map entries
         void finish();
 
-        // handling INFO_CLUSTERIZE ClusterizeInfoPacket from the UEClusterizeApp
+        // handling INFO_CLUSTERIZE (INFO_UEAPP) ClusterizeInfoPacket from the UEClusterizeApp
         // by forwarding to the MEClusterizeService
         void handleClusterizeInfo(ClusterizeInfoPacket *);
 
-        // handling CONFIG_CLUSTERIZE ClusterizeConfigPacket from the MEClusterizeService
+        // handling CONFIG_CLUSTERIZE (INFO_MEAPP) ClusterizeConfigPacket from the MEClusterizeService
         // by adding UEClusterizeApp related info and forwarding to the VirtualisationManager
         void handleClusterizeConfig(ClusterizeConfigPacket *);
 

@@ -28,7 +28,7 @@ module MEPlatform
 		//# Num Services
         int numServices = default(0); // no of UDP ME Services. Specify the service types in INI file with udpManager.udpService[0..1].typename="UDPServ" syntax
 
-        @display("bgb=300,108");
+        @display("bgb=404.32,126.56");
     gates:
 
         input meAppIn[];
@@ -37,7 +37,7 @@ module MEPlatform
     submodules:
 
         udpService[numServices]: <> like IMEService {
-            @display("p=174,54,row");
+            @display("p=236.88,96.88,row");
         }
 
         rniService: RadioNetworkInformation {

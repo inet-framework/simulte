@@ -27,6 +27,7 @@ UEClusterizeApp::UEClusterizeApp()
     nextSnoInfo_ = 0;
     nextSnoStop_ = 0;
     requiredAcceleration = 0;
+    stopped = false;
 }
 
 UEClusterizeApp::~UEClusterizeApp()
@@ -135,48 +136,52 @@ void UEClusterizeApp::initialize(int stage)
 
 void UEClusterizeApp::handleMessage(cMessage *msg)
 {
-    /*
-     * Sender Side
-     */
-    if (msg->isSelfMessage())
-    {
-        if (!strcmp(msg->getName(), "selfSender"))
-            sendClusterizeInfoPacket();
-        else if(!strcmp(msg->getName(), "selfStart"))
-            sendClusterizeStartPacket();
-        else if(!strcmp(msg->getName(), "selfStop"))
-            sendClusterizeStopPacket();
-        else
-            throw cRuntimeError("UEClusterizeApp::handleMessage - \tWARNING: Unrecognized self message");
+    if(!stopped){
+        /*
+         * Sender Side
+         */
+        if (msg->isSelfMessage())
+        {
+            if (!strcmp(msg->getName(), "selfSender"))
+                sendClusterizeInfoPacket();
+            else if(!strcmp(msg->getName(), "selfStart"))
+                sendClusterizeStartPacket();
+            else if(!strcmp(msg->getName(), "selfStop"))
+                sendClusterizeStopPacket();
+            else
+                throw cRuntimeError("UEClusterizeApp::handleMessage - \tWARNING: Unrecognized self message");
+        }
+        /*
+         * Receiver Side
+         */
+        else{
+
+            MEAppPacket* mePkt = check_and_cast<MEAppPacket*>(msg);
+            if (mePkt == 0)
+                throw cRuntimeError("UEClusterizeApp::handleMessage - \tFATAL! Error when casting to MEAppPacket");
+
+            //ACK_START_CLUSTERIZE_PACKET
+            if( !strcmp(mePkt->getType(), ACK_START_MEAPP) ){
+
+                handleMEAppAckStart(mePkt);
+            }
+            //ACK_STOP_CLUSTERIZE_PACKET
+            else if(!strcmp(mePkt->getType(), ACK_STOP_MEAPP)){
+
+                handleMEAppAckStop(mePkt);
+            }
+            //CONFIG_CLUSTERIZE_PACKET
+            else if(!strcmp(mePkt->getType(), INFO_MEAPP)){
+
+                ClusterizeConfigPacket* cpkt = check_and_cast<ClusterizeConfigPacket*>(mePkt);
+                handleClusterizeConfig(cpkt);
+            }
+
+            delete msg;
+        }
     }
-    /*
-     * Receiver Side
-     */
-    else{
-
-        MEAppPacket* mePkt = check_and_cast<MEAppPacket*>(msg);
-        if (mePkt == 0)
-            throw cRuntimeError("UEClusterizeApp::handleMessage - \tFATAL! Error when casting to MEAppPacket");
-
-        //ACK_START_CLUSTERIZE_PACKET
-        if( !strcmp(mePkt->getType(), ACK_START_MEAPP) ){
-
-            handleMEAppAckStart(mePkt);
-        }
-        //ACK_STOP_CLUSTERIZE_PACKET
-        else if(!strcmp(mePkt->getType(), ACK_STOP_MEAPP)){
-
-            handleMEAppAckStop(mePkt);
-        }
-        //CONFIG_CLUSTERIZE_PACKET
-        else if(!strcmp(mePkt->getType(), INFO_MEAPP)){
-
-            ClusterizeConfigPacket* cpkt = check_and_cast<ClusterizeConfigPacket*>(mePkt);
-            handleClusterizeConfig(cpkt);
-        }
-
+    else
         delete msg;
-    }
 }
 
 void UEClusterizeApp::finish(){
@@ -259,6 +264,9 @@ void UEClusterizeApp::sendClusterizeStopPacket()
     socket.sendTo(packet, destAddress_, destPort_);
     nextSnoStop_++;
 
+    //updating runtime color of the car icon background
+    car->getDisplayString().setTagArg("i",1, "white");
+
     // stopping the info updating because the MEClusterizeApp is terminated
     if(selfSender_->isScheduled())
         cancelEvent(selfSender_);
@@ -306,12 +314,14 @@ void UEClusterizeApp::handleMEAppAckStop(MEAppPacket* pkt){
 
     EV << "UEClusterizeApp::handleMEAppAckStop - Packet received: "<< pkt->getSourceAddress() <<" SeqNo[" << pkt->getSno() << "]" << endl;
 
+    stopped = true;
+
+    //updating runtime color of the car icon background
+    car->getDisplayString().setTagArg("i",1, "white");
+
     cancelEvent(selfStop_);
     //this->callFinish();
     //this->deleteModule();
-
-    //updating runtime color of the car icon background
-    car->getDisplayString().setTagArg("i",1,"white");
 }
 
 void UEClusterizeApp::handleClusterizeConfig(ClusterizeConfigPacket* pkt){
@@ -330,7 +340,6 @@ void UEClusterizeApp::handleClusterizeConfig(ClusterizeConfigPacket* pkt){
     }
 
     // retrieving the acceleration and updating the mobility
-    //
     double acceleration = updateAcceleration(pkt);
     if(veins_mobility != NULL){
         //slowDown with traciVehicle

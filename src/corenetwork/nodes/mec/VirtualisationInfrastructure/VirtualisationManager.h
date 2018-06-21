@@ -47,12 +47,12 @@ struct meAppMapEntry{
  * VirtualisationManager
  *
  *  The task of this class is:
- *       1) handling all types of ClusterizePacket:
- *              a) START_CLUSTERIZE --> query the ResourceManager & instantiate dinamically a MEClusterizeApp
- *              b) STOP_CLUSTERIZE --> terminate a MEClusterizeApp & query the ResourceManager to free resources
- *              c) replying with ACK_START_CLUSTERIZE or ACK_STOP_CLUSTERIZE
- *              d) forwarding upstream INFO_CLUSTERIZE
- *              e) forwarding downstream CONFIG_CLUSTERIZE
+ *       1) handling all types of MEAppPacket:
+ *              a) START_MEAPP --> query the ResourceManager & instantiate dinamically the MEApp specified into the meAppModuleType and meAppModuleName fields of the packet
+ *              b) STOP_MEAP --> terminate a MEApp & query the ResourceManager to free resources
+ *              c) replying with ACK_START_MEAPP or ACK_STOP_MEAPP to the UEApp
+ *              d) forwarding upstream INFO_UEAPP packets
+ *              e) forwarding downstream INFO_MEAPP packets
  */
 
 class VirtualisationManager : public cSimpleModule
@@ -78,12 +78,13 @@ class VirtualisationManager : public cSimpleModule
 
     //UEClusterizeApp mapping with correspondent MEClusterizeApp
     //
-    //key = ueModuleName || v2vAppName --> i.e. key = car[0]V2vAlertSender
+    //key = ueModuleName || MEApp --> i.e. key = car[0]MEClusterizeApp
     //
-    //value = meApp gate index + MEApp cModule + UEApp L3Address
+    //value = meAppMapEntry = {meApp _gate_index + MEApp_cModule + UEApp_L3Address}
     //
     std::map<std::string, meAppMapEntry> meAppMapTable;
 
+    //set of ME Services loaded into the ME Host & Platform
     int numServices;
     std::vector<cModule*> meServices;
 
@@ -100,48 +101,47 @@ class VirtualisationManager : public cSimpleModule
          * -------------------Packet from ResourceManager handler------------------
          */
         // handling ResourceManager resource allocations
-        // receiving back from ResourceManager the start (resource allocated) or stop (resource deallocated) packets
+        // receiving back from ResourceManager the start (1. resource allocated) or stop (2. resource deallocated) packets
         // calling:
-        //          1) instantiateMEClusetrizeAPP() or
-        //          2) ackClusterize() with ACK_STOP_CLUSTERIZE
+        //          1) instantiateMEAPP() and then ackMEAppPacket() with ACK_START_MEAPP
+        //          2) terminateMEAPP() and then ackMEAppPacket() with ACK_STOP_MEAPP
         void handleResource(cMessage*);
 
         /*
-         * --------------------ClusterizePacket handlers---------------------------
+         * --------------------MEAppPacket handlers---------------------------
          */
-        // handling all possible ClusterizePacket types by invoking specific methods
+        // handling all possible MEAppPacket types by invoking specific methods
         //
         void handleMEAppPacket(MEAppPacket*);
 
-        // handling START_CLUSTERIZE ClusterizePacket
-        // by forwarding the packet to te ResourceManager if there are available MEApp "free slots"
+        // handling START_MEAPP type
+        // by forwarding the packet to the ResourceManager if there are available MEApp "free slots"
         void startMEApp(MEAppPacket*);
 
-        // handling INFO_CLUSTERIZE ClusterizeInfoPacket
-        // by forwading upstream to the MEClusterizeApp
+        // handling INFO_UEAPP type
+        // by forwarding upstream to the MEApp
         void upstreamToMEApp(MEAppPacket*);
 
-        // handling CONFIG_CLUSTERIZE ClusterizeConfigPacket
-        // by forwarding downstream to the UDP Layer (sending via socket to the UEClusterizeApp)
+        // handling INFO_MEAPP type
+        // by forwarding downstream to the UDP Layer (sending via socket to the UEApp)
         void downstreamToUEApp(MEAppPacket*);
 
-        // handling STOP_CLUSTERIZE ClusterizePacket
+        // handling STOP_MEAPP type
         // forwarding the packet to the ResourceManager
         void stopMEApp(MEAppPacket*);
 
-        // instancing the requested MEClusterizeApp (called by handleResource)
+        // instancing the requested MEApp (called by handleResource)
         void instantiateMEApp(MEAppPacket*);
 
-        // terminating the correspondent MEClusterizeApp (called by handleResource)
-        //
+        // terminating the correspondent MEApp (called by handleResource)
         void terminateMEApp(MEAppPacket*);
 
-        // sending ACK_START_CLUSTERIZE or ACK_STOP_CLUSTERIZE (called by instantiateMEClusterizeApp or terminateMEClusterizeApp)
-        //
+        // sending ACK_START_MEAPP or ACK_STOP_MEAPP (called by instantiateMEApp or terminateMEApp)
         void ackMEAppPacket(MEAppPacket*, const char*);
 
         //finding the ME Service requested by UE App among the ME Services available on the ME Host
-        int findService(const char* serviceName);       //  -1 NO_SERVICE required | -2 SERVICE_NOT_AVAILABLE | index of service in mePlatform.udpService
+        //  -1 NO_SERVICE required | -2 SERVICE_NOT_AVAILABLE | index of service in mePlatform.udpService
+        int findService(const char* serviceName);
 };
 
 #endif

@@ -22,19 +22,17 @@ import inet.applications.contract.IUDPApp;
 //	Simple Module for an UE App communicating with a ME App on a ME HOST.
 //	The task of this module is:
 //#	Sender Side:
-//		1) Instantiating the correspondent ME App on the ME HOST (through the ME Orchestrator)
+//		1) Instantiating the correspondent ME App on the ME HOST 
 //		2) Reporting periodically local information to the correspondent ME App instance (User App)
 //
 //#	Receiver Side:
 //		1) Receiving commands to join/leave clusters and transmisison policies, from the correspondent ME App (User App)
-//		2) Configuring the V2V-Supported App to communicate using the transmission policies defined on the ME HOST!
+//		2) Handling the ME Info propagation to follower (using V2V transmissions)
 //
 simple UEClusterizeApp like IUDPApp
 {
         parameters:
         
-        string v2vAppPath = default("");		//specify module path in the Car (parent module) of the v2vAppSender UDP App!  --> i.e. ".udpApp[1]"
-    
         int localPort = default(4000);
         int destPort = default(4000);
         string destAddress;
@@ -42,7 +40,6 @@ simple UEClusterizeApp like IUDPApp
         
         int multicastPort = default(5000);
         string multicastGoupAddress = default("224.0.0.10");
-        
         
         double period @unit("s") = default(0.02s);
         double startTime @unit("s") = default(0s); 
