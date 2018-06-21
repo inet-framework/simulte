@@ -64,11 +64,39 @@ class ResourceManager : public cSimpleModule
         virtual void finish();
 
         /*
+         * ------------------Default MEAppPacket handler--------------------------
+         *
+         */
+        // allocating resources based on the amount specified in the MEAppPacket
+        void handleMEAppResources(MEAppPacket*);
+
+        /*
          * --------------------ClusterizePacket handler---------------------------
          */
         // handling START_CLUSTERIZE and STOP_CLUSTERIZE ClusterizePackets
         // by allocating or deallocating resources and sending back to VirtualisationManager the ClusterizePacket
         void handleClusterizeResources(ClusterizePacket*);
+
+        /*
+         * utility
+         */
+        void printResources(){
+            EV << "ResourceManager::printResources - allocated Ram: " << allocatedRam << " / " << maxRam << endl;
+            EV << "ResourceManager::printResources - allocated Disk: " << allocatedDisk << " / " << maxDisk << endl;
+            EV << "ResourceManager::printResources - allocated CPU: " << allocatedCPU << " / " << maxCPU << endl;
+        }
+        void allocateResources(double ram, double disk, double cpu){
+            allocatedRam += ram;
+            allocatedDisk += disk;
+            allocatedCPU += cpu;
+            printResources();
+        }
+        void deallocateResources(double ram, double disk, double cpu){
+            allocatedRam -= ram;
+            allocatedDisk -= disk;
+            allocatedCPU -= cpu;
+            printResources();
+        }
 };
 
 #endif

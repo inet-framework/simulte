@@ -154,24 +154,24 @@ void UEClusterizeApp::handleMessage(cMessage *msg)
      */
     else{
 
-        ClusterizePacket* pkt = check_and_cast<ClusterizePacket*>(msg);
-        if (pkt == 0)
-            throw cRuntimeError("UEClusterizeApp::handleMessage - \tFATAL! Error when casting to ClusterizePacket");
+        MEAppPacket* mePkt = check_and_cast<MEAppPacket*>(msg);
+        if (mePkt == 0)
+            throw cRuntimeError("UEClusterizeApp::handleMessage - \tFATAL! Error when casting to MEAppPacket");
 
         //ACK_START_CLUSTERIZE_PACKET
-        if(!strcmp(pkt->getName(), ACK_START_CLUSTERIZE)){
+        if( !strcmp(mePkt->getType(), ACK_START_MEAPP) ){
 
-                handleClusterizeAckStart(pkt);
+            handleMEAppAckStart(mePkt);
         }
         //ACK_STOP_CLUSTERIZE_PACKET
-        else if(!strcmp(pkt->getName(), ACK_STOP_CLUSTERIZE) ){
+        else if(!strcmp(mePkt->getType(), ACK_STOP_MEAPP)){
 
-                handleClusterizeAckStop(pkt);
-            }
+            handleMEAppAckStop(mePkt);
+        }
         //CONFIG_CLUSTERIZE_PACKET
-        else if(!strcmp(pkt->getName(), CONFIG_CLUSTERIZE)){
+        else if(!strcmp(mePkt->getType(), INFO_MEAPP)){
 
-            ClusterizeConfigPacket* cpkt = check_and_cast<ClusterizeConfigPacket*>(msg);
+            ClusterizeConfigPacket* cpkt = check_and_cast<ClusterizeConfigPacket*>(mePkt);
             handleClusterizeConfig(cpkt);
         }
 
@@ -196,7 +196,7 @@ void UEClusterizeApp::sendClusterizeStartPacket()
 {
     EV << "UEClusterizeApp::sendClusterizeStartPacket - Sending message SeqNo[" << nextSnoStart_ << "]\n";
 
-    ClusterizePacket* packet = ClusterizePacketBuilder().buildClusterizePacket(START_CLUSTERIZE, nextSnoStart_, simTime(), size_, car->getId(), sourceSimbolicAddress, destSimbolicAddress);
+    ClusterizePacket* packet = ClusterizePacketBuilder().buildClusterizePacket(START_MEAPP, nextSnoStart_, simTime(), size_, car->getId(), sourceSimbolicAddress, destSimbolicAddress);
 
     socket.sendTo(packet, destAddress_, destPort_);
     nextSnoStart_++;
@@ -254,7 +254,7 @@ void UEClusterizeApp::sendClusterizeStopPacket()
 {
     EV << "UEClusterizeApp::sendClusterizeStopPacket - Sending message SeqNo[" << nextSnoStop_ << "]\n";
 
-    ClusterizePacket* packet = ClusterizePacketBuilder().buildClusterizePacket(STOP_CLUSTERIZE, nextSnoStart_, simTime(), size_, car->getId(), sourceSimbolicAddress, destSimbolicAddress);
+    ClusterizePacket* packet = ClusterizePacketBuilder().buildClusterizePacket(STOP_MEAPP, nextSnoStop_, simTime(), size_, car->getId(), sourceSimbolicAddress, destSimbolicAddress);
 
     socket.sendTo(packet, destAddress_, destPort_);
     nextSnoStop_++;
@@ -272,13 +272,13 @@ void UEClusterizeApp::sendClusterizeStopPacket()
 /*
  * -----------------------------------------------Receiver Side------------------------------------------
  */
-void UEClusterizeApp::handleClusterizeAckStart(ClusterizePacket* pkt){
+void UEClusterizeApp::handleMEAppAckStart(MEAppPacket* pkt){
 
-    EV << "UEClusterizeApp::handleClusterizeAckStart - Packet received: "<< pkt->getSourceAddress() <<" SeqNo[" << pkt->getSno() << "]" << endl;
+    EV << "UEClusterizeApp::handleMEAppAckStart - Packet received: "<< pkt->getSourceAddress() <<" SeqNo[" << pkt->getSno() << "]" << endl;
 
     if(veins_mobility != NULL){
 
-        EV << "UEClusterizeApp::handleClusterizeAckStart - Retrieving VehicleInterface (TRACI)" << endl;
+        EV << "UEClusterizeApp::handleMEAppAckStart - Retrieving VehicleInterface (TRACI)" << endl;
         getVehicleInterface();
     }
 
@@ -293,7 +293,7 @@ void UEClusterizeApp::handleClusterizeAckStart(ClusterizePacket* pkt){
         EV << "\t starting traffic in " << period_ << " seconds " << endl;
     }
 
-    if(!selfSender_->isScheduled()){
+    if(!selfStop_->isScheduled()){
         //STOP app
         simtime_t  stopTime = par("stopTime");
         EV << "\t starting sendClusterizeStopPacket() in " << stopTime << " seconds " << endl;
@@ -302,9 +302,9 @@ void UEClusterizeApp::handleClusterizeAckStart(ClusterizePacket* pkt){
     }
 }
 
-void UEClusterizeApp::handleClusterizeAckStop(ClusterizePacket* pkt){
+void UEClusterizeApp::handleMEAppAckStop(MEAppPacket* pkt){
 
-    EV << "UEClusterizeApp::handleClusterizeAckStop - Packet received: "<< pkt->getSourceAddress() <<" SeqNo[" << pkt->getSno() << "]" << endl;
+    EV << "UEClusterizeApp::handleMEAppAckStop - Packet received: "<< pkt->getSourceAddress() <<" SeqNo[" << pkt->getSno() << "]" << endl;
 
     cancelEvent(selfStop_);
     //this->callFinish();

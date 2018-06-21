@@ -43,13 +43,6 @@ module MEHost
         //#connections
         string eNBList = default("");
 
-        //# Supported ME Service Paths
-        //
-        // adding one new string for each new service & configure in the ini file!
-        //
-        string MEClusterizeServicePath;					// i.e. ".mePlatform.udpService[0]"
-
-
     gates:
 
 		//to local radio networks

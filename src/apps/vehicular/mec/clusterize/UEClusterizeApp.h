@@ -136,7 +136,7 @@ class UEClusterizeApp : public cSimpleModule
 
         // handling ACK_START_CLUSTERIZE ClusterizePacket
         // by stopping the sendClusterizeStartPacket() and starting sendClusterizeInfoPacket()
-        void handleClusterizeAckStart(ClusterizePacket*);
+        void handleMEAppAckStart(MEAppPacket*);
 
         // sending to the correspondent MEClusterizeApp (trhough VirtualisationManager) an INFO_CLUSTERIZE ClsuterizeInfoPacket
         // to communicate car-local informations (i.e. position, speed)
@@ -148,7 +148,7 @@ class UEClusterizeApp : public cSimpleModule
 
         // handling ACK_STOP_CLUSTERIZE ClusterizePacket
         // by stopping sendClusterizeStopPacket()
-        void handleClusterizeAckStop(ClusterizePacket*);
+        void handleMEAppAckStop(MEAppPacket*);
 
         // handling CONFIG_CLUSTERIZE ClusterizeConfigPacket
         // by calling handleClusterizeConfigFromMEHost or handleClusterizeConfigFromUE and emitting statistics

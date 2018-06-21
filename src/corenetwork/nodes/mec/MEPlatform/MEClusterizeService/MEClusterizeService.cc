@@ -105,13 +105,13 @@ void MEClusterizeService::handleMessage(cMessage *msg)
             throw cRuntimeError("MEClusterizeService::handleMessage - \tFATAL! Error when casting to ClusterizePacket");
 
         //INFO_CLUSTERIZE_PACKET
-        if(!strcmp(pkt->getName(), INFO_CLUSTERIZE)){
+        if(!strcmp(pkt->getType(), INFO_UEAPP)){
 
             ClusterizeInfoPacket* ipkt = check_and_cast<ClusterizeInfoPacket*>(msg);
             handleClusterizeInfo(ipkt);
         }
         //STOP_CLUSTERIZE_PACKET
-       else if(!strcmp(pkt->getName(), STOP_CLUSTERIZE)){
+       else if(!strcmp(pkt->getType(), STOP_MEAPP)){
 
            handleClusterizeStop(pkt);
        }

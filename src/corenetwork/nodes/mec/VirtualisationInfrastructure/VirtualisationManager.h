@@ -24,8 +24,6 @@
 #include "inet/networklayer/common/L3Address.h"
 #include "inet/networklayer/common/L3AddressResolver.h"
 
-// ME App Modules to instantiate & connect through gates
-#include "apps/vehicular/mec/clusterize/MEClusterizeApp.h"
 
 // UE/ME Packets & UE/ME App to Handle
 #include "apps/vehicular/mec/clusterize/packets/ClusterizePacket_m.h"
@@ -36,6 +34,8 @@
 #include "corenetwork/nodes/mec/MEPlatform/MEAppPacket_Types.h"
 #include "corenetwork/nodes/mec/MEPlatform/MEAppPacket_m.h"
 
+#define NO_SERVICE -1
+#define SERVICE_NOT_AVAILABLE -2
 
 struct meAppMapEntry{
     int meAppGateIndex;
@@ -84,7 +84,8 @@ class VirtualisationManager : public cSimpleModule
     //
     std::map<std::string, meAppMapEntry> meAppMapTable;
 
-    cModule* meClusterizeService;
+    int numServices;
+    std::vector<cModule*> meServices;
 
     //set of free gates
     std::vector<int> freeGates;
@@ -110,34 +111,37 @@ class VirtualisationManager : public cSimpleModule
          */
         // handling all possible ClusterizePacket types by invoking specific methods
         //
-        void handleClusterize(ClusterizePacket*);
+        void handleMEAppPacket(MEAppPacket*);
 
         // handling START_CLUSTERIZE ClusterizePacket
         // by forwarding the packet to te ResourceManager if there are available MEApp "free slots"
-        void startClusterize(ClusterizePacket*);
+        void startMEApp(MEAppPacket*);
 
         // handling INFO_CLUSTERIZE ClusterizeInfoPacket
         // by forwading upstream to the MEClusterizeApp
-        void upstreamClusterize(ClusterizeInfoPacket*);
+        void upstreamToMEApp(MEAppPacket*);
 
         // handling CONFIG_CLUSTERIZE ClusterizeConfigPacket
         // by forwarding downstream to the UDP Layer (sending via socket to the UEClusterizeApp)
-        void downstreamClusterize(ClusterizeConfigPacket*);
+        void downstreamToUEApp(MEAppPacket*);
 
         // handling STOP_CLUSTERIZE ClusterizePacket
         // forwarding the packet to the ResourceManager
-        void stopClusterize(ClusterizePacket*);
+        void stopMEApp(MEAppPacket*);
 
         // instancing the requested MEClusterizeApp (called by handleResource)
-        void instantiateMEClusterizeApp(ClusterizePacket*);
+        void instantiateMEApp(MEAppPacket*);
 
         // terminating the correspondent MEClusterizeApp (called by handleResource)
         //
-        void terminateMEClusterizeApp(ClusterizePacket*);
+        void terminateMEApp(MEAppPacket*);
 
         // sending ACK_START_CLUSTERIZE or ACK_STOP_CLUSTERIZE (called by instantiateMEClusterizeApp or terminateMEClusterizeApp)
         //
-        void ackClusterize(ClusterizePacket*, const char*);
+        void ackMEAppPacket(MEAppPacket*, const char*);
+
+        //finding the ME Service requested by UE App among the ME Services available on the ME Host
+        int findService(const char* serviceName);       //  -1 NO_SERVICE required | -2 SERVICE_NOT_AVAILABLE | index of service in mePlatform.udpService
 };
 
 #endif

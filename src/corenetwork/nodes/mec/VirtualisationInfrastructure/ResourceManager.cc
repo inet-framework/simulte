@@ -72,11 +72,51 @@ void ResourceManager::handleMessage(cMessage *msg)
         ClusterizePacket* pkt = check_and_cast<ClusterizePacket*>(msg);
         handleClusterizeResources(pkt);
     }
+    /*
+     * DEFAULT HANDLING RESOURCES REQUIRED BY THE MEAppPacket
+     */
+    else{
+        handleMEAppResources(mepkt);
+    }
 }
 
 void ResourceManager::finish(){
 
     templateMEClusterizeApp->deleteModule();
+}
+
+void ResourceManager::handleMEAppResources(MEAppPacket* pkt){
+
+    EV << "ResourceManager::handleMEAppResources - "<< pkt->getName() << " received: "<< pkt->getSourceAddress() <<" SeqNo[" << pkt->getSno() << "]"<< endl;
+
+    bool availableResources = true;
+
+    double reqRam = pkt->getRequiredRam();
+    double reqDisk = pkt->getRequiredDisk();
+    double reqCpu = pkt->getRequiredCpu();
+    /* -------------------------------
+     * Handling StartPacket */
+    if(!strcmp(pkt->getType(), START_MEAPP)){
+
+        availableResources = ((maxRam-allocatedRam-reqRam >= 0) && (maxDisk-allocatedDisk-reqDisk >= 0) && (maxCPU-allocatedCPU-reqCpu >= 0))? true : false;
+        if(availableResources){
+            EV << "ResourceManager::handleMEAppResources - resources ALLOCATED for " << pkt->getSourceAddress() << endl;
+            deallocateResources(reqRam, reqDisk, reqCpu);
+            send(pkt, "virtualisationManagerOut");
+        }
+        else{
+            EV << "ResourceManager::handleMEAppResources - resources NOT AVAILABLE for " << pkt->getSourceAddress() << endl;
+            delete(pkt);
+        }
+    }
+    /* -------------------------------
+     * Handling StopPacket */
+    else if(!strcmp(pkt->getType(), STOP_MEAPP)){
+
+        EV << "ResourceManager::handleMEAppResources - resources DEALLOCATED for " << pkt->getSourceAddress() << endl;
+        deallocateResources(reqRam, reqDisk, reqCpu);
+        send(pkt, "virtualisationManagerOut");
+    }
 }
 
 /*
@@ -85,50 +125,20 @@ void ResourceManager::finish(){
 
 void ResourceManager::handleClusterizeResources(ClusterizePacket* pkt){
 
-    EV << "ResourceManager::handleClusterize - "<< pkt->getName() << " received: "<< pkt->getSourceAddress() <<" SeqNo[" << pkt->getSno() << "]"<< endl;
+    EV << "ResourceManager::handleClusterizeResources - "<< pkt->getName() << " received: "<< pkt->getSourceAddress() <<" SeqNo[" << pkt->getSno() << "]"<< endl;
 
     bool availableResources = true;
 
     double reqRam = templateMEClusterizeApp->par("ram").doubleValue();
     double reqDisk = templateMEClusterizeApp->par("disk").doubleValue();
-    double reqCPU = templateMEClusterizeApp->par("cpu").doubleValue();
+    double reqCpu = templateMEClusterizeApp->par("cpu").doubleValue();
 
-    /* -------------------------------
-     * Handling ClusterizeStartPacket */
-    if(!strcmp(pkt->getName(), START_CLUSTERIZE)){
+    MEAppPacket* mePkt = check_and_cast<MEAppPacket*>(pkt);
+    mePkt->setRequiredRam(reqRam);
+    mePkt->setRequiredDisk(reqDisk);
+    mePkt->setRequiredCpu(reqCpu);
 
-        availableResources = ((maxRam-allocatedRam-reqRam >= 0) && (maxDisk-allocatedDisk-reqDisk >= 0) && (maxCPU-allocatedCPU-reqCPU >= 0))? true : false;
-
-        if(availableResources){
-            allocatedRam += reqRam;
-            allocatedDisk += reqDisk;
-            allocatedCPU += reqCPU;
-            EV << "ResourceManager::handleClusterizeResources - resources allocated for " << pkt->getSourceAddress() << endl;
-            //Sending back the START_CLUSTERIZE packet to Virtualisation Manager to instantiate the MEClusterizeApp & ACK_START
-            send(pkt, "virtualisationManagerOut");
-        }
-        else{
-            EV << "ResourceManager::handleClusterizeResources - resources NOT AVAILABLE for " << pkt->getSourceAddress() << endl;
-            delete(pkt);
-        }
-    }
-    /* -------------------------------
-     * Handling ClusterizeStopPacket */
-    else if(!strcmp(pkt->getName(), STOP_CLUSTERIZE)){
-
-        allocatedRam -= reqRam;
-        allocatedDisk -= reqDisk;
-        allocatedCPU -= reqCPU;
-
-        EV << "ResourceManager::handleClusterizeResources - resources deallocated for " << pkt->getSourceAddress() << endl;
-
-        //Sending back the STOP_CLUSTERIZE packet to Virtualisation Manager to ACK_STOP
-        send(pkt, "virtualisationManagerOut");
-    }
-
-    EV << "ResourceManager::handleClusterizeResources - allocated Ram: " << allocatedRam << " / " << maxRam << endl;
-    EV << "ResourceManager::handleClusterizeResources - allocated Disk: " << allocatedDisk << " / " << maxDisk << endl;
-    EV << "ResourceManager::handleClusterizeResources - allocated CPU: " << allocatedCPU << " / " << maxCPU << endl;
+    handleMEAppResources(mePkt);
 }
 /*
  * ##############################################################################################################

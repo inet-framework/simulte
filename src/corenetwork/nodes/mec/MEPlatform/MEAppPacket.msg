@@ -31,4 +31,7 @@ packet MEAppPacket {
     unsigned int requiredDisk;
     unsigned int requiredRam;
     double requiredCpu;
+    
+    //service required
+    string requiredService;
 }

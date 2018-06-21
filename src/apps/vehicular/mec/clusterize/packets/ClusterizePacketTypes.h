@@ -29,6 +29,11 @@
 #define INFO_CLUSTERIZE "ClusterizeInfo"
 #define CONFIG_CLUSTERIZE "ClusterizeConfig"
 
+// defining app and service names fro ME CLUSTERIZE SERVICE
+
+#define ME_CLUSTERIZE_APP_MODULE_TYPE "lte.apps.vehicular.mec.clusterize.MEClusterizeApp"
+#define ME_CLUSTERIZE_APP_MODULE_NAME "MEClusterizeApp"
+#define ME_CLUSTERIZE_SERVICE_MODULE_NAME "MEShapedClusterizeService"
 
 //
 //  defining Tx Modes for ClusterizeConfigPacket

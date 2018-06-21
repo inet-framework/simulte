@@ -34,15 +34,14 @@ ClusterizePacket* ClusterizePacketBuilder::buildClusterizePacket(const char* typ
         packet->setType(type);
         packet->setSourceAddress(srcAddr);
         packet->setDestinationAddress(destAddr);
+        //important to instantiate the MEClusterizeApp by the Virtualisation Manager!
+        packet->setMEModuleType( ME_CLUSTERIZE_APP_MODULE_TYPE);
+        packet->setMEModuleName(ME_CLUSTERIZE_APP_MODULE_NAME);
+        packet->setRequiredService(ME_CLUSTERIZE_SERVICE_MODULE_NAME);
 
         //ClusterizePacket info
         if(!strcmp(type, START_MEAPP)){
             packet->setName(START_CLUSTERIZE);
-
-            //important to instantiate the MEClusterizeApp by the Virtualisation Manager!
-            packet->setMEModuleType("lte.apps.vehicular.mec.clusterize.MEClusterizeApp");
-            packet->setMEModuleName("MEClusterizeApp");
-
         }else
             if(!strcmp(type, STOP_MEAPP))
                 packet->setName(STOP_CLUSTERIZE);
@@ -69,6 +68,10 @@ ClusterizeInfoPacket* ClusterizePacketBuilder::buildClusterizeInfoPacket(unsigne
     packet->setType(INFO_UEAPP);
     packet->setSourceAddress(srcAddr);
     packet->setDestinationAddress(destAddr);
+    //important to instantiate the MEClusterizeApp by the Virtualisation Manager!
+    packet->setMEModuleType( ME_CLUSTERIZE_APP_MODULE_TYPE);
+    packet->setMEModuleName(ME_CLUSTERIZE_APP_MODULE_NAME);
+    packet->setRequiredService(ME_CLUSTERIZE_SERVICE_MODULE_NAME);
 
     //ClusterizePacket info
     packet->setName(INFO_CLUSTERIZE);
@@ -99,9 +102,13 @@ ClusterizeConfigPacket* ClusterizePacketBuilder::buildClusterizeConfigPacket(uns
     packet->setSno(sqn);
     packet->setTimestamp(time);
     packet->setByteLength(size);
-    packet->setType(INFO_UEAPP);
+    packet->setType(INFO_MEAPP);
     packet->setSourceAddress(srcAddr);
     packet->setDestinationAddress(destAddr);
+    //important to instantiate the MEClusterizeApp by the Virtualisation Manager!
+    packet->setMEModuleType( ME_CLUSTERIZE_APP_MODULE_TYPE);
+    packet->setMEModuleName(ME_CLUSTERIZE_APP_MODULE_NAME);
+    packet->setRequiredService(ME_CLUSTERIZE_SERVICE_MODULE_NAME);
 
     //ClusterizePacket info
     packet->setName(CONFIG_CLUSTERIZE);

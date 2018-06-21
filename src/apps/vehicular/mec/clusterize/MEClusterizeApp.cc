@@ -70,13 +70,13 @@ void MEClusterizeApp::handleMessage(cMessage *msg)
         throw cRuntimeError("UEClusterizeApp::handleMessage - \tFATAL! Error when casting to ClusterizePacket");
 
     // handling INFO_CLUSTERIZE
-    if(!strcmp(pkt->getName(), INFO_CLUSTERIZE)){
+    if(!strcmp(pkt->getType(), INFO_UEAPP)){
 
         ClusterizeInfoPacket* ipkt = check_and_cast<ClusterizeInfoPacket*>(msg);
         handleClusterizeInfo(ipkt);
     }
     // handling CONFIG_CLUSTERIZE
-    else if(!strcmp(pkt->getName(), CONFIG_CLUSTERIZE)){
+    else if(!strcmp(pkt->getType(), INFO_MEAPP)){
 
         ClusterizeConfigPacket* cpkt = check_and_cast<ClusterizeConfigPacket*>(msg);
         handleClusterizeConfig(cpkt);
@@ -87,19 +87,10 @@ void MEClusterizeApp::finish(){
 
     EV << "MEClusterizeApp::finish - Sending ClusterizeStop to the MEClusterizeService" << endl;
 
-    //
     // informing the MEClusterizeService to cancel data about this MEClusterizeApp instance
-    //
     if(gate("mePlatformOut")->isConnected()){
-        ClusterizePacket* packet = new ClusterizePacket(STOP_CLUSTERIZE);
-        packet->setTimestamp(simTime());
-        packet->setByteLength(size_);
 
-        packet->setType(STOP_CLUSTERIZE);
-
-        packet->setSourceAddress(sourceSimbolicAddress);
-        packet->setDestinationAddress(destSimbolicAddress);
-
+        ClusterizePacket* packet = ClusterizePacketBuilder().buildClusterizePacket(STOP_MEAPP, 0, simTime(), size_, 0, sourceSimbolicAddress, destSimbolicAddress);
         send(packet, "mePlatformOut");
     }
 }
