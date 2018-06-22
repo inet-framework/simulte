@@ -84,7 +84,7 @@ void LteRlcUmD2D::handleLowerMessage(cPacket *pkt)
         {
             // get the corresponding Rx buffer & call handler
             UmRxEntity* rxbuf = getRxBuffer(lteInfo);
-            rxbuf->rlcHandleD2DModeSwitch(switchPkt->getOldConnection(), switchPkt->getOldMode());
+            rxbuf->rlcHandleD2DModeSwitch(switchPkt->getOldConnection(), switchPkt->getOldMode(), switchPkt->getClearRlcBuffer());
 
             delete switchPkt;
         }
