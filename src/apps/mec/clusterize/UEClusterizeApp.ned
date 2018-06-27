@@ -12,7 +12,7 @@
 //
 
 
-package lte.apps.vehicular.mec.clusterize;
+package lte.apps.mec.clusterize;
 
 import inet.applications.contract.IUDPApp;
 

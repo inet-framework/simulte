@@ -19,8 +19,8 @@
 
 #include "inet/common/geometry/common/Coord.h"
 #include "inet/common/geometry/common/EulerAngles.h"
-#include "apps/vehicular/mec/clusterize/packets/ClusterizePacket_m.h"
-#include "apps/vehicular/mec/clusterize/packets/ClusterizePacketTypes.h"
+#include "apps/mec/clusterize/packets/ClusterizePacket_m.h"
+#include "apps/mec/clusterize/packets/ClusterizePacketTypes.h"
 
 #include "corenetwork/nodes/mec/MEPlatform/MEAppPacket_Types.h"
 

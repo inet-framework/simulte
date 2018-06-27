@@ -303,12 +303,12 @@ void VirtualisationManager::instantiateMEApp(MEAppPacket* pkt){
         cModuleType *moduleType = cModuleType::get(pkt->getMEModuleType());         //MEAPP module package (i.e. path!)
         cModule *module = moduleType->create(pkt->getMEModuleName(), meHost);       //MEAPP module-name & its Parent Module
         std::stringstream appName;
-        appName << pkt->getMEModuleName() << "[" <<  key.str().c_str() << "]";
+        appName << pkt->getMEModuleName() << "[" <<  pkt->getSourceAddress() << "]";
         module->setName(appName.str().c_str());
 
         //displaying ME App dynamically created (after 70 they will overlap..)
         std::stringstream display;
-        display << "p=" << (50 + ((index%10)*100)%1000) << "," << (100 + (50*(index/10)%350)) << ";is=vs";
+        display << "p=" << (50 + ((index%7)*150)%1000) << "," << (70 + (50*(index/7)%300)) << ";is=vs";
         module->setDisplayString(display.str().c_str());
 
         module->par("sourceAddress") = pkt->getDestinationAddress();

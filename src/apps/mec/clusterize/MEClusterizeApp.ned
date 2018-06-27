@@ -12,7 +12,7 @@
 //
 
 
-package lte.apps.vehicular.mec.clusterize;
+package lte.apps.mec.clusterize;
 
 import lte.corenetwork.nodes.mec.MEPlatform.IMEApp;
 

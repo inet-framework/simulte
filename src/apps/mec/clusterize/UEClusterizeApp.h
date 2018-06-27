@@ -34,9 +34,9 @@
 //#include "veins_inet/VeinsInetManager.h"
 //#include "veins/modules/mobility/traci/TraCICommandInterface.h"
 
-#include "apps/vehicular/mec/clusterize/packets/ClusterizePacket_m.h"
-#include "apps/vehicular/mec/clusterize/packets/ClusterizePacketTypes.h"
-#include "apps/vehicular/mec/clusterize/packets/ClusterizePacketBuilder.h"
+#include "apps/mec/clusterize/packets/ClusterizePacket_m.h"
+#include "apps/mec/clusterize/packets/ClusterizePacketTypes.h"
+#include "apps/mec/clusterize/packets/ClusterizePacketBuilder.h"
 
 //to emit V2V statistics
 #include "apps/d2dMultihop/statistics/MultihopD2DStatistics.h"

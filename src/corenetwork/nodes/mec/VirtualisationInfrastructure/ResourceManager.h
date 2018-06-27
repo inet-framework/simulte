@@ -18,11 +18,11 @@
 #include <omnetpp.h>
 
 // ME App Modules to get resource requirements
-#include "apps/vehicular/mec/clusterize/MEClusterizeApp.h"
+#include "apps/mec/clusterize/MEClusterizeApp.h"
 
 // UE/ME Packets & UE/ME App to Handle
-#include "apps/vehicular/mec/clusterize/packets/ClusterizePacket_m.h"
-#include "apps/vehicular/mec/clusterize/packets/ClusterizePacketTypes.h"
+#include "apps/mec/clusterize/packets/ClusterizePacket_m.h"
+#include "apps/mec/clusterize/packets/ClusterizePacketTypes.h"
 
 
 #include "corenetwork/nodes/mec/MEPlatform/MEAppPacket_Types.h"

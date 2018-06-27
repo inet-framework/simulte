@@ -20,9 +20,9 @@
 #include "inet/networklayer/common/L3Address.h"
 #include "inet/networklayer/common/L3AddressResolver.h"
 
-#include "apps/vehicular/mec/clusterize/packets/ClusterizePacket_m.h"
-#include "apps/vehicular/mec/clusterize/packets/ClusterizePacketTypes.h"
-#include "apps/vehicular/mec/clusterize/packets/ClusterizePacketBuilder.h"
+#include "apps/mec/clusterize/packets/ClusterizePacket_m.h"
+#include "apps/mec/clusterize/packets/ClusterizePacketTypes.h"
+#include "apps/mec/clusterize/packets/ClusterizePacketBuilder.h"
 
 #include "inet/common/geometry/common/Coord.h"
 #include "inet/common/geometry/common/EulerAngles.h"

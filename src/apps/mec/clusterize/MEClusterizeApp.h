@@ -20,8 +20,8 @@
 #include "inet/networklayer/common/L3Address.h"
 #include "inet/networklayer/common/L3AddressResolver.h"
 
-#include "apps/vehicular/mec/clusterize/packets/ClusterizePacket_m.h"
-#include "apps/vehicular/mec/clusterize/packets/ClusterizePacketTypes.h"
+#include "apps/mec/clusterize/packets/ClusterizePacket_m.h"
+#include "apps/mec/clusterize/packets/ClusterizePacketTypes.h"
 
 #include "corenetwork/nodes/mec/MEPlatform/MEClusterizeService/MEClusterizeService.h"
 
