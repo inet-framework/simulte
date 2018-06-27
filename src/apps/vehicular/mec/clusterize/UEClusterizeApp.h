@@ -23,10 +23,9 @@
 
 #include "corenetwork/binder/LteBinder.h"
 
+//inet mobility
 #include "inet/common/geometry/common/Coord.h"
 #include "inet/common/geometry/common/EulerAngles.h"
-
-//inet mobility
 #include "inet/mobility/contract/IMobility.h"
 #include "inet/mobility/single/LinearMobility.h"
 
@@ -88,6 +87,7 @@ class UEClusterizeApp : public cSimpleModule
     //
     cModule* lteNic;
     cModule* car;
+
     //veins
     Veins::VeinsInetMobility *veins_mobility;
     std::string carVeinsID;
@@ -170,6 +170,7 @@ class UEClusterizeApp : public cSimpleModule
         std::string getFollowing(ClusterizeConfigPacket *);
         double updateAcceleration(ClusterizeConfigPacket *);
 
+        //getting veins module to handle vehicle mobility
         void getVehicleInterface();
 };
 

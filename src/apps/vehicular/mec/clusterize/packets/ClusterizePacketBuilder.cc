@@ -94,7 +94,7 @@ ClusterizeInfoPacket* ClusterizePacketBuilder::buildClusterizeInfoPacket(unsigne
     return packet;
 }
 
-ClusterizeConfigPacket* ClusterizePacketBuilder::buildClusterizeConfigPacket(unsigned int sqn, simtime_t time,  unsigned long eventID, int hops, long int size, int carOmnetID, const char* srcAddr, const char* destAddr, int clusterID, const char* clusterColor, int txMode, const char* following, const char* follower, const char* clusterString, std::vector<double> accelerations){
+ClusterizeConfigPacket* ClusterizePacketBuilder::buildClusterizeConfigPacket(unsigned int sqn, simtime_t time,  unsigned long eventID, int hops, long int size, int carOmnetID, const char* srcAddr, const char* destAddr, int clusterID, const char* clusterColor, const char* txMode, const char* following, const char* follower, const char* clusterString, std::vector<double> accelerations){
 
     ClusterizeConfigPacket* packet = new ClusterizeConfigPacket(CONFIG_CLUSTERIZE);
 

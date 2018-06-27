@@ -71,7 +71,7 @@ struct car{
     std::string following;
     std::string follower;
 
-    int txMode;
+    std::string txMode;
 
     //flags/control
     bool isFollower;
@@ -91,7 +91,7 @@ protected:
         int maxMEApps;
         std::vector<std::string> colors;            //Cluster Colors
 
-        int preconfiguredTxMode;                    //from INI: chosing INFRASTRUCTURE_UNICAST - V2V_UNICAST - V2V_MULTICAST
+        std::string preconfiguredTxMode;                    //from INI: chosing INFRASTRUCTURE_UNICAST - V2V_UNICAST - V2V_MULTICAST
 
         // for each MEClusterizeApp (linked to the UEClusterizeApp & V2VApp supported)
         // storing the more recent car-local info (from  ClusterizeInfoPacket )

@@ -95,6 +95,8 @@ void UEClusterizeApp::initialize(int stage)
             if(!strcmp(car->par("mobilityType").stringValue(),"VeinsInetMobility")){
                 veins_mobility = check_and_cast<Veins::VeinsInetMobility*>(temp);
                 EV << "UEClusterizeApp::initialize - Mobility module found!" << endl;
+                //veinsManager = Veins::VeinsInetManagerAccess().get();
+                //traci = veinsManager->getCommandInterface();
             }
             else{
                 // necessary for using inet mobility (in sendClusterizeInfo needs to reverse the angle!)
@@ -105,11 +107,10 @@ void UEClusterizeApp::initialize(int stage)
             EV << "UEClusterizeApp::initialize - \tWARNING: Mobility module NOT FOUND!" << endl;
 
     lteNic = car->getSubmodule("lteNic");
-        if(lteNic == NULL){
-            EV << "V2vClusterBaseApp::initialize - ERROR getting lteNic module!" << endl;
-            throw cRuntimeError("V2vClusterAlertApp::initialize - \tFATAL! Error when getting lteNIC!");
-        }
-
+    if(lteNic == NULL){
+        EV << "UEClusterizeApp::initialize - ERROR getting lteNic module!" << endl;
+        throw cRuntimeError("UEClusterizeApp::initialize - \tFATAL! Error when getting lteNIC!");
+    }
     LteMacBase* mac = check_and_cast<LteMacBase*>(lteNic->getSubmodule("mac"));
     macID = mac->getMacNodeId();
 
@@ -161,22 +162,17 @@ void UEClusterizeApp::handleMessage(cMessage *msg)
                 throw cRuntimeError("UEClusterizeApp::handleMessage - \tFATAL! Error when casting to MEAppPacket");
 
             //ACK_START_CLUSTERIZE_PACKET
-            if( !strcmp(mePkt->getType(), ACK_START_MEAPP) ){
+            if( !strcmp(mePkt->getType(), ACK_START_MEAPP) )    handleMEAppAckStart(mePkt);
 
-                handleMEAppAckStart(mePkt);
-            }
             //ACK_STOP_CLUSTERIZE_PACKET
-            else if(!strcmp(mePkt->getType(), ACK_STOP_MEAPP)){
+            else if(!strcmp(mePkt->getType(), ACK_STOP_MEAPP))  handleMEAppAckStop(mePkt);
 
-                handleMEAppAckStop(mePkt);
-            }
             //CONFIG_CLUSTERIZE_PACKET
             else if(!strcmp(mePkt->getType(), INFO_MEAPP)){
 
                 ClusterizeConfigPacket* cpkt = check_and_cast<ClusterizeConfigPacket*>(mePkt);
                 handleClusterizeConfig(cpkt);
             }
-
             delete msg;
         }
     }
@@ -342,10 +338,10 @@ void UEClusterizeApp::handleClusterizeConfig(ClusterizeConfigPacket* pkt){
     // retrieving the acceleration and updating the mobility
     double acceleration = updateAcceleration(pkt);
     if(veins_mobility != NULL){
-        //slowDown with traciVehicle
+        //slowDown with traciVehicle                                                                          //TODO Adjust Acceleration with VEINS MOBILITY
     }
     else{
-        //slow down with inet mobility                                                                  //TODO
+        //slow down with inet mobility                                                                          //TODO Adjust Acceleration with INET MOBILITY
         //check_and_cast<LinearMobility*>(mobility)->setSpeed(15);
         //check_and_cast<LinearMobility*>(mobility)->setAcceleration(0.2);
     }
@@ -364,13 +360,13 @@ void UEClusterizeApp::handleClusterizeConfig(ClusterizeConfigPacket* pkt){
 
 void UEClusterizeApp::handleClusterizeConfigFromMEHost(ClusterizeConfigPacket *pkt){
 
-    EV << "UEClusterizeApp::handleClusterizeConfigFromMEHost" <<endl;
+    EV << "UEClusterizeApp::handleClusterizeConfigFromMEHost: txMode " << pkt->getTxMode() <<endl;
 
     //updating runtime color of the car icon background
     car->getDisplayString().setTagArg("i",1, pkt->getClusterColor());
 
     // propagating in D2D UNICAST to the Follower
-    if(pkt->getTxMode() == V2V_UNICAST_TX_MODE){
+    if(!strcmp(pkt->getTxMode(), V2V_UNICAST_TX_MODE)){
 
         if(strcmp(pkt->getClusterFollower(), "") != 0)
         {
@@ -402,7 +398,7 @@ void UEClusterizeApp::handleClusterizeConfigFromMEHost(ClusterizeConfigPacket *p
         }
     }
     // propagating in D2D MULTICAST
-    else if(pkt->getTxMode() == V2V_MULTICAST_TX_MODE && pkt->getClusterListArraySize() > 1)
+    else if(!strcmp(pkt->getTxMode(), V2V_MULTICAST_TX_MODE) && pkt->getClusterListArraySize() > 1)
     {
         ClusterizeConfigPacket* packet = new ClusterizeConfigPacket(*pkt);
         packet->setSourceAddress(sourceSimbolicAddress);
@@ -419,13 +415,13 @@ void UEClusterizeApp::handleClusterizeConfigFromMEHost(ClusterizeConfigPacket *p
 void UEClusterizeApp::handleClusterizeConfigFromUE(ClusterizeConfigPacket *pkt){
 
 
-    EV << "UEClusterizeApp::handleClusterizeConfigFromUE" <<endl;
+    EV << "UEClusterizeApp::handleClusterizeConfigFromUE: txMode " << pkt->getTxMode() <<endl;
 
     // Update Follower and Following ( retrieve from the Cluster Member Ordered List)
     std::string follower = getFollower(pkt);
     std::string following = getFollowing(pkt);
 
-    if(following.compare("") == 0 && follower.compare("") == 0 )
+    if(!strcmp(following.c_str(), "") && !strcmp(follower.c_str(), ""))
     {
         EV << "UEClusterizeApp::handleClusterizeConfigFromUE - received ClusterizeConfig for another Cluster ... discarding!" << endl;
     }
@@ -438,19 +434,19 @@ void UEClusterizeApp::handleClusterizeConfigFromUE(ClusterizeConfigPacket *pkt){
         car->getDisplayString().setTagArg("i",1, pkt->getClusterColor());
 
         // propagating in D2D UNICAST to the Follower
-        if(pkt->getTxMode() == V2V_UNICAST_TX_MODE){
+        if(!strcmp(pkt->getTxMode(), V2V_UNICAST_TX_MODE)){
 
-            if(strcmp(pkt->getClusterFollower(), "") != 0)
+            if(strcmp(follower.c_str(), "") != 0)
             {
-                v2vFollowerSimbolicAddress = (char*) pkt->getClusterFollower();
+                EV << "UEClusterizeApp::handleClusterizeConfigFromUE - preparing forwarding to Follower ..." << endl;
 
+                v2vFollowerSimbolicAddress = (char*) follower.c_str();
                 //check if car has left the network!
                 if(getSimulation()->getModuleByPath(v2vFollowerSimbolicAddress) == NULL){
                     EV << "UEClusterizeApp::handleClusterizeConfigFromUE - \tERROR! Cannot propagate Configuration: " << v2vFollowerSimbolicAddress << " left the Network!" << endl;
                     return;
                 }
-
-                v2vFollowerAddress_ = inet::L3AddressResolver().resolve(v2vFollowerSimbolicAddress);                                            //CONTROLLARE SE CAR è USCITA!
+                v2vFollowerAddress_ = inet::L3AddressResolver().resolve(v2vFollowerSimbolicAddress);
 
                 //configuring the D2D LTE NIC
                 if(lteNic->hasPar("d2dPeerAddresses"))
@@ -469,6 +465,8 @@ void UEClusterizeApp::handleClusterizeConfigFromUE(ClusterizeConfigPacket *pkt){
                 else
                     EV << "UEClusterizeApp::handleClusterizeConfigFromUE - \tERROR configuring lteNic.d2dPeerAddresses!" << endl;
             }
+            else
+                EV << "UEClusterizeApp::handleClusterizeConfigFromUE - No Follower!" << endl;
         }
     }
 }
@@ -486,7 +484,7 @@ std::string UEClusterizeApp::getFollower(ClusterizeConfigPacket* pkt){
        }
     }
 
-    if(i+1 < pkt->getClusterListArraySize() && strcmp(pkt->getClusterList(i+1), "") != 0)
+    if(i+1 < pkt->getClusterListArraySize())
        return pkt->getClusterList(i+1);
 
     return "";
@@ -501,7 +499,7 @@ std::string UEClusterizeApp::getFollowing(ClusterizeConfigPacket* pkt){
        }
     }
 
-    if(i-1 >= 0)
+    if(i-1 >= 0 && i < pkt->getClusterListArraySize())
        return pkt->getClusterList(i-1);
 
     return "";

@@ -26,7 +26,7 @@ moduleinterface IMEService
     gates:
         
         input meAppIn[];
-        output meAppOut[];
+        output meAppOut[];     
 }
 
 

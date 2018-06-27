@@ -31,6 +31,9 @@ moduleinterface IMEApp
         
         input virtualisationInfrastructureIn;
         output virtualisationInfrastructureOut;
+        
+        input mePlatformIn;
+        output mePlatformOut;
 }
 
 

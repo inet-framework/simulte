@@ -20,6 +20,8 @@ Define_Module(MEShapedClusterizeService);
 
 MEShapedClusterizeService::MEShapedClusterizeService() {
 
+    desiredSpeed = 20;                  //meters per second
+    desiredInterVehicleDistance = 3;    //meters
 }
 
 MEShapedClusterizeService::~MEShapedClusterizeService() {
@@ -62,9 +64,7 @@ void MEShapedClusterizeService::compute(){
 
     computePlatoon(shape);  //shape is "rectangle" or "triangle"
 
-    //compute accelerations for each platoon member!                                                                        //TODO ACCELERATIONS
-    //
-    // populate the accelerations field in clusters
+    computePlatoonAccelerations();
 }
 
 /*
@@ -228,12 +228,13 @@ void MEShapedClusterizeService::updateClusters(){
                                                                                                     //TODO
                                                                                                     //  adding the txMode computation!
 
-                if(preconfiguredTxMode != -1)
-                {                                                                               // using -1 for the hybrid approach
-                    cars[k].txMode = preconfiguredTxMode;
+                if(!strcmp(preconfiguredTxMode.c_str(), HYBRID_TX_MODE))
+                {
+                    cars[k].txMode = DOWNLINK_UNICAST_TX_MODE;                                          //for now DOWNLINK_UNICAST
                 }else
                 {
                     //compute the best txMode according to some policy --> CQI or TxPower.. for each cluster!
+                    cars[k].txMode = preconfiguredTxMode.c_str();
                 }
 
                 platoonList << cars[k].simbolicAddress << " -> ";
@@ -241,7 +242,7 @@ void MEShapedClusterizeService::updateClusters(){
             }
             clusters[clusterID].membersList = platoonList.str();
             clusters[clusterID].id = clusterID;
-            clusters[clusterID].color = colors.at( (rand() + clusterID) % colorSize);                           //every time random color or not!?
+            clusters[clusterID].color = colors.at( (rand() + clusterID) % colorSize);      //every time use a random color or not!?
         }
     }
 }
@@ -292,6 +293,20 @@ void MEShapedClusterizeService::resetCarFlagsAndControls(){
         it->second.follower = "";
     }
 }
+
+void MEShapedClusterizeService::computePlatoonAccelerations(){
+
+    // for each platoon p:  USE ITERATOR!
+    //
+    // compute acceleration for the leader (UPDATE clusters[p].saccelerations.at(0)) to reach the DESIRED SPEED: desiredSpeed
+    //
+    // for each member i:
+    // compute acceleration (UPDATE clusters[p].accelerations.at(i)) to reach the DESIRED DISTANCE with member i-1: desiredInterVehicleDistance
+}
+
+/*
+ * #########################################################################################################################################
+ */
 
 void MEShapedClusterizeService::resetClusters(){
 

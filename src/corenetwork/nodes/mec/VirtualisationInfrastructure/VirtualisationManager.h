@@ -78,10 +78,8 @@ class VirtualisationManager : public cSimpleModule
 
     //UEClusterizeApp mapping with correspondent MEClusterizeApp
     //
-    //key = ueModuleName || MEApp --> i.e. key = car[0]MEClusterizeApp
-    //
-    //value = meAppMapEntry = {meApp _gate_index + MEApp_cModule + UEApp_L3Address}
-    //
+    //key = sourceAddress || MEModuleName  (retrieved from MEAppPacket) --> i.e. key = car[0]MEClusterizeApp
+
     std::map<std::string, meAppMapEntry> meAppMapTable;
 
     //set of ME Services loaded into the ME Host & Platform

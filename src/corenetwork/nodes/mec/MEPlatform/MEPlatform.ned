@@ -37,7 +37,7 @@ module MEPlatform
     submodules:
 
         udpService[numServices]: <> like IMEService {
-            @display("p=236.88,96.88,row");
+            @display("p=237.25,81.9,row");
         }
 
         rniService: RadioNetworkInformation {

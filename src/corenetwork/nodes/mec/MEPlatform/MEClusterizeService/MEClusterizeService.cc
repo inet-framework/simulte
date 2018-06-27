@@ -75,7 +75,7 @@ void MEClusterizeService::initialize(int stage)
         throw cRuntimeError("MEClusterizeService::initialize - \tFATAL! Error when getting getParentModule()");
     }
 
-    preconfiguredTxMode = par("preconfiguredTxMode").longValue();
+    preconfiguredTxMode = par("preconfiguredTxMode").stringValue();
 
     binder_ = getBinder();
 
@@ -129,13 +129,13 @@ void MEClusterizeService::sendConfig(){
     std::map<int, cluster>::iterator cl_it;
 
     //sending directly to all the cars the configuration computed
-    if (preconfiguredTxMode == INFRASTRUCTURE_UNICAST_TX_MODE){
+    if (!strcmp(preconfiguredTxMode.c_str(), DOWNLINK_UNICAST_TX_MODE)){
 
         for(cl_it = clusters.begin(); cl_it != clusters.end(); cl_it++){
 
             for(int memberKey : cl_it->second.members){
 
-                ClusterizeConfigPacket* pkt = ClusterizePacketBuilder().buildClusterizeConfigPacket(0, 0, eventID, 1, 0, 0, "", "", cars[memberKey].clusterID, cl_it->second.color.c_str(), cars[memberKey].txMode, cars[memberKey].following.c_str(), cars[memberKey].follower.c_str(),cl_it->second.membersList.c_str(), cl_it->second.accelerations);
+                ClusterizeConfigPacket* pkt = ClusterizePacketBuilder().buildClusterizeConfigPacket(0, 0, eventID, 1, 0, 0, "", "", cars[memberKey].clusterID, cl_it->second.color.c_str(), cars[memberKey].txMode.c_str(), cars[memberKey].following.c_str(), cars[memberKey].follower.c_str(),cl_it->second.membersList.c_str(), cl_it->second.accelerations);
 
                 //testing
                 EV << "MEClusterizeService::sendConfig - sending ClusterizeConfig to CM: "  << cars[memberKey].simbolicAddress << " (txMode: INFRASTRUCTURE_UNICAST_TX_MODE) " << endl;
@@ -154,16 +154,16 @@ void MEClusterizeService::sendConfig(){
         }
     }
     //sending directly only to the cluster leader
-    else if(preconfiguredTxMode == V2V_UNICAST_TX_MODE || preconfiguredTxMode == V2V_MULTICAST_TX_MODE){
+    else if(!strcmp(preconfiguredTxMode.c_str(), V2V_UNICAST_TX_MODE) || !strcmp(preconfiguredTxMode.c_str(), V2V_MULTICAST_TX_MODE)){
 
         for(cl_it = clusters.begin(); cl_it != clusters.end(); cl_it++){
 
             int leaderKey = cl_it->second.members.at(0);
 
-            ClusterizeConfigPacket* pkt = ClusterizePacketBuilder().buildClusterizeConfigPacket(0, 0, eventID, 1, 0, 0, "", "", cars[leaderKey].clusterID, cl_it->second.color.c_str(), cars[leaderKey].txMode, cars[leaderKey].following.c_str(), cars[leaderKey].follower.c_str(),cl_it->second.membersList.c_str(), cl_it->second.accelerations);
+            ClusterizeConfigPacket* pkt = ClusterizePacketBuilder().buildClusterizeConfigPacket(0, 0, eventID, 1, 0, 0, "", "", cars[leaderKey].clusterID, cl_it->second.color.c_str(), cars[leaderKey].txMode.c_str(), cars[leaderKey].following.c_str(), cars[leaderKey].follower.c_str(),cl_it->second.membersList.c_str(), cl_it->second.accelerations);
 
             //testing
-            std::string txmode = (preconfiguredTxMode == V2V_UNICAST_TX_MODE)? "V2V_UNICAST_TX_MODE" : "V2V_MULTICAST_TX_MODE";
+            std::string txmode = (!strcmp(preconfiguredTxMode.c_str(), V2V_UNICAST_TX_MODE))? V2V_UNICAST_TX_MODE : V2V_MULTICAST_TX_MODE;
             EV << "MEClusterizeService::sendConfig - sending ClusterizeConfig to CL: " << cars[leaderKey].simbolicAddress << " (txMode: "<< txmode << ") " << endl;
             EV << "MEClusterizeService::sendConfig - \t\tcars[" << leaderKey << "].clusterID: " << cars[leaderKey].clusterID  << endl;
             EV << "MEClusterizeService::sendConfig - \t\tclusters[" << cars[leaderKey].clusterID << "].membersList: " << cl_it->second.membersList.c_str() << endl << endl;

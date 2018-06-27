@@ -54,7 +54,7 @@ packet ClusterizeConfigPacket extends ClusterizePacket{
     //cluster communication strategy
     string clusterFollowing;
     string clusterFollower;
-    int txMode;    
+    string txMode;    
 
     //statistic info
     int hops;

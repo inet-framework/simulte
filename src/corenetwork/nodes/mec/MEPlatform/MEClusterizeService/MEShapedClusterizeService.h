@@ -28,6 +28,9 @@ class MEShapedClusterizeService : public MEClusterizeService{
     double roadLaneSize;                        // meter: for rectangular platooning
     double triangleAngle;                       // radiant: for triangel platooning
 
+    double desiredSpeed;
+    double desiredInterVehicleDistance;
+
     std::string shape;
 
     RadioNetworkInformation* rni;
@@ -42,6 +45,7 @@ class MEShapedClusterizeService : public MEClusterizeService{
 
         virtual void compute();
 
+        //find vehicles that are able to form a platoon
         void computePlatoon(std::string shape);
 
         //platoon computation
@@ -54,7 +58,10 @@ class MEShapedClusterizeService : public MEClusterizeService{
         bool isInTriangle(inet::Coord P, inet::Coord A, inet::Coord B, inet::Coord C);
         bool isInRectangle(inet::Coord P, inet::Coord A, inet::Coord B, inet::Coord C, inet::Coord D);
 
-        //rcleaning structures
+        //compute accelerations for each vehicle in a platoon to converge at desired speed and inter-vehicle distances
+        void computePlatoonAccelerations();
+
+        //cleaning structures
         void resetCarFlagsAndControls();
         void resetClusters();
 
