@@ -11,15 +11,14 @@
 //  @author Angelo Buono
 //
 
+#ifndef __SIMULTE_MEPLATOONINGSERVICE_H_
+#define __SIMULTE_MEPLATOONINGSERVICE_H_
 
-#ifndef __SIMULTE_MESHAPEDCLUSTERIZESERVICE_H_
-#define __SIMULTE_MESHAPEDCLUSTERIZESERVICE_H_
-
+#include <omnetpp.h>
 #include "MEClusterizeService.h"
 #include "../../MEPlatform/GeneralServices/RadioNetworkInformation.h"
 
-
-class MEShapedClusterizeService : public MEClusterizeService{
+class MEPlatooningService : public MEClusterizeService{
 
 
     double directionDelimiterThreshold;         // radiant: threshold within two cars are going in the same direction
@@ -28,16 +27,16 @@ class MEShapedClusterizeService : public MEClusterizeService{
     double roadLaneSize;                        // meter: for rectangular platooning
     double triangleAngle;                       // radiant: for triangel platooning
 
-    double desiredSpeed;
-    double desiredInterVehicleDistance;
+    double desiredVelocity;
+    double desiredDistance;
 
     std::string shape;
 
     RadioNetworkInformation* rni;
 
     public:
-        MEShapedClusterizeService();
-        virtual ~MEShapedClusterizeService();
+        MEPlatooningService();
+        virtual ~MEPlatooningService();
 
     protected:
         virtual int numInitStages() const { return inet::NUM_INIT_STAGES; }
@@ -64,6 +63,9 @@ class MEShapedClusterizeService : public MEClusterizeService{
         //cleaning structures
         void resetCarFlagsAndControls();
         void resetClusters();
+
+        //interpolate positions by using last update on position and speed and the time passed
+        void interpolatePositions();
 
         //using the RNI service
         void updateRniInfo();

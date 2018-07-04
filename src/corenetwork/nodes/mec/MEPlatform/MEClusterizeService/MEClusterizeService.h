@@ -57,6 +57,7 @@ struct car{
     MacNodeId macID;
 
     //local-info
+    simtime_t timestamp;
     inet::Coord position;
     inet::Coord speed;
     inet::EulerAngles angularPosition;

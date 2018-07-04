@@ -33,7 +33,7 @@
 
 #define ME_CLUSTERIZE_APP_MODULE_TYPE "lte.apps.mec.clusterize.MEClusterizeApp"
 #define ME_CLUSTERIZE_APP_MODULE_NAME "MEClusterizeApp"
-#define ME_CLUSTERIZE_SERVICE_MODULE_NAME "MEShapedClusterizeService"
+#define ME_CLUSTERIZE_SERVICE_MODULE_NAME "MEPlatooningService"
 
 //
 //  defining Tx Modes for ClusterizeConfigPacket

@@ -10,17 +10,16 @@
 //
 //  @author Angelo Buono
 //
-
 package lte.corenetwork.nodes.mec.MEPlatform.MEClusterizeService;
 
 //
 //	Clustering Algorithm based on Geometrical Shapes
 //
 
-simple MEShapedClusterizeService extends MEClusterizeService
+simple MEPlatooningService extends MEClusterizeService
 {
     parameters:
-        @class("MEShapedClusterizeService");
+        @class("MEPlatooningService");
         
         string shape = default("rectangle");		//shape supported "rectangle" and "triangle"
         
@@ -29,4 +28,7 @@ simple MEShapedClusterizeService extends MEClusterizeService
 
         double roadLaneSize @unit("m");
         double triangleAngle @unit("rad");
+        
+        double desiredVelocity @unit("mps");
+        double desiredDistance @unit("m");
 }

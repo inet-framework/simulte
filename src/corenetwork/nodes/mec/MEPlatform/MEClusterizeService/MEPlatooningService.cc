@@ -12,24 +12,23 @@
 //
 
 
-#include "MEShapedClusterizeService.h"
 #include <cmath>
 #include <algorithm>
+#include "MEPlatooningService.h"
 
-Define_Module(MEShapedClusterizeService);
+Define_Module(MEPlatooningService);
 
-MEShapedClusterizeService::MEShapedClusterizeService() {
 
-    desiredSpeed = 20;                  //meters per second
-    desiredInterVehicleDistance = 3;    //meters
+MEPlatooningService::MEPlatooningService() {
+
 }
 
-MEShapedClusterizeService::~MEShapedClusterizeService() {
+MEPlatooningService::~MEPlatooningService() {
 }
 
-void MEShapedClusterizeService::initialize(int stage)
+void MEPlatooningService::initialize(int stage)
 {
-    EV << "MEShapedClusterizeService::initialize - stage " << stage << endl;
+    EV << "MEPlatooningService::initialize - stage " << stage << endl;
 
     MEClusterizeService::initialize(stage);
 
@@ -42,7 +41,10 @@ void MEShapedClusterizeService::initialize(int stage)
     roadLaneSize = par("roadLaneSize").doubleValue();                                           //meter
     triangleAngle = par("triangleAngle").doubleValue();                                             //radiant
 
-    EV << "MEShapedClusterizeService::initialize - proximityThreshold: " << proximityThreshold << " - directionDelimiterThreshold: " << directionDelimiterThreshold << endl;
+    desiredVelocity = par("desiredVelocity").doubleValue();                                     //meter per second
+    desiredDistance = par("desiredDistance").doubleValue();                                     //meter
+
+    EV << "MEPlatooningService::initialize - proximityThreshold: " << proximityThreshold << " - directionDelimiterThreshold: " << directionDelimiterThreshold << endl;
 
     //shape for clustering
     shape = par("shape").stringValue();
@@ -53,7 +55,7 @@ void MEShapedClusterizeService::initialize(int stage)
  * #########################################################################################################################################
  */
 
-void MEShapedClusterizeService::compute(){
+void MEPlatooningService::compute(){
 
     //cleaning cluster-info and control/flags in data structures: clusters and cars
     resetCarFlagsAndControls();
@@ -61,6 +63,9 @@ void MEShapedClusterizeService::compute(){
 
     //updating rni-info in data structures cars
     updateRniInfo();
+
+    //interpolate positions
+    interpolatePositions();
 
     computePlatoon(shape);  //shape is "rectangle" or "triangle"
 
@@ -71,34 +76,34 @@ void MEShapedClusterizeService::compute(){
  * #########################################################################################################################################
  */
 
-void MEShapedClusterizeService::computePlatoon(std::string shape){
+void MEPlatooningService::computePlatoon(std::string shape){
 
-    EV << "MEClusterizeService::computePlatoon - starting clustering algorithm" << endl;
+    EV << "MEPlatooningService::computePlatoon - starting clustering algorithm" << endl;
 
     std::map<int, std::vector<int>> adiacences;
     // Build Adiacences
     if(!shape.compare("triangle")){
-        EV << "MEClusterizeService::computePlatoon - computing Triangle Adiacences..." << endl;
+        EV << "MEPlatooningService::computePlatoon - computing Triangle Adjacences..." << endl;
         computeTriangleAdiacences(adiacences);
     }
     else if(!shape.compare("rectangle")){
-        EV << "MEClusterizeService::computePlatoon - computing Rectangle Adiacences..." << endl;
+        EV << "MEPlatooningService::computePlatoon - computing Rectangle Adjacences..." << endl;
         computeRectangleAdiacences(adiacences);
     }
     else
-        throw cRuntimeError("MEShapedClusterizeService::computePlatoon - \tFATAL! Error in the shape value!");
+        throw cRuntimeError("MEPlatooningService::computePlatoon - \tFATAL! Error in the shape value!");
 
     // Select Best Follower
-    EV << "MEClusterizeService::computePlatoon - selecting Followers..." << endl;
+    EV << "MEPlatooningService::computePlatoon - selecting Followers..." << endl;
     selectFollowers(adiacences);
 
     // Scan the v2vConfig to update the platoonList filed!
-    EV << "MEClusterizeService::computePlatoon - Updating Clusters...";
+    EV << "MEPlatooningService::computePlatoon - Updating Clusters...";
     updateClusters();
 
 
     //TESTING PRINT                                                                                                                         //PRINTS
-    EV << "\nMEClusterizeService::computePlatoon - FOLLOWERS:\n\n";
+    EV << "\nMEPlatooningService::computePlatoon - FOLLOWERS:\n\n";
     std::map<int, car>::iterator it;
     for(it = cars.begin(); it != cars.end(); it++){
 
@@ -106,7 +111,7 @@ void MEShapedClusterizeService::computePlatoon(std::string shape){
           EV << "\t\t" << it->second.position << " " << it->second.angularPosition.alpha << endl;
     }
 
-    EV << "\nMEClusterizeService::computePlatoon - CLUSTERS:\n\n";
+    EV << "\nMEPlatooningService::computePlatoon - CLUSTERS:\n\n";
     std::map<int, cluster>::iterator cit;
     for(cit = clusters.begin(); cit != clusters.end(); cit++){
 
@@ -119,17 +124,15 @@ void MEShapedClusterizeService::computePlatoon(std::string shape){
     }
 }
 
-void MEShapedClusterizeService::computeTriangleAdiacences(std::map<int, std::vector<int>> &adiacences){
+void MEPlatooningService::computeTriangleAdiacences(std::map<int, std::vector<int>> &adiacences){
 
     std::map<int, car>::iterator it, it2;
     for(it = cars.begin(); it != cars.end(); it++){
-                                                                                                                                                //TODO
-                                                                                                                                                //  adding the proximityThreashold computation for
-                                                                                                                                                // V2V TX MODES  CQI e TX POWER
+
         inet::Coord A(it->second.position);
         double a = it->second.angularPosition.alpha;
-        inet::Coord B( A.x + proximityThreshold*cos(PI+a-triangleAngle) , A.y + proximityThreshold*sin(PI+a-triangleAngle) );
-        inet::Coord C( A.x + proximityThreshold*cos(PI+a+triangleAngle) , A.y + proximityThreshold*sin(PI+a+triangleAngle) );
+        inet::Coord B( A.x + proximityThreshold*cos(M_PI+a-triangleAngle) , A.y + proximityThreshold*sin(M_PI+a-triangleAngle) );
+        inet::Coord C( A.x + proximityThreshold*cos(M_PI+a+triangleAngle) , A.y + proximityThreshold*sin(M_PI+a+triangleAngle) );
 
         for(it2 = cars.begin(); it2 != cars.end(); it2++){
 
@@ -146,19 +149,17 @@ void MEShapedClusterizeService::computeTriangleAdiacences(std::map<int, std::vec
     }
 }
 
-void MEShapedClusterizeService::computeRectangleAdiacences(std::map<int, std::vector<int>> &adiacences){
+void MEPlatooningService::computeRectangleAdiacences(std::map<int, std::vector<int>> &adiacences){
 
     std::map<int, car>::iterator it, it2;
     for(it = cars.begin(); it != cars.end(); it++){
-                                                                                                                                                //TODO
-                                                                                                                                                //  adding the proximityThreashold computation for
-                                                                                                                                                // V2V TX MODES on CQI e TX POWER
+
         double a = it->second.angularPosition.alpha;
         inet::Coord pos(it->second.position);
-        inet::Coord A( pos.x + (roadLaneSize/2)*cos(a+PI/2), pos.y + (roadLaneSize/2)*sin(a+PI/2) );        // left-right side
-        inet::Coord B( pos.x + (roadLaneSize/2)*cos(a-PI/2), pos.y + (roadLaneSize/2)*sin(a-PI/2) );        // left-right side
-        inet::Coord C( B.x + proximityThreshold*cos(PI+a), B.y + proximityThreshold*sin(PI+a) );            // behind side
-        inet::Coord D( A.x + proximityThreshold*cos(PI+a), A.y + proximityThreshold*sin(PI+a) );            // behind side
+        inet::Coord A( pos.x + (roadLaneSize/2)*cos(a+M_PI/2), pos.y + (roadLaneSize/2)*sin(a+M_PI/2) );        // left-right side
+        inet::Coord B( pos.x + (roadLaneSize/2)*cos(a-M_PI/2), pos.y + (roadLaneSize/2)*sin(a-M_PI/2) );        // left-right side
+        inet::Coord C( B.x + proximityThreshold*cos(M_PI+a), B.y + proximityThreshold*sin(M_PI+a) );            // behind side
+        inet::Coord D( A.x + proximityThreshold*cos(M_PI+a), A.y + proximityThreshold*sin(M_PI+a) );            // behind side
 
         for(it2 = cars.begin(); it2 != cars.end(); it2++){
 
@@ -176,7 +177,7 @@ void MEShapedClusterizeService::computeRectangleAdiacences(std::map<int, std::ve
     }
 }
 
-void MEShapedClusterizeService::selectFollowers(std::map<int, std::vector<int>> &adiacences){
+void MEPlatooningService::selectFollowers(std::map<int, std::vector<int>> &adiacences){
 
     std::map<int, std::vector<int>>::iterator it;
     bool found;
@@ -207,7 +208,7 @@ void MEShapedClusterizeService::selectFollowers(std::map<int, std::vector<int>> 
     }
 }
 
-void MEShapedClusterizeService::updateClusters(){
+void MEPlatooningService::updateClusters(){
 
     int colorSize = colors.size();
     // Scan the v2vConfig to update the platoonList filed!
@@ -230,7 +231,7 @@ void MEShapedClusterizeService::updateClusters(){
 
                 if(!strcmp(preconfiguredTxMode.c_str(), HYBRID_TX_MODE))
                 {
-                    cars[k].txMode = DOWNLINK_UNICAST_TX_MODE;                                          //for now DOWNLINK_UNICAST
+                    cars[k].txMode = DOWNLINK_UNICAST_TX_MODE;                                     //for now DOWNLINK_UNICAST
                 }else
                 {
                     //compute the best txMode according to some policy --> CQI or TxPower.. for each cluster!
@@ -247,7 +248,7 @@ void MEShapedClusterizeService::updateClusters(){
     }
 }
 
-bool MEShapedClusterizeService::isInTriangle(inet::Coord P, inet::Coord A, inet::Coord B, inet::Coord C){
+bool MEPlatooningService::isInTriangle(inet::Coord P, inet::Coord A, inet::Coord B, inet::Coord C){
 
       //considering all points relative to A
       inet::Coord v0 = B-A;   // B w.r.t A
@@ -274,12 +275,52 @@ bool MEShapedClusterizeService::isInTriangle(inet::Coord P, inet::Coord A, inet:
       }
 }
 
-bool MEShapedClusterizeService::isInRectangle(inet::Coord P, inet::Coord A, inet::Coord B, inet::Coord C, inet::Coord D)
+bool MEPlatooningService::isInRectangle(inet::Coord P, inet::Coord A, inet::Coord B, inet::Coord C, inet::Coord D)
 {
       return isInTriangle(P, A, B, C) || isInTriangle(P, D, B, C);
 }
 
-void MEShapedClusterizeService::resetCarFlagsAndControls(){
+
+void MEPlatooningService::interpolatePositions(){
+
+    //updating car positions based on the last position & timestamp + velocity * elapsed_time
+    EV << "MEPlatooningService::interpolatePositions\n";
+
+    double now = simTime().dbl();
+
+    std::map<int, car>::iterator it;
+    for(it = cars.begin(); it != cars.end(); it++){
+
+        double time_gap = now - it->second.timestamp.dbl();
+
+        it->second.position.x = it->second.position.x + it->second.speed.x*time_gap;
+        it->second.position.y = it->second.position.y + it->second.speed.y*time_gap;
+        it->second.position.z = it->second.position.z + it->second.speed.z*time_gap;
+    }
+}
+
+void MEPlatooningService::computePlatoonAccelerations(){
+
+    // for each platoon p:  USE ITERATOR!
+    //
+    // compute acceleration for the leader (UPDATE clusters[p].saccelerations.at(0)) to reach the DESIRED SPEED: desiredSpeed
+    //
+    // for each member i:
+    // compute acceleration (UPDATE clusters[p].accelerations.at(i)) to reach the DESIRED DISTANCE with member i-1: desiredInterVehicleDistance
+    //
+    // use the INTERPOLATED POSITION USING TIMESTAMP AND SPEED!
+}
+
+/*
+ * #########################################################################################################################################
+ */
+
+void MEPlatooningService::resetClusters(){
+
+    clusters.clear();
+}
+
+void MEPlatooningService::resetCarFlagsAndControls(){
 
     // Scan the cars to update the flags and control fields!
     std::map<int, car>::iterator it;
@@ -294,28 +335,9 @@ void MEShapedClusterizeService::resetCarFlagsAndControls(){
     }
 }
 
-void MEShapedClusterizeService::computePlatoonAccelerations(){
+void MEPlatooningService::updateRniInfo(){
 
-    // for each platoon p:  USE ITERATOR!
-    //
-    // compute acceleration for the leader (UPDATE clusters[p].saccelerations.at(0)) to reach the DESIRED SPEED: desiredSpeed
-    //
-    // for each member i:
-    // compute acceleration (UPDATE clusters[p].accelerations.at(i)) to reach the DESIRED DISTANCE with member i-1: desiredInterVehicleDistance
-}
-
-/*
- * #########################################################################################################################################
- */
-
-void MEShapedClusterizeService::resetClusters(){
-
-    clusters.clear();
-}
-
-void MEShapedClusterizeService::updateRniInfo(){
-
-    EV << "MEShapedClusterizeService::updateRniInfo\n";
+    EV << "MEPlatooningService::updateRniInfo\n";
 
     std::map<int, car>::iterator it;
     for(it = cars.begin(); it != cars.end(); it++){
@@ -327,7 +349,7 @@ void MEShapedClusterizeService::updateRniInfo(){
         it->second.cqi = cqi;
 
         //TESTING
-        EV << "MEShapedClusterizeService::updateRniInfo - " << it->second.simbolicAddress << " tx power: " << txPower << endl;
-        EV << "MEShapedClusterizeService::updateRniInfo - " << it->second.simbolicAddress << " cqi: " << cqi << endl;
+        EV << "MEPlatooningService::updateRniInfo - " << it->second.simbolicAddress << " tx power: " << txPower << endl;
+        EV << "MEPlatooningService::updateRniInfo - " << it->second.simbolicAddress << " cqi: " << cqi << endl;
     }
 }

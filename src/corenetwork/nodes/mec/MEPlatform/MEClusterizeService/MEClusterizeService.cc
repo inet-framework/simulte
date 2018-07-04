@@ -203,6 +203,7 @@ void MEClusterizeService::handleClusterizeInfo(ClusterizeInfoPacket* pkt){
     cars[key].id = pkt->getCarOmnetID();
     cars[key].simbolicAddress = pkt->getSourceAddress();
     cars[key].macID = binder_->getMacNodeIdFromOmnetId(cars[key].id);
+    cars[key].timestamp = pkt->getTimestamp();
     cars[key].position.x = pkt->getPositionX();
     cars[key].position.y = pkt->getPositionY();
     cars[key].position.z = pkt->getPositionZ();

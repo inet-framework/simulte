@@ -293,7 +293,8 @@ void UEClusterizeApp::handleMEAppAckStart(MEAppPacket* pkt){
         //check to avoid multiple scheduling by receiving duplicated acks!
 
         simtime_t startTime = par("startTime");
-        scheduleAt(simTime() + period_, selfSender_);
+        double st = ceil(simTime().dbl());
+        scheduleAt(st, selfSender_);                                        //imposing synchronization
         EV << "\t starting traffic in " << period_ << " seconds " << endl;
     }
 
