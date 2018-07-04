@@ -101,10 +101,17 @@ void UEClusterizeApp::initialize(int stage)
             else{
                 // necessary for using inet mobility (in sendClusterizeInfo needs to reverse the angle!)
                 veins_mobility = NULL;
+
+                if(!strcmp(car->par("mobilityType").stringValue(),"LinearMobility")){
+                    linear_mobility = check_and_cast<inet::LinearMobility*>(mobility);
+                }
+                else
+                    linear_mobility = NULL;
             }
         }
         else
             EV << "UEClusterizeApp::initialize - \tWARNING: Mobility module NOT FOUND!" << endl;
+
 
     lteNic = car->getSubmodule("lteNic");
     if(lteNic == NULL){
@@ -294,7 +301,7 @@ void UEClusterizeApp::handleMEAppAckStart(MEAppPacket* pkt){
 
         simtime_t startTime = par("startTime");
         double st = ceil(simTime().dbl());
-        scheduleAt(st, selfSender_);                                        //imposing synchronization
+        scheduleAt(st, selfSender_);                                            //imposing synchronization (all info update are form x:x:000 + period)
         EV << "\t starting traffic in " << period_ << " seconds " << endl;
     }
 
@@ -341,10 +348,9 @@ void UEClusterizeApp::handleClusterizeConfig(ClusterizeConfigPacket* pkt){
     if(veins_mobility != NULL){
         //slowDown with traciVehicle                                                                          //TODO Adjust Acceleration with VEINS MOBILITY
     }
-    else{
-        //slow down with inet mobility                                                                          //TODO Adjust Acceleration with INET MOBILITY
-        //check_and_cast<LinearMobility*>(mobility)->setSpeed(15);
-        //check_and_cast<LinearMobility*>(mobility)->setAcceleration(0.2);
+                                                                                                                //TODO to adjust! (for now I've Modified the LinearMobility of INET)
+    else if(linear_mobility != NULL){
+        linear_mobility->setAcceleration(acceleration);
     }
 
     simtime_t delay = simTime()-pkt->getTimestamp();
@@ -510,6 +516,7 @@ double UEClusterizeApp::updateAcceleration(ClusterizeConfigPacket *pkt){
 
     for(int i=0; i < pkt->getAccelerationsArraySize(); i++){
        if(strcmp(pkt->getClusterList(i), sourceSimbolicAddress) == 0){
+           EV << "UEClusterizeApp::updateAcceleration - new acceleration: " << pkt->getAccelerations(i) << endl;
            requiredAcceleration = pkt->getAccelerations(i);
        }
     }

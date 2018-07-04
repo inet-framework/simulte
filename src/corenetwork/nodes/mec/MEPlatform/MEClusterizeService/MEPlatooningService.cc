@@ -309,6 +309,22 @@ void MEPlatooningService::computePlatoonAccelerations(){
     // compute acceleration (UPDATE clusters[p].accelerations.at(i)) to reach the DESIRED DISTANCE with member i-1: desiredInterVehicleDistance
     //
     // use the INTERPOLATED POSITION USING TIMESTAMP AND SPEED!
+
+    std::map<int, cluster>::iterator cit;
+       for(cit = clusters.begin(); cit != clusters.end(); cit++){
+
+           int previous;
+           for( int i : cit->second.members){
+               //leader
+               if(!cars[i].isFollower){
+                   cit->second.accelerations.push_back((desiredVelocity - cars[i].speed.length())*0.165);
+               }
+               //members
+               else
+                   cit->second.accelerations.push_back((cars[i].position.distance(cars[previous].position))*0.8);           //convertire il controllore per le distanze!        TODO TODO
+               previous = i;
+           }
+       }
 }
 
 /*

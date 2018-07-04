@@ -96,6 +96,7 @@ class UEClusterizeApp : public cSimpleModule
     //Veins::TraCICommandInterface::Vehicle *traciVehicle;
     //inet
     inet::IMobility *mobility;
+    inet::LinearMobility *linear_mobility;
 
     //info
     inet::Coord position;
