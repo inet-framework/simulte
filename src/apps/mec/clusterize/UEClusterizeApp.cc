@@ -90,7 +90,6 @@ void UEClusterizeApp::initialize(int stage)
         //getting mobility module
         cModule *temp = getParentModule()->getSubmodule("mobility");
         if(temp != NULL){
-            mobility = check_and_cast<inet::IMobility*>(temp);
 
             if(!strcmp(car->par("mobilityType").stringValue(),"VeinsInetMobility")){
                 veins_mobility = check_and_cast<Veins::VeinsInetMobility*>(temp);
@@ -103,7 +102,7 @@ void UEClusterizeApp::initialize(int stage)
                 veins_mobility = NULL;
 
                 if(!strcmp(car->par("mobilityType").stringValue(),"LinearMobility")){
-                    linear_mobility = check_and_cast<inet::LinearMobility*>(mobility);
+                    linear_mobility = check_and_cast<inet::LinearMobility*>(temp);
                 }
                 else
                     linear_mobility = NULL;
@@ -220,11 +219,11 @@ void UEClusterizeApp::sendClusterizeInfoPacket()
     //position = m and speed = m/s..    --> setted in the simulation "*.rou.xml" config files for SUMO
     //w.r.t. top-left edge in the Network with Coord [0 ; 0]
     if(veins_mobility == NULL){
-        position = mobility->getCurrentPosition();
-        speed = mobility->getCurrentSpeed();
-        maxSpeed = mobility->getMaxSpeed();
-        angularSpeed = mobility->getCurrentAngularSpeed();
-        angularPosition = mobility->getCurrentAngularPosition();
+        position = linear_mobility->getCurrentPosition();
+        speed = linear_mobility->getCurrentSpeed();
+        maxSpeed = linear_mobility->getMaxSpeed();
+        angularSpeed = linear_mobility->getCurrentAngularSpeed();
+        angularPosition = linear_mobility->getCurrentAngularPosition();
         angularPosition.alpha *= -1.0;
         EV << "UEClusterizeApp::sendClusterizeInfoPacket - No VeinsMobility: reverting the angular position!"<< endl;
     }
@@ -348,9 +347,8 @@ void UEClusterizeApp::handleClusterizeConfig(ClusterizeConfigPacket* pkt){
     if(veins_mobility != NULL){
         //slowDown with traciVehicle                                                                          //TODO Adjust Acceleration with VEINS MOBILITY
     }
-                                                                                                                //TODO to adjust! (for now I've Modified the LinearMobility of INET)
     else if(linear_mobility != NULL){
-        linear_mobility->setAcceleration(acceleration);
+        linear_mobility->setAcceleration(acceleration);                                     //TODO to adjust! (for now I added setAcceleration in INET.LinearMobility)
     }
 
     simtime_t delay = simTime()-pkt->getTimestamp();

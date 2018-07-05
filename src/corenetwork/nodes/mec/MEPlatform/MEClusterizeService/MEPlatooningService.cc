@@ -226,15 +226,17 @@ void MEPlatooningService::updateClusters(){
 
                 clusters[clusterID].members.push_back(k);
                 cars[k].clusterID = (it->second).id;
-                                                                                                    //TODO
-                                                                                                    //  adding the txMode computation!
 
+                // UPDATING THE TX_MODE for ClusterizeConfigPacket (INFO_MEAPP) message propagation!
                 if(!strcmp(preconfiguredTxMode.c_str(), HYBRID_TX_MODE))
                 {
-                    cars[k].txMode = DOWNLINK_UNICAST_TX_MODE;                                     //for now DOWNLINK_UNICAST
+                    //compute the optimal mode
+                    cars[k].txMode = DOWNLINK_UNICAST_TX_MODE; // for now DOWNLINK_UNICAST by default!
+                                                                                                        //TODO: adding the txMode computation! in case of HYBRID TX MODE!
+                                                                                                        //compute the best txMode according to some policy --> CQI or TxPower.. for each cluster!
                 }else
                 {
-                    //compute the best txMode according to some policy --> CQI or TxPower.. for each cluster!
+                    //use pre-configured mode
                     cars[k].txMode = preconfiguredTxMode.c_str();
                 }
 
@@ -243,7 +245,7 @@ void MEPlatooningService::updateClusters(){
             }
             clusters[clusterID].membersList = platoonList.str();
             clusters[clusterID].id = clusterID;
-            clusters[clusterID].color = colors.at( (rand() + clusterID) % colorSize);      //every time use a random color or not!?
+            clusters[clusterID].color = colors.at( (rand() + clusterID) % colorSize);      //rand() changes the cluster color at every computation!
         }
     }
 }
@@ -301,15 +303,6 @@ void MEPlatooningService::interpolatePositions(){
 
 void MEPlatooningService::computePlatoonAccelerations(){
 
-    // for each platoon p:  USE ITERATOR!
-    //
-    // compute acceleration for the leader (UPDATE clusters[p].saccelerations.at(0)) to reach the DESIRED SPEED: desiredSpeed
-    //
-    // for each member i:
-    // compute acceleration (UPDATE clusters[p].accelerations.at(i)) to reach the DESIRED DISTANCE with member i-1: desiredInterVehicleDistance
-    //
-    // use the INTERPOLATED POSITION USING TIMESTAMP AND SPEED!
-
     std::map<int, cluster>::iterator cit;
        for(cit = clusters.begin(); cit != clusters.end(); cit++){
 
@@ -317,12 +310,17 @@ void MEPlatooningService::computePlatoonAccelerations(){
            for( int i : cit->second.members){
                //leader
                if(!cars[i].isFollower){
-                   cit->second.accelerations.push_back((desiredVelocity - cars[i].speed.length())*0.165);
+                   //cit->second.accelerations.push_back((desiredVelocity - cars[i].speed.length())*0.165);   //controller is just a constant (gain 0.165)
+                    double velocity_gap = desiredVelocity - cars[i].speed.length();
+                   //USE THE CONTROLLER CLASS TO PREDICT THE OUTPUT GIVEN THE RIGHT INPUT! -> SPEED GAP
                }
                //members
                else
-                   cit->second.accelerations.push_back((cars[i].position.distance(cars[previous].position))*0.8);           //convertire il controllore per le distanze!        TODO TODO
-               previous = i;
+                   //cit->second.accelerations.push_back((cars[i].position.distance(cars[previous].position) -  desiredDistance)*0.8);
+                   double distance_gap = cars[i].position.distance(cars[previous].position) -  desiredDistance;
+                   //USE THE CONTROLLER CLASS TO PREDICT THE OUTPUT GIVEN THE RIGHT INPUT! -> DISTANCE GAP
+
+                   previous = i;
            }
        }
 }

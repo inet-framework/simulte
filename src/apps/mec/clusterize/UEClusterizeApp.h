@@ -29,6 +29,7 @@
 #include "inet/mobility/contract/IMobility.h"
 #include "inet/mobility/single/LinearMobility.h"
 
+
 //veins mobility
 #include "veins_inet/VeinsInetMobility.h"
 //#include "veins_inet/VeinsInetManager.h"
@@ -87,15 +88,15 @@ class UEClusterizeApp : public cSimpleModule
     //
     cModule* lteNic;
     cModule* car;
-
+    //
     //veins
     Veins::VeinsInetMobility *veins_mobility;
     std::string carVeinsID;
     //Veins::VeinsInetManager *veinsManager;
     //Veins::TraCICommandInterface* traci;
     //Veins::TraCICommandInterface::Vehicle *traciVehicle;
+    //
     //inet
-    inet::IMobility *mobility;
     inet::LinearMobility *linear_mobility;
 
     //info

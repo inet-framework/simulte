@@ -18,8 +18,29 @@
 #include "MEClusterizeService.h"
 #include "../../MEPlatform/GeneralServices/RadioNetworkInformation.h"
 
-class MEPlatooningService : public MEClusterizeService{
+class ControllerSingleInputSingleOutput{
 
+    //simple Controller with 1 input and 1 output and n-states
+    //
+    // A = nxn, B = nx1, C = 1xn, D = 1x1
+    // at time k --> e_k = 1x1 (input), u_k = 1x1 (output), x_k = nx1 (state)
+    //
+    // COMPUTE OUTPUT -->   u_k = c*x_k + D*e_k
+    //
+    // COMPUTE NEXT STATE -->   x_k+1 = A*x_k + B*e_k
+
+    int n;
+    double **A, *B, *C, D, *x, u;
+
+    ControllerSingleInputSingleOutput(int n);
+
+    void setCoefficients(double **A, double *B, double *C, double D);
+
+    double getOutput(double e);
+    void updateNextState();
+};
+
+class MEPlatooningService : public MEClusterizeService{
 
     double directionDelimiterThreshold;         // radiant: threshold within two cars are going in the same direction
     double proximityThreshold;                  // meter: threshold within two cars can communicate v2v
@@ -33,6 +54,9 @@ class MEPlatooningService : public MEClusterizeService{
     std::string shape;
 
     RadioNetworkInformation* rni;
+
+    //map to store the controller for each car
+    std::map<int, ControllerSingleInputSingleOutput*> cars_controllers;
 
     public:
         MEPlatooningService();
