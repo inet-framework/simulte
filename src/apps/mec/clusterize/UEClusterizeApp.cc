@@ -269,6 +269,9 @@ void UEClusterizeApp::sendClusterizeStopPacket()
     //updating runtime color of the car icon background
     car->getDisplayString().setTagArg("i",1, "white");
 
+    //stop to accelerate!
+    linear_mobility->setAcceleration(0);
+
     // stopping the info updating because the MEClusterizeApp is terminated
     if(selfSender_->isScheduled())
         cancelEvent(selfSender_);
@@ -300,7 +303,8 @@ void UEClusterizeApp::handleMEAppAckStart(MEAppPacket* pkt){
 
         simtime_t startTime = par("startTime");
         double st = ceil(simTime().dbl());
-        scheduleAt(st, selfSender_);                                            //imposing synchronization (all info update are form x:x:000 + period)
+        scheduleAt( st, selfSender_);                                              //imposing synchronization (all info update are form x:x:000 + period)
+        //scheduleAt( simTime() + period_, selfSender_);
         EV << "\t starting traffic in " << period_ << " seconds " << endl;
     }
 

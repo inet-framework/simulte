@@ -63,6 +63,8 @@ struct car{
     inet::EulerAngles angularPosition;
     inet::EulerAngles angularSpeed;
 
+    double acceleration = 0;
+
     //rni info
     double txPower;
     Cqi cqi;
@@ -75,6 +77,7 @@ struct car{
     std::string txMode;
 
     //flags/control
+    bool isLeader;
     bool isFollower;
     int followingKey = -1;
     int followerKey = -1;

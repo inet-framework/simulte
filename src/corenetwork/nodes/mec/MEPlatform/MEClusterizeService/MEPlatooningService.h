@@ -18,27 +18,7 @@
 #include "MEClusterizeService.h"
 #include "../../MEPlatform/GeneralServices/RadioNetworkInformation.h"
 
-class ControllerSingleInputSingleOutput{
-
-    //simple Controller with 1 input and 1 output and n-states
-    //
-    // A = nxn, B = nx1, C = 1xn, D = 1x1
-    // at time k --> e_k = 1x1 (input), u_k = 1x1 (output), x_k = nx1 (state)
-    //
-    // COMPUTE OUTPUT -->   u_k = c*x_k + D*e_k
-    //
-    // COMPUTE NEXT STATE -->   x_k+1 = A*x_k + B*e_k
-
-    int n;
-    double **A, *B, *C, D, *x, u;
-
-    ControllerSingleInputSingleOutput(int n);
-
-    void setCoefficients(double **A, double *B, double *C, double D);
-
-    double getOutput(double e);
-    void updateNextState();
-};
+#include "SimpleControllers.h"
 
 class MEPlatooningService : public MEClusterizeService{
 
@@ -55,8 +35,9 @@ class MEPlatooningService : public MEClusterizeService{
 
     RadioNetworkInformation* rni;
 
-    //map to store the controller for each car
-    std::map<int, ControllerSingleInputSingleOutput*> cars_controllers;
+    //controllers
+    std::map<int, SimpleVelocityController> cars_velocity_controllers;
+    std::map<int, SimpleDistanceController> cars_distance_controllers;
 
     public:
         MEPlatooningService();
@@ -93,6 +74,9 @@ class MEPlatooningService : public MEClusterizeService{
 
         //using the RNI service
         void updateRniInfo();
+
+        //overriding to delete the controllers map entry
+        virtual void handleClusterizeStop(ClusterizePacket*);
 };
 
 #endif

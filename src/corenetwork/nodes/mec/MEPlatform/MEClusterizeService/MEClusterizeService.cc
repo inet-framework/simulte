@@ -139,7 +139,7 @@ void MEClusterizeService::sendConfig(){
 
                 //testing
                 EV << "MEClusterizeService::sendConfig - sending ClusterizeConfig to CM: "  << cars[memberKey].simbolicAddress << " (txMode: INFRASTRUCTURE_UNICAST_TX_MODE) " << endl;
-                EV << "MEClusterizeService::sendConfig - \t\tcars[" << memberKey << "].clusterID: " << cars[memberKey].clusterID << endl;
+                EV << "MEClusterizeService::sendConfig - \t\t"<< cars[memberKey].simbolicAddress << " (omnet id: "<< cars[memberKey].id <<") - map cars[" << memberKey << "].clusterID: " << cars[memberKey].clusterID << endl;
                 EV << "MEClusterizeService::sendConfig - \t\tclusters[" << cars[memberKey].clusterID << "].membersList: " << cl_it->second.membersList.c_str() << endl;
 
                 //sending to the MEClusterizeApp (on the corresponded gate!)
@@ -165,7 +165,7 @@ void MEClusterizeService::sendConfig(){
             //testing
             std::string txmode = (!strcmp(preconfiguredTxMode.c_str(), V2V_UNICAST_TX_MODE))? V2V_UNICAST_TX_MODE : V2V_MULTICAST_TX_MODE;
             EV << "MEClusterizeService::sendConfig - sending ClusterizeConfig to CL: " << cars[leaderKey].simbolicAddress << " (txMode: "<< txmode << ") " << endl;
-            EV << "MEClusterizeService::sendConfig - \t\tcars[" << leaderKey << "].clusterID: " << cars[leaderKey].clusterID  << endl;
+            EV << "MEClusterizeService::sendConfig - \t\t"<< cars[leaderKey].simbolicAddress << " (omnet id: "<< cars[leaderKey].id <<") - map cars[" <<  leaderKey << "].clusterID: " << cars[leaderKey].clusterID  << endl;
             EV << "MEClusterizeService::sendConfig - \t\tclusters[" << cars[leaderKey].clusterID << "].membersList: " << cl_it->second.membersList.c_str() << endl << endl;
 
             //sending to the MEClusterizeApp (on the corresponded gate!)
@@ -233,18 +233,6 @@ void MEClusterizeService::handleClusterizeStop(ClusterizePacket* pkt){
 
     int key = pkt->getArrivalGate()->getIndex();
 
-    EV << "MEClusterizeService::handleClusterizeStop - Erasing v2vInfo[" << key <<"]" << endl;
-
-    if(!cars.empty() && cars.find(key) != cars.end()){
-
-        //erasing the map cars entry
-        //
-        std::map<int, car>::iterator it;
-        it = cars.find(key);
-        if (it != cars.end())
-            cars.erase (it);
-    }
-
     EV << "MEClusterizeService::handleClusterizeStop - Erasing cars[" << key <<"]" << endl;
 
     if(!cars.empty() && cars.find(key) != cars.end()){
@@ -253,8 +241,9 @@ void MEClusterizeService::handleClusterizeStop(ClusterizePacket* pkt){
         //
         std::map<int, car>::iterator it;
         it = cars.find(key);
-        if (it != cars.end())
+        if (it != cars.end()){
             cars.erase (it);
+        }
     }
 
     delete pkt;

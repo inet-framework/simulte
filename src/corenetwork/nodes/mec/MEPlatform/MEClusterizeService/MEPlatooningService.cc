@@ -58,17 +58,27 @@ void MEPlatooningService::initialize(int stage)
 void MEPlatooningService::compute(){
 
     //cleaning cluster-info and control/flags in data structures: clusters and cars
+
+    EV << "\nMEPlatooningService::compute - resetting flags and controls\n" << endl;
     resetCarFlagsAndControls();
+
+    EV << "\nMEPlatooningService::compute - resetting clusters\n" << endl;
     resetClusters();
 
     //updating rni-info in data structures cars
+    EV << "\nMEPlatooningService::compute - updating RNI infos\n" << endl;
     updateRniInfo();
 
     //interpolate positions
+    EV << "\nMEPlatooningService::compute - interpolating car positions\n" << endl;
     interpolatePositions();
 
+    //executing algorithm
+    EV << "\nMEPlatooningService::compute - computing platoons\n" << endl;
     computePlatoon(shape);  //shape is "rectangle" or "triangle"
 
+    //executing controllers
+    EV << "\nMEPlatooningService::compute - computing car accelerations\n" << endl;
     computePlatoonAccelerations();
 }
 
@@ -108,7 +118,7 @@ void MEPlatooningService::computePlatoon(std::string shape){
     for(it = cars.begin(); it != cars.end(); it++){
 
           EV << it->second.simbolicAddress << "\tfollowed by:\t" << it->second.follower << "\t[following:\t" << it->second.following << "] ";
-          EV << "\t\t" << it->second.position << " " << it->second.angularPosition.alpha << endl;
+          EV << "\t\tposition: " << it->second.position << " angle:" << it->second.angularPosition.alpha << endl;
     }
 
     EV << "\nMEPlatooningService::computePlatoon - CLUSTERS:\n\n";
@@ -220,12 +230,13 @@ void MEPlatooningService::updateClusters(){
             std::stringstream platoonList;
             int k = it->first;
             int clusterID = (it->second).id;
+            (it->second).isLeader = true;
 
             // update clusters
             while(k != -1){
 
                 clusters[clusterID].members.push_back(k);
-                cars[k].clusterID = (it->second).id;
+                cars[k].clusterID = clusterID;
 
                 // UPDATING THE TX_MODE for ClusterizeConfigPacket (INFO_MEAPP) message propagation!
                 if(!strcmp(preconfiguredTxMode.c_str(), HYBRID_TX_MODE))
@@ -285,7 +296,7 @@ bool MEPlatooningService::isInRectangle(inet::Coord P, inet::Coord A, inet::Coor
 
 void MEPlatooningService::interpolatePositions(){
 
-    //updating car positions based on the last position & timestamp + velocity * elapsed_time
+    //updating car positions based on the last position & timestamp + velocity * elapsed_time + acceleration * elapsed_time^2
     EV << "MEPlatooningService::interpolatePositions\n";
 
     double now = simTime().dbl();
@@ -295,9 +306,9 @@ void MEPlatooningService::interpolatePositions(){
 
         double time_gap = now - it->second.timestamp.dbl();
 
-        it->second.position.x = it->second.position.x + it->second.speed.x*time_gap;
-        it->second.position.y = it->second.position.y + it->second.speed.y*time_gap;
-        it->second.position.z = it->second.position.z + it->second.speed.z*time_gap;
+        it->second.position.x = it->second.position.x + it->second.speed.x*time_gap + it->second.acceleration*cos(it->second.angularPosition.alpha)*time_gap*time_gap;
+        it->second.position.y = it->second.position.y + it->second.speed.y*time_gap + it->second.acceleration*sin(it->second.angularPosition.alpha)*time_gap*time_gap;
+        //it->second.position.z = it->second.position.z + it->second.speed.z*time_gap;
     }
 }
 
@@ -309,18 +320,36 @@ void MEPlatooningService::computePlatoonAccelerations(){
            int previous;
            for( int i : cit->second.members){
                //leader
-               if(!cars[i].isFollower){
+               if(cars[i].isLeader){
                    //cit->second.accelerations.push_back((desiredVelocity - cars[i].speed.length())*0.165);   //controller is just a constant (gain 0.165)
                     double velocity_gap = desiredVelocity - cars[i].speed.length();
-                   //USE THE CONTROLLER CLASS TO PREDICT THE OUTPUT GIVEN THE RIGHT INPUT! -> SPEED GAP
+
+                    double acceleration = cars_velocity_controllers[i].getOutput(velocity_gap);
+                    cars_velocity_controllers[i].updateNextState(velocity_gap);
+
+                    cit->second.accelerations.push_back(acceleration);
+
+                    //update acceleration for interpolation
+                    cars[i].acceleration = acceleration;
+
+                    EV << "MEPlatooningService::computePlatoonAccelerations - update "<< cars[i].simbolicAddress <<" (LEADER) acceleration:" << acceleration << endl;
                }
                //members
-               else
+               else{
                    //cit->second.accelerations.push_back((cars[i].position.distance(cars[previous].position) -  desiredDistance)*0.8);
                    double distance_gap = cars[i].position.distance(cars[previous].position) -  desiredDistance;
-                   //USE THE CONTROLLER CLASS TO PREDICT THE OUTPUT GIVEN THE RIGHT INPUT! -> DISTANCE GAP
 
-                   previous = i;
+                   double acceleration = cars_distance_controllers[i].getOutput(distance_gap);
+                   cars_distance_controllers[i].updateNextState(distance_gap);
+
+                   cit->second.accelerations.push_back(acceleration);
+
+                   //update acceleration for interpolation
+                   cars[i].acceleration = acceleration;
+
+                   EV << "MEPlatooningService::computePlatoonAccelerations - update "<< cars[i].simbolicAddress <<" (MEMBER) acceleration:" << acceleration << endl;
+               }
+               previous = i;
            }
        }
 }
@@ -343,6 +372,7 @@ void MEPlatooningService::resetCarFlagsAndControls(){
         it->second.followingKey = -1;
         it->second.followerKey = -1;
         it->second.isFollower = false;
+        it->second.isLeader = false;
 
         it->second.following = "";
         it->second.follower = "";
@@ -366,4 +396,37 @@ void MEPlatooningService::updateRniInfo(){
         EV << "MEPlatooningService::updateRniInfo - " << it->second.simbolicAddress << " tx power: " << txPower << endl;
         EV << "MEPlatooningService::updateRniInfo - " << it->second.simbolicAddress << " cqi: " << cqi << endl;
     }
+}
+
+void MEPlatooningService::handleClusterizeStop(ClusterizePacket* pkt){
+
+    // erasing controllers map entries
+    int key = pkt->getArrivalGate()->getIndex();
+
+    EV << "MEPlatooningService::handleClusterizeStop - Erasing Controller" << endl;
+
+    if(!cars_velocity_controllers.empty() && cars_velocity_controllers.find(key) != cars_velocity_controllers.end()){
+
+        EV << "MEPlatooningService::handleClusterizeStop - Erasing cars_velocity_controllers[" << key << "]" << endl;
+        //erasing the map cars_velocity_controllers entry
+        //
+        std::map<int, SimpleVelocityController>::iterator it;
+        it = cars_velocity_controllers.find(key);
+        if (it != cars_velocity_controllers.end()){
+            cars_velocity_controllers.erase (it);
+        }
+    }
+    else if(!cars_distance_controllers.empty() && cars_distance_controllers.find(key) != cars_distance_controllers.end()){
+
+        EV << "MEPlatooningService::handleClusterizeStop - Erasing cars_distance_controllers[" << key << "]" << endl;
+        //erasing the map cars_distance_controllers entry
+        //
+        std::map<int, SimpleDistanceController>::iterator it;
+        it = cars_distance_controllers.find(key);
+        if (it != cars_distance_controllers.end()){
+            cars_distance_controllers.erase (it);
+        }
+    }
+
+    MEClusterizeService::handleClusterizeStop(pkt);
 }
