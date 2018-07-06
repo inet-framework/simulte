@@ -27,6 +27,9 @@ moduleinterface IMEApp
         double disk @unit("B");			//Bytes
         double cpu;						//percentage
         
+        string sourceAddress;				//meHost.virtualisationInfrastructure
+        string destAddress;					//UE[x]
+        
     gates:
         
         input virtualisationInfrastructureIn;

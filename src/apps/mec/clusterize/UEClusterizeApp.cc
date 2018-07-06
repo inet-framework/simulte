@@ -11,7 +11,6 @@
 //  @author Angelo Buono
 //
 
-
 #include <cmath>
 #include "UEClusterizeApp.h"
 #include "inet/common/ModuleAccess.h"  // for multicast support
@@ -84,7 +83,6 @@ void UEClusterizeApp::initialize(int stage)
     multicastSocket.joinLocalMulticastGroups(mgl);
     multicastSocket.setMulticastOutputInterface(ie->getInterfaceId());
     // -------------------- //
-
 
     car = this->getParentModule();
         //getting mobility module
@@ -191,9 +189,6 @@ void UEClusterizeApp::finish(){
     // ensuring there is no StopClusterize scheduled!
     if(selfStop_->isScheduled())
         cancelEvent(selfStop_);
-
-    // when leaving the network --> terminate the correspondent MEClusterizeApp!
-    sendClusterizeStopPacket();
 }
 
 /*

@@ -11,7 +11,6 @@
 //  @author Angelo Buono
 //
 
-
 #include <cmath>
 #include "MEClusterizeApp.h"
 
@@ -36,19 +35,15 @@ void MEClusterizeApp::initialize(int stage)
     if (stage!=inet::INITSTAGE_APPLICATION_LAYER)
         return;
 
+    //retrieving parameters
     size_ = par("packetSize");
-
     sourceSimbolicAddress = (char*)par("sourceAddress").stringValue();
-
     destSimbolicAddress = (char*)par("destAddress").stringValue();
     destAddress_ = inet::L3AddressResolver().resolve(destSimbolicAddress);
 
     //testing
-    EV << "MEClusterizeApp::initialize - MEAppSimbolicAddress: " << sourceSimbolicAddress << endl;
-    EV << "MEClusterizeApp::initialize - UEAppSimbolicAddress " << destSimbolicAddress << " found!" << " [" << destAddress_.str() << "]" << endl;
-
-    // par is configured by UdpManager
-    v2vAppName = par("v2vAppName");
+    EV << "MEClusterizeApp::initialize - MEApp SymbolicAddress: " << sourceSimbolicAddress << endl;
+    EV << "MEClusterizeApp::initialize - UEApp SymbolicAddress: " << destSimbolicAddress << " [" << destAddress_.str() << "]" << endl;
 
     clusterizeConfigSentMsg_ = registerSignal("clusterizeConfigSentMsg");
     clusterizeInfoRcvdMsg_ = registerSignal("clusterizeInfoRcvdMsg");

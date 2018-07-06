@@ -22,8 +22,8 @@
 
 #include "apps/mec/clusterize/packets/ClusterizePacket_m.h"
 #include "apps/mec/clusterize/packets/ClusterizePacketTypes.h"
+#include "apps/mec/clusterize/packets/ClusterizePacketBuilder.h"
 
-#include "corenetwork/nodes/mec/MEPlatform/MEClusterizeService/MEClusterizeService.h"
 
 /**
  * MEClusterizeApp
@@ -38,13 +38,11 @@ class MEClusterizeApp : public cSimpleModule
 {
     int nextSnoConfig_;
     int size_;
-    //simtime_t period_;
 
     char* sourceSimbolicAddress;
     char* destSimbolicAddress;
     inet::L3Address destAddress_;
 
-    const char* v2vAppName;     //to distinguish the instances correspondent to the same Car
 
     simsignal_t clusterizeConfigSentMsg_;
     simsignal_t clusterizeInfoRcvdMsg_;
@@ -72,7 +70,6 @@ class MEClusterizeApp : public cSimpleModule
         // handling CONFIG_CLUSTERIZE (INFO_MEAPP) ClusterizeConfigPacket from the MEClusterizeService
         // by adding UEClusterizeApp related info and forwarding to the VirtualisationManager
         void handleClusterizeConfig(ClusterizeConfigPacket *);
-
 };
 
 #endif

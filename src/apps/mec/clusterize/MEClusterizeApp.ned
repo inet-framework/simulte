@@ -11,7 +11,6 @@
 //	@author	Angelo Buono
 //
 
-
 package lte.apps.mec.clusterize;
 
 import lte.corenetwork.nodes.mec.MEPlatform.IMEApp;
@@ -36,14 +35,9 @@ simple MEClusterizeApp like IMEApp
         double disk @unit("B") = default(0.1GB);
         double cpu = default(0.001);
         
-        string v2vAppName = default(""); 					//to differentiate the instance based on the V2V Sender Class Name
-                
         string sourceAddress = default("");				//meHost.virtualisationInfrastructure
         string destAddress = default("");					//car[x]
         int packetSize = default(10);
-        
-        //double period @unit("s") = default(0.02s);
-        //double startTime @unit("s") = default(0s);
         
         string interfaceTableModule = default("");
                
