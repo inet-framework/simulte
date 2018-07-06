@@ -11,35 +11,33 @@
 //  @author Angelo Buono
 //
 
-#ifndef __SIMULTE_MEICEALERTAPP_H_
-#define __SIMULTE_MEICEALERTAPP_H_
-
-#include "inet/networklayer/common/L3Address.h"
-#include "inet/networklayer/common/L3AddressResolver.h"
+#ifndef __SIMULTE_MEICEALERTSERVICE_H_
+#define __SIMULTE_MEICEALERTSERVICE_H_
 
 //IceAlertPacket
 #include "apps/mec/iceAlert/packets/IceAlertPacket_m.h"
 #include "corenetwork/nodes/mec/MEPlatform/MEAppPacket_Types.h"
 
-/**
- * See MEIceAlertApp.ned
+#include "inet/common/geometry/common/Coord.h"
+
+/*
+ * see MEIceAlertService.ned
  */
-class MEIceAlertApp : public cSimpleModule
+class MEIceAlertService : public cSimpleModule
 {
-    char* sourceSimbolicAddress;
-    char* destSimbolicAddress;
-    inet::L3Address destAddress_;
-    int size_;
+    inet::Coord dangerEdgeA, dangerEdgeB, dangerEdgeC, dangerEdgeD;
 
     protected:
 
         virtual int numInitStages() const { return inet::NUM_INIT_STAGES; }
-        void initialize(int stage);
+        virtual void initialize(int stage);
         virtual void handleMessage(cMessage *msg);
-        void finish();
 
         void handleInfoUEIceAlertApp(IceAlertPacket* pkt);
-        void handleInfoMEIceAlertApp(IceAlertPacket* pkt);
+
+        //utilities to check if the ue is within the danger area
+        bool isInTriangle(inet::Coord P, inet::Coord A, inet::Coord B, inet::Coord C);
+        bool isInQuadrilateral(inet::Coord P, inet::Coord A, inet::Coord B, inet::Coord C, inet::Coord D);
 };
 
 #endif

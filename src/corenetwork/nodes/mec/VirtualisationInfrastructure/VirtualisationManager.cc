@@ -77,6 +77,12 @@ void VirtualisationManager::initialize(int stage)
 
             EV << "VirtualisationManager::initialize - Available meServices["<<i<<"] " << meServices.at(i)->getClassName() << endl;
         }
+
+        // setting the MEPlatform gate sizes
+        if(mePlatform->gateSize("meAppOut") == 0 || mePlatform->gateSize("meAppIn") == 0){
+            mePlatform->setGateSize("meAppOut", maxMEApps);
+            mePlatform->setGateSize("meAppIn", maxMEApps);
+        }
     }
 
     interfaceTableModule = par("interfaceTableModule").stringValue();

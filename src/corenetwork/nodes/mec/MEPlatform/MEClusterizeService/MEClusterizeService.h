@@ -33,12 +33,10 @@
 //to build V2V statistics records to emit in UEClusterizeApp
 #include "apps/d2dMultihop/statistics/MultihopD2DStatistics.h"
 
-
 /**
- * MEClusterizeService
+ * MEClusterizeService See MEClusterizeService.ned
  *
  */
-
 struct cluster{
 
     int id;

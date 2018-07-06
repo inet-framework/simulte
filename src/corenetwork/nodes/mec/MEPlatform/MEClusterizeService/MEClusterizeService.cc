@@ -62,11 +62,6 @@ void MEClusterizeService::initialize(int stage)
         else
             throw cRuntimeError("MEClusterizeService::initialize - \tFATAL! Error when getting meHost.maxMEApps parameter!");
 
-        // MEPlatform internal gate connections with ClusterizeService
-        if(mePlatform->gateSize("meAppOut") == 0 || mePlatform->gateSize("meAppIn") == 0){
-            mePlatform->setGateSize("meAppOut", maxMEApps);
-            mePlatform->setGateSize("meAppIn", maxMEApps);
-        }
         this->setGateSize("meAppOut", maxMEApps);
         this->setGateSize("meAppIn", maxMEApps);
     }
