@@ -51,6 +51,8 @@ void ResourceManager::initialize(int stage)
     cModuleType *moduleType = cModuleType::get("lte.apps.mec.clusterize.MEClusterizeApp");
     cModule *module = moduleType->create("MEClusterizeApp", this);     //name & its Parent Module
     templateMEClusterizeApp = check_and_cast<MEClusterizeApp*>(module);
+    templateMEClusterizeApp->par("ueSimbolicAddress") = "";
+    templateMEClusterizeApp->par("meHostSimbolicAddress") = "";
     templateMEClusterizeApp->finalizeParameters();
 }
 

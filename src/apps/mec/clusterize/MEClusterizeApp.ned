@@ -35,8 +35,9 @@ simple MEClusterizeApp like IMEApp
         double disk @unit("B") = default(0.1GB);
         double cpu = default(0.001);
         
-        string sourceAddress = default("");				//meHost.virtualisationInfrastructure
-        string destAddress = default("");					//car[x]
+        string ueSimbolicAddress; 		// i.e. UE[x] or car[x]
+        string meHostSimbolicAddress;	// i.e meHost.virtualisationInfrastructure
+        
         int packetSize = default(10);
         
         string interfaceTableModule = default("");

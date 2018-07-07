@@ -28,9 +28,10 @@ simple MEIceAlertApp like IMEApp
         double ram @unit("B") = default(10MB);
         double disk @unit("B") = default(0.1GB);
         double cpu = default(0.001);
+               
+        string ueSimbolicAddress; 		// i.e. UE[x] or car[x]
+        string meHostSimbolicAddress;	// i.e meHost.virtualisationInfrastructure
         
-        string sourceAddress = default("");				//meHost.virtualisationInfrastructure
-	    string destAddress = default("");				//UE[x]
         int packetSize = default(10);
         
         string interfaceTableModule = default("");

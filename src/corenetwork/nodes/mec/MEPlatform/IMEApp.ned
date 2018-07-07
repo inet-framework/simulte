@@ -27,8 +27,8 @@ moduleinterface IMEApp
         double disk @unit("B");			//Bytes
         double cpu;						//percentage
         
-        string sourceAddress;				//meHost.virtualisationInfrastructure
-        string destAddress;					//UE[x]
+        string ueSimbolicAddress; 		// i.e. UE[x] or car[x]
+        string meHostSimbolicAddress;	// i.e meHost.virtualisationInfrastructure
         
     gates:
         

@@ -70,7 +70,7 @@ class MEPlatooningService : public MEClusterizeService{
         void resetClusters();
 
         //interpolate positions by using last update on position and speed and the time passed
-        void interpolatePositions();
+        void updatePositions();
 
         //using the RNI service
         void updateRniInfo();

@@ -37,13 +37,13 @@ void MEClusterizeApp::initialize(int stage)
 
     //retrieving parameters
     size_ = par("packetSize");
-    sourceSimbolicAddress = (char*)par("sourceAddress").stringValue();
-    destSimbolicAddress = (char*)par("destAddress").stringValue();
-    destAddress_ = inet::L3AddressResolver().resolve(destSimbolicAddress);
+    ueSimbolicAddress = (char*)par("ueSimbolicAddress").stringValue();
+    meHostSimbolicAddress = (char*)par("meHostSimbolicAddress").stringValue();
+    destAddress_ = inet::L3AddressResolver().resolve(ueSimbolicAddress);
 
     //testing
-    EV << "MEClusterizeApp::initialize - MEApp SymbolicAddress: " << sourceSimbolicAddress << endl;
-    EV << "MEClusterizeApp::initialize - UEApp SymbolicAddress: " << destSimbolicAddress << " [" << destAddress_.str() << "]" << endl;
+    EV << "MEClusterizeApp::initialize - MEClusterizeApp SymbolicAddress: " << meHostSimbolicAddress << endl;
+    EV << "MEClusterizeApp::initialize - UEClusterizeApp SymbolicAddress: " << ueSimbolicAddress << " [" << destAddress_.str() << "]" << endl;
 
     clusterizeConfigSentMsg_ = registerSignal("clusterizeConfigSentMsg");
     clusterizeInfoRcvdMsg_ = registerSignal("clusterizeInfoRcvdMsg");
@@ -85,7 +85,7 @@ void MEClusterizeApp::finish(){
     // informing the MEClusterizeService to cancel data about this MEClusterizeApp instance
     if(gate("mePlatformOut")->isConnected()){
 
-        ClusterizePacket* packet = ClusterizePacketBuilder().buildClusterizePacket(STOP_MEAPP, 0, simTime(), size_, 0, sourceSimbolicAddress, destSimbolicAddress);
+        ClusterizePacket* packet = ClusterizePacketBuilder().buildClusterizePacket(STOP_MEAPP, 0, simTime(), size_, 0, meHostSimbolicAddress, ueSimbolicAddress);
         send(packet, "mePlatformOut");
     }
 }
@@ -98,8 +98,8 @@ void MEClusterizeApp::handleClusterizeConfig(ClusterizeConfigPacket* packet){
     packet->setSno(nextSnoConfig_);
     packet->setTimestamp(simTime());
     packet->setByteLength(size_);
-    packet->setSourceAddress(sourceSimbolicAddress);
-    packet->setDestinationAddress(destSimbolicAddress);
+    packet->setSourceAddress(meHostSimbolicAddress);
+    packet->setDestinationAddress(ueSimbolicAddress);
     packet->setMEModuleName(ME_CLUSTERIZE_APP_MODULE_NAME);
     packet->setMEModuleType(ME_CLUSTERIZE_APP_MODULE_TYPE);
 

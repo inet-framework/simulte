@@ -26,13 +26,13 @@ void MEIceAlertApp::initialize(int stage)
 
     //retrieving parameters
     size_ = par("packetSize");
-    sourceSimbolicAddress = (char*)par("sourceAddress").stringValue();
-    destSimbolicAddress = (char*)par("destAddress").stringValue();
-    destAddress_ = inet::L3AddressResolver().resolve(destSimbolicAddress);
+    ueSimbolicAddress = (char*)par("ueSimbolicAddress").stringValue();
+    meHostSimbolicAddress = (char*)par("meHostSimbolicAddress").stringValue();
+    destAddress_ = inet::L3AddressResolver().resolve(ueSimbolicAddress);
 
     //testing
-    EV << "MEIceAlertApp::initialize - MEIceAlertApp Symbolic Address: " << sourceSimbolicAddress << endl;
-    EV << "MEIceAlertApp::initialize - UEIceAlertApp Symbolic Address: " << destSimbolicAddress <<  " [" << destAddress_.str() << "]" << endl;
+    EV << "MEIceAlertApp::initialize - MEIceAlertApp Symbolic Address: " << meHostSimbolicAddress << endl;
+    EV << "MEIceAlertApp::initialize - UEIceAlertApp Symbolic Address: " << ueSimbolicAddress <<  " [" << destAddress_.str() << "]" << endl;
 
 }
 
@@ -81,8 +81,8 @@ void MEIceAlertApp::handleInfoMEIceAlertApp(IceAlertPacket* pkt){
     //attaching info to the ClusterizeConfigPacket created by the MEClusterizeService
     pkt->setTimestamp(simTime());
     pkt->setByteLength(size_);
-    pkt->setSourceAddress(sourceSimbolicAddress);
-    pkt->setDestinationAddress(destSimbolicAddress);
+    pkt->setSourceAddress(meHostSimbolicAddress);
+    pkt->setDestinationAddress(ueSimbolicAddress);
     pkt->setMEModuleType("lte.apps.mec.iceAlert.MEIcerAlertApp");
     pkt->setMEModuleName("MEIceAlertApp");
 

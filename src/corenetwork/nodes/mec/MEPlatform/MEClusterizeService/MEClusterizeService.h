@@ -106,7 +106,6 @@ protected:
         //
         std::map<int, cluster> clusters;
 
-
         LteBinder* binder_;
 
         // reference to the statistics manager

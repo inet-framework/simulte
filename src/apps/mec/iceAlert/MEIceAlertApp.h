@@ -26,8 +26,8 @@
  */
 class MEIceAlertApp : public cSimpleModule
 {
-    char* sourceSimbolicAddress;
-    char* destSimbolicAddress;
+    char* ueSimbolicAddress;
+    char* meHostSimbolicAddress;
     inet::L3Address destAddress_;
     int size_;
 

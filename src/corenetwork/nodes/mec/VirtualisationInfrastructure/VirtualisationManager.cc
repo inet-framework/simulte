@@ -249,6 +249,7 @@ void VirtualisationManager::downstreamToUEApp(MEAppPacket* pkt){
             spkt->setByteLength(pkt->getByteLength());
 
             spkt->setSourceAddress(pkt->getSourceAddress());
+            spkt->setDestinationAddress(pkt->getDestinationAddress());
             spkt->setMEModuleName(pkt->getMEModuleName());
 
             EV << "VirtualisationeManager::downstreamToUEApp - calling stopMEApp for " << destSimbolicAddr << endl;
@@ -317,8 +318,9 @@ void VirtualisationManager::instantiateMEApp(MEAppPacket* pkt){
         display << "p=" << (50 + ((index%7)*150)%1000) << "," << (70 + (50*(index/7)%300)) << ";is=vs";
         module->setDisplayString(display.str().c_str());
 
-        module->par("sourceAddress") = pkt->getDestinationAddress();
-        module->par("destAddress") = pkt->getSourceAddress();
+        //initialize IMEApp Parameters
+        module->par("ueSimbolicAddress") = pkt->getSourceAddress();
+        module->par("meHostSimbolicAddress") = pkt->getDestinationAddress();
         module->par("interfaceTableModule") = interfaceTableModule;
 
         module->finalizeParameters();

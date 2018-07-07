@@ -39,8 +39,8 @@ class MEClusterizeApp : public cSimpleModule
     int nextSnoConfig_;
     int size_;
 
-    char* sourceSimbolicAddress;
-    char* destSimbolicAddress;
+    char* ueSimbolicAddress;
+    char* meHostSimbolicAddress;
     inet::L3Address destAddress_;
 
 

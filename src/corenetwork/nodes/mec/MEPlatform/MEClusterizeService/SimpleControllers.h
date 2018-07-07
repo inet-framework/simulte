@@ -33,7 +33,7 @@ class SimpleVelocityController{
             A=0;
             B=0;
             C=0;
-            D=0.165;
+            D=0.1;
             x=0;
         }
 
@@ -53,28 +53,30 @@ class SimpleDistanceController{
     public:
         SimpleDistanceController(){
 
-            for(int i=0; i<2; i++)
-                for(int j=0; j<2; j++)
-                    A[i][j] = 0;
+            A[0][0] = 0;
+            A[0][1] = -0.7348;
+            A[1][0] = 0;
+            A[1][1] = 0.4;
 
-            for(int j=0; j<2; j++)
-                B[j] = 0;
+            B[0] = 1.897;
+            B[1] = 1.549;
 
-            for(int j=0; j<2; j++)
-                C[j] = 0;
+            C[0] = -1.423;
+            C[1] = -1.162;
 
-            D=0.5;
+            D = 3;
 
             for(int j=0; j<2; j++)
                 x[j] = 0;
         }
 
         double getOutput(double e){
-            u = D*e;
+            u = C[0]*x[0] + C[1]*x[1] +  D*e;
             return u;
         }
         void updateNextState(double e){
-
+            x[0] = A[0][0]*x[0] + A[0][1]*x[1] + B[0]*e;
+            x[1] = A[1][0]*x[0] + A[1][1]*x[1] + B[1]*e;
         }
 };
 
