@@ -120,7 +120,7 @@ void MEPlatooningService::computePlatoon(std::string shape){
           EV << it->second.simbolicAddress << "\tfollowed by:\t" << it->second.follower << "\t[following:\t" << it->second.following << "] ";
           EV << "\t\tposition: " << it->second.position << " angle:" << it->second.angularPosition.alpha << endl;
     }
-
+    */
     EV << "\nMEPlatooningService::computePlatoon - CLUSTERS:\n\n";
     std::map<int, cluster>::iterator cit;
     for(cit = clusters.begin(); cit != clusters.end(); cit++){
@@ -132,7 +132,7 @@ void MEPlatooningService::computePlatoon(std::string shape){
                 EV << *i << " ";
             EV << endl << endl;
     }
-    */
+
     //--------------------------------------------------------------------------------------------------------------------------------------
 }
 
@@ -168,10 +168,10 @@ void MEPlatooningService::computeRectangleAdiacences(std::map<int, std::vector<i
 
         double a = it->second.angularPosition.alpha;
         inet::Coord pos(it->second.position);
-        inet::Coord A( pos.x + (roadLaneSize/2)*cos(a+M_PI/2), pos.y + (roadLaneSize/2)*sin(a+M_PI/2) );        // left-right side
-        inet::Coord B( pos.x + (roadLaneSize/2)*cos(a-M_PI/2), pos.y + (roadLaneSize/2)*sin(a-M_PI/2) );        // left-right side
-        inet::Coord C( B.x + proximityThreshold*cos(M_PI+a), B.y + proximityThreshold*sin(M_PI+a) );            // behind side
-        inet::Coord D( A.x + proximityThreshold*cos(M_PI+a), A.y + proximityThreshold*sin(M_PI+a) );            // behind side
+        inet::Coord A( pos.x + (roadLaneSize/2)*cos(a+M_PI/2), pos.y + (roadLaneSize/2)*sin(a+M_PI/2) );        // left-right side          A-------B
+        inet::Coord B( pos.x + (roadLaneSize/2)*cos(a-M_PI/2), pos.y + (roadLaneSize/2)*sin(a-M_PI/2) );        // left-right side          -       -
+        inet::Coord C( B.x + proximityThreshold*cos(M_PI+a), B.y + proximityThreshold*sin(M_PI+a) );            // behind side              -       -
+        inet::Coord D( A.x + proximityThreshold*cos(M_PI+a), A.y + proximityThreshold*sin(M_PI+a) );            // behind side              D-------C
 
         for(it2 = cars.begin(); it2 != cars.end(); it2++){
 
@@ -293,6 +293,10 @@ bool MEPlatooningService::isInTriangle(inet::Coord P, inet::Coord A, inet::Coord
 bool MEPlatooningService::isInRectangle(inet::Coord P, inet::Coord A, inet::Coord B, inet::Coord C, inet::Coord D)
 {
       return isInTriangle(P, A, B, C) || isInTriangle(P, A, C, D);
+      // left-right side          A-------B
+      // left-right side          -       -
+      // behind side              -       -
+      // behind side              D-------C
 }
 
 
