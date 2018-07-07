@@ -232,6 +232,7 @@ void UEClusterizeApp::sendClusterizeInfoPacket()
 
 
     ClusterizeInfoPacket* packet = ClusterizePacketBuilder().buildClusterizeInfoPacket(nextSnoInfo_, simTime(), size_, car->getId(), sourceSimbolicAddress, destSimbolicAddress, position, speed, angularPosition, angularSpeed);
+    packet->setAcceleration(requiredAcceleration);
 
     //testing
     EV << "UEClusterizeApp::sendClusterizeInfoPacket - Info: carID " << car->getId() << " sourceAddr " << sourceSimbolicAddress << " destAddr " << destSimbolicAddress << "]" << endl ;

@@ -292,13 +292,13 @@ bool MEPlatooningService::isInTriangle(inet::Coord P, inet::Coord A, inet::Coord
 
 bool MEPlatooningService::isInRectangle(inet::Coord P, inet::Coord A, inet::Coord B, inet::Coord C, inet::Coord D)
 {
-      return isInTriangle(P, A, B, C) || isInTriangle(P, D, B, C);
+      return isInTriangle(P, A, B, C) || isInTriangle(P, A, C, D);
 }
 
 
 void MEPlatooningService::updatePositions(){
 
-    //updating car positions based on the last position & timestamp + velocity * elapsed_time  ?(+ acceleration * elapsed_time^2)?
+    //updating car positions based on the last position & timestamp + velocity * elapsed_time + acceleration * elapsed_time^2
     EV << "MEPlatooningService::updatePositions\n";
 
     double now = simTime().dbl();
@@ -308,8 +308,8 @@ void MEPlatooningService::updatePositions(){
 
         double time_gap = now - it->second.timestamp.dbl();
 
-        it->second.position.x = it->second.position.x + it->second.speed.x*time_gap;    //+ it->second.acceleration*cos(it->second.angularPosition.alpha)*time_gap*time_gap
-        it->second.position.y = it->second.position.y + it->second.speed.y*time_gap;    //+ it->second.acceleration*sin(it->second.angularPosition.alpha)*time_gap*time_gap
+        it->second.position.x = it->second.position.x + it->second.speed.x*time_gap + it->second.acceleration*cos(it->second.angularPosition.alpha)*time_gap*time_gap;
+        it->second.position.y = it->second.position.y + it->second.speed.y*time_gap + it->second.acceleration*sin(it->second.angularPosition.alpha)*time_gap*time_gap;
         //it->second.position.z = it->second.position.z + it->second.speed.z*time_gap;
     }
 }
@@ -331,9 +331,6 @@ void MEPlatooningService::computePlatoonAccelerations(){
 
                     cit->second.accelerations.push_back(acceleration);
 
-                    //update acceleration for interpolation
-                    cars[i].acceleration = acceleration;
-
                     EV << "MEPlatooningService::computePlatoonAccelerations - update "<< cars[i].simbolicAddress <<" (LEADER)";
                     EV << "\t position: " << cars[i].position << "\t acceleration: " << acceleration << endl;
                }
@@ -346,9 +343,6 @@ void MEPlatooningService::computePlatoonAccelerations(){
                    cars_distance_controllers[i].updateNextState(distance_gap);
 
                    cit->second.accelerations.push_back(acceleration);
-
-                   //update acceleration for interpolation
-                   cars[i].acceleration = acceleration;
 
                    EV << "MEPlatooningService::computePlatoonAccelerations - update "<< cars[i].simbolicAddress <<" (MEMBER)";
                    EV << "\t position: " << cars[i].position <<  "\t acceleration: " << acceleration << endl;

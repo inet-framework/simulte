@@ -205,6 +205,7 @@ void MEClusterizeService::handleClusterizeInfo(ClusterizeInfoPacket* pkt){
     cars[key].speed.x = pkt->getSpeedX();
     cars[key].speed.y = pkt->getSpeedY();
     cars[key].speed.z = pkt->getSpeedZ();
+    cars[key].acceleration = pkt->getAcceleration();
     cars[key].angularPosition.alpha = pkt->getAngularPositionA();
     cars[key].angularPosition.beta = pkt->getAngularPositionB();
     cars[key].angularPosition.gamma = pkt->getAngularPositionC();

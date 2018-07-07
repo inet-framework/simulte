@@ -127,7 +127,7 @@ void UEIceAlertApp::sendStartMEIceAlertApp(){
 
     //instantiation requirements and info
     packet->setType(START_MEAPP);
-    packet->setMEModuleType("lte.apps.mec.iceAlert.MEIcerAlertApp");
+    packet->setMEModuleType("lte.apps.mec.iceAlert.MEIceAlertApp");
     packet->setMEModuleName("MEIceAlertApp");
     packet->setRequiredService("MEIceAlertService");
     packet->setRequiredRam(requiredRam);

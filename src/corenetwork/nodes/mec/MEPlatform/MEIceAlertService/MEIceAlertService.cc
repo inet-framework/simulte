@@ -46,6 +46,18 @@ void MEIceAlertService::initialize(int stage)
     dangerEdgeB = inet::Coord(par("dangerEdgeBx").doubleValue(), par("dangerEdgeBy").doubleValue(), par("dangerEdgeBz").doubleValue());
     dangerEdgeC = inet::Coord(par("dangerEdgeCx").doubleValue(), par("dangerEdgeCy").doubleValue(), par("dangerEdgeCz").doubleValue());
     dangerEdgeD = inet::Coord(par("dangerEdgeDx").doubleValue(), par("dangerEdgeDy").doubleValue(), par("dangerEdgeDz").doubleValue());
+
+    //drawing the Danger Area
+    cPolygonFigure *polygon = new cPolygonFigure("polygon");
+    std::vector<cFigure::Point> points;
+    points.push_back(cFigure::Point(dangerEdgeA.x, dangerEdgeA.y));
+    points.push_back(cFigure::Point(dangerEdgeB.x, dangerEdgeB.y));
+    points.push_back(cFigure::Point(dangerEdgeC.x, dangerEdgeC.y));
+    points.push_back(cFigure::Point(dangerEdgeD.x, dangerEdgeD.y));
+    polygon->setPoints(points);
+    polygon->setLineColor(cFigure::RED);
+    polygon->setLineWidth(2);
+    getSimulation()->getSystemModule()->getCanvas()->addFigure(polygon);
 }
 
 void MEIceAlertService::handleMessage(cMessage *msg)
@@ -74,8 +86,10 @@ void MEIceAlertService::handleInfoUEIceAlertApp(IceAlertPacket* pkt){
 
         send(packet, "meAppOut", pkt->getArrivalGate()->getIndex());
 
-        EV << "MEIceAlertService::handleInfoUEIceAlertApp - UE is in Danger Area! Sending the " << INFO_MEAPP << " type IceAlertPacket!" << endl;
+        EV << "MEIceAlertService::handleInfoUEIceAlertApp - "<< pkt->getSourceAddress() << " is in Danger Area! Sending the " << INFO_MEAPP << " type IceAlertPacket!" << endl;
     }
+    else
+        EV << "MEIceAlertService::handleInfoUEIceAlertApp - "<< pkt->getSourceAddress() << " is not in Danger Area!" << endl;
 }
 
 bool MEIceAlertService::isInTriangle(inet::Coord P, inet::Coord A, inet::Coord B, inet::Coord C){
@@ -107,5 +121,5 @@ bool MEIceAlertService::isInTriangle(inet::Coord P, inet::Coord A, inet::Coord B
 
 bool MEIceAlertService::isInQuadrilateral(inet::Coord P, inet::Coord A, inet::Coord B, inet::Coord C, inet::Coord D)
 {
-      return isInTriangle(P, A, B, C) || isInTriangle(P, D, B, C);
+      return isInTriangle(P, A, B, C) || isInTriangle(P, A, C, D);
 }

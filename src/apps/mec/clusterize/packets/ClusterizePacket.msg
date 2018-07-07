@@ -75,6 +75,8 @@ packet ClusterizeInfoPacket extends ClusterizePacket{
     double speedY;
     double speedZ;
     
+    double acceleration;
+    
     double angularPositionA;
     double angularPositionB;
     double angularPositionC;
