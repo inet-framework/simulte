@@ -29,4 +29,7 @@ packet IceAlertPacket extends MEAppPacket{
     double positionX;
     double positionY;
     double positionZ;
+    
+    //meaningfull for INFO_MEAPP type -> used by the UEIceAlertApp to change its color
+    bool danger;
 }

@@ -11,11 +11,9 @@
 //  @author Angelo Buono
 //
 
-
 #ifndef __SIMULTE_RADIONETWORKINFORMATION_H_
 #define __SIMULTE_RADIONETWORKINFORMATION_H_
 
-#include <omnetpp.h>
 #include <string>
 
 #include "corenetwork/binder/LteBinder.h"
@@ -24,21 +22,23 @@
 using namespace omnetpp;
 
 /**
- * TODO - Generated class
+ * RadioNetworkInformation is a General Service derived by RadioNetworkInformation feature defined in ETSI MEC 002
+ *
+ * This service provides:
+ *                          1) retrieving the txPower for an UE under the eNodeB connected with this ME Host
+ *                          2) retrieving the CQI for an UE under the eNodeB connected with this ME Host
  */
 class RadioNetworkInformation : public cSimpleModule
 {
-
+    //LteBinder (oracle module)
     LteBinder* binder_;
 
+    //parent modules
     cModule* mePlatform;
     cModule* meHost;
 
     //eNodeB connected to the ME Host
-    //
     std::vector<std::string> enb;
-
-
 
     protected:
 
@@ -47,14 +47,10 @@ class RadioNetworkInformation : public cSimpleModule
         virtual void handleMessage(cMessage *msg);
 
     public:
-
         //return txPwr value from the UeInfo structure in the binder
-        //
         double getUETxPower(std::string car);
 
-
         //return the cqi for the given car
-        //
         Cqi getUEcqi(std::string car);
 };
 

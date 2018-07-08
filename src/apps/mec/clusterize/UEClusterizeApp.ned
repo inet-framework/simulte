@@ -11,7 +11,6 @@
 //	@author	Angelo Buono
 //
 
-
 package lte.apps.mec.clusterize;
 
 import inet.applications.contract.IUDPApp;
@@ -22,31 +21,40 @@ import inet.applications.contract.IUDPApp;
 //	Simple Module for an UE App communicating with a ME App on a ME HOST.
 //	The task of this module is:
 //#	Sender Side:
-//		1) Instantiating the correspondent ME App on the ME HOST 
-//		2) Reporting periodically local information to the correspondent ME App instance (User App)
-//
+//		1) Request the Instantiation (START_MEAPP) of the correspondent MEClusterizeApp on the ME HOST 
+//		2) Reporting periodically local information (INFO_UEAPP) to the correspondent MEClusterizeApp instance (User App)
+//		3) Request the Termination (STOP_MEAPP) of the correspondent MEClusterizeApp instance
 //#	Receiver Side:
-//		1) Receiving commands to join/leave clusters and transmisison policies, from the correspondent ME App (User App)
-//		2) Handling the ME Info propagation to follower (using V2V transmissions)
-//
+//		1) Handling the ACK_START_MEAPP message: starting the Periodic transmission of INFO_UEAPP messages 
+//		2) Receiving periodically cluster info (INFO_MEAPP) from the correspondent MEClusterizeApp (User App)
+//		and Eventually handling the cluster info (INFO_MEAPP) propagation to follower (when txMode is V2V_UNICAST or V2V_MULTICAST)
+//		3) Handling the ACK_STOP_MEAPP message
+
 simple UEClusterizeApp like IUDPApp
 {
-        parameters:
+    parameters:
+            @display("i=block/source");    
         
-        int localPort = default(4000);
-        int destPort = default(4000);
-        string destAddress;
+        //packet info
         int packetSize = default(10);
         
+        //communication with ME Host
+        int localPort = default(4000);
+        int destPort = default(4000);
+        string meHostAddress;
+        
+        //sidelink communication with cars
         int multicastPort = default(5000);
         string multicastGoupAddress = default("224.0.0.10");
         
+        //autoscheduling timers
         double period @unit("s") = default(0.02s);
         double startTime @unit("s") = default(0s); 
         double stopTime @unit("s") = default(20s);
         
         string interfaceTableModule;
         
+        //statstics
         //#Sender Side
         @signal[clusterizeInfoSentMsg];
         @statistic[clusterizeInfoSentMsg](title="ClusterizeInfo messages sent"; unit=""; source="clusterizeInfoSentMsg"; record=sum,vector);
@@ -54,12 +62,10 @@ simple UEClusterizeApp like IUDPApp
 		//#Receiver Side          
         @signal[clusterizeConfigRcvdMsg]; 
         @statistic[clusterizeConfigRcvdMsg](title="ClusterizeConfig Messages Received"; unit="s"; source="clusterizeConfigRcvdMsg"; record=sum,vector);
-                        
+        
         @signal[clusterizeConfigDelay]; 
         @statistic[clusterizeConfigDelay](title="ClusterizeConfig Delay"; unit="s"; source="clusterizeConfigDelay"; record=mean,vector);
-              
-        @display("i=block/source");    
-            
+                  
     gates:
         
         output udpOut;

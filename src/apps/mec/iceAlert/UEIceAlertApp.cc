@@ -243,11 +243,19 @@ void UEIceAlertApp::handleInfoMEIcerAlertApp(MEAppPacket* pkt){
 
     EV << "UEIceAlertApp::handleInfoMEIcerAlertApp - Received " << pkt->getType() << " type IceAlertPacket from: "<< pkt->getSourceAddress() << endl;
 
-    EV << "UEIceAlertApp::handleInfoMEIcerAlertApp - Ice Alert Detected: DANGER!" << endl;
+    IceAlertPacket* packet = check_and_cast<IceAlertPacket*>(pkt);
 
     //updating runtime color of the car icon background
-    ue->getDisplayString().setTagArg("i",1, "red");
+    if(packet->getDanger()){
 
+        EV << "UEIceAlertApp::handleInfoMEIcerAlertApp - Ice Alert Detected: DANGER!" << endl;
+        ue->getDisplayString().setTagArg("i",1, "red");
+    }
+    else{
+
+        EV << "UEIceAlertApp::handleInfoMEIcerAlertApp - Ice Alert Detected: NO DANGER!" << endl;
+        ue->getDisplayString().setTagArg("i",1, "green");
+    }
 }
 void UEIceAlertApp::handleAckStopMEIceAlertApp(MEAppPacket* pkt){
 

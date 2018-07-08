@@ -79,17 +79,25 @@ void MEIceAlertService::handleInfoUEIceAlertApp(IceAlertPacket* pkt){
 
     inet::Coord uePosition(pkt->getPositionX(), pkt->getPositionY(), pkt->getPositionZ());
 
+    IceAlertPacket* packet = new IceAlertPacket();
+    packet->setType(INFO_MEAPP);
+
     if(isInQuadrilateral(uePosition, dangerEdgeA, dangerEdgeB, dangerEdgeC, dangerEdgeD)){
 
-        IceAlertPacket* packet = new IceAlertPacket();
-        packet->setType(INFO_MEAPP);
+        packet->setDanger(true);
 
         send(packet, "meAppOut", pkt->getArrivalGate()->getIndex());
 
-        EV << "MEIceAlertService::handleInfoUEIceAlertApp - "<< pkt->getSourceAddress() << " is in Danger Area! Sending the " << INFO_MEAPP << " type IceAlertPacket!" << endl;
+        EV << "MEIceAlertService::handleInfoUEIceAlertApp - "<< pkt->getSourceAddress() << " is in Danger Area! Sending the " << INFO_MEAPP << " type IceAlertPacket with danger == TRUE!" << endl;
     }
-    else
-        EV << "MEIceAlertService::handleInfoUEIceAlertApp - "<< pkt->getSourceAddress() << " is not in Danger Area!" << endl;
+    else{
+
+        packet->setDanger(false);
+
+        send(packet, "meAppOut", pkt->getArrivalGate()->getIndex());
+
+        EV << "MEIceAlertService::handleInfoUEIceAlertApp - "<< pkt->getSourceAddress() << " is not in Danger Area! Sending the " << INFO_MEAPP << " type IceAlertPacket with danger == FALSE!" << endl;
+    }
 }
 
 bool MEIceAlertService::isInTriangle(inet::Coord P, inet::Coord A, inet::Coord B, inet::Coord C){

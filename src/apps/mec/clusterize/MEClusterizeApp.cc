@@ -28,34 +28,38 @@ MEClusterizeApp::~MEClusterizeApp()
 void MEClusterizeApp::initialize(int stage)
 {
     EV << "MEClusterizeApp::initialize - stage " << stage << endl;
-
     cSimpleModule::initialize(stage);
-
     // avoid multiple initializations
     if (stage!=inet::INITSTAGE_APPLICATION_LAYER)
         return;
 
-    //retrieving parameters
+    //--------------------------------------
+    //packet informations
     size_ = par("packetSize");
+    //--------------------------------------
+    //communication with ME Host
     ueSimbolicAddress = (char*)par("ueSimbolicAddress").stringValue();
     meHostSimbolicAddress = (char*)par("meHostSimbolicAddress").stringValue();
     destAddress_ = inet::L3AddressResolver().resolve(ueSimbolicAddress);
+    //--------------------------------------
+    //statistics
+    clusterizeConfigSentMsg_ = registerSignal("clusterizeConfigSentMsg");
+    clusterizeInfoRcvdMsg_ = registerSignal("clusterizeInfoRcvdMsg");
+    clusterizeInfoDelay_ = registerSignal("clusterizeInfoDelay");
 
     //testing
     EV << "MEClusterizeApp::initialize - MEClusterizeApp SymbolicAddress: " << meHostSimbolicAddress << endl;
     EV << "MEClusterizeApp::initialize - UEClusterizeApp SymbolicAddress: " << ueSimbolicAddress << " [" << destAddress_.str() << "]" << endl;
-
-    clusterizeConfigSentMsg_ = registerSignal("clusterizeConfigSentMsg");
-    clusterizeInfoRcvdMsg_ = registerSignal("clusterizeInfoRcvdMsg");
-    clusterizeInfoDelay_ = registerSignal("clusterizeInfoDelay");
 }
 
 void MEClusterizeApp::handleMessage(cMessage *msg)
 {
-    // handle trigger emit statistic (from MEClusterizeService)
+    EV << "MEClusterizeApp::handleMessage -  message received\n";
+
+    //handling the triggering to emit statistics for txMode V2V_UNICAST or V2V_MULTICAST (from MEClusterizeService)
     if( strcmp(msg->getName(), "triggerClusterizeConfigStatistics") == 0){
 
-        emit(clusterizeConfigSentMsg_, (long)1);
+        emit(clusterizeConfigSentMsg_, (long)1);    //even if the message is sent only to the Leader and then propagated on the sidelink
         delete msg;
         return;
     }
@@ -64,15 +68,13 @@ void MEClusterizeApp::handleMessage(cMessage *msg)
     if (pkt == 0)
         throw cRuntimeError("UEClusterizeApp::handleMessage - \tFATAL! Error when casting to ClusterizePacket");
 
-    // handling INFO_CLUSTERIZE (INFO_UEAPP)
-    if(!strcmp(pkt->getType(), INFO_UEAPP)){
-
+    if(!strcmp(pkt->getType(), INFO_UEAPP))
+    {
         ClusterizeInfoPacket* ipkt = check_and_cast<ClusterizeInfoPacket*>(msg);
         handleClusterizeInfo(ipkt);
     }
-    // handling CONFIG_CLUSTERIZE (INFO_MEAPP)
-    else if(!strcmp(pkt->getType(), INFO_MEAPP)){
-
+    else if(!strcmp(pkt->getType(), INFO_MEAPP))
+    {
         ClusterizeConfigPacket* cpkt = check_and_cast<ClusterizeConfigPacket*>(msg);
         handleClusterizeConfig(cpkt);
     }
@@ -82,9 +84,9 @@ void MEClusterizeApp::finish(){
 
     EV << "MEClusterizeApp::finish - Sending ClusterizeStop to the MEClusterizeService" << endl;
 
-    // informing the MEClusterizeService to cancel data about this MEClusterizeApp instance
-    if(gate("mePlatformOut")->isConnected()){
-
+    //forwarding to the MEClusterizeService
+    if(gate("mePlatformOut")->isConnected())
+    {
         ClusterizePacket* packet = ClusterizePacketBuilder().buildClusterizePacket(STOP_MEAPP, 0, simTime(), size_, 0, meHostSimbolicAddress, ueSimbolicAddress);
         send(packet, "mePlatformOut");
     }
@@ -92,9 +94,9 @@ void MEClusterizeApp::finish(){
 
 void MEClusterizeApp::handleClusterizeConfig(ClusterizeConfigPacket* packet){
 
-    EV << "MEClusterizeApp::handleClusterizeConfig - finalize ClusterizeConfigPacket creation" << endl;
+    EV << "MEClusterizeApp::handleClusterizeConfig - finalize " << INFO_MEAPP << " ClusterizeConfigPacket creation" << endl;
 
-    //attaching info to the ClusterizeConfigPacket created by the MEClusterizeService
+    //attaching informations to the INFO_MEAPP packet created by the MEClusterizeService
     packet->setSno(nextSnoConfig_);
     packet->setTimestamp(simTime());
     packet->setByteLength(size_);
@@ -102,20 +104,23 @@ void MEClusterizeApp::handleClusterizeConfig(ClusterizeConfigPacket* packet){
     packet->setDestinationAddress(ueSimbolicAddress);
     packet->setMEModuleName(ME_CLUSTERIZE_APP_MODULE_NAME);
     packet->setMEModuleType(ME_CLUSTERIZE_APP_MODULE_TYPE);
-
-    EV << "MEClusterizeApp::handleClusterizeConfig - Sending ClusterizeConfigPacket SeqNo[" << nextSnoConfig_ << "]\n";
-
+    //forwarding to the VirtualistionManager
     send(packet, "virtualisationInfrastructureOut");
     nextSnoConfig_++;
+
+    EV << "MEClusterizeApp::handleClusterizeConfig - Sending " << INFO_MEAPP << " ClusterizeConfigPacket SeqNo[" << nextSnoConfig_ << "]\n";
 }
 
 void MEClusterizeApp::handleClusterizeInfo(ClusterizeInfoPacket *pkt){
 
     simtime_t delay = simTime()-pkt->getTimestamp();
+
     EV << "MEClusterizeApp::handleClusterizeInfo - Packet received: "<< pkt->getSourceAddress() <<" SeqNo[" << pkt->getSno() << "] delay: "<< delay << endl;
-    //simply forward to the MEClusterizeService
+
+    //forwarding to the MEClusterizeService
     send(pkt, "mePlatformOut");
 
+    //emit statistics
     emit(clusterizeInfoRcvdMsg_, (long)1);
     emit(clusterizeInfoDelay_, delay);
 

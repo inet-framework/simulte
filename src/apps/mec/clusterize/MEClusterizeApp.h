@@ -11,39 +11,35 @@
 //  @author Angelo Buono
 //
 
-
 #ifndef __SIMULTE_MECLUSTERIZEAPP_H_
-#define __SIMULTE_MECLUSTERIZEAPP_H_
+#define __SIMULTE_MECLUSTERIZEAPP_H
 
-#include <omnetpp.h>
-
+//INET COMMUNICATION WITH UEClusterizeApp
 #include "inet/networklayer/common/L3Address.h"
 #include "inet/networklayer/common/L3AddressResolver.h"
 
+//APPLICATION SPECIFIC PACKETS and UTILITIES
 #include "apps/mec/clusterize/packets/ClusterizePacket_m.h"
 #include "apps/mec/clusterize/packets/ClusterizePacketTypes.h"
 #include "apps/mec/clusterize/packets/ClusterizePacketBuilder.h"
 
-
 /**
- * MEClusterizeApp
- *
- *      1) Forwarding INFO_CLUSTERIZE (INFO_UEAPP) ClusterizeInfoPacket to the MEClusterizeService
- *      2) Receiving CONFIG_CLUSTERIZE (INFO_MEAPP) ClusterizeConfigPacket from theMEClusterizeService
- *          updating with UEClusterizeApp specific information and forwarding to VirtualisationManager
- *      3) Sending STOP_CLUSTERIZE (STOP_MEAPP) ClusterizePacket to the MEClusterizeService when calling finish()
+ * MEClusterizeApp see MEClusterize.ned
  */
 
 class MEClusterizeApp : public cSimpleModule
 {
+    //--------------------------------------
+    //packet informations
     int nextSnoConfig_;
     int size_;
-
+    //--------------------------------------
+    //communication with ME Host
     char* ueSimbolicAddress;
     char* meHostSimbolicAddress;
     inet::L3Address destAddress_;
-
-
+    //--------------------------------------
+    //statistics
     simsignal_t clusterizeConfigSentMsg_;
     simsignal_t clusterizeInfoRcvdMsg_;
     simsignal_t clusterizeInfoDelay_;
@@ -58,17 +54,17 @@ class MEClusterizeApp : public cSimpleModule
         virtual int numInitStages() const { return inet::NUM_INIT_STAGES; }
         void initialize(int stage);
         virtual void handleMessage(cMessage *msg);
-
-        // sending a STOP_CLUSTERIZE (STOP_MEAPP) ClusterizePacket to the MEClusterizeService
+        //----------------------------------------------------------------------------------------------------------------------
+        // sending a STOP_MEAPP ClusterizePacket to the MEClusterizeService
         // to trigger to erase the correspondent map entries
         void finish();
-
-        // handling INFO_CLUSTERIZE (INFO_UEAPP) ClusterizeInfoPacket from the UEClusterizeApp
+        //----------------------------------------------------------------------------------------------------------------------
+        // handling INFO_UEAPP ClusterizeInfoPacket from the UEClusterizeApp
         // by forwarding to the MEClusterizeService
         void handleClusterizeInfo(ClusterizeInfoPacket *);
-
-        // handling CONFIG_CLUSTERIZE (INFO_MEAPP) ClusterizeConfigPacket from the MEClusterizeService
-        // by adding UEClusterizeApp related info and forwarding to the VirtualisationManager
+        //----------------------------------------------------------------------------------------------------------------------
+        // handling INFO_MEAPP ClusterizeConfigPacket from the MEClusterizeService
+        // by adding UEClusterizeApp related information and forwarding to the VirtualisationManager
         void handleClusterizeConfig(ClusterizeConfigPacket *);
 };
 

@@ -11,7 +11,6 @@
 //  @author Angelo Buono
 //
 
-
 #include "RadioNetworkInformation.h"
 #include "stack/mac/layer/LteMacBase.h"
 #include "stack/mac/layer/LteMacEnb.h"
@@ -24,15 +23,12 @@ Define_Module(RadioNetworkInformation);
 void RadioNetworkInformation::initialize(int stage)
 {
     EV << "RadioNetworkInformation::initialize - stage " << stage << endl;
-
     cSimpleModule::initialize(stage);
-
     // avoid multiple initializations
     if (stage!=inet::INITSTAGE_APPLICATION_LAYER)
         return;
 
     mePlatform = getParentModule();
-
     if(mePlatform != NULL){
         meHost = mePlatform->getParentModule();
     }
@@ -50,20 +46,19 @@ void RadioNetworkInformation::initialize(int stage)
         {
             EV <<"RadioNetworkInformation::initialize - eNB (from par): "<< token << endl;
 
-          enb.push_back(token);
-          token = strtok (NULL, " ");
+            enb.push_back(token);
+            token = strtok (NULL, " ");
         }
     }
     //getting the list of eNB connected from gate connections
-    else{
-
+    else
+    {
         int nENB = meHost->gateSize("pppENB");
 
         for(int i=0; i<nENB; i++){
-
-            enb.push_back(meHost->gate("pppENB$o", i)->getPathEndGate()->getOwnerModule()->getParentModule()->getParentModule()->getFullName());
-
-            EV <<"RadioNetworkInformation::initialize - eNB (from gate): "<< meHost->gate("pppENB$o", i)->getPathEndGate()->getOwnerModule()->getParentModule()->getParentModule()->getFullName() << endl;
+            char* eNBName = (char*) meHost->gate("pppENB$o", i)->getPathEndGate()->getOwnerModule()->getParentModule()->getParentModule()->getFullName();
+            enb.push_back(eNBName);
+            EV <<"RadioNetworkInformation::initialize - eNB (from gate): "<< eNBName << endl;
         }
     }
 
@@ -74,12 +69,12 @@ void RadioNetworkInformation::handleMessage(cMessage *msg)
 {
 }
 
+double RadioNetworkInformation::getUETxPower(std::string ue){
 
-double RadioNetworkInformation::getUETxPower(std::string car){
+    cModule* module = getSimulation()->getModuleByPath(ue.c_str());
 
-    cModule* module = getSimulation()->getModuleByPath(car.c_str());
-
-    if(module != NULL){
+    if(module != NULL)
+    {
         int carOmnetID = module->getId();
 
         std::vector<UeInfo*>::const_iterator it = binder_->getUeList()->begin();
@@ -89,49 +84,41 @@ double RadioNetworkInformation::getUETxPower(std::string car){
             if((*it)->ue->getId() == carOmnetID)
                 return (*it)->phy->getTxPwr(D2D);
     }
-
     return -1;
 }
 
+Cqi RadioNetworkInformation::getUEcqi(std::string ue){
 
-Cqi RadioNetworkInformation::getUEcqi(std::string car){
+    cModule* module = getSimulation()->getModuleByPath(ue.c_str());
 
-    cModule* module = getSimulation()->getModuleByPath(car.c_str());
-
-    if(module != NULL){
-
+    if(module != NULL)
+    {
         int carOmnetID = module->getId();
 
         std::vector<UeInfo*>::const_iterator it = binder_->getUeList()->begin();
         std::vector<UeInfo*>::const_iterator et = binder_->getUeList()->end();
 
-        for (;it!=et;++it){
-
-            if((*it)->ue->getId() == carOmnetID){
-
+        for (;it!=et;++it)
+        {
+            if((*it)->ue->getId() == carOmnetID)
+            {
                 cModule* enb =  getSimulation()->getModule(getBinder()->getOmnetId((*it)->cellId));
-
-                if(enb != NULL){
-
+                if(enb != NULL)
+                {
                     LteMacBase* mac = check_and_cast<LteMacBase*> (enb->getSubmodule("lteNic")->getSubmodule("mac"));
-
-                    if(mac->isD2DCapable()){
-
+                    if(mac->isD2DCapable())
+                    {
                         LteMacEnbD2D* macD2D = check_and_cast<LteMacEnbD2D*> (mac);
 
                         std::vector<Cqi> cqiVector = macD2D->getAmc()->computeTxParams((*it)->id, D2D).readCqiVector();
-
                         if(!cqiVector.empty()){
 
-                            EV << "RadioNetworkInformation::getUEcqi - cqi: " << car << ": " << cqiVector.at(0) << endl;
-
+                            EV << "RadioNetworkInformation::getUEcqi - cqi: " << ue << ": " << cqiVector.at(0) << endl;
                             return cqiVector.at(0);
                         }
                         else{
-                            //maybe it is not necessary (preconfigured parameters are automatically loaded!)
-
-                            EV << "RadioNetworkInformation::getUEcqi - preconfigured cqi: " << car << ": " << macD2D->getPreconfiguredTxParams()->readCqiVector().at(0) << endl;
-
+                            //maybe it is not necessary (pre-configured parameters are automatically loaded!)
+                            EV << "RadioNetworkInformation::getUEcqi - pre-configured cqi: " << ue << ": " << macD2D->getPreconfiguredTxParams()->readCqiVector().at(0) << endl;
                             return macD2D->getPreconfiguredTxParams()->readCqiVector().at(0);
                         }
                     }

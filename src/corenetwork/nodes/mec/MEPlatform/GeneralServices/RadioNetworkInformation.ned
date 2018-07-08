@@ -11,12 +11,8 @@
 //  @author Angelo Buono
 //
 
-
 package lte.corenetwork.nodes.mec.MEPlatform.GeneralServices;
 
-//
-// TODO auto-generated module
-//
 simple RadioNetworkInformation
 {
 }

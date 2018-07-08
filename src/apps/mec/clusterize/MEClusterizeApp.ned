@@ -21,27 +21,31 @@ import lte.corenetwork.nodes.mec.MEPlatform.IMEApp;
 //	Simple Module for an ME App communicating with a UE App on a Car.
 //	The task of this module is:
 //#	Sender Side:
-//		1) Sending ClusterizeCommand about cluster creation and in-cluster communication policies
-//
+//		1) Sending INFO_MEAPP packet with cluster informations computed by the MEClusterizeService
+//		2) Forwarding STOP_MEAPP packet to the MEClusterizeService to clean its data structures
 //#	Receiver Side:
-//		1) Receiving car-local infos and communicating to the ME ClusterizeService
+//		1) Receiving INFO_UEAPP packet with car-local informations and forwarding to the MEClusterizeService
 //
 simple MEClusterizeApp like IMEApp
 {
     parameters:
         @display("i=block/app;is=s");
         
+        //packet informations
+        int packetSize = default(10);
+        
+        //virtualized resources
         double ram @unit("B") = default(10MB);
         double disk @unit("B") = default(0.1GB);
         double cpu = default(0.001);
         
+        //communication with UEClusterizeApp
         string ueSimbolicAddress; 		// i.e. UE[x] or car[x]
         string meHostSimbolicAddress;	// i.e meHost.virtualisationInfrastructure
         
-        int packetSize = default(10);
-        
         string interfaceTableModule = default("");
-               
+        
+        //statistics
         //#Sender Side       
         @signal[clusterizeConfigSentMsg];
         @statistic[clusterizeConfigSentMsg](title="ClusterizeConfig messages sent"; unit=""; source="clusterizeConfigSentMsg"; record=sum,vector);
@@ -49,11 +53,9 @@ simple MEClusterizeApp like IMEApp
 		//#Receiver Side
         @signal[clusterizeInfoRcvdMsg]; 
         @statistic[clusterizeInfoRcvdMsg](title="ClusterizeInfo Messages Received"; unit="s"; source="clusterizeInfoRcvdMsg"; record=sum,vector);
-        
         @signal[clusterizeInfoDelay]; 
         @statistic[clusterizeInfoDelay](title="ClusterizeInfo Delay"; unit="s"; source="clusterizeInfoDelay"; record=mean,vector);
         
-                      
     gates:
         
         input virtualisationInfrastructureIn;
