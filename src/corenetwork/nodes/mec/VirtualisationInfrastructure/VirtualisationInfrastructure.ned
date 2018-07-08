@@ -11,7 +11,6 @@
 //	@author	Angelo Buono
 //
 
-
 package lte.corenetwork.nodes.mec.VirtualisationInfrastructure;
 
 import inet.linklayer.ppp.PPPInterface;
@@ -41,8 +40,7 @@ module VirtualisationInfrastructure
 
     gates:
 
-        inout ppp[];
-
+        inout ppp[];				// connection with GtpEndpoint and local/externa networks
         output meAppOut[];			// connection to the ME App input gate
         input meAppIn[];			// connection to the ME App output gate
 
@@ -62,7 +60,6 @@ module VirtualisationInfrastructure
         //#
         //# ppp modules
         //#
-
         pppIf[sizeof(ppp)]: PPPInterface {
             @display("p=252,473");
         }
@@ -122,7 +119,6 @@ module VirtualisationInfrastructure
         //#
         virtualisationManager.resourceManagerIn <-- resourceManager.virtualisationManagerOut;
         virtualisationManager.resourceManagerOut --> resourceManager.virtualisationManagerIn;
-
 
         //# 
         //# Internal connections: meAppIn & meAppOut gates to virtualisationManager.meAppIn & virtualisationManager.meAppOut

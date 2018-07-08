@@ -13,22 +13,26 @@
 package lte.corenetwork.nodes.mec.MEPlatform.MEClusterizeService;
 
 //
-//	Clustering Algorithm based on Geometrical Shapes
+//#	MEPlatooningService
 //
+//	Simple Module for a ME Service extending the MEClusterizeService
+//
+//		implementing the compute() with a platoon formation algorithm
 
 simple MEPlatooningService extends MEClusterizeService
 {
     parameters:
         @class("MEPlatooningService");
         
-        string shape = default("rectangle");		//shape supported "rectangle" and "triangle"
-        
-        double proximityThreshold @unit("m");                  // meter: threshold within two cars can communicate v2v
-    	double directionDelimiterThreshold @unit("rad");         // radiant: threshold within two cars are going in the same direction
-
-        double roadLaneSize @unit("m");
-        double triangleAngle @unit("rad");
-        
+        //algorithm parameters
+        string shape = default("rectangle");				//area shape for checking car adjacences: "rectangle" and "triangle"
+        //direction
+    	double directionDelimiterThreshold @unit("rad");	//threshold to consider two cars going on the same direction
+		//area dimensions (depending on the shape)
+        double proximityThreshold @unit("m");				//threshold to consider two cars adjacent on the same direction
+        double roadLaneSize @unit("m");						//rectangle base ortogonal to the car direction
+        double triangleAngle @unit("rad");					//triangle angle aroung car direction
+        //cluster mobility to reach
         double desiredVelocity @unit("mps");
         double desiredDistance @unit("m");
 }

@@ -11,109 +11,101 @@
 //  @author Angelo Buono
 //
 
-
 #ifndef __SIMULTE_MECLUSTERIZESERVICE_H_
 #define __SIMULTE_MECLUSTERIZESERVICE_H_
 
-#include <omnetpp.h>
+//SIMULTE BINDER (Oracle Module) and UTILITIES
+#include "corenetwork/binder/LteBinder.h"
+#include "common/LteCommon.h"
 
-#include "inet/networklayer/common/L3Address.h"
-#include "inet/networklayer/common/L3AddressResolver.h"
+//INET GEOMETRY to MANIPULATE position, speed and direction
+#include "inet/common/geometry/common/Coord.h"
+#include "inet/common/geometry/common/EulerAngles.h"
 
+//APPLICATION SPECIFIC PACKETS and UTILITIES
 #include "apps/mec/clusterize/packets/ClusterizePacket_m.h"
 #include "apps/mec/clusterize/packets/ClusterizePacketTypes.h"
 #include "apps/mec/clusterize/packets/ClusterizePacketBuilder.h"
 
-#include "inet/common/geometry/common/Coord.h"
-#include "inet/common/geometry/common/EulerAngles.h"
-
-#include "corenetwork/binder/LteBinder.h"
-#include "common/LteCommon.h"
-
-//to build V2V statistics records to emit in UEClusterizeApp
+//EMITTING V2V MULTIHOP STATISTICS
 #include "apps/d2dMultihop/statistics/MultihopD2DStatistics.h"
 
-/**
- * MEClusterizeService See MEClusterizeService.ned
- *
- */
+//################################################################################################
+//DATA STRUCTURE TYPES
 struct cluster{
-
-    int id;
-    std::string color;
-
-    std::vector<int> members;          //array of cars belonging the cluster: key in cars (map)
-    std::string membersList;
-
-    std::vector<double> accelerations;
+    int id;                             //cluster ID
+    std::string color;                  //color assigned to the cluster (set in ClusterizeConfigPacket)
+    std::string membersList;            //Symbolic UE Addresses space-separated  (set in ClusterizeConfigPacket)
+    std::vector<double> accelerations;  //ordered-array containing the accelerations for each Cluster Member  (set in ClusterizeConfigPacket)
+    std::vector<int> members;           //ordered-array containing the key (in cars map) for each Cluster Member
 };
-
 struct car{
 
     int id;
-    std::string simbolicAddress;
-    MacNodeId macID;
-
-    //local-info
+    std::string symbolicAddress;        //i.e. car[x]
+    MacNodeId macID;                    //used for rni-service
+    //----------------------------------
+    //local-info                        //updated in handleClusterizeInfo()
     simtime_t timestamp;
     inet::Coord position;
     inet::Coord speed;
     inet::EulerAngles angularPosition;
     inet::EulerAngles angularSpeed;
-
     double acceleration = 0;
-
+    //----------------------------------
     //rni info
     double txPower;
     Cqi cqi;
-
-    //cluster-info
+    //----------------------------------
+    //cluster-info                      //updated in compute()
     int clusterID;
     std::string following;
     std::string follower;
-
     std::string txMode;
-
-    //flags/control
+    //----------------------------------
+    //flags/control                     //used in compute()
     bool isLeader;
     bool isFollower;
     int followingKey = -1;
     int followerKey = -1;
 };
+//################################################################################################
 
+/**
+ * MEClusterizeService See MEClusterizeService.ned
+ *
+ */
 class MEClusterizeService : public cSimpleModule
 {
-protected:
+    protected:
+        //----------------------------------
+        //auto-scheduling
         cMessage *selfSender_;
         simtime_t period_;
-
+        //----------------------------------
+        //parent modules
         cModule* mePlatform;
         cModule* meHost;
-
-        int maxMEApps;
-        std::vector<std::string> colors;            //Cluster Colors
-
-        std::string preconfiguredTxMode;                    //from INI: chosing INFRASTRUCTURE_UNICAST - V2V_UNICAST - V2V_MULTICAST
-
-        // for each MEClusterizeApp (linked to the UEClusterizeApp & V2VApp supported)
-        // storing the more recent car-local info (from  ClusterizeInfoPacket )
-        // and cluster-info computed
-        //
-        std::map<int, car> cars;                             //i.e. key = gateIndex to the MEClusterizeApp
-
-        // for each Clusters computed
-        // storing its informations
-        //
-        std::map<int, cluster> clusters;
-
+        //----------------------------------
+        //txMode information for sending INFO_MEAPP
+        std::string preconfiguredTxMode;                //supported: INFRASTRUCTURE_UNICAST - V2V_UNICAST - V2V_MULTICAST
+        //----------------------------------
+        //data structures
+        //informations about cars
+        std::map<int, car> cars;                        //i.e. key = gateIndex to the MEClusterizeApp
+        //informations about clusters
+        std::map<int, cluster> clusters;                //i.e. key = leader-car omnet id
+        //colors to assign to clusters
+        std::vector<std::string> colors;
+        //----------------------------------
+        //binder
         LteBinder* binder_;
-
-        // reference to the statistics manager
+        //----------------------------------
+        //statistics
         MultihopD2DStatistics* stat_;
         unsigned long eventID;
 
     public:
-
         ~MEClusterizeService();
         MEClusterizeService();
 
@@ -122,19 +114,15 @@ protected:
         virtual int numInitStages() const { return inet::NUM_INIT_STAGES; }
         virtual void initialize(int stage);
         virtual void handleMessage(cMessage *msg);
-
-        // executing periodically the clustering algorithm & updating the vclusters map
+        //----------------------------------------------------------------------------------------------------------------------
+        // executing periodically the clustering algorithm & updating the clusters map
         virtual void compute(){};
-
-        // sending, after compute(), the configurations in clusters map
+        // sending, after compute(), the INFO_MEAPP ClusterizeConfigPacket using the clusters map informations
         virtual void sendConfig();
-
-        // updating the cars map
-        // by modifying the values in the correspondent entry (arrival-gate index)
+        //----------------------------------------------------------------------------------------------------------------------
+        // handling INFO_UEAPP ClusterizeInfoPacket by updating cars map at the correspondent entry (arrival-gate index)
         virtual void handleClusterizeInfo(ClusterizeInfoPacket*);
-
-        // updating the cars maps
-        // by erasing the correspondent entry (arrival-gate index)
+        // handling STOP_MEAPP ClusterizePacket by erasing cars map at the correspondent entry (arrival-gate index)
         virtual void handleClusterizeStop(ClusterizePacket*);
 };
 

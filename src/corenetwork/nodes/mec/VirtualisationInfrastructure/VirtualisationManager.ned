@@ -11,7 +11,6 @@
 //	@author	Angelo Buono
 //
 
-
 package lte.corenetwork.nodes.mec.VirtualisationInfrastructure;
 
 import inet.applications.contract.IUDPApp;
@@ -31,22 +30,19 @@ import inet.applications.contract.IUDPApp;
 simple VirtualisationManager like IUDPApp{
 
     parameters:
+        @display("i=block/source");
         
         int localPort = default(4000);			// ALL UEApps have to send UDP Packets to this Port!
         int destPort = default(4000);
         
         string interfaceTableModule;
-        
-        @display("i=block/source");
-        
+                
     gates:
         
         output udpOut;
         input udpIn;
-        
         output meAppOut[];
         input meAppIn[];
-        
         output resourceManagerOut;
         input resourceManagerIn;
 }

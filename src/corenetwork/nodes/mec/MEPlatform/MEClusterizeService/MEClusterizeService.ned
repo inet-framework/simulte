@@ -16,24 +16,27 @@ package lte.corenetwork.nodes.mec.MEPlatform.MEClusterizeService;
 import lte.corenetwork.nodes.mec.MEPlatform.IMEService;
 
 //
+//#	MEClusterizeService
 //
-//
+//	Simple Module for a ME Service communicating with a ME App on a ME HOST.
+//	The task of this module is:
+//								1)
+
 simple MEClusterizeService like IMEService
 {
     parameters:
+        //auto-scheduling informations
+        double startTime @unit("s") = default(0s);
+        double period @unit("s") = default(0.2s);
         
-        //# mode how to send the cluster configuration to the UEClusterizeApp: from ClusterizePacket_types.h
+        //txMode information: how to send the INFO_MEAPP ClusterizeConfigPacket to the UEClusterizeApp: from ClusterizePacket_types.h
         // V2V_UNICAST_TX_MODE :				"V2V_UNICAST"
 		// V2V_MULTICAST_TX_MODE :				"V2V_MULTICAST"
 		// DOWNLINK_UNICAST_TX_MODE : 			"DOWNLINK_UNICAST"
-		// DOWNLINK_MULTICAST_TX_MODE :			"DOWNLINK_MULTICAST"
-		// HYBRID_TX_MODE:						"HYBRID"
+		// DOWNLINK_MULTICAST_TX_MODE :			"DOWNLINK_MULTICAST"			not supported by Lte Nic
+		// HYBRID_TX_MODE:						"HYBRID"						not yet implemented in MEClusterizeService.cpp
        	string preconfiguredTxMode = default("DOWNLINK_UNICAST");
        	
-       	
-        double period @unit("s") = default(0.2s);
-        double startTime @unit("s") = default(0s);
-        
     gates:
         
         input meAppIn[];

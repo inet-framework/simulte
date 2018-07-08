@@ -11,7 +11,6 @@
 //	@author	Angelo Buono
 //
 
-
 package lte.corenetwork.nodes.mec.VirtualisationInfrastructure;
 
 //
@@ -22,8 +21,8 @@ package lte.corenetwork.nodes.mec.VirtualisationInfrastructure;
 simple ResourceManager
 {
     parameters:
-
         @display("i=block/source");
+        
     gates:
         input virtualisationManagerIn;
         output virtualisationManagerOut;

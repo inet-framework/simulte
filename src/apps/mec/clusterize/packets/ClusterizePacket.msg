@@ -11,25 +11,17 @@
 //	@author	Angelo Buono
 //
 
-//
-// Basic Clusterize Packet used by the UEClusterizeApp and MEClusterizeApp
-//
-//	type field is used to distinguish:
-//
-//			ClusterizeStart
-//			ClusterizeAck
-//			ClusterizeStop
-//			
-// and extensions:
-//
-//			ClusterizeInfo
-//			ClusterizeCommand
-
 cplusplus {{
 #include "corenetwork/nodes/mec/MEPlatform/MEAppPacket_m.h"
 }}
 packet MEAppPacket;
 
+//
+// Basic Clusterize Packet used by the UEClusterizeApp and MEClusterizeApp
+//			
+// and extensions:
+//					ClusterizeInfo
+//					ClusterizeCommand
 
 packet ClusterizePacket extends MEAppPacket{
     
@@ -47,36 +39,31 @@ packet ClusterizeConfigPacket extends ClusterizePacket{
     string clusterColor;
     string clusterString;
     string clusterList[];
-    
     //cluster formation
     double accelerations[];
-    
     //cluster communication strategy
     string clusterFollowing;
     string clusterFollower;
     string txMode;    
-
-    //statistic info
+    //statistic informations
     int hops;
     unsigned long eventID;
 }
-
 
 //
 // used by UEClusterizeApp to communicate local-information to the MEClusterizeApp
 //
 
 packet ClusterizeInfoPacket extends ClusterizePacket{
-    
+
+	// car-local informations    
     double positionX;
     double positionY;
     double positionZ;
     double speedX;
     double speedY;
     double speedZ;
-    
     double acceleration;
-    
     double angularPositionA;
     double angularPositionB;
     double angularPositionC;

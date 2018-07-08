@@ -11,7 +11,6 @@
 //  @author Angelo Buono
 //
 
-
 #include "MEClusterizeService.h"
 
 Define_Module(MEClusterizeService);
@@ -43,25 +42,25 @@ MEClusterizeService::~MEClusterizeService(){
 void MEClusterizeService::initialize(int stage)
 {
     EV << "MEClusterizeService::initialize - stage " << stage << endl;
-
     cSimpleModule::initialize(stage);
-
     // avoid multiple initializations
     if (stage!=inet::INITSTAGE_APPLICATION_LAYER)
         return;
-
+    //----------------------------------
+    //auto-scheduling
     selfSender_ = new cMessage("selfSender");
     period_ = par("period");
-
+    //----------------------------------
+    //parent modules
     mePlatform = getParentModule();
-
     if(mePlatform != NULL){
         meHost = mePlatform->getParentModule();
+        //configuring gate sizes
+        int maxMEApps = 0;
         if(meHost->hasPar("maxMEApps"))
                 maxMEApps = meHost->par("maxMEApps").longValue();
         else
             throw cRuntimeError("MEClusterizeService::initialize - \tFATAL! Error when getting meHost.maxMEApps parameter!");
-
         this->setGateSize("meAppOut", maxMEApps);
         this->setGateSize("meAppIn", maxMEApps);
     }
@@ -69,76 +68,71 @@ void MEClusterizeService::initialize(int stage)
         EV << "MEClusterizeService::initialize - ERROR getting mePlatform cModule!" << endl;
         throw cRuntimeError("MEClusterizeService::initialize - \tFATAL! Error when getting getParentModule()");
     }
-
+    //----------------------------------
+    //txMode information for sending INFO_MEAPP
     preconfiguredTxMode = par("preconfiguredTxMode").stringValue();
-
+    //----------------------------------
+    //binder
     binder_ = getBinder();
-
-    // global statistics recorder
+    //----------------------------------
+    //statistics
     stat_ = check_and_cast<MultihopD2DStatistics*>(getModuleByPath("d2dMultihopStatistics"));
-
+    //--------------------------------------
+    //starting MEClusterizeService
     simtime_t startTime = par("startTime");
     scheduleAt(simTime() + startTime, selfSender_);
-    EV << "\t starting computations in " << startTime << " seconds " << endl;
+    EV << "MEClusterizeService::initialize - \t starting compute() in " << startTime << " seconds " << endl;
 }
 /*
  * #################################################################################################################################
  */
 void MEClusterizeService::handleMessage(cMessage *msg)
 {
-    EV << "MEClusterizeService::handleMessage - " << endl;
-
-    //PERIODICALLY RUNNING THE CLUSTERING ALGORITHM
+    EV << "MEClusterizeService::handleMessage" << endl;
     if (msg->isSelfMessage()){
         compute();
         sendConfig();
         scheduleAt(simTime() + period_, selfSender_);
     }
-    else{
+    else
+    {
         ClusterizePacket* pkt = check_and_cast<ClusterizePacket*>(msg);
         if (pkt == 0)
             throw cRuntimeError("MEClusterizeService::handleMessage - \tFATAL! Error when casting to ClusterizePacket");
 
-        //INFO_CLUSTERIZE_PACKET
-        if(!strcmp(pkt->getType(), INFO_UEAPP)){
-
+        if(!strcmp(pkt->getType(), INFO_UEAPP))
+        {
             ClusterizeInfoPacket* ipkt = check_and_cast<ClusterizeInfoPacket*>(msg);
             handleClusterizeInfo(ipkt);
         }
-        //STOP_CLUSTERIZE_PACKET
-       else if(!strcmp(pkt->getType(), STOP_MEAPP)){
+       else if(!strcmp(pkt->getType(), STOP_MEAPP))     handleClusterizeStop(pkt);
 
-           handleClusterizeStop(pkt);
-       }
+        delete pkt;
     }
 }
 
 /*
  * ################################################################################################################################################
  */
-void MEClusterizeService::sendConfig(){
-
+void MEClusterizeService::sendConfig()
+{
     if(cars.empty())
         return;
 
     std::map<int, cluster>::iterator cl_it;
-
-    //sending directly to all the cars the configuration computed
-    if (!strcmp(preconfiguredTxMode.c_str(), DOWNLINK_UNICAST_TX_MODE)){
-
-        for(cl_it = clusters.begin(); cl_it != clusters.end(); cl_it++){
-
-            for(int memberKey : cl_it->second.members){
-
+    //DOWNLINK_UNICAST_TX_MODE
+    if (!strcmp(preconfiguredTxMode.c_str(), DOWNLINK_UNICAST_TX_MODE))
+    {
+        for(cl_it = clusters.begin(); cl_it != clusters.end(); cl_it++)
+        {
+            for(int memberKey : cl_it->second.members)
+            {
                 ClusterizeConfigPacket* pkt = ClusterizePacketBuilder().buildClusterizeConfigPacket(0, 0, eventID, 1, 0, 0, "", "", cars[memberKey].clusterID, cl_it->second.color.c_str(), cars[memberKey].txMode.c_str(), cars[memberKey].following.c_str(), cars[memberKey].follower.c_str(),cl_it->second.membersList.c_str(), cl_it->second.accelerations);
-
-                //testing
-                EV << "MEClusterizeService::sendConfig - sending ClusterizeConfig to CM: "  << cars[memberKey].simbolicAddress << " (txMode: INFRASTRUCTURE_UNICAST_TX_MODE) " << endl;
-                EV << "MEClusterizeService::sendConfig - \t\t"<< cars[memberKey].simbolicAddress << " (omnet id: "<< cars[memberKey].id <<") - map cars[" << memberKey << "].clusterID: " << cars[memberKey].clusterID << endl;
-                EV << "MEClusterizeService::sendConfig - \t\tclusters[" << cars[memberKey].clusterID << "].membersList: " << cl_it->second.membersList.c_str() << endl;
-
-                //sending to the MEClusterizeApp (on the corresponded gate!)
+                //sending to the member MEClusterizeApp (on the corresponded gate!)
                 send(pkt, "meAppOut", memberKey);
+                //testing
+                EV << "MEClusterizeService::sendConfig - sending ClusterizeConfig to CM: "  << cars[memberKey].symbolicAddress << " (txMode: INFRASTRUCTURE_UNICAST_TX_MODE) " << endl;
+                EV << "MEClusterizeService::sendConfig - \t\tclusters[" << cars[memberKey].clusterID << "].membersList: " << cl_it->second.membersList.c_str() << endl;
             }
             //creating global-statistics event record
             std::set<MacNodeId> targetSet;
@@ -148,23 +142,21 @@ void MEClusterizeService::sendConfig(){
             eventID++;
         }
     }
-    //sending directly only to the cluster leader
-    else if(!strcmp(preconfiguredTxMode.c_str(), V2V_UNICAST_TX_MODE) || !strcmp(preconfiguredTxMode.c_str(), V2V_MULTICAST_TX_MODE)){
-
-        for(cl_it = clusters.begin(); cl_it != clusters.end(); cl_it++){
-
+    //V2V_UNICAST_TX_MODE or  V2V_MULTICAST_TX_MODE
+    else if(!strcmp(preconfiguredTxMode.c_str(), V2V_UNICAST_TX_MODE) || !strcmp(preconfiguredTxMode.c_str(), V2V_MULTICAST_TX_MODE))
+    {
+        for(cl_it = clusters.begin(); cl_it != clusters.end(); cl_it++)
+        {
             int leaderKey = cl_it->second.members.at(0);
 
             ClusterizeConfigPacket* pkt = ClusterizePacketBuilder().buildClusterizeConfigPacket(0, 0, eventID, 1, 0, 0, "", "", cars[leaderKey].clusterID, cl_it->second.color.c_str(), cars[leaderKey].txMode.c_str(), cars[leaderKey].following.c_str(), cars[leaderKey].follower.c_str(),cl_it->second.membersList.c_str(), cl_it->second.accelerations);
+            //sending to the leader MEClusterizeApp (on the corresponded gate!)
+            send(pkt, "meAppOut", leaderKey);
 
             //testing
             std::string txmode = (!strcmp(preconfiguredTxMode.c_str(), V2V_UNICAST_TX_MODE))? V2V_UNICAST_TX_MODE : V2V_MULTICAST_TX_MODE;
-            EV << "MEClusterizeService::sendConfig - sending ClusterizeConfig to CL: " << cars[leaderKey].simbolicAddress << " (txMode: "<< txmode << ") " << endl;
-            EV << "MEClusterizeService::sendConfig - \t\t"<< cars[leaderKey].simbolicAddress << " (omnet id: "<< cars[leaderKey].id <<") - map cars[" <<  leaderKey << "].clusterID: " << cars[leaderKey].clusterID  << endl;
+            EV << "MEClusterizeService::sendConfig - sending ClusterizeConfig to CL: " << cars[leaderKey].symbolicAddress << " (txMode: "<< txmode << ") " << endl;
             EV << "MEClusterizeService::sendConfig - \t\tclusters[" << cars[leaderKey].clusterID << "].membersList: " << cl_it->second.membersList.c_str() << endl << endl;
-
-            //sending to the MEClusterizeApp (on the corresponded gate!)
-            send(pkt, "meAppOut", leaderKey);
 
             //creating global-statistics event record
             std::set<MacNodeId> targetSet;
@@ -174,29 +166,34 @@ void MEClusterizeService::sendConfig(){
             eventID++;
         }
     }
-    else{
-        //hybrid approach!
-        //check for every car in the clusters the txMode choosen!
+    //HYBRID_TX_MODE
+    else
+    {
+        //TODO
+        //for each cluster in clusters map (cl : clusters)
+                //for each cluster member (c : cl.members)
+                        //check its txMode (cars[c].txMode) computed by the compute() implementing the algorithm
+                        //i.e. if DOWNLINK_UNICAST then send to it
+                        //i.e. if V2V_UNICAST or V2V_MULTICAST then to it only if it is the leader!
+        //TODO
     }
 
-    //
-    // triggering the MEClusterize App to emit statistics!
-    for(cl_it = clusters.begin(); cl_it != clusters.end(); cl_it++){
-
-        for(int memberKey : cl_it->second.members){
-
+    // triggering the MEClusterize App to emit statistics (also if the INFO_MEAPP ClsuterizeConfigPacket is sent only to the leader and then propagated!)
+    for(cl_it = clusters.begin(); cl_it != clusters.end(); cl_it++)
+        for(int memberKey : cl_it->second.members)
+        {
             cMessage* trigger = new cMessage("triggerClusterizeConfigStatistics");
             send(trigger, "meAppOut", memberKey);
         }
-    }
 }
 
 void MEClusterizeService::handleClusterizeInfo(ClusterizeInfoPacket* pkt){
 
+    //retrieve the cars map key
     int key = pkt->getArrivalGate()->getIndex();
-
+    //updating the cars map entry
     cars[key].id = pkt->getCarOmnetID();
-    cars[key].simbolicAddress = pkt->getSourceAddress();
+    cars[key].symbolicAddress = pkt->getSourceAddress();
     cars[key].macID = binder_->getMacNodeIdFromOmnetId(cars[key].id);
     cars[key].timestamp = pkt->getTimestamp();
     cars[key].position.x = pkt->getPositionX();
@@ -214,33 +211,26 @@ void MEClusterizeService::handleClusterizeInfo(ClusterizeInfoPacket* pkt){
     cars[key].angularSpeed.gamma = pkt->getAngularSpeedC();
     cars[key].isFollower = false;
 
-    EV << "MEClusterizeService::handleClusterizeInfo - Updating cars[" << key <<"] --> " << cars[key].simbolicAddress << " (carID: "<< cars[key].id << ") " << endl;
-
     //testing
+    EV << "MEClusterizeService::handleClusterizeInfo - Updating cars[" << key <<"] --> " << cars[key].symbolicAddress << " (carID: "<< cars[key].id << ") " << endl;
     EV << "MEClusterizeService::handleClusterizeInfo - cars[" << key << "].position = " << "[" << cars[key].position.x << " ; "<< cars[key].position.y << " ; " << cars[key].position.z  << "]" << endl;
     EV << "MEClusterizeService::handleClusterizeInfo - cars[" << key << "].speed = " << "[" << cars[key].speed.x << " ; "<< cars[key].speed.y << " ; " << cars[key].speed.z  << "]" << endl;
     EV << "MEClusterizeService::handleClusterizeInfo - cars[" << key << "].angularPostion = " << "[" << cars[key].angularPosition.alpha << " ; "<< cars[key].angularPosition.beta << " ; " << cars[key].angularPosition.gamma  << "]" << endl;
     EV << "MEClusterizeService::handleClusterizeInfo - cars[" << key << "].angularSpeed = " << "[" << cars[key].angularSpeed.alpha << " ; "<< cars[key].angularSpeed.beta << " ; " << cars[key].angularSpeed.gamma  << "]" << endl;
-    delete pkt;
 }
-
 
 void MEClusterizeService::handleClusterizeStop(ClusterizePacket* pkt){
 
+    //retrieve the cars map key
     int key = pkt->getArrivalGate()->getIndex();
-
-    EV << "MEClusterizeService::handleClusterizeStop - Erasing cars[" << key <<"]" << endl;
-
-    if(!cars.empty() && cars.find(key) != cars.end()){
-
-        //erasing the map cars entry
-        //
+    //erasing the cars map entry
+    if(!cars.empty() && cars.find(key) != cars.end())
+    {
         std::map<int, car>::iterator it;
         it = cars.find(key);
-        if (it != cars.end()){
+        if (it != cars.end())
             cars.erase (it);
-        }
     }
-
-    delete pkt;
+    //testing
+    EV << "MEClusterizeService::handleClusterizeStop - Erasing cars[" << key <<"]" << endl;
 }
