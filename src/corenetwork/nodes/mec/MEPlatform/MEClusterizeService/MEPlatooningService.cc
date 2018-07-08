@@ -102,7 +102,7 @@ void MEPlatooningService::computePlatoon(std::string shape){
     for(it = cars.begin(); it != cars.end(); it++)
     {
           EV << it->second.symbolicAddress << "\t followed by:\t" << it->second.follower << "\t[following:\t" << it->second.following << "] ";
-          EV << "\t\t position: " << it->second.position << " angle:" << it->second.angularPosition.alpha << endl;
+          EV << "\t\t position: " << it->second.position << " angle:" << it->second.angularPosition.alpha << " time-stamp: " << it->second.timestamp << endl;
     }
     EV << "\nMEPlatooningService::computePlatoon - CLUSTERS:\n\n";
     std::map<int, cluster>::iterator cit;
@@ -310,8 +310,8 @@ void MEPlatooningService::computePlatoonAccelerations(){
                 //updating clusters entry with acceleration computed for each member
                 cit->second.accelerations.push_back(acceleration);
                 //testing
-                EV << "MEPlatooningService::computePlatoonAccelerations - update "<< cars[i].symbolicAddress <<" (LEADER)";
-                EV << "\t position: " << cars[i].position << "\t acceleration: " << acceleration << endl;
+                EV << "MEPlatooningService::computePlatoonAccelerations - update "<< cars[i].symbolicAddress <<" (LEADER)\t";
+                EV << " [position: " << cars[i].position << "] [acceleration: " << acceleration << "] velocity_gap: " << velocity_gap << endl;
            }
            //members
            else
@@ -324,8 +324,8 @@ void MEPlatooningService::computePlatoonAccelerations(){
                 //updating clusters entry with acceleration computed for each member
                 cit->second.accelerations.push_back(acceleration);
                 //testing
-                EV << "MEPlatooningService::computePlatoonAccelerations - update "<< cars[i].symbolicAddress <<" (MEMBER) followinf " << cars[previous].symbolicAddress;
-                EV << "\t position: " << cars[i].position <<  "\t acceleration: " << acceleration << endl;
+                EV << "MEPlatooningService::computePlatoonAccelerations - update "<< cars[i].symbolicAddress <<" (MEMBER) following " << cars[previous].symbolicAddress;
+                EV << " [position: " << cars[i].position <<  "] [acceleration: " << acceleration << "] distance_gap: " << distance_gap << endl;
            }
            previous = i;
        }

@@ -238,6 +238,7 @@ void UEClusterizeApp::sendClusterizeInfoPacket()
     EV << "UEClusterizeApp::sendClusterizeInfoPacket - Info: carID " << car->getId() << " sourceAddr " << mySymbolicAddress << " destAddr " << meHostSymbolicAddress << "]" << endl ;
     EV << "UEClusterizeApp::sendClusterizeInfoPacket - Position: [" << position.x << " ; " << position.y << " ; " << position.z << "]" << endl ;
     EV << "UEClusterizeApp::sendClusterizeInfoPacket - Speed: [" << speed.x << " ; " << speed.y << " ; " << speed.z << "]" << endl ;
+    EV << "UEClusterizeApp::sendClusterizeInfoPacket - Required Acceleration:" << requiredAcceleration << endl;
     EV << "UEClusterizeApp::sendClusterizeInfoPacket - Max Speed: [" << maxSpeed << "]" << endl ;
     EV << "UEClusterizeApp::sendClusterizeInfoPacket - AngularPosition: [" << angularPosition.alpha << " ; " << angularPosition.beta << " ; " << angularPosition.gamma << "]" << endl ;
     EV << "UEClusterizeApp::sendClusterizeInfoPacket - AngularSpeed: [" << angularSpeed.alpha << " ; " << angularSpeed.beta << " ; " << angularSpeed.gamma << "]" << endl ;
@@ -326,8 +327,8 @@ void UEClusterizeApp::handleClusterizeConfig(ClusterizeConfigPacket* pkt){
     else
         handleClusterizeConfigFromUE(pkt);
 
-    //retrieving the acceleration received with the INFO_MEAPP ClusterizeConfigPacket
-    double acceleration = updateAcceleration(pkt);
+    //retrieving the acceleration received with the INFO_MEAPP ClusterizeConfigPacket and updating requiredAcceleration
+    updateAcceleration(pkt);
 
     //setting the acceleration (modifying the mobility)
     if(veins_mobility != NULL)
@@ -338,7 +339,7 @@ void UEClusterizeApp::handleClusterizeConfig(ClusterizeConfigPacket* pkt){
     else if(linear_mobility != NULL)
     {
                                                                 //TODO ADJUST (for now I added setAcceleration in INET.LinearMobility)
-        linear_mobility->setAcceleration(acceleration);
+        linear_mobility->setAcceleration(requiredAcceleration);
     }
 
     // emit statistics

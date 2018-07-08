@@ -131,7 +131,7 @@ void MEClusterizeService::sendConfig()
                 //sending to the member MEClusterizeApp (on the corresponded gate!)
                 send(pkt, "meAppOut", memberKey);
                 //testing
-                EV << "MEClusterizeService::sendConfig - sending ClusterizeConfig to CM: "  << cars[memberKey].symbolicAddress << " (txMode: INFRASTRUCTURE_UNICAST_TX_MODE) " << endl;
+                EV << "\nMEClusterizeService::sendConfig - sending ClusterizeConfig to CM: "  << cars[memberKey].symbolicAddress << " (txMode: INFRASTRUCTURE_UNICAST_TX_MODE) " << endl;
                 EV << "MEClusterizeService::sendConfig - \t\tclusters[" << cars[memberKey].clusterID << "].membersList: " << cl_it->second.membersList.c_str() << endl;
             }
             //creating global-statistics event record
@@ -155,7 +155,7 @@ void MEClusterizeService::sendConfig()
 
             //testing
             std::string txmode = (!strcmp(preconfiguredTxMode.c_str(), V2V_UNICAST_TX_MODE))? V2V_UNICAST_TX_MODE : V2V_MULTICAST_TX_MODE;
-            EV << "MEClusterizeService::sendConfig - sending ClusterizeConfig to CL: " << cars[leaderKey].symbolicAddress << " (txMode: "<< txmode << ") " << endl;
+            EV << "\nMEClusterizeService::sendConfig - sending ClusterizeConfig to CL: " << cars[leaderKey].symbolicAddress << " (txMode: "<< txmode << ") " << endl;
             EV << "MEClusterizeService::sendConfig - \t\tclusters[" << cars[leaderKey].clusterID << "].membersList: " << cl_it->second.membersList.c_str() << endl << endl;
 
             //creating global-statistics event record
@@ -215,6 +215,7 @@ void MEClusterizeService::handleClusterizeInfo(ClusterizeInfoPacket* pkt){
     EV << "MEClusterizeService::handleClusterizeInfo - Updating cars[" << key <<"] --> " << cars[key].symbolicAddress << " (carID: "<< cars[key].id << ") " << endl;
     EV << "MEClusterizeService::handleClusterizeInfo - cars[" << key << "].position = " << "[" << cars[key].position.x << " ; "<< cars[key].position.y << " ; " << cars[key].position.z  << "]" << endl;
     EV << "MEClusterizeService::handleClusterizeInfo - cars[" << key << "].speed = " << "[" << cars[key].speed.x << " ; "<< cars[key].speed.y << " ; " << cars[key].speed.z  << "]" << endl;
+    EV << "MEClusterizeService::handleClusterizeInfo - cars[" << key << "].acceleration = " << cars[key].acceleration << endl;
     EV << "MEClusterizeService::handleClusterizeInfo - cars[" << key << "].angularPostion = " << "[" << cars[key].angularPosition.alpha << " ; "<< cars[key].angularPosition.beta << " ; " << cars[key].angularPosition.gamma  << "]" << endl;
     EV << "MEClusterizeService::handleClusterizeInfo - cars[" << key << "].angularSpeed = " << "[" << cars[key].angularSpeed.alpha << " ; "<< cars[key].angularSpeed.beta << " ; " << cars[key].angularSpeed.gamma  << "]" << endl;
 }
