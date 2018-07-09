@@ -11,7 +11,7 @@
 //	@author	Angelo Buono
 //
 
-package lte.simulations.MEC_ICE_ALERT;
+package lte.simulations.MEC_WARNING_ALERT;
 
 
 import inet.networklayer.configurator.ipv4.IPv4NetworkConfigurator;

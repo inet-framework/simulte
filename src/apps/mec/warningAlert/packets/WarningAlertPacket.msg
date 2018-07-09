@@ -22,14 +22,14 @@ cplusplus {{
 packet MEAppPacket;
 
 
-packet IceAlertPacket extends MEAppPacket{   
-    
-    //meaningfull for INFO_UEAPP type  -> used by the MEIceAlertService
+packet WarningAlertPacket extends MEAppPacket
+{       
+    //meaningfull for INFO_UEAPP type  -> used by the MEWarningAlertService
     int ueOmnetID; 
     double positionX;
     double positionY;
     double positionZ;
     
-    //meaningfull for INFO_MEAPP type -> used by the UEIceAlertApp to change its color
+    //meaningfull for INFO_MEAPP type -> used by the UEWarningAlertApp to change its color
     bool danger;
 }

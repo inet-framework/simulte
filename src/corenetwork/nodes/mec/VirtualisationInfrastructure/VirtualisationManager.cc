@@ -336,7 +336,7 @@ void VirtualisationManager::instantiateMEApp(MEAppPacket* pkt)
 
         //displaying ME App dynamically created (after 70 they will overlap..)
         std::stringstream display;
-        display << "p=" << (70 + ((index%7)*150)%1000) << "," << (70 + (50*(index/7)%300)) << ";is=vs";
+        display << "p=" << (80 + ((index%5)*200)%1000) << "," << (70 + (50*(index/5)%350)) << ";is=vs";
         module->setDisplayString(display.str().c_str());
 
         //initialize IMEApp Parameters

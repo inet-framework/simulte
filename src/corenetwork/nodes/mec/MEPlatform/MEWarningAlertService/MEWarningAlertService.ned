@@ -11,17 +11,17 @@
 //  @author Angelo Buono
 //
 
-package lte.corenetwork.nodes.mec.MEPlatform.MEIceAlertService;
+package lte.corenetwork.nodes.mec.MEPlatform.MEWarningAlertService;
 
 import lte.corenetwork.nodes.mec.MEPlatform.IMEService;
 
 //
-// MEIceAlertService connected to the MEIceAlertApp
+// MEWarningAlertService connected to the MEWarningAlertApp
 //
-// When receives the INFO_UEAPP from the MEIceAlertApp checks if the UE is within the danger area 
+// When receives the INFO_UEAPP from the UEWarningAlertApp checks if the UE is within the danger area 
 // defined by the quadrilateral dangerEdgeA - dangerEdgeB - dangerEdgeC - dangerEdgeD
-// if UE IS INSIDE then REPLAY with INFO_MEAPP IceAlertPacket with danger == TRUE else danger == FALSE
-simple MEIceAlertService like IMEService
+// if UE IS INSIDE then REPLAY with INFO_MEAPP WarningAlertPacket with danger == TRUE else danger == FALSE
+simple MEWarningAlertService like IMEService
 {
     parameters:
         

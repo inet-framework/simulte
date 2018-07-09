@@ -12,22 +12,22 @@
 //
 
 
-package lte.apps.mec.iceAlert;
+package lte.apps.mec.warningAlert;
 
 import inet.applications.contract.IUDPApp;
 
-// UEIceAlertApp simple module in charge to:
+// UEWarningAlertApp simple module in charge to:
 //
-// 1) sending IceAlertPacket of type START_MEAPP until receiving an ACK_START_MEAPP type 
-//		to instantiate the required MEIceAlertApp instance
+// 1) sending WarningAlertPacket of type START_MEAPP until receiving an ACK_START_MEAPP type 
+//		to instantiate the required MEWarningAlertAlertApp instance
 // 2) handling ACK_START_MEAPP
-// 3) sending IceAlertPacket of type INFO_UEAPP with its informations (position)
-// 4) handling IceAlertPacket of type INFO_MEAPP alerting of Ice Danger on the road
-// 5) sending IceAlertPacket of type STOP_MEAPP until receiving an ACK_STOP_MEAPP type
-//		to terminate the MEIceAlertApp instance
+// 3) sending WarningAlertPacket of type INFO_UEAPP with its informations (position)
+// 4) handling WarningAlertPacket of type INFO_MEAPP alerting of Danger on the road
+// 5) sending WarningAlertPacket of type STOP_MEAPP until receiving an ACK_STOP_MEAPP type
+//		to terminate the MEWarningAlertApp instance
 // 6) handlin ACK_STOP_MEAPP
 
-simple UEIceAlertApp like IUDPApp
+simple UEWarningAlertApp like IUDPApp
 {
     parameters:       
          @display("i=block/source");    

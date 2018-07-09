@@ -11,25 +11,25 @@
 //  @author Angelo Buono
 //
 
-#include "UEIceAlertApp.h"
+#include "UEWarningAlertApp.h"
 
-Define_Module(UEIceAlertApp);
+Define_Module(UEWarningAlertApp);
 
-UEIceAlertApp::UEIceAlertApp(){
+UEWarningAlertApp::UEWarningAlertApp(){
     selfStart_ = NULL;
     selfSender_ = NULL;
     selfStop_ = NULL;
 }
 
-UEIceAlertApp::~UEIceAlertApp(){
+UEWarningAlertApp::~UEWarningAlertApp(){
     cancelAndDelete(selfStart_);
     cancelAndDelete(selfSender_);
     cancelAndDelete(selfStop_);
 }
 
-void UEIceAlertApp::initialize(int stage)
+void UEWarningAlertApp::initialize(int stage)
 {
-    EV << "UEIceAlertApp::initialize - stage " << stage << endl;
+    EV << "UEWarningAlertApp::initialize - stage " << stage << endl;
     cSimpleModule::initialize(stage);
     // avoid multiple initializations
     if (stage!=inet::INITSTAGE_APPLICATION_LAYER)
@@ -48,7 +48,7 @@ void UEIceAlertApp::initialize(int stage)
     requiredDisk = par("requiredDisk");
     requiredCpu = par("requiredCpu").doubleValue();
 
-    //bindign socket UDP
+    //binding socket UDP
     socket.setOutputGate(gate("udpOut"));
     socket.bind(localPort_);
 
@@ -61,58 +61,58 @@ void UEIceAlertApp::initialize(int stage)
         mobility = check_and_cast<inet::IMobility*>(temp);
     }
     else {
-        EV << "UEIceAlertApp::initialize - \tWARNING: Mobility module NOT FOUND!" << endl;
-        throw cRuntimeError("UEIceAlertApp::initialize - \tWARNING: Mobility module NOT FOUND!");
+        EV << "UEWarningAlertApp::initialize - \tWARNING: Mobility module NOT FOUND!" << endl;
+        throw cRuntimeError("UEWarningAlertApp::initialize - \tWARNING: Mobility module NOT FOUND!");
     }
 
-    //initializing the autoscheduling messages
+    //initializing the auto-scheduling messages
     selfSender_ = new cMessage("selfSender");
     selfStart_ = new cMessage("selfStart");
     selfStop_ = new cMessage("selfStop");
 
-    //starting UEIceAlertApp
+    //starting UEWarningAlertApp
     simtime_t startTime = par("startTime");
-    EV << "UEIceAlertApp::initialize - starting sendStartMEIceAlertApp() in " << startTime << " seconds " << endl;
+    EV << "UEWarningAlertApp::initialize - starting sendStartMEWarningAlertApp() in " << startTime << " seconds " << endl;
     scheduleAt(simTime() + startTime, selfStart_);
 
     //testing
-    EV << "UEIceAlertApp::initialize - sourceAddress: " << sourceSimbolicAddress << " [" << inet::L3AddressResolver().resolve(sourceSimbolicAddress).str()  <<"]"<< endl;
-    EV << "UEIceAlertApp::initialize - destAddress: " << destSimbolicAddress << " [" << destAddress_.str()  <<"]"<< endl;
-    EV << "UEIceAlertApp::initialize - binding to port: local:" << localPort_ << " , dest:" << destPort_ << endl;
+    EV << "UEWarningAlertApp::initialize - sourceAddress: " << sourceSimbolicAddress << " [" << inet::L3AddressResolver().resolve(sourceSimbolicAddress).str()  <<"]"<< endl;
+    EV << "UEWarningAlertApp::initialize - destAddress: " << destSimbolicAddress << " [" << destAddress_.str()  <<"]"<< endl;
+    EV << "UEWarningAlertApp::initialize - binding to port: local:" << localPort_ << " , dest:" << destPort_ << endl;
 }
 
-void UEIceAlertApp::handleMessage(cMessage *msg)
+void UEWarningAlertApp::handleMessage(cMessage *msg)
 {
-    EV << "UEIceAlertApp::handleMessage" << endl;
+    EV << "UEWarningAlertApp::handleMessage" << endl;
     // Sender Side
     if (msg->isSelfMessage())
     {
-        if (!strcmp(msg->getName(), "selfSender"))      sendInfoUEInceAlertApp();
+        if (!strcmp(msg->getName(), "selfSender"))      sendInfoUEWarningAlertApp();
 
-        else if(!strcmp(msg->getName(), "selfStart"))   sendStartMEIceAlertApp();
+        else if(!strcmp(msg->getName(), "selfStart"))   sendStartMEWarningAlertApp();
 
-        else if(!strcmp(msg->getName(), "selfStop"))    sendStopMEIceAlertApp();
+        else if(!strcmp(msg->getName(), "selfStop"))    sendStopMEWarningAlertApp();
 
-        else    throw cRuntimeError("UEIceAlertApp::handleMessage - \tWARNING: Unrecognized self message");
+        else    throw cRuntimeError("UEWarningAlertApp::handleMessage - \tWARNING: Unrecognized self message");
     }
     // Receiver Side
     else{
 
         MEAppPacket* mePkt = check_and_cast<MEAppPacket*>(msg);
-        if (mePkt == 0) throw cRuntimeError("UEIceAlertApp::handleMessage - \tFATAL! Error when casting to MEAppPacket");
+        if (mePkt == 0) throw cRuntimeError("UEWarningAlertApp::handleMessage - \tFATAL! Error when casting to MEAppPacket");
 
-        if( !strcmp(mePkt->getType(), ACK_START_MEAPP) )    handleAckStartMEIceAlertApp(mePkt);
+        if( !strcmp(mePkt->getType(), ACK_START_MEAPP) )    handleAckStartMEWarningAlertApp(mePkt);
 
-        else if(!strcmp(mePkt->getType(), ACK_STOP_MEAPP))  handleAckStopMEIceAlertApp(mePkt);
+        else if(!strcmp(mePkt->getType(), ACK_STOP_MEAPP))  handleAckStopMEWarningAlertApp(mePkt);
 
-        else if(!strcmp(mePkt->getType(), INFO_MEAPP))      handleInfoMEIcerAlertApp(mePkt);
+        else if(!strcmp(mePkt->getType(), INFO_MEAPP))      handleInfoMEWarningAlertApp(mePkt);
 
         delete msg;
     }
 }
 
-void UEIceAlertApp::finish(){
-
+void UEWarningAlertApp::finish()
+{
     // ensuring there is no selfStop_ scheduled!
     if(selfStop_->isScheduled())
         cancelEvent(selfStop_);
@@ -120,16 +120,17 @@ void UEIceAlertApp::finish(){
 /*
  * -----------------------------------------------Sender Side------------------------------------------
  */
-void UEIceAlertApp::sendStartMEIceAlertApp(){
-    EV << "UEIceAlertApp::sendStartMEIceAlertApp - Sending " << START_MEAPP << " type IceAlertPacket\n";
+void UEWarningAlertApp::sendStartMEWarningAlertApp()
+{
+    EV << "UEWarningAlertApp::sendStartMEWarningAlertApp - Sending " << START_MEAPP << " type WarningAlertPacket\n";
 
-    IceAlertPacket* packet = new IceAlertPacket();
+    WarningAlertPacket* packet = new WarningAlertPacket();
 
     //instantiation requirements and info
     packet->setType(START_MEAPP);
-    packet->setMEModuleType("lte.apps.mec.iceAlert.MEIceAlertApp");
-    packet->setMEModuleName("MEIceAlertApp");
-    packet->setRequiredService("MEIceAlertService");
+    packet->setMEModuleType("lte.apps.mec.warningAlert.MEWarningAlertApp");
+    packet->setMEModuleName("MEWarningAlertApp");
+    packet->setRequiredService("MEWarningAlertService");
     packet->setRequiredRam(requiredRam);
     packet->setRequiredDisk(requiredDisk);
     packet->setRequiredCpu(requiredCpu);
@@ -151,17 +152,18 @@ void UEIceAlertApp::sendStartMEIceAlertApp(){
     //rescheduling
     scheduleAt(simTime() + period_, selfStart_);
 }
-void UEIceAlertApp::sendInfoUEInceAlertApp(){
-    EV << "UEIceAlertApp::sendInfoUEInceAlertApp - Sending " << INFO_UEAPP <<" type IceAlertPacket\n";
+void UEWarningAlertApp::sendInfoUEWarningAlertApp()
+{
+    EV << "UEWarningAlertApp::sendInfoUEInceAlertApp - Sending " << INFO_UEAPP <<" type WarningAlertPacket\n";
 
     position = mobility->getCurrentPosition();
 
-    IceAlertPacket* packet = new IceAlertPacket();
+    WarningAlertPacket* packet = new WarningAlertPacket();
 
     //forwarding requirements and info
     packet->setType(INFO_UEAPP);
-    packet->setMEModuleName("MEIceAlertApp");
-    packet->setRequiredService("MEIceAlertService");
+    packet->setMEModuleName("MEWarningAlertApp");
+    packet->setRequiredService("MEWarningAlertService");
 
     //connection info
     packet->setSourceAddress(sourceSimbolicAddress);
@@ -185,17 +187,17 @@ void UEIceAlertApp::sendInfoUEInceAlertApp(){
     //rescheduling
     scheduleAt(simTime() + period_, selfSender_);
 }
-void UEIceAlertApp::sendStopMEIceAlertApp(){
+void UEWarningAlertApp::sendStopMEWarningAlertApp()
+{
+    EV << "UEWarningAlertApp::sendStopMEWarningAlertApp - Sending " << STOP_MEAPP <<" type WarningAlertPacket\n";
 
-    EV << "UEIceAlertApp::sendStopMEIceAlertApp - Sending " << STOP_MEAPP <<" type IceAlertPacket\n";
-
-    IceAlertPacket* packet = new IceAlertPacket();
+    WarningAlertPacket* packet = new WarningAlertPacket();
 
     //termination requirements and info
     packet->setType(STOP_MEAPP);
-    packet->setMEModuleType("lte.apps.mec.iceAlert.MEIcerAlertApp");
-    packet->setMEModuleName("MEIceAlertApp");
-    packet->setRequiredService("MEIceAlertService");
+    packet->setMEModuleType("lte.apps.mec.warningAlert.MEWarningrAlertApp");
+    packet->setMEModuleName("MEWarningAlertApp");
+    packet->setRequiredService("MEWarningAlertService");
     packet->setRequiredRam(requiredRam);
     packet->setRequiredDisk(requiredDisk);
     packet->setRequiredCpu(requiredCpu);
@@ -227,9 +229,9 @@ void UEIceAlertApp::sendStopMEIceAlertApp(){
 /*
  * ---------------------------------------------Receiver Side------------------------------------------
  */
-void UEIceAlertApp::handleAckStartMEIceAlertApp(MEAppPacket* pkt){
-
-    EV << "UEIceAlertApp::handleAckStartMEIceAlertApp - Received " << pkt->getType() << " type IceAlertPacket from: "<< pkt->getSourceAddress() << endl;
+void UEWarningAlertApp::handleAckStartMEWarningAlertApp(MEAppPacket* pkt)
+{
+    EV << "UEWarningAlertApp::handleAckStartMEWarningAlertApp - Received " << pkt->getType() << " type WarningAlertPacket from: "<< pkt->getSourceAddress() << endl;
 
     cancelEvent(selfStart_);
 
@@ -238,37 +240,37 @@ void UEIceAlertApp::handleAckStartMEIceAlertApp(MEAppPacket* pkt){
 
         simtime_t startTime = par("startTime");
         scheduleAt( simTime() + period_, selfSender_);
-        EV << "UEIceAlertApp::handleAckStartMEIceAlertApp - Starting traffic in " << period_ << " seconds " << endl;
+        EV << "UEWarningAlertApp::handleAckStartMEWarningAlertApp - Starting traffic in " << period_ << " seconds " << endl;
     }
 
-    //scheduling sendStopMEIceAlertApp()
+    //scheduling sendStopMEWarningAlertApp()
     if(!selfStop_->isScheduled()){
         simtime_t  stopTime = par("stopTime");
         scheduleAt(simTime() + stopTime, selfStop_);
-        EV << "UEIceAlertApp::handleAckStartMEIceAlertApp - Starting sendClusterizeStopPacket() in " << stopTime << " seconds " << endl;
+        EV << "UEWarningAlertApp::handleAckStartMEWarningAlertApp - Starting sendStopMEWarningAlertApp() in " << stopTime << " seconds " << endl;
     }
 }
-void UEIceAlertApp::handleInfoMEIcerAlertApp(MEAppPacket* pkt){
+void UEWarningAlertApp::handleInfoMEWarningAlertApp(MEAppPacket* pkt)
+{
+    EV << "UEWarningAlertApp::handleInfoMEWarningrAlertApp - Received " << pkt->getType() << " type WarningAlertPacket from: "<< pkt->getSourceAddress() << endl;
 
-    EV << "UEIceAlertApp::handleInfoMEIcerAlertApp - Received " << pkt->getType() << " type IceAlertPacket from: "<< pkt->getSourceAddress() << endl;
-
-    IceAlertPacket* packet = check_and_cast<IceAlertPacket*>(pkt);
+    WarningAlertPacket* packet = check_and_cast<WarningAlertPacket*>(pkt);
 
     //updating runtime color of the car icon background
     if(packet->getDanger()){
 
-        EV << "UEIceAlertApp::handleInfoMEIcerAlertApp - Ice Alert Detected: DANGER!" << endl;
+        EV << "UEWarningAlertApp::handleInfoMEWarningrAlertApp - Warning Alert Detected: DANGER!" << endl;
         ue->getDisplayString().setTagArg("i",1, "red");
     }
     else{
 
-        EV << "UEIceAlertApp::handleInfoMEIcerAlertApp - Ice Alert Detected: NO DANGER!" << endl;
+        EV << "UEWarningAlertApp::handleInfoMEWarningrAlertApp - Warning Alert Detected: NO DANGER!" << endl;
         ue->getDisplayString().setTagArg("i",1, "green");
     }
 }
-void UEIceAlertApp::handleAckStopMEIceAlertApp(MEAppPacket* pkt){
-
-    EV << "UEIceAlertApp::handleAckStopMEIceAlertApp - Received " << pkt->getType() << " type IceAlertPacket from: "<< pkt->getSourceAddress() << endl;
+void UEWarningAlertApp::handleAckStopMEWarningAlertApp(MEAppPacket* pkt)
+{
+    EV << "UEWarningAlertApp::handleAckStopMEWarningAlertApp - Received " << pkt->getType() << " type WarningAlertPacket from: "<< pkt->getSourceAddress() << endl;
 
     //updating runtime color of the car icon background
     ue->getDisplayString().setTagArg("i",1, "white");

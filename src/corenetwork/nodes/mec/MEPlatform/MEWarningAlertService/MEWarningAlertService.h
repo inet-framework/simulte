@@ -11,19 +11,19 @@
 //  @author Angelo Buono
 //
 
-#ifndef __SIMULTE_MEICEALERTSERVICE_H_
-#define __SIMULTE_MEICEALERTSERVICE_H_
+#ifndef __SIMULTE_MEWARNINGALERTSERVICE_H_
+#define __SIMULTE_MEWARNINGALERTSERVICE_H_
 
-//IceAlertPacket
-#include "apps/mec/iceAlert/packets/IceAlertPacket_m.h"
+//WarningAlertPacket
+#include "../../../../../apps/mec/warningAlert/packets/WarningAlertPacket_m.h"
 #include "corenetwork/nodes/mec/MEPlatform/MEAppPacket_Types.h"
 
 #include "inet/common/geometry/common/Coord.h"
 
 /*
- * see MEIceAlertService.ned
+ * see MEWarningAlertService.ned
  */
-class MEIceAlertService : public cSimpleModule
+class MEWarningAlertService : public cSimpleModule
 {
     inet::Coord dangerEdgeA, dangerEdgeB, dangerEdgeC, dangerEdgeD;
 
@@ -33,7 +33,7 @@ class MEIceAlertService : public cSimpleModule
         virtual void initialize(int stage);
         virtual void handleMessage(cMessage *msg);
 
-        void handleInfoUEIceAlertApp(IceAlertPacket* pkt);
+        void handleInfoUEWarningAlertApp(WarningAlertPacket* pkt);
 
         //utilities to check if the ue is within the danger area
         bool isInTriangle(inet::Coord P, inet::Coord A, inet::Coord B, inet::Coord C);

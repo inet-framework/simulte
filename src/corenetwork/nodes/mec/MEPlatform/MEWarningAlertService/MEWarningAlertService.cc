@@ -11,19 +11,19 @@
 //  @author Angelo Buono
 //
 
-#include "MEIceAlertService.h"
+#include "MEWarningAlertService.h"
 
-Define_Module(MEIceAlertService);
+Define_Module(MEWarningAlertService);
 
-void MEIceAlertService::initialize(int stage)
+void MEWarningAlertService::initialize(int stage)
 {
-    EV << "MEIceAlertService::initialize - stage " << stage << endl;
+    EV << "MEWarningAlertService::initialize - stage " << stage << endl;
     cSimpleModule::initialize(stage);
     // avoid multiple initializations
     if (stage!=inet::INITSTAGE_APPLICATION_LAYER)
         return;
 
-    // setting the MEIceAlertService gate sizes
+    // setting the MEWarningAlertService gate sizes
     int maxMEApps = 0;
     cModule* mePlatform = getParentModule();
     if(mePlatform != NULL){
@@ -31,14 +31,14 @@ void MEIceAlertService::initialize(int stage)
         if(meHost->hasPar("maxMEApps"))
                 maxMEApps = meHost->par("maxMEApps").longValue();
         else
-            throw cRuntimeError("MEIceAlertService::initialize - \tFATAL! Error when getting meHost.maxMEApps parameter!");
+            throw cRuntimeError("MEWarningAlertService::initialize - \tFATAL! Error when getting meHost.maxMEApps parameter!");
 
         this->setGateSize("meAppOut", maxMEApps);
         this->setGateSize("meAppIn", maxMEApps);
     }
     else{
-        EV << "MEIceAlertService::initialize - ERROR getting mePlatform cModule!" << endl;
-        throw cRuntimeError("MEIceAlertService::initialize - \tFATAL! Error when getting getParentModule()");
+        EV << "MEWarningAlertService::initialize - ERROR getting mePlatform cModule!" << endl;
+        throw cRuntimeError("MEWarningAlertService::initialize - \tFATAL! Error when getting getParentModule()");
     }
 
     //retrieving parameters
@@ -60,26 +60,26 @@ void MEIceAlertService::initialize(int stage)
     getSimulation()->getSystemModule()->getCanvas()->addFigure(polygon);
 }
 
-void MEIceAlertService::handleMessage(cMessage *msg)
+void MEWarningAlertService::handleMessage(cMessage *msg)
 {
-    EV << "MEIceAlertService::handleMessage - \n";
+    EV << "MEWarningAlertService::handleMessage - \n";
 
-    IceAlertPacket* pkt = check_and_cast<IceAlertPacket*>(msg);
+    WarningAlertPacket* pkt = check_and_cast<WarningAlertPacket*>(msg);
     if (pkt == 0)
-        throw cRuntimeError("MEIceAlertService::handleMessage - \tFATAL! Error when casting to IceAlertPacket");
+        throw cRuntimeError("MEWarningAlertService::handleMessage - \tFATAL! Error when casting to WarningAlertPacket");
 
-    if(!strcmp(pkt->getType(), INFO_UEAPP))         handleInfoUEIceAlertApp(pkt);
+    if(!strcmp(pkt->getType(), INFO_UEAPP))         handleInfoUEWarningAlertApp(pkt);
 
     delete pkt;
 }
 
-void MEIceAlertService::handleInfoUEIceAlertApp(IceAlertPacket* pkt){
+void MEWarningAlertService::handleInfoUEWarningAlertApp(WarningAlertPacket* pkt){
 
-    EV << "MEIceAlertService::handleInfoUEIceAlertApp - Received " << pkt->getType() << " type IceAlertPacket from " << pkt->getSourceAddress() << endl;
+    EV << "MEWarningAlertService::handleInfoUEWarningAlertApp - Received " << pkt->getType() << " type WarningAlertPacket from " << pkt->getSourceAddress() << endl;
 
     inet::Coord uePosition(pkt->getPositionX(), pkt->getPositionY(), pkt->getPositionZ());
 
-    IceAlertPacket* packet = new IceAlertPacket();
+    WarningAlertPacket* packet = new WarningAlertPacket();
     packet->setType(INFO_MEAPP);
 
     if(isInQuadrilateral(uePosition, dangerEdgeA, dangerEdgeB, dangerEdgeC, dangerEdgeD)){
@@ -88,7 +88,7 @@ void MEIceAlertService::handleInfoUEIceAlertApp(IceAlertPacket* pkt){
 
         send(packet, "meAppOut", pkt->getArrivalGate()->getIndex());
 
-        EV << "MEIceAlertService::handleInfoUEIceAlertApp - "<< pkt->getSourceAddress() << " is in Danger Area! Sending the " << INFO_MEAPP << " type IceAlertPacket with danger == TRUE!" << endl;
+        EV << "MEWarningAlertService::handleInfoUEWarningAlertApp - "<< pkt->getSourceAddress() << " is in Danger Area! Sending the " << INFO_MEAPP << " type WarningAlertPacket with danger == TRUE!" << endl;
     }
     else{
 
@@ -96,11 +96,11 @@ void MEIceAlertService::handleInfoUEIceAlertApp(IceAlertPacket* pkt){
 
         send(packet, "meAppOut", pkt->getArrivalGate()->getIndex());
 
-        EV << "MEIceAlertService::handleInfoUEIceAlertApp - "<< pkt->getSourceAddress() << " is not in Danger Area! Sending the " << INFO_MEAPP << " type IceAlertPacket with danger == FALSE!" << endl;
+        EV << "MEWarningAlertService::handleInfoUEWarningAlertApp - "<< pkt->getSourceAddress() << " is not in Danger Area! Sending the " << INFO_MEAPP << " type WarningAlertPacket with danger == FALSE!" << endl;
     }
 }
 
-bool MEIceAlertService::isInTriangle(inet::Coord P, inet::Coord A, inet::Coord B, inet::Coord C){
+bool MEWarningAlertService::isInTriangle(inet::Coord P, inet::Coord A, inet::Coord B, inet::Coord C){
 
       //considering all points relative to A
       inet::Coord v0 = B-A;   // B w.r.t A
@@ -127,7 +127,7 @@ bool MEIceAlertService::isInTriangle(inet::Coord P, inet::Coord A, inet::Coord B
       }
 }
 
-bool MEIceAlertService::isInQuadrilateral(inet::Coord P, inet::Coord A, inet::Coord B, inet::Coord C, inet::Coord D)
+bool MEWarningAlertService::isInQuadrilateral(inet::Coord P, inet::Coord A, inet::Coord B, inet::Coord C, inet::Coord D)
 {
       return isInTriangle(P, A, B, C) || isInTriangle(P, A, C, D);
 }

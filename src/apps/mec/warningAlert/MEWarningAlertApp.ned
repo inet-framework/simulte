@@ -11,16 +11,16 @@
 //	@author	Angelo Buono
 //
 
-package lte.apps.mec.iceAlert;
+package lte.apps.mec.warningAlert;
 
 import lte.corenetwork.nodes.mec.MEPlatform.IMEApp;
 
-// MEIceAlertApp simple module in charge to:
+// MEWarningAlertApp simple module in charge to:
 //
-// 1) handling IceAlertPacket of type INFO_UEAPP by forwarding to the MEIceAlertService
-// 2) handling IceAlertPacket of type INFO_MEAPP by adding source/destination info and forwarding to the VirtualisationManager
+// 1) handling WarningAlertPacket of type INFO_UEAPP by forwarding to the MEWarningAlertService
+// 2) handling WarningAlertPacket of type INFO_MEAPP by adding source/destination info and forwarding to the VirtualisationManager
 
-simple MEIceAlertApp like IMEApp
+simple MEWarningAlertApp like IMEApp
 {
     parameters:
         @display("i=block/app;is=s");

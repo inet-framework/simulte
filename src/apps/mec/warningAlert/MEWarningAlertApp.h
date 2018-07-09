@@ -11,20 +11,20 @@
 //  @author Angelo Buono
 //
 
-#ifndef __SIMULTE_MEICEALERTAPP_H_
-#define __SIMULTE_MEICEALERTAPP_H_
+#ifndef __SIMULTE_MEWARNINGALERTAPP_H_
+#define __SIMULTE_MEWARNINGALERTAPP_H_
 
 #include "inet/networklayer/common/L3Address.h"
 #include "inet/networklayer/common/L3AddressResolver.h"
 
-//IceAlertPacket
-#include "apps/mec/iceAlert/packets/IceAlertPacket_m.h"
+//MEWarningAlertPacket
 #include "corenetwork/nodes/mec/MEPlatform/MEAppPacket_Types.h"
+#include "../warningAlert/packets/WarningAlertPacket_m.h"
 
 /**
- * See MEIceAlertApp.ned
+ * See MEWarningAlertApp.ned
  */
-class MEIceAlertApp : public cSimpleModule
+class MEWarningAlertApp : public cSimpleModule
 {
     char* ueSimbolicAddress;
     char* meHostSimbolicAddress;
@@ -38,8 +38,8 @@ class MEIceAlertApp : public cSimpleModule
         virtual void handleMessage(cMessage *msg);
         void finish();
 
-        void handleInfoUEIceAlertApp(IceAlertPacket* pkt);
-        void handleInfoMEIceAlertApp(IceAlertPacket* pkt);
+        void handleInfoUEWarningAlertApp(WarningAlertPacket* pkt);
+        void handleInfoMEWarningAlertApp(WarningAlertPacket* pkt);
 };
 
 #endif

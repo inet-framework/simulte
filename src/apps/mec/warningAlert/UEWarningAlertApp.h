@@ -11,8 +11,8 @@
 //  @author Angelo Buono
 //
 
-#ifndef __SIMULTE_UEICEALERTAPP_H_
-#define __SIMULTE_UEICEALERTAPP_H_
+#ifndef __SIMULTE_UEWARNINGALERTAPP_H_
+#define __SIMULTE_UEWARNINGALERTAPP_H_
 
 #include "inet/transportlayer/contract/udp/UDPSocket.h"
 #include "inet/networklayer/common/L3Address.h"
@@ -25,14 +25,14 @@
 #include "inet/common/geometry/common/EulerAngles.h"
 #include "inet/mobility/contract/IMobility.h"
 
-//IceAlertPacket
-#include "apps/mec/iceAlert/packets/IceAlertPacket_m.h"
+//WarningAlertPacket
 #include "corenetwork/nodes/mec/MEPlatform/MEAppPacket_Types.h"
+#include "../warningAlert/packets/WarningAlertPacket_m.h"
 
 /**
- * See UEIceAlertApp.ned
+ * See UEWarningAlertApp.ned
  */
-class UEIceAlertApp : public cSimpleModule
+class UEWarningAlertApp : public cSimpleModule
 {
     //communication
     inet::UDPSocket socket;
@@ -61,8 +61,8 @@ class UEIceAlertApp : public cSimpleModule
     cMessage *selfStop_;
 
     public:
-        ~UEIceAlertApp();
-        UEIceAlertApp();
+        ~UEWarningAlertApp();
+        UEWarningAlertApp();
 
     protected:
 
@@ -71,13 +71,13 @@ class UEIceAlertApp : public cSimpleModule
         virtual void handleMessage(cMessage *msg);
         virtual void finish();
 
-        void sendStartMEIceAlertApp();
-        void sendInfoUEInceAlertApp();
-        void sendStopMEIceAlertApp();
+        void sendStartMEWarningAlertApp();
+        void sendInfoUEWarningAlertApp();
+        void sendStopMEWarningAlertApp();
 
-        void handleAckStartMEIceAlertApp(MEAppPacket* pkt);
-        void handleInfoMEIcerAlertApp(MEAppPacket* pkt);
-        void handleAckStopMEIceAlertApp(MEAppPacket* pkt);
+        void handleAckStartMEWarningAlertApp(MEAppPacket* pkt);
+        void handleInfoMEWarningAlertApp(MEAppPacket* pkt);
+        void handleAckStopMEWarningAlertApp(MEAppPacket* pkt);
 };
 
 #endif
