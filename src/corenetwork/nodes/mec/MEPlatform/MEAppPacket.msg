@@ -19,13 +19,16 @@ packet MEAppPacket {
     //type of message
     string type;
     
-    //communication infos
+    //communication informations
     string sourceAddress;
     string destinationAddress;
     
-    //instantiation info
+    //instantiation informations
     string MEModuleType;			//path where to find the cModule of the MEApp to instantiate
     string MEModuleName;			//module class name of the MEApp to instantiate
+    
+    //identification information
+    int ueAppID;
     
     //resources required
     unsigned int requiredDisk;

@@ -35,9 +35,9 @@
 
 struct meAppMapEntry
 {
-    int meAppGateIndex;
-    cModule* meAppModule;
-    inet::L3Address ueAddress;
+    int meAppGateIndex;         //map key
+    cModule* meAppModule;       //for ME App termination
+    inet::L3Address ueAddress;  //for downstream using UDP Socket
 };
 //###########################################################################
 
@@ -83,9 +83,12 @@ class VirtualisationManager : public cSimpleModule
     //set of free gates to use for connecting ME Apps and ME Services
     std::vector<int> freeGates;
     //------------------------------------
-    //mapping UEApp with the corresponding MEApp instance
-    //key = sourceAddress || MEModuleName  (retrieved from MEAppPacket) --> i.e. key = car[0]MEClusterizeApp
-    std::map<std::string, meAppMapEntry> meAppMapTable;
+    //mapping UEApp with the corresponding MEApp instance (using the meAppIn and meAppOut gate index)
+    //key = UE App ID - value = ME App gate index
+    std::map<int, int> ueAppIdToMeAppGateIndex;
+    //storing the UEApp and MEApp informations
+    //key = ME App gate index - value meAppMapEntry
+    std::map<int, meAppMapEntry> meAppMap;
 
     public:
         VirtualisationManager();

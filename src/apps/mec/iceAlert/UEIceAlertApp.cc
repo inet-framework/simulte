@@ -138,6 +138,9 @@ void UEIceAlertApp::sendStartMEIceAlertApp(){
     packet->setSourceAddress(sourceSimbolicAddress);
     packet->setDestinationAddress(destSimbolicAddress);
 
+    //identification info
+    packet->setUeAppID(getId());
+
     //other info
     packet->setUeOmnetID(ue->getId());
     packet->setTimestamp(simTime());
@@ -163,6 +166,9 @@ void UEIceAlertApp::sendInfoUEInceAlertApp(){
     //connection info
     packet->setSourceAddress(sourceSimbolicAddress);
     packet->setDestinationAddress(destSimbolicAddress);
+
+    //identification info
+    packet->setUeAppID(getId());
 
     //other info
     packet->setUeOmnetID(ue->getId());
@@ -197,6 +203,9 @@ void UEIceAlertApp::sendStopMEIceAlertApp(){
     //connection info
     packet->setSourceAddress(sourceSimbolicAddress);
     packet->setDestinationAddress(destSimbolicAddress);
+
+    //identification info
+    packet->setUeAppID(getId());
 
     //other info
     packet->setUeOmnetID(ue->getId());

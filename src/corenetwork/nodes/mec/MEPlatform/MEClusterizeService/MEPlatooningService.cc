@@ -280,11 +280,12 @@ void MEPlatooningService::updatePositions(){
 
     //updating car positions based on the last position & timestamp + velocity * elapsed_time + acceleration * elapsed_time^2
     double now = simTime().dbl();
-
     std::map<int, car>::iterator it;
     for(it = cars.begin(); it != cars.end(); it++)
     {
-        double time_gap = now - it->second.timestamp.dbl();
+        double old = it->second.timestamp.dbl();
+        //regulating the time_gap taking into account the previous update on MEPlatooningService!
+        double time_gap = (now-old > period_.dbl())? period_.dbl(): now - old;
         it->second.position.x = it->second.position.x + it->second.speed.x*time_gap + it->second.acceleration*cos(it->second.angularPosition.alpha)*time_gap*time_gap;
         it->second.position.y = it->second.position.y + it->second.speed.y*time_gap + it->second.acceleration*sin(it->second.angularPosition.alpha)*time_gap*time_gap;
         //it->second.position.z = it->second.position.z + it->second.speed.z*time_gap;

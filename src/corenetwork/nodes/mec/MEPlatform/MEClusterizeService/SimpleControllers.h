@@ -19,7 +19,7 @@
 // A = nxn, B = nx1, C = 1xn, D = 1x1
 // at time k --> e_k = 1x1 (input), u_k = 1x1 (output), x_k = nx1 (state)
 //
-// COMPUTE OUTPUT -->   u_k = c*x_k + D*e_k
+// COMPUTE OUTPUT -->   u_k = C*x_k + D*e_k
 //
 // COMPUTE NEXT STATE -->   x_k+1 = A*x_k + B*e_k
 

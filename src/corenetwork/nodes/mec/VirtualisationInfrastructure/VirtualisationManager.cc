@@ -174,12 +174,11 @@ void VirtualisationManager::startMEApp(MEAppPacket* pkt){
         return;
     }
 
-    //creating the meAppMapTable map key
-    std::stringstream key;
-    key << pkt->getSourceAddress() << pkt->getMEModuleName();
+    //retrieve UE App ID
+    int ueAppID = pkt->getUeAppID();
 
     //checking if there are available slots for MEApp && the required MEApp instance is not already instantiated!
-    if(currentMEApps < maxMEApps && meAppMapTable.find(key.str()) == meAppMapTable.end())
+    if(currentMEApps < maxMEApps && ueAppIdToMeAppGateIndex.find(ueAppID) == ueAppIdToMeAppGateIndex.end())
     {
         //Checking for resource availability to the Resource Manager
         send(pkt, "resourceManagerOut");
@@ -189,7 +188,7 @@ void VirtualisationManager::startMEApp(MEAppPacket* pkt){
     }
     else
     {
-        if(meAppMapTable.find(key.str()) != meAppMapTable.end())
+        if(ueAppIdToMeAppGateIndex.find(ueAppID) != ueAppIdToMeAppGateIndex.end())
         {
             //Sending ACK to the UEApp to confirm the instantiation in case of previous ack lost!
             ackMEAppPacket(pkt, ACK_START_MEAPP);
@@ -205,14 +204,23 @@ void VirtualisationManager::upstreamToMEApp(MEAppPacket* pkt){
 
     EV << "VirtualisationManager::upstreamToMEApp - processing..."<< endl;
 
-    //creating the meAppMapTable map key
-    std::stringstream key;
-    key << pkt->getSourceAddress() << pkt->getMEModuleName();
+    //retrieve UE App ID
+    int ueAppID = pkt->getUeAppID();
 
-    if(!meAppMapTable.empty() && meAppMapTable.find(key.str()) != meAppMapTable.end())
+    //checking if ueAppIdToMeAppGateIndex entry map does exist
+    if(ueAppIdToMeAppGateIndex.empty() || ueAppIdToMeAppGateIndex.find(ueAppID) == ueAppIdToMeAppGateIndex.end())
     {
-        EV << "VirtualisationManager::upstreamToMEApp - forwarding " << pkt->getName() << " to meAppOut["<< meAppMapTable[key.str()].meAppGateIndex << "] gate" << endl;
-        send(pkt, "meAppOut", meAppMapTable[key.str()].meAppGateIndex);
+        EV << "VirtualisationeManager::upstreamToMEApp - \tWARNING forwarding to ueAppIdToMeAppGateIndex["<< ueAppID <<"] not found!" << endl;
+        throw cRuntimeError("VirtualisationeManager::upstreamToMEApp - \tERROR ueAppIdToMeAppGateIndex entry not found!");
+        return;
+    }
+    //getting the meAppMap map key from the ueAppIdToMeAppGateIndex map
+    int key = ueAppIdToMeAppGateIndex[ueAppID];
+
+    if(!meAppMap.empty() && meAppMap.find(key) != meAppMap.end())
+    {
+        EV << "VirtualisationManager::upstreamToMEApp - forwarding " << pkt->getName() << " to meAppOut["<< meAppMap[key].meAppGateIndex << "] gate" << endl;
+        send(pkt, "meAppOut", meAppMap[key].meAppGateIndex);
     }
     else EV << "VirtualisationManager::upstreamToMEApp - \tWARNING: NO " << pkt->getMEModuleName() << " INSTANCE FOUND!" << endl;
 }
@@ -221,15 +229,14 @@ void VirtualisationManager::downstreamToUEApp(MEAppPacket* pkt){
 
     EV << "VirtualisationManager::downstreamToUEApp - processing..."<< endl;
 
-    //creating the meAppMapTable map key
-    std::stringstream key;
-    key << pkt->getDestinationAddress() << pkt->getMEModuleName();
+    //getting the meAppMap map key (meAppIn gate index)
+    int key = pkt->getArrivalGate()->getIndex();
 
     const char* destSimbolicAddr = pkt->getDestinationAddress();
 
-    if(!meAppMapTable.empty() && meAppMapTable.find(key.str()) != meAppMapTable.end()){
+    if(!meAppMap.empty() && meAppMap.find(key) != meAppMap.end()){
 
-        destAddress_ = meAppMapTable[key.str()].ueAddress;
+        destAddress_ = meAppMap[key].ueAddress;
 
         //checking if the Car is in the network & sending by socket
         MacNodeId destId = binder_->getMacNodeId(destAddress_.toIPv4());
@@ -246,6 +253,7 @@ void VirtualisationManager::downstreamToUEApp(MEAppPacket* pkt){
             spkt->setSourceAddress(pkt->getSourceAddress());
             spkt->setDestinationAddress(pkt->getDestinationAddress());
             spkt->setMEModuleName(pkt->getMEModuleName());
+            spkt->setUeAppID(pkt->getUeAppID());
             EV << "VirtualisationeManager::downstreamToUEApp - calling stopMEApp for " << destSimbolicAddr << endl;
             stopMEApp(spkt);
 
@@ -257,19 +265,27 @@ void VirtualisationManager::downstreamToUEApp(MEAppPacket* pkt){
             socket.sendTo(pkt, destAddress_, destPort_);
         }
     }
-    else
-        EV << "VirtualisationeManager::downstreamToUEApp - \tWARNING forwarding to "<< destSimbolicAddr << ": map entry "<< key.str() <<" not found!" << endl;
+    else EV << "VirtualisationeManager::downstreamToUEApp - \tWARNING forwarding to "<< destSimbolicAddr << ": meAppMap["<< key <<"] not found!" << endl;
 }
 
 void VirtualisationManager::stopMEApp(MEAppPacket* pkt){
 
     EV << "VirtualisationManager::stopMEApp - processing..." << endl;
 
-    //creating the meAppMapTable map key
-    std::stringstream key;
-    key << pkt->getSourceAddress() << pkt->getMEModuleName();
+    //retrieve UE App ID
+    int ueAppID = pkt->getUeAppID();
 
-    if(!meAppMapTable.empty() && meAppMapTable.find(key.str()) != meAppMapTable.end())
+    //checking if ueAppIdToMeAppGateIndex entry map does exist
+    if(ueAppIdToMeAppGateIndex.empty() || ueAppIdToMeAppGateIndex.find(ueAppID) == ueAppIdToMeAppGateIndex.end())
+    {
+        EV << "VirtualisationManager::stopMEApp - \tWARNING forwarding to ueAppIdToMeAppGateIndex["<< ueAppID <<"] not found!" << endl;
+        throw cRuntimeError("VirtualisationManager::stopMEApp - \tERROR ueAppIdToMeAppGateIndex entry not found!");
+        return;
+    }
+    //getting the meAppMap map key from the ueAppIdToMeAppGateIndex map
+    int key = ueAppIdToMeAppGateIndex[ueAppID];
+
+    if(!meAppMap.empty() && meAppMap.find(key) != meAppMap.end())
     {
         //Asking to the Resource Manager to free resources
         EV << "VirtualisationManager::stopMEApp - forwarding "<< pkt->getType() << " to Resource Manager!" << endl;
@@ -286,18 +302,21 @@ void VirtualisationManager::instantiateMEApp(MEAppPacket* pkt)
     char* sourceAddress = (char*)pkt->getSourceAddress();
     char* meModuleName = (char*)pkt->getMEModuleName();
 
-    //creating the meAppMapTable map key
-    std::stringstream key;
-    key << sourceAddress << meModuleName;
+    //retrieve UE App ID
+    int ueAppID = pkt->getUeAppID();
 
-    if(currentMEApps < maxMEApps &&  meAppMapTable.find(key.str()) == meAppMapTable.end())
+    //checking if there are ME App slots available and if ueAppIdToMeAppGateIndex map entry does not exist (that means ME App not already instantiated)
+    if(currentMEApps < maxMEApps &&  ueAppIdToMeAppGateIndex.find(ueAppID) == ueAppIdToMeAppGateIndex.end())
     {
-        EV << "VirtualisationManager::instantiateMEApp - key: " << key.str() << endl;
-
-        //getting the first available gates
+        //getting the first available gate
         int index = freeGates.front();
         freeGates.erase(freeGates.begin());
         EV << "VirtualisationManager::instantiateMEApp - freeGate: " << index << endl;
+
+        //creating ueAppIdToMeAppGateIndex map entry
+        ueAppIdToMeAppGateIndex[ueAppID] = index;
+        EV << "VirtualisationManager::instantiateMEApp - ueAppIdToMeAppGateIndex[" << ueAppID << "] = " << index << endl;
+        int key = ueAppIdToMeAppGateIndex[ueAppID] ;
 
         //getting the UEApp L3Address
         inet::L3Address ueAppAddress = inet::L3AddressResolver().resolve(sourceAddress);
@@ -309,6 +328,11 @@ void VirtualisationManager::instantiateMEApp(MEAppPacket* pkt)
         std::stringstream appName;
         appName << meModuleName << "[" <<  sourceAddress << "]";
         module->setName(appName.str().c_str());
+
+        //creating the meAppMap map entry
+        meAppMap[key].meAppGateIndex = index;
+        meAppMap[key].meAppModule = module;
+        meAppMap[key].ueAddress = ueAppAddress;
 
         //displaying ME App dynamically created (after 70 they will overlap..)
         std::stringstream display;
@@ -346,11 +370,6 @@ void VirtualisationManager::instantiateMEApp(MEAppPacket* pkt)
         module->scheduleStart(simTime());
         module->callInitialize();
 
-        //creating the map entry
-        meAppMapTable[key.str()].meAppGateIndex = index;
-        meAppMapTable[key.str()].meAppModule = module;
-        meAppMapTable[key.str()].ueAddress = ueAppAddress;
-
         currentMEApps++;
 
         //Sending ACK to the UEClusterizeApp
@@ -358,7 +377,7 @@ void VirtualisationManager::instantiateMEApp(MEAppPacket* pkt)
         ackMEAppPacket(pkt, ACK_START_MEAPP);
 
         //testing
-        EV << "VirtualisationManager::instantiateMEApp - "<< meModuleName << "[" << key.str() <<"] instanced!" << endl;
+        EV << "VirtualisationManager::instantiateMEApp - "<< module->getName() <<" instanced!" << endl;
         EV << "VirtualisationManager::instantiateMEApp - currentMEApps: " << currentMEApps << " / " << maxMEApps << endl;
     }
 }
@@ -366,18 +385,26 @@ void VirtualisationManager::instantiateMEApp(MEAppPacket* pkt)
 void VirtualisationManager::terminateMEApp(MEAppPacket* pkt)
 {
     int serviceIndex = findService(pkt->getRequiredService());
-
     char* meModuleName = (char*) pkt->getMEModuleName();
 
-    //creating the meAppMapTable map key
-    std::stringstream key;
-    key << pkt->getSourceAddress() << meModuleName;
+    //retrieve UE App ID
+    int ueAppID = pkt->getUeAppID();
 
-    if(!meAppMapTable.empty() && meAppMapTable.find(key.str()) != meAppMapTable.end())
+    if(!ueAppIdToMeAppGateIndex.empty() && ueAppIdToMeAppGateIndex.find(ueAppID) != ueAppIdToMeAppGateIndex.end())
     {
+        //retrieve meAppMap map key
+        int key = ueAppIdToMeAppGateIndex[ueAppID];
+        //check if meAppMap map entry does exist
+        if(meAppMap.empty() || meAppMap.find(key) == meAppMap.end())
+        {
+            EV << "VirtualisationManager::terminateMEApp - \ERROR meAppMap["<< key << "] does not exist!" << endl;
+            throw cRuntimeError("VirtualisationManager::terminateMEApp - \ERROR meAppMap entry does not exist!");
+            return;
+        }
+
         //terminating the ME App instance
-        meAppMapTable[key.str()].meAppModule->callFinish();
-        meAppMapTable[key.str()].meAppModule->deleteModule();
+        meAppMap[key].meAppModule->callFinish();
+        meAppMap[key].meAppModule->deleteModule();
         currentMEApps--;
         EV << "VirtualisationManager::terminateMEApp - currentMEApps: " << currentMEApps << " / " << maxMEApps << endl;
 
@@ -386,7 +413,7 @@ void VirtualisationManager::terminateMEApp(MEAppPacket* pkt)
         //before to remove the map entry!
         ackMEAppPacket(pkt, ACK_STOP_MEAPP);
 
-        int index = meAppMapTable[key.str()].meAppGateIndex;
+        int index = meAppMap[key].meAppGateIndex;
         //disconnecting internal MEPlatform gates to the MEService gates
         (meServices.at(serviceIndex))->gate("meAppOut", index)->disconnect();
         (meServices.at(serviceIndex))->gate("meAppIn", index)->disconnect();
@@ -395,18 +422,18 @@ void VirtualisationManager::terminateMEApp(MEAppPacket* pkt)
         mePlatform->gate("meAppIn", index)->disconnect();
 
         //update map
-        std::map<std::string, meAppMapEntry>::iterator it1;
-        it1 = meAppMapTable.find(key.str());
-        if (it1 != meAppMapTable.end())
-            meAppMapTable.erase (it1);
+        std::map<int, meAppMapEntry>::iterator it1;
+        it1 = meAppMap.find(key);
+        if (it1 != meAppMap.end())
+            meAppMap.erase (it1);
 
         freeGates.push_back(index);
 
-        EV << "VirtualisationManager::terminateMEApp - " << meModuleName << "[" << key.str() << "] terminated!" << endl;
+        EV << "VirtualisationManager::terminateMEApp - " << meModuleName << " terminated!" << endl;
     }
     else
     {
-        EV << "VirtualisationManager::terminateMEClusterizeApp - \tWARNING: NO" <<meModuleName << " INSTANCE FOUND!" << endl;
+        EV << "VirtualisationManager::terminateMEClusterizeApp - \tWARNING: NO INSTANCE FOUND!" << endl;
         //Sending ACK_STOP_MEAPP to the UEApp
         EV << "VirtualisationManager::terminateMEClusterizeApp - calling ackMEAppPacket with  "<< ACK_STOP_MEAPP << endl;
         ackMEAppPacket(pkt, ACK_STOP_MEAPP);
@@ -415,15 +442,24 @@ void VirtualisationManager::terminateMEApp(MEAppPacket* pkt)
 
 void VirtualisationManager::ackMEAppPacket(MEAppPacket* pkt, const char* type)
 {
-    //creating the map key
-    std::stringstream key;
-    key << pkt->getSourceAddress() << pkt->getMEModuleName();
+    //retrieve UE App ID
+    int ueAppID = pkt->getUeAppID();
 
     const char* destSymbolicAddr = pkt->getSourceAddress();
 
-    if(!meAppMapTable.empty() && meAppMapTable.find(key.str()) != meAppMapTable.end())
+    if(!ueAppIdToMeAppGateIndex.empty() && ueAppIdToMeAppGateIndex.find(ueAppID) != ueAppIdToMeAppGateIndex.end())
     {
-        destAddress_ = meAppMapTable[key.str()].ueAddress;
+        //retrieve meAppMap map key
+        int key = ueAppIdToMeAppGateIndex[ueAppID];
+        //check if meAppMap map entry does exist
+        if(meAppMap.empty() || meAppMap.find(key) == meAppMap.end())
+        {
+            EV << "VirtualisationManager::ackMEAppPacket - \ERROR meAppMap["<< key << "] does not exist!" << endl;
+            throw cRuntimeError("VirtualisationManager::ackMEAppPacket - \ERROR meAppMap entry does not exist!");
+            return;
+        }
+
+        destAddress_ = meAppMap[key].ueAddress;
 
         //checking if the Car is in the network & sending by socket
         MacNodeId destId = binder_->getMacNodeId(destAddress_.toIPv4());
@@ -446,7 +482,7 @@ void VirtualisationManager::ackMEAppPacket(MEAppPacket* pkt, const char* type)
             socket.sendTo(ack, destAddress_, destPort_);
         }
     }
-    else EV << "VirtualisationManager::ackMEAppPacket - \tWARNING in sending ack " << type <<" to "<< destSymbolicAddr << ": map entry "<< key.str() <<" not found!" << endl;
+    else EV << "VirtualisationManager::ackMEAppPacket - \tWARNING in sending ack " << type <<" to "<< destSymbolicAddr << ": ueAppIdToMeAppGateIndex["<< ueAppID <<"] not found!" << endl;
 
     delete(pkt);
 }

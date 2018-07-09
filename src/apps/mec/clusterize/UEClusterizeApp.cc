@@ -191,6 +191,8 @@ void UEClusterizeApp::sendClusterizeStartPacket()
     EV << "UEClusterizeApp::sendClusterizeStartPacket - Sending message SeqNo[" << nextSnoStart_ << "]\n";
     //creating and sending START_MEAPP ClusterizePacket
     ClusterizePacket* packet = ClusterizePacketBuilder().buildClusterizePacket(START_MEAPP, nextSnoStart_, simTime(), size_, car->getId(), mySymbolicAddress, meHostSymbolicAddress);
+    //identification info
+    packet->setUeAppID(getId());
     socket.sendTo(packet, destAddress_, destPort_);
     nextSnoStart_++;
     //re-scheduling until ACK_START_MEAPP is received
@@ -222,6 +224,8 @@ void UEClusterizeApp::sendClusterizeInfoPacket()
 
     //creating and sending INFO_UEAPP ClusterizeInfoPacket
     ClusterizeInfoPacket* packet = ClusterizePacketBuilder().buildClusterizeInfoPacket(nextSnoInfo_, simTime(), size_, car->getId(), mySymbolicAddress, meHostSymbolicAddress, position, speed, angularPosition, angularSpeed);
+    //identification info
+    packet->setUeAppID(getId());
     packet->setAcceleration(requiredAcceleration);
     socket.sendTo(packet, destAddress_, destPort_);
     nextSnoInfo_++;
@@ -250,6 +254,8 @@ void UEClusterizeApp::sendClusterizeStopPacket()
 
     //creating and sending STOP_MEAPP ClusterizePacket
     ClusterizePacket* packet = ClusterizePacketBuilder().buildClusterizePacket(STOP_MEAPP, nextSnoStop_, simTime(), size_, car->getId(), mySymbolicAddress, meHostSymbolicAddress);
+    //identification info
+    packet->setUeAppID(getId());
     socket.sendTo(packet, destAddress_, destPort_);
     nextSnoStop_++;
 
