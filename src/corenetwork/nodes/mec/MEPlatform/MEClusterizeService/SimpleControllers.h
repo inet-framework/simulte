@@ -39,10 +39,12 @@ class SimpleVelocityController{
 
         double getOutput(double e){
             u = D*e;
+            u = ceil( (int)(u*1000)) / 1000.00;
             return u;
         }
         void updateNextState(double e){
             x = A*x + B*e;
+            x = ceil( (int)(x*1000)) / 1000.00;
         }
 };
 
@@ -54,17 +56,17 @@ class SimpleDistanceController{
         SimpleDistanceController(){
 
             A[0][0] = 0;
-            A[0][1] = -0.7348;
+            A[0][1] = -0.5109;  //A[0][1] = -0.7348;
             A[1][0] = 0;
-            A[1][1] = 0.4;
+            A[1][1] = 0.71;     //A[1][1] = 0.4;
 
-            B[0] = 1.897;
-            B[1] = 1.549;
+            B[0] = 1.897;       //B[0] = 1.897;
+            B[1] = 1.077;       //B[1] = 1.549;
 
-            C[0] = -1.423;
-            C[1] = -1.162;
+            C[0] = -1.352;      //C[0] = -1.423;
+            C[1] = -0.7674;     //C[1] = -1.162;
 
-            D = 3;
+            D = 2.85;           //D = 3;
 
             for(int j=0; j<2; j++)
                 x[j] = 0;
@@ -72,11 +74,14 @@ class SimpleDistanceController{
 
         double getOutput(double e){
             u = C[0]*x[0] + C[1]*x[1] +  D*e;
+            u = ceil( (int)(u*1000)) / 1000.00;
             return u;
         }
         void updateNextState(double e){
             x[0] = A[0][0]*x[0] + A[0][1]*x[1] + B[0]*e;
+            x[0] = ceil( (int)(x[0]*1000)) / 1000.00;
             x[1] = A[1][0]*x[0] + A[1][1]*x[1] + B[1]*e;
+            x[1] = ceil( (int)(x[1]*1000)) / 1000.00;
         }
 };
 

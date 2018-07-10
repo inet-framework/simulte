@@ -102,7 +102,7 @@ void MEPlatooningService::computePlatoon(std::string shape){
     for(it = cars.begin(); it != cars.end(); it++)
     {
           EV << it->second.symbolicAddress << "\t followed by:\t" << it->second.follower << "\t[following:\t" << it->second.following << "] ";
-          EV << "\t\t position: " << it->second.position << " angle:" << it->second.angularPosition.alpha << " time-stamp: " << it->second.timestamp << endl;
+          EV << "\t position: " << it->second.position << " speed: " << it->second.speed << " angle:" << it->second.angularPosition.alpha << " time-stamp: " << it->second.timestamp << endl;
     }
     EV << "\nMEPlatooningService::computePlatoon - CLUSTERS:\n\n";
     std::map<int, cluster>::iterator cit;
@@ -290,8 +290,8 @@ void MEPlatooningService::updatePositionsAndSpeeds(){
         it->second.position.x += it->second.speed.x*time_gap + it->second.acceleration*cos(it->second.angularPosition.alpha)*time_gap*time_gap;
         it->second.position.y += it->second.speed.y*time_gap + it->second.acceleration*sin(it->second.angularPosition.alpha)*time_gap*time_gap;
         //update speed
-        it->second.speed.x += it->second.speed.x*time_gap;
-        it->second.speed.y += it->second.speed.y*time_gap;
+        it->second.speed.x += it->second.acceleration*cos(it->second.angularPosition.alpha)*time_gap;
+        it->second.speed.y += it->second.acceleration*sin(it->second.angularPosition.alpha)*time_gap;
         //testing
         //EV << "MEPlatooningService::updatePositionsAndSpeeds - " << it->second.symbolicAddress << " position: " << it->second.position << " speed: " << it->second.speed << " time-stamp: " << now << endl ;
     }
@@ -310,6 +310,7 @@ void MEPlatooningService::computePlatoonAccelerations(){
            {
                 //controller input
                 double velocity_gap = desiredVelocity - cars[i].speed.length();
+                velocity_gap = ceil( (int)(velocity_gap*1000)) / 1000.00;
                 //getting controller output and moving on next state
                 double acceleration = cars_velocity_controllers[i].getOutput(velocity_gap);
                 cars_velocity_controllers[i].updateNextState(velocity_gap);
@@ -324,6 +325,7 @@ void MEPlatooningService::computePlatoonAccelerations(){
            {
                 //controller input
                 double distance_gap = cars[i].position.distance(cars[previous].position) -  desiredDistance;
+                distance_gap = ceil( (int)(distance_gap*1000)) / 1000.00;
                 //getting controller output and moving on next state
                 double acceleration = cars_distance_controllers[i].getOutput(distance_gap);
                 cars_distance_controllers[i].updateNextState(distance_gap);
