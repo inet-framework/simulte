@@ -432,7 +432,14 @@ simple LteMacEnbD2D extends LteMacEnb
         bool reuseD2D = default(false);
         bool reuseD2DMulti = default(false);
         double conflictGraphUpdatePeriod @unit(s) = default(1s);
-        double conflictGraphThreshold = default(90);  // dBm
+        
+        // CG thresholds can be defined in either dBm or meters
+        // if distances are set to -1.0, then dBm thresholds are used,
+        // otherwise distances have priority on dBm thresholds 
+        double conflictGraphThreshold = default(90);                       // dBm
+        double conflictGraphD2DInterferenceRadius @unit(m) = default(-1.0m);         // meters
+        double conflictGraphD2DMultiTxRadius @unit(m) = default(-1.0m);              // meters
+        double conflictGraphD2DMultiInterferenceRadius @unit(m) = default(-1.0m);    // meters
         
         // handling of D2D mode switch
         bool msHarqInterrupt = default(true);

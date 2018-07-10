@@ -39,7 +39,7 @@ public:
     virtual ~DistanceBasedConflictGraph() { }
 
     // set distance thresholds
-    void setThresholds(double d2dInterferenceRadius, double d2dMultiTransmissionRadius, double d2dMultiInterferenceRadius);
+    void setThresholds(double d2dInterferenceRadius = -1.0, double d2dMultiTransmissionRadius = -1.0, double d2dMultiInterferenceRadius = -1.0);
 };
 
 #endif	/* DISTANCEBASEDCONFLICTGRAPH_H */

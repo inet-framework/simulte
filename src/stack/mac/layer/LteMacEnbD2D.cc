@@ -56,14 +56,14 @@ void LteMacEnbD2D::initialize(int stage)
         if (reuseD2D_ || reuseD2DMulti_)
         {
             conflictGraphUpdatePeriod_ = par("conflictGraphUpdatePeriod");
-            conflictGraphThreshold_ = par("conflictGraphThreshold");
 
             CGType cgType = CG_DISTANCE;  // TODO make this parametric
             switch(cgType)
             {
                 case CG_DISTANCE:
                 {
-                    conflictGraph_ = new DistanceBasedConflictGraph(this, reuseD2D_, reuseD2DMulti_, conflictGraphThreshold_);
+                    conflictGraph_ = new DistanceBasedConflictGraph(this, reuseD2D_, reuseD2DMulti_, par("conflictGraphThreshold"));
+                    check_and_cast<DistanceBasedConflictGraph*>(conflictGraph_)->setThresholds(par("conflictGraphD2DInterferenceRadius"), par("conflictGraphD2DMultiTxRadius"), par("conflictGraphD2DMultiInterferenceRadius"));
                     break;
                 }
                 default: { throw cRuntimeError("LteMacEnbD2D::initialize - CG type unknown. Aborting"); }
