@@ -99,6 +99,10 @@ simple LteRealisticChannelModel like LteChannelModelInterface
     bool uplink_interference = default(false);
 	// if true, enables the interference computation for D2D connections -->  
     bool d2d_interference = default(true);
+    
+    // statistics
+    @signal[rcvdSinr];
+    @statistic[rcvdSinr](title="SINR measured at packet reception"; unit="dB"; source="rcvdSinr"; record=mean,vector);
 }
 
 simple LteMagicChannelModel like LteChannelModelInterface

@@ -140,6 +140,10 @@ private:
   //if dynamicLos is false this boolean is initialized to true if all user will be in LOS or false otherwise
   bool fixedLos_;
 
+  // statistics
+  simsignal_t rcvdSinr_;
+
+
 public:
   virtual void initialize();
 

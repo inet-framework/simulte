@@ -75,6 +75,9 @@ void LteRealisticChannelModel::initialize()
    binder_ = getBinder();
    //clear jakes fading map structure
    jakesFadingMap_.clear();
+
+   // statistics
+   rcvdSinr_ = registerSignal("rcvdSinr");
 }
 
 
@@ -1340,6 +1343,10 @@ bool LteRealisticChannelModel::error(LteAirFrame *frame,
    RbMap::iterator it;
    std::map<Band, unsigned int>::iterator jt;
 
+   // for statistic purposes
+   double sumSnr = 0.0;
+   int usedRBs = 0;
+
    //for each Remote unit used to transmit the packet
    for (it = rbmap.begin(); it != rbmap.end(); ++it)
    {
@@ -1361,6 +1368,11 @@ bool LteRealisticChannelModel::error(LteAirFrame *frame,
            //Get the Bler
            if (cqi == 0 || cqi > 15)
                throw cRuntimeError("A packet has been transmitted with a cqi equal to 0 or greater than 15 cqi:%d txmode:%d dir:%d rb:%d cw:%d rtx:%d", cqi,lteInfo->getTxMode(),dir,jt->second,cw,nTx);
+
+           // for statistic purposes
+           sumSnr += snrV[jt->first];
+           usedRBs++;
+
            int snr = snrV[jt->first];//XXX because jt->first is a Band (=unsigned short)
            if (snr < 0)
                return false;
@@ -1396,6 +1408,9 @@ bool LteRealisticChannelModel::error(LteAirFrame *frame,
                       << " node " << id << " total ERROR probability  " << per
                       << " per with H-ARQ error reduction " << totalPer
                       << " - CQI[" << cqi << "]- random error extracted[" << er << "]" << endl;
+
+   // emit SINR statistic
+   emit(rcvdSinr_, sumSnr / usedRBs);
 
    if (er <= totalPer)
    {
