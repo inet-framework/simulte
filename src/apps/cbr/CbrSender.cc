@@ -60,7 +60,7 @@ void CbrSender::handleMessage(cMessage *msg)
         if (!strcmp(msg->getName(), "selfSource"))
         {
             EV << "CbrSender::handleMessage - now[" << simTime() << "] <= finish[" << finishTime_ <<"]" <<endl;
-            if( simTime() <= finishTime_ )
+            if( simTime() <= finishTime_ || finishTime_ == 0 )
                 sendCbrPacket();
         }
         else
