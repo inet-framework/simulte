@@ -59,8 +59,8 @@ void MEPlatooningService::compute()
     //EV << "\nMEPlatooningService::compute - updating RNI infos\n" << endl;                                                //RNI not USED
     //updateRniInfo();
 
-    EV << "\nMEPlatooningService::compute - updating car positions\n" << endl;
-    updatePositions();
+    EV << "\nMEPlatooningService::compute - updating car positions and speeds\n" << endl;
+    updatePositionsAndSpeeds();
 
     EV << "\nMEPlatooningService::compute - computing platoons\n" << endl;
     computePlatoon(shape);  //shape is "rectangle" or "triangle"
@@ -276,7 +276,7 @@ bool MEPlatooningService::isInRectangle(inet::Coord P, inet::Coord A, inet::Coor
 }
 
 
-void MEPlatooningService::updatePositions(){
+void MEPlatooningService::updatePositionsAndSpeeds(){
 
     //updating car positions based on the last position & timestamp + velocity * elapsed_time + acceleration * elapsed_time^2
     double now = simTime().dbl();
@@ -286,9 +286,14 @@ void MEPlatooningService::updatePositions(){
         double old = it->second.timestamp.dbl();
         //regulating the time_gap taking into account the previous update on MEPlatooningService!
         double time_gap = (now-old > period_.dbl())? period_.dbl(): now - old;
-        it->second.position.x = it->second.position.x + it->second.speed.x*time_gap + it->second.acceleration*cos(it->second.angularPosition.alpha)*time_gap*time_gap;
-        it->second.position.y = it->second.position.y + it->second.speed.y*time_gap + it->second.acceleration*sin(it->second.angularPosition.alpha)*time_gap*time_gap;
-        //it->second.position.z = it->second.position.z + it->second.speed.z*time_gap;
+        //update position
+        it->second.position.x += it->second.speed.x*time_gap + it->second.acceleration*cos(it->second.angularPosition.alpha)*time_gap*time_gap;
+        it->second.position.y += it->second.speed.y*time_gap + it->second.acceleration*sin(it->second.angularPosition.alpha)*time_gap*time_gap;
+        //update speed
+        it->second.speed.x += it->second.speed.x*time_gap;
+        it->second.speed.y += it->second.speed.y*time_gap;
+        //testing
+        //EV << "MEPlatooningService::updatePositionsAndSpeeds - " << it->second.symbolicAddress << " position: " << it->second.position << " speed: " << it->second.speed << " time-stamp: " << now << endl ;
     }
 }
 

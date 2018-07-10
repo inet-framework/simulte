@@ -385,7 +385,6 @@ void VirtualisationManager::instantiateMEApp(MEAppPacket* pkt)
 void VirtualisationManager::terminateMEApp(MEAppPacket* pkt)
 {
     int serviceIndex = findService(pkt->getRequiredService());
-    char* meModuleName = (char*) pkt->getMEModuleName();
 
     //retrieve UE App ID
     int ueAppID = pkt->getUeAppID();
@@ -407,6 +406,7 @@ void VirtualisationManager::terminateMEApp(MEAppPacket* pkt)
         meAppMap[key].meAppModule->deleteModule();
         currentMEApps--;
         EV << "VirtualisationManager::terminateMEApp - currentMEApps: " << currentMEApps << " / " << maxMEApps << endl;
+        EV << "VirtualisationManager::terminateMEApp - " << meAppMap[key].meAppModule->getName() << " terminated!" << endl;
 
         //Sending ACK_STOP_MEAPP to the UEApp
         EV << "VirtualisationManager::terminateMEApp - calling ackMEAppPacket with  "<< ACK_STOP_MEAPP << endl;
@@ -428,8 +428,6 @@ void VirtualisationManager::terminateMEApp(MEAppPacket* pkt)
             meAppMap.erase (it1);
 
         freeGates.push_back(index);
-
-        EV << "VirtualisationManager::terminateMEApp - " << meModuleName << " terminated!" << endl;
     }
     else
     {

@@ -61,8 +61,8 @@ class MEPlatooningService : public MEClusterizeService
             //cleaning structures
             void resetCarFlagsAndControls();
             void resetClusters();
-            //update, to this instant, car positions using received informations
-            void updatePositions();
+            //update, to this instant, car positions and speeds using received informations
+            void updatePositionsAndSpeeds();
             //getting Radio Network Informations (i.e. txPower and CQI)
             void updateRniInfo();
             //computing candidate Platoon of vehicles
