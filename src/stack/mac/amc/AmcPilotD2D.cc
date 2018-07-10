@@ -27,8 +27,11 @@ void AmcPilotD2D::setPreconfiguredTxParams(Cqi cqi)
     preconfiguredTxParams_->writeCqi(std::vector<Cqi>(1,cqi));
 
     BandSet b;
-    for (Band i = 0; i < amc_->getSystemNumBands(); ++i) b.insert(i);
-        preconfiguredTxParams_->writeBands(b);
+    Band i = 0;
+//    for ( ; i < amc_->getSystemNumBands(); ++i)
+        b.insert(i);
+
+    preconfiguredTxParams_->writeBands(b);
 
     RemoteSet antennas;
     antennas.insert(MACRO);

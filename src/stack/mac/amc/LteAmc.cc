@@ -687,7 +687,7 @@ unsigned int LteAmc::computeBitsOnNRbs(MacNodeId id, Band b, unsigned int blocks
     EV << NOW << " LteAmc::blocks2bits Direction: " << dirToA(dir) << "\n";
 
     // Acquiring current user scheduling information
-    UserTxParams info = computeTxParams(id, dir);
+    const UserTxParams & info = computeTxParams(id, dir);
 
     std::vector<unsigned char> layers = info.getLayers();
 
