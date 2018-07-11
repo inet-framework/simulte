@@ -84,6 +84,7 @@ void ResourceManager::handleMessage(cMessage *msg)
 
 void ResourceManager::finish(){
 
+    templateMEClusterizeApp->callFinish();
     templateMEClusterizeApp->deleteModule();
 }
 

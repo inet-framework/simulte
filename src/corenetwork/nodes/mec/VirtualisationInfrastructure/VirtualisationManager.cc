@@ -336,7 +336,7 @@ void VirtualisationManager::instantiateMEApp(MEAppPacket* pkt)
 
         //displaying ME App dynamically created (after 70 they will overlap..)
         std::stringstream display;
-        display << "p=" << (80 + ((index%5)*200)%1000) << "," << (70 + (50*(index/5)%350)) << ";is=vs";
+        display << "p=" << (80 + ((index%5)*200)%1000) << "," << (100 + (50*(index/5)%350)) << ";is=vs";
         module->setDisplayString(display.str().c_str());
 
         //initialize IMEApp Parameters
@@ -421,7 +421,8 @@ void VirtualisationManager::terminateMEApp(MEAppPacket* pkt)
         mePlatform->gate("meAppOut", index)->disconnect();
         mePlatform->gate("meAppIn", index)->disconnect();
 
-        //update map
+        //update maps
+        ueAppIdToMeAppGateIndex.erase(ueAppIdToMeAppGateIndex.find(ueAppID));
         std::map<int, meAppMapEntry>::iterator it1;
         it1 = meAppMap.find(key);
         if (it1 != meAppMap.end())
