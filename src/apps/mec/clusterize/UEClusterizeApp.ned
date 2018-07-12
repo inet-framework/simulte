@@ -65,6 +65,16 @@ simple UEClusterizeApp like IUDPApp
         
         @signal[clusterizeConfigDelay]; 
         @statistic[clusterizeConfigDelay](title="ClusterizeConfig Delay"; unit="s"; source="clusterizeConfigDelay"; record=mean,vector);
+        
+        //#platooning formation values
+        @signal[clusterizeRcvdAccelerations];
+        @statistic[clusterizeRcvdAccelerations]("Clusterize Accelerations Received"; unit=""; source="clusterizeRcvdAccelerations"; record=vector);
+        
+        @signal[clusterizeRcvdDistanceGaps];
+        @statistic[clusterizeRcvdDistanceGaps]("Clusterize Distance Gaps Received"; unit=""; source="clusterizeRcvdDistanceGaps"; record=vector);
+        
+        @signal[clusterizeRcvdVelocityGaps];
+        @statistic[clusterizeRcvdVelocityGaps]("Clusterize Velocity Gaps Received"; unit=""; source="clusterizeRcvdVelocityGaps"; record=vector);
                   
     gates:
         

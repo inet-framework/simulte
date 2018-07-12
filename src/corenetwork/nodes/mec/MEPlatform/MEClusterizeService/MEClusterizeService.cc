@@ -129,6 +129,16 @@ void MEClusterizeService::sendConfig()
             {
                 ClusterizeConfigPacket* pkt = ClusterizePacketBuilder().buildClusterizeConfigPacket(0, 0, eventID, 1, 0, 0, "", "", cars[memberKey].clusterID, cl_it->second.color.c_str(), cars[memberKey].txMode.c_str(), cars[memberKey].following.c_str(), cars[memberKey].follower.c_str(),cl_it->second.membersList.c_str(), cl_it->second.accelerations);
                 //sending to the member MEClusterizeApp (on the corresponded gate!)
+
+                //sending distanceGaps
+                int size = cl_it->second.distanceGap.size();
+                pkt->setDistanceGapArraySize(size);
+                for(int i=0; i < size; i++)     pkt->setDistanceGap(i, cl_it->second.distanceGap.at(i));
+                //sending velocityGaps
+                size = cl_it->second.velocityGap.size();
+                pkt->setVelocityGapArraySize(size);
+                for(int i=0; i < size; i++)     pkt->setVelocityGap(i, cl_it->second.velocityGap.at(i));
+
                 send(pkt, "meAppOut", memberKey);
                 //testing
                 EV << "\nMEClusterizeService::sendConfig - sending ClusterizeConfig to CM: "  << cars[memberKey].symbolicAddress << " (txMode: INFRASTRUCTURE_UNICAST_TX_MODE) " << endl;
@@ -151,6 +161,17 @@ void MEClusterizeService::sendConfig()
 
             ClusterizeConfigPacket* pkt = ClusterizePacketBuilder().buildClusterizeConfigPacket(0, 0, eventID, 1, 0, 0, "", "", cars[leaderKey].clusterID, cl_it->second.color.c_str(), cars[leaderKey].txMode.c_str(), cars[leaderKey].following.c_str(), cars[leaderKey].follower.c_str(),cl_it->second.membersList.c_str(), cl_it->second.accelerations);
             //sending to the leader MEClusterizeApp (on the corresponded gate!)
+
+            //sending distanceGaps
+            int size = cl_it->second.distanceGap.size();
+            pkt->setDistanceGapArraySize(size);
+            for(int i=0; i < size; i++)     pkt->setDistanceGap(i, cl_it->second.distanceGap.at(i));
+            //sending velocityGaps
+            size = cl_it->second.velocityGap.size();
+            pkt->setVelocityGapArraySize(size);
+            for(int i=0; i < size; i++)     pkt->setVelocityGap(i, cl_it->second.velocityGap.at(i));
+
+
             send(pkt, "meAppOut", leaderKey);
 
             //testing

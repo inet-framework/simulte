@@ -108,6 +108,10 @@ class UEClusterizeApp : public cSimpleModule
     simsignal_t clusterizeInfoSentMsg_;
     simsignal_t clusterizeConfigRcvdMsg_;
     simsignal_t clusterizeConfigDelay_;
+    //platoon formation values
+    simsignal_t clusterizeRcvdAccelerations_;
+    simsignal_t clusterizeRcvdDistanceGaps_;
+    simsignal_t clusterizeRcvdVelocityGaps_;
 
     public:
 
@@ -140,14 +144,14 @@ class UEClusterizeApp : public cSimpleModule
         void handleMEAppAckStop(MEAppPacket*);
         //----------------------------------------------------------------------------------------------------------------------
         // handling INFO_MEAPP ClusterizeConfigPacket
-        // by calling handleClusterizeConfigFromMEHost or handleClusterizeConfigFromUE and emit statistics
+        // by calling handleClusterizeConfigFromMEHost or handleClusterizeConfigFromUE
         void handleClusterizeConfig(ClusterizeConfigPacket *);
         // handling INFO_MEAPP ClusterizeConfigPacket from ME Host:
-        // eventually propagating (if LEADER) in V2V UNICAST or V2V MULTICAST to the follower car
+        // eventually propagating (if LEADER) in V2V UNICAST or V2V MULTICAST to the follower car  and emit statistics
         void handleClusterizeConfigFromMEHost(ClusterizeConfigPacket *);
         // handling INFO_MEAPP ClusterizeConfigPacket from UE (car):
         // retrieving following and follower UE (car)
-        // eventually propagating in V2V UNICAST to the follower car
+        // eventually propagating in V2V UNICAST to the follower car  and emit statistics
         void handleClusterizeConfigFromUE(ClusterizeConfigPacket *);
         //----------------------------------------------------------------------------------------------------------------------
         //utilities functions
@@ -157,6 +161,8 @@ class UEClusterizeApp : public cSimpleModule
         std::string getFollowing(ClusterizeConfigPacket *);
         //retrieve the acceleration to use from the INFO_MEAPP ClusterizeConfigPacket
         double updateAcceleration(ClusterizeConfigPacket *);
+        //emit platoon formation statistics: distance-gaps, velocity-gaps and accelerations
+        void emitPlatoonFormationStatistics(ClusterizeConfigPacket*);
         //----------------------------------------------------------------------------------------------------------------------
         //getting veins module to handle vehicle mobility
         void getVehicleInterface();

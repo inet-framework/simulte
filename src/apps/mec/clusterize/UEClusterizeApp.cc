@@ -129,6 +129,10 @@ void UEClusterizeApp::initialize(int stage)
     clusterizeInfoSentMsg_ = registerSignal("clusterizeInfoSentMsg");
     clusterizeConfigRcvdMsg_ = registerSignal("clusterizeConfigRcvdMsg");
     clusterizeConfigDelay_ = registerSignal("clusterizeConfigDelay");
+    //platoon formation values
+    clusterizeRcvdAccelerations_ = registerSignal("clusterizeRcvdAccelerations");
+    clusterizeRcvdDistanceGaps_ = registerSignal("clusterizeRcvdDistanceGaps");
+    clusterizeRcvdVelocityGaps_ = registerSignal("clusterizeRcvdVelocityGaps");
     //--------------------------------------
     //starting UEClusterizeApp
     simtime_t startTime = par("startTime");
@@ -347,12 +351,6 @@ void UEClusterizeApp::handleClusterizeConfig(ClusterizeConfigPacket* pkt){
                                                                 //TODO ADJUST (for now I added setAcceleration in INET.LinearMobility)
         linear_mobility->setAcceleration(requiredAcceleration);
     }
-
-    // emit statistics
-    simtime_t delay = simTime() - pkt->getTimestamp();
-    emit(clusterizeConfigRcvdMsg_, (long)1);
-    emit(clusterizeConfigDelay_, delay);
-    stat_->recordReception(macID, pkt->getEventID(), delay, pkt->getHops());
 }
 
 
@@ -404,6 +402,15 @@ void UEClusterizeApp::handleClusterizeConfigFromMEHost(ClusterizeConfigPacket *p
 
         EV << "UEClusterizeApp::handleClusterizeConfigFromMEHost - propagating " << INFO_MEAPP <<" ClusterizeConfigPacket to multicast: " << multicastGoupAddress << " : " << multicastPort_<< endl;
     }
+
+
+    // emit statistics
+    simtime_t delay = simTime() - pkt->getTimestamp();
+    emit(clusterizeConfigRcvdMsg_, (long)1);
+    emit(clusterizeConfigDelay_, delay);
+    stat_->recordReception(macID, pkt->getEventID(), delay, pkt->getHops());
+    //platoon formation statistics
+    emitPlatoonFormationStatistics(pkt);
 }
 
 
@@ -463,6 +470,14 @@ void UEClusterizeApp::handleClusterizeConfigFromUE(ClusterizeConfigPacket *pkt){
                 EV << "UEClusterizeApp::handleClusterizeConfigFromUE - No Follower!" << endl;
         }
     }
+
+    // emit statistics
+    simtime_t delay = simTime() - pkt->getTimestamp();
+    emit(clusterizeConfigRcvdMsg_, (long)1);
+    emit(clusterizeConfigDelay_, delay);
+    stat_->recordReception(macID, pkt->getEventID(), delay, pkt->getHops());
+    //platoon formation statistics
+    emitPlatoonFormationStatistics(pkt);
 }
 
 /*
@@ -509,6 +524,21 @@ double UEClusterizeApp::updateAcceleration(ClusterizeConfigPacket *pkt){
        }
     }
     return requiredAcceleration;
+}
+
+void UEClusterizeApp::emitPlatoonFormationStatistics(ClusterizeConfigPacket* pkt){
+
+    //emit distance gap and velocity gap received
+    for(unsigned int i=0; i < pkt->getDistanceGapArraySize(); i++){
+       if(strcmp(pkt->getClusterList(i), mySymbolicAddress) == 0)
+       {
+           EV << "UEClusterizeApp::emitPlatoonFormationStatistics - " << pkt->getClusterList(i) << " (" << i << ") distanceGap: " << pkt->getDistanceGap(i) << " velocityGap: " << pkt->getVelocityGap(i) << endl;
+           emit(clusterizeRcvdDistanceGaps_, pkt->getDistanceGap(i));
+           emit(clusterizeRcvdVelocityGaps_, pkt->getVelocityGap(i));
+       }
+    }
+    //emit received acceleration
+    emit(clusterizeRcvdAccelerations_, requiredAcceleration);
 }
 
 void UEClusterizeApp::getVehicleInterface(){

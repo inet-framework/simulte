@@ -311,6 +311,9 @@ void MEPlatooningService::computePlatoonAccelerations(){
                 //controller input
                 double velocity_gap = desiredVelocity - cars[i].speed.length();
                 velocity_gap = ceil( (int)(velocity_gap*1000)) / 1000.00;
+                //updating platoon formation info
+                cit->second.velocityGap.push_back(velocity_gap);
+                cit->second.distanceGap.push_back(0);
                 //getting controller output and moving on next state
                 double acceleration = cars_velocity_controllers[i].getOutput(velocity_gap);
                 cars_velocity_controllers[i].updateNextState(velocity_gap);
@@ -325,12 +328,14 @@ void MEPlatooningService::computePlatoonAccelerations(){
            //members
            else
            {
-                //initializing the car distance controller internal status
-                if(!cars_distance_controllers[i].isInitialized())    cars_distance_controllers[i].initialize(0, 0);
                 //controller input
                 double distance_gap = cars[i].position.distance(cars[previous].position) -  desiredDistance;
                 distance_gap = ceil( (int)(distance_gap*1000)) / 1000.00;
-
+                double velocity_gap = desiredVelocity - cars[i].speed.length();
+                velocity_gap = ceil( (int)(velocity_gap*1000)) / 1000.00;
+                //updating platoon formation info
+                cit->second.distanceGap.push_back(distance_gap);
+                cit->second.velocityGap.push_back(velocity_gap);
                 //getting controller output and moving on next state
                 double acceleration = cars_distance_controllers[i].getOutput(distance_gap);
                 cars_distance_controllers[i].updateNextState(distance_gap);
@@ -360,7 +365,7 @@ void MEPlatooningService::computePlatoonAccelerations(){
                  *
                  */
 /*
-                double t = *period_.dbl();
+                double t = (distance_gap > 0)? 5*period_.dbl() : period_.dbl();
                 double t_2 = t*t;
                 double previousCarNextPositionX = cars[previous].position.x + cars[previous].speed.x * t +  cars[previous].acceleration * cos(cars[previous].angularPosition.alpha) * t_2;
                 double previousCarNextPositionY = cars[previous].position.y + cars[previous].speed.y * t +  cars[previous].acceleration * sin(cars[previous].angularPosition.alpha) * t_2;
@@ -380,7 +385,8 @@ void MEPlatooningService::computePlatoonAccelerations(){
 
                 double a = MAX_ACCELERATION;
                 //if both positive
-                a = (abs(a1) < abs(a2))? a1 : a2;
+                //a = (abs(a1) < abs(a2))? a1 : a2;
+                a = a2;                                         //is always a2 the right solution?
 
                 a = (a < MAX_ACCELERATION && a > -MAX_ACCELERATION)? a : (a > MAX_ACCELERATION)? MAX_ACCELERATION : -MAX_ACCELERATION;
                 cars[i].acceleration = a;

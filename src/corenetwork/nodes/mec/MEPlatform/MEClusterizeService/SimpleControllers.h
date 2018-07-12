@@ -50,29 +50,17 @@ class SimpleVelocityController{
 
 class SimpleDistanceController{
 
-    double A[2][2], B[2], C[2], D, x[2], u;
-
+    double A, B, C, D, x, u;
     bool initialized;
 
     public:
         SimpleDistanceController(){
 
-            A[0][0] = 0;
-            A[0][1] = -0.5109;
-            A[1][0] = 0;
-            A[1][1] = 0.71;
-
-            B[0] = 1.897;
-            B[1] = 1.077;
-
-            C[0] = -1.352;
-            C[1] = -0.7674;
-
-            D = 2.85;
-
-            for(int j=0; j<2; j++)
-                x[j] = 0;
-
+            A = 0;
+            B = 0.5;
+            C = -0.4;
+            D = 0.2;
+            x = 0;
             initialized = false;
         }
 
@@ -81,27 +69,24 @@ class SimpleDistanceController{
             return initialized;
         }
 
-        void initialize(double x0, double x1)
+        void initialize(double x)
         {
-            x[0] = x0;
-            x[1] = x1;
+            this->x = x;
             initialized = true;
             //testing
-            EV << "SimpleDistanceController::initialize - x = [" << x[0] << " ; " << x[1] <<"]" << endl;
+            EV << "SimpleDistanceController::initialize - x = [" << x <<"]" << endl;
         }
 
         double getOutput(double e){
-            u = C[0]*x[0] + C[1]*x[1] +  D*e;
+            u = C*x + D*e;
             u = ceil( (int)(u*1000)) / 1000.00;
             //testing
-            EV << "SimpleDistanceController::getOutput - x = [" << x[0] << " ; " << x[1] <<"] u = "<< u << endl;
+            EV << "SimpleDistanceController::getOutput - x = [" << x <<"] u = "<< u << endl;
             return u;
         }
         void updateNextState(double e){
-            x[0] = A[0][0]*x[0] + A[0][1]*x[1] + B[0]*e;
-            x[0] = ceil( (int)(x[0]*1000)) / 1000.00;
-            x[1] = A[1][0]*x[0] + A[1][1]*x[1] + B[1]*e;
-            x[1] = ceil( (int)(x[1]*1000)) / 1000.00;
+            x = A*x + B*e;
+            x = ceil( (int)(x*1000)) / 1000.00;
         }
 };
 

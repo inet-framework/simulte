@@ -85,7 +85,7 @@ class VirtualisationManager : public cSimpleModule
     //------------------------------------
     //mapping UEApp with the corresponding MEApp instance (using the meAppIn and meAppOut gate index)
     //key = UE App ID - value = ME App gate index
-    std::map<int, int> ueAppIdToMeAppGateIndex;
+    std::map<int, int> ueAppIdToMeAppMapKey;
     //storing the UEApp and MEApp informations
     //key = ME App gate index - value meAppMapEntry
     std::map<int, meAppMapEntry> meAppMap;

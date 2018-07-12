@@ -38,6 +38,9 @@ struct cluster{
     std::string membersList;            //Symbolic UE Addresses space-separated  (set in ClusterizeConfigPacket)
     std::vector<double> accelerations;  //ordered-array containing the accelerations for each Cluster Member  (set in ClusterizeConfigPacket)
     std::vector<int> members;           //ordered-array containing the key (in cars map) for each Cluster Member
+    //updating platoon formation info
+    std::vector<double> distanceGap;
+    std::vector<double> velocityGap;
 };
 struct car{
 
