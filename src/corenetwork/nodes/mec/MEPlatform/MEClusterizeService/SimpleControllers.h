@@ -24,12 +24,13 @@
 // COMPUTE NEXT STATE -->   x_k+1 = A*x_k + B*e_k
 
 
-class SimpleVelocityController{
-
+class SimpleVelocityController
+{
     double A, B, C, D, x, u;
 
     public:
-        SimpleVelocityController(){
+        SimpleVelocityController()
+    {
             A = 0;
             B = 0;
             C = 0;
@@ -37,27 +38,34 @@ class SimpleVelocityController{
             x = 0;
         }
 
-        double getOutput(double e){
+        double getOutput(double e)
+        {
             u = D*e;
             u = ceil( (int)(u*1000)) / 1000.00;
             return u;
         }
-        void updateNextState(double e){
+        void updateNextState(double e)
+        {
             x = A*x + B*e;
             x = ceil( (int)(x*1000)) / 1000.00;
         }
 };
 
-class SimpleDistanceController{
-
+class SimpleDistanceController
+{
+    /*
+     * controller C(z) = 0.1 *(z-1)/z --> A=0   B=0.25  C=-0.4  D=0.1
+     *                                  controller input max is 30 m to respect the output max of 3 m/s^2 (max acceleration supposed to be 3)
+     *                                  settling time is 120s
+     */
     double A, B, C, D, x, u;
     bool initialized;
 
     public:
-        SimpleDistanceController(){
-
+        SimpleDistanceController()
+    {
             A = 0;
-            B = 0.5;
+            B = 0.25;
             C = -0.4;
             D = 0.1;
             x = 0;

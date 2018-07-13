@@ -13,7 +13,6 @@
 
 package lte.simulations.MEC.InetMobility;
 
-
 import inet.networklayer.configurator.ipv4.IPv4NetworkConfigurator;
 import inet.networklayer.ipv4.RoutingTableRecorder;
 import inet.node.ethernet.Eth10G;
@@ -36,66 +35,44 @@ import org.car2x.veins.subprojects.veins_inet.VeinsInetManager;
 //statistics
 import lte.apps.d2dMultihop.statistics.MultihopD2DStatistics;
 
-
 network MecInetThreeCell
 {
     parameters:
-
-        int numCars = default(0);
-        int numClusters = default(0);
-        int numRoads = default(0);
+        @display("bgb=1000, 1000");
+        
+        int numCars = default(1);
+        int numClusters = default(1);
+        int numRoads = default(1);
 
         double playgroundSizeX @unit(m); // x size of the area the nodes are in (in meters)
         double playgroundSizeY @unit(m); // y size of the area the nodes are in (in meters)
         double playgroundSizeZ @unit(m); // z size of the area the nodes are in (in meters)
-        @display("bgb=1100,900");
 
     submodules:
 
-        routingRecorder: RoutingTableRecorder {
-            @display("p=985,115;is=s");
-        }
-        configurator: IPv4NetworkConfigurator {
-            @display("p=985,195");
-            config = xmldoc("demo.xml");
-        }
-        d2dMultihopStatistics: MultihopD2DStatistics {
-            @display("p=985,340;is=s");
-        }
-        car[numCars]: Car {
-            @display("p=300,300");
-        }
-
+        routingRecorder: RoutingTableRecorder {	@display("p=985,115;is=s");}
+        
+        configurator: IPv4NetworkConfigurator {	@display("p=985,195");	config = xmldoc("demo.xml");}
+        
+        d2dMultihopStatistics: MultihopD2DStatistics { @display("p=985,340;is=s");}
+        
         //# LTE modules
-        channelControl: LteChannelControl {
-            @display("p=985,35;is=s");
-        }
-        binder: LteBinder {
-            @display("p=985,275;is=s");
-        }
+        channelControl: LteChannelControl {	@display("p=985,35;is=s");}
+        
+        binder: LteBinder {	@display("p=985,275;is=s");}
 
-        eNodeB1: eNodeB {
-            @display("p=100,150;is=vl");
-        }
+        eNodeB1: eNodeB {	@display("p=100,150;is=vl");}
 
-        eNodeB2: eNodeB {
-            @display("p=200,450;is=vl");
-        }
+        eNodeB2: eNodeB {	@display("p=200,450;is=vl");}
 
-        eNodeB3: eNodeB {
-            @display("p=100,750;is=vl");
-        }
+        eNodeB3: eNodeB {	@display("p=100,750;is=vl");}
 
-        pgw: PgwStandardSimplified {
-            nodeType = "PGW";
-            @display("p=479.912,610;is=l");
-        }
+        pgw: PgwStandardSimplified {	@display("p=479.912,610;is=l");	nodeType = "PGW";}
+
+        car[numCars]: Car {	@display("p=300,300");}
 
         //# MEC module
-        meHost: MEHost {
-            @display("p=481.91998,150;is=l");
-        }
-
+        meHost: MEHost {	@display("p=481.91998,150;is=l");}
 
     connections allowunconnected:
 

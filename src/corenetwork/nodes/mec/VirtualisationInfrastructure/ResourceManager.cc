@@ -74,7 +74,7 @@ void ResourceManager::finish(){
 
 void ResourceManager::handleMEAppResources(MEAppPacket* pkt){
 
-    EV << "ResourceManager::handleMEAppResources - "<< pkt->getName() << " received: "<< pkt->getSourceAddress() <<" SeqNo[" << pkt->getSno() << "]"<< endl;
+    EV << "ResourceManager::handleMEAppResources - "<< pkt->getType() << " received: "<< pkt->getSourceAddress() <<" SeqNo[" << pkt->getSno() << "]"<< endl;
 
     bool availableResources = true;
 
@@ -99,8 +99,8 @@ void ResourceManager::handleMEAppResources(MEAppPacket* pkt){
     }
     /* -------------------------------
      * Handling StopPacket */
-    else if(!strcmp(pkt->getType(), STOP_MEAPP)){
-
+    else if(!strcmp(pkt->getType(), STOP_MEAPP))
+    {
         EV << "ResourceManager::handleMEAppResources - resources DEALLOCATED for " << pkt->getSourceAddress() << endl;
         deallocateResources(reqRam, reqDisk, reqCpu);
         send(pkt, "virtualisationManagerOut");
