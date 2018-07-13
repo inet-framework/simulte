@@ -30,11 +30,11 @@ class SimpleVelocityController{
 
     public:
         SimpleVelocityController(){
-            A=0;
-            B=0;
-            C=0;
-            D=0.1;
-            x=0;
+            A = 0;
+            B = 0;
+            C = 0;
+            D = 0.1;
+            x = 0;
         }
 
         double getOutput(double e){
@@ -59,7 +59,7 @@ class SimpleDistanceController{
             A = 0;
             B = 0.5;
             C = -0.4;
-            D = 0.2;
+            D = 0.1;
             x = 0;
             initialized = false;
         }

@@ -47,13 +47,6 @@ void ResourceManager::initialize(int stage)
         maxCPU = meHost->par("maxCpu").doubleValue();
     }
 
-    //creating a MEClusterizeApp module to get parameters about resource allocation
-    cModuleType *moduleType = cModuleType::get("lte.apps.mec.clusterize.MEClusterizeApp");
-    cModule *module = moduleType->create("MEClusterizeApp", this);     //name & its Parent Module
-    templateMEClusterizeApp = check_and_cast<MEClusterizeApp*>(module);
-    templateMEClusterizeApp->par("ueSimbolicAddress") = "";
-    templateMEClusterizeApp->par("meHostSimbolicAddress") = "";
-    templateMEClusterizeApp->finalizeParameters();
 }
 
 void ResourceManager::handleMessage(cMessage *msg)
@@ -62,17 +55,10 @@ void ResourceManager::handleMessage(cMessage *msg)
         return;
 
     MEAppPacket* mepkt = check_and_cast<MEAppPacket*>(msg);
-    if(mepkt == 0){
+    if(mepkt == 0)
+    {
         EV << "VirtualisationManager::handleMessage - \tFATAL! Error when casting to MEAppPacket" << endl;
         throw cRuntimeError("VirtualisationManager::handleMessage - \tFATAL! Error when casting to MEAppPacket");
-    }
-    /*
-     * HANDLING RESOURCES for ME CLUSTERIZE APP
-     */
-    else if(!strcmp(mepkt->getName(), START_CLUSTERIZE) || !strcmp(mepkt->getName(), STOP_CLUSTERIZE)){
-
-        ClusterizePacket* pkt = check_and_cast<ClusterizePacket*>(msg);
-        handleClusterizeResources(pkt);
     }
     /*
      * DEFAULT HANDLING RESOURCES REQUIRED BY THE MEAppPacket
@@ -84,8 +70,6 @@ void ResourceManager::handleMessage(cMessage *msg)
 
 void ResourceManager::finish(){
 
-    templateMEClusterizeApp->callFinish();
-    templateMEClusterizeApp->deleteModule();
 }
 
 void ResourceManager::handleMEAppResources(MEAppPacket* pkt){
@@ -99,12 +83,13 @@ void ResourceManager::handleMEAppResources(MEAppPacket* pkt){
     double reqCpu = pkt->getRequiredCpu();
     /* -------------------------------
      * Handling StartPacket */
-    if(!strcmp(pkt->getType(), START_MEAPP)){
-
+    if(!strcmp(pkt->getType(), START_MEAPP))
+    {
         availableResources = ((maxRam-allocatedRam-reqRam >= 0) && (maxDisk-allocatedDisk-reqDisk >= 0) && (maxCPU-allocatedCPU-reqCpu >= 0))? true : false;
-        if(availableResources){
+        if(availableResources)
+        {
             EV << "ResourceManager::handleMEAppResources - resources ALLOCATED for " << pkt->getSourceAddress() << endl;
-            deallocateResources(reqRam, reqDisk, reqCpu);
+            allocateResources(reqRam, reqDisk, reqCpu);
             send(pkt, "virtualisationManagerOut");
         }
         else{
@@ -121,29 +106,3 @@ void ResourceManager::handleMEAppResources(MEAppPacket* pkt){
         send(pkt, "virtualisationManagerOut");
     }
 }
-
-/*
- * #######################################CLUSTERIZE PACKETS HANDLERS####################################
- */
-
-void ResourceManager::handleClusterizeResources(ClusterizePacket* pkt){
-
-    EV << "ResourceManager::handleClusterizeResources - "<< pkt->getName() << " received: "<< pkt->getSourceAddress() <<" SeqNo[" << pkt->getSno() << "]"<< endl;
-
-    bool availableResources = true;
-
-    double reqRam = templateMEClusterizeApp->par("ram").doubleValue();
-    double reqDisk = templateMEClusterizeApp->par("disk").doubleValue();
-    double reqCpu = templateMEClusterizeApp->par("cpu").doubleValue();
-
-    MEAppPacket* mePkt = check_and_cast<MEAppPacket*>(pkt);
-    mePkt->setRequiredRam(reqRam);
-    mePkt->setRequiredDisk(reqDisk);
-    mePkt->setRequiredCpu(reqCpu);
-
-    handleMEAppResources(mePkt);
-}
-/*
- * ##############################################################################################################
- */
-

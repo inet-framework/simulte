@@ -23,10 +23,6 @@ moduleinterface IMEApp
     parameters:
         @display("i=block/app");
         
-        double ram @unit("B");			//Bytes
-        double disk @unit("B");			//Bytes
-        double cpu;						//percentage
-        
         string ueSimbolicAddress; 		// i.e. UE[x] or car[x]
         string meHostSimbolicAddress;	// i.e meHost.virtualisationInfrastructure
         

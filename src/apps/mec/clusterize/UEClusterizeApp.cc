@@ -55,6 +55,10 @@ void UEClusterizeApp::initialize(int stage)
     //--------------------------------------
     //packet info
     size_ = par("packetSize");
+    //required resources
+    requiredRam = par("requiredRam");
+    requiredDisk = par("requiredDisk");
+    requiredCpu = par("requiredCpu").doubleValue();
     //--------------------------------------
     //communication with ME Host
     localPort_ = par("localPort");
@@ -197,6 +201,9 @@ void UEClusterizeApp::sendClusterizeStartPacket()
     ClusterizePacket* packet = ClusterizePacketBuilder().buildClusterizePacket(START_MEAPP, nextSnoStart_, simTime(), size_, car->getId(), mySymbolicAddress, meHostSymbolicAddress);
     //identification info
     packet->setUeAppID(getId());
+    packet->setRequiredRam(requiredRam);
+    packet->setRequiredDisk(requiredDisk);
+    packet->setRequiredCpu(requiredCpu);
     socket.sendTo(packet, destAddress_, destPort_);
     nextSnoStart_++;
     //re-scheduling until ACK_START_MEAPP is received
@@ -260,6 +267,9 @@ void UEClusterizeApp::sendClusterizeStopPacket()
     ClusterizePacket* packet = ClusterizePacketBuilder().buildClusterizePacket(STOP_MEAPP, nextSnoStop_, simTime(), size_, car->getId(), mySymbolicAddress, meHostSymbolicAddress);
     //identification info
     packet->setUeAppID(getId());
+    packet->setRequiredRam(requiredRam);
+    packet->setRequiredDisk(requiredDisk);
+    packet->setRequiredCpu(requiredCpu);
     socket.sendTo(packet, destAddress_, destPort_);
     nextSnoStop_++;
 

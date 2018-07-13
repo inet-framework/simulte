@@ -47,6 +47,11 @@ simple UEClusterizeApp like IUDPApp
         int multicastPort = default(5000);
         string multicastGoupAddress = default("224.0.0.10");
         
+        //resource required infos
+        int requiredRam @unit("B") = default(10MB);
+        int requiredDisk @unit("B") = default(100MB);
+        double requiredCpu = default(0.01);
+        
         //autoscheduling timers
         double period @unit("s") = default(0.02s);
         double startTime @unit("s") = default(0s); 

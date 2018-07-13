@@ -33,16 +33,14 @@
  *
  *  The task of this class is:
  *       1) handling resource allocation for MEClusterizeApp:
- *              a) START_CLUSTERIZE --> check for resource availability & eventually allocate it
- *              b) STOP_CLUSTERIZE --> deallocate resources
- *              c) replying to VirtualisationManager by sending back START_CLUSTERIZE (when resource allocated) or with ACK_STOP_CLUSTERIZE
+ *              a) START_MEAPP --> check for resource availability & eventually allocate it
+ *              b) STOP_MEAPP --> deallocate resources
+ *              c) replying to VirtualisationManager by sending back START_MEAPP (when resource allocated) or with ACK_STOP_MEAPP
  */
 class ResourceManager : public cSimpleModule
 {
     cModule* virtualisationInfr;
     cModule* meHost;
-
-    MEClusterizeApp* templateMEClusterizeApp;
 
     double maxRam;
     double maxDisk;

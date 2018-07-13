@@ -60,6 +60,10 @@ class UEClusterizeApp : public cSimpleModule
     int nextSnoInfo_;
     int nextSnoStop_;
     int size_;
+    //resources required inforamtions
+    int requiredRam;
+    int requiredDisk;
+    double requiredCpu;
     //--------------------------------------
     //communication with ME Host
     inet::UDPSocket socket;
