@@ -89,6 +89,8 @@ class MEClusterizeService : public cSimpleModule
         //parent modules
         cModule* mePlatform;
         cModule* meHost;
+        //freshness informations
+        simtime_t lastRun;                              //discarding car-updates too old!
         //----------------------------------
         //txMode information for sending INFO_MEAPP
         std::string preconfiguredTxMode;                //supported: INFRASTRUCTURE_UNICAST - V2V_UNICAST - V2V_MULTICAST

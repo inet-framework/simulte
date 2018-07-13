@@ -50,16 +50,16 @@ network MecInetThreeCell
 
     submodules:
 
-        routingRecorder: RoutingTableRecorder {	@display("p=985,115;is=s");}
+        routingRecorder: RoutingTableRecorder {	@display("p=885,115;is=s");}
         
-        configurator: IPv4NetworkConfigurator {	@display("p=985,195");	config = xmldoc("demo.xml");}
+        configurator: IPv4NetworkConfigurator {	@display("p=885,195");	config = xmldoc("demo.xml");}
         
-        d2dMultihopStatistics: MultihopD2DStatistics { @display("p=985,340;is=s");}
+        d2dMultihopStatistics: MultihopD2DStatistics { @display("p=885,340;is=s");}
         
         //# LTE modules
-        channelControl: LteChannelControl {	@display("p=985,35;is=s");}
+        channelControl: LteChannelControl {	@display("p=885,35;is=s");}
         
-        binder: LteBinder {	@display("p=985,275;is=s");}
+        binder: LteBinder {	@display("p=885,275;is=s");}
 
         eNodeB1: eNodeB {	@display("p=100,150;is=vl");}
 

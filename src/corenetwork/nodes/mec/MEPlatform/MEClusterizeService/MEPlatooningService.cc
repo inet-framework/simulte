@@ -50,6 +50,9 @@ void MEPlatooningService::initialize(int stage)
  */
 void MEPlatooningService::compute()
 {
+    //update variable storing freshness
+    lastRun = simTime();
+
     EV << "\nMEPlatooningService::compute - resetting flags and controls\n" << endl;
     resetCarFlagsAndControls();
 
@@ -324,6 +327,7 @@ void MEPlatooningService::computePlatoonAccelerations(){
                 //testing
                 EV << "MEPlatooningService::computePlatoonAccelerations - update "<< cars[i].symbolicAddress <<" (LEADER)\t";
                 EV << " [position: " << cars[i].position << "] [acceleration: " << acceleration << "] velocity_gap: " << velocity_gap << endl;
+                previous = i;
            }
            //members
            else

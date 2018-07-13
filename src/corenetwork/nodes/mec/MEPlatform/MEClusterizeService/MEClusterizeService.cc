@@ -210,35 +210,43 @@ void MEClusterizeService::sendConfig()
 
 void MEClusterizeService::handleClusterizeInfo(ClusterizeInfoPacket* pkt){
 
-    //retrieve the cars map key
-    int key = pkt->getArrivalGate()->getIndex();
-    //updating the cars map entry
-    cars[key].id = pkt->getCarOmnetID();
-    cars[key].symbolicAddress = pkt->getSourceAddress();
-    cars[key].macID = binder_->getMacNodeIdFromOmnetId(cars[key].id);
-    cars[key].timestamp = pkt->getTimestamp();
-    cars[key].position.x = pkt->getPositionX();
-    cars[key].position.y = pkt->getPositionY();
-    cars[key].position.z = pkt->getPositionZ();
-    cars[key].speed.x = pkt->getSpeedX();
-    cars[key].speed.y = pkt->getSpeedY();
-    cars[key].speed.z = pkt->getSpeedZ();
-    cars[key].acceleration = pkt->getAcceleration();
-    cars[key].angularPosition.alpha = pkt->getAngularPositionA();
-    cars[key].angularPosition.beta = pkt->getAngularPositionB();
-    cars[key].angularPosition.gamma = pkt->getAngularPositionC();
-    cars[key].angularSpeed.alpha = pkt->getAngularSpeedA();
-    cars[key].angularSpeed.beta = pkt->getAngularSpeedB();
-    cars[key].angularSpeed.gamma = pkt->getAngularSpeedC();
-    cars[key].isFollower = false;
+    if(pkt->getTimestamp() >= lastRun)
+    {
+        //retrieve the cars map key
+        int key = pkt->getArrivalGate()->getIndex();
+        //updating the cars map entry
+        cars[key].id = pkt->getCarOmnetID();
+        cars[key].symbolicAddress = pkt->getSourceAddress();
+        cars[key].macID = binder_->getMacNodeIdFromOmnetId(cars[key].id);
+        cars[key].timestamp = pkt->getTimestamp();
+        cars[key].position.x = pkt->getPositionX();
+        cars[key].position.y = pkt->getPositionY();
+        cars[key].position.z = pkt->getPositionZ();
+        cars[key].speed.x = pkt->getSpeedX();
+        cars[key].speed.y = pkt->getSpeedY();
+        cars[key].speed.z = pkt->getSpeedZ();
+        cars[key].acceleration = pkt->getAcceleration();
+        cars[key].angularPosition.alpha = pkt->getAngularPositionA();
+        cars[key].angularPosition.beta = pkt->getAngularPositionB();
+        cars[key].angularPosition.gamma = pkt->getAngularPositionC();
+        cars[key].angularSpeed.alpha = pkt->getAngularSpeedA();
+        cars[key].angularSpeed.beta = pkt->getAngularSpeedB();
+        cars[key].angularSpeed.gamma = pkt->getAngularSpeedC();
+        cars[key].isFollower = false;
 
-    //testing
-    EV << "MEClusterizeService::handleClusterizeInfo - Updating cars[" << key <<"] --> " << cars[key].symbolicAddress << " (carID: "<< cars[key].id << ") " << endl;
-    EV << "MEClusterizeService::handleClusterizeInfo - cars[" << key << "].position = " << "[" << cars[key].position.x << " ; "<< cars[key].position.y << " ; " << cars[key].position.z  << "]" << endl;
-    EV << "MEClusterizeService::handleClusterizeInfo - cars[" << key << "].speed = " << "[" << cars[key].speed.x << " ; "<< cars[key].speed.y << " ; " << cars[key].speed.z  << "]" << endl;
-    EV << "MEClusterizeService::handleClusterizeInfo - cars[" << key << "].acceleration = " << cars[key].acceleration << endl;
-    EV << "MEClusterizeService::handleClusterizeInfo - cars[" << key << "].angularPostion = " << "[" << cars[key].angularPosition.alpha << " ; "<< cars[key].angularPosition.beta << " ; " << cars[key].angularPosition.gamma  << "]" << endl;
-    EV << "MEClusterizeService::handleClusterizeInfo - cars[" << key << "].angularSpeed = " << "[" << cars[key].angularSpeed.alpha << " ; "<< cars[key].angularSpeed.beta << " ; " << cars[key].angularSpeed.gamma  << "]" << endl;
+        //testing
+        EV << "MEClusterizeService::handleClusterizeInfo - Updating cars[" << key <<"] --> " << cars[key].symbolicAddress << " (carID: "<< cars[key].id << ") " << endl;
+        EV << "MEClusterizeService::handleClusterizeInfo - cars[" << key << "].position = " << "[" << cars[key].position.x << " ; "<< cars[key].position.y << " ; " << cars[key].position.z  << "]" << endl;
+        EV << "MEClusterizeService::handleClusterizeInfo - cars[" << key << "].speed = " << "[" << cars[key].speed.x << " ; "<< cars[key].speed.y << " ; " << cars[key].speed.z  << "]" << endl;
+        EV << "MEClusterizeService::handleClusterizeInfo - cars[" << key << "].acceleration = " << cars[key].acceleration << endl;
+        EV << "MEClusterizeService::handleClusterizeInfo - cars[" << key << "].angularPostion = " << "[" << cars[key].angularPosition.alpha << " ; "<< cars[key].angularPosition.beta << " ; " << cars[key].angularPosition.gamma  << "]" << endl;
+        EV << "MEClusterizeService::handleClusterizeInfo - cars[" << key << "].angularSpeed = " << "[" << cars[key].angularSpeed.alpha << " ; "<< cars[key].angularSpeed.beta << " ; " << cars[key].angularSpeed.gamma  << "]" << endl;
+    }
+    else
+    {
+        EV << "MEClusterizeService::handleClusterizeInfo - Discarding update from " << pkt->getSourceAddress() << ": too old time-stamp!" << endl;
+
+    }
 }
 
 void MEClusterizeService::handleClusterizeStop(ClusterizePacket* pkt){
