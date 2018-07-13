@@ -346,57 +346,6 @@ void MEPlatooningService::computePlatoonAccelerations(){
                 //testing
                 EV << "MEPlatooningService::computePlatoonAccelerations - update "<< cars[i].symbolicAddress <<" (MEMBER) following " << cars[previous].symbolicAddress;
                 EV << " [position: " << cars[i].position <<  "] [acceleration: " << acceleration << "] distance_gap: " << distance_gap << endl;
-
-                /*
-                 * Alternative Approach:
-                 *                      Forecasting the previous vehicle position at next period
-                 *                      Computing my acceleration such that I will reduce the gap with previous vehicle at next period (w.r.t a maximum acceleration!):
-                 *                              [previousCarNextPositionX - (currentCar.positionX + currentCar.speedX*period + a*cos(currentCar.angularPosition)*period^2)]^2
-                 *                              + [previousCarNextPositionY - (currentCar.positionY + currentCar.speedY*period + a*sin(currentCar.angularPosition)*period^2)]^2
-                 *                              = desiredDistance^2
-                 *                      change variables:
-                 *                              X = previousCarNextPositionX - (currentCar.positionX + currentCar.speedX*period)
-                 *                              Ax = cos(currentCar.angularPosition)*period^2)
-                 *                              Y = previousCarNextPositionY - (currentCar.positionY + currentCar.speedY*period)
-                 *                              AY = sin(currentCar.angularPosition)*period^2)
-                 *                      finding a:
-                 *                              a^2*(Ax^2+Ay^2) - 2*a*(X*Ax+Y*Ay) + X^2 +Y^2 - desiredDistance^2 = 0
-                 *                              A*a^2 - 2*B*a + C = 0
-                 *
-                 */
-/*
-                double t = (distance_gap > 0)? 5*period_.dbl() : period_.dbl();
-                double t_2 = t*t;
-                double previousCarNextPositionX = cars[previous].position.x + cars[previous].speed.x * t +  cars[previous].acceleration * cos(cars[previous].angularPosition.alpha) * t_2;
-                double previousCarNextPositionY = cars[previous].position.y + cars[previous].speed.y * t +  cars[previous].acceleration * sin(cars[previous].angularPosition.alpha) * t_2;
-
-                double X = previousCarNextPositionX - (cars[i].position.x + cars[i].speed.x * t);
-                double Ax = cos(cars[i].angularPosition.alpha) * t_2;
-                double Y = previousCarNextPositionY - (cars[i].position.y + cars[i].speed.y * t);
-                double Ay = sin(cars[i].angularPosition.alpha) * t_2;
-
-                double A = Ax*Ax + Ay*Ay;
-                double B = X*Ax + Y*Ay;
-                double C = X*X + Y*Y - desiredDistance*desiredDistance;
-
-                double a1 = ( B + sqrt(B*B - A*C) ) / A;
-                double a2 = ( B - sqrt(B*B - A*C) ) / A;
-                EV << "MEPlatooningService::computePlatoonAccelerations - a1 = " << a1 << " \t a2 = " << a2 << endl;
-
-                double a = MAX_ACCELERATION;
-                //if both positive
-                //a = (abs(a1) < abs(a2))? a1 : a2;
-                a = a2;                                         //is always a2 the right solution?
-
-                a = (a < MAX_ACCELERATION && a > -MAX_ACCELERATION)? a : (a > MAX_ACCELERATION)? MAX_ACCELERATION : -MAX_ACCELERATION;
-                cars[i].acceleration = a;
-                cit->second.accelerations.push_back(a);
-                EV << "MEPlatooningService::computePlatoonAccelerations - a = " << a << endl;
-
-                //testing
-                EV << "MEPlatooningService::computePlatoonAccelerations - update "<< cars[i].symbolicAddress <<" (MEMBER) following " << cars[previous].symbolicAddress;
-                EV << " [position: " << cars[i].position <<  "] [acceleration: " << a << "] distance_gap: " << distance_gap << endl;
-*/
            }
            previous = i;
        }

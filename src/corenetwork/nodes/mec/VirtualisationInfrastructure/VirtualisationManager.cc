@@ -142,12 +142,12 @@ void VirtualisationManager::handleResource(cMessage* msg){
  * ######################################################################################################
  */
 /*
- * #######################################CLUSTERIZE PACKETS HANDLERS####################################
+ * #######################################MEAPP PACKETS HANDLERS####################################
  */
 
 void VirtualisationManager::handleMEAppPacket(MEAppPacket* pkt){
 
-    EV << "VirtualisationManager::handleClusterize - received "<< pkt->getType()<<" with delay: " << (simTime()-pkt->getTimestamp()) << endl;
+    EV << "VirtualisationManager::handleMEAppPacket - received "<< pkt->getType()<<" with delay: " << (simTime()-pkt->getTimestamp()) << endl;
 
     /* Handling START_MEAPP */
     if(!strcmp(pkt->getType(), START_MEAPP))        startMEApp(pkt);
@@ -194,7 +194,7 @@ void VirtualisationManager::startMEApp(MEAppPacket* pkt){
             ackMEAppPacket(pkt, ACK_START_MEAPP);
             //testing
             EV << "VirtualisationManager::startMEApp - \tWARNING: required MEApp instance ALREADY STARTED!" << endl;
-            EV << "VirtualisationManager::startClusterize  - calling ackMEAppPacket with  "<< ACK_START_MEAPP << endl;
+            EV << "VirtualisationManager::startMEApp  - calling ackMEAppPacket with  "<< ACK_START_MEAPP << endl;
         }
         else EV << "VirtualisationManager::startMEApp - \tWARNING: maxMEApp LIMIT REACHED!" << endl;
     }
@@ -243,7 +243,7 @@ void VirtualisationManager::downstreamToUEApp(MEAppPacket* pkt){
         if(destId == 0)
         {
             EV << "VirtualisationeManager::downstreamToUEApp - \tWARNING " << destSimbolicAddr << "has left the network!" << endl;
-            //throw cRuntimeError("VirtualisationManager::downstreamClusterize - \tFATAL! Error destination has left the network!");
+            //throw cRuntimeError("VirtualisationManager::downstreamToUEApp - \tFATAL! Error destination has left the network!");
 
             //starting the MEApp termination procedure
             MEAppPacket* spkt = new MEAppPacket(STOP_MEAPP);
@@ -372,7 +372,7 @@ void VirtualisationManager::instantiateMEApp(MEAppPacket* pkt)
 
         currentMEApps++;
 
-        //Sending ACK to the UEClusterizeApp
+        //Sending ACK to the UEApp
         EV << "VirtualisationManager::instantiateMEApp - calling ackMEAppPacket with  "<< ACK_START_MEAPP << endl;
         ackMEAppPacket(pkt, ACK_START_MEAPP);
 
@@ -432,9 +432,9 @@ void VirtualisationManager::terminateMEApp(MEAppPacket* pkt)
     }
     else
     {
-        EV << "VirtualisationManager::terminateMEClusterizeApp - \tWARNING: NO INSTANCE FOUND!" << endl;
+        EV << "VirtualisationManager::terminateMEApp - \tWARNING: NO INSTANCE FOUND!" << endl;
         //Sending ACK_STOP_MEAPP to the UEApp
-        EV << "VirtualisationManager::terminateMEClusterizeApp - calling ackMEAppPacket with  "<< ACK_STOP_MEAPP << endl;
+        EV << "VirtualisationManager::terminateMEApp - calling ackMEAppPacket with  "<< ACK_STOP_MEAPP << endl;
         ackMEAppPacket(pkt, ACK_STOP_MEAPP);
     }
 }
@@ -465,7 +465,7 @@ void VirtualisationManager::ackMEAppPacket(MEAppPacket* pkt, const char* type)
         if(destId == 0)
         {
             EV << "VirtualisationManager::ackMEAppPacket - \tWARNING " << destSymbolicAddr << "has left the network!" << endl;
-            //throw cRuntimeError("VirtualisationManager::ackClusterize - \tFATAL! Error destination has left the network!");
+            //throw cRuntimeError("VirtualisationManager::ackMEAppPacket - \tFATAL! Error destination has left the network!");
         }
         else
         {
