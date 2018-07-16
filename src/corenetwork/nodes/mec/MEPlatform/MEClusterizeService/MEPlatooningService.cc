@@ -313,10 +313,9 @@ void MEPlatooningService::computePlatoonAccelerations(){
            {
                 //controller input
                 double velocity_gap = desiredVelocity - cars[i].speed.length();
-                velocity_gap = ceil( (int)(velocity_gap*1000)) / 1000.00;
                 //updating platoon formation info
-                cit->second.velocityGap.push_back(velocity_gap);
-                cit->second.distanceGap.push_back(0);
+                cit->second.distancies.push_back(0);
+
                 //getting controller output and moving on next state
                 double acceleration = cars_velocity_controllers[i].getOutput(velocity_gap);
                 cars_velocity_controllers[i].updateNextState(velocity_gap);
@@ -324,6 +323,7 @@ void MEPlatooningService::computePlatoonAccelerations(){
                 cit->second.accelerations.push_back(acceleration);
                 //update acceleration
                 cars[i].acceleration = acceleration;
+
                 //testing
                 EV << "MEPlatooningService::computePlatoonAccelerations - update "<< cars[i].symbolicAddress <<" (LEADER)\t";
                 EV << " [position: " << cars[i].position << "] [acceleration: " << acceleration << "] velocity_gap: " << velocity_gap << endl;
@@ -334,12 +334,9 @@ void MEPlatooningService::computePlatoonAccelerations(){
            {
                 //controller input
                 double distance_gap = cars[i].position.distance(cars[previous].position) -  desiredDistance;
-                distance_gap = ceil( (int)(distance_gap*1000)) / 1000.00;
-                double velocity_gap = desiredVelocity - cars[i].speed.length();
-                velocity_gap = ceil( (int)(velocity_gap*1000)) / 1000.00;
                 //updating platoon formation info
-                cit->second.distanceGap.push_back(distance_gap);
-                cit->second.velocityGap.push_back(velocity_gap);
+                cit->second.distancies.push_back(distance_gap + desiredDistance);
+
                 //getting controller output and moving on next state
                 double acceleration = cars_distance_controllers[i].getOutput(distance_gap);
                 cars_distance_controllers[i].updateNextState(distance_gap);
@@ -347,6 +344,7 @@ void MEPlatooningService::computePlatoonAccelerations(){
                 cit->second.accelerations.push_back(acceleration);
                 //update acceleration
                 cars[i].acceleration = acceleration;
+
                 //testing
                 EV << "MEPlatooningService::computePlatoonAccelerations - update "<< cars[i].symbolicAddress <<" (MEMBER) following " << cars[previous].symbolicAddress;
                 EV << " [position: " << cars[i].position <<  "] [acceleration: " << acceleration << "] distance_gap: " << distance_gap << endl;

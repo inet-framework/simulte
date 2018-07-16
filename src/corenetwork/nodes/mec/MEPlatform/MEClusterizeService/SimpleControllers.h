@@ -41,13 +41,11 @@ class SimpleVelocityController
         double getOutput(double e)
         {
             u = D*e;
-            u = ceil( (int)(u*1000)) / 1000.00;
             return u;
         }
         void updateNextState(double e)
         {
             x = A*x + B*e;
-            x = ceil( (int)(x*1000)) / 1000.00;
         }
 };
 
@@ -87,14 +85,12 @@ class SimpleDistanceController
 
         double getOutput(double e){
             u = C*x + D*e;
-            u = ceil( (int)(u*1000)) / 1000.00;
             //testing
             EV << "SimpleDistanceController::getOutput - x = [" << x <<"] u = "<< u << endl;
             return u;
         }
         void updateNextState(double e){
             x = A*x + B*e;
-            x = ceil( (int)(x*1000)) / 1000.00;
         }
 };
 

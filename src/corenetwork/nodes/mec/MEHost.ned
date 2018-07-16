@@ -79,11 +79,13 @@ module MEHost
         //#
         virtualisationInfrastructure.ppp++ <--> Eth10G <--> gtpEndpoint.filterGate;
 
-        for i=0..sizeof(pppENB)-1 {
+        for i=0..sizeof(pppENB)-1 
+        {
             pppENB++ <--> gtpEndpoint.pppg++;
         }
 
-        for i=0..sizeof(ppp)-1 {
+        for i=0..sizeof(ppp)-1 
+        {
             //#
             //# external connection to external networks
             //#

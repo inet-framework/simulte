@@ -134,9 +134,9 @@ void UEClusterizeApp::initialize(int stage)
     clusterizeConfigRcvdMsg_ = registerSignal("clusterizeConfigRcvdMsg");
     clusterizeConfigDelay_ = registerSignal("clusterizeConfigDelay");
     //platoon formation values
-    clusterizeRcvdAccelerations_ = registerSignal("clusterizeRcvdAccelerations");
-    clusterizeRcvdDistanceGaps_ = registerSignal("clusterizeRcvdDistanceGaps");
-    clusterizeRcvdVelocityGaps_ = registerSignal("clusterizeRcvdVelocityGaps");
+    clusterizeAccelerations_ = registerSignal("clusterizeAccelerations");
+    clusterizeVelocities_ = registerSignal("clusterizeVelocities");
+    clusterizeDistancies_ = registerSignal("clusterizeDistancies");
     //--------------------------------------
     //starting UEClusterizeApp
     simtime_t startTime = par("startTime");
@@ -539,16 +539,16 @@ double UEClusterizeApp::updateAcceleration(ClusterizeConfigPacket *pkt){
 void UEClusterizeApp::emitPlatoonFormationStatistics(ClusterizeConfigPacket* pkt){
 
     //emit distance gap and velocity gap received
-    for(unsigned int i=0; i < pkt->getDistanceGapArraySize(); i++){
+    for(unsigned int i=0; i < pkt->getDistanciesArraySize(); i++){
        if(strcmp(pkt->getClusterList(i), mySymbolicAddress) == 0)
        {
-           EV << "UEClusterizeApp::emitPlatoonFormationStatistics - " << pkt->getClusterList(i) << " (" << i << ") distanceGap: " << pkt->getDistanceGap(i) << " velocityGap: " << pkt->getVelocityGap(i) << endl;
-           emit(clusterizeRcvdDistanceGaps_, pkt->getDistanceGap(i));
-           emit(clusterizeRcvdVelocityGaps_, pkt->getVelocityGap(i));
+           EV << "UEClusterizeApp::emitPlatoonFormationStatistics - " << pkt->getClusterList(i) << " (" << i << ") distance: " << pkt->getDistancies(i) << endl;
+           emit(clusterizeDistancies_, pkt->getDistancies(i));
        }
     }
-    //emit received acceleration
-    emit(clusterizeRcvdAccelerations_, requiredAcceleration);
+    //emit received acceleration and current speed
+    emit(clusterizeAccelerations_, requiredAcceleration);
+    emit(clusterizeVelocities_, linear_mobility->getCurrentSpeed().length());
 }
 
 void UEClusterizeApp::getVehicleInterface(){

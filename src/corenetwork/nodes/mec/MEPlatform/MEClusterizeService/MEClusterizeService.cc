@@ -105,7 +105,7 @@ void MEClusterizeService::handleMessage(cMessage *msg)
             ClusterizeInfoPacket* ipkt = check_and_cast<ClusterizeInfoPacket*>(msg);
             handleClusterizeInfo(ipkt);
         }
-       else if(!strcmp(pkt->getType(), STOP_MEAPP))     handleClusterizeStop(pkt);
+        else if(!strcmp(pkt->getType(), STOP_MEAPP))     handleClusterizeStop(pkt);
 
         delete pkt;
     }
@@ -131,13 +131,9 @@ void MEClusterizeService::sendConfig()
                 //sending to the member MEClusterizeApp (on the corresponded gate!)
 
                 //sending distanceGaps
-                int size = cl_it->second.distanceGap.size();
-                pkt->setDistanceGapArraySize(size);
-                for(int i=0; i < size; i++)     pkt->setDistanceGap(i, cl_it->second.distanceGap.at(i));
-                //sending velocityGaps
-                size = cl_it->second.velocityGap.size();
-                pkt->setVelocityGapArraySize(size);
-                for(int i=0; i < size; i++)     pkt->setVelocityGap(i, cl_it->second.velocityGap.at(i));
+                int size = cl_it->second.distancies.size();
+                pkt->setDistanciesArraySize(size);
+                for(int i=0; i < size; i++)     pkt->setDistancies(i, cl_it->second.distancies.at(i));
 
                 send(pkt, "meAppOut", memberKey);
                 //testing
@@ -163,14 +159,9 @@ void MEClusterizeService::sendConfig()
             //sending to the leader MEClusterizeApp (on the corresponded gate!)
 
             //sending distanceGaps
-            int size = cl_it->second.distanceGap.size();
-            pkt->setDistanceGapArraySize(size);
-            for(int i=0; i < size; i++)     pkt->setDistanceGap(i, cl_it->second.distanceGap.at(i));
-            //sending velocityGaps
-            size = cl_it->second.velocityGap.size();
-            pkt->setVelocityGapArraySize(size);
-            for(int i=0; i < size; i++)     pkt->setVelocityGap(i, cl_it->second.velocityGap.at(i));
-
+            int size = cl_it->second.distancies.size();
+            pkt->setDistanciesArraySize(size);
+            for(int i=0; i < size; i++)     pkt->setDistancies(i, cl_it->second.distancies.at(i));
 
             send(pkt, "meAppOut", leaderKey);
 
@@ -245,7 +236,6 @@ void MEClusterizeService::handleClusterizeInfo(ClusterizeInfoPacket* pkt){
     else
     {
         EV << "MEClusterizeService::handleClusterizeInfo - Discarding update from " << pkt->getSourceAddress() << ": too old time-stamp!" << endl;
-
     }
 }
 
