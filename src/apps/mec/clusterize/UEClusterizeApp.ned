@@ -76,10 +76,10 @@ simple UEClusterizeApp like IUDPApp
         @statistic[clusterizeAccelerations]("Clusterize Accelerations"; unit=""; source="clusterizeAccelerations"; record=vector);
         
         @signal[clusterizeVelocities];
-        @statistic[clusterizeRcvdVelocityGaps]("Clusterize Velocities"; unit=""; source="clusterizeVelocities"; record=vector);
+        @statistic[clusterizeVelocities]("Clusterize Velocities"; unit="mps"; source="clusterizeVelocities"; record=vector);
         
         @signal[clusterizeDistancies];
-        @statistic[clusterizeDistancies]("Clusterize Distancies"; unit=""; source="clusterizeDistancies"; record=vector);
+        @statistic[clusterizeDistancies]("Clusterize Distancies"; unit="m"; source="clusterizeDistancies"; record=vector);
                   
     gates:
         
