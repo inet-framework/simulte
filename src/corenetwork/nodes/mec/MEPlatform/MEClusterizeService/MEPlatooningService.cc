@@ -332,6 +332,7 @@ void MEPlatooningService::computePlatoonAccelerations(){
            //members
            else
            {
+/*
                 //controller input
                 double distance_gap = cars[i].position.distance(cars[previous].position) -  desiredDistance;
                 //updating platoon formation info
@@ -344,6 +345,44 @@ void MEPlatooningService::computePlatoonAccelerations(){
                 cit->second.accelerations.push_back(acceleration);
                 //update acceleration
                 cars[i].acceleration = acceleration;
+*/
+
+/*
+* DAVIET & PARENT MODEL revisited by Scheuer, Simonin and Charpillet
+*
+*       reaching desired velocity and mantaining the secure distance to avoid collision!
+*/
+double h = 0.35;
+double Cv=h, Cd=h;
+
+//collision free distance
+double p = period_.dbl();
+double distance_gap = cars[i].position.distance(cars[previous].position) - desiredDistance;
+
+//lower bound of next distance gap
+double dpf_ = cars[i].position.distance(cars[previous].position) + (cars[previous].speed.length() - cars[i].speed.length())*p - ((MIN_ACCELERATION - MAX_ACCELERATION)*p*p)/2;
+//lower bound of next speed gap
+double dvp_ = cars[previous].speed.length() + MIN_ACCELERATION*p;
+//upper bound of next distance gap
+double dvf_ = cars[i].speed.length() + MAX_ACCELERATION*p;
+//lower bound of next distance gap * period, using the three previous one gaps
+double d_dpf_ = dpf_ - desiredDistance + (dvf_*dvf_ - dvp_*dvp_)/(2*MIN_ACCELERATION);
+//lower bound of next previous values
+double D_d_dpf_ = std::max( 0.0 , d_dpf_ - ((MAX_ACCELERATION - MIN_ACCELERATION)*(dvf_ + MAX_ACCELERATION*p/2)*p)/(-MIN_ACCELERATION) ) + (MAX_ACCELERATION - MIN_ACCELERATION)*p*p;
+
+double a1 = MIN_ACCELERATION + 2*(dpf_ - desiredDistance + (dvp_ - dvf_)*p)/(3*p*p);
+double a2 = (std::sqrt((dvf_ - MIN_ACCELERATION*p/2)*(dvf_ - MIN_ACCELERATION*p/2) + 2*MAX_ACCELERATION*d_dpf_) - (dvf_ - 1.5*MIN_ACCELERATION*p))/p;
+double a3 = (std::sqrt((dvf_ + (MAX_ACCELERATION - MIN_ACCELERATION/2)*p)*(dvf_ + (MAX_ACCELERATION - MIN_ACCELERATION/2)*p) - 2*MIN_ACCELERATION*D_d_dpf_) - (dvf_ + (MAX_ACCELERATION - 1.5*MIN_ACCELERATION)*p))/p;
+double acceleration = std::min(std::min(a1, a2), a3);
+
+acceleration = (acceleration < MIN_ACCELERATION)? MIN_ACCELERATION : (acceleration > MAX_ACCELERATION)? MAX_ACCELERATION : acceleration;
+
+//updating clusters entry with acceleration computed for each member
+cit->second.accelerations.push_back(acceleration);
+//update acceleration
+cars[i].acceleration = acceleration;
+//updating platoon formation info
+cit->second.distancies.push_back(distance_gap);
 
                 //testing
                 EV << "MEPlatooningService::computePlatoonAccelerations - update "<< cars[i].symbolicAddress <<" (MEMBER) following " << cars[previous].symbolicAddress;
@@ -352,6 +391,27 @@ void MEPlatooningService::computePlatoonAccelerations(){
            previous = i;
        }
     }
+
+//TESTING VARING VELOCITY OF LEADER:
+for(cit = clusters.begin(); cit != clusters.end(); cit++)
+{
+    if(cit->second.members.size() > 2)
+    {
+       bool sameSpeed = true;
+       std::vector<int>::iterator p1 = cit->second.members.begin(), p2 = cit->second.members.begin() + 1;
+       for( std::vector<int>::iterator i = cit->second.members.begin() + 2 ; i != cit->second.members.end(); i++)
+       {
+           bool b1 = cars[p1-cit->second.members.begin()].speed.length() == cars[p2-cit->second.members.begin()].speed.length();
+           bool b2 = cars[p2-cit->second.members.begin()].speed.length() == cars[i-cit->second.members.begin()].speed.length();
+           if(b1 && b2){
+               sameSpeed = false;
+               break;
+           }
+       }
+       if(sameSpeed)
+           desiredVelocity = 2;
+    }
+}
 }
 
 /*

@@ -50,6 +50,7 @@ class MEPlatooningService : public MEClusterizeService
     double desiredDistance;
     //acceleration limit
     const double MAX_ACCELERATION = 3;
+    const double MIN_ACCELERATION = -3;
     //---------------------------------------
     //controllers (from matlab sisotool state space representation)
     std::map<int, SimpleVelocityController> cars_velocity_controllers;
