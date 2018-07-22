@@ -115,9 +115,7 @@ class SafePlatooningController
 
 public:
 
-    SafePlatooningController()
-    {
-    }
+    SafePlatooningController(){}
 
     SafePlatooningController(double period, double a_min, double a_max, double d_crit)
     {
