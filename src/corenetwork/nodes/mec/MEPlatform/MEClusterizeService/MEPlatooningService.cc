@@ -43,6 +43,8 @@ void MEPlatooningService::initialize(int stage)
     //cluster mobility to reach
     desiredVelocity = par("desiredVelocity").doubleValue();                         //meter per second
     desiredDistance = par("desiredDistance").doubleValue();                         //meter
+    //controller initialization
+    followerController = SafePlatooningController(period_.dbl(), MIN_ACCELERATION, MAX_ACCELERATION, desiredDistance);
 }
 
 /*
@@ -352,13 +354,12 @@ void MEPlatooningService::computePlatoonAccelerations(){
 *
 *       reaching desired velocity and mantaining the secure distance to avoid collision!
 */
-double h = 0.35;
-double Cv=h, Cd=h;
 
 //collision free distance
 double p = period_.dbl();
 double distance_gap = cars[i].position.distance(cars[previous].position) - desiredDistance;
 
+/*
 //lower bound of next distance gap
 double dpf_ = cars[i].position.distance(cars[previous].position) + (cars[previous].speed.length() - cars[i].speed.length())*p - ((MIN_ACCELERATION - MAX_ACCELERATION)*p*p)/2;
 //lower bound of next speed gap
@@ -376,6 +377,12 @@ double a3 = (std::sqrt((dvf_ + (MAX_ACCELERATION - MIN_ACCELERATION/2)*p)*(dvf_ 
 double acceleration = std::min(std::min(a1, a2), a3);
 
 acceleration = (acceleration < MIN_ACCELERATION)? MIN_ACCELERATION : (acceleration > MAX_ACCELERATION)? MAX_ACCELERATION : acceleration;
+*/
+
+double distanceToLeading = cars[i].position.distance(cars[previous].position);
+double followerSpeed = cars[i].speed.length();
+double leadingSpeed = cars[previous].speed.length();
+double acceleration = followerController.getAcceleration(distanceToLeading, followerSpeed, leadingSpeed);
 
 //updating clusters entry with acceleration computed for each member
 cit->second.accelerations.push_back(acceleration);
@@ -393,25 +400,12 @@ cit->second.distancies.push_back(distance_gap);
     }
 
 //TESTING VARING VELOCITY OF LEADER:
-for(cit = clusters.begin(); cit != clusters.end(); cit++)
-{
-    if(cit->second.members.size() > 2)
-    {
-       bool sameSpeed = true;
-       std::vector<int>::iterator p1 = cit->second.members.begin(), p2 = cit->second.members.begin() + 1;
-       for( std::vector<int>::iterator i = cit->second.members.begin() + 2 ; i != cit->second.members.end(); i++)
-       {
-           bool b1 = cars[p1-cit->second.members.begin()].speed.length() == cars[p2-cit->second.members.begin()].speed.length();
-           bool b2 = cars[p2-cit->second.members.begin()].speed.length() == cars[i-cit->second.members.begin()].speed.length();
-           if(b1 && b2){
-               sameSpeed = false;
-               break;
-           }
-       }
-       if(sameSpeed)
-           desiredVelocity = 2;
-    }
-}
+double now = simTime().dbl();
+if(now > 60 && now < 180)
+    desiredVelocity = 2;
+else if( now > 180)
+    desiredVelocity = 30;
+
 }
 
 /*

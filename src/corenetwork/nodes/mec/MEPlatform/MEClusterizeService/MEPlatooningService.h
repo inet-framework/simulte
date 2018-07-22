@@ -56,6 +56,8 @@ class MEPlatooningService : public MEClusterizeService
     std::map<int, SimpleVelocityController> cars_velocity_controllers;
     std::map<int, SimpleDistanceController> cars_distance_controllers;
 
+    SafePlatooningController followerController;
+
     protected:
         virtual int numInitStages() const { return inet::NUM_INIT_STAGES; }
         virtual void initialize(int stage);
