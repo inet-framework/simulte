@@ -31,10 +31,10 @@ class SimpleVelocityController
     public:
         SimpleVelocityController()
     {
-            A = 0;
-            B = 0;
-            C = 0;
-            D = 0.1;
+            A = 0.78;
+            B = 0.1732;
+            C = 0.1219;
+            D = 0.044;
             x = 0;
         }
 

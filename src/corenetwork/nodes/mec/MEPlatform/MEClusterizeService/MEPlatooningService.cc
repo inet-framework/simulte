@@ -365,11 +365,8 @@ void MEPlatooningService::computePlatoonAccelerations(){
 
 //TESTING VARING VELOCITY OF LEADER:
 double now = simTime().dbl();
-if(now > 100 && now < 200)
-    desiredVelocity = 2;
-if(now > 200)
-    desiredVelocity = 8;
-
+if(now > 150)
+    desiredVelocity = 0;
 }
 
 /*
