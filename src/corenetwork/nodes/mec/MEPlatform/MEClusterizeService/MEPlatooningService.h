@@ -56,6 +56,7 @@ class MEPlatooningService : public MEClusterizeService
     std::map<int, SimpleVelocityController> cars_velocity_controllers;
     std::map<int, SimpleDistanceController> cars_distance_controllers;
 
+    GeneralSpeedController leaderController;
     SafePlatooningController followerController;
 
     protected:

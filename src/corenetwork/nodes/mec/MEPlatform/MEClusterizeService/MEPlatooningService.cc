@@ -45,6 +45,7 @@ void MEPlatooningService::initialize(int stage)
     desiredDistance = par("desiredDistance").doubleValue();                         //meter
     //controller initialization
     followerController = SafePlatooningController(period_.dbl(), MIN_ACCELERATION, MAX_ACCELERATION, desiredDistance);
+    leaderController = GeneralSpeedController(period_.dbl(), MIN_ACCELERATION, MAX_ACCELERATION);
 }
 
 /*
@@ -315,9 +316,13 @@ void MEPlatooningService::computePlatoonAccelerations(){
            {
                 //controller input
                 double velocity_gap = desiredVelocity - cars[i].speed.length();
+
                 //getting controller output and moving on next state
                 double acceleration = cars_velocity_controllers[i].getOutput(velocity_gap);
                 cars_velocity_controllers[i].updateNextState(velocity_gap);
+
+//using a general formula --> problem when slowing to 0mps or similar also similar low speeds
+//double acceleration = leaderController.getAcceleration(desiredVelocity, cars[i].speed.length(), cars[i].acceleration);
 
                 //updating clusters entry with acceleration computed for each member
                 cit->second.accelerations.push_back(acceleration);
@@ -357,7 +362,7 @@ void MEPlatooningService::computePlatoonAccelerations(){
 
                 //testing
                 EV << "MEPlatooningService::computePlatoonAccelerations - update "<< cars[i].symbolicAddress <<" (MEMBER) following " << cars[previous].symbolicAddress;
-                EV << " [position: " << cars[i].position <<  "] [acceleration: " << acceleration << "] distance_gap: " << distance_gap << endl;
+                EV << " [speed: " << cars[i].speed.length() <<  "] [acceleration: " << acceleration << "] distance_gap: " << distance_gap << endl;
            }
            previous = i;
        }
@@ -365,8 +370,8 @@ void MEPlatooningService::computePlatoonAccelerations(){
 
 //TESTING VARING VELOCITY OF LEADER:
 double now = simTime().dbl();
-if(now > 150)
-    desiredVelocity = 0;
+if(now > 250)
+    desiredVelocity = 1;
 }
 
 /*

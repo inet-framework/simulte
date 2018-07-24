@@ -94,6 +94,29 @@ class SimpleDistanceController
         }
 };
 
+class GeneralSpeedController
+{
+    double period;  //time period of the cycle of actions
+    double a_min;   //minimum acceleration
+    double a_max;   //maximum acceleration
+
+public:
+    GeneralSpeedController(){}
+    GeneralSpeedController(double period, double a_min, double a_max)
+    {
+     this->period = period;
+     this->a_min = a_min;
+     this->a_max = a_max;
+    }
+    double getAcceleration(double desiredSpeed, double currentSpeed, double currentAcceleration)
+    {
+        double acceleration = (desiredSpeed - currentSpeed)/(period);
+        //limiting the acceleration
+        acceleration = (acceleration < a_min)? a_min : (acceleration > a_max)? a_max : acceleration;
+        return acceleration;
+    }
+};
+
 /*
  * Implementing Safe Longitudinal Platoon Formation Controller proposed by Scheuer, Simonin and Charpillet.
  *
@@ -107,16 +130,13 @@ class SimpleDistanceController
  */
 class SafePlatooningController
 {
-
     double period;  //time period of the cycle of actions
     double a_min;   //minimum acceleration
     double a_max;   //maximum acceleration
     double d_crit;  //critical distance (>0)
 
 public:
-
     SafePlatooningController(){}
-
     SafePlatooningController(double period, double a_min, double a_max, double d_crit)
     {
      this->period = period;
@@ -124,23 +144,17 @@ public:
      this->a_max = a_max;
      this->d_crit = d_crit;
     }
-
     double getAcceleration(double distanceToLeading, double followerSpeed, double leadingSpeed)
     {
         double period_2 = period*period;
-
         //lower bound of next distance between leading and follower vehicles
         double lb_next_distance = distanceToLeading + (leadingSpeed - followerSpeed)*period + ((a_min - a_max)*period_2)/2;
-
         //lower bound of next leading vehicle speed
         double lb_next_leading_speed = leadingSpeed + a_min*period;
-
         //upper bound of next follower vehicle speed
         double ub_next_follower_speed = followerSpeed + a_max*period;
-
         //lower bound of next safety criterion
         double lb_next_safety_criterion = lb_next_distance - d_crit + (std::pow(ub_next_follower_speed, 2) - std::pow(lb_next_leading_speed, 2))/(2*a_min);
-
         //lower bound of next next safety criterion
         double lb_next_next_safety_criterion = std::max( 0.0, lb_next_safety_criterion - ((a_max - a_min)*(ub_next_follower_speed + (a_max*period)/2)*period)/(-a_min) ) + (a_max - a_min)*period_2;
 
