@@ -318,11 +318,11 @@ void MEPlatooningService::computePlatoonAccelerations(){
                 double velocity_gap = desiredVelocity - cars[i].speed.length();
 
                 //getting controller output and moving on next state
-                double acceleration = cars_velocity_controllers[i].getOutput(velocity_gap);
-                cars_velocity_controllers[i].updateNextState(velocity_gap);
+//                double acceleration = cars_velocity_controllers[i].getOutput(velocity_gap);
+//                cars_velocity_controllers[i].updateNextState(velocity_gap);
 
 //using a general formula --> problem when slowing to 0mps or similar also similar low speeds
-//double acceleration = leaderController.getAcceleration(desiredVelocity, cars[i].speed.length(), cars[i].acceleration);
+double acceleration = leaderController.getAcceleration(desiredVelocity, cars[i].speed.length(), cars[i].acceleration);
 
                 //updating clusters entry with acceleration computed for each member
                 cit->second.accelerations.push_back(acceleration);

@@ -99,18 +99,21 @@ class GeneralSpeedController
     double period;  //time period of the cycle of actions
     double a_min;   //minimum acceleration
     double a_max;   //maximum acceleration
+    double gain;
 
 public:
-    GeneralSpeedController(){}
+    GeneralSpeedController(){ this->gain = 0.2;}
+
     GeneralSpeedController(double period, double a_min, double a_max)
     {
      this->period = period;
      this->a_min = a_min;
      this->a_max = a_max;
+     this->gain = 0.2;
     }
     double getAcceleration(double desiredSpeed, double currentSpeed, double currentAcceleration)
     {
-        double acceleration = (desiredSpeed - currentSpeed)/(period);
+        double acceleration = (desiredSpeed - currentSpeed)*gain;
         //limiting the acceleration
         acceleration = (acceleration < a_min)? a_min : (acceleration > a_max)? a_max : acceleration;
         return acceleration;

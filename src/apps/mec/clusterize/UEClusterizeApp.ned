@@ -36,7 +36,7 @@ simple UEClusterizeApp like IUDPApp
             @display("i=block/source");    
         
         //packet info
-        int packetSize = default(10);
+        int packetSize = default(100);
         
         //communication with ME Host
         int localPort = default(4000);
