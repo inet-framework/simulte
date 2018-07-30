@@ -32,7 +32,9 @@ simple MEPlatooningService extends MEClusterizeService
         double proximityThreshold @unit("m");				//threshold to consider two cars adjacent on the same direction
         double roadLaneSize @unit("m");						//rectangle base ortogonal to the car direction
         double triangleAngle @unit("rad");					//triangle angle aroung car direction
-        //cluster mobility to reach
+        //cluster mobility
         double desiredVelocity @unit("mps");
-        double desiredDistance @unit("m");
+        double criticalDistance @unit("m");
+        double maxAcceleration;
+        double minAcceleration;
 }

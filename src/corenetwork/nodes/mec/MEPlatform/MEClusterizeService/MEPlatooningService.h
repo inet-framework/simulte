@@ -45,12 +45,11 @@ class MEPlatooningService : public MEClusterizeService
     double proximityThreshold;
     double roadLaneSize;
     double triangleAngle;
-    //cluster mobility to reach
+    //cluster mobility
     double desiredVelocity;
-    double desiredDistance;
-    //acceleration limit
-    const double MAX_ACCELERATION = 3;
-    const double MIN_ACCELERATION = -5;
+    double criticalDistance;
+    double MAX_ACCELERATION;
+    double MIN_ACCELERATION;
     //---------------------------------------
     //controllers (from matlab sisotool state space representation)
     std::map<int, SimpleVelocityController> cars_velocity_controllers;

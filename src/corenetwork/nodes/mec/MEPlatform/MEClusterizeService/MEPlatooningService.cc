@@ -40,11 +40,14 @@ void MEPlatooningService::initialize(int stage)
     roadLaneSize = par("roadLaneSize").doubleValue();                               //meter
     triangleAngle = par("triangleAngle").doubleValue();                             //radiant
     //---------------------------------------
-    //cluster mobility to reach
+    //cluster mobility
     desiredVelocity = par("desiredVelocity").doubleValue();                         //meter per second
-    desiredDistance = par("desiredDistance").doubleValue();                         //meter
+    criticalDistance = par("criticalDistance").doubleValue();                         //meter
+    MIN_ACCELERATION = par("minAcceleration").doubleValue();
+    MAX_ACCELERATION = par("maxAcceleration").doubleValue();
+
     //controller initialization
-    followerController = SafePlatooningController(period_.dbl(), MIN_ACCELERATION, MAX_ACCELERATION, desiredDistance);
+    followerController = SafePlatooningController(period_.dbl(), MIN_ACCELERATION, MAX_ACCELERATION, criticalDistance);
     leaderController = GeneralSpeedController(period_.dbl(), MIN_ACCELERATION, MAX_ACCELERATION);
 }
 
@@ -357,7 +360,7 @@ double acceleration = leaderController.getAcceleration(desiredVelocity, cars[i].
                 //update acceleration
                 cars[i].acceleration = acceleration;
                 //updating platoon formation info
-                double distance_gap = cars[i].position.distance(cars[previous].position) - desiredDistance;
+                double distance_gap = cars[i].position.distance(cars[previous].position) - criticalDistance;
                 cit->second.distancies.push_back(distance_gap);
 
                 //testing
