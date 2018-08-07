@@ -248,12 +248,11 @@ void VirtualisationManager::downstreamToUEApp(MEAppPacket* pkt){
             //starting the MEApp termination procedure
             MEAppPacket* spkt = new MEAppPacket(STOP_MEAPP);
             spkt->setType(STOP_MEAPP);
-            spkt->setSno(pkt->getSno());
-            spkt->setByteLength(pkt->getByteLength());
             spkt->setSourceAddress(pkt->getSourceAddress());
             spkt->setDestinationAddress(pkt->getDestinationAddress());
             spkt->setMEModuleName(pkt->getMEModuleName());
-            spkt->setUeAppID(pkt->getUeAppID());
+            //setting the UEAppID for deleting the related ME Application instance
+            spkt->setUeAppID(meAppMap[key].ueAppID);
             EV << "VirtualisationeManager::downstreamToUEApp - calling stopMEApp for " << destSimbolicAddr << endl;
             stopMEApp(spkt);
 
@@ -300,6 +299,7 @@ void VirtualisationManager::instantiateMEApp(MEAppPacket* pkt)
 
     int serviceIndex = findService(pkt->getRequiredService());
     char* sourceAddress = (char*)pkt->getSourceAddress();
+    int ueAppID = pkt->getUeAppID();
     char* meModuleName = (char*)pkt->getMEModuleName();
 
     //retrieve UE App ID
@@ -333,6 +333,7 @@ void VirtualisationManager::instantiateMEApp(MEAppPacket* pkt)
         meAppMap[key].meAppGateIndex = index;
         meAppMap[key].meAppModule = module;
         meAppMap[key].ueAddress = ueAppAddress;
+        meAppMap[keuy].ueAppID = ueAppID;
 
         //displaying ME App dynamically created (after 70 they will overlap..)
         std::stringstream display;

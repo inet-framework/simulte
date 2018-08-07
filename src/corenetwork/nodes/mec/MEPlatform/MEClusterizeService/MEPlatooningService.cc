@@ -373,8 +373,8 @@ double acceleration = leaderController.getAcceleration(desiredVelocity, cars[i].
 
 //TESTING VARING VELOCITY OF LEADER:
 double now = simTime().dbl();
-if(now > 250)
-    desiredVelocity = 1;
+if(now > 120)
+    desiredVelocity = 6;
 }
 
 /*
