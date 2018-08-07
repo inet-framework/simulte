@@ -28,6 +28,18 @@
 #include "corenetwork/nodes/mec/MEPlatform/MEAppPacket_Types.h"
 #include "corenetwork/nodes/mec/MEPlatform/MEAppPacket_m.h"
 
+//###########################################################################
+//data structures
+
+struct resourceMapEntry
+{
+    int ueAppID;
+    double ram;
+    double disk;
+    double cpu;
+};
+//###########################################################################
+
 /**
  * ResourceManager
  *
@@ -41,14 +53,17 @@ class ResourceManager : public cSimpleModule
 {
     cModule* virtualisationInfr;
     cModule* meHost;
-
+    //maximum resources
     double maxRam;
     double maxDisk;
     double maxCPU;
-
+    //allocated resources
     double allocatedRam;
     double allocatedDisk;
     double allocatedCPU;
+    //storing resource allocation for each MEApp: resources required by UEApps
+    //key = UE App ID - value resourceMapEntry
+    std::map<int, resourceMapEntry> resourceMap;
 
     public:
 

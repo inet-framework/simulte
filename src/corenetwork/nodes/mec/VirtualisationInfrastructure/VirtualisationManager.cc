@@ -299,7 +299,6 @@ void VirtualisationManager::instantiateMEApp(MEAppPacket* pkt)
 
     int serviceIndex = findService(pkt->getRequiredService());
     char* sourceAddress = (char*)pkt->getSourceAddress();
-    int ueAppID = pkt->getUeAppID();
     char* meModuleName = (char*)pkt->getMEModuleName();
 
     //retrieve UE App ID
@@ -333,7 +332,7 @@ void VirtualisationManager::instantiateMEApp(MEAppPacket* pkt)
         meAppMap[key].meAppGateIndex = index;
         meAppMap[key].meAppModule = module;
         meAppMap[key].ueAddress = ueAppAddress;
-        meAppMap[keuy].ueAppID = ueAppID;
+        meAppMap[key].ueAppID = ueAppID;
 
         //displaying ME App dynamically created (after 70 they will overlap..)
         std::stringstream display;
@@ -386,7 +385,6 @@ void VirtualisationManager::instantiateMEApp(MEAppPacket* pkt)
 void VirtualisationManager::terminateMEApp(MEAppPacket* pkt)
 {
     int serviceIndex = findService(pkt->getRequiredService());
-
     //retrieve UE App ID
     int ueAppID = pkt->getUeAppID();
 
@@ -401,13 +399,12 @@ void VirtualisationManager::terminateMEApp(MEAppPacket* pkt)
             throw cRuntimeError("VirtualisationManager::terminateMEApp - \ERROR meAppMap entry does not exist!");
             return;
         }
-
+        EV << "VirtualisationManager::terminateMEApp - " << meAppMap[key].meAppModule->getName() << " terminated!" << endl;
         //terminating the ME App instance
         meAppMap[key].meAppModule->callFinish();
         meAppMap[key].meAppModule->deleteModule();
         currentMEApps--;
         EV << "VirtualisationManager::terminateMEApp - currentMEApps: " << currentMEApps << " / " << maxMEApps << endl;
-        EV << "VirtualisationManager::terminateMEApp - " << meAppMap[key].meAppModule->getName() << " terminated!" << endl;
 
         //Sending ACK_STOP_MEAPP to the UEApp
         EV << "VirtualisationManager::terminateMEApp - calling ackMEAppPacket with  "<< ACK_STOP_MEAPP << endl;

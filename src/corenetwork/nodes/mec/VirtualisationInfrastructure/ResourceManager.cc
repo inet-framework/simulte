@@ -78,17 +78,24 @@ void ResourceManager::handleMEAppResources(MEAppPacket* pkt){
 
     bool availableResources = true;
 
-    double reqRam = pkt->getRequiredRam();
-    double reqDisk = pkt->getRequiredDisk();
-    double reqCpu = pkt->getRequiredCpu();
+    int ueAppID = pkt->getUeAppID();
     /* -------------------------------
      * Handling StartPacket */
     if(!strcmp(pkt->getType(), START_MEAPP))
     {
+        double reqRam = pkt->getRequiredRam();
+        double reqDisk = pkt->getRequiredDisk();
+        double reqCpu = pkt->getRequiredCpu();
         availableResources = ((maxRam-allocatedRam-reqRam >= 0) && (maxDisk-allocatedDisk-reqDisk >= 0) && (maxCPU-allocatedCPU-reqCpu >= 0))? true : false;
         if(availableResources)
         {
+            //storing informations about ME App allocated resources
+            resourceMap[ueAppID].ueAppID = ueAppID;
+            resourceMap[ueAppID].ram = reqRam;
+            resourceMap[ueAppID].disk = reqDisk;
+            resourceMap[ueAppID].cpu = reqCpu;
             EV << "ResourceManager::handleMEAppResources - resources ALLOCATED for " << pkt->getSourceAddress() << endl;
+            EV << "ResourceManager::handleMEAppResources - ram: " << resourceMap[ueAppID].ram <<" disk: "<< resourceMap[ueAppID].disk <<" cpu: "<< resourceMap[ueAppID].cpu << endl;
             allocateResources(reqRam, reqDisk, reqCpu);
             send(pkt, "virtualisationManagerOut");
         }
@@ -101,8 +108,18 @@ void ResourceManager::handleMEAppResources(MEAppPacket* pkt){
      * Handling StopPacket */
     else if(!strcmp(pkt->getType(), STOP_MEAPP))
     {
-        EV << "ResourceManager::handleMEAppResources - resources DEALLOCATED for " << pkt->getSourceAddress() << endl;
-        deallocateResources(reqRam, reqDisk, reqCpu);
-        send(pkt, "virtualisationManagerOut");
+        if(!resourceMap.empty() || resourceMap.find(ueAppID) != resourceMap.end())
+        {
+            EV << "ResourceManager::handleMEAppResources - resources DEALLOCATED for " << pkt->getSourceAddress() << endl;
+            EV << "ResourceManager::handleMEAppResources - ram: " << resourceMap[ueAppID].ram <<" disk: "<< resourceMap[ueAppID].disk <<" cpu: "<< resourceMap[ueAppID].cpu << endl;
+            deallocateResources(resourceMap[ueAppID].ram, resourceMap[ueAppID].disk, resourceMap[ueAppID].cpu);
+            //erasing map entry
+            resourceMap.erase(ueAppID);
+            send(pkt, "virtualisationManagerOut");
+        }
+        else
+        {
+            EV << "ResourceManager::handleMEAppResources - NO ALLOCATION FOUND for " << pkt->getSourceAddress() << endl;
+        }
     }
 }
