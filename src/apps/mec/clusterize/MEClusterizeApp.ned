@@ -34,11 +34,6 @@ simple MEClusterizeApp like IMEApp
         //packet informations
         int packetSize = default(10);
         
-        //virtualized resources
-        double ram @unit("B") = default(10MB);
-        double disk @unit("B") = default(0.1GB);
-        double cpu = default(0.001);
-        
         //communication with UEClusterizeApp
         string ueSimbolicAddress; 		// i.e. UE[x] or car[x]
         string meHostSimbolicAddress;	// i.e meHost.virtualisationInfrastructure

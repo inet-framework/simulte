@@ -32,7 +32,6 @@ void MEClusterizeApp::initialize(int stage)
     // avoid multiple initializations
     if (stage!=inet::INITSTAGE_APPLICATION_LAYER)
         return;
-
     //--------------------------------------
     //packet informations
     size_ = par("packetSize");
@@ -99,6 +98,9 @@ void MEClusterizeApp::handleClusterizeConfig(ClusterizeConfigPacket* packet){
     //attaching informations to the INFO_MEAPP packet created by the MEClusterizeService
     packet->setSno(nextSnoConfig_);
     packet->setTimestamp(simTime());
+    //dynamically setting packet size:
+    //2 arrays of double (8byte) + 1 array of string (4byte) + 40 fixed bytes
+    size_ = 40 + packet->getClusterListArraySize()*20;
     packet->setByteLength(size_);
     packet->setSourceAddress(meHostSimbolicAddress);
     packet->setDestinationAddress(ueSimbolicAddress);
@@ -108,7 +110,7 @@ void MEClusterizeApp::handleClusterizeConfig(ClusterizeConfigPacket* packet){
     send(packet, "virtualisationInfrastructureOut");
     nextSnoConfig_++;
 
-    EV << "MEClusterizeApp::handleClusterizeConfig - Sending " << INFO_MEAPP << " ClusterizeConfigPacket SeqNo[" << nextSnoConfig_ << "]\n";
+    EV << "MEClusterizeApp::handleClusterizeConfig - Sending " << INFO_MEAPP << " ClusterizeConfigPacket SeqNo[" << nextSnoConfig_ << "] size: "<< size_ <<"\n";
 }
 
 void MEClusterizeApp::handleClusterizeInfo(ClusterizeInfoPacket *pkt){
