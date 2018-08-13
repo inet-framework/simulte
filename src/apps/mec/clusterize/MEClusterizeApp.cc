@@ -99,8 +99,8 @@ void MEClusterizeApp::handleClusterizeConfig(ClusterizeConfigPacket* packet){
     packet->setSno(nextSnoConfig_);
     packet->setTimestamp(simTime());
     //dynamically setting packet size:
-    //2 arrays of double (8byte) + 1 array of string (4byte) + 40 fixed bytes
-    size_ = 40 + packet->getClusterListArraySize()*20;
+    //1 array of double (8byte) + 1 array of string (4byte) + 30 fixed bytes
+    size_ = 30 + packet->getClusterListArraySize()*12;
     packet->setByteLength(size_);
     packet->setSourceAddress(meHostSimbolicAddress);
     packet->setDestinationAddress(ueSimbolicAddress);
