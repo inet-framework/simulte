@@ -111,7 +111,7 @@ public:
      this->a_max = a_max;
      this->gain = 0.2;
     }
-    double getAcceleration(double desiredSpeed, double currentSpeed, double currentAcceleration)
+    double getAcceleration(double desiredSpeed, double currentSpeed)
     {
         double acceleration = (desiredSpeed - currentSpeed)*gain;
         //limiting the acceleration

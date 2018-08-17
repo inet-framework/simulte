@@ -317,15 +317,8 @@ void MEPlatooningService::computePlatoonAccelerations(){
            //leader
            if(cars[i].isLeader)
            {
-                //controller input
-                double velocity_gap = desiredVelocity - cars[i].speed.length();
-
-                //getting controller output and moving on next state
-//                double acceleration = cars_velocity_controllers[i].getOutput(velocity_gap);
-//                cars_velocity_controllers[i].updateNextState(velocity_gap);
-
-//using a general formula --> problem when slowing to 0mps or similar also similar low speeds
-double acceleration = leaderController.getAcceleration(desiredVelocity, cars[i].speed.length(), cars[i].acceleration);
+                //using a general formula
+                double acceleration = leaderController.getAcceleration(desiredVelocity, cars[i].speed.length());
 
                 //updating clusters entry with acceleration computed for each member
                 cit->second.accelerations.push_back(acceleration);
@@ -335,6 +328,7 @@ double acceleration = leaderController.getAcceleration(desiredVelocity, cars[i].
                 cit->second.distancies.push_back(0);
 
                 //testing
+                double velocity_gap = desiredVelocity - cars[i].speed.length();
                 EV << "MEPlatooningService::computePlatoonAccelerations - update "<< cars[i].symbolicAddress <<" (LEADER)\t";
                 EV << " [position: " << cars[i].position << "] [acceleration: " << acceleration << "] velocity_gap: " << velocity_gap << endl;
                 previous = i;
@@ -343,9 +337,7 @@ double acceleration = leaderController.getAcceleration(desiredVelocity, cars[i].
            else
            {
                 /*
-                * DAVIET & PARENT MODEL revisited by Scheuer, Simonin and Charpillet
-                *
-                *       reaching desired velocity and mantaining the secure distance to avoid collision!
+                * Scheuer, Simonin and Charpillet: reaching desired velocity and mantaining the secure distance to avoid collision!
                 */
 
                 //Collision-free Longitudinal distance controller: inputs
@@ -360,12 +352,11 @@ double acceleration = leaderController.getAcceleration(desiredVelocity, cars[i].
                 //update acceleration
                 cars[i].acceleration = acceleration;
                 //updating platoon formation info
-                double distance_gap = cars[i].position.distance(cars[previous].position) - criticalDistance;
-                cit->second.distancies.push_back(distance_gap);
+                cit->second.distancies.push_back(distanceToLeading);
 
                 //testing
                 EV << "MEPlatooningService::computePlatoonAccelerations - update "<< cars[i].symbolicAddress <<" (MEMBER) following " << cars[previous].symbolicAddress;
-                EV << " [speed: " << cars[i].speed.length() <<  "] [acceleration: " << acceleration << "] distance_gap: " << distance_gap << endl;
+                EV << " [speed: " << cars[i].speed.length() <<  "] [acceleration: " << acceleration << "] distance_to previous: " << distanceToLeading << endl;
            }
            previous = i;
        }
@@ -373,8 +364,8 @@ double acceleration = leaderController.getAcceleration(desiredVelocity, cars[i].
 
 //TESTING VARING VELOCITY OF LEADER:
 double now = simTime().dbl();
-if(now > 120)
-    desiredVelocity = 6;
+if(now > 130)
+    desiredVelocity = 7;
 }
 
 /*
