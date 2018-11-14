@@ -34,8 +34,11 @@ class CbrSender : public cSimpleModule
 
     bool silences_;
 
-    simsignal_t cbrGeneratedThroughtput_;
-    simsignal_t cbrSentPkt_;
+    static simsignal_t cbrGeneratedThroughtputSignal_;
+    static simsignal_t cbrGeneratedBytesSignal_;
+    static simsignal_t cbrSentPktSignal_;
+
+    int txBytes_;
     // ----------------------------
 
     cMessage *selfSender_;
@@ -57,6 +60,7 @@ class CbrSender : public cSimpleModule
 
     virtual int numInitStages() const override { return NUM_INIT_STAGES; }
     void initialize(int stage);
+    void finish();
     void handleMessage(cMessage *msg);
 };
 

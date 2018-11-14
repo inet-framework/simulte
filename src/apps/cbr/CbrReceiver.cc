@@ -7,7 +7,7 @@ simsignal_t CbrReceiver::cbrFrameLossSignal_ = registerSignal("cbrFrameLossSigna
 simsignal_t CbrReceiver::cbrFrameDelaySignal_ = registerSignal("cbrFrameDelaySignal");
 simsignal_t CbrReceiver::cbrJitterSignal_ = registerSignal("cbrJitterSignal");
 simsignal_t CbrReceiver::cbrReceivedThroughtput_ = registerSignal("cbrReceivedThroughtputSignal");
-//simsignal_t CbrReceiver::cbrReceivedThroughtput_rate_ = registerSignal("cbrReceivedThroughtput_rateSignal");
+simsignal_t CbrReceiver::cbrReceivedBytesSignal_ = registerSignal("cbrReceivedBytesSignal");
 
 CbrReceiver::~CbrReceiver()
 {
@@ -60,8 +60,7 @@ void CbrReceiver::handleMessage(cMessage *msg)
     if( simTime() > getSimulation()->getWarmupPeriod() )
     {
         recvBytes_ += pktSize;
-        simtime_t elapsedTime = simTime() - getSimulation()->getWarmupPeriod();
-        emit( cbrReceivedThroughtput_, recvBytes_ / elapsedTime );
+        emit( cbrReceivedBytesSignal_ , pktSize );
     }
 
     simtime_t delay = simTime()-pPacket->getTimestamp();
@@ -81,6 +80,9 @@ void CbrReceiver::finish()
         lossRate = 1.0-(numReceived_/(totFrames_*1.0));
 
     emit(cbrFrameLossSignal_,lossRate);
+
+    simtime_t elapsedTime = simTime() - getSimulation()->getWarmupPeriod();
+    emit( cbrReceivedThroughtput_, recvBytes_ / elapsedTime );
 }
 
 

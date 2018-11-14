@@ -7,6 +7,10 @@
 
 Define_Module(CbrSender);
 
+simsignal_t CbrSender::cbrGeneratedThroughtputSignal_ = registerSignal("cbrGeneratedThroughtputSignal");
+simsignal_t CbrSender::cbrGeneratedBytesSignal_ = registerSignal("cbrGeneratedBytesSignal");
+simsignal_t CbrSender::cbrSentPktSignal_ = registerSignal("cbrSentPktSignal");
+
 CbrSender::CbrSender()
 {
     initialized_ = false;
@@ -37,7 +41,8 @@ void CbrSender::initialize(int stage)
         localPort_ = par("localPort");
         destPort_ = par("destPort");
 
-        cbrSentPkt_ = registerSignal("cbrSentPkt");
+        txBytes_ = 0;
+
     }
     else if (stage == INITSTAGE_APPLICATION_LAYER)
     {
@@ -107,7 +112,7 @@ void CbrSender::sendCbrPacket()
 {
     EV << "CbrSender::sendCbrPacket - Sending frame[" << iDframe_ << "/" << nframes_ << "], next packet at "<< simTime() + sampling_time << endl;
 
-    emit(cbrSentPkt_, (long)iDframe_);
+    emit(cbrSentPktSignal_, (long)iDframe_);
 
     CbrPacket* packet = new CbrPacket("Cbr");
     packet->setNframes(nframes_);
@@ -115,7 +120,19 @@ void CbrSender::sendCbrPacket()
     packet->setTimestamp(simTime());
     packet->setByteLength(size_);
 
+    emit(cbrGeneratedBytesSignal_,size_);
+
+    if( simTime() > getSimulation()->getWarmupPeriod() )
+    {
+        txBytes_ += size_;
+    }
     socket.sendTo(packet, destAddress_, destPort_);
 
     scheduleAt(simTime() + sampling_time, selfSource_);
+}
+
+void CbrSender::finish()
+{
+    simtime_t elapsedTime = simTime() - getSimulation()->getWarmupPeriod();
+    emit( cbrGeneratedThroughtputSignal_, txBytes_ / elapsedTime );
 }
