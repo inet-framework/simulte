@@ -46,10 +46,24 @@ simple LteMacBase like LteMac {
         //#
         //# Statistics recording
         //#
+        @signal[macThroughputIntervalDl];
+        @statistic[macThroughputIntervalDl](title="Throughput at the MAC layer DL"; unit="Bps"; source="macThroughputIntervalDl"; record=mean,vector,timeavg);
+        @signal[macThroughputIntervalUl];
+        @statistic[macThroughputIntervalUl](title="Throughput at the MAC layer UL"; unit="Bps"; source="macThroughputIntervalUl"; record=mean,vector,timeavg);
+        @signal[macCellThroughputIntervalUl];
+        @statistic[macCellThroughputIntervalUl](title="Cell Throughput at the MAC layer UL"; unit="Bps"; source="macCellThroughputIntervalUl"; record=mean,vector,timeavg);
+        @signal[macCellThroughputIntervalDl];
+        @statistic[macCellThroughputIntervalDl](title="Cell Throughput at the MAC layer DL"; unit="Bps"; source="macCellThroughputIntervalDl"; record=mean,vector,timeavg);
+        
+        @signal[macPacketSizeDl];
+        @statistic[macPacketSizeDl](title="Packet size at the MAC layer DL"; unit="Bps"; source="macPacketSizeDl"; record=sum,mean,vector,timeavg);
+        @signal[macPacketSizeUl];
+        @statistic[macPacketSizeUl](title="Packet size at the MAC layer UL"; unit="Bps"; source="macPacketSizeUl"; record=sum,mean,vector,timeavg);
+        
         @signal[macDelayDl];
         @statistic[macDelayDl](title="Delay at the MAC layer UL"; unit="s"; source="macDelayDl"; record=mean,vector);
         @signal[macThroughputDl];
-        @statistic[macThroughputDl](title="Throughput at the MAC layer DL"; unit="Bps"; source="macThroughputDl"; record=mean,vector);
+        @statistic[macThroughputDl](title="Throughput at the MAC layer DL"; unit="Bps"; source="macThroughputDl"; record=mean,vector,timeavg);
         @signal[macDelayUl];
         @statistic[macDelayUl](title="Delay at the MAC layer UL"; unit="s"; source="macDelayUl"; record=mean,vector);
         @signal[macThroughputUl];
