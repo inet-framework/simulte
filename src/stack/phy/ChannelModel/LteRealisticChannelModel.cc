@@ -78,6 +78,7 @@ void LteRealisticChannelModel::initialize()
 
    // statistics
    rcvdSinr_ = registerSignal("rcvdSinr");
+   pathLoss_ = registerSignal("pathLoss");
 }
 
 
@@ -1647,6 +1648,7 @@ double LteRealisticChannelModel::computePathLoss(double distance, double dbp, bo
     default:
         throw cRuntimeError("Wrong value %d for path-loss scenario", scenario_);
     }
+    emit(pathLoss_,pathLoss);
     return pathLoss;
 }
 

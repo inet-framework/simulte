@@ -103,6 +103,8 @@ simple LteRealisticChannelModel like LteChannelModelInterface
     // statistics
     @signal[rcvdSinr];
     @statistic[rcvdSinr](title="SINR measured at packet reception"; unit="dB"; source="rcvdSinr"; record=mean,vector);
+    @signal[pathLoss];
+    @statistic[pathLoss](title="path loss measured at path loss computation"; unit="dB"; source="pathLoss"; record=mean,vector);
 }
 
 simple LteMagicChannelModel like LteChannelModelInterface
