@@ -79,6 +79,7 @@ void LteRealisticChannelModel::initialize()
    // statistics
    rcvdSinr_ = registerSignal("rcvdSinr");
    pathLoss_ = registerSignal("pathLoss");
+   fadingAttenuation_ = registerSignal("fadingAttenuation");
 }
 
 
@@ -568,6 +569,7 @@ std::vector<double> LteRealisticChannelModel::getSINR(LteAirFrame *frame, UserCo
            else if (fadingType_ == JAKES)
                fadingAttenuation = jakesFading(ueId, speed, i, cqiDl);
        }
+       emit(fadingAttenuation_,fadingAttenuation);
        // add fading contribution to the received pwr
        double finalRecvPower = recvPower + fadingAttenuation; // (dBm+dB)=dBm
 
