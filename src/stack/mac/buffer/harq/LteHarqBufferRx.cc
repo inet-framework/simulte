@@ -163,7 +163,7 @@ std::list<LteMacPdu *> LteHarqBufferRx::extractCorrectPdus()
                     else  // UL
                     {
                         macUe_->emit(macThroughput_, tputSample);
-                        macOwner_->emit(macPacketSize_, size);
+                        macUe_->emit(macPacketSize_, size);
                     }
                 }
 
