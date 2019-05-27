@@ -14,8 +14,8 @@
 #include "stack/mac/layer/LteMacBase.h"
 #include "stack/mac/layer/LteMacEnb.h"
 
-unsigned int LteHarqBufferRx::totalCellRcvdBytes_ = 0;
-unsigned int LteHarqBufferRx::intervalCellRcvdBytes_ = 0;
+unsigned int LteHarqBufferRx::totalCellRcvdBytesDl_ = 0;
+unsigned int LteHarqBufferRx::totalCellRcvdBytesUl_ = 0;
 
 LteHarqBufferRx::LteHarqBufferRx(unsigned int num, LteMacBase *owner,
     MacNodeId nodeId)
@@ -144,24 +144,25 @@ std::list<LteMacPdu *> LteHarqBufferRx::extractCorrectPdus()
                 // Calculate Throughput by sending the number of bits for this packet
                 if (NOW > getSimulation()->getWarmupPeriod())
                 {
-                    totalCellRcvdBytes_ += size;
                     totalRcvdBytes_ += size;
-
-                    intervalCellRcvdBytes_ += size;
                     intervalRcvdBytes_ += size;
 
                     double tputSample = (double)totalRcvdBytes_ / (NOW - getSimulation()->getWarmupPeriod());
-                    double cellTputSample = (double)totalCellRcvdBytes_ / (NOW - getSimulation()->getWarmupPeriod());
 
                     // emit throughput statistics
-                    nodeB_->emit(macCellThroughput_, cellTputSample);
                     if (uInfo->getDirection() == DL)
                     {
+                        totalCellRcvdBytesDl_ += size;
+                        double cellTputSample = (double)totalCellRcvdBytesDl_ / (NOW - getSimulation()->getWarmupPeriod());
+                        nodeB_->emit(macCellThroughput_, cellTputSample);
                         macOwner_->emit(macThroughput_, tputSample);
                         macOwner_->emit(macPacketSize_, size);
                     }
                     else  // UL
                     {
+                        totalCellRcvdBytesUl_ += size;
+                        double cellTputSample = (double)totalCellRcvdBytesUl_ / (NOW - getSimulation()->getWarmupPeriod());
+                        nodeB_->emit(macCellThroughput_, cellTputSample);
                         macUe_->emit(macThroughput_, tputSample);
                         macUe_->emit(macPacketSize_, size);
                     }
@@ -170,19 +171,22 @@ std::list<LteMacPdu *> LteHarqBufferRx::extractCorrectPdus()
                 if (NOW > getSimulation()->getWarmupPeriod() && NOW > tpIntervalStart + tpIntervalLength_)
                 {
                     double tputSample = (double)intervalRcvdBytes_ / (NOW - tpIntervalStart);
-                    double cellTputSample = (double)intervalCellRcvdBytes_ / (NOW - tpIntervalStart);
 
                     // emit throughput statistics
-                    nodeB_->emit(macCellThroughputInterval_, cellTputSample);
                     if (uInfo->getDirection() == DL)
                     {
+                        double cellTputSample = (double) (totalCellRcvdBytesDl_ - intervalStartCellRcvdBytesDl_) / (NOW - tpIntervalStart);
+                        nodeB_->emit(macCellThroughputInterval_, cellTputSample);
                         macOwner_->emit(macThroughputInterval_, tputSample);
                     }
                     else  // UL
                     {
+                        double cellTputSample = (double) (totalCellRcvdBytesUl_ - intervalStartCellRcvdBytesUl_) / (NOW - tpIntervalStart);
+                        nodeB_->emit(macCellThroughputInterval_, cellTputSample);
                         macUe_->emit(macThroughputInterval_, tputSample);
                     }
-                    intervalCellRcvdBytes_ = 0;
+                    intervalStartCellRcvdBytesDl_ = totalCellRcvdBytesDl_;
+                    intervalStartCellRcvdBytesUl_ = totalCellRcvdBytesUl_;
                     intervalRcvdBytes_ = 0;
                     tpIntervalStart = NOW;
                 }
