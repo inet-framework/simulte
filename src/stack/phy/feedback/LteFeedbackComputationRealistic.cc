@@ -106,7 +106,7 @@ unsigned int LteFeedbackComputationRealistic::computeRank(MacNodeId id)
 Cqi LteFeedbackComputationRealistic::getCqi(TxMode txmode, double snr)
 {
     int newsnr = floor(snr + 0.5);
-    if (newsnr < 0)
+    if (newsnr <= 0)
         return 0;
     if (newsnr > phyPisaData_->maxSnr())
         return 15;
