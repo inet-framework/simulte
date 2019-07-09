@@ -109,6 +109,16 @@ simple LteRealisticChannelModel like LteChannelModelInterface
     @statistic[fadingAttenuation](title="fading measured after fading calculation"; unit="dB"; source="fadingAttenuation"; record=mean,vector);
 }
 
+simple LteGilbertElliotChannelModel extends LteRealisticChannelModel
+{
+	parameters:
+	@class("LteGilbertElliotChannelModel");
+	double error_prob_good_state = default(0.0);
+	double error_prob_bad_state = default(1.0);
+	double trans_prob_good_state = default(0.5);
+	double trans_prob_bad_state = default(0.5);    
+}
+
 simple LteMagicChannelModel like LteChannelModelInterface
 {
     parameters:
