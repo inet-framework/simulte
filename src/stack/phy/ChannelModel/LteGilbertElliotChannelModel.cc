@@ -10,7 +10,8 @@
 
 Define_Module(LteGilbertElliotChannelModel);
 
-LteGilbertElliotChannelModel::LteGilbertElliotChannelModel() : channel_model(), rng(std::mt19937(random_device())), distribution(std::uniform_real_distribution<double>(0.0, 1.0)) {
+LteGilbertElliotChannelModel::LteGilbertElliotChannelModel() : channel_model(), rng_error(getRNG(0)), rng_model(getRNG(0)) {
+    channel_model.setParent(this);
 }
 
 bool LteGilbertElliotChannelModel::error(LteAirFrame *frame, UserControlInfo* lteI) {
@@ -20,7 +21,10 @@ bool LteGilbertElliotChannelModel::error(LteAirFrame *frame, UserControlInfo* lt
     // Print update.
     EV << "Channel update: " << state_before << " -> " << channel_model.getCurrentChannelState() << std::endl;
     // Draw a random number.
-    double random_number = distribution(rng);
+    double random_number = rng_error->doubleRand();
+    // Apply HARQ reduction.
+    double nTx = (double) lteI->getTxNumber();
+    packet_error_prob = pow(packet_error_prob, nTx); // Assuming exponential decrease.
     // Compare to the current model state's error probability.
     if (random_number > packet_error_prob) {// e.g. packet_error_prob=0.3, then for random_number>0.3 no error occurs, which is an 'area' of 0.7.
         EV << "Channel result: no error" << std::endl;
@@ -41,4 +45,8 @@ void LteGilbertElliotChannelModel::initialize() {
     channel_model.setErrorProbability(GilbertElliotModel::ChannelState::bad, par("error_prob_bad_state").doubleValue());
     channel_model.setTransitionProbability(GilbertElliotModel::ChannelState::good, par("trans_prob_good_state").doubleValue());
     channel_model.setTransitionProbability(GilbertElliotModel::ChannelState::bad, par("trans_prob_bad_state").doubleValue());
+}
+
+double LteGilbertElliotChannelModel::getRandomNumber() {
+    return rng_model->doubleRand();
 }

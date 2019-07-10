@@ -7,6 +7,8 @@
 
 #include <random>
 
+class LteGilbertElliotChannelModel;
+
 /**
  * Implements a two-state Gilbert-Elliot channel model.
  * This is a discrete two-state Markov chain, with specific transition probabilities.
@@ -44,6 +46,8 @@ class GilbertElliotModel {
 
 		const GilbertElliotModel::ChannelState& getCurrentChannelState() const;
 
+		void setParent(LteGilbertElliotChannelModel* parent);
+
 	private:
 		double good_state_packet_error_prob = 0.0,
 				bad_state_packet_error_prob = 1.0;
@@ -53,9 +57,7 @@ class GilbertElliotModel {
 
 		ChannelState current_channel_state = ChannelState::good;
 
-		std::random_device random_device;
-		std::mt19937 rng;
-		std::uniform_real_distribution<double> distribution;
+		LteGilbertElliotChannelModel* parent = nullptr;
 };
 
 

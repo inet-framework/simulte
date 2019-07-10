@@ -5,12 +5,12 @@
 #include <stdexcept>
 #include <iostream>
 #include "GilbertElliotModel.h"
+#include "stack/phy/ChannelModel/LteGilbertElliotChannelModel.h"
 
-GilbertElliotModel::GilbertElliotModel() : rng(std::mt19937(random_device())), distribution(std::uniform_real_distribution<double>(0.0, 1.0)) {
-}
+GilbertElliotModel::GilbertElliotModel() {}
 
 double GilbertElliotModel::update() {
-	double random_number = distribution(rng);
+	double random_number = parent->getRandomNumber();
 	double current_transition_probability = current_channel_state == ChannelState::good ? good_state_transition_prob : bad_state_transition_prob;
 	if (random_number >= current_transition_probability)
 		current_channel_state = current_channel_state == ChannelState::good ? ChannelState::bad : ChannelState::good;
@@ -70,4 +70,8 @@ double GilbertElliotModel::getSteadyStateProbability(const int channel_state) co
 
 const GilbertElliotModel::ChannelState& GilbertElliotModel::getCurrentChannelState() const {
 	return this->current_channel_state;
+}
+
+void GilbertElliotModel::setParent(LteGilbertElliotChannelModel* parent) {
+    this->parent = parent;
 }

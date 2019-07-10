@@ -18,6 +18,8 @@
  * Each state may exhibit a certain packet error probability, so that checking whether a transmission succeeds boils down to evaluating which state the model is currently in, and applying the corresponding packet error probability.
  */
 class LteGilbertElliotChannelModel : public LteRealisticChannelModel {
+    friend class GilbertElliotModel;
+
 public:
     LteGilbertElliotChannelModel();
     virtual ~LteGilbertElliotChannelModel() = default;
@@ -27,11 +29,12 @@ public:
 
     virtual void initialize();
 
+protected:
+    double getRandomNumber();
+
 private:
     GilbertElliotModel channel_model;
-    std::random_device random_device;
-    std::mt19937 rng;
-    std::uniform_real_distribution<double> distribution;
+    cRNG* rng_error, *rng_model;
 };
 
 #endif /* STACK_PHY_CHANNELMODEL_LTEGILBERTELLIOTCHANNELMODEL_H_ */
