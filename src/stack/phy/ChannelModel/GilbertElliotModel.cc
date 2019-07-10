@@ -62,6 +62,12 @@ double GilbertElliotModel::getSteadyStateProbability(const int channel_state) co
 	const double& p21 = bad_state_transition_prob;
 	if (channel_state == ChannelState::good)
 		return p21 / (p12 + p21);
-	else
+	else if (channel_state == ChannelState::bad)
 		return p12 / (p21 + p12);
+	else
+		throw std::invalid_argument("Channel state is neither good nor bad.");
+}
+
+const GilbertElliotModel::ChannelState& GilbertElliotModel::getCurrentChannelState() const {
+	return this->current_channel_state;
 }

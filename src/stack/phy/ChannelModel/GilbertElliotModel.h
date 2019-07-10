@@ -42,6 +42,8 @@ class GilbertElliotModel {
 
 		double getTransitionProbability(const int channel_state) const;
 
+		const GilbertElliotModel::ChannelState& getCurrentChannelState() const;
+
 	private:
 		double good_state_packet_error_prob = 0.0,
 				bad_state_packet_error_prob = 1.0;
@@ -49,7 +51,7 @@ class GilbertElliotModel {
 		double good_state_transition_prob = 0.5,
 				bad_state_transition_prob = 0.5;
 
-		int current_channel_state = ChannelState::good;
+		ChannelState current_channel_state = ChannelState::good;
 
 		std::random_device random_device;
 		std::mt19937 rng;
