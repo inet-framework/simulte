@@ -17,18 +17,17 @@ bool LteGilbertElliotChannelModel::error(LteAirFrame *frame, UserControlInfo* lt
     // Update the channel model.
     GilbertElliotModel::ChannelState state_before = channel_model.getCurrentChannelState();
     double packet_error_prob = channel_model.update();
-    GilbertElliotModel::ChannelState state_after = channel_model.getCurrentChannelState();
-    EV << "Channel update: " << state_before << " -> " << state_after << std::endl;
+    // Print update.
+    EV << "Channel update: " << state_before << " -> " << channel_model.getCurrentChannelState() << std::endl;
     // Draw a random number.
     double random_number = distribution(rng);
     // Compare to the current model state's error probability.
     if (random_number > packet_error_prob) {// e.g. packet_error_prob=0.3, then for random_number>0.3 no error occurs, which is an 'area' of 0.7.
-        // No error occurred.
         EV << "Channel result: no error" << std::endl;
         return false;
     } else {
         EV << "Channel result: an error" << std::endl;
-        return true; // An error occurred.
+        return true;
     }
 }
 
