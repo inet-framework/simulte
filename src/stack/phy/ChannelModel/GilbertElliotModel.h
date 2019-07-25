@@ -26,6 +26,8 @@ class GilbertElliotModel {
 		GilbertElliotModel();
 		virtual ~GilbertElliotModel() = default;
 
+		void setStartingState();
+
 		/**
 		 * Updates the model. Possibly transitions to another state, or remains.
 		 * @return The current packet error probability after updating.
@@ -48,12 +50,17 @@ class GilbertElliotModel {
 
 		void setParent(LteGilbertElliotChannelModel* parent);
 
+		unsigned long getNumTimesStateVisited(const int channel_state) const;
+
 	private:
 		double good_state_packet_error_prob = 0.0,
 				bad_state_packet_error_prob = 1.0;
 
 		double good_state_transition_prob = 0.5,
 				bad_state_transition_prob = 0.5;
+
+		unsigned long num_times_good_state_visited = 0,
+		              num_times_bad_state_visited = 0;
 
 		ChannelState current_channel_state = ChannelState::good;
 

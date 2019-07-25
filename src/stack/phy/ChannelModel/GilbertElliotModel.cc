@@ -9,11 +9,21 @@
 
 GilbertElliotModel::GilbertElliotModel() {}
 
+void GilbertElliotModel::setStartingState() {
+    double steady_state_good = getSteadyStateProbability(ChannelState::good);
+    double random_number = parent->getRandomNumber();
+    if (random_number <= steady_state_good)
+        current_channel_state = ChannelState::good;
+    else
+        current_channel_state = ChannelState::bad;
+}
+
 double GilbertElliotModel::update() {
 	double random_number = parent->getRandomNumber();
 	double current_transition_probability = current_channel_state == ChannelState::good ? good_state_transition_prob : bad_state_transition_prob;
-	if (random_number >= current_transition_probability)
+	if (random_number <= current_transition_probability)
 		current_channel_state = current_channel_state == ChannelState::good ? ChannelState::bad : ChannelState::good;
+	current_channel_state == ChannelState::good ? num_times_good_state_visited++ : num_times_bad_state_visited++;
 	return getCurrentErrorProbability();
 }
 
@@ -74,4 +84,13 @@ const GilbertElliotModel::ChannelState& GilbertElliotModel::getCurrentChannelSta
 
 void GilbertElliotModel::setParent(LteGilbertElliotChannelModel* parent) {
     this->parent = parent;
+}
+
+unsigned long GilbertElliotModel::getNumTimesStateVisited(const int channel_state) const {
+    if (channel_state == ChannelState::good)
+        return num_times_good_state_visited;
+    else if (channel_state == ChannelState::bad)
+        return num_times_bad_state_visited;
+    else
+        throw std::invalid_argument("Channel state is neither good nor bad.");
 }

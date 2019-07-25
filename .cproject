@@ -139,10 +139,10 @@
 		<project id="lte.org.omnetpp.cdt.omnetppProjectType.2046274091" name="OMNeT++ Simulation" projectType="org.omnetpp.cdt.omnetppProjectType"/>
 	</storageModule>
 	<storageModule moduleId="refreshScope" versionNumber="2">
-		<configuration configurationName="msvc-debug">
+		<configuration configurationName="gcc-release">
 			<resource resourceType="PROJECT" workspacePath="/lte"/>
 		</configuration>
-		<configuration configurationName="gcc-release">
+		<configuration configurationName="msvc-debug">
 			<resource resourceType="PROJECT" workspacePath="/lte"/>
 		</configuration>
 		<configuration configurationName="gcc-debug">

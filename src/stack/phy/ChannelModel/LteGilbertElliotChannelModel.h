@@ -22,7 +22,7 @@ class LteGilbertElliotChannelModel : public LteRealisticChannelModel {
 
 public:
     LteGilbertElliotChannelModel();
-    virtual ~LteGilbertElliotChannelModel() = default;
+    virtual ~LteGilbertElliotChannelModel();
 
     virtual bool error(LteAirFrame *frame, UserControlInfo* lteI) override;
     virtual bool error_D2D(LteAirFrame *frame, UserControlInfo* lteI, const std::vector<double>& rsrpVector) override;
@@ -35,6 +35,7 @@ protected:
 private:
     GilbertElliotModel channel_model;
     cRNG* rng_error, *rng_model;
+    bool has_initialized = false;
 };
 
 #endif /* STACK_PHY_CHANNELMODEL_LTEGILBERTELLIOTCHANNELMODEL_H_ */
