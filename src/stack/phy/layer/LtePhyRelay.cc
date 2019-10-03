@@ -79,7 +79,7 @@ void LtePhyRelay::handleAirFrame(cMessage* msg)
     }
 
     bool result;
-    result = channelModel_->error(frame, lteInfo);
+    result = channelModel_->isCorrupted(frame, lteInfo);
     // update statistics
     if (result)
         numAirFrameReceived_++;

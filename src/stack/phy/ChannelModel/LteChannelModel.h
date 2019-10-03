@@ -38,9 +38,9 @@ class LteChannelModel : public cSimpleModule
      * @param frame pointer to the packet
      * @param lteinfo pointer to the user control info
      */
-    virtual bool error(LteAirFrame *frame, UserControlInfo* lteI) = 0;
+    virtual bool isCorrupted(LteAirFrame *frame, UserControlInfo* lteI) = 0;
     //TODO NOT IMPLEMENTED YET
-    virtual bool errorDas(LteAirFrame *frame, UserControlInfo* lteI) = 0;
+    virtual bool isCorruptedDas(LteAirFrame *frame, UserControlInfo* lteI) = 0;
     /*
      * Compute Attenuation caused by pathloss and shadowing (optional)
      *

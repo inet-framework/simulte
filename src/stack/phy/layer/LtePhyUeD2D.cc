@@ -186,12 +186,12 @@ void LtePhyUeD2D::handleAirFrame(cMessage* msg)
             frame->addRemoteUnitPhyDataVector(data);
         }
         // apply analog models For DAS
-        result=channelModel_->errorDas(frame,lteInfo);
+        result=channelModel_->isCorruptedDas(frame,lteInfo);
     }
     else
     {
         //RELAY and NORMAL
-        result = channelModel_->error(frame,lteInfo);
+        result = channelModel_->isCorrupted(frame,lteInfo);
     }
 
             // update statistics
@@ -445,7 +445,7 @@ void LtePhyUeD2D::decodeAirFrame(LteAirFrame* frame, UserControlInfo* lteInfo)
             frame->addRemoteUnitPhyDataVector(data);
         }
         // apply analog models For DAS
-        result=channelModel_->errorDas(frame,lteInfo);
+        result=channelModel_->isCorruptedDas(frame,lteInfo);
     }
     else
     {
@@ -453,7 +453,7 @@ void LtePhyUeD2D::decodeAirFrame(LteAirFrame* frame, UserControlInfo* lteInfo)
         if (lteInfo->getDirection() == D2D_MULTI)
             result = channelModel_->error_D2D(frame,lteInfo,bestRsrpVector_);
         else
-            result = channelModel_->error(frame,lteInfo);
+            result = channelModel_->isCorrupted(frame,lteInfo);
     }
 
     // update statistics

@@ -61,7 +61,7 @@ std::vector<double> LteDummyChannelModel::getSIR(LteAirFrame *frame, UserControl
    return tmp;
 }
 
-bool LteDummyChannelModel::error(LteAirFrame *frame, UserControlInfo* lteInfo)
+bool LteDummyChannelModel::isCorrupted(LteAirFrame *frame, UserControlInfo* lteInfo)
 {
    // Number of RTX
    unsigned char nTx = lteInfo->getTxNumber();

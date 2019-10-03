@@ -29,7 +29,7 @@ class LteDummyChannelModel : public LteChannelModel
     * @param frame pointer to the packet
     * @param lteinfo pointer to the user control info
     */
-   virtual bool error(LteAirFrame *frame, UserControlInfo* lteInfo);
+   virtual bool isCorrupted(LteAirFrame *frame, UserControlInfo* lteInfo);
    /*
     * Compute the path-loss attenuation according to the selected scenario
     */
@@ -80,7 +80,7 @@ class LteDummyChannelModel : public LteChannelModel
    virtual std::vector<double> getSINR_D2D(LteAirFrame *frame, UserControlInfo* lteInfo_1, MacNodeId destId, inet::Coord destCoord,MacNodeId enbId);
    virtual std::vector<double> getSINR_D2D(LteAirFrame *frame, UserControlInfo* lteInfo_1, MacNodeId destId, inet::Coord destCoord,MacNodeId enbId,const std::vector<double>& rsrpVector);
    //TODO
-   virtual bool errorDas(LteAirFrame *frame, UserControlInfo* lteI)
+   virtual bool isCorruptedDas(LteAirFrame *frame, UserControlInfo* lteI)
    {
        throw cRuntimeError("DAS PHY LAYER TO BE IMPLEMENTED");
        return false;

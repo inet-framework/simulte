@@ -208,14 +208,14 @@ public:
    * @param frame pointer to the packet
    * @param lteinfo pointer to the user control info
    */
-  virtual bool error(LteAirFrame *frame, UserControlInfo* lteI);
+  virtual bool isCorrupted(LteAirFrame *frame, UserControlInfo* lteI);
   /*
    * The same as before but used for das TODO to be implemnted
    *
    * @param frame pointer to the packet
    * @param lteinfo pointer to the user control info
    */
-  virtual bool errorDas(LteAirFrame *frame, UserControlInfo* lteI)
+  virtual bool isCorruptedDas(LteAirFrame *frame, UserControlInfo* lteI)
   {
       throw cRuntimeError("DAS PHY LAYER TO BE IMPLEMENTED");
       return -1;

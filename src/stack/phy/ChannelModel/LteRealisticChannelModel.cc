@@ -1269,7 +1269,7 @@ double LteRealisticChannelModel::jakesFading(MacNodeId nodeId, double speed,
    return linearToDb(re_h * re_h + im_h * im_h);
 }
 
-bool LteRealisticChannelModel::error(LteAirFrame *frame,
+bool LteRealisticChannelModel::isCorrupted(LteAirFrame *frame,
        UserControlInfo* lteInfo)
 {
    EV << "LteRealisticChannelModel::error" << endl;
