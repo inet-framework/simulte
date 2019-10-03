@@ -57,8 +57,8 @@ class BurstSender : public cSimpleModule
   protected:
 
     virtual int numInitStages() const override { return NUM_INIT_STAGES; }
-    void initialize(int stage);
-    void handleMessage(cMessage *msg);
+    void initialize(int stage) override;
+    void handleMessage(cMessage *msg) override;
 };
 
 #endif

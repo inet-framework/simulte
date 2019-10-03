@@ -34,10 +34,9 @@ EpcNodeType TrafficFlowFilterSimplified::selectOwnerType(const char * type)
     EV << "TrafficFlowFilterSimplified::selectOwnerType - setting owner type to " << type << endl;
     if(strcmp(type,"ENODEB") == 0)
         return ENB;
-    else if(strcmp(type,"PGW") == 0)
-        return PGW;
-
-    error("TrafficFlowFilterSimplified::selectOwnerType - unknown owner type [%s]. Aborting...",type);
+    if(strcmp(type,"PGW") != 0)
+        error("TrafficFlowFilterSimplified::selectOwnerType - unknown owner type [%s]. Aborting...",type);
+    return PGW;
 }
 
 void TrafficFlowFilterSimplified::handleMessage(cMessage *msg)

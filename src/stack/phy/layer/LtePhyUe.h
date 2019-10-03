@@ -94,12 +94,12 @@ class LtePhyUe : public LtePhyBase
 
     simtime_t lastFeedback_;
 
-    virtual void initialize(int stage);
-    virtual void handleSelfMessage(cMessage *msg);
-    virtual void handleAirFrame(cMessage* msg);
-    virtual void finish();
+    virtual void initialize(int stage)override ;
+    virtual void handleSelfMessage(cMessage *msg) override;
+    virtual void handleAirFrame(cMessage* msg) override;
+    virtual void finish() override;
 
-    virtual void handleUpperMessage(cMessage* msg);
+    virtual void handleUpperMessage(cMessage* msg) override;
 
     /**
      * Catches host failure due to battery depletion.

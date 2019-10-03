@@ -38,7 +38,7 @@ void X2AppClient::initialize(int stage)
 
         // set the connect port
         int connectPort = getBinder()->getX2Port(peerId);
-        par("connectPort").setLongValue(connectPort);
+        par("connectPort").setIntValue(connectPort);
     }
 }
 

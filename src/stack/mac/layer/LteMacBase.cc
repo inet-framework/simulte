@@ -234,7 +234,7 @@ void LteMacBase::deleteQueues(MacNodeId nodeId)
     {
         if (MacCidToNodeId(mit->first) == nodeId)
         {
-            while (!mit->second->empty())
+            while (!mit->second->isEmpty())
             {
                 cPacket* pkt = mit->second->popFront();
                 delete pkt;

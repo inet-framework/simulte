@@ -267,6 +267,7 @@ class LtePdcpRrcUe : public LtePdcpRrcBase
         // Data coming from Dataport on UE are always Uplink
         return UL;
     }
+
   public:
     virtual void initialize(int stage);
 };

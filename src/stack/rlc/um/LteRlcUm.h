@@ -84,17 +84,6 @@ class LteRlcUm : public cSimpleModule
     virtual bool isEmptyingTxBuffer(MacNodeId peerId) { return false; }
 
 
-  protected:
-
-    cGate* up_[2];
-    cGate* down_[2];
-
-    // statistics
-    simsignal_t receivedPacketFromUpperLayer;
-    simsignal_t receivedPacketFromLowerLayer;
-    simsignal_t sentPacketToUpperLayer;
-    simsignal_t sentPacketToLowerLayer;
-
     /**
      * Initialize watches
      */
@@ -109,6 +98,17 @@ class LteRlcUm : public cSimpleModule
      * and call proper handler
      */
     virtual void handleMessage(cMessage *msg);
+
+  protected:
+
+    cGate* up_[2];
+    cGate* down_[2];
+
+    // statistics
+    simsignal_t receivedPacketFromUpperLayer;
+    simsignal_t receivedPacketFromLowerLayer;
+    simsignal_t sentPacketToUpperLayer;
+    simsignal_t sentPacketToLowerLayer;
 
     /**
      * getTxBuffer() is used by the sender to gather the TXBuffer

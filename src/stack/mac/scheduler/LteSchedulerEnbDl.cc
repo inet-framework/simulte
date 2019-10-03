@@ -187,7 +187,7 @@ LteSchedulerEnbDl::schedulePerAcidRtx(MacNodeId nodeId, Codeword cw, unsigned ch
             bytes = 0;
         }
 
-        if ((allocatedCw == 0))
+        if (allocatedCw == 0)
         {
             unsigned int blocks = mac_->getAmc()->computeReqRbs(nodeId, b, remappedCw, allocation, direction_);
 

@@ -59,9 +59,9 @@ class CbrSender : public cSimpleModule
   protected:
 
     virtual int numInitStages() const override { return NUM_INIT_STAGES; }
-    void initialize(int stage);
-    void finish();
-    void handleMessage(cMessage *msg);
+    void initialize(int stage) override;
+    void finish() override;
+    void handleMessage(cMessage *msg) override;
 };
 
 #endif

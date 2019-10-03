@@ -201,7 +201,7 @@ ScheduleList& LcgScheduler::schedule(unsigned int availableBytes, Direction gran
                 // Best Effort service:
                 //    ( sdu->size() <= availableBytes) && (!priorityService_)
 
-                if ((toServe <= availableBytes) /*&& ( !priorityService || ( sduSize <= 0/*TODO desc->parameters_.bucket_) )*/)
+                if ((toServe <= availableBytes) /*&& ( !priorityService || ( sduSize <= 0) ) // TODO desc->parameters_.bucket_*/)
                 {
                     // remove SDU from virtual buffer
                     vQueue->popFront();

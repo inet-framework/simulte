@@ -138,7 +138,7 @@ void LtePhyUe::initialize(int stage)
 
             // set serving cell
             masterId_ = candidateMasterId_;
-            getAncestorPar("masterId").setLongValue(masterId_);
+            getAncestorPar("masterId").setIntValue(masterId_);
             currentMasterRssi_ = candidateMasterRssi_;
             updateHysteresisTh(candidateMasterRssi_);
         }

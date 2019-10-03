@@ -156,10 +156,6 @@ class ModulationType
       modulationClass = MOD_CLASS_UNKNOWN;
       frequency = 2400;
   }
-  bool operator==(const ModulationType &b)
-  {
-      return *this == b;
-  }
 private:
   bool isMandatory;
   uint32_t bandwidth;
