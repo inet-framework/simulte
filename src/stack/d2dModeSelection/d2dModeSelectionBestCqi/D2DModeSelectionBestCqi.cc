@@ -11,6 +11,9 @@
 
 Define_Module(D2DModeSelectionBestCqi);
 
+using namespace omnetpp;
+using namespace inet;
+
 void D2DModeSelectionBestCqi::initialize(int stage)
 {
     D2DModeSelectionBase::initialize(stage);

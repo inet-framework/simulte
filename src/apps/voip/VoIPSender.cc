@@ -13,6 +13,7 @@
 #define round(x) floor((x) + 0.5)
 
 Define_Module(VoIPSender);
+using namespace inet;
 
 VoIPSender::VoIPSender()
 {
@@ -94,8 +95,7 @@ void VoIPSender::initTraffic()
     {
         delete initTraffic_;
 
-        destAddress_ = inet::L3AddressResolver().resolve(par("destAddress").stringValue());
-        socket.setOutputGate(gate("udpOut"));
+        socket.setOutputGate(gate("socketOut"));
         socket.bind(localPort_);
 
         EV << simTime() << "VoIPSender::initialize - binding to port: local:" << localPort_ << " , dest: " << destAddress_.str() << ":" << destPort_ << endl;
@@ -105,7 +105,7 @@ void VoIPSender::initTraffic()
 
         // TODO maybe un-necesessary
         // this conversion is made in order to obtain ms-aligned start time, even in case of random generated ones
-        simtime_t offset = (round(SIMTIME_DBL(startTime)*1000)/1000);
+        // simtime_t offset = (round(SIMTIME_DBL(startTime)*1000)/1000);
 
         scheduleAt(simTime()+startTime, selfSource_);
         EV << "\t starting traffic in " << startTime << " seconds " << endl;
@@ -160,12 +160,17 @@ void VoIPSender::selectPeriodTime()
 
 void VoIPSender::sendVoIPPacket()
 {
-    VoipPacket* packet = new VoipPacket("VoIP");
-    packet->setIDtalk(iDtalk_ - 1);
-    packet->setNframes(nframes_);
-    packet->setIDframe(iDframe_);
-    packet->setTimestamp(simTime());
-    packet->setByteLength(size_);
+    if (destAddress_.isUnspecified())
+        destAddress_ = L3AddressResolver().resolve(par("destAddress"));
+
+    Packet* packet = new inet::Packet("VoIP");
+    auto voip = makeShared<VoipPacket>();
+    voip->setIDtalk(iDtalk_ - 1);
+    voip->setNframes(nframes_);
+    voip->setIDframe(iDframe_);
+    voip->setTimestamp(simTime());
+    voip->setChunkLength(B(size_));
+    packet->insertAtBack(voip);
     EV << "VoIPSender::sendVoIPPacket - Talkspurt[" << iDtalk_-1 << "] - Sending frame[" << iDframe_ << "]\n";
 
     socket.sendTo(packet, destAddress_, destPort_);

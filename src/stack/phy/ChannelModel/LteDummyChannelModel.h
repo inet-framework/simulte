@@ -1,4 +1,5 @@
 //
+#include "common/LteControlInfo.h"
 //                           SimuLTE
 //
 // This file is part of a software released under the license included in file

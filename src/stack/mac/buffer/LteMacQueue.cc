@@ -10,6 +10,8 @@
 #include <climits>
 #include "stack/mac/buffer/LteMacQueue.h"
 
+using namespace omnetpp;
+
 LteMacQueue::LteMacQueue(int queueSize) :
     cPacketQueue("LteMacQueue")
 {

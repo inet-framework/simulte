@@ -10,6 +10,9 @@
 #include "stack/mac/allocator/LteAllocationModule.h"
 #include "stack/mac/layer/LteMacEnb.h"
 
+using namespace omnetpp;
+using namespace inet;
+
 LteAllocationModule::LteAllocationModule(LteMacEnb *mac, Direction direction)
 {
     mac_ = mac;

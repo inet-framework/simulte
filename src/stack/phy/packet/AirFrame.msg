@@ -27,8 +27,8 @@ cplusplus {{
 }}
 
 
-class noncobject inet::Coord;
-class noncobject ModulationType;
+class inet::Coord {@existingClass;}
+class ModulationType {@existingClass;};
 
 //
 // Format of the messages that are sent to the channel
@@ -50,7 +50,7 @@ class noncobject ModulationType;
 // the id with a pointer to the nodes coordinates itself.
 // @author Marc Loebbers
 //
-packet AirFrame
+packet AirFrame extends cPacket
 {
     double pSend; // Power with which this packet is transmitted
     int channelNumber; // Channel on which the packet is sent

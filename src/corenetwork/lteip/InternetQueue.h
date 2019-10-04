@@ -12,7 +12,7 @@
 
 #include <omnetpp.h>
 
-using namespace omnetpp;
+//using namespace omnetpp;
 
 /**
  * @class InternetQueue
@@ -28,15 +28,15 @@ using namespace omnetpp;
  * The size of the queue is configurable ( 0 = infinite ).
  *
  */
-class InternetQueue : public cSimpleModule
+class InternetQueue : public omnetpp::cSimpleModule
 {
   protected:
 
-    cQueue txQueue_;                     /// Transmission queue
+    omnetpp::cQueue txQueue_;                     /// Transmission queue
     int queueSize_;                         /// Size of the transmission queue ( 0 = infinite)
-    cMessage *endTransmissionEvent_;     /// Self message that notifies the end of a transmission
-    cGate *queueOutGate_;                /// Output gate towards the datarate channel
-    cChannel *datarateChannel_;          /// Datarate Channel
+    omnetpp::cMessage *endTransmissionEvent_;     /// Self message that notifies the end of a transmission
+    omnetpp::cGate *queueOutGate_;                /// Output gate towards the datarate channel
+    omnetpp::cChannel *datarateChannel_;          /// Datarate Channel
 
     // statistics
     int numSent_;       /// number of packets sent
@@ -59,7 +59,7 @@ class InternetQueue : public cSimpleModule
     /**
      * Initialize class fields.
      */
-    virtual void initialize();
+    virtual void initialize() override;
 
     /**
      * Handle messages.
@@ -73,7 +73,7 @@ class InternetQueue : public cSimpleModule
      *
      * @param msg message received
      */
-    virtual void handleMessage(cMessage *msg);
+    virtual void handleMessage(omnetpp::cMessage *msg) override;
 
     /**
      * Start the transmission of a new packet.
@@ -84,7 +84,7 @@ class InternetQueue : public cSimpleModule
      *
      * @param msg packet received for transmission
      */
-    virtual void startTransmitting(cPacket *pkt);
+    virtual void startTransmitting(omnetpp::cPacket *pkt);
 
   private:
 

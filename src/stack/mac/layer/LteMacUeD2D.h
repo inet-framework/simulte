@@ -40,13 +40,13 @@ class LteMacUeD2D : public LteMacUe
     /**
      * Reads MAC parameters for ue and performs initialization.
      */
-    virtual void initialize(int stage);
+    virtual void initialize(int stage) override;
 
     /**
      * Analyze gate of incoming packet
      * and call proper handler
      */
-    virtual void handleMessage(cMessage *msg);
+    virtual void handleMessage(omnetpp::cMessage *msg) override;
 
     /**
      * Main loop
@@ -58,14 +58,14 @@ class LteMacUeD2D : public LteMacUe
     /*
      * Checks RAC status
      */
-    virtual void checkRAC();
+    virtual void checkRAC() override;
 
     /*
      * Receives and handles RAC responses
      */
-    virtual void macHandleRac(cPacket* pkt);
+    virtual void macHandleRac(omnetpp::cPacket* pkt) override;
 
-    void macHandleD2DModeSwitch(cPacket* pkt);
+    void macHandleD2DModeSwitch(omnetpp::cPacket* pkt);
 
     virtual LteMacPdu* makeBsr(int size);
 
@@ -84,7 +84,7 @@ class LteMacUeD2D : public LteMacUe
     LteMacUeD2D();
     virtual ~LteMacUeD2D();
 
-    virtual bool isD2DCapable()
+    virtual bool isD2DCapable() override
     {
         return true;
     }

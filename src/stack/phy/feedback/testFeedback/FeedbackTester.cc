@@ -11,6 +11,8 @@
 
 Define_Module(FeedbackTester);
 
+using namespace omnetpp;
+
 void FeedbackTester::initialize()
 {
     interval_ = par("interval");

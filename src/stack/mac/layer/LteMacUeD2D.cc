@@ -18,8 +18,9 @@
 
 Define_Module(LteMacUeD2D);
 
-LteMacUeD2D::LteMacUeD2D() :
-    LteMacUe()
+using namespace inet;
+
+LteMacUeD2D::LteMacUeD2D() : LteMacUe()
 {
     racD2DMulticastRequested_ = false;
     bsrD2DMulticastTriggered_ = false;
@@ -46,7 +47,7 @@ void LteMacUeD2D::initialize(int stage)
 
         rcvdD2DModeSwitchNotification_ = registerSignal("rcvdD2DModeSwitchNotification");
     }
-    if (stage == inet::INITSTAGE_NETWORK_LAYER_3)
+    if (stage == inet::INITSTAGE_NETWORK_LAYER)
     {
         // get parameters
         usePreconfiguredTxParams_ = par("usePreconfiguredTxParams");
@@ -208,7 +209,7 @@ void LteMacUeD2D::macPduMake(MacCid cid)
                 if (mbuf_.find(destCid) == mbuf_.end())
                     throw cRuntimeError("Unable to find mac buffer for cid %d", destCid);
 
-                if (mbuf_[destCid]->empty())
+                if (mbuf_[destCid]->isEmpty())
                     throw cRuntimeError("Empty buffer for cid %d, while expected SDUs were %d", destCid, sduPerCid);
 
                 pkt = mbuf_[destCid]->popFront();

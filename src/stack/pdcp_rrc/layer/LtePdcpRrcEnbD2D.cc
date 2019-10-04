@@ -6,12 +6,15 @@
 // The above file and the present reference are part of the software itself,
 // and cannot be removed from it.
 //
+#include <inet/networklayer/common/L3AddressResolver.h>
 
 #include "stack/pdcp_rrc/layer/LtePdcpRrcEnbD2D.h"
-#include "inet/networklayer/common/L3AddressResolver.h"
 #include "stack/d2dModeSelection/D2DModeSwitchNotification_m.h"
 
 Define_Module(LtePdcpRrcEnbD2D);
+
+using namespace omnetpp;
+using namespace inet;
 
 /*
  * Upper Layer handlers
@@ -26,9 +29,9 @@ void LtePdcpRrcEnbD2D::fromDataPort(cPacket *pkt)
     headerCompress(pkt, lteInfo->getHeaderSize()); // header compression
 
     // get source info
-    IPv4Address srcAddr = IPv4Address(lteInfo->getSrcAddr());
+    Ipv4Address srcAddr = Ipv4Address(lteInfo->getSrcAddr());
     // get destination info
-    IPv4Address destAddr = IPv4Address(lteInfo->getDstAddr());
+    Ipv4Address destAddr = Ipv4Address(lteInfo->getDstAddr());
     MacNodeId srcId, destId;
 
 
@@ -54,7 +57,7 @@ void LtePdcpRrcEnbD2D::fromDataPort(cPacket *pkt)
 
     // Cid Request
     EV << NOW << " LtePdcpRrcEnbD2D : Received CID request for Traffic [ " << "Source: "
-       << IPv4Address(lteInfo->getSrcAddr()) << "@" << lteInfo->getSrcPort()
+       << Ipv4Address(lteInfo->getSrcAddr()) << "@" << lteInfo->getSrcPort()
        << " Destination: " << destAddr << "@" << lteInfo->getDstPort()
        << " , Direction: " << dirToA((Direction)lteInfo->getDirection()) << " ]\n";
 

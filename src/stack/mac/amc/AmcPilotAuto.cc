@@ -9,6 +9,8 @@
 
 #include "stack/mac/amc/AmcPilotAuto.h"
 
+using namespace inet;
+
 const UserTxParams& AmcPilotAuto::computeTxParams(MacNodeId id, const Direction dir)
 {
     EV << NOW << " AmcPilot" << getName() << "::computeTxParams for UE " << id << ", direction " << dirToA(dir) << endl;

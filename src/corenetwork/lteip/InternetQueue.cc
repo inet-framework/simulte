@@ -10,6 +10,7 @@
 #include "corenetwork/lteip/InternetQueue.h"
 
 Define_Module(InternetQueue);
+using namespace omnetpp;
 
 InternetQueue::InternetQueue()
 {

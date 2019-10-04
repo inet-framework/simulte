@@ -11,24 +11,24 @@
 #define __SIMULTE_IP2LTE_H_
 
 #include <omnetpp.h>
+#include <inet/networklayer/common/InterfaceEntry.h>
+
 #include "common/LteControlInfo.h"
-#include "common/LteControlInfo.h"
-#include "inet/networklayer/ipv4/IPv4Datagram.h"
 #include "stack/handoverManager/LteHandoverManager.h"
 #include "corenetwork/binder/LteBinder.h"
 
 class LteHandoverManager;
 
 // a sort of five-tuple with only two elements (a two-tuple...), src and dst addresses
-typedef std::pair<IPv4Address, IPv4Address> AddressPair;
+typedef std::pair<inet::Ipv4Address, inet::Ipv4Address> AddressPair;
 
 /**
  *
  */
-class IP2lte : public cSimpleModule
+class IP2lte : public omnetpp::cSimpleModule
 {
-    cGate *stackGateOut_;       // gate connecting IP2lte module to LTE stack
-    cGate *ipGateOut_;          // gate connecting IP2lte module to network layer
+    omnetpp::cGate *stackGateOut_;       // gate connecting IP2lte module to LTE stack
+    omnetpp::cGate *ipGateOut_;          // gate connecting IP2lte module to network layer
     LteNodeType nodeType_;      // node type: can be ENODEB, UE
 
     // datagram sequence numbers (one for each flow)
@@ -44,6 +44,9 @@ class IP2lte : public cSimpleModule
     // MAC node id of this node
     MacNodeId nodeId_;
 
+    // corresponding entry for our interface
+    inet::InterfaceEntry* interfaceEntry;
+
     /*
      * Handover support
      */
@@ -55,7 +58,7 @@ class IP2lte : public cSimpleModule
     // store the UEs for temporary holding of data received over X2 during handover
     std::set<MacNodeId> hoHolding_;
 
-    typedef std::list<IPv4Datagram*> IpDatagramQueue;
+    typedef std::list<inet::Packet*> IpDatagramQueue;
     std::map<MacNodeId, IpDatagramQueue> hoFromX2_;
     std::map<MacNodeId, IpDatagramQueue> hoFromIp_;
 
@@ -65,21 +68,18 @@ class IP2lte : public cSimpleModule
     /**
      * Handle packets from transport layer and forward them to the stack
      */
-    void fromIpUe(IPv4Datagram * datagram);
+    void fromIpUe(inet::Packet * datagram);
 
     /**
      * Manage packets received from Lte Stack
      * and forward them to transport layer.
      */
-    void toIpUe(IPv4Datagram *datagram);
-    /**
-     * Forward packets to the LTE stack
-     */
-    void toStackUe(IPv4Datagram* datagram);
-
-    void fromIpEnb(IPv4Datagram * datagram);
-    void toIpEnb(cMessage * msg);
-    void toStackEnb(IPv4Datagram* datagram);
+    void prepareForIpv4(inet::Packet *datagram, const inet::Protocol *protocol = &inet::Protocol::ipv4);
+    void toIpUe(inet::Packet *datagram);
+    void fromIpEnb(inet::Packet * datagram);
+    void toIpEnb(inet::Packet * datagram);
+    void toStackEnb(inet::Packet* datagram);
+    void toStackUe(inet::Packet* datagram);
 
     /**
      * utility: set nodeType_ field
@@ -97,10 +97,10 @@ class IP2lte : public cSimpleModule
     void registerInterface();
     void registerMulticastGroups();
   protected:
-    virtual void initialize(int stage);
-    virtual int numInitStages() const { return INITSTAGE_LAST; }
-    virtual void handleMessage(cMessage *msg);
-    virtual void finish();
+    virtual void initialize(int stage) override;
+    virtual int numInitStages() const override { return inet::INITSTAGE_LAST; }
+    virtual void handleMessage(omnetpp::cMessage *msg) override;
+    virtual void finish() override;
   public:
 
     /*
@@ -108,8 +108,8 @@ class IP2lte : public cSimpleModule
      */
     void triggerHandoverSource(MacNodeId ueId, MacNodeId targetEnb);
     void triggerHandoverTarget(MacNodeId ueId, MacNodeId sourceEnb);
-    void sendTunneledPacketOnHandover(IPv4Datagram* datagram, MacNodeId targetEnb);
-    void receiveTunneledPacketOnHandover(IPv4Datagram* datagram, MacNodeId sourceEnb);
+    void sendTunneledPacketOnHandover(inet::Packet* datagram, MacNodeId targetEnb);
+    void receiveTunneledPacketOnHandover(inet::Packet* datagram, MacNodeId sourceEnb);
     void signalHandoverCompleteSource(MacNodeId ueId, MacNodeId targetEnb);
     void signalHandoverCompleteTarget(MacNodeId ueId, MacNodeId sourceEnb);
 

@@ -1,11 +1,18 @@
 #! /bin/sh
 DIR=`dirname $0`
 DIR=`(cd $DIR ; pwd)`
-INET_DIR=`(cd $DIR/../../inet/src ; pwd)`
-COMMAND_LINE_OPTIONS="-l $INET_DIR/INET -n $DIR/../simulations:$DIR:$INET_DIR"
+#INET_DIR=`(cd $DIR/../../inet/src ; pwd)`
+#INET_LIB_DIR="/home/ich/libs/inet/4.0.0/lib"
+INET_DIR="/home/ich/libs/inet/4.0.0/src"
+COMMAND_LINE_OPTIONS="-l lte -l INET -n $DIR/../simulations:$DIR:$INET_DIR"
 
 if [ -x $DIR/lte -o -x $DIR/lte.exe ]; then
+  echo "first part of if with exe"
   $DIR/lte $COMMAND_LINE_OPTIONS $*
 else
-  opp_run -l $DIR/lte $COMMAND_LINE_OPTIONS $*
+  echo "no exe, just cmds"
+  cmd="opp_run $COMMAND_LINE_OPTIONS $*"
+  echo $cmd
+  $cmd
+  #opp_run $COMMAND_LINE_OPTIONS $*
 fi

@@ -11,6 +11,8 @@
 #include "stack/mac/layer/LteMacEnb.h"
 #include <omnetpp.h>
 
+using namespace omnetpp;
+
 LteHarqUnitTx::LteHarqUnitTx(unsigned char acid, Codeword cw,
     LteMacBase *macOwner, LteMacBase *dstMac)
 {

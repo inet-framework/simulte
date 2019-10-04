@@ -10,6 +10,7 @@
 #include "corenetwork/nodes/UnUuMux.h"
 
 Define_Module(UnUuMux);
+using namespace omnetpp;
 
 void UnUuMux::handleUpperMessage(cMessage *msg)
 {

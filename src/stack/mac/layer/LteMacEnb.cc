@@ -25,6 +25,8 @@
 
 Define_Module( LteMacEnb);
 
+using namespace omnetpp;
+
 /*********************
  * PUBLIC FUNCTIONS
  *********************/
@@ -394,7 +396,7 @@ void LteMacEnb::sendGrants(LteMacScheduleList* scheduleList)
         Codeword otherCw = MAX_CODEWORDS - cw;
 
         MacCid cid = it->first.first;
-        LogicalCid lcid = MacCidToLcid(cid);
+        // LogicalCid lcid = MacCidToLcid(cid);
         MacNodeId nodeId = MacCidToNodeId(cid);
 
         unsigned int granted = it->second;

@@ -7,11 +7,13 @@
 // and cannot be removed from it.
 //
 
+import stack.rlc.packet.LteRlcSdu;
+
 cplusplus {{
-#include "stack/rlc/packet/LteRlcSdu.h"
+  #include "stack/rlc/packet/LteRlcSdu.h"
 }}
 
-packet LteRlcSdu;
+// packet LteRlcSdu { @existingClass; }
 
 packet LteRlcAmSdu extends LteRlcSdu
 {

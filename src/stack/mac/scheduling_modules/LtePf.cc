@@ -10,6 +10,8 @@
 #include "stack/mac/scheduling_modules/LtePf.h"
 #include "stack/mac/scheduler/LteSchedulerEnb.h"
 
+using namespace omnetpp;
+
 void LtePf::prepareSchedule()
 {
     EV << NOW << "LtePf::execSchedule ############### eNodeB " << eNbScheduler_->mac_->getMacNodeId() << " ###############" << endl;

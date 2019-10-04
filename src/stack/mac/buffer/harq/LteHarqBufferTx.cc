@@ -9,6 +9,8 @@
 
 #include "stack/mac/buffer/harq/LteHarqBufferTx.h"
 
+using namespace omnetpp;
+
 LteHarqBufferTx::LteHarqBufferTx(unsigned int numProc, LteMacBase *owner, LteMacBase *dstMac)
 {
     numProc_ = numProc;

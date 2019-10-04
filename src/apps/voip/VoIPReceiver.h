@@ -10,17 +10,19 @@
 #ifndef _LTE_VOIPRECEIVER_H_
 #define _LTE_VOIPRECEIVER_H_
 
+#include <list>
 #include <string.h>
+
 #include <omnetpp.h>
 
-#include "inet/networklayer/common/L3AddressResolver.h"
-#include "inet/transportlayer/contract/udp/UDPSocket.h"
-#include "apps/voip/VoipPacket_m.h"
-#include <list>
+#include <inet/networklayer/common/L3AddressResolver.h>
+#include <inet/transportlayer/contract/udp/UdpSocket.h>
 
-class VoIPReceiver : public cSimpleModule
+#include "apps/voip/VoipPacket_m.h"
+
+class VoIPReceiver : public omnetpp::cSimpleModule
 {
-    inet::UDPSocket socket;
+    inet::UdpSocket socket;
 
     ~VoIPReceiver();
 
@@ -34,31 +36,31 @@ class VoIPReceiver : public cSimpleModule
     PacketsList mPlayoutQueue_;
     unsigned int mCurrentTalkspurt_;
     unsigned int mBufferSpace_;
-    simtime_t mSamplingDelta_;
-    simtime_t mPlayoutDelay_;
+    omnetpp::simtime_t mSamplingDelta_;
+    omnetpp::simtime_t mPlayoutDelay_;
 
     bool mInit_;
 
     unsigned int totalRcvdBytes_;
-    simtime_t warmUpPer_;
+    omnetpp::simtime_t warmUpPer_;
 
-    simsignal_t voIPFrameLossSignal_;
-    simsignal_t voIPFrameDelaySignal_;
-    simsignal_t voIPPlayoutDelaySignal_;
-    simsignal_t voIPMosSignal_;
-    simsignal_t voIPTaildropLossSignal_;
-    simsignal_t voIPPlayoutLossSignal_;
-    simsignal_t voIPJitterSignal_;
-    simsignal_t voIPReceivedThroughput_;
+    omnetpp::simsignal_t voIPFrameLossSignal_;
+    omnetpp::simsignal_t voIPFrameDelaySignal_;
+    omnetpp::simsignal_t voIPPlayoutDelaySignal_;
+    omnetpp::simsignal_t voIPMosSignal_;
+    omnetpp::simsignal_t voIPTaildropLossSignal_;
+    omnetpp::simsignal_t voIPPlayoutLossSignal_;
+    omnetpp::simsignal_t voIPJitterSignal_;
+    omnetpp::simsignal_t voIPReceivedThroughput_;
 
-    virtual void finish();
+    virtual void finish() override;
 
   protected:
 
-    virtual int numInitStages() const { return inet::NUM_INIT_STAGES; }
-    void initialize(int stage);
-    void handleMessage(cMessage *msg);
-    double eModel(simtime_t delay, double loss);
+    virtual int numInitStages() const override { return inet::NUM_INIT_STAGES; }
+    void initialize(int stage) override;
+    void handleMessage(omnetpp::cMessage *msg) override;
+    double eModel(omnetpp::simtime_t delay, double loss);
     void playout(bool finish);
 };
 

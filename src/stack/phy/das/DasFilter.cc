@@ -9,6 +9,8 @@
 
 #include "stack/phy/das/DasFilter.h"
 
+using namespace omnetpp;
+
 DasFilter::DasFilter(LtePhyBase* ltePhy, LteBinder* binder,
     RemoteAntennaSet* ruSet, double rssiThreshold)
 {

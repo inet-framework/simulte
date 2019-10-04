@@ -1,4 +1,4 @@
-#!/usr/bin/env python
+#/!/usr/bin/env python
 #
 # Fingerprint-based regression tests for SimuLTE; script is based
 # the similar test from the INET Framework.
@@ -33,7 +33,8 @@ from StringIO import StringIO
 
 
 simulteRoot = os.path.abspath("../..")
-inetRoot = os.path.abspath(simulteRoot + "/../inet")
+#inetRoot = os.path.abspath(simulteRoot + "/../inet")
+inetRoot = os.path.abspath("/home/ich/libs/inet/4.0.0/src")
 sep = ";" if sys.platform == 'win32' else ':'
 nedPath = inetRoot + "/src" + sep + simulteRoot + "/src" + sep + simulteRoot + "/simulations"
 simulteLib = simulteRoot + "/src/lte"

@@ -12,6 +12,8 @@
 
 Define_Module(LteRlcUm);
 
+using namespace omnetpp;
+
 UmTxEntity* LteRlcUm::getTxBuffer(FlowControlInfo* lteInfo)
 {
     MacNodeId nodeId = ctrlInfoToUeId(lteInfo);

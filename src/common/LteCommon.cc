@@ -13,6 +13,14 @@
 #include "corenetwork/binder/LteBinder.h"
 #include "stack/mac/layer/LteMacEnb.h"
 #include "common/LteControlInfo.h"
+#include "inet/common/packet/dissector/ProtocolDissectorRegistry.h"
+#include "inet/networklayer/ipv4/Ipv4ProtocolDissector.h"
+
+using namespace inet;
+
+const inet::Protocol LteProtocol::lteuu("lteuu", "IPv4 (LTE Uu)");
+Register_Protocol_Dissector(&LteProtocol::lteuu, Ipv4ProtocolDissector);
+
 
 const std::string lteTrafficClassToA(LteTrafficClass type)
 {
@@ -562,7 +570,7 @@ LteMacBase* getMacUe(MacNodeId nodeId)
     return check_and_cast<LteMacBase*>(getMacByMacNodeId(nodeId));
 }
 
-void getParametersFromXML(cXMLElement* xmlData, ParameterMap& outputMap)
+void getParametersFromXML(omnetpp::cXMLElement* xmlData, ParameterMap& outputMap)
 {
     cXMLElementList parameters = xmlData->getElementsByTagName("Parameter");
 

@@ -9,6 +9,8 @@
 
 #include "common/timer/TTimer.h"
 
+using namespace inet;
+
 void TTimer::start(simtime_t t)
 {
     if (busy_)

@@ -10,11 +10,16 @@
 //
 // Packet used by the video-on-demand application (~VoDUDPServer, ~VoDUDPClient)
 //
-packet VoDPacket {
+
+import inet.common.INETDefs;
+import inet.common.packet.chunk.Chunk;
+
+class VoDPacket extends inet::FieldsChunk {
    int frameSeqNum;
    int frameLength;
    // temporal scalability layer
    int tid;
    // SNR scalability layer
    int qid;
+   simtime_t timeStamp;
 }

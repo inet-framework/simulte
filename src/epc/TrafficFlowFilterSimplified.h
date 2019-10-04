@@ -25,7 +25,7 @@
  * the destination endpoint is always the PGW. However, if the fastForwarding flag is enabled and the destination of the packet
  * is within the same cell, the packet is just relayed to the Radio interface.
  */
-class TrafficFlowFilterSimplified : public cSimpleModule
+class TrafficFlowFilterSimplified : public omnetpp::cSimpleModule
 {
     // specifies the type of the node that contains this filter (it can be ENB or PGW
     // the filterTable_ will be indexed differently depending on this parameter
@@ -35,7 +35,7 @@ class TrafficFlowFilterSimplified : public cSimpleModule
     LteBinder* binder_;
 
     // gate for connecting with the GTP-U module
-    cGate * gtpUserGate_;
+    // omnetpp::cGate * gtpUserGate_;
 
     // if this flag is set, each packet received from the radio network, having the same radio network as destination
     // must be re-sent down without going through the Internet
@@ -45,14 +45,14 @@ class TrafficFlowFilterSimplified : public cSimpleModule
 
     EpcNodeType selectOwnerType(const char * type);
   protected:
-    virtual int numInitStages() const { return INITSTAGE_LAST+1; }
-    virtual void initialize(int stage);
+    virtual int numInitStages() const override{ return inet::INITSTAGE_LAST+1; }
+    virtual void initialize(int stage) override;
 
     // TrafficFlowFilter module may receive messages only from the input interface of its compound module
-    virtual void handleMessage(cMessage *msg);
+    virtual void handleMessage(omnetpp::cMessage *msg) override;
 
     // functions for managing filter tables
-    TrafficFlowTemplateId findTrafficFlow(L3Address srcAddress, L3Address destAddress);
+    TrafficFlowTemplateId findTrafficFlow(inet::L3Address srcAddress, inet::L3Address destAddress);
 };
 
 #endif

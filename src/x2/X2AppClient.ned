@@ -9,14 +9,14 @@
 
 package lte.x2;
 
-import inet.applications.sctpapp.SCTPClient;
+import inet.applications.sctpapp.SctpClient;
 
 // X2AppClient
 //
-// This module extends the SCTPClient application, by adding
+// This module extends the SctpClient application, by adding
 // an output gate to send messages to the X2 Manager
 //
-simple X2AppClient extends SCTPClient
+simple X2AppClient extends SctpClient
 {
     parameters:
         @class("X2AppClient");

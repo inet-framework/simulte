@@ -11,6 +11,7 @@
 #include "stack/mac/scheduler/LteSchedulerEnb.h"
 
 using namespace std;
+using namespace omnetpp;
 
 bool debug = false;
 

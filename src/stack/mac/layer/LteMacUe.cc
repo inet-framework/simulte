@@ -6,6 +6,9 @@
 // The above file and the present reference are part of the software itself,
 // and cannot be removed from it.
 //
+#include <inet/networklayer/common/InterfaceEntry.h>
+#include <inet/common/ModuleAccess.h>
+#include <inet/networklayer/ipv4/Ipv4InterfaceData.h>
 
 #include "stack/mac/layer/LteMacUe.h"
 #include "stack/mac/buffer/harq/LteHarqBufferRx.h"
@@ -15,14 +18,14 @@
 #include "stack/mac/packet/LteRac_m.h"
 #include "stack/mac/buffer/LteMacBuffer.h"
 #include "stack/mac/amc/UserTxParams.h"
-#include "inet/networklayer/common/InterfaceEntry.h"
-#include "inet/common/ModuleAccess.h"
-#include "inet/networklayer/ipv4/IPv4InterfaceData.h"
 #include "corenetwork/binder/LteBinder.h"
 #include "stack/phy/layer/LtePhyBase.h"
 #include "stack/mac/packet/LteMacSduRequest.h"
 
 Define_Module(LteMacUe);
+
+using namespace inet;
+using namespace omnetpp;
 
 LteMacUe::LteMacUe() :
     LteMacBase()
@@ -99,7 +102,7 @@ void LteMacUe::initialize(int stage)
     {
         cellId_ = getAncestorPar("masterId");
     }
-    else if (stage == INITSTAGE_NETWORK_LAYER_3)
+    else if (stage == INITSTAGE_NETWORK_LAYER)
     {
         nodeId_ = getAncestorPar("macNodeId");
 
@@ -124,10 +127,13 @@ void LteMacUe::initialize(int stage)
         IInterfaceTable *interfaceTable = getModuleFromPar<IInterfaceTable>(par("interfaceTableModule"), this);
         // TODO: how do we find the LTE interface?
         InterfaceEntry * interfaceEntry = interfaceTable->getInterfaceByName("wlan");
+        if(interfaceEntry == nullptr)
+            throw new cRuntimeError("no interface entry for lte interface - cannot bind node %i", nodeId_);
 
-        IPv4InterfaceData* ipv4if = interfaceEntry->ipv4Data();
-        if(ipv4if == NULL)
-            throw new cRuntimeError("no IPv4 interface data - cannot bind node %i", nodeId_);
+
+        Ipv4InterfaceData* ipv4if = interfaceEntry->getProtocolData<Ipv4InterfaceData>();
+        if(ipv4if == nullptr)
+            throw new cRuntimeError("no Ipv4 interface data - cannot bind node %i", nodeId_);
         binder_->setMacNodeId(ipv4if->getIPAddress(), nodeId_);
     }
 }
@@ -393,7 +399,7 @@ void LteMacUe::macPduMake(MacCid cid)
 
         // search for an empty unit within current harq process
         UnitList txList = txBuf->getEmptyUnits(currentHarq_);
-//        EV << "LteMacUe::macPduMake - [Used Acid=" << (unsigned int)txList.first << "] , [curr=" << (unsigned int)currentHarq_ << "]" << endl;
+        EV << "LteMacUe::macPduMake - [Used Acid=" << (unsigned int)txList.first << "] , [curr=" << (unsigned int)currentHarq_ << "]" << endl;
 
         LteMacPdu* macPkt = pit->second;
 
@@ -964,7 +970,7 @@ void LteMacUe::deleteQueues(MacNodeId nodeId)
     LteMacBufferMap::iterator vit;
     for (mit = mbuf_.begin(); mit != mbuf_.end(); )
     {
-        while (!mit->second->empty())
+        while (!mit->second->isEmpty())
         {
             cPacket* pkt = mit->second->popFront();
             delete pkt;

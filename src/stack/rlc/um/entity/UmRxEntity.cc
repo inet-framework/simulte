@@ -14,6 +14,8 @@
 
 Define_Module(UmRxEntity);
 
+using namespace omnetpp;
+
 unsigned int UmRxEntity::totalCellPduRcvdBytes_ = 0;
 unsigned int UmRxEntity::totalCellRcvdBytes_ = 0;
 

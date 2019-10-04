@@ -8,12 +8,14 @@
 //
 
 #include <cmath>
+#include <inet/common/ModuleAccess.h>  // for multicast support
+
 #include "apps/alert/AlertSender.h"
-#include "inet/common/ModuleAccess.h"  // for multicast support
 
 #define round(x) floor((x) + 0.5)
 
 Define_Module(AlertSender);
+using namespace inet;
 
 AlertSender::AlertSender()
 {
@@ -44,7 +46,7 @@ void AlertSender::initialize(int stage)
     destPort_ = par("destPort");
     destAddress_ = inet::L3AddressResolver().resolve(par("destAddress").stringValue());
 
-    socket.setOutputGate(gate("udpOut"));
+    socket.setOutputGate(gate("socketOut"));
     socket.bind(localPort_);
 
     // for multicast support
@@ -90,9 +92,13 @@ void AlertSender::sendAlertPacket()
     packet->setSno(nextSno_);
     packet->setTimestamp(simTime());
     packet->setByteLength(size_);
+    /*
+     * wrapping in inet::Packet
+     */
+    inet::Packet* wrappingPacket = dynamic_cast<inet::Packet*>(packet);
     EV << "AlertSender::sendAlertPacket - Sending message [" << nextSno_ << "]\n";
 
-    socket.sendTo(packet, destAddress_, destPort_);
+    socket.sendTo(wrappingPacket, destAddress_, destPort_);
     nextSno_++;
 
     emit(alertSentMsg_, (long)1);

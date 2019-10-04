@@ -8,11 +8,14 @@
 //
 
 #include "epc/TrafficFlowFilterSimplified.h"
-#include "inet/networklayer/contract/ipv4/IPv4ControlInfo.h"
-#include "inet/networklayer/ipv4/IPv4Datagram.h"
-#include "inet/networklayer/common/L3AddressResolver.h"
+#include <inet/common/IProtocolRegistrationListener.h>
+#include <inet/networklayer/common/L3AddressResolver.h>
+#include <inet/networklayer/ipv4/Ipv4Header_m.h>
 
 Define_Module(TrafficFlowFilterSimplified);
+
+using namespace inet;
+using namespace omnetpp;
 
 void TrafficFlowFilterSimplified::initialize(int stage)
 {
@@ -27,6 +30,9 @@ void TrafficFlowFilterSimplified::initialize(int stage)
 
     // reading and setting owner type
     ownerType_ = selectOwnerType(par("ownerType"));
+
+    // register service processing IP-packets on the LTE Uu Link
+    registerService(LteProtocol::lteuu, gate("internetFilterGateIn"), gate("internetFilterGateIn"));
 }
 
 EpcNodeType TrafficFlowFilterSimplified::selectOwnerType(const char * type)
@@ -38,6 +44,7 @@ EpcNodeType TrafficFlowFilterSimplified::selectOwnerType(const char * type)
         return PGW;
 
     error("TrafficFlowFilterSimplified::selectOwnerType - unknown owner type [%s]. Aborting...",type);
+    return ENB; // should never be reached
 }
 
 void TrafficFlowFilterSimplified::handleMessage(cMessage *msg)
@@ -45,14 +52,16 @@ void TrafficFlowFilterSimplified::handleMessage(cMessage *msg)
     EV << "TrafficFlowFilterSimplified::handleMessage - Received Packet:" << endl;
     EV << "name: " << msg->getFullName() << endl;
 
+    Packet* pkt = check_and_cast<Packet *>(msg);
+
     // receive and read IP datagram
-    IPv4Datagram * datagram = check_and_cast<IPv4Datagram *>(msg);
-    IPv4Address &destAddr = datagram->getDestAddress();
-    IPv4Address &srcAddr = datagram->getSrcAddress();
+    const auto& ipv4Header = pkt->peekAtFront<Ipv4Header>();
+    const Ipv4Address &destAddr = ipv4Header->getDestAddress();
+    const Ipv4Address &srcAddr = ipv4Header->getSrcAddress();
 
     // TODO check for source and dest port number
 
-    EV << "TrafficFlowFilterSimplified::handleMessage - Received datagram : " << datagram->getName() << " - src[" << srcAddr << "] - dest[" << destAddr << "]\n";
+    EV << "TrafficFlowFilterSimplified::handleMessage - Received datagram : " << pkt->getName() << " - src[" << srcAddr << "] - dest[" << destAddr << "]\n";
 
     // run packet filter and associate a flowId to the connection (default bearer?)
     // search within tftTable the proper entry for this destination
@@ -67,20 +76,20 @@ void TrafficFlowFilterSimplified::handleMessage(cMessage *msg)
     {
 
         // add control info to the normal ip datagram. This info will be read by the GTP-U application
-        TftControlInfo * tftInfo = new TftControlInfo();
+        // TftControlInfo * tftInfo = new TftControlInfo();
+        auto tftInfo = pkt->addTag<TftControlInfo>();
         tftInfo->setTft(tftId);
-        datagram->setControlInfo(tftInfo);
 
         EV << "TrafficFlowFilterSimplified::handleMessage - setting tft=" << tftId << endl;
 
         // send the datagram to the GTP-U module
-        send(datagram,"gtpUserGateOut");
+        send(pkt,"gtpUserGateOut");
     }
 }
 
 TrafficFlowTemplateId TrafficFlowFilterSimplified::findTrafficFlow(L3Address srcAddress, L3Address destAddress)
 {
-    MacNodeId destId = binder_->getMacNodeId(destAddress.toIPv4());
+    MacNodeId destId = binder_->getMacNodeId(destAddress.toIpv4());
     if (destId == 0)
     {
         if (ownerType_ == ENB)
@@ -93,7 +102,7 @@ TrafficFlowTemplateId TrafficFlowFilterSimplified::findTrafficFlow(L3Address src
 
     if (ownerType_ == ENB)
     {
-        MacNodeId srcMaster = binder_->getNextHop(binder_->getMacNodeId(srcAddress.toIPv4()));
+        MacNodeId srcMaster = binder_->getNextHop(binder_->getMacNodeId(srcAddress.toIpv4()));
         if (fastForwarding_ && srcMaster == destMaster)
             return 0;                 // local delivery
         return -1;   // send the packet to the PGW

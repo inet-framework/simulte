@@ -25,7 +25,7 @@ class LteRlcPdu : public LteRlcPdu_Base {
          // copy the attached control info, if any
          if (other.getControlInfo() != NULL)
          {
-             FlowControlInfo* info = check_and_cast<FlowControlInfo*>(other.getControlInfo());
+             FlowControlInfo* info = omnetpp::check_and_cast<FlowControlInfo*>(other.getControlInfo());
              FlowControlInfo* info_dup = info->dup();
              this->setControlInfo(info_dup);
          }

@@ -30,7 +30,7 @@ class LteRlcUmDataPdu;
  *
  * It implements the procedures described in 3GPP TS 36.322
  */
-class UmRxEntity : public cSimpleModule
+class UmRxEntity : public omnetpp::cSimpleModule
 {
   public:
     UmRxEntity();
@@ -40,7 +40,7 @@ class UmRxEntity : public cSimpleModule
      * Enqueues a lower layer packet into the PDU buffer
      * @param pdu the packet to be enqueued
      */
-    void enque(cPacket* pkt);
+    void enque(omnetpp::cPacket* pkt);
 
     void setFlowControlInfo(FlowControlInfo* lteInfo) { flowControlInfo_ = lteInfo; }
     FlowControlInfo* getFlowControlInfo() { return flowControlInfo_; }
@@ -54,38 +54,38 @@ class UmRxEntity : public cSimpleModule
      * Initialize watches
      */
     virtual void initialize();
-    virtual void handleMessage(cMessage* msg);
+    virtual void handleMessage(omnetpp::cMessage* msg);
 
     //Statistics
     static unsigned int totalCellPduRcvdBytes_;
     static unsigned int totalCellRcvdBytes_;
     unsigned int totalPduRcvdBytes_;
     unsigned int totalRcvdBytes_;
-    simsignal_t rlcCellPacketLoss_;
-    simsignal_t rlcPacketLoss_;
-    simsignal_t rlcPduPacketLoss_;
-    simsignal_t rlcDelay_;
-    simsignal_t rlcPduDelay_;
-    simsignal_t rlcCellThroughput_;
-    simsignal_t rlcThroughput_;
-    simsignal_t rlcPduThroughput_;
+    omnetpp::simsignal_t rlcCellPacketLoss_;
+    omnetpp::simsignal_t rlcPacketLoss_;
+    omnetpp::simsignal_t rlcPduPacketLoss_;
+    omnetpp::simsignal_t rlcDelay_;
+    omnetpp::simsignal_t rlcPduDelay_;
+    omnetpp::simsignal_t rlcCellThroughput_;
+    omnetpp::simsignal_t rlcThroughput_;
+    omnetpp::simsignal_t rlcPduThroughput_;
 
     // statistics for D2D
-    simsignal_t rlcPacketLossD2D_;
-    simsignal_t rlcPduPacketLossD2D_;
-    simsignal_t rlcDelayD2D_;
-    simsignal_t rlcPduDelayD2D_;
-    simsignal_t rlcThroughputD2D_;
-    simsignal_t rlcPduThroughputD2D_;
+    omnetpp::simsignal_t rlcPacketLossD2D_;
+    omnetpp::simsignal_t rlcPduPacketLossD2D_;
+    omnetpp::simsignal_t rlcDelayD2D_;
+    omnetpp::simsignal_t rlcPduDelayD2D_;
+    omnetpp::simsignal_t rlcThroughputD2D_;
+    omnetpp::simsignal_t rlcPduThroughputD2D_;
 
-    simsignal_t rlcPacketLossTotal_;
+    omnetpp::simsignal_t rlcPacketLossTotal_;
 
   private:
 
     LteBinder* binder_;
 
     // reference to eNB for statistic purpose
-    cModule* nodeB_;
+    omnetpp::cModule* nodeB_;
 
     // Node id of the owner module
     MacNodeId ownerNodeId_;
@@ -97,7 +97,7 @@ class UmRxEntity : public cSimpleModule
     FlowControlInfo* flowControlInfo_;
 
     // The PDU enqueue buffer.
-    cArray pduBuffer_;
+    omnetpp::cArray pduBuffer_;
 
     // State variables
     RlcUmRxWindowDesc rxWindowDesc_;

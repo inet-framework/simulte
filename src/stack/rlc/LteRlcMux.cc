@@ -11,6 +11,9 @@
 
 Define_Module(LteRlcMux);
 
+
+using namespace omnetpp;
+
 /*
  * Upper Layer handler
  */

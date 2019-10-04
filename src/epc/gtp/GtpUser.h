@@ -11,9 +11,8 @@
 #define _LTE_GTP_USER_H_
 
 #include <omnetpp.h>
-#include "inet/transportlayer/contract/udp/UDPSocket.h"
-#include "inet/networklayer/common/L3AddressResolver.h"
-#include "inet/networklayer/ipv4/IPv4Datagram.h"
+#include <inet/transportlayer/contract/udp/UdpSocket.h>
+#include <inet/networklayer/common/L3AddressResolver.h>
 #include "epc/gtp/TftControlInfo.h"
 #include "epc/gtp/GtpUserMsg_m.h"
 
@@ -24,7 +23,7 @@
  * GtpUser is used for building data tunnels between GTP peers.
  * GtpUser can receive two kind of packets:
  * a) IP datagram from a trafficFilter. Those packets are labeled with a tftId
- * b) gtpUserMsg from UDP-IP layers. Those messages contains a TEIDin.
+ * b) gtpUserMsg from Udp-IP layers. Those messages contains a TEIDin.
  *
  * In case (a) the GtpUser encapsulates the IP datagram within a gtpUserMsg then accesses the tftTable
  *  (by using the tftId) and obtains the TEID and nextHopAddress that will be used for sending the
@@ -66,9 +65,9 @@
  </config>
  *
  */
-class GtpUser : public cSimpleModule
+class GtpUser : public omnetpp::cSimpleModule
 {
-    UDPSocket socket_;
+    inet::UdpSocket socket_;
     int localPort_;
 
     /*
@@ -93,14 +92,14 @@ class GtpUser : public cSimpleModule
 
   protected:
 
-    virtual int numInitStages() const { return inet::NUM_INIT_STAGES; }
-    virtual void initialize(int stage);
-    virtual void handleMessage(cMessage *msg);
+    virtual int numInitStages() const override { return inet::NUM_INIT_STAGES; }
+    virtual void initialize(int stage) override;
+    virtual void handleMessage(omnetpp::cMessage *msg) override;
 
     // receive and IP Datagram from the traffic filter, encapsulates it in a GTP-U packet than forwards it to the proper next hop
-    void handleFromTrafficFlowFilter(IPv4Datagram * datagram);
+    void handleFromTrafficFlowFilter(inet::Packet * packet);
 
-    // receive a GTP-U packet from UDP, reads the TEID and decides whether performing label switching or removal
+    // receive a GTP-U packet from Udp, reads the TEID and decides whether performing label switching or removal
     void handleFromUdp(GtpUserMsg * gtpMsg);
 };
 

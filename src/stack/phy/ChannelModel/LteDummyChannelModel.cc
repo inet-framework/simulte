@@ -9,6 +9,8 @@
 
 #include "LteDummyChannelModel.h"
 
+using namespace omnetpp;
+
 Define_Module(LteDummyChannelModel);
 
 void LteDummyChannelModel::initialize()

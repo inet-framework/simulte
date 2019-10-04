@@ -12,14 +12,15 @@
 
 #include <omnetpp.h>
 
-using namespace omnetpp;
+//using namespace omnetpp;
 
-class TftControlInfo : public cObject
+class TftControlInfo : public omnetpp::cObject
 {
     unsigned int tft_;
 
   public:
     TftControlInfo();
+    TftControlInfo(TftControlInfo* source);
     virtual ~TftControlInfo();
 
     void setTft(unsigned int tft)
@@ -30,6 +31,7 @@ class TftControlInfo : public cObject
     {
         return tft_;
     }
+    virtual TftControlInfo *dup() const override {return new TftControlInfo(*this);}
 };
 
 #endif

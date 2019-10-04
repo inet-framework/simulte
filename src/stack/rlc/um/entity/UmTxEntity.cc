@@ -11,6 +11,8 @@
 
 Define_Module(UmTxEntity);
 
+using namespace omnetpp;
+
 /*
  * Main functions
  */

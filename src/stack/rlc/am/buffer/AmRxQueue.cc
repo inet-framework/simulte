@@ -15,6 +15,8 @@
 
 Define_Module(AmRxQueue);
 
+using namespace omnetpp;
+
 unsigned int AmRxQueue::totalCellRcvdBytes_ = 0;
 
 AmRxQueue::AmRxQueue() :

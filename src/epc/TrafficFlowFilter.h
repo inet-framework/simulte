@@ -11,11 +11,12 @@
 #define _LTE_TRAFFICFLOWFILTER_H_
 
 #include <omnetpp.h>
+
+#include <inet/common/packet/Packet.h>
+
 //#include "trafficFlowTemplateMsg_m.h"
 #include "epc/gtp/TftControlInfo.h"
 #include "epc/gtp_common.h"
-
-using namespace inet;
 
 /**
  * Objective of the Traffic Flow Filter is mapping IP 4-Tuples to TFT identifiers. This commonly means identifying a bearer and
@@ -59,14 +60,14 @@ using namespace inet;
  * In case of both "destName" and "destAddr" values, the "destAddr" will be used
  *
  */
-class TrafficFlowFilter : public cSimpleModule
+class TrafficFlowFilter : public omnetpp::cSimpleModule
 {
     // specifies the type of the node that contains this filter (it can be ENB or PGW
     // the filterTable_ will be indexed differently depending on this parameter
     EpcNodeType ownerType_;
 
     // gate for connecting with the GTP-U module
-    cGate * gtpUserGate_;
+    // omnetpp::cGate * gtpUserGate_;
 
     TrafficFilterTemplateTable filterTable_;
 
@@ -74,15 +75,15 @@ class TrafficFlowFilter : public cSimpleModule
 
     EpcNodeType selectOwnerType(const char * type);
     protected:
-    virtual int numInitStages() const { return inet::NUM_INIT_STAGES; }
-    virtual void initialize(int stage);
+    virtual int numInitStages() const override { return inet::NUM_INIT_STAGES; }
+    virtual void initialize(int stage) override;
 
     // TrafficFlowFilter module may receive messages only from the input interface of its compound module
-    virtual void handleMessage(cMessage *msg);
+    virtual void handleMessage(omnetpp::cMessage *msg) override;
 
     // functions for managing filter tables
-    TrafficFlowTemplateId findTrafficFlow(L3Address firstKey, TrafficFlowTemplate secondKey);
-    bool addTrafficFlow(L3Address firstKey, TrafficFlowTemplate tft);
+    TrafficFlowTemplateId findTrafficFlow(inet::L3Address firstKey, TrafficFlowTemplate secondKey);
+    bool addTrafficFlow(inet::L3Address firstKey, TrafficFlowTemplate tft);
 };
 
 #endif

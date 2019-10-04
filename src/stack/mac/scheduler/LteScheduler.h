@@ -33,7 +33,7 @@ struct SortedDesc
         if (score_ < y.score_)
             return true;
         if (score_ == y.score_)
-            return uniform(getEnvir()->getRNG(0),0,1) < 0.5;
+            return uniform(omnetpp::getEnvir()->getRNG(0),0,1) < 0.5;
         return false;
     }
 

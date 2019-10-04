@@ -109,7 +109,7 @@ class LteHarqProcessTx
      *
      * @return tx time of the oldest unit in this process
      */
-    simtime_t getOldestUnitTxTime();
+    omnetpp::simtime_t getOldestUnitTxTime();
 
     /**
      * Returns a list of ids of ready for retransmission units of
@@ -171,7 +171,7 @@ class LteHarqProcessTx
     bool isUnitReady(Codeword cw);
     unsigned char getTransmissions(Codeword cw);
     inet::int64 getPduLength(Codeword cw);
-    simtime_t getTxTime(Codeword cw);
+    omnetpp::simtime_t getTxTime(Codeword cw);
     bool isUnitMarked(Codeword cw);
     bool isDropped();
     virtual ~LteHarqProcessTx();

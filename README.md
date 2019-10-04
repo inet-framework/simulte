@@ -1,16 +1,26 @@
 ﻿SimuLTE
 =======
 
-LTE/LTE-A user-plane simulation model, compatible with the INET Framework.
+LTE user plane simulation model, compatible with the INET Framework.
 
 Dependencies
 ------------
 
-The current master/head version requires either of
+The current master/head version requires
 
-- OMNeT++ 5.1.1 and INET 3.6
-- OMNeT++ 5.2 and INET 3.6.2
-- OMNeT++ 5.2.1 and INET 3.6.4
+- OMNeT++ 5.5.1 and INET 4.1.1
+
+Setup
+-----
+
+- PATH variable should include omnet bin directory and inet bin directory
+- LIBRARY_PATH and LD_LIBRARY_PATH must include the location of the corresponding
+shared object libraries (in theory LD_LIBRARY_PATH should be sufficient, 
+since the build of both inet and simulte generate so files, however, it 
+fixed an error for me)
+- CPATH environment variable should include inet/4.0.0/src and 
+simulte_inet4_compat/compatibility/include directory
+
 
 Features
 --------

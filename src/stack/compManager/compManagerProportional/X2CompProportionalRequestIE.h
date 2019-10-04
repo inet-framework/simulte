@@ -8,7 +8,7 @@
 //
 
 #ifndef _LTE_X2COMPPROPORTIONALREQUESTIE_H_
-#define _LTE_X2COMPREQUESTIE_H_
+#define _LTE_X2COMPPROPORTIONALREQUESTIE_H_
 
 #include "stack/compManager/X2CompRequestIE.h"
 

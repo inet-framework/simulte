@@ -22,6 +22,8 @@
 // and tolerating the maximum distance violation is enabled
 #define ATT_MAXDISTVIOLATED 1000
 
+using namespace inet;
+using namespace omnetpp;
 Define_Module(LteRealisticChannelModel);
 
 void LteRealisticChannelModel::initialize()

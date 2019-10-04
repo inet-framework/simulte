@@ -10,6 +10,8 @@
 #include "stack/mac/scheduler/LcgScheduler.h"
 #include "stack/mac/buffer/LteMacBuffer.h"
 
+using namespace omnetpp;
+
 LcgScheduler::LcgScheduler(LteMacUe* mac)
 {
     lastExecutionTime_ = 0;

@@ -11,6 +11,8 @@
 
 Define_Module(LteRlcTm);
 
+using namespace omnetpp;
+
 void LteRlcTm::handleUpperMessage(cPacket *pkt)
 {
     LteRlcSdu* rlcSduPkt = new LteRlcSdu("rlcTmPkt");

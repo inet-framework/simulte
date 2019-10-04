@@ -10,17 +10,17 @@
 
 package lte.corenetwork.nodes;
 
-import inet.linklayer.ppp.PPP;
+import inet.linklayer.ppp.Ppp;
 import inet.networklayer.common.InterfaceTable;
 import lte.corenetwork.lteip.LteIp;
 import lte.corenetwork.lteip.InternetQueue;
-import inet.transportlayer.udp.UDP;
-import inet.transportlayer.tcp.TCP;
+import inet.transportlayer.udp.Udp;
+import inet.transportlayer.tcp.Tcp;
 
 //
 
 // Node representing the Internet in the Lte network model.
-// It has TCP/UDP transport layer and related applications.
+// It has Tcp/Udp transport layer and related applications.
 // It contains an LteIp module to connect the INTERNET 
 // node to the ENODEB LteIp peer.
 //
@@ -45,10 +45,10 @@ module LteInternet
                 transportIn[2];
                 transportOut[2];
         }
-        tcp: TCP {
+        tcp: Tcp {
             @display("p=34,40");
         }
-        udp: UDP {
+        udp: Udp {
             @display("p=190,40");
         }
 

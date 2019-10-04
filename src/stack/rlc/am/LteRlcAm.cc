@@ -14,6 +14,8 @@
 
 Define_Module(LteRlcAm);
 
+using namespace omnetpp;
+
 AmTxQueue*
 LteRlcAm::getTxBuffer(MacNodeId nodeId, LogicalCid lcid)
 {

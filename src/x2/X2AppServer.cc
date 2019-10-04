@@ -7,17 +7,18 @@
 // and cannot be removed from it.
 //
 
-#include <stdlib.h>
-#include <stdio.h>
 #include "x2/X2AppServer.h"
-#include "inet/transportlayer/contract/sctp/SCTPCommand_m.h"
-#include "inet/transportlayer/sctp/SCTPMessage_m.h"
+
+#include <inet/transportlayer/contract/sctp/SctpCommand_m.h>
 
 Define_Module(X2AppServer);
 
+using namespace omnetpp;
+using namespace inet;
+
 void X2AppServer::initialize(int stage)
 {
-    SCTPServer::initialize(stage);
+    SctpServer::initialize(stage);
     if (stage==inet::INITSTAGE_LOCAL)
     {
         x2ManagerIn_ = gate("x2ManagerIn");
@@ -33,8 +34,14 @@ void X2AppServer::initialize(int stage)
 
 void X2AppServer::generateAndSend(cPacket* pkt)
 {
-    cPacket* cmsg = new cPacket("CMSG");
-    SCTPSimpleMessage* msg = new SCTPSimpleMessage("Server");
+    /**
+     * TODO: this has to be reworked to make use of the new packet api
+     * look here: inet version 4.0.0
+     * src/inet/applications/netperfmeter/NetPerfMeter.cc
+     * line 956
+     */
+    Packet* cmsg = new Packet("CMSG");
+    SctpSimpleMessage* msg = new SctpSimpleMessage("Server");
     int numBytes = pkt->getByteLength();
     msg->setDataArraySize(numBytes);
     for (int i=0; i<numBytes; i++)
@@ -48,19 +55,40 @@ void X2AppServer::generateAndSend(cPacket* pkt)
 
     msg->setBitLength(numBytes * 8);
     cmsg->encapsulate(msg);
-    SCTPSendInfo *cmd = new SCTPSendInfo("Send1");
-    cmd->setAssocId(assocId);
-    cmd->setSendUnordered(ordered ? COMPLETE_MESG_ORDERED : COMPLETE_MESG_UNORDERED);
+    auto command = cmsg->addTagIfAbsent<SctpSendReq>();
+    //SctpSendInfo *cmd = new SctpSendInfo("Send1");
+    //command->setAssocId(assocId);
+    //
+    // import from inet
+    //command->setSocketId(ConnectionID);                                 
+
+    // done
+    //command->setSid(streamID);                                          
+    //command->setSendUnordered( (sendUnordered == true) ?                
+    //                           COMPLETE_MESG_UNORDERED : COMPLETE_MESG_ORDERED );
+    //command->setLast(true);                                             
+
+    /*
+     * TODO: Ignored. Needed
+     */
+    //command->setPrimary(PrimaryPath.isUnspecified());                   
+    //command->setRemoteAddr(PrimaryPath);                                
+    //command->setPrValue(1);                                             
+    //command->setPrMethod( (sendUnreliable == true) ? 2 : 0 );   // PR-Sctp policy: RTX
+
+
+
+    //command->setSendUnordered(ordered ? COMPLETE_MESG_ORDERED : COMPLETE_MESG_UNORDERED);
     lastStream = (lastStream+1)%outboundStreams;
-    cmd->setSid(lastStream);
-    cmd->setPrValue(par("prValue"));
-    cmd->setPrMethod((int32)par("prMethod"));
+    command->setSid(lastStream);
+    command->setPrValue(par("prValue"));
+    command->setPrMethod((int32)par("prMethod"));
     if (queueSize>0 && numRequestsToSend > 0 && count < queueSize*2)
-        cmd->setLast(false);
+        command->setLast(false);
     else
-        cmd->setLast(true);
+        command->setLast(true);
     cmsg->setKind(SCTP_C_SEND);
-    cmsg->setControlInfo(cmd);
+    cmsg->setControlInfo(command);
     packetsSent++;
     bytesSent += msg->getBitLength()/8;
 
@@ -76,16 +104,16 @@ void X2AppServer::handleMessage(cMessage *msg)
         EV << "X2AppServer::handleMessage - Received message from x2 manager" << endl;
         EV << "X2AppServer::handleMessage - Forwarding to X2 interface" << endl;
 
-        // generate a SCTP packet and sent to lower layer
+        // generate a Sctp packet and sent to lower layer
         generateAndSend(pkt);
     }
     else
     {
-        SCTPServer::handleMessage(msg);
+        SctpServer::handleMessage(msg);
     }
 }
 
 void X2AppServer::handleTimer(cMessage *msg)
 {
-    SCTPServer::handleTimer(msg);
+    SctpServer::handleTimer(msg);
 }

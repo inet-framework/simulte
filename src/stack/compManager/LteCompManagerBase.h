@@ -29,7 +29,7 @@ typedef enum {
 // Base class for CoMP manager modules.
 // To add a new CoMP algorithm, extend this class and redefine pure virtual methods
 //
-class LteCompManagerBase : public cSimpleModule
+class LteCompManagerBase : public omnetpp::cSimpleModule
 {
 
 protected:
@@ -38,7 +38,7 @@ protected:
     X2NodeId nodeId_;
 
     // reference to the gates
-    cGate* x2Manager_[2];
+    omnetpp::cGate* x2Manager_[2];
 
     // reference to the MAC layer
     LteMacEnb* mac_;
@@ -50,8 +50,8 @@ protected:
     double coordinationPeriod_;
 
     /// Self messages
-    cMessage* compClientTick_;
-    cMessage* compCoordinatorTick_;
+    omnetpp::cMessage* compClientTick_;
+    omnetpp::cMessage* compCoordinatorTick_;
 
     // Comp Node Type specification (client, client and coordinator, coordinator only)
     CompNodeType nodeType_;
@@ -67,11 +67,11 @@ protected:
     std::vector<X2NodeId> clientList_;
 
     // statistics
-    simsignal_t compReservedBlocks_;
+    omnetpp::simsignal_t compReservedBlocks_;
 
     void runClientOperations();
     void runCoordinatorOperations();
-    void handleX2Message(cPacket* pkt);
+    void handleX2Message(omnetpp::cPacket* pkt);
     void sendClientRequest(X2CompRequestIE* requestIe);
     void sendCoordinatorReply(X2NodeId clientId, X2CompReplyIE* replyIe);
 
@@ -90,8 +90,8 @@ public:
     LteCompManagerBase() {}
     virtual ~LteCompManagerBase() {}
 
-    virtual void initialize();
-    virtual void handleMessage(cMessage *msg);
+    virtual void initialize() override;
+    virtual void handleMessage(omnetpp::cMessage *msg) override;
 };
 
 #endif /* LTE_LTECOMPMANAGERBASE_H_ */

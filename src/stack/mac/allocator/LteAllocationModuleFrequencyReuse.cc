@@ -10,6 +10,8 @@
 #include "stack/mac/allocator/LteAllocationModuleFrequencyReuse.h"
 #include "stack/mac/layer/LteMacEnb.h"
 
+using namespace inet;
+
 LteAllocationModuleFrequencyReuse::LteAllocationModuleFrequencyReuse(LteMacEnb* mac,Direction direction)
         : LteAllocationModule(mac,direction)
 {

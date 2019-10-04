@@ -14,6 +14,9 @@ Define_Module(LtePdcpRrcEnb);
 Define_Module(LtePdcpRrcRelayUe);
 Define_Module(LtePdcpRrcRelayEnb);
 
+using namespace omnetpp;
+using namespace inet;
+
 LtePdcpRrcBase::LtePdcpRrcBase()
 {
     ht_ = new ConnectionsTable();
@@ -109,8 +112,8 @@ void LtePdcpRrcBase::fromDataPort(cPacket *pkt)
 
     // Cid Request
     EV << "LteRrc : Received CID request for Traffic [ " << "Source: "
-       << IPv4Address(lteInfo->getSrcAddr()) << "@" << lteInfo->getSrcPort()
-       << " Destination: " << IPv4Address(lteInfo->getDstAddr()) << "@"
+       << Ipv4Address(lteInfo->getSrcAddr()) << "@" << lteInfo->getSrcPort()
+       << " Destination: " << Ipv4Address(lteInfo->getDstAddr()) << "@"
        << lteInfo->getDstPort() << " ]\n";
 
     // TODO: Since IP addresses can change when we add and remove nodes, maybe node IDs should be used instead of them
@@ -317,7 +320,7 @@ void LtePdcpRrcEnb::initialize(int stage)
 void LtePdcpRrcUe::initialize(int stage)
 {
     LtePdcpRrcBase::initialize(stage);
-    if (stage == inet::INITSTAGE_NETWORK_LAYER_3)
+    if (stage == inet::INITSTAGE_NETWORK_LAYER)
     {
         nodeId_ = getAncestorPar("macNodeId");
     }

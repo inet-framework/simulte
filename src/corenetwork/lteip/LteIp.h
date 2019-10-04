@@ -10,17 +10,12 @@
 #ifndef _LTE_LTEIP_H_
 #define _LTE_LTEIP_H_
 
-#include <omnetpp.h>
 #include <stdlib.h>
-#include "inet/common/queue/QueueBase.h"
-#include "inet/networklayer/contract/ipv4/IPv4ControlInfo.h"
-#include "inet/networklayer/ipv4/IPv4Datagram.h"
-#include "inet/common/ProtocolMap.h"
-#include "common/LteControlInfo.h"
-#include "inet/networklayer/common/IPProtocolId_m.h"
-#include "inet/transportlayer/tcp_common/TCPSegment.h"
-#include "inet/transportlayer/udp/UDPPacket.h"
-#include "inet/transportlayer/udp/UDP.h"
+#include <omnetpp.h>
+#include <inet/networklayer/common/IpProtocolId_m.h>
+#include <inet/transportlayer/tcp_common/TcpHeader.h>
+#include <inet/transportlayer/udp/Udp.h>
+
 #include "common/LteControlInfo.h"
 
 /**
@@ -43,86 +38,113 @@
  * the four tuple, a sequence number and the header size (IP+Transport).
  *
  */
-class LteIp : public inet::QueueBase
+class LteIp : public inet::OperationalBase
 {
-  protected:
-    cGate *stackGateOut_;           /// gate connecting LteIp module to LTE stack
-    cGate *peerGateOut_;            /// gate connecting LteIp module to another LteIp
-    int defaultTimeToLive_;         /// default ttl value
-    LteNodeType nodeType_;     /// node type: can be INTERNET, ENODEB, UE
+    protected:
+        omnetpp::cGate *stackGateOut_;           /// gate connecting LteIp module to LTE stack
+        omnetpp::cGate *peerGateOut_;            /// gate connecting LteIp module to another LteIp
+        int defaultTimeToLive_;         /// default ttl value
+        LteNodeType nodeType_;     /// node type: can be INTERNET, ENODEB, UE
+    
+        // working vars
+        long curFragmentId_;      /// counter, used to assign unique fragmentIds to datagrams (actually unused)
+        unsigned int seqNum_;     /// datagram sequence number (RLC fragmentation needs it)
 
-    // working vars
-    long curFragmentId_;      /// counter, used to assign unique fragmentIds to datagrams (actually unused)
-    unsigned int seqNum_;     /// datagram sequence number (RLC fragmentation needs it)
-    inet::ProtocolMapping mapping_; /// where to send transport packets after decapsulation
+        // attribute dropped in favor of the new inet packet api. Needs more testing
+        //inet::ProtocolMapping mapping_; /// where to send transport packets after decapsulation
+    
+        // statistics
+        int numForwarded_;  /// number of forwarded packets
+        int numDropped_;    /// number of dropped packets
+    
+    public:
 
-    // statistics
-    int numForwarded_;  /// number of forwarded packets
-    int numDropped_;    /// number of dropped packets
-
-  public:
+        /**
+         * LteIp constructor.
+         */
+        LteIp()
+        {
+        }
 
     /**
-     * LteIp constructor.
+     * ILifecycle methods
      */
-    LteIp()
-    {
+    virtual bool isInitializeStage(int stage) override {
+        return stage == inet::INITSTAGE_NETWORK_LAYER;
     }
+    virtual bool isModuleStartStage(int stage) override {
+        return stage == inet::ModuleStartOperation::STAGE_NETWORK_LAYER;
+    }
+    virtual bool isModuleStopStage(int stage) override {
+        return stage == inet::ModuleStopOperation::STAGE_NETWORK_LAYER;
+    }
+    virtual void handleStartOperation(inet::LifecycleOperation *operation) override;
+    virtual void handleStopOperation(inet::LifecycleOperation *operation) override;
+    virtual void handleCrashOperation(inet::LifecycleOperation *operation) override;
 
-  protected:
 
-    /**
-     * utility: show current statistics above the icon
-     */
-    virtual void updateDisplayString();
+    protected:
 
-    /**
-     * Initialization
-     */
-    virtual void initialize();
+        /**
+         * utility: show current statistics above the icon
+         */
+        virtual void updateDisplayString();
 
-    /**
-     * Processing of IP datagrams.
-     * Called when a datagram reaches the front of the queue.
-     *
-     * @param msg packet received
-     */
-    virtual void endService(cPacket *msg);
+        /**
+         * Initialization
+         */
+        virtual void initialize(int stage) override;
 
-  private:
+        /**
+         * Processing of IP datagrams.
+         * Called when a datagram reaches the front of the queue.
+         *
+         * @param msg packet received
+         */
+        virtual void endService(omnetpp::cPacket *msg);
 
-    /**
-     * Handle packets from transport layer and forward them
-     * to the specified output gate, after encapsulation in
-     * IP Datagram.
-     * This method adds to the datagram the LteStackControlInfo.
-     *
-     * @param transportPacket transport packet received from transport layer
-     * @param outputgate output gate where the datagram will be sent
-     */
-    void fromTransport(cPacket * transportPacket, cGate *outputgate);
+        /**
+         * @see OperationalBase::handleMessageWhenUp
+         *
+         * @param msg Message to be handled
+         */
+        virtual void handleMessageWhenUp(inet::cMessage *msg) override;
 
-    /**
-     * Manage packets received from Lte Stack or LteIp peer
-     * and forward them to transport layer.
-     *
-     * @param msg  IP Datagram received from Lte Stack or LteIp peer
-     */
-    void toTransport(cPacket * msg);
 
-    /**
-     * utility: set nodeType_ field
-     *
-     * @param s string containing the node type ("internet", "enodeb", "ue")
-     */
-    void setNodeType(std::string s);
+    private:
 
-    /**
-     * utility: print LteStackControlInfo fields
-     *
-     * @param ci LteStackControlInfo object
-     */
-    void printControlInfo(FlowControlInfo* ci);
+        /**
+         * Handle packets from transport layer and forward them
+         * to the specified output gate, after encapsulation in
+         * IP Datagram.
+         * This method adds to the datagram the LteStackControlInfo.
+         *
+         * @param transportPacket transport packet received from transport layer
+         * @param outputgate output gate where the datagram will be sent
+         */
+        void fromTransport(omnetpp::cPacket * transportPacket, omnetpp::cGate *outputgate);
+
+        /**
+         * Manage packets received from Lte Stack or LteIp peer
+         * and forward them to transport layer.
+         *
+         * @param msg  IP Datagram received from Lte Stack or LteIp peer
+         */
+        void toTransport(omnetpp::cPacket * msg);
+
+        /**
+         * utility: set nodeType_ field
+         *
+         * @param s string containing the node type ("internet", "enodeb", "ue")
+         */
+        void setNodeType(std::string s);
+
+        /**
+         * utility: print LteStackControlInfo fields
+         *
+         * @param ci LteStackControlInfo object
+         */
+        void printControlInfo(FlowControlInfo* ci);
 };
 
 #endif

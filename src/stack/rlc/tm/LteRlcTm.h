@@ -30,7 +30,7 @@
  *   TM mode does not attach any header to the packet.
  *
  */
-class LteRlcTm : public cSimpleModule
+class LteRlcTm : public omnetpp::cSimpleModule
 {
   public:
     LteRlcTm()
@@ -45,10 +45,10 @@ class LteRlcTm : public cSimpleModule
      * Analyze gate of incoming packet
      * and call proper handler
      */
-    virtual void handleMessage(cMessage *msg);
+    virtual void handleMessage(omnetpp::cMessage *msg) override;
 
-    virtual void initialize();
-    virtual void finish()
+    virtual void initialize() override;
+    virtual void finish() override
     {
     }
 
@@ -63,7 +63,7 @@ class LteRlcTm : public cSimpleModule
      *
      * @param pkt packet to process
      */
-    void handleUpperMessage(cPacket *pkt);
+    void handleUpperMessage(omnetpp::cPacket *pkt);
 
     /**
      * handler for traffic coming from
@@ -76,14 +76,14 @@ class LteRlcTm : public cSimpleModule
      *
      * @param pkt packet to process
      */
-    void handleLowerMessage(cPacket *pkt);
+    void handleLowerMessage(omnetpp::cPacket *pkt);
 
     /**
      * Data structures
      */
 
-    cGate* up_[2];
-    cGate* down_[2];
+    omnetpp::cGate* up_[2];
+    omnetpp::cGate* down_[2];
 };
 
 #endif

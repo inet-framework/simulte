@@ -25,7 +25,7 @@ class AmRxQueue;
  *
  * TODO
  */
-class LteRlcAm : public cSimpleModule
+class LteRlcAm : public omnetpp::cSimpleModule
 {
   protected:
 
@@ -44,8 +44,8 @@ class LteRlcAm : public cSimpleModule
     AmTxBuffers txBuffers_;
     AmRxBuffers rxBuffers_;
 
-    cGate* up_[2];
-    cGate* down_[2];
+    omnetpp::cGate* up_[2];
+    omnetpp::cGate* down_[2];
 
   public:
     LteRlcAm()
@@ -61,10 +61,10 @@ class LteRlcAm : public cSimpleModule
      * Analyze gate of incoming packet
      * and call proper handler
      */
-    virtual void handleMessage(cMessage *msg);
+    virtual void handleMessage(omnetpp::cMessage *msg) override;
 
-    virtual void initialize();
-    virtual void finish()
+    virtual void initialize() override;
+    virtual void finish() override
     {
     }
 
@@ -117,7 +117,7 @@ class LteRlcAm : public cSimpleModule
      *
      * @param pkt packet to process
      */
-    void handleUpperMessage(cPacket *pkt);
+    void handleUpperMessage(omnetpp::cPacket *pkt);
 
     /**
      * Am Mode
@@ -134,7 +134,7 @@ class LteRlcAm : public cSimpleModule
      *
      * @param pkt packet to process
      */
-    void handleLowerMessage(cPacket *pkt);
+    void handleLowerMessage(omnetpp::cPacket *pkt);
 
   public:
     /**
@@ -147,7 +147,7 @@ class LteRlcAm : public cSimpleModule
      *
      * @param pkt packet to process
      */
-    void routeControlMessage(cPacket *pkt);
+    void routeControlMessage(omnetpp::cPacket *pkt);
     /**
      * sendFragmented() is invoked by the TXBuffer as a direct method
      * call and used to forward fragments to lower layers. This is needed
@@ -155,7 +155,7 @@ class LteRlcAm : public cSimpleModule
      *
      * @param pkt packet to forward
      */
-    void sendFragmented(cPacket *pkt);
+    void sendFragmented(omnetpp::cPacket *pkt);
 
     /**
      * sendDefragmented() is invoked by the RXBuffer as a direct method
@@ -164,7 +164,7 @@ class LteRlcAm : public cSimpleModule
      *
      * @param pkt packet to forward
      */
-    void sendDefragmented(cPacket *pkt);
+    void sendDefragmented(omnetpp::cPacket *pkt);
 };
 
 #endif

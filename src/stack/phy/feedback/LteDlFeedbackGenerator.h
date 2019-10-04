@@ -26,7 +26,7 @@ class DasFilter;
  * @brief Lte Downlink Feedback Generator
  *
  */
-class LteDlFeedbackGenerator : public cSimpleModule
+class LteDlFeedbackGenerator : public omnetpp::cSimpleModule
 {
     enum FbTimerType
     {
@@ -45,8 +45,8 @@ class LteDlFeedbackGenerator : public cSimpleModule
      * for periodic feedback (when calling start() on busy
      * transmission timer we have no operation)
      */
-    simtime_t fbPeriod_;    /// period for Periodic feedback in TTI
-    simtime_t fbDelay_;     /// time interval between sensing and transmission in TTI
+    omnetpp::simtime_t fbPeriod_;    /// period for Periodic feedback in TTI
+    omnetpp::simtime_t fbDelay_;     /// time interval between sensing and transmission in TTI
 
     bool usePeriodic_;      /// true if we want to use also periodic feedback
     TxMode currentTxMode_;  /// transmission mode to use in feedback generation
@@ -90,19 +90,19 @@ class LteDlFeedbackGenerator : public cSimpleModule
     /**
      * Initialization function.
      */
-    virtual void initialize(int stage);
+    virtual void initialize(int stage) override;
 
     /**
      * Manage self messages for sensing and transmission.
      * @param msg self message for sensing or transmission
      */
-    virtual void handleMessage(cMessage *msg);
+    virtual void handleMessage(omnetpp::cMessage *msg) override;
 
     /**
      * Channel sensing
      */
     void sensing(FbPeriodicity per);
-    virtual int numInitStages() const { return inet::INITSTAGE_LINK_LAYER_2 + 1; }
+    virtual int numInitStages() const override { return inet::INITSTAGE_LINK_LAYER + 1; }
 
   public:
 

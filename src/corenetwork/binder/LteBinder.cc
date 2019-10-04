@@ -15,6 +15,7 @@
 #include "corenetwork/nodes/InternetMux.h"
 
 using namespace std;
+using namespace inet;
 
 Define_Module(LteBinder);
 
@@ -25,7 +26,7 @@ void LteBinder::unregisterNode(MacNodeId id)
     if(nodeIds_.erase(id) != 1){
         EV_ERROR << "Cannot unregister node - node id \"" << id << "\" - not found";
     }
-    std::map<IPv4Address, MacNodeId>::iterator it;
+    std::map<Ipv4Address, MacNodeId>::iterator it;
     for(it = macNodeIdToIPAddress_.begin(); it != macNodeIdToIPAddress_.end(); )
     {
         if(it->second == id)

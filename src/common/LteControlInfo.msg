@@ -46,7 +46,7 @@ enum LteTrafficClass;
 // - Source MAC Node ID
 // - Destination MAC Node ID
 //
-class LteControlInfo {
+class LteControlInfo extends cObject {
     //# Information shared between FlowControlInfo and UserControlInfo
 
     uint16 sourceId;                                     // Source MacNodeId

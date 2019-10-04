@@ -18,6 +18,9 @@
 
 Define_Module(LteMacEnbD2D);
 
+
+using namespace omnetpp;
+
 LteMacEnbD2D::LteMacEnbD2D() :
     LteMacEnb()
 {

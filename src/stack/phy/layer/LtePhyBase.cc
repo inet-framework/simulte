@@ -10,6 +10,8 @@
 #include "stack/phy/layer/LtePhyBase.h"
 #include "common/LteCommon.h"
 
+using namespace omnetpp;
+
 short LtePhyBase::airFramePriority_ = 10;
 
 LtePhyBase::LtePhyBase()
@@ -48,7 +50,7 @@ void LtePhyBase::initialize(int stage)
         multicastD2DRange_ = par("multicastD2DRange");
         enableMulticastD2DRangeCheck_ = par("enableMulticastD2DRangeCheck");
     }
-    else if (stage == inet::INITSTAGE_PHYSICAL_ENVIRONMENT_2)
+    else if (stage == inet::INITSTAGE_PHYSICAL_ENVIRONMENT)
     {
         initializeChannelModel();
     }

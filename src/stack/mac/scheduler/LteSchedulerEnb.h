@@ -103,10 +103,10 @@ class LteSchedulerEnb
     unsigned int resourceBlocks_;
 
     /// Statistics
-    simsignal_t cellBlocksUtilizationDl_;
-    simsignal_t cellBlocksUtilizationUl_;
-    simsignal_t lteAvgServedBlocksDl_;
-    simsignal_t lteAvgServedBlocksUl_;
+    omnetpp::simsignal_t cellBlocksUtilizationDl_;
+    omnetpp::simsignal_t cellBlocksUtilizationUl_;
+    omnetpp::simsignal_t lteAvgServedBlocksDl_;
+    omnetpp::simsignal_t lteAvgServedBlocksUl_;
 
     // pre-made BandLimit structure used when the no band limit is given to the scheduler
     std::vector<BandLimit> emptyBandLim_;

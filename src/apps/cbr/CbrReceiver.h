@@ -4,17 +4,15 @@
 #include <string.h>
 #include <omnetpp.h>
 
-#include "inet/common/INETDefs.h"
-#include "inet/transportlayer/contract/udp/UDPSocket.h"
-#include "inet/networklayer/common/L3AddressResolver.h"
+#include <inet/common/INETDefs.h>
+#include <inet/transportlayer/contract/udp/UdpSocket.h>
+#include <inet/networklayer/common/L3AddressResolver.h>
 
 #include "CbrPacket_m.h"
 
-using namespace inet;
-
-class CbrReceiver : public cSimpleModule
+class CbrReceiver : public omnetpp::cSimpleModule
 {
-    UDPSocket socket;
+    inet::UdpSocket socket;
 
     ~CbrReceiver();
 
@@ -26,19 +24,19 @@ class CbrReceiver : public cSimpleModule
 
     bool mInit_;
 
-    static simsignal_t cbrFrameLossSignal_;
-    static simsignal_t cbrFrameDelaySignal_;
-    static simsignal_t cbrJitterSignal_;
-    static simsignal_t cbrReceivedThroughtput_;
-    static simsignal_t cbrReceivedBytesSignal_;
+    static omnetpp::simsignal_t cbrFrameLossSignal_;
+    static omnetpp::simsignal_t cbrFrameDelaySignal_;
+    static omnetpp::simsignal_t cbrJitterSignal_;
+    static omnetpp::simsignal_t cbrReceivedThroughtput_;
+    static omnetpp::simsignal_t cbrReceivedBytesSignal_;
 
     simsignal_t cbrRcvdPkt_;
 
   protected:
 
-    virtual int numInitStages() const override { return NUM_INIT_STAGES; }
-    void initialize(int stage);
-    void handleMessage(cMessage *msg);
+    virtual int numInitStages() const override { return inet::NUM_INIT_STAGES; }
+    void initialize(int stage) override;
+    void handleMessage(omnetpp::cMessage *msg) override;
     virtual void finish() override;
 };
 

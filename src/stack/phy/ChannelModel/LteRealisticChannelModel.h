@@ -16,6 +16,7 @@
 #ifndef STACK_PHY_CHANNELMODEL_LTEREALISTICCHANNELMODEL_H_
 #define STACK_PHY_CHANNELMODEL_LTEREALISTICCHANNELMODEL_H_
 
+#include <omnetpp.h>
 #include "stack/phy/ChannelModel/LteChannelModel.h"
 
 class LteBinder;
@@ -51,7 +52,7 @@ private:
   bool enableUplinkInterference_;
   bool enableD2DInterference_;
 
-  typedef std::pair<simtime_t, inet::Coord> Position;
+  typedef std::pair<inet::simtime_t, inet::Coord> Position;
 
   // last position of current user
   std::map<MacNodeId, std::queue<Position> > positionHistory_;
@@ -63,7 +64,7 @@ private:
   std::map<MacNodeId, bool> losMap_;
 
   // Store the last computed shadowing for each user
-  std::map<MacNodeId, std::pair<simtime_t, double> > lastComputedSF_;
+  std::map<MacNodeId, std::pair<inet::simtime_t, double> > lastComputedSF_;
 
   //correlation distance used in shadowing computation and
   //also used to recompute the probability of LOS
@@ -117,7 +118,7 @@ private:
   struct JakesFadingData
   {
       std::vector<double> angleOfArrival;
-      std::vector<simtime_t> delaySpread;
+      std::vector<omnetpp::simtime_t> delaySpread;
   };
 
   // for each node and for each band we store information about jakes fading

@@ -9,6 +9,8 @@
 
 #include "stack/mac/buffer/harq/LteHarqProcessTx.h"
 
+using namespace omnetpp;
+
 LteHarqProcessTx::LteHarqProcessTx(unsigned char acid, unsigned int numUnits, unsigned int numProcesses,
     LteMacBase *macOwner, LteMacBase *dstMac)
 {

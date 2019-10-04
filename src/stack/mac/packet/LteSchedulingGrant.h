@@ -50,7 +50,7 @@ class LteSchedulingGrant : public LteSchedulingGrant_Base
     {
         if (other.userTxParams != NULL)
         {
-            const UserTxParams* txParams = check_and_cast<const UserTxParams*>(other.userTxParams);
+            const UserTxParams* txParams = omnetpp::check_and_cast<const UserTxParams*>(other.userTxParams);
             userTxParams = txParams->dup();
         }
         else
@@ -102,22 +102,32 @@ class LteSchedulingGrant : public LteSchedulingGrant_Base
         grantedBlocks = rbMap;
     }
 
-    virtual void setGrantedCwBytesArraySize(unsigned int size)
+    virtual void setGrantedCwBytesArraySize(size_t size)
     {
         grantedCwBytes.resize(size);
     }
-    virtual unsigned int getGrantedCwBytesArraySize() const
+    virtual size_t getGrantedCwBytesArraySize() const
     {
         return grantedCwBytes.size();
     }
-    virtual unsigned int getGrantedCwBytes(unsigned int k) const
+    virtual unsigned int getGrantedCwBytes(size_t k) const
     {
         return grantedCwBytes.at(k);
     }
-    virtual void setGrantedCwBytes(unsigned int k, unsigned int grantedCwBytes_var)
+    virtual void setGrantedCwBytes(size_t k, unsigned int grantedCwBytes_var)
     {
         grantedCwBytes[k] = grantedCwBytes_var;
     }
+    virtual void insertGrantedCwBytes(unsigned int grantedCwBytes){
+        throw omnetpp::cRuntimeError("LteSchedulingGrant::insertGrantedCwBytes still needs to be implemented!");
+    }
+    virtual void insertGrantedCwBytes(size_t k, unsigned int grantedCwBytes){
+        setGrantedCwBytes(k, grantedCwBytes);
+    }
+    virtual void eraseGrantedCwBytes(size_t k){
+        throw omnetpp::cRuntimeError("LteSchedulingGrant::eraseGrantedCwBytes still needs to be implemented!");
+    }
+
     void setDirection(Direction dir)
     {
         direction_ = dir;

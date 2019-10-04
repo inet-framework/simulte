@@ -10,6 +10,7 @@
 #include "corenetwork/nodes/ExtCell.h"
 
 Define_Module(ExtCell);
+using namespace omnetpp;
 
 void ExtCell::initialize()
 {

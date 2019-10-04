@@ -28,9 +28,9 @@ class LtePdcpRrcUeD2D : public LtePdcpRrcUe
 
   protected:
 
-    virtual void handleMessage(cMessage *msg);
+    virtual void handleMessage(omnetpp::cMessage *msg);
 
-    void handleControlInfo(cPacket* upPkt, FlowControlInfo* lteInfo)
+    void handleControlInfo(omnetpp::cPacket* upPkt, FlowControlInfo* lteInfo) override
     {
         delete lteInfo;
     }
@@ -48,7 +48,7 @@ class LtePdcpRrcUeD2D : public LtePdcpRrcUe
      * handler for data port
      * @param pkt incoming packet
      */
-    virtual void fromDataPort(cPacket *pkt);
+    virtual void fromDataPort(omnetpp::cPacket *pkt) override;
 
     // handler for mode switch signal
     void pdcpHandleD2DModeSwitch(MacNodeId peerId, LteD2DMode newMode);

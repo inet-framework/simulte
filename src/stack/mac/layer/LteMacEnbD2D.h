@@ -61,7 +61,7 @@ class LteMacEnbD2D : public LteMacEnb
      *
      * @param pkt container packet
      */
-    virtual void macPduUnmake(cPacket* pkt);
+    virtual void macPduUnmake(omnetpp::cPacket* pkt);
 
     virtual void macHandleFeedbackPkt(cPacket *pkt);
     /**
@@ -69,6 +69,7 @@ class LteMacEnbD2D : public LteMacEnb
      * It sends them to the  lower layer
      */
     virtual void sendGrants(LteMacScheduleList* scheduleList);
+   // virtual void macHandleFeedbackPkt(omnetpp::cPacket* pkt);
 
     void macHandleD2DModeSwitch(cPacket* pkt);
 

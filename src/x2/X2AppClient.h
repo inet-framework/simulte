@@ -10,25 +10,25 @@
 #ifndef __X2APPCLIENT_H_
 #define __X2APPCLIENT_H_
 
-#include "inet/applications/sctpapp/SCTPClient.h"
+#include <inet/applications/sctpapp/SctpClient.h>
 #include "common/LteCommon.h"
 
-class SCTPAssociation;
+class SctpAssociation;
 
 /**
  * Implements the X2AppClient simple module. See the NED file for more info.
  */
-class X2AppClient : public inet::SCTPClient
+class X2AppClient : public inet::SctpClient
 {
     // reference to the gates
-    cGate* x2ManagerOut_;
+    omnetpp::cGate* x2ManagerOut_;
 
   protected:
 
-    void initialize(int stage);
-    virtual int numInitStages() const { return inet::NUM_INIT_STAGES; }
+    void initialize(int stage) override;
+    virtual int numInitStages() const override { return inet::NUM_INIT_STAGES; }
     void socketEstablished(int32_t connId, void *yourPtr, unsigned long int buffer);
-    void socketDataArrived(int32_t connId, void *yourPtr, cPacket *msg, bool urgent);
+    void socketDataArrived(int32_t connId, void *yourPtr, omnetpp::cPacket *msg, bool urgent);
 };
 
 #endif

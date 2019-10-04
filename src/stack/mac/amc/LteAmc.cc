@@ -6,6 +6,8 @@
 // The above file and the present reference are part of the software itself,
 // and cannot be removed from it.
 //
+//
+#include <omnetpp.h>
 
 #include "stack/mac/amc/LteAmc.h"
 #include "stack/mac/layer/LteMacEnb.h"
@@ -14,6 +16,8 @@
 #include "stack/mac/amc/AmcPilotAuto.h"
 #include "stack/mac/amc/AmcPilotD2D.h"
 
+
+using namespace omnetpp;
 LteAmc::~LteAmc()
 {
     delete pilot_;
@@ -516,6 +520,8 @@ MacNodeId LteAmc::computeMuMimoPairing(const MacNodeId nodeId, Direction dir)
     {
         return muMimoD2DMatrix_.getMuMimoPair(nodeId);
     }
+    throw cRuntimeError("LteAmc::computeMuMimoPairing(): Unrecognized direction");
+    return 0;
 }
 
 /********************************

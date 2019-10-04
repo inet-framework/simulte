@@ -13,7 +13,6 @@
 #include <vector>
 #include "inet/common/geometry/common/Coord.h"
 
-using namespace inet;
 
 /**
  * @class RemoteAntennaSet

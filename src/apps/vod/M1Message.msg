@@ -11,7 +11,7 @@ cplusplus {{
 #include "inet/networklayer/common/L3Address.h"
 }};
 
-struct inet::L3Address;
+class inet::L3Address { @existingClass; }
 
 message M1Message {
         inet::L3Address clientAddr;   // client address

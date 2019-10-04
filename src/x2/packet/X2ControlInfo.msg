@@ -13,7 +13,7 @@ cplusplus {{
     typedef std::list<X2NodeId> DestinationIdList;
 }}
 
-class noncobject DestinationIdList;
+class DestinationIdList { @existingClass; }
 
 //
 // X2 Control Info usage:
@@ -35,7 +35,7 @@ class noncobject DestinationIdList;
 // - List of destionation IDs
 // - init flag
 //
-class X2ControlInfo {
+class X2ControlInfo extends cObject {
 	uint16 sourceId;                          // Source X2NodeId
     DestinationIdList destIdList;             // List of destination X2NodeId
     

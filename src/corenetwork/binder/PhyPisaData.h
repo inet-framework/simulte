@@ -13,7 +13,7 @@
 #include <string.h>
 #include <vector>
 
-using namespace omnetpp;
+//using namespace omnetpp;
 
 class PhyPisaData
 {

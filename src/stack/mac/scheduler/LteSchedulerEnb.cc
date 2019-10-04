@@ -21,6 +21,8 @@
 #include "stack/mac/buffer/LteMacBuffer.h"
 #include "stack/mac/buffer/LteMacQueue.h"
 
+using namespace omnetpp;
+
 LteSchedulerEnb::LteSchedulerEnb()
 {
     direction_ = DL;

@@ -28,39 +28,39 @@ class LteHarqProcessRxD2D;
  */
 class LteHarqBufferRxD2D : public LteHarqBufferRx
 {
-  protected:
+    protected:
 
-    // D2D Statistics
-    simsignal_t macDelayD2D_;
-    simsignal_t macCellThroughputD2D_;
-    simsignal_t macThroughputD2D_;
+        // D2D Statistics
+        inet::simsignal_t macDelayD2D_;
+        inet::simsignal_t macCellThroughputD2D_;
+        inet::simsignal_t macThroughputD2D_;
 
-    /**
-     * Checks for all processes if the pdu has been evaluated and sends
-     * feedback if affirmative.
-     */
-    virtual void sendFeedback();
+        /**
+         * Checks for all processes if the pdu has been evaluated and sends
+         * feedback if affirmative.
+         */
+        virtual void sendFeedback();
 
-  public:
-    LteHarqBufferRxD2D(unsigned int num, LteMacBase *owner, MacNodeId nodeId, bool isMulticast=false);
+    public:
+        LteHarqBufferRxD2D(unsigned int num, LteMacBase *owner, MacNodeId nodeId, bool isMulticast=false);
 
-    /*
-     * Insertion of a new pdu coming from phy layer into
-     * RX H-ARQ buffer.
-     *
-     * @param pdu to be inserted
-     */
-    virtual void insertPdu(Codeword cw, LteMacPdu *pdu);
+        /*
+         * Insertion of a new pdu coming from phy layer into
+         * RX H-ARQ buffer.
+         *
+         * @param pdu to be inserted
+         */
+        virtual void insertPdu(Codeword cw, LteMacPdu *pdu);
 
-    /**
-     * Sends feedback for all processes which are older than
-     * HARQ_FB_EVALUATION_INTERVAL, then extract the pdu in correct state (if any)
-     *
-     * @return uncorrupted pdus or empty list if none
-     */
-    virtual std::list<LteMacPdu*> extractCorrectPdus();
+        /**
+         * Sends feedback for all processes which are older than
+         * HARQ_FB_EVALUATION_INTERVAL, then extract the pdu in correct state (if any)
+         *
+         * @return uncorrupted pdus or empty list if none
+         */
+        virtual std::list<LteMacPdu*> extractCorrectPdus();
 
-    virtual ~LteHarqBufferRxD2D();
+        virtual ~LteHarqBufferRxD2D();
 };
 
 #endif

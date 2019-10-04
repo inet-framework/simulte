@@ -19,16 +19,16 @@ class LtePhyRelay : public LtePhyBase
     double bdcUpdateInterval_;
 
     /** Self message to trigger broadcast message sending for handover purposes */
-    cMessage *bdcStarter_;
+    omnetpp::cMessage *bdcStarter_;
 
     /** Master MacNodeId */
     MacNodeId masterId_;
 
   protected:
-    virtual void initialize(int stage);
+    virtual void initialize(int stage) override;
 
-    void handleSelfMessage(cMessage *msg);
-    void handleAirFrame(cMessage* msg);
+    void handleSelfMessage(omnetpp::cMessage *msg) override;
+    void handleAirFrame(omnetpp::cMessage* msg) override;
     public:
     virtual ~LtePhyRelay();
 };
