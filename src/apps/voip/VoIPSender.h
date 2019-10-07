@@ -41,9 +41,9 @@ class VoIPSender : public omnetpp::cSimpleModule
     bool silences_;
 
     unsigned int totalSentBytes_;
-    simtime_t warmUpPer_;
+    omnetpp::simtime_t warmUpPer_;
 
-    // omnetpp::simsignal_t voIPGeneratedThroughtput_;
+    omnetpp::simsignal_t voIPGeneratedThroughtput_;
     // ----------------------------
 
     omnetpp::cMessage *selfSender_;

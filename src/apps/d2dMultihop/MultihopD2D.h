@@ -12,7 +12,7 @@
 
 #include <string.h>
 #include <omnetpp.h>
-#include "inet/transportlayer/contract/udp/UDPSocket.h"
+#include "inet/transportlayer/contract/udp/UdpSocket.h"
 #include "inet/networklayer/common/L3AddressResolver.h"
 #include "apps/d2dMultihop/MultihopD2DPacket_m.h"
 #include "apps/d2dMultihop/statistics/MultihopD2DStatistics.h"

@@ -30,7 +30,7 @@ class CbrReceiver : public omnetpp::cSimpleModule
     static omnetpp::simsignal_t cbrReceivedThroughtput_;
     static omnetpp::simsignal_t cbrReceivedBytesSignal_;
 
-    simsignal_t cbrRcvdPkt_;
+    omnetpp::simsignal_t cbrRcvdPkt_;
 
   protected:
 

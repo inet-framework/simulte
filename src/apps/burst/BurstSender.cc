@@ -119,10 +119,14 @@ void BurstSender::sendPacket()
     //unsigned int msgId = (idBurst_ << 16) | idFrame_;
     unsigned int msgId = (idBurst_ * burstSize_) + idFrame_;
 
-    BurstPacket* packet = new BurstPacket("Burst");
-    packet->setMsgId(msgId);
-    packet->setTimestamp(simTime());
-    packet->setByteLength(size_);
+    Packet* packet = new inet::Packet("Burst");
+    auto burst = makeShared<BurstPacket>();
+
+    burst->setMsgId(msgId);
+    burst->setTimestamp(simTime());
+    burst->setByteLength(size_);
+
+    packet->insertAtBack(burst);
 
     socket.sendTo(packet, destAddress_, destPort_);
 
