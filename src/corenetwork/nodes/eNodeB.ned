@@ -41,8 +41,8 @@ module eNodeBBase
         @display("i=device/antennatower;bgb=814,437");
 
         //# Node specs
-        string nodeType = "ENODEB";        // DO NOT CHANGE
-        int macNodeId = default(0); // TODO: this is not a real parameter
+        string nodeType = "ENODEB";  // DO NOT CHANGE
+        int macNodeId = default(0);  // TODO: this is not a real parameter
         int macCellId = default(0);  // TODO: this is not a real parameter
         double txPower @unit(mw) = default(100mw);
         string nicType = default("LteNicEnb");
@@ -56,9 +56,6 @@ module eNodeBBase
         *.multicastForwarding = false;
 
         //# Apps
-        // FIXME: generic IApp interface - simulation inifiles need to be adapted!
-        // int numTcpApps = default(0);  // no of Tcp apps. Specify the app types in INI file with tcpApp[0..1].typename="TcpEchoApp" syntax
-        // int numUdpApps = default(0);  // no of Udp apps. Specify the app types in INI file with udpApp[0..1].typename="UdpVideoStreamClient" syntax
         int numApps = default(0);     // no of apps. 
         int numX2Apps = default(0);   // no of X2 apps. Specify the app types in INI file with x2App[0..1].typename="X2AppClient" syntax
         

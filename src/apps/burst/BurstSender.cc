@@ -81,7 +81,7 @@ void BurstSender::initTraffic()
         delete initTraffic_;
 
         destAddress_ = inet::L3AddressResolver().resolve(par("destAddress").stringValue());
-        socket.setOutputGate(gate("udpOut"));
+        socket.setOutputGate(gate("socketOut"));
         socket.bind(localPort_);
 
         EV << simTime() << "BurstSender::initialize - binding to port: local:" << localPort_ << " , dest: " << destAddress_.str() << ":" << destPort_ << endl;

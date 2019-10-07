@@ -72,6 +72,6 @@ simple MultihopD2D like IApp
         
         @display("i=block/source");
     gates:
-        output udpOut;
-        input udpIn;
+        output socketOut;
+        input socketIn;
 }

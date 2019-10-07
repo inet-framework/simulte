@@ -70,7 +70,7 @@ void MultihopD2D::initialize(int stage)
         }
 
         EV << "MultihopD2D::initialize - binding to port: local:" << localPort_ << " , dest:" << destPort_ << endl;
-        socket.setOutputGate(gate("udpOut"));
+        socket.setOutputGate(gate("socketOut"));
         socket.bind(localPort_);
 
         // for multicast support

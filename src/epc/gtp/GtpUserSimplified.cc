@@ -151,6 +151,8 @@ void GtpUserSimplified::handleFromUdp(Packet * pkt)
              // create a new GtpUserSimplifiedMessage
              // encapsulate the datagram within the GtpUserMsg
              auto header = makeShared<GtpUserMsg>();
+             header->setTeid(0);
+             header->setChunkLength(B(8));
              auto gtpPacket = new Packet(originalPacket->getName());
              gtpPacket->insertAtFront(header);
              auto data = originalPacket->peekData();
@@ -162,7 +164,13 @@ void GtpUserSimplified::handleFromUdp(Packet * pkt)
              socket_.sendTo(gtpPacket, tunnelPeerAddress, tunnelPeerPort_);
              EV << "GtpUserSimplified::handleFromUdp - Destination is a MEC server. Sending GTP packet to " << symbolicName << endl;
             return;
+        } else
+        {
+            // destination is outside the LTE network
+            EV << "GtpUserSimplified::handleFromUdp - Deliver datagram to the Internet " << endl;
+            send(originalPacket,"pppGate");
         }
+
     } else if (ownerType_ == ENB)
     {
         const auto& hdr = originalPacket->peekAtFront<Ipv4Header>();
@@ -188,6 +196,8 @@ void GtpUserSimplified::handleFromUdp(Packet * pkt)
         // * create a new GtpUserSimplifiedMessage
         // * encapsulate the datagram within the GtpUserMsg
         auto header = makeShared<GtpUserMsg>();
+        header->setTeid(0);
+        header->setChunkLength(B(8));
         auto gtpMsg = new Packet(originalPacket->getName());
         gtpMsg->insertAtFront(header);
         auto data = originalPacket->peekData();
