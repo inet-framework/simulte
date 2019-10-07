@@ -90,7 +90,7 @@ class LteMacUe : public LteMacBase
      * Analyze gate of incoming packet
      * and call proper handler
      */
-    virtual void handleMessage(cMessage *msg);
+    virtual void handleMessage(cMessage *msg) override;
 
     /**
      * macSduRequest() sends a message to the RLC layer
@@ -103,7 +103,7 @@ class LteMacUe : public LteMacBase
      * bufferizePacket() is called every time a packet is
      * received from the upper layer
      */
-    virtual bool bufferizePacket(cPacket* pkt);
+    virtual bool bufferizePacket(cPacket* pkt) override;
 
     /**
      * macPduMake() creates MAC PDUs (one for each CID)
@@ -114,7 +114,7 @@ class LteMacUe : public LteMacBase
      * On UE it also adds a BSR control element to the MAC PDU
      * containing the size of its buffer (for that CID)
      */
-    virtual void macPduMake(MacCid cid = 0);
+    virtual void macPduMake(MacCid cid = 0) override;
 
     /**
      * macPduUnmake() extracts SDUs from a received MAC
@@ -128,7 +128,7 @@ class LteMacUe : public LteMacBase
      * handleUpperMessage() is called every time a packet is
      * received from the upper layer
      */
-    virtual void handleUpperMessage(cPacket* pkt);
+    virtual void handleUpperMessage(cPacket* pkt) override;
 
     /**
      * Main loop

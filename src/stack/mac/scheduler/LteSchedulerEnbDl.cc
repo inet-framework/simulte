@@ -118,22 +118,21 @@ LteSchedulerEnbDl::schedulePerAcidRtx(MacNodeId nodeId, Codeword cw, unsigned ch
 
     // check selected process status.
     std::vector<UnitStatus> pStatus = currHarq->getProcess(acid)->getProcessStatus();
-    std::vector<UnitStatus>::iterator vit = pStatus.begin(), vet = pStatus.end();
 
     Codeword allocatedCw = 0;
     // search for already allocated codeword
-//    for (;vit!=vet;++vit)
-//    {
-//        // skip current codeword
-//        if (vit->first==cw) continue;
-//
-//        if (vit->second == TXHARQ_PDU_SELECTED)
-//        {
-//            allocatedCw=vit->first;
-//            break;
-//        }
-//
-//    }
+    // std::vector<UnitStatus>::iterator vit = pStatus.begin(), vet = pStatus.end();
+    // for (;vit!=vet;++vit)
+    // {
+    //     // skip current codeword
+    //     if (vit->first==cw) continue;
+    //
+    //     if (vit->second == TXHARQ_PDU_SELECTED)
+    //     {
+    //         allocatedCw=vit->first;
+    //         break;
+    //     }
+    // }
     if (allocatedCws_.find(nodeId) != allocatedCws_.end())
     {
         allocatedCw = allocatedCws_.at(nodeId);

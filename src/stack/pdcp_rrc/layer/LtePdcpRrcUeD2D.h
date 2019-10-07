@@ -28,14 +28,14 @@ class LtePdcpRrcUeD2D : public LtePdcpRrcUe
 
   protected:
 
-    virtual void handleMessage(omnetpp::cMessage *msg);
+    virtual void handleMessage(omnetpp::cMessage *msg) override;
 
     void handleControlInfo(omnetpp::cPacket* upPkt, FlowControlInfo* lteInfo) override
     {
         delete lteInfo;
     }
 
-    virtual MacNodeId getDestId(FlowControlInfo* lteInfo);
+    virtual MacNodeId getDestId(FlowControlInfo* lteInfo) override;
 
     Direction getDirection(MacNodeId destId)
     {

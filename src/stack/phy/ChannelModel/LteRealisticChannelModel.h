@@ -201,7 +201,7 @@ public:
    * @param lteinfo pointer to the user control info
    * @param rsrpVector the received signal for each RB, if it has already been computed
    */
-  virtual bool error_D2D(LteAirFrame *frame, UserControlInfo* lteI, const std::vector<double>& rsrpVector);
+  virtual bool isError_D2D(LteAirFrame *frame, UserControlInfo* lteI, const std::vector<double>& rsrpVector);
   /*
    * Compute the error probability of the transmitted packet according to cqi used, txmode, and the received power
    * after that it throws a random number in order to check if this packet will be corrupted or not
@@ -209,14 +209,14 @@ public:
    * @param frame pointer to the packet
    * @param lteinfo pointer to the user control info
    */
-  virtual bool error(LteAirFrame *frame, UserControlInfo* lteI);
+  virtual bool isError(LteAirFrame *frame, UserControlInfo* lteI);
   /*
    * The same as before but used for das TODO to be implemnted
    *
    * @param frame pointer to the packet
    * @param lteinfo pointer to the user control info
    */
-  virtual bool errorDas(LteAirFrame *frame, UserControlInfo* lteI)
+  virtual bool isErrorDas(LteAirFrame *frame, UserControlInfo* lteI)
   {
       throw cRuntimeError("DAS PHY LAYER TO BE IMPLEMENTED");
       return -1;

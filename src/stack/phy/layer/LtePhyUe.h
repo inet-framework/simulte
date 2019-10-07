@@ -94,10 +94,11 @@ class LtePhyUe : public LtePhyBase
 
     omnetpp::simtime_t lastFeedback_;
 
-    virtual void initialize(int stage);
-    virtual void handleSelfMessage(omnetpp::cMessage *msg);
-    virtual void handleAirFrame(omnetpp::cMessage* msg);
-    virtual void finish();
+    virtual void initialize(int stage) override;
+    virtual void handleSelfMessage(omnetpp::cMessage *msg) override;
+    virtual void handleAirFrame(omnetpp::cMessage* msg) override;
+    virtual void finish() override;
+    virtual void finish(cComponent *component, simsignal_t signalID) override {cIListener::finish(component, signalID);}
 
     virtual void handleUpperMessage(omnetpp::cMessage* msg) override;
 

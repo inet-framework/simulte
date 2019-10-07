@@ -58,7 +58,7 @@ class CbrSender : public omnetpp::cSimpleModule
 
     virtual int numInitStages() const override { return inet::NUM_INIT_STAGES; }
     void initialize(int stage) override;
-    void finish();
+    void finish() override;
     void handleMessage(omnetpp::cMessage *msg) override;
 };
 

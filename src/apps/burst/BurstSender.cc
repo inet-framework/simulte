@@ -91,7 +91,7 @@ void BurstSender::initTraffic()
 
         // TODO maybe un-necesessary
         // this conversion is made in order to obtain ms-aligned start time, even in case of random generated ones
-        simtime_t offset = (round(SIMTIME_DBL(startTime)*1000)/1000);
+        // simtime_t offset = (round(SIMTIME_DBL(startTime)*1000)/1000);
 
         scheduleAt(simTime()+startTime, selfBurst_);
         EV << "\t starting traffic in " << startTime << " seconds " << endl;

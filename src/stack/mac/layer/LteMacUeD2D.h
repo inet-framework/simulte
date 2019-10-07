@@ -51,9 +51,9 @@ class LteMacUeD2D : public LteMacUe
     /**
      * Main loop
      */
-    virtual void handleSelfMessage();
+    virtual void handleSelfMessage() override;
 
-    virtual void macHandleGrant(cPacket* pkt);
+    virtual void macHandleGrant(cPacket* pkt) override;
 
     /*
      * Checks RAC status
@@ -78,7 +78,7 @@ class LteMacUeD2D : public LteMacUe
      * On UE it also adds a BSR control element to the MAC PDU
      * containing the size of its buffer (for that CID)
      */
-    virtual void macPduMake(MacCid cid=0);
+    virtual void macPduMake(MacCid cid=0) override;
 
   public:
     LteMacUeD2D();
@@ -96,7 +96,7 @@ class LteMacUeD2D : public LteMacUe
         else
             bsrTriggered_ = true;
     }
-    virtual void doHandover(MacNodeId targetEnb);
+    virtual void doHandover(MacNodeId targetEnb) override;
 };
 
 #endif

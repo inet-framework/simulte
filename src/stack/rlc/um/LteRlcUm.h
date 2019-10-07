@@ -107,7 +107,7 @@ class LteRlcUm : public omnetpp::cSimpleModule
     /**
      * Initialize watches
      */
-    virtual void initialize() override;
+    virtual void initialize(int stage) override;
 
     virtual void finish() override
     {

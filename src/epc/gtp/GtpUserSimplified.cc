@@ -129,6 +129,7 @@ void GtpUserSimplified::handleFromTrafficFlowFilter(Packet * datagram)
     }
 }
 
+// TODO: method needs to be refactored - redundant code
 void GtpUserSimplified::handleFromUdp(Packet * pkt)
 {
     EV << "GtpUserSimplified::handleFromUdp - Decapsulating datagram from GTP tunnel" << endl;

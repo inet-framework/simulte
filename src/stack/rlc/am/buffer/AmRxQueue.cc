@@ -637,7 +637,7 @@ void AmRxQueue::moveRxWindow(const int seqNum)
     // part of an SDU is still in the buffer
 
     int currentSdu = firstSdu_;
-    int firstSeqNum=0;
+    // int firstSeqNum=0;
 
     EV << NOW << " AmRxQueue::moveRxWindow current SDU is " << firstSdu_ << endl;
 

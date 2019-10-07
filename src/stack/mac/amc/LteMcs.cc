@@ -308,6 +308,9 @@ const unsigned int* itbs2tbs(LteMod mod, TxMode txMode, unsigned char layers, un
                 throw cRuntimeError("Unknown MCS (%d) in LteAmc::itbs2tbs()", mod);
                 res = nullptr;
         }
+    } else {
+        throw cRuntimeError("Illegal number of layers in LteAmc::itbs2tbs()");
+        res = nullptr;
     }
 
     return res;

@@ -38,9 +38,9 @@ class LteChannelModel : public cSimpleModule
      * @param frame pointer to the packet
      * @param lteinfo pointer to the user control info
      */
-    virtual bool error(LteAirFrame *frame, UserControlInfo* lteI)=0;
+    virtual bool isError(LteAirFrame *frame, UserControlInfo* lteI)=0;
     //TODO NOT IMPLEMENTED YET
-    virtual bool errorDas(LteAirFrame *frame, UserControlInfo* lteI)=0;
+    virtual bool isErrorDas(LteAirFrame *frame, UserControlInfo* lteI)=0;
     /*
      * Compute Attenuation caused by pathloss and shadowing (optional)
      *
@@ -78,7 +78,7 @@ class LteChannelModel : public cSimpleModule
      * @param lteinfo pointer to the user control info
      * @param rsrpVector the received signal for each RB, if it has already been computed
      */
-    virtual bool error_D2D(LteAirFrame *frame, UserControlInfo* lteInfo, const std::vector<double>& rsrpVector)=0;
+    virtual bool isError_D2D(LteAirFrame *frame, UserControlInfo* lteInfo, const std::vector<double>& rsrpVector)=0;
     /*
      * Compute Received useful signal for D2D transmissions
      */

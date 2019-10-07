@@ -47,7 +47,7 @@ void LteIp::initialize(int stage) {
         getBinder()->registerNode(ue, nodeType_, ue->par("masterId"));
     } else if (nodeType_ == ENODEB) {
         cModule *enodeb = getParentModule();
-        MacNodeId cellId = getBinder()->registerNode(enodeb, nodeType_);
+        getBinder()->registerNode(enodeb, nodeType_);
     }
 
     WATCH(numForwarded_);
@@ -99,7 +99,6 @@ void LteIp::endService(cPacket *msg) {
             unsigned short dstPort = 0;
             B headerSize = B(0); //IP_HEADER_BYTES;
 
-            switch (protocolId)
             if (protocolId == IP_PROT_TCP) {
                 inet::tcp::TcpHeader* tcpseg;
                 tcpseg = check_and_cast<inet::tcp::TcpHeader*>(transportPacket);

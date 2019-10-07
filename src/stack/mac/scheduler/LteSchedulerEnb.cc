@@ -606,8 +606,8 @@ void LteSchedulerEnb::resourceBlockStatistics(bool sleep)
     // to the per-Band (first key) per-Ue (second-key) map
     std::vector<std::vector<unsigned int> >::const_iterator planeIt =
         allocator_->getAllocatedBlocksBegin();
-    std::vector<std::vector<unsigned int> >::const_iterator planeItEnd =
-        allocator_->getAllocatedBlocksEnd();
+    /* std::vector<std::vector<unsigned int> >::const_iterator planeItEnd =
+        allocator_->getAllocatedBlocksEnd(); */
 
     double utilization = 0.0;
     double allocatedBlocks = 0;

@@ -96,7 +96,7 @@ class LteMacEnb : public LteMacBase
      * to the Schedule List (stored after scheduling).
      * It sends them to H-ARQ
      */
-    virtual void macPduMake(MacCid cid);
+    virtual void macPduMake(MacCid cid) override;
 
     /**
      * macPduUnmake() extracts SDUs from a received MAC

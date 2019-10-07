@@ -37,7 +37,7 @@ class LteDlFeedbackGenerator : public omnetpp::cSimpleModule
 
     FeedbackType fbType_;               /// feedback type (ALLBANDS, PREFERRED, WIDEBAND)
     RbAllocationType rbAllocationType_; /// resource allocation type
-    LteFeedbackComputation* lteFeedbackComputation_; // Object used to compute the feedback
+    // LteFeedbackComputation* lteFeedbackComputation_; // Object used to compute the feedback
     FeedbackGeneratorType generatorType_;
     /**
      * NOTE: fbPeriod_ MUST be greater than fbDelay_,

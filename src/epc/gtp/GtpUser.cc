@@ -105,7 +105,8 @@ void GtpUser::handleFromTrafficFlowFilter(Packet * packet)
 
 void GtpUser::handleFromUdp(GtpUserMsg * packet)
 {
-    TunnelEndpointIdentifier oldTeid, nextTeid;
+    TunnelEndpointIdentifier oldTeid;
+    // TunnelEndpointIdentifier nextTeid;
     L3Address nextHopAddr;
 
     // obtain the incoming TEID from message

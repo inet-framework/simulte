@@ -668,7 +668,7 @@ std::vector<double> LteRealisticChannelModel::getSINR(LteAirFrame *frame, UserCo
 
 std::vector<double> LteRealisticChannelModel::getRSRP_D2D(LteAirFrame *frame, UserControlInfo* lteInfo_1, MacNodeId destId, Coord destCoord)
 {
-   AttenuationVector::iterator it;
+   // AttenuationVector::iterator it;
    // Get Tx power
    double recvPower = lteInfo_1->getD2dTxPower(); // dBm
 
@@ -791,7 +791,7 @@ std::vector<double> LteRealisticChannelModel::getRSRP_D2D(LteAirFrame *frame, Us
 
 std::vector<double> LteRealisticChannelModel::getSINR_D2D(LteAirFrame *frame, UserControlInfo* lteInfo, MacNodeId destId, Coord destCoord, MacNodeId enbId)
 {
-   AttenuationVector::iterator it;
+   // AttenuationVector::iterator it;
    // Get Tx power
    double recvPower = lteInfo->getD2dTxPower(); // dBm
 
@@ -1094,7 +1094,7 @@ std::vector<double> LteRealisticChannelModel::getSINR_D2D(LteAirFrame *frame, Us
 std::vector<double> LteRealisticChannelModel::getSIR(LteAirFrame *frame,
        UserControlInfo* lteInfo)
 {
-   AttenuationVector::iterator it;
+   // AttenuationVector::iterator it;
    //get tx power
    double recvPower = lteInfo->getTxPower();
 
@@ -1271,7 +1271,7 @@ double LteRealisticChannelModel::jakesFading(MacNodeId nodeId, double speed,
    return linearToDb(re_h * re_h + im_h * im_h);
 }
 
-bool LteRealisticChannelModel::error(LteAirFrame *frame,
+bool LteRealisticChannelModel::isError(LteAirFrame *frame,
        UserControlInfo* lteInfo)
 {
    EV << "LteRealisticChannelModel::error" << endl;
@@ -1282,7 +1282,7 @@ bool LteRealisticChannelModel::error(LteAirFrame *frame,
    int size = lteInfo->getUserTxParams()->readCqiVector().size();
 
    //get position associated to the packet
-   Coord coord = lteInfo->getCoord();
+   // Coord coord = lteInfo->getCoord();
 
    //if total number of codeword is equal to 1 the cw index should be only 0
    if (size == 1)
@@ -1427,7 +1427,7 @@ bool LteRealisticChannelModel::error(LteAirFrame *frame,
    return true;
 }
 
-bool LteRealisticChannelModel::error_D2D(LteAirFrame *frame, UserControlInfo* lteInfo, const std::vector<double>& rsrpVector)
+bool LteRealisticChannelModel::isError_D2D(LteAirFrame *frame, UserControlInfo* lteInfo, const std::vector<double>& rsrpVector)
 {
    EV << "LteRealisticChannelModel::error_D2D" << endl;
 
@@ -1437,7 +1437,7 @@ bool LteRealisticChannelModel::error_D2D(LteAirFrame *frame, UserControlInfo* lt
    int size = lteInfo->getUserTxParams()->readCqiVector().size();
 
    //get position associated to the packet
-   Coord coord = lteInfo->getCoord();
+   // Coord coord = lteInfo->getCoord();
 
    //if total number of codeword is equal to 1 the cw index should be only 0
    if (size == 1)
@@ -1954,7 +1954,7 @@ bool LteRealisticChannelModel::computeExtCellInterference(MacNodeId eNbId, MacNo
 
 double LteRealisticChannelModel::computeExtCellPathLoss(double dist, MacNodeId nodeId)
 {
-   double movement = .0;
+   // double movement = .0;
    double speed = .0;
 
    speed = computeSpeed(nodeId, phy_->getCoord());
@@ -1972,13 +1972,13 @@ double LteRealisticChannelModel::computeExtCellPathLoss(double dist, MacNodeId n
    //    log-normal shadowing
    if (shadowing_)
    {
-       double mean = 0;
+       // double mean = 0;
 
        //        Get std deviation according to los/nlos and selected scenario
 
        //        double stdDev = getStdDev(dist < dbp, nodeId);
-       double time = 0;
-       double space = 0;
+       // double time = 0;
+       // double space = 0;
        double att;
        //
        //

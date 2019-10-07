@@ -41,17 +41,17 @@ ScheduleList& LcgScheduler::schedule(unsigned int availableBytes, Direction gran
     statusMap_.clear();
 
     // amount of time passed since last scheduling operation
-    simtime_t timeInterval = NOW - lastExecutionTime_;
+    // simtime_t timeInterval = NOW - lastExecutionTime_;
 
     // these variables will contain the flow identifier and the priority of the lowest
     // priority flow encountered during the scheduling process
-    int lowestBackloggedFlow = -1;
-    int lowestBackloggedPriority = -1;
+    // int lowestBackloggedFlow = -1;
+    // int lowestBackloggedPriority = -1;
 
     // these variables will contain the flow identifier and the priority of the highest
     // priority flow encountered during the scheduling process
-    int highestBackloggedFlow = -1;
-    int highestBackloggedPriority = -1;
+    // int highestBackloggedFlow = -1;
+    // int highestBackloggedPriority = -1;
 
     // Considering 3GPP TS 36.321:
     //  - ConnDesc::parameters_.minReservedRate_    --> Prioritized Bit Rate (PBR) in Bytes/s
@@ -203,7 +203,7 @@ ScheduleList& LcgScheduler::schedule(unsigned int availableBytes, Direction gran
                 // Best Effort service:
                 //    ( sdu->size() <= availableBytes) && (!priorityService_)
 
-                if ((toServe <= availableBytes) /*&& ( !priorityService || ( sduSize <= 0/*TODO desc->parameters_.bucket_) )*/)
+                if ((toServe <= availableBytes) /*&& ( !priorityService || ( sduSize <= 0 TODO desc->parameters_.bucket_) )*/)
                 {
                     // remove SDU from virtual buffer
                     vQueue->popFront();

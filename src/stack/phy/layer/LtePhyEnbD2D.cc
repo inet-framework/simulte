@@ -234,11 +234,11 @@ void LtePhyEnbD2D::handleAirFrame(cMessage* msg)
             data.m = getRadioPosition();
             frame->addRemoteUnitPhyDataVector(data);
         }
-        result = channelModel_->errorDas(frame, lteInfo);
+        result = channelModel_->isErrorDas(frame, lteInfo);
     }
     else
     {
-        result = channelModel_->error(frame, lteInfo);
+        result = channelModel_->isError(frame, lteInfo);
     }
     if (result)
         numAirFrameReceived_++;

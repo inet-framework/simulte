@@ -241,7 +241,7 @@ void LteRlcUm::deleteQueues(MacNodeId nodeId)
  * Main functions
  */
 
-void LteRlcUm::initialize()
+void LteRlcUm::initialize(int stage)
 {
     up_[IN] = gate("UM_Sap_up$i");
     up_[OUT] = gate("UM_Sap_up$o");
