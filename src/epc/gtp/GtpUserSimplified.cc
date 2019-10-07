@@ -149,7 +149,7 @@ void GtpUserSimplified::handleFromUdp(Packet * pkt)
         if (destId != 0)
         {
              // create a new GtpUserSimplifiedMessage
-             // encapsulate the datagram within the GtpUserSimplifiedMessage
+             // encapsulate the datagram within the GtpUserMsg
              auto header = makeShared<GtpUserMsg>();
              auto gtpPacket = new Packet(originalPacket->getName());
              gtpPacket->insertAtFront(header);
@@ -165,12 +165,10 @@ void GtpUserSimplified::handleFromUdp(Packet * pkt)
         }
     } else if (ownerType_ == ENB)
     {
-        // add Interface-Request for LteNic
-        if (ie != nullptr)
-            originalPacket->addTagIfAbsent<InterfaceReq>()->setInterfaceId(ie->getInterfaceId());
-
-        IPv4Address& destAddr = datagram->getDestAddress();
+        const auto& hdr = originalPacket->peekAtFront<Ipv4Header>();
+        const Ipv4Address& destAddr = hdr->getDestAddress();
         MacNodeId destId = binder_->getMacNodeId(destAddr);
+
         if (destId != 0)
         {
             MacNodeId enbId = getAncestorPar("macNodeId");
@@ -178,18 +176,26 @@ void GtpUserSimplified::handleFromUdp(Packet * pkt)
             if (destMaster == enbId)
             {
                 EV << "GtpUserSimplified::handleFromUdp - Deliver datagram to the LTE NIC " << endl;
-                send(datagram,"pppGate");
+                // add Interface-Request for LteNic
+                if (ie != nullptr)
+                    originalPacket->addTagIfAbsent<InterfaceReq>()->setInterfaceId(ie->getInterfaceId());
+                send(originalPacket,"pppGate");
                 return;
             }
         }
-         } else {
+
+        // send the message to the correct eNB or to the Internet, through the PGW
+        // * create a new GtpUserSimplifiedMessage
+        // * encapsulate the datagram within the GtpUserMsg
+        auto header = makeShared<GtpUserMsg>();
+        auto gtpMsg = new Packet(originalPacket->getName());
+        gtpMsg->insertAtFront(header);
+        auto data = originalPacket->peekData();
+        gtpMsg->insertAtBack(data);
+
+        socket_.sendTo(gtpMsg, pgwAddress_, tunnelPeerPort_);
+
+    } else {
         throw cRuntimeError("Unknown ownerType_ - cannot process packet");
     }
-        // send the message to the correct eNB or to the internet, through the PGW
-        // create a new GtpUserSimplifiedMessage
-        GtpUserMsg * gtpMsg = new GtpUserMsg();
-        gtpMsg->setName("GtpUserMessage");
-
-    // destination is outside the LTE network
-    send(originalPacket,"pppGate");
 }

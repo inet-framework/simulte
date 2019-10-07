@@ -234,7 +234,7 @@ void LtePhyBase::sendMulticast(LteAirFrame *frame)
     UserControlInfo *ci = check_and_cast<UserControlInfo *>(frame->getControlInfo());
 
     // get the group Id
-    int32 groupId = ci->getMulticastGroupId();
+    inet::int32 groupId = ci->getMulticastGroupId();
     if (groupId < 0)
         throw cRuntimeError("LtePhyBase::sendMulticast - Error. Group ID %d is not valid.", groupId);
 

@@ -85,7 +85,7 @@ class UmTxEntity : public omnetpp::cSimpleModule
     bool isHoldingDownstreamInPackets();
 
     // store the packet in the holding buffer
-    void enqueHoldingPackets(cPacket* pkt);
+    void enqueHoldingPackets(inet::cPacket* pkt);
 
     // resume sending packets in the downstream
     void resumeDownstreamInPackets();
@@ -130,7 +130,7 @@ class UmTxEntity : public omnetpp::cSimpleModule
     /*
      * The SDU holding buffer.
      */
-    cPacketQueue sduHoldingQueue_;
+    inet::cPacketQueue sduHoldingQueue_;
 
     /**
      * Initialize fragmentSize and

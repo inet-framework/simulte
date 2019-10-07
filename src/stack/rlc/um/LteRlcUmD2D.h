@@ -65,7 +65,7 @@ class LteRlcUmD2D : public LteRlcUm
      *
      * @param pkt packet to process
      */
-    virtual void handleLowerMessage(cPacket *pkt);
+    virtual void handleLowerMessage(omnetpp::cPacket *pkt);
 
   private:
 

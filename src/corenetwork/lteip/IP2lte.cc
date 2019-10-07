@@ -26,7 +26,7 @@
 #include "corenetwork/lteip/Constants.h"
 
 #include "corenetwork/binder/LteBinder.h"
-#include "corenetwork/deployer/LteDeployer.h"
+#include "corenetwork/lteCellInfo/LteCellInfo.h"
 #include "corenetwork/lteip/Constants.h"
 /*
 #include "inet/transportlayer/tcp_common/TCPSegment.h"
@@ -174,7 +174,7 @@ void IP2lte::setNodeType(std::string s)
 
 
 void IP2lte::fromIpUe(Packet * datagram)
-
+{
     EV << "IP2lte::fromIpUe - message from IP layer: send to stack: "  << datagram->str() << std::endl;
     // Remove control info from IP datagram
     delete(datagram->removeControlInfo());
@@ -195,10 +195,10 @@ void IP2lte::fromIpUe(Packet * datagram)
     }
 }
 
-void IP2lte::toStackUe(IPv4Datagram * datagram)
+void IP2lte::toStackUe(Packet * datagram)
 {
     // obtain the encapsulated transport packet
-    cPacket * transportPacket = datagram->getEncapsulatedPacket();
+    // cPacket * transportPacket = datagram->getEncapsulatedPacket();
 
     // 5-Tuple infos
     unsigned short srcPort = 0;
@@ -559,7 +559,7 @@ void IP2lte::signalHandoverCompleteUe()
     // send held packets
     while (!ueHoldFromIp_.empty())
     {
-        IPv4Datagram* pkt = ueHoldFromIp_.front();
+        auto pkt = ueHoldFromIp_.front();
         ueHoldFromIp_.pop_front();
 
         // send pkt down

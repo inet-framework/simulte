@@ -24,7 +24,7 @@ class LtePdcpRrcUeD2D : public LtePdcpRrcUe
 {
     // initialization flag for each D2D peer
     // it is set to true when the first IP datagram for that peer reaches the PDCP layer
-    std::map<L3Address, bool> d2dPeeringInit_;
+    std::map<inet::L3Address, bool> d2dPeeringInit_;
 
   protected:
 

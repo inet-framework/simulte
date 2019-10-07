@@ -62,7 +62,7 @@ void LteCellInfo::initialize()
     numPreferredBands_ = par("numPreferredBands");
 
     if (numRus_ > NUM_RUS)
-        throw cRuntimeError("The number of Antennas specified exceeds the limit of %d", NUM_RUS);
+        throw omnetpp::cRuntimeError("The number of Antennas specified exceeds the limit of %d", NUM_RUS);
 
     // register the containing eNB  to the binder
     cellId_ = getParentModule()->par("macCellId");
@@ -103,7 +103,7 @@ void LteCellInfo::calculateNodePosition(double centerX, double centerY, int nTh,
     *yPos = (y < pgnMinY_) ? pgnMinY_ : (y > pgnMaxY_) ? pgnMaxY_ : y;
 
     EV << NOW << " LteCellInfo::calculateNodePosition: Computed node position "
-       << *xPos << " , " << *yPos << endl;
+       << *xPos << " , " << *yPos << std::endl;
 
     return;
 }

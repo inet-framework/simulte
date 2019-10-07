@@ -13,7 +13,7 @@
 #include <string.h>
 #include <omnetpp.h>
 #include <math.h>
-#include "inet/networklayer/contract/ipv4/IPv4Address.h"
+#include "inet/networklayer/contract/ipv4/Ipv4Address.h"
 #include "stack/phy/das/RemoteAntennaSet.h"
 #include "corenetwork/binder/LteBinder.h"
 #include "common/LteCommon.h"
@@ -24,7 +24,7 @@ class DasFilter;
  * @class LteCellInfo
  * @brief There is one LteCellInfo module for each eNB (thus one for each cell). Keeps cross-layer information about the cell
  */
-class LteCellInfo : public cSimpleModule
+class LteCellInfo : public omnetpp::cSimpleModule
 {
   private:
     /// reference to the global module binder
@@ -98,7 +98,7 @@ class LteCellInfo : public cSimpleModule
 
     virtual void initialize();
 
-    virtual void handleMessage(cMessage *msg)
+    virtual void handleMessage(omnetpp::cMessage *msg)
     {
     }
 

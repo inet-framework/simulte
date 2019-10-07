@@ -20,9 +20,7 @@ import inet.transportlayer.contract.ITcp;
 import inet.transportlayer.contract.IUdp;
 import inet.transportlayer.contract.ISctp;
 import inet.common.MessageDispatcher;
-import lte.stack.phy.ILteNic;
-import lte.stack.phy.LteNicUe;
-import lte.stack.phy.LteNicUeD2D;
+import lte.stack.ILteNic;
 
 // 
 // User Equipment Module

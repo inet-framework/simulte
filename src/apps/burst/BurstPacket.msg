@@ -7,12 +7,14 @@
 // and cannot be removed from it.
 //
 
-namespace inet;
+import inet.common.INETDefs;
+import inet.common.packet.chunk.Chunk;
+
 
 //
 // Packet used by the ~BurstSender and ~BurstReceiver modules.
 //
-packet BurstPacket
+class BurstPacket extends inet::FieldsChunk
 {
     unsigned int msgId;
     simtime_t timestamp;

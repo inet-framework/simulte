@@ -10,126 +10,82 @@
 #include <iostream>
 #include "stack/phy/feedback/LteFeedback.h"
 
-using namespace omnetpp;
+void
+LteSummaryBuffer::createSummary(LteFeedback fb)
+{
+    try
+    {
+        // RI
+        if (fb.hasRankIndicator())
+        {
+            Rank ri(fb.getRankIndicator());
+            cumulativeSummary_.setRi(ri);
+            if (ri > 1)
+                totCodewords_ = 2;
+        }
 
-LteFeedback::LteFeedback() :
-        status_(EMPTY), txMode_(SINGLE_ANTENNA_PORT0), periodicFeedback_(true), remoteAntennaId_(
-                MACRO) {
-}
-;
+        // CQI
+        if (fb.hasBandCqi()) // Per-band
+        {
+            std::vector<CqiVector> cqi = fb.getBandCqi();
+            unsigned int n = cqi.size();
+            for (Codeword cw = 0; cw < n; ++cw)
+                for (Band i = 0; i < totBands_; ++i)
+                    cumulativeSummary_.setCqi(cqi.at(cw).at(i), cw, i);
+        }
+        else
+        {
+            if (fb.hasWbCqi()) // Wide-band
+            {
+                CqiVector cqi(fb.getWbCqi());
+                unsigned int n = cqi.size();
+                for (Codeword cw = 0; cw < n; ++cw)
+                    for (Band i = 0; i < totBands_; ++i)
+                        cumulativeSummary_.setCqi(cqi.at(cw), cw, i); // ripete lo stesso wb cqi su ogni banda della stessa cw
+            }
+            if (fb.hasPreferredCqi()) // Preferred-band
+            {
+                CqiVector cqi(fb.getPreferredCqi());
+                BandSet bands(fb.getPreferredBands());
+                unsigned int n = cqi.size();
+                BandSet::iterator et = bands.end();
+                for (Codeword cw = 0; cw < n; ++cw)
+                    for (BandSet::iterator it = bands.begin(); it != et; ++it)
+                        cumulativeSummary_.setCqi(cqi.at(cw), cw, *it); // mette lo stesso cqi solo sulle bande preferite della stessa cw
+            }
+        }
 
-void LteFeedback::reset() {
-    wideBandCqi_.clear();
-    perBandCqi_.clear();
-    preferredCqi_.clear();
-    preferredBands_.clear();
+        // Per il PMI si comporta in modo analogo
 
-    status_ = EMPTY;
-    periodicFeedback_ = true;
-    txMode_ = SINGLE_ANTENNA_PORT0;
-    remoteAntennaId_ = MACRO;
-}
-
-void LteFeedback::print(MacCellId cellId, MacNodeId nodeId, Direction dir,
-        const char* s) const {
-    /**
-             * no printing yet, fix this asap.
-             */
-            EV << NOW << " " << s << "         LteFeedback\n";
-            EV << NOW << " " << s << " CellId: " << cellId << "\n";
-            EV << NOW << " " << s << " NodeId: " << nodeId << "\n";
-            EV << NOW << " " << s << " Antenna: " << dasToA(getAntennaId()) << "\n"; // XXX Generoso
-            EV << NOW << " " << s << " Direction: " << dirToA(dir) << "\n";
-            EV << NOW << " " << s << " -------------------------\n";
-            EV << NOW << " " << s << " TxMode: " << txModeToA(getTxMode()) << "\n";
-            EV << NOW << " " << s << " Type: " << (isPeriodicFeedback() ? "PERIODIC": "APERIODIC") << "\n";
-            EV << NOW << " " << s << " -------------------------\n";
-            if(isEmptyFeedback())
+        // PMI
+        if (fb.hasBandPmi()) // Per-band
+        {
+            PmiVector pmi(fb.getBandPmi());
+            for (Band i = 0; i < totBands_; ++i)
+                cumulativeSummary_.setPmi(pmi.at(i), i);
+        }
+        else
+        {
+            if (fb.hasWbPmi())
             {
-                EV << NOW << " " << s << " EMPTY!\n";
+                // Wide-band
+                Pmi pmi(fb.getWbPmi());
+                for (Band i = 0; i < totBands_; ++i)
+                    cumulativeSummary_.setPmi(pmi, i);
             }
-            if(hasRankIndicator())
-            EV << NOW << " " << s << " RI = " << getRankIndicator() << "\n";
-            if(hasPreferredCqi())
+            if (fb.hasPreferredPmi())
             {
-                CqiVector cqi = getPreferredCqi();
-                unsigned int codewords = cqi.size();
-                for(Codeword cw = 0; cw < codewords; ++cw)
-                EV << NOW << " " << s << " Preferred CQI[" << cw << "] = " << cqi.at(cw) << "\n";
+                // Preferred-band
+                Pmi pmi(fb.getPreferredPmi());
+                BandSet bands(fb.getPreferredBands());
+                BandSet::iterator et = bands.end();
+                for (BandSet::iterator it = bands.begin(); it != et; ++it)
+                    cumulativeSummary_.setPmi(pmi, *it);
             }
-            if(hasWbCqi())
-            {
-                CqiVector cqi = getWbCqi();
-                unsigned int codewords = cqi.size();
-                for(Codeword cw = 0; cw < codewords; ++cw)
-                EV << NOW << " " << s << " Wideband CQI[" << cw << "] = " << cqi.at(cw) << "\n";
-            }
-            if(hasBandCqi())
-            {
-                std::vector<CqiVector> cqi = getBandCqi();
-                unsigned int codewords = cqi.size();
-                for(Codeword cw = 0; cw < codewords; ++cw)
-                {
-                    EV << NOW << " " << s << " Band CQI[" << cw << "] = {";
-                    unsigned int bands = cqi[0].size();
-                    if(bands > 0)
-                    {
-                        EV << cqi.at(cw).at(0);
-                        for(Band b = 1; b < bands; ++b)
-                        EV << ", " << cqi.at(cw).at(b);
-                    }
-                    EV << "}\n";
-                }
-            }
-            if(hasPreferredPmi())
-            {
-                Pmi pmi = getPreferredPmi();
-                EV << NOW << " " << s << " Preferred PMI = " << pmi << "\n";
-            }
-            if(hasWbPmi())
-            {
-                Pmi pmi = getWbPmi();
-                EV << NOW << " " << s << " Wideband PMI = " << pmi << "\n";
-            }
-            if(hasBandCqi())
-            {
-                PmiVector pmi = getBandPmi();
-                EV << NOW << " " << s << " Band PMI = {";
-                unsigned int bands = pmi.size();
-                if(bands > 0)
-                {
-                    EV << pmi.at(0);
-                    for(Band b = 1; b < bands; ++b)
-                    EV << ", " << pmi.at(b);
-                }
-                EV << "}\n";
-            }
-            if(hasPreferredCqi() || hasPreferredPmi())
-            {
-                BandSet band = getPreferredBands();
-                BandSet::iterator it = band.begin();
-                BandSet::iterator et = band.end();
-                EV << NOW << " " << s << " Preferred Bands = {";
-                if(it != et)
-                {
-                    EV << *it;
-                    it++;
-                    for(;it != et; ++it)
-                    EV << ", " << *it;
-                }
-                EV << "}\n";
-            }
-}
-
-
-
-void LteMuMimoMatrix::print(const char *s) {
-    EV << NOW << " " << s << " ################" << endl;
-    EV << NOW << " " << s << " LteMuMimoMatrix" << endl;
-    EV << NOW << " " << s << " ################" << endl;
-    for (unsigned int i = 1025; i < maxNodeId_; i++)
-        EV << NOW << "" << i;
-    EV << endl;
-    for (unsigned int i = 1025; i < maxNodeId_; i++)
-        EV << NOW << "" << muMatrix_[i];
+        }
+    }
+    catch (std::exception& e)
+    {
+        throw cRuntimeError("Exception in LteSummaryBuffer::summarize(): %s", e.what());
+    }
 }

@@ -18,6 +18,8 @@
 
 Define_Module(MultihopD2D);
 
+using namespace inet;
+
 uint16_t MultihopD2D::numMultihopD2DApps = 0;
 
 MultihopD2D::MultihopD2D()
@@ -33,7 +35,7 @@ MultihopD2D::~MultihopD2D()
 
     if (trickleEnabled_)
     {
-        std::map<unsigned int, MultihopD2DPacket*>::iterator it = last_.begin();
+        std::map<unsigned int, inet::Packet*>::iterator it = last_.begin();
         for (; it != last_.end(); ++it)
             if (it->second != NULL)
                 delete it->second;
@@ -150,21 +152,26 @@ void MultihopD2D::sendPacket()
     uint32_t msgId = ((uint32_t)senderAppId_ << 16) | localMsgId_;
 
     // create new packet
-    MultihopD2DPacket* packet = new MultihopD2DPacket("MultihopD2DPacket");
-    packet->setMsgid(msgId);
-    packet->setSrcId(lteNodeId_);
-    packet->setTimestamp(simTime());
-    packet->setByteLength(msgSize_);
-    packet->setTtl(ttl_-1);
-    packet->setHops(1);                // first hop
-    packet->setLastHopSenderId(lteNodeId_);
+
+    Packet* packet = new inet::Packet("MultihopD2DPacket");
+    auto mhop = makeShared<MultihopD2DPacket>();
+
+    mhop->setMsgid(msgId);
+    mhop->setSrcId(lteNodeId_);
+    mhop->setTimestamp(simTime());
+    mhop->setSize(msgSize_);
+    mhop->setChunkLength(B(msgSize_));
+    mhop->setTtl(ttl_-1);
+    mhop->setHops(1);                // first hop
+    mhop->setLastHopSenderId(lteNodeId_);
     if (maxBroadcastRadius_ > 0)
     {
-        packet->setSrcCoord(ltePhy_->getCoord());
-        packet->setMaxRadius(maxBroadcastRadius_);
+        mhop->setSrcCoord(ltePhy_->getCoord());
+        mhop->setMaxRadius(maxBroadcastRadius_);
     }
+    packet->insertAtBack(mhop);
 
-    EV << "MultihopD2D::sendPacket - Sending msg "<< packet->getMsgid() <<  endl;
+    EV << "MultihopD2D::sendPacket - Sending msg "<< mhop->getMsgid() <<  endl;
     socket.sendTo(packet, destAddress_, destPort_);
 
     std::set<MacNodeId> targetSet;
@@ -181,9 +188,17 @@ void MultihopD2D::handleRcvdPacket(cMessage* msg)
 {
     EV << "MultihopD2D::handleRcvdPacket - Received packet from lower layer" << endl;
 
-    MultihopD2DPacket* pkt = check_and_cast<MultihopD2DPacket*>(msg);
-    pkt->removeControlInfo();
-    uint32_t msgId = pkt->getMsgid();
+    Packet* pPacket = check_and_cast<Packet*>(msg);
+
+    if (pPacket == nullptr)
+    {
+        throw cRuntimeError("MultihopD2D::handleMessage - FATAL! Error when casting to inet packet");
+    }
+
+    auto mhop = pPacket->popAtFront<MultihopD2DPacket>();
+    pPacket->removeControlInfo();
+
+    uint32_t msgId = mhop->getMsgid();
 
     // check if this is a duplicate
     if (isAlreadyReceived(msgId))
@@ -196,7 +211,7 @@ void MultihopD2D::handleRcvdPacket(cMessage* msg)
 
         emit(d2dMultihopRcvdDupMsg_, (long)1);
         stat_->recordDuplicateReception(msgId);
-        delete pkt;
+        delete pPacket;
     }
     else
     {
@@ -215,13 +230,13 @@ void MultihopD2D::handleRcvdPacket(cMessage* msg)
                 delete last_[msgId];
                 last_[msgId] = NULL;
             }
-            last_[msgId] = pkt->dup();
+            last_[msgId] = pPacket->dup();
         }
 
         // emit statistics
-        simtime_t delay = simTime() - pkt->getTimestamp();
+        simtime_t delay = simTime() - mhop->getTimestamp();
         emit(d2dMultihopRcvdMsg_, (long)1);
-        stat_->recordReception(lteNodeId_, msgId, delay, pkt->getHops());
+        stat_->recordReception(lteNodeId_, msgId, delay, mhop->getHops());
 
         // === decide whether to relay the message === //
 
@@ -230,18 +245,18 @@ void MultihopD2D::handleRcvdPacket(cMessage* msg)
         {
             // selfish user, do not relay
             EV << "MultihopD2D::handleRcvdPacket - The user is selfish, do not forward the message. " << endl;
-            delete pkt;
+            delete pPacket;
         }
-        else if (pkt->getMaxRadius() > 0 && !isWithinBroadcastArea(pkt->getSrcCoord(), pkt->getMaxRadius()))
+        else if (mhop->getMaxRadius() > 0 && !isWithinBroadcastArea(mhop->getSrcCoord(), mhop->getMaxRadius()))
         {
             EV << "MultihopD2D::handleRcvdPacket - The node is outside the broadcast area. Do not forward it. " << endl;
-            delete pkt;
+            delete pPacket;
         }
-        else if (pkt->getTtl() == 0)
+        else if (mhop->getTtl() == 0)
         {
             // TTL expired
             EV << "MultihopD2D::handleRcvdPacket - The TTL for this message has expired. Do not forward it. " << endl;
-            delete pkt;
+            delete pPacket;
         }
         else
         {
@@ -256,7 +271,7 @@ void MultihopD2D::handleRcvdPacket(cMessage* msg)
                 EV << "MultihopD2D::handleRcvdPacket - start Trickle interval, duration[" << t << "s]" << endl;
 
                 scheduleAt(simTime() + t, timer);
-                delete pkt;
+                delete pPacket;
             }
             else
             {
@@ -266,7 +281,7 @@ void MultihopD2D::handleRcvdPacket(cMessage* msg)
                     offset = uniform(0,maxTransmissionDelay_);
 
                 offset = round(SIMTIME_DBL(offset)*1000)/1000;
-                scheduleAt(simTime() + offset, pkt);
+                scheduleAt(simTime() + offset, pPacket);
                 EV << "MultihopD2D::handleRcvdPacket - will relay the message in " << offset << "s" << endl;
             }
         }
@@ -294,28 +309,48 @@ void MultihopD2D::handleTrickleTimer(cMessage* msg)
 
 void MultihopD2D::relayPacket(cMessage* msg)
 {
-    MultihopD2DPacket* pkt = check_and_cast<MultihopD2DPacket*>(msg);
+
+    Packet* pPacket = check_and_cast<Packet*>(msg);
+    auto src = pPacket->peekAtFront<MultihopD2DPacket>();
+
+    Packet* relayPacket = new inet::Packet("MultihopD2DPacket");
+    auto dst = makeShared<MultihopD2DPacket>();
 
     // increase the number of hops
-    unsigned int hops = pkt->getHops();
-    pkt->setHops(++hops);
+    unsigned int hops = src->getHops();
+    dst->setHops(++hops);
 
     // decrease TTL
-    if (pkt->getTtl() > 0)
+    if (src->getTtl() > 0)
     {
-        int ttl = pkt->getTtl();
-        pkt->setTtl(--ttl);
+        int ttl = src->getTtl();
+        dst->setTtl(--ttl);
     }
 
-    pkt->setLastHopSenderId(lteNodeId_);
+    // set this node as last sender
+    dst->setLastHopSenderId(lteNodeId_);
 
-    EV << "MultihopD2D::relayPacket - Relay msg " << pkt->getMsgid() << " to address " << destAddress_ << endl;
-    socket.sendTo(pkt, destAddress_, destPort_);
+    // copy remaining header fields from original packet header
+    dst->setSrcId(src->getSrcId());
+    dst->setMsgid(src->getMsgid());
+    dst->setSize(src->getSize());
+    dst->setSrcCoord(src->getSrcCoord());
+    dst->setMaxRadius(src->getMaxRadius());
+    dst->setTimestamp(src->getTimestamp());
 
-    markAsRelayed(pkt->getMsgid());    // mark the message as relayed
+    dst->setChunkLength(B(src->getSize()));
+
+    relayPacket->insertAtBack(dst);
+
+    EV << "MultihopD2D::relayPacket - Relay msg " << dst->getMsgid() << " to address " << destAddress_ << endl;
+    socket.sendTo(relayPacket, destAddress_, destPort_);
+
+    markAsRelayed(dst->getMsgid());    // mark the message as relayed
 
     emit(d2dMultihopSentMsg_, (long)1);
-    stat_->recordSentMessage(pkt->getMsgid());
+    stat_->recordSentMessage(dst->getMsgid());
+
+    delete pPacket;
 }
 
 void MultihopD2D::markAsReceived(uint32_t msgId)

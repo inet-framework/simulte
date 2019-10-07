@@ -69,7 +69,7 @@ class LteBinder : public omnetpp::cSimpleModule
     // for both previous and current TTIs, for each RB, stores the UE (nodeId and ref to the PHY module) that transmitted/are transmitting within that RB
     UplinkTransmissionMap ulTransmissionMap_;
     // TTI of the last update of the UL band status
-    simtime_t lastUpdateUplinkTransmissionInfo_;
+    omnetpp::simtime_t lastUpdateUplinkTransmissionInfo_;
 
     /*
      * X2 Support
@@ -322,7 +322,7 @@ class LteBinder : public omnetpp::cSimpleModule
     /*
      * Uplink interference support
      */
-    simtime_t getLastUpdateUlTransmissionInfo();
+    omnetpp::simtime_t getLastUpdateUlTransmissionInfo();
     void initAndResetUlTransmissionInfo();
     void storeUlTransmissionMap(Remote antenna, RbMap& rbMap, MacNodeId nodeId, MacCellId cellId, LtePhyBase* phy, Direction dir);
     const std::vector<UeAllocationInfo>* getUlTransmissionMap(UlTransmissionMapTTI t, Band b);

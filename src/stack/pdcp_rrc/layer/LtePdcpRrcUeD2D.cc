@@ -18,7 +18,7 @@ using namespace omnetpp;
 
 MacNodeId LtePdcpRrcUeD2D::getDestId(FlowControlInfo* lteInfo)
 {
-    IPv4Address destAddr = IPv4Address(lteInfo->getDstAddr());
+    Ipv4Address destAddr = Ipv4Address(lteInfo->getDstAddr());
     MacNodeId destId = binder_->getMacNodeId(destAddr);
 
     // check if the destination is inside the LTE network

@@ -124,7 +124,8 @@ void BurstSender::sendPacket()
 
     burst->setMsgId(msgId);
     burst->setTimestamp(simTime());
-    burst->setByteLength(size_);
+    burst->setSize(size_);
+    burst->setChunkLength(B(size_));
 
     packet->insertAtBack(burst);
 

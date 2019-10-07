@@ -18,23 +18,24 @@ using namespace inet;
 
 Define_Module(TrafficFlowFilter);
 
-void TrafficFlowFilter::initialize(int stage)
-{
+void TrafficFlowFilter::initialize(int stage) {
     // wait until all the IP addresses are configured
-    if (stage == inet::INITSTAGE_TRANSPORT_LAYER)
-    {
+    if (stage == inet::INITSTAGE_TRANSPORT_LAYER) {
         // reading and setting owner type
         ownerType_ = selectOwnerType(par("ownerType"));
 
-    //============= Reading XML files =============
-    const char *filename = par("filterFileName");
-    if (filename == NULL || (!strcmp(filename, "")))
-        error("TrafficFlowFilter::initialize - Error reading configuration from file %s", filename);
-    loadFilterTable(filename);
-    //=============================================
+        //============= Reading XML files =============
+        const char *filename = par("filterFileName");
+        if (filename == NULL || (!strcmp(filename, "")))
+            error("TrafficFlowFilter::initialize - Error reading configuration from file %s",
+                    filename);
+        loadFilterTable(filename);
+        //=============================================
 
-    // register service processing IP-packets on the LTE Uu Link
-    registerService(LteProtocol::lteuu, gate("internetFilterGateIn"), gate("internetFilterGateIn"));
+        // register service processing IP-packets on the LTE Uu Link
+        registerService(LteProtocol::lteuu, gate("internetFilterGateIn"),
+                gate("internetFilterGateIn"));
+    }
 }
 
 EpcNodeType TrafficFlowFilter::selectOwnerType(const char * type)

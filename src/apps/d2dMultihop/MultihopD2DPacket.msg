@@ -9,13 +9,7 @@
 
 import inet.common.INETDefs;
 import inet.common.packet.chunk.Chunk;
-
-
-cplusplus {{
-#include "inet/common/geometry/common/Coord.h"
-}}
-
-class inet::Coord {@existingClass;}
+import inet.common.geometry.Geometry;
 
 
 //

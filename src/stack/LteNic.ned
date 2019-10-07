@@ -10,7 +10,7 @@
 
 package lte.stack;
 
-import inet.linklayer.contract.IWirelessNic;
+import inet.linklayer.contract.IWirelessInterface;
 import lte.stack.phy.LtePhy;
 import lte.stack.mac.LteMac;
 import lte.stack.pdcp_rrc.LtePdcpRrc;
@@ -27,7 +27,7 @@ import lte.stack.phy.ChannelModel.LteChannelModelInterface;
 // 
 // Interface for the LTE Stack.
 //
-moduleinterface ILteNic extends IWirelessNic
+moduleinterface ILteNic extends IWirelessInterface
 {
     string nodeType;
         //bool d2dCapable;            // inherit the value from the parent module
