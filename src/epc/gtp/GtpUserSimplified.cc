@@ -157,6 +157,7 @@ void GtpUserSimplified::handleFromUdp(Packet * pkt)
              gtpPacket->insertAtFront(header);
              auto data = originalPacket->peekData();
              gtpPacket->insertAtBack(data);
+             delete originalPacket;
 
              MacNodeId destMaster = binder_->getNextHop(destId);
              const char* symbolicName = binder_->getModuleNameByMacNodeId(destMaster);
@@ -202,6 +203,7 @@ void GtpUserSimplified::handleFromUdp(Packet * pkt)
         gtpMsg->insertAtFront(header);
         auto data = originalPacket->peekData();
         gtpMsg->insertAtBack(data);
+        delete originalPacket;
 
         socket_.sendTo(gtpMsg, pgwAddress_, tunnelPeerPort_);
 
