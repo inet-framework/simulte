@@ -253,7 +253,7 @@ const unsigned int itbs2tbs_64qam8[][110] =
 
 const unsigned int* itbs2tbs(LteMod mod, TxMode txMode, unsigned char layers, unsigned char itbs)
 {
-    const unsigned int* res;
+    const unsigned int* res = nullptr;
 
     if (layers == 1 || (txMode != OL_SPATIAL_MULTIPLEXING && txMode != CL_SPATIAL_MULTIPLEXING))
     {
@@ -312,6 +312,9 @@ const unsigned int* itbs2tbs(LteMod mod, TxMode txMode, unsigned char layers, un
         throw cRuntimeError("Illegal number of layers in LteAmc::itbs2tbs()");
         res = nullptr;
     }
+
+    if (res == nullptr)
+        throw cRuntimeError("Invalid Level value in LteAmc::itbs2tbs()");
 
     return res;
 }

@@ -448,12 +448,12 @@ void LtePhyUe::handleAirFrame(cMessage* msg)
             frame->addRemoteUnitPhyDataVector(data);
         }
         // apply analog models For DAS
-        result=channelModel_->isErrorDas(frame,lteInfo);
+        result=channelModel_->isCorruptedDas(frame,lteInfo);
     }
     else
     {
         //RELAY and NORMAL
-        result = channelModel_->isError(frame,lteInfo);
+        result = channelModel_->isCorrupted(frame,lteInfo);
     }
 
             // update statistics

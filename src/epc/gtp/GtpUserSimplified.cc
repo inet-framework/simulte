@@ -62,11 +62,9 @@ EpcNodeType GtpUserSimplified::selectOwnerType(const char * type)
     EV << "GtpUserSimplified::selectOwnerType - setting owner type to " << type << endl;
     if(strcmp(type,"ENODEB") == 0)
         return ENB;
-    else if(strcmp(type,"PGW") == 0)
-        return PGW;
-
-    error("GtpUserSimplified::selectOwnerType - unknown owner type [%s]. Aborting...",type);
-    return ENB; // should never be reached
+    if(strcmp(type,"PGW") != 0)
+        error("GtpUserSimplified::selectOwnerType - unknown owner type [%s]. Aborting...",type);
+    return PGW;
 }
 
 void GtpUserSimplified::handleMessage(cMessage *msg)
