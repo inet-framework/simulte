@@ -93,17 +93,6 @@ class LteRlcUm : public omnetpp::cSimpleModule
     virtual bool isEmptyingTxBuffer(MacNodeId peerId) { return false; }
 
 
-  protected:
-
-    omnetpp::cGate* up_[2];
-    omnetpp::cGate* down_[2];
-
-    // statistics
-    omnetpp::simsignal_t receivedPacketFromUpperLayer;
-    omnetpp::simsignal_t receivedPacketFromLowerLayer;
-    omnetpp::simsignal_t sentPacketToUpperLayer;
-    omnetpp::simsignal_t sentPacketToLowerLayer;
-
     /**
      * Initialize watches
      */
@@ -118,6 +107,17 @@ class LteRlcUm : public omnetpp::cSimpleModule
      * and call proper handler
      */
     virtual void handleMessage(omnetpp::cMessage *msg) override;
+
+  protected:
+
+    inet::cGate* up_[2];
+    inet::cGate* down_[2];
+
+    // statistics
+    inet::simsignal_t receivedPacketFromUpperLayer;
+    inet::simsignal_t receivedPacketFromLowerLayer;
+    inet::simsignal_t sentPacketToUpperLayer;
+    inet::simsignal_t sentPacketToLowerLayer;
 
     /**
      * getTxBuffer() is used by the sender to gather the TXBuffer

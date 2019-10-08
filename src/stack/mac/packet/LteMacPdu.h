@@ -155,7 +155,7 @@ class LteMacPdu : public LteMacPdu_Base
         // delete the SDU queue
         // (since it is derived of cPacketQueue, it will automatically delete all contained SDUs)
 
-        ASSERT(sduList_->getOwner() == this);
+        // ASSERT(sduList_->getOwner() == this); // should not throw an exception in a destructor
         drop(sduList_);
         delete sduList_;
 

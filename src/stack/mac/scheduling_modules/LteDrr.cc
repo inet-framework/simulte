@@ -130,7 +130,7 @@ LteDrr::updateSchedulingInfo()
         throw cRuntimeError("LteDrr::updateSchedulingInfo invalid direction");
     }
 
-    //    // Iterators to cycle through the maps of connection descriptors.
+    // Iterators to cycle through the maps of connection descriptors.
 
     LteMacBufferMap::iterator it = conn->begin(), et = conn->end();
 

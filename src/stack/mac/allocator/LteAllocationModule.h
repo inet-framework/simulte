@@ -176,6 +176,9 @@ class LteAllocationModule
     /// Default constructor.
     LteAllocationModule(LteMacEnb *mac, const Direction direction);
 
+    /// Destructor.
+    virtual ~LteAllocationModule() { };
+
     // reset Allocation Module strucutre
     void initAndReset(const unsigned int resourceBlocks, const unsigned int bands);
 
