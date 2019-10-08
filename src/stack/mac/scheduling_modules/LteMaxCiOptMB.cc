@@ -15,6 +15,7 @@
 #include "stack/mac/buffer/LteMacBuffer.h"
 
 using namespace std;
+using namespace omnetpp;
 
 LteMaxCiOptMB::LteMaxCiOptMB()
 {

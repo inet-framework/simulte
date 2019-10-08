@@ -9,19 +9,20 @@
 package lte.epc;
 
 import lte.epc.gtp.GtpUser;
-import inet.linklayer.ppp.PPPInterface;
-import inet.node.inet.NodeBase;
-import inet.transportlayer.udp.UDP;
+import inet.common.MessageDispatcher;
+import inet.linklayer.ppp.PppInterface;
+import inet.node.base.NetworkLayerNodeBase;
+import inet.transportlayer.udp.Udp;
 
 //
 // Implements an EPC Serving Gateway (S-GW)
 //
-module SgwStandard extends NodeBase
+module SgwStandard extends NetworkLayerNodeBase
 {
     @display("bgb=920,462;i=device/server2");
 
     submodules:
-        udp: UDP {
+        udp: Udp {
             @display("p=329,206");
         }
         gtp_user: GtpUser {
@@ -29,10 +30,26 @@ module SgwStandard extends NodeBase
             filter = false; // the sgw has no traffic flow filter
             tftFileName = "";
         }
+        tn: MessageDispatcher {
+            parameters:
+                @display("p=750,296;b=1000,5,,,,1");
+        }
     connections:
-        udp.ipOut --> networkLayer.transportIn++;
-        udp.ipIn <-- networkLayer.transportOut++;
+        udp.ipOut --> tn.in++;
+        udp.ipIn <-- tn.out++;
+        
+        tn.out++ --> ipv4.transportIn; //if hasIpv4;  //FIXME: set parameter
+        tn.in++ <-- ipv4.transportOut; //if hasIpv4;
 
-        udp.appOut++ --> gtp_user.udpIn;
-        gtp_user.udpOut --> udp.appIn++;
+        tn.out++ --> ipv6.transportIn if hasIpv6;
+        tn.in++ <-- ipv6.transportOut if hasIpv6;
+
+        tn.out++ --> generic.transportIn if hasGn;
+        tn.in++ <-- generic.transportOut if hasGn;
+
+        tn.out++ --> nl.in++;
+        tn.in++ <-- nl.out++;
+
+        udp.appOut --> gtp_user.socketIn;
+        gtp_user.socketOut --> udp.appIn;
 }

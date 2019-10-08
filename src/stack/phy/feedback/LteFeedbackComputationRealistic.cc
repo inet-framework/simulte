@@ -7,10 +7,13 @@
 // and cannot be removed from it.
 //
 
-#include <math.h>
+//#include <math.h>
+#include <cmath>
 #include "stack/phy/feedback/LteFeedbackComputationRealistic.h"
 #include "corenetwork/binder/PhyPisaData.h"
 #include "corenetwork/binder/LteBinder.h"
+
+using namespace omnetpp;
 
 LteFeedbackComputationRealistic::LteFeedbackComputationRealistic(double targetBler, std::map<MacNodeId, Lambda>* lambda,
     double lambdaMinTh, double lambdaMaxTh, double lambdaRatioTh, unsigned int numBands)

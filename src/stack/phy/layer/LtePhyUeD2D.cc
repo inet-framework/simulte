@@ -13,6 +13,7 @@
 #include "stack/d2dModeSelection/D2DModeSelectionBase.h"
 
 Define_Module(LtePhyUeD2D);
+using namespace inet;
 
 LtePhyUeD2D::LtePhyUeD2D()
 {
@@ -27,7 +28,7 @@ LtePhyUeD2D::~LtePhyUeD2D()
 void LtePhyUeD2D::initialize(int stage)
 {
     LtePhyUe::initialize(stage);
-    if (stage == 0)
+    if (stage == INITSTAGE_LOCAL)
     {
         averageCqiD2D_ = registerSignal("averageCqiD2D");
         d2dTxPower_ = par("d2dTxPower");
@@ -186,12 +187,12 @@ void LtePhyUeD2D::handleAirFrame(cMessage* msg)
             frame->addRemoteUnitPhyDataVector(data);
         }
         // apply analog models For DAS
-        result=channelModel_->errorDas(frame,lteInfo);
+        result=channelModel_->isErrorDas(frame,lteInfo);
     }
     else
     {
         //RELAY and NORMAL
-        result = channelModel_->error(frame,lteInfo);
+        result = channelModel_->isError(frame,lteInfo);
     }
 
             // update statistics
@@ -445,15 +446,15 @@ void LtePhyUeD2D::decodeAirFrame(LteAirFrame* frame, UserControlInfo* lteInfo)
             frame->addRemoteUnitPhyDataVector(data);
         }
         // apply analog models For DAS
-        result=channelModel_->errorDas(frame,lteInfo);
+        result=channelModel_->isErrorDas(frame,lteInfo);
     }
     else
     {
         //RELAY and NORMAL
         if (lteInfo->getDirection() == D2D_MULTI)
-            result = channelModel_->error_D2D(frame,lteInfo,bestRsrpVector_);
+            result = channelModel_->isError_D2D(frame,lteInfo,bestRsrpVector_);
         else
-            result = channelModel_->error(frame,lteInfo);
+            result = channelModel_->isError(frame,lteInfo);
     }
 
     // update statistics

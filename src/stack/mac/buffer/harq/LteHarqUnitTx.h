@@ -57,10 +57,10 @@ class LteHarqUnitTx
     TxHarqPduStatus status_;
 
     /// TTI at which the pdu has been transmitted
-    simtime_t txTime_;
+    omnetpp::simtime_t txTime_;
 
     // reference to the eNB module
-    cModule* nodeB_;
+    omnetpp::cModule* nodeB_;
 
     LteMacBase *macOwner_;
     //used for statistics
@@ -70,22 +70,22 @@ class LteHarqUnitTx
 
     // Statistics
 
-    simsignal_t macCellPacketLoss_;
-    simsignal_t macPacketLoss_;
-    simsignal_t harqErrorRate_;
-    simsignal_t harqErrorRate_1_;
-    simsignal_t harqErrorRate_2_;
-    simsignal_t harqErrorRate_3_;
-    simsignal_t harqErrorRate_4_;
+    omnetpp::simsignal_t macCellPacketLoss_;
+    omnetpp::simsignal_t macPacketLoss_;
+    omnetpp::simsignal_t harqErrorRate_;
+    omnetpp::simsignal_t harqErrorRate_1_;
+    omnetpp::simsignal_t harqErrorRate_2_;
+    omnetpp::simsignal_t harqErrorRate_3_;
+    omnetpp::simsignal_t harqErrorRate_4_;
 
     // D2D Statistics
-    simsignal_t macCellPacketLossD2D_;
-    simsignal_t macPacketLossD2D_;
-    simsignal_t harqErrorRateD2D_;
-    simsignal_t harqErrorRateD2D_1_;
-    simsignal_t harqErrorRateD2D_2_;
-    simsignal_t harqErrorRateD2D_3_;
-    simsignal_t harqErrorRateD2D_4_;
+    omnetpp::simsignal_t macCellPacketLossD2D_;
+    omnetpp::simsignal_t macPacketLossD2D_;
+    omnetpp::simsignal_t harqErrorRateD2D_;
+    omnetpp::simsignal_t harqErrorRateD2D_1_;
+    omnetpp::simsignal_t harqErrorRateD2D_2_;
+    omnetpp::simsignal_t harqErrorRateD2D_3_;
+    omnetpp::simsignal_t harqErrorRateD2D_4_;
 
   public:
     /**
@@ -180,7 +180,7 @@ class LteHarqUnitTx
         return pduLength_;
     }
 
-    virtual simtime_t getTxTime()
+    virtual omnetpp::simtime_t getTxTime()
     {
         return txTime_;
     }

@@ -158,7 +158,15 @@ class ModulationType
   }
   bool operator==(const ModulationType &b)
   {
-      return *this == b;
+
+      return (*this).isMandatory == b.isMandatory &&
+              (*this).bandwidth == b.bandwidth &&
+              (*this).codeRate == b.codeRate &&
+              (*this).dataRate == b.dataRate &&
+              (*this).phyRate == b.phyRate &&
+              (*this).constellationSize == b.constellationSize &&
+              (*this).modulationClass == b.modulationClass &&
+              (*this).frequency == b.frequency;
   }
 private:
   bool isMandatory;

@@ -10,6 +10,8 @@
 #include "stack/mac/buffer/harq_d2d/LteHarqUnitTxD2D.h"
 #include "stack/mac/layer/LteMacEnb.h"
 
+using namespace omnetpp;
+
 LteHarqUnitTxD2D::LteHarqUnitTxD2D(unsigned char acid, Codeword cw, LteMacBase *macOwner, LteMacBase *dstMac)
     : LteHarqUnitTx(acid, cw, macOwner, dstMac)
 {

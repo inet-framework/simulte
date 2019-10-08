@@ -14,7 +14,7 @@
 #include "common/LteCommon.h"
 #include "x2/packet/X2InformationElement.h"
 
-using namespace omnetpp;
+//using namespace omnetpp;
 
 // add here new X2 message types
 enum LteX2MessageType

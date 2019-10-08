@@ -7,12 +7,7 @@
 // and cannot be removed from it.
 //
 
-
-cplusplus {{
-#include "stack/phy/packet/AirFrame_m.h"
-}}
-
-packet AirFrame;
+import stack.phy.packet.AirFrame;
 
 //
 // This is LteAirFrame.

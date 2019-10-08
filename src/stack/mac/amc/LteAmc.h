@@ -35,7 +35,7 @@ class LteMacEnb;
 class LteAmc
 {
   private:
-    AmcPilot *getAmcPilot(const cPar& amcMode);
+    AmcPilot *getAmcPilot(const omnetpp::cPar& amcMode);
     MacNodeId getNextHop(MacNodeId dst);
     public:
     void printParameters();
@@ -81,8 +81,8 @@ class LteAmc
     unsigned int fbhbCapacityDl_;
     unsigned int fbhbCapacityUl_;
     unsigned int fbhbCapacityD2D_;
-    simtime_t lb_;
-    simtime_t ub_;
+    omnetpp::simtime_t lb_;
+    omnetpp::simtime_t ub_;
     double pmiComputationWeight_;
     double cqiComputationWeight_;
     LteMuMimoMatrix muMimoDlMatrix_;

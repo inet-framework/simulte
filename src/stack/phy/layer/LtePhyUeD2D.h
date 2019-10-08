@@ -27,7 +27,7 @@ class LtePhyUeD2D : public LtePhyUe
     std::vector<double> bestRsrpVector_;
     double bestRsrpMean_;
     std::vector<LteAirFrame*> d2dReceivedFrames_; // airframes received in the current TTI. Only one will be decoded
-    cMessage* d2dDecodingTimer_;                  // timer for triggering decoding at the end of the TTI. Started
+    omnetpp::cMessage* d2dDecodingTimer_;                  // timer for triggering decoding at the end of the TTI. Started
                                                   // when the first airframe is received
     void storeAirFrame(LteAirFrame* newFrame);
     LteAirFrame* extractAirFrame();
@@ -36,9 +36,9 @@ class LtePhyUeD2D : public LtePhyUe
 
     virtual void initialize(int stage);
     virtual void finish();
-    virtual void handleAirFrame(cMessage* msg);
-    virtual void handleUpperMessage(cMessage* msg);
-    virtual void handleSelfMessage(cMessage *msg);
+    virtual void handleAirFrame(omnetpp::cMessage* msg);
+    virtual void handleUpperMessage(omnetpp::cMessage* msg);
+    virtual void handleSelfMessage(omnetpp::cMessage *msg);
 
     virtual void triggerHandover();
     virtual void doHandover();

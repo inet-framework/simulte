@@ -8,7 +8,7 @@
 // 
 package lte.simulations.networks;
 
-import inet.networklayer.configurator.ipv4.IPv4NetworkConfigurator;
+import inet.networklayer.configurator.ipv4.Ipv4NetworkConfigurator;
 import inet.networklayer.ipv4.RoutingTableRecorder;
 import inet.node.ethernet.Eth10G;
 import inet.node.inet.Router;
@@ -38,7 +38,7 @@ network MultiCell_D2DMultihop
         routingRecorder: RoutingTableRecorder {
             @display("p=90.79375,70.89375;is=s");
         }
-        configurator: IPv4NetworkConfigurator {
+        configurator: Ipv4NetworkConfigurator {
             @display("p=90.79375,121.8875");
             config = xmldoc("demo.xml");
         }

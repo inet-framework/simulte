@@ -11,6 +11,8 @@
 
 Define_Module(LteMacRelayEnb);
 
+using namespace inet;
+
 LteMacRelayEnb::LteMacRelayEnb()
 {
     // TODO Auto-generated constructor stub

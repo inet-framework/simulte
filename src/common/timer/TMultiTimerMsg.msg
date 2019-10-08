@@ -7,11 +7,7 @@
 // and cannot be removed from it.
 //
 
-cplusplus {{
-#include "common/timer/TTimerMsg_m.h"
-}};
-
-class TTimerMsg;
+import common.timer.TTimerMsg;
 
 packet TMultiTimerMsg extends TTimerMsg
 {

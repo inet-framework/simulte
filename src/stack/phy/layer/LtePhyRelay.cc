@@ -11,6 +11,8 @@
 
 Define_Module(LtePhyRelay);
 
+using namespace omnetpp;
+
 LtePhyRelay::~LtePhyRelay()
 {
     cancelAndDelete(bdcStarter_);
@@ -18,7 +20,7 @@ LtePhyRelay::~LtePhyRelay()
 
 void LtePhyRelay::initialize(int stage)
 {
-    if (stage == 0)
+    if (stage == inet::INITSTAGE_LOCAL)
     {
         LtePhyBase::initialize(stage);
         nodeType_ = RELAY;
@@ -27,7 +29,7 @@ void LtePhyRelay::initialize(int stage)
         WATCH(nodeType_);
         WATCH(masterId_);
     }
-    else if (stage == 1)
+    else if (stage == inet::INITSTAGE_PHYSICAL_ENVIRONMENT)
     {
         LtePhyBase::initialize(stage);
         txPower_ = relayTxPower_;
@@ -79,7 +81,7 @@ void LtePhyRelay::handleAirFrame(cMessage* msg)
     }
 
     bool result;
-    result = channelModel_->error(frame, lteInfo);
+    result = channelModel_->isError(frame, lteInfo);
     // update statistics
     if (result)
         numAirFrameReceived_++;

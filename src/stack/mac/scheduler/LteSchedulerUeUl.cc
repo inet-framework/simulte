@@ -14,6 +14,7 @@
 #include "stack/mac/packet/LteMacPdu.h"
 #include "stack/mac/scheduler/LcgScheduler.h"
 
+using namespace omnetpp;
 LteSchedulerUeUl::LteSchedulerUeUl(LteMacUe * mac)
 {
     mac_ = mac;

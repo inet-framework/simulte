@@ -10,6 +10,7 @@
 #include "stack/compManager/compManagerProportional/LteCompManagerProportional.h"
 
 Define_Module(LteCompManagerProportional);
+using namespace inet;
 
 void LteCompManagerProportional::initialize()
 {

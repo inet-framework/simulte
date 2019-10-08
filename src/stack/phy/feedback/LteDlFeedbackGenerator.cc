@@ -12,6 +12,9 @@
 
 Define_Module(LteDlFeedbackGenerator);
 
+using namespace omnetpp;
+using namespace inet;
+
 /*****************************
  *    PRIVATE FUNCTIONS
  *****************************/
@@ -25,7 +28,7 @@ Define_Module(LteDlFeedbackGenerator);
 void LteDlFeedbackGenerator::initialize(int stage)
 {
     EV << "DlFeedbackGenerator stage: " << stage << endl;
-    if (stage == 0)
+    if (stage == INITSTAGE_LOCAL)
     {
         // Read NED parameters
         fbPeriod_ = (simtime_t)(int(par("fbPeriod")) * TTI);// TTI -> seconds
@@ -64,7 +67,7 @@ void LteDlFeedbackGenerator::initialize(int stage)
         WATCH(usePeriodic_);
         WATCH(currentTxMode_);
     }
-    else if (stage == 1)
+    else if (stage == INITSTAGE_LINK_LAYER)
     {
         EV << "DLFeedbackGenerator Stage " << stage << " nodeid: " << nodeId_
            << " init" << endl;

@@ -15,6 +15,8 @@
 
 Define_Module(LtePhyUe);
 
+using namespace inet;
+
 LtePhyUe::LtePhyUe()
 {
     handoverStarter_ = NULL;
@@ -92,7 +94,7 @@ void LtePhyUe::initialize(int stage)
             getSubmodule("rlc")->
                 getSubmodule("um"));
     }
-    else if (stage == inet::INITSTAGE_PHYSICAL_LAYER)
+    else if (stage == inet::INITSTAGE_LINK_LAYER)
     {
         // find the best candidate master cell
         if (dynamicCellAssociation_)
@@ -138,7 +140,7 @@ void LtePhyUe::initialize(int stage)
 
             // set serving cell
             masterId_ = candidateMasterId_;
-            getAncestorPar("masterId").setLongValue(masterId_);
+            getAncestorPar("masterId").setIntValue(masterId_);
             currentMasterRssi_ = candidateMasterRssi_;
             updateHysteresisTh(candidateMasterRssi_);
         }
@@ -153,7 +155,7 @@ void LtePhyUe::initialize(int stage)
         das_->setMasterRuSet(masterId_);
         emit(servingCell_, (long)masterId_);
     }
-    else if (stage == inet::INITSTAGE_NETWORK_LAYER_2)
+    else if (stage == inet::INITSTAGE_NETWORK_CONFIGURATION)
     {
         // get local id
         nodeId_ = getAncestorPar("macNodeId");
@@ -446,12 +448,12 @@ void LtePhyUe::handleAirFrame(cMessage* msg)
             frame->addRemoteUnitPhyDataVector(data);
         }
         // apply analog models For DAS
-        result=channelModel_->errorDas(frame,lteInfo);
+        result=channelModel_->isErrorDas(frame,lteInfo);
     }
     else
     {
         //RELAY and NORMAL
-        result = channelModel_->error(frame,lteInfo);
+        result = channelModel_->isError(frame,lteInfo);
     }
 
             // update statistics

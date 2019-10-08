@@ -38,9 +38,9 @@ class LteChannelModel : public cSimpleModule
      * @param frame pointer to the packet
      * @param lteinfo pointer to the user control info
      */
-    virtual bool error(LteAirFrame *frame, UserControlInfo* lteI){};
+    virtual bool isError(LteAirFrame *frame, UserControlInfo* lteI)=0;
     //TODO NOT IMPLEMENTED YET
-    virtual bool errorDas(LteAirFrame *frame, UserControlInfo* lteI){};
+    virtual bool isErrorDas(LteAirFrame *frame, UserControlInfo* lteI)=0;
     /*
      * Compute Attenuation caused by pathloss and shadowing (optional)
      *
@@ -48,28 +48,28 @@ class LteChannelModel : public cSimpleModule
      * @param dir traffic direction
      * @param move position of end point comunication (if dir==UL is the position of UE else is the position of eNodeB)
      */
-    virtual double getAttenuation(MacNodeId nodeId, Direction dir, inet::Coord coord){};
+    virtual double getAttenuation(MacNodeId nodeId, Direction dir, inet::Coord coord)=0;
     /*
      * Compute the path-loss attenuation according to the selected scenario
      *
      * @param distance between UE and eNodeB
      * @param los line-of-sight flag
      */
-    virtual double computePathLoss(double distance, double dbp, bool los){};
+    virtual double computePathLoss(double distance, double dbp, bool los)=0;
     /*
      * Compute sir for each band for user nodeId according to multipath fading
      *
      * @param frame pointer to the packet
      * @param lteinfo pointer to the user control info
      */
-    virtual std::vector<double> getSIR(LteAirFrame *frame, UserControlInfo* lteInfo){};
+    virtual std::vector<double> getSIR(LteAirFrame *frame, UserControlInfo* lteInfo)=0;
     /*
      * Compute sinr for each band for user nodeId according to pathloss, shadowing (optional) and multipath fading
      *
      * @param frame pointer to the packet
      * @param lteinfo pointer to the user control info
      */
-    virtual std::vector<double> getSINR(LteAirFrame *frame, UserControlInfo* lteInfo){};
+    virtual std::vector<double> getSINR(LteAirFrame *frame, UserControlInfo* lteInfo)=0;
     /*
      * Compute the error probability of the transmitted packet according to cqi used, txmode, and the received power
      * after that it throws a random number in order to check if this packet will be corrupted or not
@@ -78,19 +78,19 @@ class LteChannelModel : public cSimpleModule
      * @param lteinfo pointer to the user control info
      * @param rsrpVector the received signal for each RB, if it has already been computed
      */
-    virtual bool error_D2D(LteAirFrame *frame, UserControlInfo* lteInfo, const std::vector<double>& rsrpVector){};
+    virtual bool isError_D2D(LteAirFrame *frame, UserControlInfo* lteInfo, const std::vector<double>& rsrpVector)=0;
     /*
      * Compute Received useful signal for D2D transmissions
      */
-    virtual std::vector<double> getRSRP_D2D(LteAirFrame *frame, UserControlInfo* lteInfo_1, MacNodeId destId, inet::Coord destCoord){};
+    virtual std::vector<double> getRSRP_D2D(LteAirFrame *frame, UserControlInfo* lteInfo_1, MacNodeId destId, inet::Coord destCoord)=0;
     /*
      * Compute sinr (D2D) for each band for user nodeId according to pathloss, shadowing (optional) and multipath fading
      *
      * @param frame pointer to the packet
      * @param lteinfo pointer to the user control info
      */
-    virtual std::vector<double> getSINR_D2D(LteAirFrame *frame, UserControlInfo* lteInfo,MacNodeId peerUeId,inet::Coord peerUeCoord,MacNodeId enbId=0){};
-    virtual std::vector<double> getSINR_D2D(LteAirFrame *frame, UserControlInfo* lteInfo_1, MacNodeId destId, inet::Coord destCoord,MacNodeId enbId,const std::vector<double>& rsrpVector){};
+    virtual std::vector<double> getSINR_D2D(LteAirFrame *frame, UserControlInfo* lteInfo,MacNodeId peerUeId,inet::Coord peerUeCoord,MacNodeId enbId=0)=0;
+    virtual std::vector<double> getSINR_D2D(LteAirFrame *frame, UserControlInfo* lteInfo_1, MacNodeId destId, inet::Coord destCoord,MacNodeId enbId,const std::vector<double>& rsrpVector)=0;
 
     virtual bool isUplinkInterferenceEnabled() { return false; }
     virtual bool isD2DInterferenceEnabled() { return false; }

@@ -48,12 +48,12 @@ class LteHarqBufferRx
     //Statistics
     static unsigned int totalCellRcvdBytes_;
     unsigned int totalRcvdBytes_ = 0;
-    simsignal_t macDelay_;
-    simsignal_t macCellThroughput_;
-    simsignal_t macThroughput_;
+    omnetpp::simsignal_t macDelay_;
+    omnetpp::simsignal_t macCellThroughput_;
+    omnetpp::simsignal_t macThroughput_;
 
     // reference to the eNB module
-    cModule* nodeB_;
+    omnetpp::cModule* nodeB_;
 
   public:
     LteHarqBufferRx() {}

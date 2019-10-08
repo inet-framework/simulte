@@ -24,18 +24,18 @@ class LtePdcpRrcUeD2D : public LtePdcpRrcUe
 {
     // initialization flag for each D2D peer
     // it is set to true when the first IP datagram for that peer reaches the PDCP layer
-    std::map<L3Address, bool> d2dPeeringInit_;
+    std::map<inet::L3Address, bool> d2dPeeringInit_;
 
   protected:
 
-    virtual void handleMessage(cMessage *msg);
+    virtual void handleMessage(omnetpp::cMessage *msg) override;
 
-    void handleControlInfo(cPacket* upPkt, FlowControlInfo* lteInfo)
+    void handleControlInfo(omnetpp::cPacket* upPkt, FlowControlInfo* lteInfo) override
     {
         delete lteInfo;
     }
 
-    virtual MacNodeId getDestId(FlowControlInfo* lteInfo);
+    virtual MacNodeId getDestId(FlowControlInfo* lteInfo) override;
 
     Direction getDirection(MacNodeId destId)
     {
@@ -48,7 +48,7 @@ class LtePdcpRrcUeD2D : public LtePdcpRrcUe
      * handler for data port
      * @param pkt incoming packet
      */
-    virtual void fromDataPort(cPacket *pkt);
+    virtual void fromDataPort(omnetpp::cPacket *pkt) override;
 
     // handler for mode switch signal
     void pdcpHandleD2DModeSwitch(MacNodeId peerId, LteD2DMode newMode);

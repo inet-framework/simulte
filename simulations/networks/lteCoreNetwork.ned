@@ -9,7 +9,7 @@
 
 package lte.simulations.networks;
 
-import inet.networklayer.configurator.ipv4.IPv4NetworkConfigurator;
+import inet.networklayer.configurator.ipv4.Ipv4NetworkConfigurator;
 import inet.node.inet.Router;
 import inet.node.inet.StandardHost;
 import inet.common.misc.ThruputMeteringChannel;
@@ -32,7 +32,7 @@ network lteCoreNetwork
         channelControl: LteChannelControl {
             @display("p=50,25;is=s");
         }
-        configurator: IPv4NetworkConfigurator {
+        configurator: Ipv4NetworkConfigurator {
             @display("p=95,42");
             config = xmldoc("lteCoreConfigFiles/lteIpAddresses.xml");
         }

@@ -10,6 +10,9 @@
 #include "stack/mac/conflict_graph/DistanceBasedConflictGraph.h"
 #include "stack/phy/layer/LtePhyBase.h"
 
+using namespace inet;
+using namespace omnetpp;
+
 /*!
  * \fn DistanceBasedConflictGraph()
  * \memberof DistanceBasedConflictGraph

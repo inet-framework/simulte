@@ -1,6 +1,6 @@
 # ignore generated files
-*_m.h
-*_m.cc
+src/**/*_m.h
+src/**/*_m.cc
 src/Makefile
 src/Makefile.vc
 /doc/doxy/
@@ -11,6 +11,8 @@ src/Makefile.vc
 *.anf
 *.qtenvrc
 .settings/
+err/
+src/err
 
 # ignore binary files
 out/
@@ -54,3 +56,8 @@ ui/com.simulte.configeditor/bin/
 /simulations/*/.cmdenv-log
 *.rt
 *.elog
+
+# vim files
+*.swp
+*.swo
+.qtenvrc.*

@@ -13,7 +13,14 @@ TftControlInfo::TftControlInfo()
 {
 }
 
+TftControlInfo::TftControlInfo(TftControlInfo* source)
+{
+    this->setTft(source->getTft());
+}
+
 TftControlInfo::~TftControlInfo()
 {
 }
+
+
 

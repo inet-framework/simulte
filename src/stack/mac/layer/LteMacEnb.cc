@@ -25,6 +25,8 @@
 
 Define_Module( LteMacEnb);
 
+using namespace omnetpp;
+
 /*********************
  * PUBLIC FUNCTIONS
  *********************/
@@ -298,7 +300,7 @@ void LteMacEnb::macSduRequest()
     for (it = scheduleListDl_->begin(); it != scheduleListDl_->end(); it++)
     {
         MacCid destCid = it->first.first;
-        Codeword cw = it->first.second;
+        // Codeword cw = it->first.second;
         MacNodeId destId = MacCidToNodeId(destCid);
 
         // for each band, count the number of bytes allocated for this ue (dovrebbe essere per cid)
@@ -394,7 +396,7 @@ void LteMacEnb::sendGrants(LteMacScheduleList* scheduleList)
         Codeword otherCw = MAX_CODEWORDS - cw;
 
         MacCid cid = it->first.first;
-        LogicalCid lcid = MacCidToLcid(cid);
+        // LogicalCid lcid = MacCidToLcid(cid);
         MacNodeId nodeId = MacCidToNodeId(cid);
 
         unsigned int granted = it->second;
@@ -919,8 +921,8 @@ void LteMacEnb::macHandleFeedbackPkt(cPacket *pkt)
             if (!jt->isEmptyFeedback())
             {
                 amc_->pushFeedback(id, DL, (*jt));
-                LteMacUe* macUe = check_and_cast<LteMacUe*>(getMacByMacNodeId(id));
-//                macUe->collectCqiStatistics(id, DL, (*jt));
+                // LteMacUe* macUe = check_and_cast<LteMacUe*>(getMacByMacNodeId(id));
+                // macUe->collectCqiStatistics(id, DL, (*jt));
             }
             i++;
         }

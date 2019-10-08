@@ -10,6 +10,8 @@
 #include "common/LteControlInfo.h"
 #include "stack/mac/amc/UserTxParams.h"
 
+using namespace inet;
+
 UserControlInfo::~UserControlInfo()
 {
     if (userTxParams != NULL)

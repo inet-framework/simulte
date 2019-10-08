@@ -12,6 +12,9 @@
 
 Define_Module(LteHandoverManager);
 
+using namespace inet;
+using namespace omnetpp;
+
 void LteHandoverManager::initialize()
 {
     // get the node id
@@ -56,7 +59,7 @@ void LteHandoverManager::handleX2Message(cPacket* pkt)
     if (x2msg->getType() == X2_HANDOVER_DATA_MSG)
     {
         X2HandoverDataMsg* hoDataMsg = check_and_cast<X2HandoverDataMsg*>(x2msg);
-        IPv4Datagram* datagram = check_and_cast<IPv4Datagram*>(hoDataMsg->decapsulate());
+        inet::Packet* datagram = check_and_cast<inet::Packet*>(hoDataMsg->decapsulate());
         receiveDataFromSourceEnb(datagram, sourceId);
     }
     else   // X2_HANDOVER_CONTROL_MSG
@@ -110,7 +113,7 @@ void LteHandoverManager::receiveHandoverCommand(MacNodeId ueId, MacNodeId enb, b
 }
 
 
-void LteHandoverManager::forwardDataToTargetEnb(IPv4Datagram* datagram, MacNodeId targetEnb)
+void LteHandoverManager::forwardDataToTargetEnb(Packet* datagram, MacNodeId targetEnb)
 {
     Enter_Method("forwardDataToTargetEnb");
     take(datagram);
@@ -133,7 +136,7 @@ void LteHandoverManager::forwardDataToTargetEnb(IPv4Datagram* datagram, MacNodeI
     send(PK(hoMsg),x2Manager_[OUT]);
 }
 
-void LteHandoverManager::receiveDataFromSourceEnb(IPv4Datagram* datagram, MacNodeId sourceEnb)
+void LteHandoverManager::receiveDataFromSourceEnb(Packet* datagram, MacNodeId sourceEnb)
 {
     EV<<NOW<<" LteHandoverManager::receiveDataFromSourceEnb - Received IP datagram from eNB " << sourceEnb << endl;
 

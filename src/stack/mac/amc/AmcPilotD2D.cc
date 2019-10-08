@@ -9,6 +9,8 @@
 
 #include "stack/mac/amc/AmcPilotD2D.h"
 
+using namespace inet;
+
 void AmcPilotD2D::setPreconfiguredTxParams(Cqi cqi)
 {
     usePreconfiguredTxParams_ = true;

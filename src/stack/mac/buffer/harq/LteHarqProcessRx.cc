@@ -13,6 +13,8 @@
 #include "stack/mac/packet/LteHarqFeedback_m.h"
 #include "stack/mac/packet/LteMacPdu.h"
 
+using namespace omnetpp;
+
 LteHarqProcessRx::LteHarqProcessRx(unsigned char acid, LteMacBase *owner)
 {
     pdu_.resize(MAX_CODEWORDS, NULL);

@@ -9,6 +9,8 @@
 
 #include "stack/compManager/LteCompManagerBase.h"
 
+using namespace omnetpp;
+using namespace inet;
 
 void LteCompManagerBase::initialize()
 {

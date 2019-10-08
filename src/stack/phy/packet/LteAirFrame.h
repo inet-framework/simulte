@@ -10,9 +10,11 @@
 #ifndef _LTE_LTEAIRFRAME_H_
 #define _LTE_LTEAIRFRAME_H_
 
+#include <omnetpp.h>
+
 #include "common/LteCommon.h"
-#include "stack/phy/packet/LteAirFrame_m.h"
 #include "common/LteControlInfo.h"
+#include "stack/phy/packet/LteAirFrame_m.h"
 
 class LteAirFrame : public LteAirFrame_Base
 {
@@ -36,7 +38,7 @@ class LteAirFrame : public LteAirFrame_Base
         // copy the attached control info, if any
         if (other.getControlInfo() != NULL)
         {
-            UserControlInfo* info = check_and_cast<UserControlInfo*>(other.getControlInfo());
+            UserControlInfo* info = omnetpp::check_and_cast<UserControlInfo*>(other.getControlInfo());
             UserControlInfo* info_dup = info->dup();
             this->setControlInfo(info_dup);
         }

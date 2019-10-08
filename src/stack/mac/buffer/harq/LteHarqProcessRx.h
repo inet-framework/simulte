@@ -42,7 +42,7 @@ class LteHarqProcessRx
     std::vector<RxHarqPduStatus> status_;
 
     /// reception time timestamp
-    std::vector<simtime_t> rxTime_;
+    std::vector<inet::simtime_t> rxTime_;
 
     // reception status of buffered pdus
     std::vector<bool> result_;

@@ -16,6 +16,9 @@
  * - rimuovere i commenti dalle funzioni quando saranno implementate nel enb scheduler
  */
 
+using namespace omnetpp;
+
+
 void LteScheduler::setEnbScheduler(LteSchedulerEnb* eNbScheduler)
 {
     eNbScheduler_ = eNbScheduler;

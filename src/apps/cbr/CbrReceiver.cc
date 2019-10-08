@@ -2,6 +2,7 @@
 #include "CbrReceiver.h"
 
 Define_Module(CbrReceiver);
+using namespace inet;
 
 simsignal_t CbrReceiver::cbrFrameLossSignal_ = registerSignal("cbrFrameLossSignal");
 simsignal_t CbrReceiver::cbrFrameDelaySignal_ = registerSignal("cbrFrameDelaySignal");
@@ -34,7 +35,7 @@ void CbrReceiver::initialize(int stage)
         EV << "CbrReceiver::initialize - binding to port: local:" << port << endl;
         if (port != -1)
         {
-            socket.setOutputGate(gate("udpOut"));
+            socket.setOutputGate(gate("socketOut"));
             socket.bind(port);
         }
     }
@@ -54,7 +55,7 @@ void CbrReceiver::handleMessage(cMessage *msg)
 
     numReceived_++;
     totFrames_ = pPacket->getNframes(); // XXX this value can be written just once
-    int pktSize = (int)pPacket->getByteLength();
+    int pktSize = (int)pPacket->getSize();
 
     // just to make sure we do not update recvBytes AND we avoid dividing by 0
     if( simTime() > getSimulation()->getWarmupPeriod() )

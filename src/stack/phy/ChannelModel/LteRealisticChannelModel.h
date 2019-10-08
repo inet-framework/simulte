@@ -16,6 +16,7 @@
 #ifndef STACK_PHY_CHANNELMODEL_LTEREALISTICCHANNELMODEL_H_
 #define STACK_PHY_CHANNELMODEL_LTEREALISTICCHANNELMODEL_H_
 
+#include <omnetpp.h>
 #include "stack/phy/ChannelModel/LteChannelModel.h"
 
 class LteBinder;
@@ -51,7 +52,7 @@ private:
   bool enableUplinkInterference_;
   bool enableD2DInterference_;
 
-  typedef std::pair<simtime_t, inet::Coord> Position;
+  typedef std::pair<inet::simtime_t, inet::Coord> Position;
 
   // last position of current user
   std::map<MacNodeId, std::queue<Position> > positionHistory_;
@@ -63,7 +64,7 @@ private:
   std::map<MacNodeId, bool> losMap_;
 
   // Store the last computed shadowing for each user
-  std::map<MacNodeId, std::pair<simtime_t, double> > lastComputedSF_;
+  std::map<MacNodeId, std::pair<inet::simtime_t, double> > lastComputedSF_;
 
   //correlation distance used in shadowing computation and
   //also used to recompute the probability of LOS
@@ -117,7 +118,7 @@ private:
   struct JakesFadingData
   {
       std::vector<double> angleOfArrival;
-      std::vector<simtime_t> delaySpread;
+      std::vector<omnetpp::simtime_t> delaySpread;
   };
 
   // for each node and for each band we store information about jakes fading
@@ -200,7 +201,7 @@ public:
    * @param lteinfo pointer to the user control info
    * @param rsrpVector the received signal for each RB, if it has already been computed
    */
-  virtual bool error_D2D(LteAirFrame *frame, UserControlInfo* lteI, const std::vector<double>& rsrpVector);
+  virtual bool isError_D2D(LteAirFrame *frame, UserControlInfo* lteI, const std::vector<double>& rsrpVector);
   /*
    * Compute the error probability of the transmitted packet according to cqi used, txmode, and the received power
    * after that it throws a random number in order to check if this packet will be corrupted or not
@@ -208,14 +209,14 @@ public:
    * @param frame pointer to the packet
    * @param lteinfo pointer to the user control info
    */
-  virtual bool error(LteAirFrame *frame, UserControlInfo* lteI);
+  virtual bool isError(LteAirFrame *frame, UserControlInfo* lteI);
   /*
    * The same as before but used for das TODO to be implemnted
    *
    * @param frame pointer to the packet
    * @param lteinfo pointer to the user control info
    */
-  virtual bool errorDas(LteAirFrame *frame, UserControlInfo* lteI)
+  virtual bool isErrorDas(LteAirFrame *frame, UserControlInfo* lteI)
   {
       throw cRuntimeError("DAS PHY LAYER TO BE IMPLEMENTED");
       return -1;

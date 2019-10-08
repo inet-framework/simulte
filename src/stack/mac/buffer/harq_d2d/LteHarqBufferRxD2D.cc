@@ -16,6 +16,8 @@
 #include "stack/mac/layer/LteMacUeD2D.h"
 #include "stack/mac/layer/LteMacEnbD2D.h"
 
+using namespace omnetpp;
+
 LteHarqBufferRxD2D::LteHarqBufferRxD2D(unsigned int num, LteMacBase *owner, MacNodeId nodeId, bool isMulticast)
 {
     macOwner_ = owner;

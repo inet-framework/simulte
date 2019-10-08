@@ -16,7 +16,7 @@
 #include "stack/rlc/am/packet/LteRlcAmSdu_m.h"
 #include "stack/pdcp_rrc/packet/LtePdcpPdu_m.h"
 
-class AmRxQueue : public cSimpleModule
+class AmRxQueue : public omnetpp::cSimpleModule
 {
   protected:
 
@@ -24,13 +24,13 @@ class AmRxQueue : public cSimpleModule
     RlcWindowDesc rxWindowDesc_;
 
     //! Minimum time between two consecutive ack messages
-    simtime_t ackReportInterval_;
+    omnetpp::simtime_t ackReportInterval_;
 
     //! The time when the last ack message was sent.
-    simtime_t lastSentAck_;
+    omnetpp::simtime_t lastSentAck_;
 
     //! Buffer status report Interval
-    simtime_t statusReportInterval_;
+    omnetpp::simtime_t statusReportInterval_;
 
     //! SDU reconstructed at the beginning of the Receiver buffer
     int firstSdu_;
@@ -39,7 +39,7 @@ class AmRxQueue : public cSimpleModule
     TTimer timer_;
 
     //! AM PDU buffer
-    cArray pduBuffer_;
+    omnetpp::cArray pduBuffer_;
 
     //! AM PDU Received vector
     /** For each AM PDU a received status variable is kept.
@@ -59,14 +59,14 @@ class AmRxQueue : public cSimpleModule
     //Statistics
     static unsigned int totalCellRcvdBytes_;
     unsigned int totalRcvdBytes_;
-    simsignal_t rlcCellPacketLoss_;
-    simsignal_t rlcPacketLoss_;
-    simsignal_t rlcPduPacketLoss_;
-    simsignal_t rlcDelay_;
-    simsignal_t rlcPduDelay_;
-    simsignal_t rlcCellThroughput_;
-    simsignal_t rlcThroughput_;
-    simsignal_t rlcPduThroughput_;
+    omnetpp::simsignal_t rlcCellPacketLoss_;
+    omnetpp::simsignal_t rlcPacketLoss_;
+    omnetpp::simsignal_t rlcPduPacketLoss_;
+    omnetpp::simsignal_t rlcDelay_;
+    omnetpp::simsignal_t rlcPduDelay_;
+    omnetpp::simsignal_t rlcCellThroughput_;
+    omnetpp::simsignal_t rlcThroughput_;
+    omnetpp::simsignal_t rlcPduThroughput_;
 
   public:
 
@@ -78,10 +78,10 @@ class AmRxQueue : public cSimpleModule
     void enque(LteRlcAmPdu* pdu);
 
     //! Send a buffer status report to the ACK manager
-    virtual void handleMessage(cMessage* msg);
+    virtual void handleMessage(omnetpp::cMessage* msg) override;
 
     //initialize
-    void initialize();
+    void initialize() override;
 
   protected:
 

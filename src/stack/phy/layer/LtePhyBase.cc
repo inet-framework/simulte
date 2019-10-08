@@ -10,6 +10,8 @@
 #include "stack/phy/layer/LtePhyBase.h"
 #include "common/LteCommon.h"
 
+using namespace omnetpp;
+
 short LtePhyBase::airFramePriority_ = 10;
 
 LtePhyBase::LtePhyBase()
@@ -48,7 +50,7 @@ void LtePhyBase::initialize(int stage)
         multicastD2DRange_ = par("multicastD2DRange");
         enableMulticastD2DRangeCheck_ = par("enableMulticastD2DRangeCheck");
     }
-    else if (stage == inet::INITSTAGE_PHYSICAL_ENVIRONMENT_2)
+    else if (stage == inet::INITSTAGE_PHYSICAL_ENVIRONMENT)
     {
         initializeChannelModel();
     }
@@ -232,7 +234,7 @@ void LtePhyBase::sendMulticast(LteAirFrame *frame)
     UserControlInfo *ci = check_and_cast<UserControlInfo *>(frame->getControlInfo());
 
     // get the group Id
-    int32 groupId = ci->getMulticastGroupId();
+    inet::int32 groupId = ci->getMulticastGroupId();
     if (groupId < 0)
         throw cRuntimeError("LtePhyBase::sendMulticast - Error. Group ID %d is not valid.", groupId);
 

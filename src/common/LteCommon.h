@@ -18,33 +18,45 @@
 
 #define _NO_W32_PSEUDO_MODIFIERS
 
-#include <iostream>
-#include <omnetpp.h>
 #include <string>
-#include <fstream>
 #include <vector>
-#include <bitset>
+#include <list>
 #include <set>
+#include <bitset>
 #include <queue>
 #include <map>
-#include <list>
+#include <iostream>
+#include <omnetpp.h>
+#include <fstream>
 #include <algorithm>
-#include "inet/common/geometry/common/Coord.h"
-#include "common/features.h"
 
-using namespace omnetpp;
+#include <inet/common/packet/Packet.h>
+#include <inet/common/Protocol.h>
+#include <inet/common/geometry/common/Coord.h>
+
+#include "common/features.h"
+#include "stack/d2dModeSelection/D2DModeSwitchNotification_m.h"
 
 class LteBinder;
 class LteCellInfo;
 class LteMacEnb;
 class LteMacBase;
 class LtePhyBase;
-//class cXMLElement;
+namespace omnetpp {
+    class cXMLElement;
+}
 class LteRealisticChannelModel;
 class LteControlInfo;
 class ExtCell;
 
 
+/**
+ * Lte specific protocols
+ */
+class LteProtocol {
+public:
+    static const inet::Protocol lteuu; // IP protocol on the uU interface
+};
 
 /**
  * TODO
@@ -55,7 +67,7 @@ class ExtCell;
 #define TTI 0.001
 
 /// Current simulation time
-#define NOW simTime()
+#define NOW omnetpp::simTime()
 
 /// Node Id bounds
 #define ENB_MIN_ID 1
@@ -180,14 +192,6 @@ typedef std::vector<double> AttenuationVector;
 enum UlTransmissionMapTTI
 {
     PREV_TTI, CURR_TTI
-};
-
-/// D2D Modes
-// IM = Infastructure Mode
-// DM = Direct (D2D) Mode
-enum LteD2DMode
-{
-    IM, DM
 };
 
 /*************************
@@ -681,13 +685,13 @@ typedef std::map<MacNodeId, unsigned int> LteMacAllocatedCws;
  * The Rlc Sdu List, a list of RLC SDUs
  * contained inside a RLC PDU
  */
-typedef std::list<cPacket*> RlcSduList;
+typedef std::list<omnetpp::cPacket*> RlcSduList;
 
 /**
  * The Mac Sdu List, a list of MAC SDUs
  * contained inside a MAC PDU
  */
-typedef cPacketQueue MacSduList;
+typedef omnetpp::cPacketQueue MacSduList;
 
 /**
  * The Mac Control Elements List, a list
@@ -779,7 +783,7 @@ struct EnbInfo
     MacNodeId id;
     LteMacEnb * mac;
     LteRealisticChannelModel * realChan;
-    cModule * eNodeB;
+    omnetpp::cModule * eNodeB;
     int x2;
 };
 
@@ -790,7 +794,7 @@ struct UeInfo
     MacNodeId id;
     MacNodeId cellId;
     LteRealisticChannelModel * realChan;
-    cModule * ue;
+    omnetpp::cModule * ue;
     LtePhyBase* phy;
 };
 
@@ -819,7 +823,7 @@ typedef std::vector<Pmi> PmiVector;
 typedef std::set<Band> BandSet;
 typedef std::set<Remote> RemoteSet;
 typedef std::map<MacNodeId, bool> ConnectedUesMap;
-typedef std::pair<int, simtime_t> PacketInfo;
+typedef std::pair<int, omnetpp::simtime_t> PacketInfo;
 typedef std::vector<RemoteUnitPhyData> RemoteUnitPhyDataVector;
 typedef std::set<MacNodeId> ActiveUser;
 typedef std::set<MacCid> ActiveSet;
@@ -830,7 +834,7 @@ typedef std::set<MacCid> ActiveSet;
  *
  * Parameters read from xml file are stored in this map.
  */
-typedef std::map<std::string, cMsgPar> ParameterMap;
+typedef std::map<std::string, omnetpp::cMsgPar> ParameterMap;
 
 /*********************
  * Utility functions
@@ -871,8 +875,8 @@ GrantType aToGrantType(std::string a);
 const std::string grantTypeToA(GrantType gType);
 LteBinder* getBinder();
 LteCellInfo* getCellInfo(MacNodeId nodeId);
-cModule* getMacByMacNodeId(MacNodeId nodeId);
-cModule* getRlcByMacNodeId(MacNodeId nodeId, LteRlcType rlcType);
+omnetpp::cModule* getMacByMacNodeId(MacNodeId nodeId);
+omnetpp::cModule* getRlcByMacNodeId(MacNodeId nodeId, LteRlcType rlcType);
 LteMacBase* getMacUe(MacNodeId nodeId);
 FeedbackGeneratorType getFeedbackGeneratorType(std::string s);
 const std::string fbGeneratorTypeToA(FeedbackGeneratorType type);
@@ -889,7 +893,7 @@ bool isMulticastConnection(LteControlInfo* lteInfo);
  * @param xmlData XML parameters config element related to a specific section
  * @param[output] outputMap map to store read parameters
  */
-void getParametersFromXML(cXMLElement* xmlData, ParameterMap& outputMap);
+void getParametersFromXML(omnetpp::cXMLElement* xmlData, ParameterMap& outputMap);
 
 /**
  * Parses a CSV string parameter into an int array.
@@ -914,7 +918,7 @@ void parseStringToIntArray(std::string str, int* values, int dim, int pad);
  *
  * @param mod module whose channels needs initialization
  */
-void initializeAllChannels(cModule *mod);
+void initializeAllChannels(omnetpp::cModule *mod);
 
 #endif
 

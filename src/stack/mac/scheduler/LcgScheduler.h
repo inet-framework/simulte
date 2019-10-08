@@ -59,7 +59,7 @@ class LcgScheduler
     };
 
     // last execution time
-    simtime_t lastExecutionTime_;
+    omnetpp::simtime_t lastExecutionTime_;
 
     /// MAC module, used to get parameters from NED
     LteMacUe *mac_;

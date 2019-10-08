@@ -9,6 +9,8 @@
 
 #include "stack/mac/amc/LteMcs.h"
 
+using namespace omnetpp;
+
 /**
  * <CQI Index [0-15]> , <Modulation> , <Code Rate x 1024>
  * This table contains value taken from the table 7.2.3-1 (TS 36.213)
@@ -304,7 +306,11 @@ const unsigned int* itbs2tbs(LteMod mod, TxMode txMode, unsigned char layers, un
                 break;
             default:
                 throw cRuntimeError("Unknown MCS (%d) in LteAmc::itbs2tbs()", mod);
+                res = nullptr;
         }
+    } else {
+        throw cRuntimeError("Illegal number of layers in LteAmc::itbs2tbs()");
+        res = nullptr;
     }
 
     return res;

@@ -12,7 +12,7 @@
 
 #include <string.h>
 #include <omnetpp.h>
-#include "inet/transportlayer/contract/udp/UDPSocket.h"
+#include "inet/transportlayer/contract/udp/UdpSocket.h"
 #include "inet/networklayer/common/L3AddressResolver.h"
 #include "apps/d2dMultihop/MultihopD2DPacket_m.h"
 #include "apps/d2dMultihop/statistics/MultihopD2DStatistics.h"
@@ -22,7 +22,7 @@
 
 class EventGenerator;
 
-class MultihopD2D : public cSimpleModule
+class MultihopD2D : public omnetpp::cSimpleModule
 {
     static uint16_t numMultihopD2DApps;  // counter of apps (used for assigning the ids)
 
@@ -42,7 +42,7 @@ protected:
     bool trickleEnabled_;
     unsigned int k_;
     simtime_t I_;
-    std::map<unsigned int, MultihopD2DPacket*> last_;
+    std::map<unsigned int, inet::Packet*> last_;
     std::map<unsigned int, unsigned int> counter_;
     /***************************************************/
 
@@ -50,8 +50,8 @@ protected:
 
     int localPort_;
     int destPort_;
-    L3Address destAddress_;
-    UDPSocket socket;
+    inet::L3Address destAddress_;
+    inet::UdpSocket socket;
 
     cMessage *selfSender_;
 
@@ -79,7 +79,7 @@ protected:
     bool isAlreadyReceived(uint32_t msgId);   // returns true if the given msg has already been received
     void markAsRelayed(uint32_t msgId);       // set the corresponding entry in the set as relayed
     bool isAlreadyRelayed(uint32_t msgId);   // returns true if the given msg has already been relayed
-    bool isWithinBroadcastArea(Coord srcCoord, double maxRadius);
+    bool isWithinBroadcastArea(inet::Coord srcCoord, double maxRadius);
 
     virtual void sendPacket();
     virtual void handleRcvdPacket(cMessage* msg);

@@ -10,6 +10,8 @@
 #include "stack/mac/scheduling_modules/LteMaxCi.h"
 #include "stack/mac/scheduler/LteSchedulerEnb.h"
 
+using namespace omnetpp;
+
 void LteMaxCi::prepareSchedule()
 {
     EV << NOW << " LteMaxCI::schedule " << eNbScheduler_->mac_->getMacNodeId() << endl;

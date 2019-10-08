@@ -14,6 +14,9 @@
 
 Define_Module(LtePhyEnb);
 
+using namespace omnetpp;
+using namespace inet;
+
 LtePhyEnb::LtePhyEnb()
 {
     das_ = NULL;
@@ -47,8 +50,6 @@ void LtePhyEnb::initialize(int stage)
         // get local id
         nodeId_ = getAncestorPar("macNodeId");
         EV << "Local MacNodeId: " << nodeId_ << endl;
-        std::cout << "Local MacNodeId: " << nodeId_ << endl;
-
         nodeType_ = ENODEB;
         cellInfo_ = getCellInfo(nodeId_);
         cellInfo_->channelUpdate(nodeId_, intuniform(1, binder_->phyPisaData.maxChannel2()));
@@ -88,6 +89,10 @@ void LtePhyEnb::initialize(int stage)
             scheduleAt(NOW, bdcStarter_);
         }
     }
+    else if (stage == INITSTAGE_LINK_LAYER)
+    {
+
+   }
 }
 
 void LtePhyEnb::handleSelfMessage(cMessage *msg)
@@ -214,11 +219,11 @@ void LtePhyEnb::handleAirFrame(cMessage* msg)
             data.m = getRadioPosition();
             frame->addRemoteUnitPhyDataVector(data);
         }
-        result = channelModel_->errorDas(frame, lteInfo);
+        result = channelModel_->isErrorDas(frame, lteInfo);
     }
     else
     {
-        result = channelModel_->error(frame, lteInfo);
+        result = channelModel_->isError(frame, lteInfo);
     }
     if (result)
         numAirFrameReceived_++;

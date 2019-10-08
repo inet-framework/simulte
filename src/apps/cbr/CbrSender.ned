@@ -1,10 +1,10 @@
 
 package lte.apps.cbr;
 
-import inet.applications.contract.IUDPApp;
+import inet.applications.contract.IApp;
 
 
-simple CbrSender like IUDPApp
+simple CbrSender like IApp
 {
     parameters:
         int localPort = default(-1);
@@ -26,6 +26,6 @@ simple CbrSender like IUDPApp
         
         @display("i=block/source");
     gates:
-        output udpOut;
-        input udpIn;
+        output socketOut;
+        input socketIn;
 }

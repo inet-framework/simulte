@@ -48,7 +48,7 @@ typedef std::multimap<LteTrafficClass, CidBufferPair> LcgMap;
  * On each TTI, the handleSelfMessage() is called
  * to perform scheduling and other tasks
  */
-class LteMacBase : public cSimpleModule
+class LteMacBase : public omnetpp::cSimpleModule
 {
     friend class LteHarqBufferTx;
     friend class LteHarqBufferRx;
@@ -58,14 +58,14 @@ class LteMacBase : public cSimpleModule
   protected:
 
     unsigned int totalOverflowedBytes_;
-    simsignal_t macBufferOverflowDl_;
-    simsignal_t macBufferOverflowUl_;
-    simsignal_t macBufferOverflowD2D_;
-    simsignal_t receivedPacketFromUpperLayer;
-    simsignal_t receivedPacketFromLowerLayer;
-    simsignal_t sentPacketToUpperLayer;
-    simsignal_t sentPacketToLowerLayer;
-    simsignal_t measuredItbs_;
+    ::omnetpp::simsignal_t macBufferOverflowDl_;
+    ::omnetpp::simsignal_t macBufferOverflowUl_;
+    ::omnetpp::simsignal_t macBufferOverflowD2D_;
+    ::omnetpp::simsignal_t receivedPacketFromUpperLayer;
+    ::omnetpp::simsignal_t receivedPacketFromLowerLayer;
+    ::omnetpp::simsignal_t sentPacketToUpperLayer;
+    ::omnetpp::simsignal_t sentPacketToLowerLayer;
+    ::omnetpp::simsignal_t measuredItbs_;
 
     /*
      * Data Structures
@@ -75,8 +75,8 @@ class LteMacBase : public cSimpleModule
     /*
      * Gates
      */
-    cGate* up_[2];     /// RLC <--> MAC
-    cGate* down_[2];   /// MAC <--> PHY
+    ::omnetpp::cGate* up_[2];     /// RLC <--> MAC
+    ::omnetpp::cGate* down_[2];   /// MAC <--> PHY
 
     /*
      * MAC MIB Params
@@ -86,7 +86,7 @@ class LteMacBase : public cSimpleModule
     int harqProcesses_;
 
     /// TTI self message
-    cMessage* ttiTick_;
+    ::omnetpp::cMessage* ttiTick_;
 
     /// MacNodeId
     MacNodeId nodeId_;
@@ -130,7 +130,7 @@ class LteMacBase : public cSimpleModule
     LteNodeType nodeType_;
 
     // record the last TTI that HARQ processes for a given UE have been aborted (useful for D2D switching)
-    std::map<MacNodeId, simtime_t> resetHarq_;
+    std::map<MacNodeId, ::omnetpp::simtime_t> resetHarq_;
 
   public:
 
@@ -247,25 +247,25 @@ class LteMacBase : public cSimpleModule
 
   protected:
 
-    virtual int numInitStages() const { return inet::NUM_INIT_STAGES; }
+    virtual int numInitStages() const override { return inet::NUM_INIT_STAGES; }
 
     /**
      * Grabs NED parameters, initializes gates
      * and the TTI self message
      */
-    virtual void initialize(int stage);
+    virtual void initialize(int stage) override;
 
     /**
      * Analyze gate of incoming packet
      * and call proper handler
      */
-    virtual void handleMessage(cMessage *msg);
+    virtual void handleMessage(::omnetpp::cMessage *msg) override;
 
 
     /**
      * Statistics recording
      */
-    virtual void finish();
+    virtual void finish() override;
 
     /**
      * Deleting the module
@@ -273,7 +273,7 @@ class LteMacBase : public cSimpleModule
      * Method is overridden in order to cancel the periodic TTI self-message,
      * afterwards the deleteModule method of cSimpleModule is called.
      */
-    virtual void deleteModule();
+    virtual void deleteModule() override;
 
     /**
      * Main loop of the Mac level, calls the scheduler
@@ -288,7 +288,7 @@ class LteMacBase : public cSimpleModule
      *
      * @param pkt Packet to send
      */
-    void sendLowerPackets(cPacket* pkt);
+    void sendLowerPackets(omnetpp::cPacket* pkt);
 
     /**
      * sendUpperPackets() is used
@@ -296,26 +296,26 @@ class LteMacBase : public cSimpleModule
      *
      * @param pkt Packet to send
      */
-    void sendUpperPackets(cPacket* pkt);
+    void sendUpperPackets(omnetpp::cPacket* pkt);
 
     /*
      * Functions to be redefined by derivated classes
      */
 
     virtual void macPduMake(MacCid cid = 0) = 0;
-    virtual void macPduUnmake(cPacket* pkt) = 0;
+    virtual void macPduUnmake(omnetpp::cPacket* pkt) = 0;
 
     /**
      * bufferizePacket() is called every time a packet is
      * received from the upper layer
      */
-    virtual bool bufferizePacket(cPacket* pkt);
+    virtual bool bufferizePacket(omnetpp::cPacket* pkt);
 
     /**
      * handleUpperMessage() is called every time a packet is
      * received from the upper layer
      */
-    virtual void handleUpperMessage(cPacket* pkt)
+    virtual void handleUpperMessage(omnetpp::cPacket* pkt)
     {
         bufferizePacket(pkt);
     }
@@ -323,34 +323,34 @@ class LteMacBase : public cSimpleModule
     /**
      * macHandleFeedbackPkt is called every time a feedback pkt arrives on MAC
      */
-    virtual void macHandleFeedbackPkt(cPacket* pkt)
+    virtual void macHandleFeedbackPkt(omnetpp::cPacket* pkt)
     {
     }
 
     /*
      * Receives and handles scheduling grants - implemented in LteMacUe
      */
-    virtual void macHandleGrant(cPacket* pkt)
+    virtual void macHandleGrant(omnetpp::cPacket* pkt)
     {
     }
 
     /*
      * Receives and handles RAC requests (eNodeB implementation)  and responses (LteMacUe implementation)
      */
-    virtual void macHandleRac(cPacket* pkt)
+    virtual void macHandleRac(omnetpp::cPacket* pkt)
     {
     }
 
     /*
      * Update UserTxParam stored in every lteMacPdu when an rtx change this information
      */
-    virtual void updateUserTxParam(cPacket* pkt)=0;
+    virtual void updateUserTxParam(omnetpp::cPacket* pkt)=0;
 
     /// Upper Layer Handler
-    virtual void fromRlc(cPacket *pkt);
+    void fromRlc(omnetpp::cPacket *pkt);
 
     /// Lower Layer Handler
-    virtual void fromPhy(cPacket *pkt);
+    void fromPhy(omnetpp::cPacket *pkt);
 };
 
 #endif

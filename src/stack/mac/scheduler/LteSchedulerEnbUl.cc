@@ -13,6 +13,8 @@
 #include "stack/mac/buffer/harq/LteHarqBufferRx.h"
 #include "stack/mac/allocator/LteAllocationModule.h"
 
+using namespace omnetpp;
+
 // TODO
 bool
 LteSchedulerEnbUl::checkEligibility(MacNodeId id, Codeword& cw)

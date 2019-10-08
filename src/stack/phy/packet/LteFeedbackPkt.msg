@@ -7,6 +7,6 @@
 // and cannot be removed from it.
 //
 
-packet LteFeedbackPkt {
+packet LteFeedbackPkt extends cPacket {
     @customize(true);  // see the generated C++ header for more info
 }

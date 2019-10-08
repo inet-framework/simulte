@@ -9,6 +9,8 @@
 
 #include "LteDummyChannelModel.h"
 
+using namespace omnetpp;
+
 Define_Module(LteDummyChannelModel);
 
 void LteDummyChannelModel::initialize()
@@ -61,7 +63,7 @@ std::vector<double> LteDummyChannelModel::getSIR(LteAirFrame *frame, UserControl
    return tmp;
 }
 
-bool LteDummyChannelModel::error(LteAirFrame *frame, UserControlInfo* lteInfo)
+bool LteDummyChannelModel::isError(LteAirFrame *frame, UserControlInfo* lteInfo)
 {
    // Number of RTX
    unsigned char nTx = lteInfo->getTxNumber();
@@ -88,7 +90,7 @@ bool LteDummyChannelModel::error(LteAirFrame *frame, UserControlInfo* lteInfo)
    return true;
 }
 
-bool LteDummyChannelModel::error_D2D(LteAirFrame *frame, UserControlInfo* lteInfo,const std::vector<double>& rsrpVector)
+bool LteDummyChannelModel::isError_D2D(LteAirFrame *frame, UserControlInfo* lteInfo,const std::vector<double>& rsrpVector)
 {
    // Number of RTX
    unsigned char nTx = lteInfo->getTxNumber();

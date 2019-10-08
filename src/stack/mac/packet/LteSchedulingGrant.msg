@@ -11,7 +11,7 @@
 //
 // TODO generated message class
 //
-packet LteSchedulingGrant
+packet LteSchedulingGrant extends cPacket
 {
     @customize(true);  // see the generated C++ header for more info
     bool periodic;

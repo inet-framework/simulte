@@ -17,7 +17,7 @@
 // Base class for D2D Mode Selection modules
 // To add a new policy for mode selection, extend this class and redefine pure virtual methods
 //
-class D2DModeSelectionBase : public cSimpleModule
+class D2DModeSelectionBase : public omnetpp::cSimpleModule
 {
 
 protected:
@@ -46,7 +46,7 @@ protected:
     double modeSelectionPeriod_;
 
     // Self message
-    cMessage* modeSelectionTick_;
+    omnetpp::cMessage* modeSelectionTick_;
 
     // run the mode selection algorithm. To be implemented by derived classes
     // it must build a switch list (see above)
@@ -60,9 +60,9 @@ public:
     D2DModeSelectionBase() {}
     virtual ~D2DModeSelectionBase() {}
 
-    virtual void initialize(int stage);
-    virtual int numInitStages() const { return inet::NUM_INIT_STAGES; }
-    virtual void handleMessage(cMessage *msg);
+    virtual void initialize(int stage) override;
+    virtual int numInitStages() const override { return inet::NUM_INIT_STAGES; }
+    virtual void handleMessage(omnetpp::cMessage *msg) override;
 
     // this method triggers possible switches after handover
     // if handoverCompleted is false, move all the connections for nodeId to IM

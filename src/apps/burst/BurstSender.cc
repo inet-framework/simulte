@@ -81,7 +81,7 @@ void BurstSender::initTraffic()
         delete initTraffic_;
 
         destAddress_ = inet::L3AddressResolver().resolve(par("destAddress").stringValue());
-        socket.setOutputGate(gate("udpOut"));
+        socket.setOutputGate(gate("socketOut"));
         socket.bind(localPort_);
 
         EV << simTime() << "BurstSender::initialize - binding to port: local:" << localPort_ << " , dest: " << destAddress_.str() << ":" << destPort_ << endl;
@@ -91,7 +91,7 @@ void BurstSender::initTraffic()
 
         // TODO maybe un-necesessary
         // this conversion is made in order to obtain ms-aligned start time, even in case of random generated ones
-        simtime_t offset = (round(SIMTIME_DBL(startTime)*1000)/1000);
+        // simtime_t offset = (round(SIMTIME_DBL(startTime)*1000)/1000);
 
         scheduleAt(simTime()+startTime, selfBurst_);
         EV << "\t starting traffic in " << startTime << " seconds " << endl;
@@ -119,10 +119,15 @@ void BurstSender::sendPacket()
     //unsigned int msgId = (idBurst_ << 16) | idFrame_;
     unsigned int msgId = (idBurst_ * burstSize_) + idFrame_;
 
-    BurstPacket* packet = new BurstPacket("Burst");
-    packet->setMsgId(msgId);
-    packet->setTimestamp(simTime());
-    packet->setByteLength(size_);
+    Packet* packet = new inet::Packet("Burst");
+    auto burst = makeShared<BurstPacket>();
+
+    burst->setMsgId(msgId);
+    burst->setTimestamp(simTime());
+    burst->setSize(size_);
+    burst->setChunkLength(B(size_));
+
+    packet->insertAtBack(burst);
 
     socket.sendTo(packet, destAddress_, destPort_);
 

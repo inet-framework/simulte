@@ -117,7 +117,7 @@ void EventGenerator::computeTargetNodeSet(std::set<MacNodeId>& targetSet, MacNod
 
         // get references to all UEs in the cell
         // they are useful later to retrieve UE positions
-        std::map<MacNodeId, Coord> uePos;
+        std::map<MacNodeId, inet::Coord> uePos;
         std::set<MacNodeId>::iterator it = lteNodeIdSet_.begin();
         for (; it != lteNodeIdSet_.end(); ++it)
         {
@@ -127,10 +127,10 @@ void EventGenerator::computeTargetNodeSet(std::set<MacNodeId>& targetSet, MacNod
         }
 
         // get the coordinates of the source node
-        Coord srcCoord = uePos[sourceId];
+        inet::Coord srcCoord = uePos[sourceId];
 
         // compute the distance for each UE
-        std::map<MacNodeId, Coord>::iterator mit = uePos.begin();
+        std::map<MacNodeId, inet::Coord>::iterator mit = uePos.begin();
         for (; mit != uePos.end(); ++mit)
         {
             if (mit->second.distance(srcCoord) < maxBroadcastRadius)

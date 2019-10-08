@@ -8,14 +8,17 @@
 //
 
 #include "stack/pdcp_rrc/layer/LtePdcpRrcUeD2D.h"
-#include "inet/networklayer/common/L3AddressResolver.h"
+#include <inet/networklayer/common/L3AddressResolver.h>
 #include "stack/d2dModeSelection/D2DModeSwitchNotification_m.h"
 
 Define_Module(LtePdcpRrcUeD2D);
 
+using namespace inet;
+using namespace omnetpp;
+
 MacNodeId LtePdcpRrcUeD2D::getDestId(FlowControlInfo* lteInfo)
 {
-    IPv4Address destAddr = IPv4Address(lteInfo->getDstAddr());
+    Ipv4Address destAddr = Ipv4Address(lteInfo->getDstAddr());
     MacNodeId destId = binder_->getMacNodeId(destAddr);
 
     // check if the destination is inside the LTE network
@@ -41,7 +44,7 @@ void LtePdcpRrcUeD2D::fromDataPort(cPacket *pkt)
     headerCompress(pkt, lteInfo->getHeaderSize()); // header compression
 
     // get destination info
-    IPv4Address destAddr = IPv4Address(lteInfo->getDstAddr());
+    Ipv4Address destAddr = Ipv4Address(lteInfo->getDstAddr());
     MacNodeId destId;
 
     // the direction of the incoming connection is a D2D_MULTI one if the application is of the same type,
@@ -56,7 +59,7 @@ void LtePdcpRrcUeD2D::fromDataPort(cPacket *pkt)
         // multicast IP addresses are 224.0.0.0/4.
         // We consider the host part of the IP address (the remaining 28 bits) as identifier of the group,
         // so as it is univocally determined for the whole network
-        uint32 address = IPv4Address(lteInfo->getDstAddr()).getInt();
+        uint32 address = Ipv4Address(lteInfo->getDstAddr()).getInt();
         uint32 mask = ~((uint32)255 << 28);      // 0000 1111 1111 1111
         uint32 groupId = address & mask;
         lteInfo->setMulticastGroupId((int32)groupId);
@@ -96,7 +99,7 @@ void LtePdcpRrcUeD2D::fromDataPort(cPacket *pkt)
 
     // Cid Request
     EV << NOW << " LtePdcpRrcUeD2D : Received CID request for Traffic [ " << "Source: "
-       << IPv4Address(lteInfo->getSrcAddr()) << "@" << lteInfo->getSrcPort()
+       << Ipv4Address(lteInfo->getSrcAddr()) << "@" << lteInfo->getSrcPort()
        << " Destination: " << destAddr << "@" << lteInfo->getDstPort()
        << " , Direction: " << dirToA((Direction)lteInfo->getDirection()) << " ]\n";
 
@@ -152,7 +155,28 @@ void LtePdcpRrcUeD2D::fromDataPort(cPacket *pkt)
     send(pdcpPkt, (lteInfo->getRlcType() == UM ? umSap_[OUT] : amSap_[OUT]));
     emit(sentPacketToLowerLayer, pdcpPkt);
 }
+/*
+void LtePdcpRrcUeD2D::initialize(int stage)
+{
+    EV << "LtePdcpRrcUeD2D::initialize() - stage " << stage << endl;
+    LtePdcpRrcUe::initialize(stage);
+    if (stage == INITSTAGE_NETWORK_LAYER+1)
+    {
+        // inform the Binder about the D2D capabilities of this node
+        // i.e. the (possibly) D2D peering UEs
+        const char *d2dPeerAddresses = getAncestorPar("d2dPeerAddresses");
+        cStringTokenizer tokenizer(d2dPeerAddresses);
+        const char *token;
+        while ((token = tokenizer.nextToken()) != NULL)
+        {
+            std::pair<const char*, bool> p(token,false);
+            d2dPeeringInit_.insert(p);
 
+            // delay initialization D2D capabilities to once arrive the first packet to the destination
+        }
+    }
+}
+*/
 void LtePdcpRrcUeD2D::handleMessage(cMessage* msg)
 {
     cPacket* pkt = check_and_cast<cPacket *>(msg);

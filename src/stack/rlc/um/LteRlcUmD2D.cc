@@ -11,6 +11,7 @@
 #include "stack/d2dModeSelection/D2DModeSwitchNotification_m.h"
 
 Define_Module(LteRlcUmD2D);
+using namespace omnetpp;
 
 UmTxEntity* LteRlcUmD2D::getTxBuffer(FlowControlInfo* lteInfo)
 {

@@ -29,7 +29,7 @@
  * moving transmission window enabled with ARQ and drop-timer mechanisms.
  */
 
-class AmTxQueue : public cSimpleModule
+class AmTxQueue : public omnetpp::cSimpleModule
 {
   protected:
 
@@ -56,17 +56,17 @@ class AmTxQueue : public cSimpleModule
     /*
      * The SDU enqueue buffer.
      */
-    cPacketQueue sduQueue_;
+    omnetpp::cPacketQueue sduQueue_;
 
     /*
      * The PDU (fragments) buffer.
      */
-    cArray pduRtxQueue_;
+    omnetpp::cArray pduRtxQueue_;
 
     /*
      * The MRW PDU retransmission buffer.
      */
-    cArray mrwRtxQueue_;
+    omnetpp::cArray mrwRtxQueue_;
 
     //----------------------------------------------------------------------------------------
 
@@ -130,19 +130,19 @@ class AmTxQueue : public cSimpleModule
      * @param pkt
      */
 
-    virtual void handleControlPacket(cPacket*pkt);
+    virtual void handleControlPacket(omnetpp::cPacket*pkt);
 
   protected:
 
     /**
      * Initialize
      */
-    virtual void initialize();
+    virtual void initialize() override;
     /*
      * Analyze gate of incoming packet and call proper handler
      * @param msg
      */
-    virtual void handleMessage(cMessage* msg);
+    virtual void handleMessage(omnetpp::cMessage* msg) override;
 
     /* Discards a given RLC PDU and all the PDUs related to the same SDU
      *

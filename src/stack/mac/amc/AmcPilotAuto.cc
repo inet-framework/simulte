@@ -9,6 +9,8 @@
 
 #include "stack/mac/amc/AmcPilotAuto.h"
 
+using namespace inet;
+
 const UserTxParams& AmcPilotAuto::computeTxParams(MacNodeId id, const Direction dir)
 {
     EV << NOW << " AmcPilot" << getName() << "::computeTxParams for UE " << id << ", direction " << dirToA(dir) << endl;
@@ -42,7 +44,7 @@ const UserTxParams& AmcPilotAuto::computeTxParams(MacNodeId id, const Direction 
 
     // get the usable bands for this user
     UsableBands* usableB = NULL;
-    bool ret = getUsableBands(id, usableB);
+    getUsableBands(id, usableB);
 
     Band chosenBand = 0;
     double chosenCqi = 0;

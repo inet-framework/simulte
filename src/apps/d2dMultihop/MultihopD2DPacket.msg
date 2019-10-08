@@ -7,11 +7,9 @@
 // and cannot be removed from it.
 //
 
-cplusplus {{
-#include "inet/common/geometry/common/Coord.h"
-}}
-
-class noncobject inet::Coord;
+import inet.common.INETDefs;
+import inet.common.packet.chunk.Chunk;
+import inet.common.geometry.Geometry;
 
 
 //
@@ -19,7 +17,7 @@ class noncobject inet::Coord;
 //
 // Extend this packet for creating your own multihop message
 //
-packet MultihopD2DPacket
+class MultihopD2DPacket extends inet::FieldsChunk
 {
     unsigned int srcId;
     uint32_t msgid;          // unique id of the message  < sender id  | local msg id >

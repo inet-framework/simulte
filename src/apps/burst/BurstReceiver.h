@@ -5,7 +5,7 @@
 #include <omnetpp.h>
 
 #include "inet/common/INETDefs.h"
-#include "inet/transportlayer/contract/udp/UDPSocket.h"
+#include <inet/transportlayer/contract/udp/UdpSocket.h>
 #include "inet/networklayer/common/L3AddressResolver.h"
 
 #include "BurstPacket_m.h"
@@ -14,7 +14,7 @@ using namespace inet;
 
 class BurstReceiver : public cSimpleModule
 {
-    UDPSocket socket;
+    UdpSocket socket;
 
     ~BurstReceiver();
 
@@ -29,8 +29,8 @@ class BurstReceiver : public cSimpleModule
   protected:
 
     virtual int numInitStages() const override { return NUM_INIT_STAGES; }
-    void initialize(int stage);
-    void handleMessage(cMessage *msg);
+    void initialize(int stage) override;
+    void handleMessage(cMessage *msg) override;
 };
 
 #endif

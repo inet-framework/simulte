@@ -12,6 +12,8 @@
 #include "stack/mac/buffer/LteMacBuffer.h"
 #include "stack/mac/conflict_graph/ConflictGraph.h"
 
+using namespace omnetpp;
+
 LteAllocatorBestFit::LteAllocatorBestFit()
 {
     conflictGraph_ = NULL;

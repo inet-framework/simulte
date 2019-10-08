@@ -12,26 +12,26 @@
 
 #include <string.h>
 #include <omnetpp.h>
-#include "inet/transportlayer/contract/udp/UDPSocket.h"
-#include "inet/networklayer/common/L3Address.h"
-#include "inet/networklayer/common/L3AddressResolver.h"
+#include <inet/transportlayer/contract/udp/UdpSocket.h>
+#include <inet/networklayer/common/L3Address.h>
+#include <inet/networklayer/common/L3AddressResolver.h>
 #include "apps/alert/AlertPacket_m.h"
 
-class AlertSender : public cSimpleModule
+class AlertSender : public omnetpp::cSimpleModule
 {
-    inet::UDPSocket socket;
+    inet::UdpSocket socket;
 
     //sender
     int nextSno_;
     int size_;
-    simtime_t period_;
+    omnetpp::simtime_t period_;
 
-    simtime_t stopTime_;
+    omnetpp::simtime_t stopTime_;
 
-    simsignal_t alertSentMsg_;
+    omnetpp::simsignal_t alertSentMsg_;
     // ----------------------------
 
-    cMessage *selfSender_;
+    omnetpp::cMessage *selfSender_;
 
     int localPort_;
     int destPort_;
@@ -45,9 +45,9 @@ class AlertSender : public cSimpleModule
 
   protected:
 
-    virtual int numInitStages() const { return inet::NUM_INIT_STAGES; }
-    void initialize(int stage);
-    void handleMessage(cMessage *msg);
+    virtual int numInitStages() const override { return inet::NUM_INIT_STAGES; }
+    void initialize(int stage) override;
+    void handleMessage(omnetpp::cMessage *msg) override;
 };
 
 #endif

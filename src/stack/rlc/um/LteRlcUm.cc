@@ -12,6 +12,8 @@
 
 Define_Module(LteRlcUm);
 
+using namespace omnetpp;
+
 UmTxEntity* LteRlcUm::getTxBuffer(FlowControlInfo* lteInfo)
 {
     MacNodeId nodeId = ctrlInfoToUeId(lteInfo);
@@ -239,7 +241,7 @@ void LteRlcUm::deleteQueues(MacNodeId nodeId)
  * Main functions
  */
 
-void LteRlcUm::initialize()
+void LteRlcUm::initialize(int stage)
 {
     up_[IN] = gate("UM_Sap_up$i");
     up_[OUT] = gate("UM_Sap_up$o");

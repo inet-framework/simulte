@@ -20,7 +20,7 @@
 #include "stack/mac/buffer/LteMacBuffer.h"
 #include "assert.h"
 
-#include "../../../corenetwork/lteCellInfo/LteCellInfo.h"
+using namespace omnetpp;
 
 LteMacBase::LteMacBase()
 {
@@ -234,7 +234,7 @@ void LteMacBase::deleteQueues(MacNodeId nodeId)
     {
         if (MacCidToNodeId(mit->first) == nodeId)
         {
-            while (!mit->second->empty())
+            while (!mit->second->isEmpty())
             {
                 cPacket* pkt = mit->second->popFront();
                 delete pkt;

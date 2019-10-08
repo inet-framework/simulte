@@ -35,16 +35,20 @@ class LteRlcAmPdu : public LteRlcAmPdu_Base
         return *this;
     }
 
+    using LteRlcAmPdu_Base::dup;
     virtual LteRlcAmPdu* dup()
     {
         return new LteRlcAmPdu(*this);
     }
 
-    virtual void setBitmapArraySize(unsigned int size);
-    virtual unsigned int getBitmapArraySize() const;
-    virtual bool getBitmap(unsigned int k) const;
-    virtual void setBitmap(unsigned int k, bool bitmap_var);
+    virtual void setBitmapArraySize(size_t size) override;
+    virtual size_t getBitmapArraySize() const override;
+    virtual bool getBitmap(size_t k) const override;
+    virtual void setBitmap(size_t k, bool bitmap_var) override;
     virtual void setBitmapVec(std::vector<bool> bitmap_vec);
+    virtual void insertBitmap(size_t k, bool bitmap) override;
+    virtual void insertBitmap(bool bitmap) override;
+    virtual void eraseBitmap(size_t k) override;
     virtual std::vector<bool> getBitmapVec();
     //sequence check functions
     virtual bool isWhole();

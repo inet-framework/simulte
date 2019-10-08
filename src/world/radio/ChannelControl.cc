@@ -14,15 +14,16 @@
  * part of:     framework implementation developed by tkn
  **************************************************************************/
 
-
-#include "world/radio/ChannelControl.h"
-#include "inet/common/INETMath.h"
 #include <cassert>
 
+#include <inet/common/INETMath.h>
+
+#include "world/radio/ChannelControl.h"
 #include "stack/phy/packet/AirFrame_m.h"
 
 Define_Module(ChannelControl);
 
+using namespace omnetpp;
 
 std::ostream& operator<<(std::ostream& os, const ChannelControl::RadioEntry& radio)
 {

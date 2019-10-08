@@ -16,6 +16,8 @@
 
 unsigned int LteHarqBufferRx::totalCellRcvdBytes_ = 0;
 
+using namespace omnetpp;
+
 LteHarqBufferRx::LteHarqBufferRx(unsigned int num, LteMacBase *owner,
     MacNodeId nodeId)
 {

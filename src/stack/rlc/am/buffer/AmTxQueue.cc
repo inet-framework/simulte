@@ -13,6 +13,8 @@
 
 Define_Module(AmTxQueue);
 
+using namespace omnetpp;
+
 AmTxQueue::AmTxQueue() :
     pduTimer_(this), mrwTimer_(this), bufferStatusTimer_(this)
 {

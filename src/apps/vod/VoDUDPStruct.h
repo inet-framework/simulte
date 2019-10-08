@@ -18,7 +18,7 @@
 struct Media1
 {
     inet::L3Address clientAddr;   // client address
-    int clientPort;           // client UDP port
+    int clientPort;           // client Udp port
     long numPkSent;           // number of packets sent
 };
 

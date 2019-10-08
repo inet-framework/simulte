@@ -9,6 +9,8 @@
 
 #include "stack/mac/buffer/harq_d2d/LteHarqBufferMirrorD2D.h"
 
+using namespace omnetpp;
+
 LteHarqBufferMirrorD2D::LteHarqBufferMirrorD2D(unsigned int numProc, unsigned char maxHarqRtx)
 {
     numProc_ = numProc;

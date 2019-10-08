@@ -7,11 +7,13 @@
 // and cannot be removed from it.
 //
 
-cplusplus {{
-#include "common/LteCommon.h"
-}}
-
-class noncobject LteD2DMode;
+/// D2D Modes
+// IM = Infastructure Mode
+// DM = Direct (D2D) Mode
+enum LteD2DMode
+{
+    IM=0; DM=1;
+};
 
 packet D2DModeSwitchNotification
 {

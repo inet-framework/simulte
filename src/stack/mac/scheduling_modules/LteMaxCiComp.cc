@@ -10,6 +10,8 @@
 #include "stack/mac/scheduling_modules/LteMaxCiComp.h"
 #include "stack/mac/scheduler/LteSchedulerEnb.h"
 
+using namespace omnetpp;
+
 bool LteMaxCiComp::getBandLimit(std::vector<BandLimit>* bandLimit, MacNodeId ueId)
 {
     bandLimit->clear();

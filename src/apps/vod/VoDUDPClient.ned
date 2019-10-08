@@ -8,13 +8,13 @@
 //
 
 package lte.apps.vod;
-import inet.applications.contract.IUDPApp;
+import inet.applications.contract.IApp;
 
 
 //
 // Video-on-demand (VoD) client application.
 //
-simple VoDUDPClient like IUDPApp
+simple VoDUDPClient like IApp
 {
     parameters:
         int localPort;
@@ -52,7 +52,7 @@ simple VoDUDPClient like IUDPApp
 
 
     gates:
-        input udpIn @labels(UDPControlInfo/up);
-        output udpOut @labels(UDPControlInfo/down);
+        input socketIn @labels(UdpControlInfo/up);
+        output socketOut @labels(UdpControlInfo/down);
 }
 

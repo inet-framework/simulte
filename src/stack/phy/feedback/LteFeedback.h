@@ -15,6 +15,8 @@
 #include <map>
 #include <vector>
 
+using namespace omnetpp;
+
 class LteFeedback;
 typedef std::vector<LteFeedback> LteFeedbackVector;
 typedef std::vector<LteFeedbackVector> LteFeedbackDoubleVector;
