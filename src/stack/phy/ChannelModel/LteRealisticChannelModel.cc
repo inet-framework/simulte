@@ -407,8 +407,6 @@ std::vector<double> LteRealisticChannelModel::getSINR(LteAirFrame *frame, UserCo
    MacNodeId ueId = 0;
    MacNodeId eNbId = 0;
 
-   EnbType eNbType;
-
    Direction dir = (Direction) lteInfo->getDirection();
 
    EV << "------------ GET SINR ----------------" << endl;
@@ -451,7 +449,6 @@ std::vector<double> LteRealisticChannelModel::getSINR(LteAirFrame *frame, UserCo
        // get MacId for Ue and eNb
        ueId = lteInfo->getSourceId();
        eNbId = lteInfo->getDestId();
-       eNbType = getCellInfo(eNbId)->getEnbType();
 
        if (dir == DL)
        {
@@ -481,12 +478,15 @@ std::vector<double> LteRealisticChannelModel::getSINR(LteAirFrame *frame, UserCo
        enbCoord = phy_->getCoord();
    }
 
+   LteCellInfo* eNbCell = getCellInfo(eNbId);
+   const char* eNbTypeString = eNbCell ? (eNbCell->getEnbType() == MACRO_ENB ? "MACRO" : "MICRO") : "NULL";
+
    EV << "LteRealisticChannelModel::getSINR - srcId=" << lteInfo->getSourceId()
                       << " - destId=" << lteInfo->getDestId()
                       << " - DIR=" << (( dir==DL )?"DL" : "UL")
                       << " - frameType=" << ((lteInfo->getFrameType()==FEEDBACKPKT)?"feedback":"other")
                       << endl
-                      << (( getCellInfo(eNbId)->getEnbType() == MACRO_ENB )? "MACRO" : "MICRO") << " - txPwr " << lteInfo->getTxPower()
+                      << eNbTypeString << " - txPwr " << lteInfo->getTxPower()
                       << " - ueCoord[" << ueCoord << "] - enbCoord[" << enbCoord << "] - ueId[" << ueId << "] - enbId[" << eNbId << "]" <<
                       endl;
    //=================== END PARAMETERS SETUP =======================
@@ -516,11 +516,12 @@ std::vector<double> LteRealisticChannelModel::getSINR(LteAirFrame *frame, UserCo
    if (dir == DL)
    {
        //get tx angle
-       LtePhyBase* ltePhy = check_and_cast<LtePhyBase*>(
-               getSimulation()->getModule(binder_->getOmnetId(eNbId))->getSubmodule(
-                       "lteNic")->getSubmodule("phy"));
+       omnetpp::cModule* eNbModule = getSimulation()->getModule(binder_->getOmnetId(eNbId));
+       LtePhyBase* ltePhy = eNbModule ?
+          check_and_cast<LtePhyBase*>(eNbModule->getSubmodule("lteNic")->getSubmodule("phy")) :
+          nullptr;
 
-       if (ltePhy->getTxDirection() == ANISOTROPIC)
+       if (ltePhy && ltePhy->getTxDirection() == ANISOTROPIC)
        {
            // get tx angle
            double txAngle = ltePhy->getTxAngle();
