@@ -270,7 +270,7 @@ void LteMacEnb::initialize(int stage)
         binder_->addEnbInfo(info);
 
         // register the pair <id,name> to the binder
-        const char* moduleName = getParentModule()->getParentModule()->getName();
+        const char* moduleName = getParentModule()->getParentModule()->getFullName();
         binder_->registerName(nodeId_, moduleName);
     }
 }
