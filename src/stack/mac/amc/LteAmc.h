@@ -14,6 +14,7 @@
 
 #include "corenetwork/lteCellInfo/LteCellInfo.h"
 #include "stack/phy/feedback/LteFeedback.h"
+#include "stack/phy/feedback/LteSummaryBuffer.h"
 #include "stack/mac/amc/AmcPilot.h"
 #include "stack/mac/amc/LteMcs.h"
 #include "stack/mac/amc/UserTxParams.h"
