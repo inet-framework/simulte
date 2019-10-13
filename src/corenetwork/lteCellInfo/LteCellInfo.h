@@ -10,10 +10,11 @@
 #ifndef _LTE_LTECELLINFO_H_
 #define _LTE_LTECELLINFO_H_
 
-#include <string.h>
 #include <omnetpp.h>
-#include <math.h>
-#include "inet/networklayer/contract/ipv4/Ipv4Address.h"
+
+
+#include <inet/networklayer/contract/ipv4/Ipv4Address.h>
+
 #include "stack/phy/das/RemoteAntennaSet.h"
 #include "corenetwork/binder/LteBinder.h"
 #include "common/LteCommon.h"

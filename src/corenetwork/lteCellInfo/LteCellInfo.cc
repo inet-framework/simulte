@@ -6,12 +6,12 @@
 // The above file and the present reference are part of the software itself,
 // and cannot be removed from it.
 //
+#include <inet/mobility/static/StationaryMobility.h>
 
 #include "LteCellInfo.h"
 
 #include "world/radio/ChannelControl.h"
 #include "world/radio/ChannelAccess.h"
-#include "inet/mobility/static/StationaryMobility.h"
 
 Define_Module(LteCellInfo);
 

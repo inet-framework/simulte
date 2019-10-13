@@ -11,7 +11,7 @@
 #define _LTE_REMOTEANTENNASET_H_
 
 #include <vector>
-#include "inet/common/geometry/common/Coord.h"
+#include <inet/common/geometry/common/Coord.h>
 
 
 /**
