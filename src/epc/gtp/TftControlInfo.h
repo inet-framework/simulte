@@ -12,8 +12,6 @@
 
 #include <omnetpp.h>
 
-//using namespace omnetpp;
-
 class TftControlInfo : public omnetpp::cObject
 {
     unsigned int tft_;

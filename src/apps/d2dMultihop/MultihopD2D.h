@@ -34,14 +34,14 @@ protected:
     double selfishProbability_;         // if = 0, the node is always collaborative
     int ttl_;                           // if < 0, do not use hops to limit the flooding
     double maxBroadcastRadius_;         // if < 0, do not use radius to limit the flooding
-    simtime_t maxTransmissionDelay_;    // if > 0, when a new message has to be transmitted, choose an offset between 0 and maxTransmissionDelay_
+    omnetpp::simtime_t maxTransmissionDelay_;    // if > 0, when a new message has to be transmitted, choose an offset between 0 and maxTransmissionDelay_
 
     /*
      * Trickle parameters
      */
     bool trickleEnabled_;
     unsigned int k_;
-    simtime_t I_;
+    omnetpp::simtime_t I_;
     std::map<unsigned int, inet::Packet*> last_;
     std::map<unsigned int, unsigned int> counter_;
     /***************************************************/
@@ -53,7 +53,7 @@ protected:
     inet::L3Address destAddress_;
     inet::UdpSocket socket;
 
-    cMessage *selfSender_;
+    omnetpp::cMessage *selfSender_;
 
     EventGenerator* eventGen_;          // reference to the eventGenerator
     LtePhyBase* ltePhy_;                // reference to the LtePhy
@@ -61,18 +61,18 @@ protected:
     MacNodeId lteCellId_;               // LTE Cell Id
 
     // local statistics
-    simsignal_t d2dMultihopGeneratedMsg_;
-    simsignal_t d2dMultihopSentMsg_;
-    simsignal_t d2dMultihopRcvdMsg_;
-    simsignal_t d2dMultihopRcvdDupMsg_;
-    simsignal_t d2dMultihopTrickleSuppressedMsg_;
+    omnetpp::simsignal_t d2dMultihopGeneratedMsg_;
+    omnetpp::simsignal_t d2dMultihopSentMsg_;
+    omnetpp::simsignal_t d2dMultihopRcvdMsg_;
+    omnetpp::simsignal_t d2dMultihopRcvdDupMsg_;
+    omnetpp::simsignal_t d2dMultihopTrickleSuppressedMsg_;
 
     // reference to the statistics manager
     MultihopD2DStatistics* stat_;
 
     virtual int numInitStages() const { return inet::NUM_INIT_STAGES; }
     virtual void initialize(int stage);
-    virtual void handleMessage(cMessage *msg);
+    virtual void handleMessage(omnetpp::cMessage *msg);
     virtual void finish();
 
     void markAsReceived(uint32_t msgId);      // store the msg id in the set of received messages
@@ -82,9 +82,9 @@ protected:
     bool isWithinBroadcastArea(inet::Coord srcCoord, double maxRadius);
 
     virtual void sendPacket();
-    virtual void handleRcvdPacket(cMessage* msg);
-    virtual void handleTrickleTimer(cMessage* msg);
-    virtual void relayPacket(cMessage* msg);
+    virtual void handleRcvdPacket(omnetpp::cMessage* msg);
+    virtual void handleTrickleTimer(omnetpp::cMessage* msg);
+    virtual void relayPacket(omnetpp::cMessage* msg);
 
   public:
     MultihopD2D();

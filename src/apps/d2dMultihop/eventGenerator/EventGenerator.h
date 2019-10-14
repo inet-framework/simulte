@@ -18,11 +18,11 @@
 
 class MultihopD2D;
 
-class EventGenerator : public cSimpleModule
+class EventGenerator : public omnetpp::cSimpleModule
 {
-    cMessage *selfMessage_;
+    omnetpp::cMessage *selfMessage_;
 
-    simtime_t eventPeriod_;
+    omnetpp::simtime_t eventPeriod_;
     uint32_t eventId_;
     LteBinder* binder_;
 
@@ -43,8 +43,8 @@ class EventGenerator : public cSimpleModule
 
 protected:
 
-    void initialize();
-    void handleMessage(cMessage *msg);
+    virtual void initialize() override;
+    virtual void handleMessage(omnetpp::cMessage *msg) override;
 
   public:
     EventGenerator();
