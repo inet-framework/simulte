@@ -12,8 +12,6 @@
 
 Define_Module(MultihopD2DStatistics);
 
-using namespace omnetpp;
-
 MultihopD2DStatistics::MultihopD2DStatistics()
 {
 }
@@ -80,7 +78,7 @@ void MultihopD2DStatistics::recordNewBroadcast(unsigned int msgId, UeSet& destin
 }
 
 
-void MultihopD2DStatistics::recordReception(MacNodeId nodeId, unsigned int msgId, omnetpp::simtime_t delay, int hops)
+void MultihopD2DStatistics::recordReception(MacNodeId nodeId, unsigned int msgId, simtime_t delay, int hops)
 {
     if (delay > 0.500)  // TODO fix this. packets with higher delay should be discarded by the sender
         return;

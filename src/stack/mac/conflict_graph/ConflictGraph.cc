@@ -9,8 +9,6 @@
 
 #include "stack/mac/conflict_graph/ConflictGraph.h"
 
-using namespace omnetpp;
-
 /*!
  * \fn ConflictGraph()
  * \memberof ConflictGraph

@@ -28,7 +28,7 @@ class LteMacUeD2D : public LteMacUe
     // Multicast D2D BSR handling
     bool bsrD2DMulticastTriggered_;
 
-    omnetpp::simsignal_t rcvdD2DModeSwitchNotification_;
+    simsignal_t rcvdD2DModeSwitchNotification_;
 
     // if true, use the preconfigured TX params for transmission, else use that signaled by the eNB
     bool usePreconfiguredTxParams_;
@@ -53,7 +53,7 @@ class LteMacUeD2D : public LteMacUe
      */
     virtual void handleSelfMessage() override;
 
-    virtual void macHandleGrant(omnetpp::cPacket* pkt) override;
+    virtual void macHandleGrant(cPacket* pkt) override;
 
     /*
      * Checks RAC status

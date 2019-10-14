@@ -13,8 +13,6 @@
 
 Define_Module(EventGenerator);
 
-using namespace omnetpp;
-
 EventGenerator::EventGenerator()
 {
     selfMessage_ = NULL;

@@ -142,7 +142,7 @@ private:
   bool fixedLos_;
 
   // statistics
-  omnetpp::simsignal_t rcvdSinr_;
+  simsignal_t rcvdSinr_;
 
 
 public:
@@ -218,7 +218,7 @@ public:
    */
   virtual bool isCorruptedDas(LteAirFrame *frame, UserControlInfo* lteI)
   {
-      throw omnetpp::cRuntimeError("DAS PHY LAYER TO BE IMPLEMENTED");
+      throw cRuntimeError("DAS PHY LAYER TO BE IMPLEMENTED");
       return -1;
   }
   /*
