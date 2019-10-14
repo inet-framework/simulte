@@ -98,7 +98,7 @@ class LtePhyUe : public LtePhyBase
     virtual void handleSelfMessage(omnetpp::cMessage *msg) override;
     virtual void handleAirFrame(omnetpp::cMessage* msg) override;
     virtual void finish() override;
-    virtual void finish(cComponent *component, omnetpp::simsignal_t signalID) override {cIListener::finish(component, signalID);}
+    virtual void finish(cComponent *component, simsignal_t signalID) override {cIListener::finish(component, signalID);}
 
     virtual void handleUpperMessage(omnetpp::cMessage* msg) override;
 

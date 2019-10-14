@@ -83,7 +83,7 @@ class LteDummyChannelModel : public LteChannelModel
    //TODO
    virtual bool isCorruptedDas(LteAirFrame *frame, UserControlInfo* lteI)
    {
-       throw omnetpp::cRuntimeError("DAS PHY LAYER TO BE IMPLEMENTED");
+       throw cRuntimeError("DAS PHY LAYER TO BE IMPLEMENTED");
        return false;
    }
 

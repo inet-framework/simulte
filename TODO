@@ -1,7 +1,7 @@
 ## Design flaws
 ### Inheritance hierarchy
 - changing the inheritance hierarchy in PgwStandard.ned. inet3 used the
-NodeBase up until the network layer. Inet4 is separated into nodes for four of
+NodeBase up until the network layer. Inet4 separated into nodes for four of
 the five layers (Link, Network, Transport, Application), where upper layers
 derive from the consecutive lower layer. LinkLayerNodeBase derives from
 NodeBase.
