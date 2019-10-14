@@ -298,6 +298,11 @@ class LtePhyBase : public ChannelAccess
      */
     LteAmc *getAmcModule(MacNodeId id);
 
+    /**
+     * Determine radio gate index of receiving node
+     */
+    int getReceiverGateIndex(const omnetpp::cModule*) const;
+
   public:
     /*
      * Returns the current position of the node

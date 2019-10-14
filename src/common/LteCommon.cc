@@ -536,7 +536,8 @@ LteCellInfo* getCellInfo(MacNodeId nodeId)
     // TODO change this behavior (its not needed unless we don't implement relays)
     MacNodeId id = temp->getNextHop(nodeId);
     OmnetId omnetid = temp->getOmnetId(id);
-    return check_and_cast<LteCellInfo*>(getSimulation()->getModule(omnetid)->getSubmodule("cellInfo"));
+    omnetpp::cModule* module = getSimulation()->getModule(omnetid);
+    return module? check_and_cast<LteCellInfo*>(module->getSubmodule("cellInfo")) : nullptr;
 }
 
 cModule* getMacByMacNodeId(MacNodeId nodeId)
