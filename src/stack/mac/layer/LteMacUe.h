@@ -90,7 +90,7 @@ class LteMacUe : public LteMacBase
      * Analyze gate of incoming packet
      * and call proper handler
      */
-    virtual void handleMessage(cMessage *msg) override;
+    virtual void handleMessage(omnetpp::cMessage *msg) override;
 
     /**
      * macSduRequest() sends a message to the RLC layer
@@ -103,7 +103,7 @@ class LteMacUe : public LteMacBase
      * bufferizePacket() is called every time a packet is
      * received from the upper layer
      */
-    virtual bool bufferizePacket(cPacket* pkt) override;
+    virtual bool bufferizePacket(omnetpp::cPacket* pkt) override;
 
     /**
      * macPduMake() creates MAC PDUs (one for each CID)
@@ -128,7 +128,7 @@ class LteMacUe : public LteMacBase
      * handleUpperMessage() is called every time a packet is
      * received from the upper layer
      */
-    virtual void handleUpperMessage(cPacket* pkt) override;
+    virtual void handleUpperMessage(omnetpp::cPacket* pkt) override;
 
     /**
      * Main loop

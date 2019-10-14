@@ -41,7 +41,7 @@ class LteMacEnbD2D : public LteMacEnb
     bool reuseD2D_;
     bool reuseD2DMulti_;
 
-    simtime_t conflictGraphUpdatePeriod_;
+    omnetpp::simtime_t conflictGraphUpdatePeriod_;
     double conflictGraphThreshold_;
 
     // handling of D2D mode switch
@@ -63,7 +63,7 @@ class LteMacEnbD2D : public LteMacEnb
      */
     virtual void macPduUnmake(omnetpp::cPacket* pkt);
 
-    virtual void macHandleFeedbackPkt(cPacket *pkt);
+    virtual void macHandleFeedbackPkt(omnetpp::cPacket *pkt);
     /**
      * creates scheduling grants (one for each nodeId) according to the Schedule List.
      * It sends them to the  lower layer
@@ -71,7 +71,7 @@ class LteMacEnbD2D : public LteMacEnb
     virtual void sendGrants(LteMacScheduleList* scheduleList);
    // virtual void macHandleFeedbackPkt(omnetpp::cPacket* pkt);
 
-    void macHandleD2DModeSwitch(cPacket* pkt);
+    void macHandleD2DModeSwitch(omnetpp::cPacket* pkt);
 
     /**
      * Flush Tx H-ARQ buffers for all users
@@ -79,7 +79,7 @@ class LteMacEnbD2D : public LteMacEnb
     virtual void flushHarqBuffers();
 
     /// Lower Layer Handler
-    virtual void fromPhy(cPacket *pkt);
+    virtual void fromPhy(omnetpp::cPacket *pkt);
 
   public:
 
@@ -96,7 +96,7 @@ class LteMacEnbD2D : public LteMacEnb
      */
     virtual void handleSelfMessage();
 
-    virtual void handleMessage(cMessage* msg);
+    virtual void handleMessage(omnetpp::cMessage* msg);
 
     virtual bool isD2DCapable()
     {

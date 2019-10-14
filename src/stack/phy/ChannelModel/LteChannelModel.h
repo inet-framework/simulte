@@ -21,7 +21,7 @@
 class LteAirFrame;
 class LtePhyBase;
 
-class LteChannelModel : public cSimpleModule
+class LteChannelModel : public omnetpp::cSimpleModule
 {
   protected:
     unsigned int band_;
