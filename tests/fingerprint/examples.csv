@@ -1,10 +1,10 @@
 # workingdir,                        args,                                     simtimelimit,    fingerprint
-/simulations/advanced/,              -f omnetpp.ini -c VoIP -r 0,              5s,              05cb-c3d7 e9f1-68fc/tplx
-/simulations/advanced/,              -f omnetpp.ini -c SchedulersTest -r 0,    5s,              4a1a-393d/tplx
-/simulations/advanced/,              -f omnetpp.ini -c SchedulersTest -r 12,    5s,             310d-2c8c/tplx
-/simulations/demo/,                  -f omnetpp.ini -c VideoStreaming -r 0,    5s,              ac8b-ab27/tplx
-/simulations/demo/,                  -f omnetpp.ini -c VoIP -r 0,              5s,              e9f1-68fc/tplx
-/simulations/demo/,                  -f omnetpp.ini -c VoIP_PF -r 0,           5s,              e2e0-748e/tplx
-/simulations/demo/,                  -f omnetpp.ini -c Large-VoIP_PF -r 0,     5s,              20d0-b35d/tplx
-/simulations/demo/,                  -f omnetpp.ini -c Large-VoIP_MaxCI -r 0,  5s,              7a2e-e489/tplx
-/simulations/demo/,                  -f omnetpp.ini -c VoIP_DL-UL -r 0,        5s,              31f9-84db/tplx
+/simulations/advanced/,              -f omnetpp.ini -c VoIP -r 0,              5s,              e9f1-68fc/tplx, PASS,
+/simulations/advanced/,              -f omnetpp.ini -c SchedulersTest -r 0,    5s,              4a1a-393d/tplx, PASS,
+/simulations/advanced/,              -f omnetpp.ini -c SchedulersTest -r 12,    5s,             310d-2c8c/tplx, PASS,
+/simulations/demo/,                  -f omnetpp.ini -c VideoStreaming -r 0,    5s,              ac8b-ab27/tplx, PASS,
+/simulations/demo/,                  -f omnetpp.ini -c VoIP -r 0,              5s,              e9f1-68fc/tplx, PASS,
+/simulations/demo/,                  -f omnetpp.ini -c VoIP_PF -r 0,           5s,              e2e0-748e/tplx, PASS,
+/simulations/demo/,                  -f omnetpp.ini -c Large-VoIP_PF -r 0,     5s,              20d0-b35d/tplx, PASS,
+/simulations/demo/,                  -f omnetpp.ini -c Large-VoIP_MaxCI -r 0,  5s,              7a2e-e489/tplx, PASS,
+/simulations/demo/,                  -f omnetpp.ini -c VoIP_DL-UL -r 0,        5s,              31f9-84db/tplx, PASS,
