@@ -1,0 +1,16 @@
+name: Build and run fingerprint tests
+
+on: [push, pull_request]
+
+jobs:
+  build:
+
+    runs-on: ubuntu-latest
+
+    steps:
+    - uses: actions/checkout@v1
+    - name: Build and run fingerprint tests
+      run: |
+        docker run --rm -v ${{ github.workspace }}:/root/models -u "$(id -u):$(id -g)" \
+        omnetpp/inet:o5.5.1-3.6.6 \
+        /bin/bash -c "cd /root/models && make makefiles && make tests -j4"
