@@ -10,6 +10,11 @@
 #include "x2/X2AppServer.h"
 
 #include <inet/transportlayer/contract/sctp/SctpCommand_m.h>
+#include "inet/applications/common/SocketTag_m.h"
+#include "inet/common/ProtocolTag_m.h"
+#include "inet/common/TimeTag_m.h"
+#include "inet/common/packet/Message.h"
+
 
 Define_Module(X2AppServer);
 
@@ -32,77 +37,51 @@ void X2AppServer::initialize(int stage)
     }
 }
 
-void X2AppServer::generateAndSend(cPacket* pkt)
+void X2AppServer::generateAndSend(Packet* pkt)
 {
-    /**
-     * TODO: this has to be reworked to make use of the new packet api
-     * look here: inet version 4.0.0
-     * src/inet/applications/netperfmeter/NetPerfMeter.cc
-     * line 956
-     */
-    Packet* cmsg = new Packet("CMSG");
-    SctpSimpleMessage* msg = new SctpSimpleMessage("Server");
-    int numBytes = pkt->getByteLength();
-    msg->setDataArraySize(numBytes);
-    for (int i=0; i<numBytes; i++)
-        msg->setData(i, 's');
 
-    msg->setDataLen(numBytes);
+    Packet* cmsg = new Packet("SctpSimpleMessage");
+    auto dataMsg = makeShared<BytesChunk>();
+    std::vector<uint8_t> dataVec;
+    const int numBytes = pkt->getByteLength();
+    dataVec.resize(numBytes);
+    for (uint32 i=0; i<numBytes; i++)
+        dataVec[i] = 's';
+    dataMsg->setBytes(dataVec);
+    dataMsg->addTag<CreationTimeTag>()->setCreationTime(simTime());
+    cmsg->insertAtBack(dataMsg);
+    cmsg->addTag<DispatchProtocolReq>()->setProtocol(&Protocol::sctp);
+    auto cmd = cmsg->addTagIfAbsent<SctpSendReq>();
+    // SctpSendInfo *cmd = new SctpSendInfo("Send1");
+    cmd->setSocketId(assocId);
+    cmd->setSendUnordered(ordered ? COMPLETE_MESG_ORDERED : COMPLETE_MESG_UNORDERED);
 
-    // encapsulate packet
-    msg->setEncaps(true);
-    msg->encapsulate(pkt);
-
-    msg->setBitLength(numBytes * 8);
-    cmsg->encapsulate(msg);
-    auto command = cmsg->addTagIfAbsent<SctpSendReq>();
-    //SctpSendInfo *cmd = new SctpSendInfo("Send1");
-    //command->setAssocId(assocId);
-    //
-    // import from inet
-    //command->setSocketId(ConnectionID);                                 
-
-    // done
-    //command->setSid(streamID);                                          
-    //command->setSendUnordered( (sendUnordered == true) ?                
-    //                           COMPLETE_MESG_UNORDERED : COMPLETE_MESG_ORDERED );
-    //command->setLast(true);                                             
-
-    /*
-     * TODO: Ignored. Needed
-     */
-    //command->setPrimary(PrimaryPath.isUnspecified());                   
-    //command->setRemoteAddr(PrimaryPath);                                
-    //command->setPrValue(1);                                             
-    //command->setPrMethod( (sendUnreliable == true) ? 2 : 0 );   // PR-Sctp policy: RTX
-
-
-
-    //command->setSendUnordered(ordered ? COMPLETE_MESG_ORDERED : COMPLETE_MESG_UNORDERED);
     lastStream = (lastStream+1)%outboundStreams;
-    command->setSid(lastStream);
-    command->setPrValue(par("prValue"));
-    command->setPrMethod((int32)par("prMethod"));
+    cmd->setSid(lastStream);
+    cmd->setPrValue(par("prValue"));
+    cmd->setPrMethod((int32)par("prMethod"));
+
     if (queueSize>0 && numRequestsToSend > 0 && count < queueSize*2)
-        command->setLast(false);
+        cmd->setLast(false);
     else
-        command->setLast(true);
+        cmd->setLast(true);
     cmsg->setKind(SCTP_C_SEND);
-    cmsg->setControlInfo(command);
     packetsSent++;
-    bytesSent += msg->getBitLength()/8;
+    bytesSent += cmsg->getBitLength()/8;
 
     sendOrSchedule(cmsg);
+
 }
 
 void X2AppServer::handleMessage(cMessage *msg)
 {
-    cPacket* pkt = check_and_cast<cPacket*>(msg);
-    cGate* incoming = pkt->getArrivalGate();
+    cGate* incoming = msg->getArrivalGate();
     if (incoming == x2ManagerIn_)
     {
         EV << "X2AppServer::handleMessage - Received message from x2 manager" << endl;
         EV << "X2AppServer::handleMessage - Forwarding to X2 interface" << endl;
+
+        Packet* pkt = check_and_cast<Packet*>(msg);
 
         // generate a Sctp packet and sent to lower layer
         generateAndSend(pkt);

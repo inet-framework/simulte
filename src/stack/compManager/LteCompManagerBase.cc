@@ -38,11 +38,13 @@ void LteCompManagerBase::initialize()
         throw cRuntimeError("LteCompManagerBase::initialize - Unrecognized node type %s", nodeType);
 
     // register to the X2 Manager
-    X2CompMsg* initMsg = new X2CompMsg();
-    X2ControlInfo* ctrlInfo = new X2ControlInfo();
+    auto pkt = new Packet ("X2CompMsg");
+    auto initMsg = makeShared<X2CompMsg>();
+    pkt->insertAtFront(initMsg);
+    auto ctrlInfo = pkt->addTagIfAbsent<X2ControlInfoTag>();
     ctrlInfo->setInit(true);
-    initMsg->setControlInfo(ctrlInfo);
-    send(PK(initMsg), x2Manager_[OUT]);
+
+    send(pkt, x2Manager_[OUT]);
 
     if (nodeType_ != COMP_CLIENT)
     {
@@ -96,7 +98,7 @@ void LteCompManagerBase::handleMessage(cMessage *msg)
     }
     else
     {
-        cPacket* pkt = check_and_cast<cPacket*>(msg);
+        Packet* pkt = check_and_cast<Packet*>(msg);
         cGate* incoming = pkt->getArrivalGate();
         if (incoming == x2Manager_[IN])
         {
@@ -139,9 +141,10 @@ void LteCompManagerBase::runCoordinatorOperations()
     }
 }
 
-void LteCompManagerBase::handleX2Message(cPacket* pkt)
+void LteCompManagerBase::handleX2Message(Packet* pkt)
 {
-    X2CompMsg* compMsg = check_and_cast<X2CompMsg*>(pkt);
+    // X2CompMsg* compMsg = check_and_cast<X2CompMsg*>(pkt);
+    auto compMsg = pkt->removeAtFront<X2CompMsg>();
     X2NodeId sourceId = compMsg->getSourceId();
 
     if (nodeType_ == COMP_COORDINATOR || nodeType_ == COMP_CLIENT_COORDINATOR)
@@ -157,52 +160,46 @@ void LteCompManagerBase::handleX2Message(cPacket* pkt)
 
         handleCoordinatorReply(compMsg);
     }
-
-    delete compMsg;
 }
 
 void LteCompManagerBase::sendClientRequest(X2CompRequestIE* requestIe)
 {
-    // build control info
-    X2ControlInfo* ctrlInfo = new X2ControlInfo();
-    ctrlInfo->setSourceId(nodeId_);
-    DestinationIdList destList;
-    destList.push_back(coordinatorId_);
-    ctrlInfo->setDestIdList(destList);
-
     // build X2 Comp Msg
-    X2CompMsg* compMsg = new X2CompMsg("X2CompMsg");
+    auto compMsg = makeShared<X2CompMsg>();
     compMsg->pushIe(requestIe);
-    compMsg->setControlInfo(ctrlInfo);
+    compMsg->setChunkLength(B(compMsg->getByteLength()));
 
-    EV<<NOW<<" LteCompManagerBase::sendCompRequest - Send CoMP request" << endl;
+    EV<<NOW<<" LteCompManagerBase::sendCompRequest - Send CoMP request (len: "<< compMsg->getByteLength()<< " B)" << endl;
 
     if (nodeType_ == COMP_CLIENT_COORDINATOR)
     {
         compMsg->setSourceId(nodeId_);
         handleClientRequest(compMsg);
-        delete compMsg;
     }
     else
     {
+        auto pkt = new Packet("X2CompMsg");
+
+        // build control info
+        auto ctrlInfo = pkt->addTagIfAbsent<X2ControlInfoTag>();
+        ctrlInfo->setSourceId(nodeId_);
+        DestinationIdList destList;
+        destList.push_back(coordinatorId_);
+        ctrlInfo->setDestIdList(destList);
+
+        // add COMP message to packet
+        pkt->insertAtFront(compMsg);
+
         // send to X2 Manager
-        send(PK(compMsg),x2Manager_[OUT]);
+        send(pkt,x2Manager_[OUT]);
     }
 }
 
 void LteCompManagerBase::sendCoordinatorReply(X2NodeId clientId, X2CompReplyIE* replyIe)
 {
-    // build control info
-    X2ControlInfo* ctrlInfo = new X2ControlInfo();
-    ctrlInfo->setSourceId(nodeId_);
-    DestinationIdList destList;
-    destList.push_back(clientId);
-    ctrlInfo->setDestIdList(destList);
-
     // build X2 Comp Msg
-    X2CompMsg* compMsg = new X2CompMsg("X2CompMsg");
+    auto compMsg = makeShared<X2CompMsg>();
     compMsg->pushIe(replyIe);
-    compMsg->setControlInfo(ctrlInfo);
 
     if (clientId == nodeId_)
     {
@@ -211,12 +208,22 @@ void LteCompManagerBase::sendCoordinatorReply(X2NodeId clientId, X2CompReplyIE* 
 
         compMsg->setSourceId(nodeId_);
         handleCoordinatorReply(compMsg);
-        delete compMsg;
     }
     else
     {
-        // send to X2 Manager
-        send(PK(compMsg),x2Manager_[OUT]);
+        // create a new packet to be able to send info to X2 manager
+        auto pkt = new Packet("X2CompMsg");
+
+        // build control info and add it to the packet
+        auto ctrlInfo = pkt->addTagIfAbsent<X2ControlInfoTag>();
+        ctrlInfo->setSourceId(nodeId_);
+        DestinationIdList destList;
+        destList.push_back(clientId);
+        ctrlInfo->setDestIdList(destList);
+
+        // send packet to X2 Manager
+        pkt->insertAtFront(compMsg);
+        send(pkt,x2Manager_[OUT]);
     }
 }
 

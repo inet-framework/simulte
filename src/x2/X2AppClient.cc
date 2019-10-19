@@ -83,7 +83,8 @@ void X2AppClient::socketDataArrived(int32_t, void *, cPacket *msg, bool)
     {
         EV << "X2AppClient::socketDataArrived - No encapsulated message. Discard." << endl;
 
-        // TODO: throw exception?
+        throw cRuntimeError("X2AppClient::socketDataArrived: No encapsulated message.");
+
 
         delete msg;
     }

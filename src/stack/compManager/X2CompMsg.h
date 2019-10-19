@@ -24,8 +24,8 @@ class X2CompMsg : public LteX2Message
 
   public:
 
-    X2CompMsg(const char* name = NULL, int kind = 0) :
-        LteX2Message(name, kind)
+    X2CompMsg() :
+        LteX2Message()
     {
         type_ = X2_COMP_MSG;
     }

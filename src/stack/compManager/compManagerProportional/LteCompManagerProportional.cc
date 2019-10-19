@@ -158,7 +158,7 @@ X2CompProportionalReplyIE* LteCompManagerProportional::buildCoordinatorReply(X2N
     return replyIe;
 }
 
-void LteCompManagerProportional::handleClientRequest(X2CompMsg* compMsg)
+void LteCompManagerProportional::handleClientRequest(inet::IntrusivePtr<X2CompMsg> compMsg)
 {
     X2NodeId sourceId = compMsg->getSourceId();
     while (compMsg->hasIe())
@@ -180,7 +180,7 @@ void LteCompManagerProportional::handleClientRequest(X2CompMsg* compMsg)
     }
 }
 
-void LteCompManagerProportional::handleCoordinatorReply(X2CompMsg* compMsg)
+void LteCompManagerProportional::handleCoordinatorReply(inet::IntrusivePtr<X2CompMsg> compMsg)
 {
     while (compMsg->hasIe())
     {

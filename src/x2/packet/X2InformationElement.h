@@ -34,7 +34,7 @@ class X2InformationElement : public X2InformationElement_Base
 
   public:
 
-    X2InformationElement(const char* name = NULL, int kind = 0) : X2InformationElement_Base(name, kind) {}
+    X2InformationElement() : X2InformationElement_Base() { }
 
     virtual ~X2InformationElement() {}
 
