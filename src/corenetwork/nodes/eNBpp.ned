@@ -45,4 +45,14 @@ module eNBpp extends eNodeBBase
         trafficFlowFilter.internetFilterGateIn <-- nl.out++;
         gtp_user.socketOut --> at.in++;
         gtp_user.socketIn <-- at.out++;
+        
+		// set remaining X2 apps connections        
+        for i=0..numX2Apps-1 {
+            x2App[i].sctpOut[0] --> at.in++;
+            x2App[i].sctpIn[0] <-- at.out++;
+            x2App[i].sctpOut[1] --> at.in++;
+            x2App[i].sctpIn[1] <-- at.out++;
+            x2App[i].x2ManagerIn <-- lteNic.x2$o++;
+            x2App[i].x2ManagerOut --> lteNic.x2$i++;
+        }        
 }
