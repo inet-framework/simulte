@@ -8,7 +8,7 @@
 //
 package lte.simulations.cars;
 
-import inet.networklayer.configurator.ipv4.IPv4NetworkConfigurator;
+import inet.networklayer.configurator.ipv4.Ipv4NetworkConfigurator;
 import inet.networklayer.ipv4.RoutingTableRecorder;
 import inet.node.inet.AdhocHost;
 import inet.node.inet.Router;
@@ -37,7 +37,7 @@ network Highway
         routingRecorder: RoutingTableRecorder {
             @display("p=50,75;is=s");
         }
-        configurator: IPv4NetworkConfigurator {
+        configurator: Ipv4NetworkConfigurator {
             @display("p=50,125");
             config = xmldoc("demo.xml");
         }
