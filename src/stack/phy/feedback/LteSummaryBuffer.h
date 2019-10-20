@@ -10,7 +10,7 @@
 #define STACK_PHY_FEEDBACK_LTESUMMARYBUFFER_H_
 
 #include <list>
-#include "stack/phy/feedback/LteSummaryBuffer.h";
+#include "stack/phy/feedback/LteSummaryBuffer.h"
 #include "stack/phy/feedback/LteFeedback.h"
 
 class LteSummaryBuffer
