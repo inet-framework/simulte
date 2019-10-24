@@ -11,7 +11,6 @@
 package lte.corenetwork.nodes;
 
 import inet.applications.contract.IApp;
-import inet.applications.contract.IApp;
 import inet.mobility.contract.IMobility;
 import inet.networklayer.common.InterfaceTable;
 import inet.networklayer.contract.IRoutingTable;
@@ -35,10 +34,8 @@ module Ue
         string mobilityType = default("StationaryMobility");
 
         //# Apps
-        // FIXME: generic IApp interface - simulation inifiles need to be adapted!
-        // int numTcpApps = default(0);  // no of Tcp apps. Specify the app types in INI file with tcpApp[0..1].typename="TcpEchoApp" syntax
-        // int numUdpApps = default(0);  // no of Udp apps. Specify the app types in INI file with udpApp[0..1].typename="UdpVideoStreamClient" syntax
-        int numApps = default(0);  // no of apps. 
+        int numApps = default(0);   // no of apps.
+                                    // Specify the app types in INI file with app[0..1].typename="UdpVideoStreamClient" syntax 
         
         //# Transport layer
         bool hasUdp = default(firstAvailableOrEmpty("Udp") != "");

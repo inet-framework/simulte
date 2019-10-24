@@ -71,7 +71,7 @@ protected:
 
     void runClientOperations();
     void runCoordinatorOperations();
-    void handleX2Message(omnetpp::cPacket* pkt);
+    void handleX2Message(inet::Packet* pkt);
     void sendClientRequest(X2CompRequestIE* requestIe);
     void sendCoordinatorReply(X2NodeId clientId, X2CompReplyIE* replyIe);
 
@@ -79,10 +79,10 @@ protected:
     virtual void doCoordination() = 0;       // run the coordination algorithm (coordinator side)
 
     virtual X2CompRequestIE* buildClientRequest() = 0;
-    virtual void handleClientRequest(X2CompMsg* compMsg) = 0;
+    virtual void handleClientRequest(inet::IntrusivePtr<X2CompMsg> compMsg) = 0;
 
     virtual X2CompReplyIE* buildCoordinatorReply(X2NodeId clientId) = 0;
-    virtual void handleCoordinatorReply(X2CompMsg* compMsg) = 0;
+    virtual void handleCoordinatorReply(inet::IntrusivePtr<X2CompMsg> compMsg) = 0;
 
     void setUsableBands(UsableBands& usableBands);
 

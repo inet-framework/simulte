@@ -30,11 +30,13 @@ void LteHandoverManager::initialize()
     losslessHandover_ = par("losslessHandover").boolValue();
 
     // register to the X2 Manager
-    X2HandoverControlMsg* initMsg = new X2HandoverControlMsg();
-    X2ControlInfo* ctrlInfo = new X2ControlInfo();
+    auto x2Packet = new Packet("X2HandoverControlMsg");
+    auto initMsg = makeShared<X2HandoverControlMsg>();
+    auto ctrlInfo = x2Packet->addTagIfAbsent<X2ControlInfoTag>();
     ctrlInfo->setInit(true);
-    initMsg->setControlInfo(ctrlInfo);
-    send(PK(initMsg), x2Manager_[OUT]);
+    x2Packet->insertAtFront(initMsg);
+
+    send(x2Packet, x2Manager_[OUT]);
 }
 
 void LteHandoverManager::handleMessage(cMessage *msg)
@@ -53,25 +55,25 @@ void LteHandoverManager::handleMessage(cMessage *msg)
 
 void LteHandoverManager::handleX2Message(cPacket* pkt)
 {
-    LteX2Message* x2msg = check_and_cast<LteX2Message*>(pkt);
+    inet::Packet* datagram = check_and_cast<inet::Packet*>(pkt);
+
+    auto x2msg = datagram->popAtFront<LteX2Message>();
     X2NodeId sourceId = x2msg->getSourceId();
 
     if (x2msg->getType() == X2_HANDOVER_DATA_MSG)
     {
-        X2HandoverDataMsg* hoDataMsg = check_and_cast<X2HandoverDataMsg*>(x2msg);
-        inet::Packet* datagram = check_and_cast<inet::Packet*>(hoDataMsg->decapsulate());
+        // X2HandoverDataMsg* hoDataMsg = check_and_cast<X2HandoverDataMsg*>(x2msg);
         receiveDataFromSourceEnb(datagram, sourceId);
     }
     else   // X2_HANDOVER_CONTROL_MSG
     {
-        X2HandoverControlMsg* hoCommandMsg = check_and_cast<X2HandoverControlMsg*>(x2msg);
+        X2HandoverControlMsg* hoCommandMsg = check_and_cast<X2HandoverControlMsg*>(x2msg->dup());
         X2HandoverCommandIE* hoCommandIe = check_and_cast<X2HandoverCommandIE*>(hoCommandMsg->popIe());
         receiveHandoverCommand(hoCommandIe->getUeId(), hoCommandMsg->getSourceId(), hoCommandIe->isStartHandover());
 
         delete hoCommandIe;
     }
 
-    delete x2msg;
 }
 
 void LteHandoverManager::sendHandoverCommand(MacNodeId ueId, MacNodeId enb, bool startHo)
@@ -80,8 +82,10 @@ void LteHandoverManager::sendHandoverCommand(MacNodeId ueId, MacNodeId enb, bool
 
     EV<<NOW<<" LteHandoverManager::sendHandoverCommand - Send handover command over X2 to eNB " << enb << " for UE " << ueId << endl;
 
+    auto pkt = new Packet("X2HandoverControlMsg");
+
     // build control info
-    X2ControlInfo* ctrlInfo = new X2ControlInfo();
+    auto ctrlInfo = pkt->addTagIfAbsent<X2ControlInfoTag>();
     ctrlInfo->setSourceId(nodeId_);
     DestinationIdList destList;
     destList.push_back(enb);
@@ -93,12 +97,12 @@ void LteHandoverManager::sendHandoverCommand(MacNodeId ueId, MacNodeId enb, bool
     if (startHo)
         hoCommandIe->setStartHandover();
 
-    X2HandoverControlMsg* hoMsg = new X2HandoverControlMsg("X2HandoverControlMsg");
+    auto hoMsg = makeShared<X2HandoverControlMsg>();
     hoMsg->pushIe(hoCommandIe);
-    hoMsg->setControlInfo(ctrlInfo);
+    pkt->insertAtFront(hoMsg);
 
     // send to X2 Manager
-    send(PK(hoMsg),x2Manager_[OUT]);
+    send(pkt,x2Manager_[OUT]);
 }
 
 void LteHandoverManager::receiveHandoverCommand(MacNodeId ueId, MacNodeId enb, bool startHo)
@@ -119,21 +123,20 @@ void LteHandoverManager::forwardDataToTargetEnb(Packet* datagram, MacNodeId targ
     take(datagram);
 
     // build control info
-    X2ControlInfo* ctrlInfo = new X2ControlInfo();
+    auto ctrlInfo = datagram->addTagIfAbsent<X2ControlInfoTag>();
     ctrlInfo->setSourceId(nodeId_);
     DestinationIdList destList;
     destList.push_back(targetEnb);
     ctrlInfo->setDestIdList(destList);
 
     // build X2 Handover Msg
-    X2HandoverDataMsg* hoMsg = new X2HandoverDataMsg("X2HandoverDataMsg");
-    hoMsg->encapsulate(datagram);
-    hoMsg->setControlInfo(ctrlInfo);
+    auto hoMsg = makeShared<X2HandoverDataMsg>();
+    datagram->insertAtFront(hoMsg);
 
     EV<<NOW<<" LteHandoverManager::forwardDataToTargetEnb - Send IP datagram to eNB " << targetEnb << endl;
 
     // send to X2 Manager
-    send(PK(hoMsg),x2Manager_[OUT]);
+    send(datagram,x2Manager_[OUT]);
 }
 
 void LteHandoverManager::receiveDataFromSourceEnb(Packet* datagram, MacNodeId sourceEnb)

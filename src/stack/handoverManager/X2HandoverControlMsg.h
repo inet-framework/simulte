@@ -24,8 +24,8 @@ class X2HandoverControlMsg : public LteX2Message
 
   public:
 
-    X2HandoverControlMsg(const char* name = NULL, int kind = 0) :
-        LteX2Message(name, kind)
+    X2HandoverControlMsg() :
+        LteX2Message()
     {
         type_ = X2_HANDOVER_CONTROL_MSG;
     }
