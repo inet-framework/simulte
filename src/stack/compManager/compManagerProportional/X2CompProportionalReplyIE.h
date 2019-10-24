@@ -30,7 +30,8 @@ class X2CompProportionalReplyIE : public X2CompReplyIE
   public:
     X2CompProportionalReplyIE()
     {
-        length_ = 0;
+        length_ = sizeof(uint32_t);    // required to store length of map
+        type_ = COMP_PROP_REPLY_IE;
     }
     X2CompProportionalReplyIE(const X2CompProportionalReplyIE& other) :
         X2CompReplyIE()
@@ -56,7 +57,8 @@ class X2CompProportionalReplyIE : public X2CompReplyIE
     void setAllowedBlocksMap(std::vector<CompRbStatus>& map)
     {
         allowedBlocksMap_ = map;
-        length_ += allowedBlocksMap_.size() * sizeof(CompRbStatus);
+        // number of bytes of map when being serialized
+        length_ += allowedBlocksMap_.size() * sizeof(uint8_t);
     }
     std::vector<CompRbStatus>& getAllowedBlocksMap() { return allowedBlocksMap_; }
 };

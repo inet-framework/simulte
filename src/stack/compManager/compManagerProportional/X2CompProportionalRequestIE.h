@@ -20,12 +20,13 @@ class X2CompProportionalRequestIE : public X2CompRequestIE
   protected:
 
     // number of "ideally" required blocks to satisfy the queue of all UEs
-    unsigned int numBlocks_;
+    uint32_t numBlocks_;
 
   public:
     X2CompProportionalRequestIE()
     {
-        length_ = sizeof(unsigned int);
+        type_ = COMP_PROP_REQUEST_IE;
+        length_ = sizeof(uint32_t);
     }
     X2CompProportionalRequestIE(const X2CompProportionalRequestIE& other) :
         X2CompRequestIE()

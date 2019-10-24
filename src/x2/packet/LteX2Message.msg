@@ -18,12 +18,15 @@ import inet.common.packet.chunk.Chunk;
 class LteX2Message extends inet::FieldsChunk
 {
     @customize(true);
-    chunkLength = inet::B(8); // FIXME: realistic chunk length?
+    chunkLength = inet::B(11); // FIXME needs to be checked: 
+                               // realistic chunk length without X2 information elements?
+                               // Must at least be 11 Bytes for serialization: 
+                               // Type (1 B), sourceId (4 B), destinationId (4 B), IE list size (2 B))
     unsigned int sourceId;
     unsigned int destinationId;
 }
 
-class X2InformationElement extends inet::FieldsChunk
+class X2InformationElement
 {
     @customize(true);
 }

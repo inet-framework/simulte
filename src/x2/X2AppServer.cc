@@ -37,11 +37,10 @@ void X2AppServer::initialize(int stage)
     }
 }
 
+// generate SCTP header and send packet
 void X2AppServer::generateAndSend(Packet* pkt)
 {
-
-    Packet* cmsg = new Packet("SctpSimpleMessage");
-    auto dataMsg = makeShared<BytesChunk>();
+    /*auto dataMsg = makeShared<BytesChunk>();
     std::vector<uint8_t> dataVec;
     const int numBytes = pkt->getByteLength();
     dataVec.resize(numBytes);
@@ -49,10 +48,10 @@ void X2AppServer::generateAndSend(Packet* pkt)
         dataVec[i] = 's';
     dataMsg->setBytes(dataVec);
     dataMsg->addTag<CreationTimeTag>()->setCreationTime(simTime());
-    cmsg->insertAtBack(dataMsg);
-    cmsg->addTag<DispatchProtocolReq>()->setProtocol(&Protocol::sctp);
-    auto cmd = cmsg->addTagIfAbsent<SctpSendReq>();
-    // SctpSendInfo *cmd = new SctpSendInfo("Send1");
+    pkt->insertAtBack(dataMsg);
+    */
+    pkt->addTag<DispatchProtocolReq>()->setProtocol(&Protocol::sctp);
+    auto cmd = pkt->addTagIfAbsent<SctpSendReq>();
     cmd->setSocketId(assocId);
     cmd->setSendUnordered(ordered ? COMPLETE_MESG_ORDERED : COMPLETE_MESG_UNORDERED);
 
@@ -65,12 +64,13 @@ void X2AppServer::generateAndSend(Packet* pkt)
         cmd->setLast(false);
     else
         cmd->setLast(true);
-    cmsg->setKind(SCTP_C_SEND);
+    pkt->setKind(SCTP_C_SEND);
     packetsSent++;
-    bytesSent += cmsg->getBitLength()/8;
+    bytesSent += pkt->getBitLength()/8;
 
-    sendOrSchedule(cmsg);
+    EV << "X2AppServer::generateAndSend: sending X2 message via SCTP: " << pkt->getId() << std::endl;
 
+    sendOrSchedule(pkt);
 }
 
 void X2AppServer::handleMessage(cMessage *msg)

@@ -106,8 +106,11 @@ void LteCompManagerBase::handleMessage(cMessage *msg)
             EV << "LteCompManagerBase::handleMessage - Received message from X2 manager" << endl;
             handleX2Message(pkt);
         }
-        else
+        else {
+            throw cRuntimeError("LteCompManagerBase::handleMessage - Unexpected message received at %s", incoming->getName());
             delete msg;
+        }
+
     }
 }
 
@@ -143,7 +146,6 @@ void LteCompManagerBase::runCoordinatorOperations()
 
 void LteCompManagerBase::handleX2Message(Packet* pkt)
 {
-    // X2CompMsg* compMsg = check_and_cast<X2CompMsg*>(pkt);
     auto compMsg = pkt->removeAtFront<X2CompMsg>();
     X2NodeId sourceId = compMsg->getSourceId();
 
@@ -166,14 +168,13 @@ void LteCompManagerBase::sendClientRequest(X2CompRequestIE* requestIe)
 {
     // build X2 Comp Msg
     auto compMsg = makeShared<X2CompMsg>();
+    compMsg->setSourceId(nodeId_);
     compMsg->pushIe(requestIe);
-    compMsg->setChunkLength(B(compMsg->getByteLength()));
 
     EV<<NOW<<" LteCompManagerBase::sendCompRequest - Send CoMP request (len: "<< compMsg->getByteLength()<< " B)" << endl;
 
     if (nodeType_ == COMP_CLIENT_COORDINATOR)
     {
-        compMsg->setSourceId(nodeId_);
         handleClientRequest(compMsg);
     }
     else
@@ -200,13 +201,13 @@ void LteCompManagerBase::sendCoordinatorReply(X2NodeId clientId, X2CompReplyIE* 
     // build X2 Comp Msg
     auto compMsg = makeShared<X2CompMsg>();
     compMsg->pushIe(replyIe);
+    compMsg->setSourceId(nodeId_);
 
     if (clientId == nodeId_)
     {
          if (nodeType_ != COMP_CLIENT_COORDINATOR)
              throw cRuntimeError("LteCompManagerBase::sendCoordinatorReply - Node %d cannot sends reply to itself, since it is not the coordinator", clientId);
 
-        compMsg->setSourceId(nodeId_);
         handleCoordinatorReply(compMsg);
     }
     else

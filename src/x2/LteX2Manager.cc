@@ -128,6 +128,7 @@ void LteX2Manager::fromStack(Packet* pkt)
 
     DestinationIdList destList = x2Info->getDestIdList();
     DestinationIdList::iterator it = destList.begin();
+
     for (; it != destList.end(); ++it)
     {
         auto pkt_dup = new Packet(*pkt);
@@ -149,7 +150,7 @@ void LteX2Manager::fromStack(Packet* pkt)
 
 void LteX2Manager::fromX2(Packet* pkt)
 {
-    auto x2msg = pkt->removeAtFront<LteX2Message>();
+    auto x2msg = pkt->peekAtFront<LteX2Message>();
     LteX2MessageType msgType = x2msg->getType();
 
     if (msgType == X2_UNKNOWN_MSG)

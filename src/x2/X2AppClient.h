@@ -27,8 +27,8 @@ class X2AppClient : public inet::SctpClient
 
     void initialize(int stage) override;
     virtual int numInitStages() const override { return inet::NUM_INIT_STAGES; }
-    void socketEstablished(int32_t connId, void *yourPtr, unsigned long int buffer);
-    void socketDataArrived(int32_t connId, void *yourPtr, omnetpp::cPacket *msg, bool urgent);
+    void socketEstablished(inet::SctpSocket *socket, unsigned long int buffer) override;
+    void socketDataArrived(inet::SctpSocket *socket, inet::Packet *msg, bool urgent) override;
 };
 
 #endif

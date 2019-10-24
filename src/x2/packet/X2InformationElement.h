@@ -16,9 +16,11 @@
 // add here new IE types
 enum X2InformationElementType
 {
-    COMP_REQUEST_IE,    // CoMP slave -> master
-    COMP_REPLY_IE,      // CoMP master -> slave
-    X2_HANDOVER_CMD_IE  // HO command source eNB -> target eNB
+    COMP_REQUEST_IE,         // CoMP slave -> master
+    COMP_REPLY_IE,           // CoMP master -> slave
+    COMP_PROP_REQUEST_IE,    // CoMP slave -> master (for compManagerProportional, with RB value)
+    COMP_PROP_REPLY_IE,      // CoMP master -> slave (for compManagerProportional, with map)
+    X2_HANDOVER_CMD_IE       // HO command source eNB -> target eNB
 };
 
 //
@@ -35,6 +37,7 @@ class X2InformationElement : public X2InformationElement_Base
   public:
 
     X2InformationElement() : X2InformationElement_Base() { }
+    X2InformationElement(X2InformationElementType type) : X2InformationElement_Base() { type_ = type; }
 
     virtual ~X2InformationElement() {}
 
@@ -60,6 +63,7 @@ class X2InformationElement : public X2InformationElement_Base
 
     // field getter/setter methods
     virtual X2InformationElementType getType() const { return type_; }
+    // return length (in B)
     virtual int64_t getLength() const { return length_; }
 };
 

@@ -96,6 +96,13 @@ class LteX2Message : public LteX2Message_Base
     LteX2MessageType getType() const { return type_; }
 
     /**
+     * Getter to access the InformationElement list (e.g. for serialization)
+     */
+    virtual X2InformationElementsList getIeList() const {
+        return ieList_;
+    }
+
+    /**
      * pushIe() stores a IE inside the
      * X2 IE list in back position and update msg length
      *
@@ -105,6 +112,9 @@ class LteX2Message : public LteX2Message_Base
     {
         ieList_.push_back(ie);
         msgLength_ += ie->getLength();
+        // increase the chunk length by length of IE + 1 Byte (required to store the IE type)
+        setChunkLength(getChunkLength()+inet::b(8*(ie->getLength()+sizeof(uint8_t))));
+        // EV << "pushIe: pushed an element of length: " << ie->getLength() << " new chunk length: " << getChunkLength() << std::endl;
     }
 
     /**
@@ -118,6 +128,9 @@ class LteX2Message : public LteX2Message_Base
         X2InformationElement* ie = ieList_.front();
         ieList_.pop_front();
         msgLength_ -= ie->getLength();
+        // chunk is immutable during serialization! 
+        // (chunk length can therefore not be adapted - we only adapt the separate msg_Length_)
+        // setChunkLength(getChunkLength()-inet::b(8*ie->getLength()));
         return ie;
     }
 
