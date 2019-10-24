@@ -162,6 +162,7 @@ void LteCompManagerBase::handleX2Message(Packet* pkt)
 
         handleCoordinatorReply(compMsg);
     }
+    delete pkt;
 }
 
 void LteCompManagerBase::sendClientRequest(X2CompRequestIE* requestIe)
