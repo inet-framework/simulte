@@ -492,9 +492,7 @@ void LtePhyUe::handleUpperMessage(cMessage* msg)
     if (dest != masterId_)
     {
         // UE is not sending to its master!!
-        EV << "ERROR: Ue preparing to send message to " << dest << "instead "
-        "of its master (" << masterId_ << ")" << endl;
-        endSimulation();
+        throw cRuntimeError("LtePhyUe::handleUpperMessage  Ue preparing to send message to %d instead of its master (%d)", dest, masterId_);
     }
 
     if (lteInfo->getFrameType() == DATAPKT && (channelModel_->isUplinkInterferenceEnabled() || channelModel_->isD2DInterferenceEnabled()))
