@@ -29,6 +29,7 @@ void GtpUserSimplified::initialize(int stage)
     // get reference to the binder
     binder_ = getBinder();
 
+    // transport layer access
     socket_.setOutputGate(gate("socketOut"));
     socket_.bind(localPort_);
 

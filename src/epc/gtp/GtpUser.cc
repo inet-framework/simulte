@@ -9,6 +9,8 @@
 
 #include "epc/gtp/GtpUser.h"
 #include <iostream>
+#include <inet/networklayer/ipv4/Ipv4Header_m.h>
+#include <inet/networklayer/common/L3AddressTag_m.h>
 
 Define_Module(GtpUser);
 using namespace inet;
@@ -22,8 +24,12 @@ void GtpUser::initialize(int stage)
         return;
     localPort_ = par("localPort");
 
+    // transport layer access
     socket_.setOutputGate(gate("socketOut"));
     socket_.bind(localPort_);
+
+    // network layer access
+    ipSocket_.setOutputGate(gate("ipSocketOut"));
 
     tunnelPeerPort_ = par("tunnelPeerPort");
 
@@ -50,8 +56,8 @@ void GtpUser::handleMessage(cMessage *msg)
     if (strcmp(msg->getArrivalGate()->getFullName(), "trafficFlowFilterGate") == 0)
     {
         EV << "GtpUser::handleMessage - message from trafficFlowFilter" << endl;
-        // forward the encapsulated Ipv4 datagram
-        handleFromTrafficFlowFilter(check_and_cast<Packet *>(msg));
+        Packet* packet = check_and_cast<Packet *>(msg);
+        handleFromTrafficFlowFilter(packet);
     }
     else if(strcmp(msg->getArrivalGate()->getFullName(),"socketIn")==0)
     {
@@ -62,17 +68,19 @@ void GtpUser::handleMessage(cMessage *msg)
     }
 }
 
+
 void GtpUser::handleFromTrafficFlowFilter(Packet * packet)
 {
     // extract control info from the datagram
-    TftControlInfo * tftInfo = check_and_cast<TftControlInfo *>(packet->removeControlInfo());
+    //TftControlInfo * tftInfo = check_and_cast<TftControlInfo *>(&hdrCpy);
+    TftControlInfo* tftInfo = packet->removeTag<TftControlInfo>();
     TrafficFlowTemplateId flowId = tftInfo->getTft();
     delete (tftInfo);
 
     EV << "GtpUser::handleFromTrafficFlowFilter - Received a tftMessage with flowId[" << flowId << "]" << endl;
 
     TunnelEndpointIdentifier nextTeid;
-    L3Address tunnelPeerAddress;
+    L3Address nextHopAddress;
 
     // search a correspondence between the flow id and the pair <teid,nextHop>
     LabelTable::iterator tftIt;
@@ -82,15 +90,28 @@ void GtpUser::handleFromTrafficFlowFilter(Packet * packet)
         EV << "GtpUser::handleFromTrafficFlowFilter - Cannot find entry for TFT " << flowId << ". Discarding packet;" << endl;
         return;
     }
-    tunnelPeerAddress = tftIt->second.nextHop;
+    nextHopAddress = tftIt->second.nextHop;
+    auto ipHeader = packet->peekAtFront<Ipv4Header>();
+    EV << "GtpUser::handleFromTrafficFlowFilter - target ip " << ipHeader->getDestAddress() << endl;
+    EV << "GtpUser::handleFromTrafficFlowFilter - resolved target IP to " << nextHopAddress.toIpv4() << ";" << endl;
     nextTeid = tftIt->second.teid;
+    auto newInfoTag = packet->addTag<TftControlInfo>();
+    newInfoTag->setTft(nextTeid);
+    auto l3tag = packet->addTagIfAbsent<L3AddressReq>();
+    l3tag->setDestAddress(ipHeader->getDestAddress());
+    l3tag->setSrcAddress(ipHeader->getSourceAddress());
+//    send(packet, "pppGate");
+    ipSocket_.sendTo(packet, nextHopAddress.toIpv4());
 
+//    send(packet, "pppGate");
+
+//    socket_.sendTo(packet, tunnelPeerAddress, tunnelPeerPort_);
     // create a new gtpUserMessage
     // GtpUserMsg * gtpMsg = new GtpUserMsg();
     // gtpMsg->setName("gtpUserMessage");
-    auto gtpMsg = makeShared<GtpUserMsg>();
+//    auto gtpMsg = makeShared<GtpUserMsg>();
     // gtpMsg->setName("GtpUserMessage");
-    throw cRuntimeError("GtpUser::handleFromTrafficFlowFilter inet::Packet based handling still needs to be implemented!");
+//    throw cRuntimeError("GtpUser::handleFromTrafficFlowFilter inet::Packet based handling still needs to be implemented!");
     // datagram->insertAtFront(gtpMsg);
 
     // encapsulate the datagram within the gtpUserMessage
@@ -98,7 +119,7 @@ void GtpUser::handleFromTrafficFlowFilter(Packet * packet)
 
 
     // assign the nextTeid
-    gtpMsg->setTeid(nextTeid);
+//    gtpMsg->setTeid(nextTeid);
 
     //socket_.sendTo(datagram, tunnelPeerAddress, tunnelPeerPort_);
 }

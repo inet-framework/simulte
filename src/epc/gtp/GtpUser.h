@@ -12,6 +12,7 @@
 
 #include <omnetpp.h>
 #include <inet/transportlayer/contract/udp/UdpSocket.h>
+#include <inet/networklayer/contract/ipv4/Ipv4Socket.h>
 #include <inet/networklayer/common/L3AddressResolver.h>
 #include "epc/gtp/TftControlInfo.h"
 #include "epc/gtp/GtpUserMsg_m.h"
@@ -67,6 +68,7 @@
  */
 class GtpUser : public omnetpp::cSimpleModule
 {
+    inet::Ipv4Socket ipSocket_;
     inet::UdpSocket socket_;
     int localPort_;
 
