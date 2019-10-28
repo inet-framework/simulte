@@ -94,7 +94,7 @@ void LtePhyUe::initialize(int stage)
             getSubmodule("rlc")->
                 getSubmodule("um"));
     }
-    else if (stage == inet::INITSTAGE_LINK_LAYER)
+    else if (stage == inet::INITSTAGE_PHYSICAL_LAYER)
     {
         // find the best candidate master cell
         if (dynamicCellAssociation_)
