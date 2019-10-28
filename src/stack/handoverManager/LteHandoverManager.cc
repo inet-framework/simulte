@@ -57,12 +57,13 @@ void LteHandoverManager::handleX2Message(cPacket* pkt)
 {
     inet::Packet* datagram = check_and_cast<inet::Packet*>(pkt);
 
-    auto x2msg = datagram->popAtFront<LteX2Message>();
+    auto x2msg = datagram->removeAtFront<LteX2Message>();
+    datagram->removeTagIfPresent<X2ControlInfoTag>();
+
     X2NodeId sourceId = x2msg->getSourceId();
 
     if (x2msg->getType() == X2_HANDOVER_DATA_MSG)
     {
-        // X2HandoverDataMsg* hoDataMsg = check_and_cast<X2HandoverDataMsg*>(x2msg);
         receiveDataFromSourceEnb(datagram, sourceId);
     }
     else   // X2_HANDOVER_CONTROL_MSG
@@ -72,6 +73,7 @@ void LteHandoverManager::handleX2Message(cPacket* pkt)
         receiveHandoverCommand(hoCommandIe->getUeId(), hoCommandMsg->getSourceId(), hoCommandIe->isStartHandover());
 
         delete hoCommandIe;
+        // delete hoCommandMsg;
     }
 
 }
