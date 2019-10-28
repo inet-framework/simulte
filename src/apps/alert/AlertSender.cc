@@ -88,17 +88,17 @@ void AlertSender::handleMessage(cMessage *msg)
 
 void AlertSender::sendAlertPacket()
 {
-    AlertPacket* packet = new AlertPacket("Alert");
-    packet->setSno(nextSno_);
-    packet->setTimestamp(simTime());
-    packet->setByteLength(size_);
-    /*
-     * wrapping in inet::Packet
-     */
-    inet::Packet* wrappingPacket = dynamic_cast<inet::Packet*>(packet);
+    Packet* packet = new inet::Packet("Alert");
+    auto alert = makeShared<AlertPacket>();
+    alert->setSno(nextSno_);
+    alert->setTimestamp(simTime());
+
+    alert->setChunkLength(B(size_));
+    packet->insertAtBack(alert);
+
     EV << "AlertSender::sendAlertPacket - Sending message [" << nextSno_ << "]\n";
 
-    socket.sendTo(wrappingPacket, destAddress_, destPort_);
+    socket.sendTo(packet, destAddress_, destPort_);
     nextSno_++;
 
     emit(alertSentMsg_, (long)1);
