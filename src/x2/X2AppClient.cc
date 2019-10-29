@@ -66,7 +66,7 @@ void X2AppClient::socketDataArrived(SctpSocket *, Packet *msg, bool)
     emit(packetReceivedSignal, msg);
     bytesRcvd += msg->getByteLength();
 
-    auto cmd = msg->removeTagIfPresent<SctpSendReq>();
+    msg->removeTagIfPresent<SctpSendReq>();
 
     if (msg->getDataLength() > B(0))
     {
