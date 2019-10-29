@@ -267,7 +267,7 @@ void IP2lte::toStackUe(Packet * datagram)
 }
 
 void IP2lte::prepareForIpv4(Packet *datagram, const Protocol *protocol){
-    // add DispatchProtocolRequest so that the packet is handled by the IPv4 layer
+    // add DispatchProtocolRequest so that the packet is handled by the specified protocol
     datagram->addTagIfAbsent<DispatchProtocolReq>()->setProtocol(protocol);
     datagram->addTagIfAbsent<PacketProtocolTag>()->setProtocol(protocol);
     // add Interface-Indication to indicate which interface this packet was received from
