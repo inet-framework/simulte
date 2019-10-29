@@ -26,7 +26,7 @@ public:
   X2HandoverCommandIE()
   {
       type_ = X2_HANDOVER_CMD_IE;
-      length_ = sizeof(MacNodeId);
+      length_ = sizeof(MacNodeId) + sizeof(uint8_t);
       startHandover_ = false;
   }
   X2HandoverCommandIE(const X2HandoverCommandIE& other) :

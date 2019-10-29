@@ -32,6 +32,9 @@ module Car extends Ue
 
         //# Mobility
         mobilityType = default("VeinsInetMobility");
+        
+        //# Network Layer specs
+        *.routingTableModule = default(absPath(".ipv4.routingTable"));
 
     submodules:
         configurator: HostAutoConfigurator {

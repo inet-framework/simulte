@@ -94,7 +94,7 @@ void LtePhyUe::initialize(int stage)
             getSubmodule("rlc")->
                 getSubmodule("um"));
     }
-    else if (stage == inet::INITSTAGE_LINK_LAYER)
+    else if (stage == inet::INITSTAGE_PHYSICAL_LAYER)
     {
         // find the best candidate master cell
         if (dynamicCellAssociation_)
@@ -492,9 +492,7 @@ void LtePhyUe::handleUpperMessage(cMessage* msg)
     if (dest != masterId_)
     {
         // UE is not sending to its master!!
-        EV << "ERROR: Ue preparing to send message to " << dest << "instead "
-        "of its master (" << masterId_ << ")" << endl;
-        endSimulation();
+        throw cRuntimeError("LtePhyUe::handleUpperMessage  Ue preparing to send message to %d instead of its master (%d)", dest, masterId_);
     }
 
     if (lteInfo->getFrameType() == DATAPKT && (channelModel_->isUplinkInterferenceEnabled() || channelModel_->isD2DInterferenceEnabled()))

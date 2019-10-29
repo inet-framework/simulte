@@ -131,7 +131,14 @@ void LteX2Manager::fromStack(Packet* pkt)
 
     for (; it != destList.end(); ++it)
     {
-        auto pkt_dup = new Packet(*pkt);
+        X2NodeId targetEnb = *it;
+        auto pktDuplicate = pkt->dup();
+        auto updatedX2Msg = pktDuplicate->removeAtFront<LteX2Message>();
+        updatedX2Msg->markMutableIfExclusivelyOwned();
+
+        updatedX2Msg->setSourceId(nodeId_);
+        updatedX2Msg->setDestinationId(targetEnb);
+        pktDuplicate->insertAtFront(updatedX2Msg);
 
         cGate* outputGate;
         if(x2msg->getType() == X2_HANDOVER_DATA_MSG){
@@ -142,7 +149,7 @@ void LteX2Manager::fromStack(Packet* pkt)
             int gateIndex = x2InterfaceTable_[*it];
             outputGate = gate("x2$o",gateIndex);
         }
-        send(pkt_dup, outputGate);
+        send(pktDuplicate, outputGate);
     }
     delete x2Info;
     delete pkt;

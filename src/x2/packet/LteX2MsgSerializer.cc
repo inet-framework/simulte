@@ -20,6 +20,7 @@
 #include "stack/compManager/X2CompMsg.h"
 #include "stack/compManager/compManagerProportional/X2CompProportionalRequestIE.h"
 #include "stack/compManager/compManagerProportional/X2CompProportionalReplyIE.h"
+#include "stack/handoverManager/X2HandoverCommandIE.h"
 #include "inet/common/packet/serializer/ChunkSerializerRegistry.h"
 
 using namespace inet;
@@ -71,7 +72,12 @@ void LteX2MsgSerializer::serialize(MemoryOutputStream& stream, const Ptr<const C
             serializeStatusMap(stream, propReply->getAllowedBlocksMap());
             break;
         }
-        case X2_HANDOVER_CMD_IE:
+        case X2_HANDOVER_CMD_IE: {
+            X2HandoverCommandIE* handoverCmd = check_and_cast<X2HandoverCommandIE*>(ie);
+            stream.writeByte(handoverCmd->isStartHandover());
+            stream.writeUint16Be(handoverCmd->getUeId());
+            break;
+        }
         default:
             throw cRuntimeError("LteX2MsgSerializer::serialize of this X2InformationElement not implemented!");
         }
@@ -126,19 +132,26 @@ const Ptr<Chunk> LteX2MsgSerializer::deserialize(MemoryInputStream& stream) cons
             // no extra fields need to be deserialized
             break;
         case COMP_PROP_REQUEST_IE: {
-            X2CompProportionalRequestIE* propRequest = new X2CompProportionalRequestIE();
+            auto propRequest = new X2CompProportionalRequestIE();
             propRequest->setNumBlocks(stream.readUint32Be());
             ie = propRequest;
             break;
         }
         case COMP_PROP_REPLY_IE: {
-            X2CompProportionalReplyIE* propReply = new X2CompProportionalReplyIE();
+            auto propReply = new X2CompProportionalReplyIE();
             std::vector<CompRbStatus> map = deserializeStatusMap(stream);
             propReply->setAllowedBlocksMap(map);
             ie = propReply;
             break;
         }
-        case X2_HANDOVER_CMD_IE:
+        case X2_HANDOVER_CMD_IE: {
+            auto handoverCmd = new X2HandoverCommandIE();
+            if(stream.readByte() != 0)
+                handoverCmd->setStartHandover();
+            handoverCmd->setUeId(stream.readUint16Be());
+            ie = handoverCmd;
+            break;
+        }
         default:
             throw cRuntimeError("LteX2MsgSerializer::serialize for X2InformationElement type not implemented!");
         }

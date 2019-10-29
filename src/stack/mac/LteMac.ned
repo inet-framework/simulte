@@ -169,7 +169,7 @@ simple LteMacEnb extends LteMacBase {
         
         @class("LteMacEnb");    
         
-        volatile xml optSolution = default(xmldoc("solution.sol"));
+        //# volatile xml optSolution = default(xmldoc("solution.sol"));
         
         //#
         //# AMC Parameters

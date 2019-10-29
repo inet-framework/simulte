@@ -24,28 +24,16 @@ class X2HandoverControlMsg : public LteX2Message
 
   public:
 
-    X2HandoverControlMsg() :
-        LteX2Message()
-    {
-        type_ = X2_HANDOVER_CONTROL_MSG;
-    }
+    X2HandoverControlMsg();
 
-    X2HandoverControlMsg(const X2HandoverControlMsg& other) : LteX2Message() { operator=(other); }
+    X2HandoverControlMsg(const X2HandoverControlMsg& other);
 
-    X2HandoverControlMsg& operator=(const X2HandoverControlMsg& other)
-    {
-        if (&other == this)
-            return *this;
-        LteX2Message::operator=(other);
-        return *this;
-    }
+    X2HandoverControlMsg& operator=(const X2HandoverControlMsg& other);
 
-    virtual X2HandoverControlMsg* dup() const { return new X2HandoverControlMsg(*this); }
+    virtual X2HandoverControlMsg* dup() const;
 
-    virtual ~X2HandoverControlMsg() { }
+    virtual ~X2HandoverControlMsg();
 };
-
-//Register_Class(X2HandoverControlMsg);
 
 #endif
 

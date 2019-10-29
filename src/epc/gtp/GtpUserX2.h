@@ -43,10 +43,10 @@ class GtpUserX2 : public omnetpp::cSimpleModule
     virtual void handleMessage(omnetpp::cMessage *msg) override;
 
     // receive an X2 Message from the X2 Manager, encapsulates it in a GTP-U packet than forwards it to the proper next hop
-    void handleFromStack(LteX2Message * x2Msg);
+    void handleFromStack(inet::Packet * datagram);
 
     // receive a GTP-U packet from Udp, detunnel it and send it to the X2 Manager
-    void handleFromUdp(GtpUserMsg * gtpMsg);
+    void handleFromUdp(inet::Packet * gtpMsg);
 };
 
 #endif

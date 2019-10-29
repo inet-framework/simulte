@@ -53,9 +53,12 @@ void TrafficFlowFilterSimplified::handleMessage(cMessage *msg)
     Packet* pkt = check_and_cast<Packet *>(msg);
 
     // receive and read IP datagram
+    // TODO: needs to be adapted for IPv6
     const auto& ipv4Header = pkt->peekAtFront<Ipv4Header>();
     const Ipv4Address &destAddr = ipv4Header->getDestAddress();
     const Ipv4Address &srcAddr = ipv4Header->getSrcAddress();
+    pkt->addTagIfAbsent<DispatchProtocolReq>()->setProtocol(&Protocol::ipv4);
+    pkt->addTagIfAbsent<PacketProtocolTag>()->setProtocol(&Protocol::ipv4);
 
     // TODO check for source and dest port number
 
