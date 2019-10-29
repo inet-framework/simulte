@@ -8,10 +8,8 @@ Prerequisites
 -------------
 
 You should have a 
-- working OMNeT++ (v5.2.1) installation. (Download from http://omnetpp.org)
-- working INET-Framework installation (v3.6.4). (Download from http://inet.omnetpp.org)
-
-NOTE: OMNeT++ 5.1 paired with INET 3.6 is also working.
+- working OMNeT++ (v5.5.1) installation. (Download from http://omnetpp.org)
+- working INET-Framework installation (v3.6.6). (Download from http://inet.omnetpp.org)
 
 Make sure your OMNeT++ installation works OK (e.g. try running the samples)
 and it is in the path (to test, try the command "which nedtool"). On
@@ -50,8 +48,8 @@ Building SimuLTE from the command line
 
 3. Type "make makefiles". This should generate the makefiles.
 
-4. Type "make" to build the simulte executable (debug version). Use "make MODE=release"
-   to build release version.
+4. Type "make" to build the simulte executable (release version). Use "make MODE=debug"
+   to build debug version.
 
 5. You can run examples by changing into a directory under 'simulations', and 
    executing "./run"
