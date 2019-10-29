@@ -1,6 +1,9 @@
 all: checkmakefiles
 	@cd src && $(MAKE)
 
+tests: all
+	@cd src && $(MAKE) && cd ../tests/fingerprint && ./fingerprints
+
 clean: checkmakefiles
 	@cd src && $(MAKE) clean
 
