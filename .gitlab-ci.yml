@@ -1,0 +1,8 @@
+Build:
+  script:
+    - "echo Building simulte"
+    - "cd .."
+    - "ln -sfn /home/rover/rover-main/inet inet"
+    - "cd simulte"
+    - "make makefiles"
+    - "make"
