@@ -181,9 +181,6 @@ void IP2lte::fromIpUe(Packet * datagram)
     // Remove InterfaceReq Tag (we already are on an interface now)
     datagram->removeTagIfPresent<InterfaceReq>();
 
-    // obtain the encapsulated transport packet
-    // cPacket * transportPacket = datagram->getEncapsulatedPacket();
-
     if (ueHold_)
     {
         // hold packets until handover is complete
@@ -197,9 +194,6 @@ void IP2lte::fromIpUe(Packet * datagram)
 
 void IP2lte::toStackUe(Packet * datagram)
 {
-    // obtain the encapsulated transport packet
-    // cPacket * transportPacket = datagram->getEncapsulatedPacket();
-
     // 5-Tuple infos
     unsigned short srcPort = 0;
     unsigned short dstPort = 0;
@@ -222,7 +216,6 @@ void IP2lte::toStackUe(Packet * datagram)
 
     // inspect packet depending on the transport protocol type
     // TODO: needs refactoring (redundant code, see toStackEnb())
-    //       needs to be rewritten to use inet::Packet
     switch (transportProtocol) {
         case IP_PROT_TCP: {
             auto& tcpHdr = datagram->peekAtFront<tcp::TcpHeader>(b(-1),

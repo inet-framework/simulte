@@ -55,6 +55,11 @@ void MultihopD2D::initialize(int stage)
         destAddress_ = L3AddressResolver().resolve(par("destAddress").stringValue());
 
         msgSize_ = par("msgSize");
+
+        if(B(msgSize_) < D2D_MULTIHOP_HEADER_LENGTH){
+            throw cRuntimeError("MultihopD2D::init - FATAL! Total message size cannot be less than D2D_MULTIHOP_HEADER_LENGTH");
+        }
+
         maxBroadcastRadius_ = par("maxBroadcastRadius");
         ttl_ = par("ttl");
         maxTransmissionDelay_ = par("maxTransmissionDelay");
@@ -151,16 +156,19 @@ void MultihopD2D::sendPacket()
     // build the global identifier
     uint32_t msgId = ((uint32_t)senderAppId_ << 16) | localMsgId_;
 
-    // create new packet
+    // create data corresponding to the desired multi-hop message size
+    // (msgSize_ is the size of the MultihopD2D message including the MultihopD2D header)
+    auto data = makeShared<ByteCountChunk>(B(msgSize_) - D2D_MULTIHOP_HEADER_LENGTH);
 
-    Packet* packet = new inet::Packet("MultihopD2DPacket");
+    // create new packet containing the data
+    Packet* packet = new inet::Packet("MultihopD2DPacket", data);
+
+    // add header
     auto mhop = makeShared<MultihopD2DPacket>();
-
     mhop->setMsgid(msgId);
     mhop->setSrcId(lteNodeId_);
     mhop->setTimestamp(simTime());
     mhop->setSize(msgSize_);
-    mhop->setChunkLength(B(msgSize_));
     mhop->setTtl(ttl_-1);
     mhop->setHops(1);                // first hop
     mhop->setLastHopSenderId(lteNodeId_);
@@ -169,9 +177,9 @@ void MultihopD2D::sendPacket()
         mhop->setSrcCoord(ltePhy_->getCoord());
         mhop->setMaxRadius(maxBroadcastRadius_);
     }
-    packet->insertAtBack(mhop);
+    packet->insertAtFront(mhop);
 
-    EV << "MultihopD2D::sendPacket - Sending msg "<< mhop->getMsgid() <<  endl;
+    EV << "MultihopD2D::sendPacket - Sending msg (ID: "<< mhop->getMsgid() << " src: " << lteNodeId_ << " size: " << msgSize_ << ")" <<  endl;
     socket.sendTo(packet, destAddress_, destPort_);
 
     std::set<MacNodeId> targetSet;
@@ -195,7 +203,7 @@ void MultihopD2D::handleRcvdPacket(cMessage* msg)
         throw cRuntimeError("MultihopD2D::handleMessage - FATAL! Error when casting to inet packet");
     }
 
-    auto mhop = pPacket->popAtFront<MultihopD2DPacket>();
+    auto mhop = pPacket->peekAtFront<MultihopD2DPacket>();
     pPacket->removeControlInfo();
 
     uint32_t msgId = mhop->getMsgid();
@@ -311,9 +319,13 @@ void MultihopD2D::relayPacket(cMessage* msg)
 {
 
     Packet* pPacket = check_and_cast<Packet*>(msg);
-    auto src = pPacket->peekAtFront<MultihopD2DPacket>();
+    auto src = pPacket->popAtFront<MultihopD2DPacket>();
 
-    Packet* relayPacket = new inet::Packet("MultihopD2DPacket");
+    // create a relay packet using the data of the source packet
+    auto data = pPacket->popAtFront<ByteCountChunk>();
+    Packet* relayPacket = new inet::Packet("MultihopD2DPacket", data);
+
+    // create a new header
     auto dst = makeShared<MultihopD2DPacket>();
 
     // increase the number of hops
@@ -338,9 +350,7 @@ void MultihopD2D::relayPacket(cMessage* msg)
     dst->setMaxRadius(src->getMaxRadius());
     dst->setTimestamp(src->getTimestamp());
 
-    dst->setChunkLength(B(src->getSize()));
-
-    relayPacket->insertAtBack(dst);
+    relayPacket->insertAtFront(dst);
 
     EV << "MultihopD2D::relayPacket - Relay msg " << dst->getMsgid() << " to address " << destAddress_ << endl;
     socket.sendTo(relayPacket, destAddress_, destPort_);
