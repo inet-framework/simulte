@@ -19,7 +19,11 @@ import inet.transportlayer.udp.Udp;
 //
 module SgwStandard extends NetworkLayerNodeBase
 {
+    parameters:
     @display("bgb=920,462;i=device/server2");
+    string nodeType = "SGW";  // DO NOT CHANGE
+	forwarding = default(true);
+    multicastForwarding = default(true);
 
     submodules:
         udp: Udp {
@@ -34,6 +38,11 @@ module SgwStandard extends NetworkLayerNodeBase
             parameters:
                 @display("p=750,296;b=1000,5,,,,1");
         }
+        at: MessageDispatcher {
+            parameters:
+                @display("p=750,146;b=1000,5,,,,1");
+        }
+        
     connections:
         udp.ipOut --> tn.in++;
         udp.ipIn <-- tn.out++;
@@ -50,6 +59,10 @@ module SgwStandard extends NetworkLayerNodeBase
         tn.out++ --> nl.in++;
         tn.in++ <-- nl.out++;
 
-        udp.appOut --> gtp_user.socketIn;
-        gtp_user.socketOut --> udp.appIn;
+        at.out++ --> udp.appIn;
+		at.in++ <-- udp.appOut;
+            
+        gtp_user.socketOut --> at.in++;
+        gtp_user.socketIn <-- at.out++;
+
 }
