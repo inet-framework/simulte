@@ -7,8 +7,11 @@
 // and cannot be removed from it.
 //
 
-#include "epc/gtp/GtpUser.h"
 #include <iostream>
+#include <inet/common/ModuleAccess.h>
+#include <inet/networklayer/ipv4/Ipv4Header_m.h>
+#include <inet/linklayer/common/InterfaceTag_m.h>
+#include "epc/gtp/GtpUser.h"
 
 Define_Module(GtpUser);
 using namespace inet;
@@ -27,6 +30,8 @@ void GtpUser::initialize(int stage)
 
     tunnelPeerPort_ = par("tunnelPeerPort");
 
+    ownerType_ = selectOwnerType(getAncestorPar("nodeType"));
+
     //============= Reading XML files =============
     const char *filename = par("teidFileName");
     if (filename == NULL || (!strcmp(filename, "")))
@@ -43,6 +48,37 @@ void GtpUser::initialize(int stage)
             error("GtpUser::initialize - Wrong xml file format");
     }
     //=============================================
+    ie_ = detectInterface();
+ }
+
+ InterfaceEntry *GtpUser::detectInterface()
+ {
+     IInterfaceTable *ift = getModuleFromPar<IInterfaceTable>(par("interfaceTableModule"), this);
+     const char *interfaceName = par("ipOutInterface");
+     InterfaceEntry *ie = nullptr;
+
+     if (strlen(interfaceName) > 0) {
+         ie = ift->getInterfaceByName(interfaceName);
+         if (ie == nullptr)
+             throw cRuntimeError("Interface \"%s\" does not exist", interfaceName);
+     }
+
+     return ie;
+ }
+
+EpcNodeType GtpUser::selectOwnerType(const char * type)
+{
+    EV << "GtpUserSimplified::selectOwnerType - setting owner type to " << type << endl;
+    if(strcmp(type,"ENODEB") == 0)
+        return ENB;
+    else if(strcmp(type,"PGW") == 0)
+        return PGW;
+    else if(strcmp(type,"SGW") == 0)
+        return SGW;
+    else
+        error("GtpUserSimplified::selectOwnerType - unknown owner type [%s]. Aborting...",type);
+    // should never be reached
+    return PGW;
 }
 
 void GtpUser::handleMessage(cMessage *msg)
@@ -57,15 +93,14 @@ void GtpUser::handleMessage(cMessage *msg)
     {
         EV << "GtpUser::handleMessage - message from udp layer" << endl;
 
-        GtpUserMsg * gtpMsg = check_and_cast<GtpUserMsg *>(msg);
-        handleFromUdp(gtpMsg);
+        handleFromUdp(check_and_cast<Packet *>(msg));
     }
 }
 
-void GtpUser::handleFromTrafficFlowFilter(Packet * packet)
+void GtpUser::handleFromTrafficFlowFilter(Packet * datagram)
 {
     // extract control info from the datagram
-    TftControlInfo * tftInfo = check_and_cast<TftControlInfo *>(packet->removeControlInfo());
+    TftControlInfo * tftInfo = datagram->removeTag<TftControlInfo>();
     TrafficFlowTemplateId flowId = tftInfo->getTft();
     delete (tftInfo);
 
@@ -86,33 +121,36 @@ void GtpUser::handleFromTrafficFlowFilter(Packet * packet)
     nextTeid = tftIt->second.teid;
 
     // create a new gtpUserMessage
-    // GtpUserMsg * gtpMsg = new GtpUserMsg();
-    // gtpMsg->setName("gtpUserMessage");
-    auto gtpMsg = makeShared<GtpUserMsg>();
-    // gtpMsg->setName("GtpUserMessage");
-    throw cRuntimeError("GtpUser::handleFromTrafficFlowFilter inet::Packet based handling still needs to be implemented!");
-    // datagram->insertAtFront(gtpMsg);
-
-    // encapsulate the datagram within the gtpUserMessage
-    // gtpMsg->encapsulate(datagram);
-
-
+    auto header = makeShared<GtpUserMsg>();
     // assign the nextTeid
-    gtpMsg->setTeid(nextTeid);
+    header->setTeid(nextTeid);
+    header->setChunkLength(B(8));
+    auto gtpPacket = new Packet(datagram->getName());
+    gtpPacket->insertAtFront(header);
+    auto data = datagram->peekData();
+    gtpPacket->insertAtBack(data);
 
-    //socket_.sendTo(datagram, tunnelPeerAddress, tunnelPeerPort_);
+    delete datagram;
+
+    socket_.sendTo(gtpPacket, tunnelPeerAddress, tunnelPeerPort_);
 }
 
-void GtpUser::handleFromUdp(GtpUserMsg * packet)
+void GtpUser::handleFromUdp(Packet * pkt)
 {
     TunnelEndpointIdentifier oldTeid;
     // TunnelEndpointIdentifier nextTeid;
     L3Address nextHopAddr;
 
+    // re-create the original IP datagram
+    auto originalPacket = new Packet (pkt->getName());
+    auto gtpMsg = pkt->popAtFront<GtpUserMsg>();
+    originalPacket->insertAtBack(pkt->peekData());
+    originalPacket->addTagIfAbsent<PacketProtocolTag>()->setProtocol(&Protocol::ipv4);
+
     // obtain the incoming TEID from message
-    throw cRuntimeError("GtpUser: inet::Packet based handling still needs to be implemented!");
-    // oldTeid = gtpMsg->getTeid();
-    oldTeid = 0; // FIXME - only to get it compilable
+    oldTeid = gtpMsg->getTeid();
+
+    delete pkt;
 
     // obtain "ConnectionInfo" from the teidTable
     LabelTable::iterator teidIt = teidTable_.find(oldTeid);
@@ -128,24 +166,31 @@ void GtpUser::handleFromUdp(GtpUserMsg * packet)
     {
         EV << "GtpUser::handleFromUdp - IP packet pointing to this network. Decapsulating and sending to local connection." << endl;
 
-        throw cRuntimeError("GtpUser::handleFromUdp inet::Packet based handling still needs to be implemented!");
-        // obtain the original IP datagram and send it to the local network
-        // const auto& datagram = gtpMsg->decapsulate();
-        // delete(gtpMsg);
-        // TftControlInfo * tftInfo = packet->removeTag<TftControlInfo>();
-        //     TrafficFlowTemplateId flowId = tftInfo->getTft();
-        //     delete (tftInfo);
-        // send(datagram,"pppGate");
+        // send the original IP datagram to the local network
+        if (ownerType_ == ENB && ie_ != nullptr){
+            // on the ENB we need an InterfaceReq to send the packet via WLAN
+            originalPacket->addTagIfAbsent<InterfaceReq>()->setInterfaceId(ie_->getInterfaceId());
+        }
+
+        send(originalPacket,"pppGate");
     }
     else // label switching
     {
         EV << "GtpUser::handleFromUdp - performing label switching: [" << oldTeid << "]->[" << teidInfo.teid
            << "] - nextHop[" << teidInfo.nextHop << "]." << endl;
-        throw cRuntimeError("GtpUser::handleFromUdp label switching inet::Packet based handling still needs to be implemented!");
+
         // in case of label switching, send the packet to the next tunnel
-        // gtpMsg->setTeid(teidInfo.teid);
-        // gtpMsg->removeControlInfo();
-        // socket_.sendTo(gtpMsg,teidInfo.nextHop,tunnelPeerPort_);
+        auto header = makeShared<GtpUserMsg>();
+        header->setTeid(teidInfo.teid);
+        header->setChunkLength(B(8));
+        auto gtpPacket = new Packet(originalPacket->getName());
+        gtpPacket->insertAtFront(header);
+        auto data = originalPacket->peekData();
+        gtpPacket->insertAtBack(data);
+
+        delete originalPacket;
+
+        socket_.sendTo(gtpPacket,teidInfo.nextHop,tunnelPeerPort_);
     }
 }
 

@@ -39,7 +39,7 @@ void GtpUserSimplified::initialize(int stage)
 
     ownerType_ = selectOwnerType(getAncestorPar("nodeType"));
 
-    ie = detectInterface();
+    ie_ = detectInterface();
 }
 
 InterfaceEntry *GtpUserSimplified::detectInterface()
@@ -185,8 +185,8 @@ void GtpUserSimplified::handleFromUdp(Packet * pkt)
             {
                 EV << "GtpUserSimplified::handleFromUdp - Deliver datagram to the LTE NIC " << endl;
                 // add Interface-Request for LteNic
-                if (ie != nullptr)
-                    originalPacket->addTagIfAbsent<InterfaceReq>()->setInterfaceId(ie->getInterfaceId());
+                if (ie_ != nullptr)
+                    originalPacket->addTagIfAbsent<InterfaceReq>()->setInterfaceId(ie_->getInterfaceId());
                 send(originalPacket,"pppGate");
                 return;
             }

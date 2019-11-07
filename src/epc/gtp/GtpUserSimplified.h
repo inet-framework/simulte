@@ -55,7 +55,7 @@ class GtpUserSimplified : public omnetpp::cSimpleModule
 
     EpcNodeType selectOwnerType(const char * type);
 
-    inet::InterfaceEntry *ie;
+    inet::InterfaceEntry *ie_;
 
   protected:
 
