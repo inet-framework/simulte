@@ -13,6 +13,7 @@
 #include <omnetpp.h>
 #include <inet/transportlayer/contract/udp/UdpSocket.h>
 #include <inet/networklayer/common/L3AddressResolver.h>
+#include <inet/networklayer/common/InterfaceEntry.h>
 #include "epc/gtp/TftControlInfo.h"
 #include "epc/gtp/GtpUserMsg_m.h"
 
@@ -84,11 +85,22 @@ class GtpUser : public omnetpp::cSimpleModule
      */
     LabelTable tftTable_;
 
+    // interface (LteNic)
+    inet::InterfaceEntry *ie_;
+
     // the GTP protocol Port
     unsigned int tunnelPeerPort_;
 
     bool loadTeidTable(const char * teidTableFile);
     bool loadTftTable(const char * tftTableFile);
+
+    // specifies the type of the node that contains this filter (it can be ENB or PGW)
+    EpcNodeType ownerType_;
+
+    EpcNodeType selectOwnerType(const char * type);
+
+    // detect the LteNic interface (during initialization)
+    inet::InterfaceEntry *detectInterface();
 
   protected:
 
@@ -100,7 +112,7 @@ class GtpUser : public omnetpp::cSimpleModule
     void handleFromTrafficFlowFilter(inet::Packet * packet);
 
     // receive a GTP-U packet from Udp, reads the TEID and decides whether performing label switching or removal
-    void handleFromUdp(GtpUserMsg * gtpMsg);
+    void handleFromUdp(inet::Packet * gtpMsg);
 };
 
 #endif

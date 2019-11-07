@@ -91,11 +91,9 @@ void TrafficFlowFilter::handleMessage(cMessage *msg)
     // search for the tftId in the table
     unsigned int tftId = findTrafficFlow( primaryKey , secondaryKey );
     if(tftId == UNSPECIFIED_TFT)
-    error("TrafficFlowFilter::handleMessage - Cannot find corresponding tftId. Aborting...");
+        error("TrafficFlowFilter::handleMessage - Cannot find corresponding tftId. Aborting...");
 
     // add control info to the normal ip datagram. This info will be read by the GTP-U application
-    // TftControlInfo * tftInfo = new TftControlInfo();
-    // tftInfo->setTft(tftId);
 
     auto trafficFlowInfo = pkt->addTag<TftControlInfo>();
     trafficFlowInfo->setTft(tftId);

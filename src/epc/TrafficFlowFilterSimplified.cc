@@ -77,7 +77,6 @@ void TrafficFlowFilterSimplified::handleMessage(cMessage *msg)
     {
 
         // add control info to the normal ip datagram. This info will be read by the GTP-U application
-        // TftControlInfo * tftInfo = new TftControlInfo();
         auto tftInfo = pkt->addTag<TftControlInfo>();
         tftInfo->setTft(tftId);
 
