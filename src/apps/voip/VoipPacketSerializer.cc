@@ -14,7 +14,7 @@
 //
 
 #include "VoipPacket_m.h"
-#include "VoipPacketSerializer.h"
+#include "apps/voip/VoipPacketSerializer.h"
 #include "inet/common/packet/serializer/ChunkSerializerRegistry.h"
 
 using namespace inet;
