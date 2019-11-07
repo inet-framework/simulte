@@ -11,6 +11,10 @@ import inet.common.INETDefs;
 import inet.common.packet.chunk.Chunk;
 import inet.common.geometry.Geometry;
 
+cplusplus {{
+const inet::B D2D_MULTIHOP_HEADER_LENGTH = inet::B(8);
+}}
+
 
 //
 // MultihopD2DPacket
@@ -31,4 +35,6 @@ class MultihopD2DPacket extends inet::FieldsChunk
 
     unsigned int lastHopSenderId;
     simtime_t timestamp;
+    
+    chunkLength = D2D_MULTIHOP_HEADER_LENGTH;
 }
