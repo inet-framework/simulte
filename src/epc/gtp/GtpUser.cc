@@ -8,10 +8,12 @@
 //
 
 #include <iostream>
-#include <inet/common/ModuleAccess.h>
 #include <inet/networklayer/ipv4/Ipv4Header_m.h>
+#include <inet/common/packet/printer/PacketPrinter.h>
+#include <inet/common/ModuleAccess.h>
 #include <inet/linklayer/common/InterfaceTag_m.h>
 #include "epc/gtp/GtpUser.h"
+#include "epc/gtp/GtpUserMsg_m.h"
 
 Define_Module(GtpUser);
 using namespace inet;
@@ -25,8 +27,12 @@ void GtpUser::initialize(int stage)
         return;
     localPort_ = par("localPort");
 
+    // transport layer access
     socket_.setOutputGate(gate("socketOut"));
     socket_.bind(localPort_);
+
+    // network layer access
+//    ipSocket_.setOutputGate(gate("ipSocketOut"));
 
     tunnelPeerPort_ = par("tunnelPeerPort");
 
@@ -51,89 +57,48 @@ void GtpUser::initialize(int stage)
     ie_ = detectInterface();
  }
 
- InterfaceEntry *GtpUser::detectInterface()
- {
-     IInterfaceTable *ift = getModuleFromPar<IInterfaceTable>(par("interfaceTableModule"), this);
-     const char *interfaceName = par("ipOutInterface");
-     InterfaceEntry *ie = nullptr;
 
-     if (strlen(interfaceName) > 0) {
-         ie = ift->getInterfaceByName(interfaceName);
-         if (ie == nullptr)
-             throw cRuntimeError("Interface \"%s\" does not exist", interfaceName);
-     }
 
-     return ie;
- }
-
-EpcNodeType GtpUser::selectOwnerType(const char * type)
-{
-    EV << "GtpUserSimplified::selectOwnerType - setting owner type to " << type << endl;
-    if(strcmp(type,"ENODEB") == 0)
-        return ENB;
-    else if(strcmp(type,"PGW") == 0)
-        return PGW;
-    else if(strcmp(type,"SGW") == 0)
-        return SGW;
-    else
-        error("GtpUserSimplified::selectOwnerType - unknown owner type [%s]. Aborting...",type);
-    // should never be reached
-    return PGW;
-}
-
-void GtpUser::handleMessage(cMessage *msg)
-{
-    if (strcmp(msg->getArrivalGate()->getFullName(), "trafficFlowFilterGate") == 0)
-    {
-        EV << "GtpUser::handleMessage - message from trafficFlowFilter" << endl;
-        // forward the encapsulated Ipv4 datagram
-        handleFromTrafficFlowFilter(check_and_cast<Packet *>(msg));
-    }
-    else if(strcmp(msg->getArrivalGate()->getFullName(),"socketIn")==0)
-    {
-        EV << "GtpUser::handleMessage - message from udp layer" << endl;
-
-        handleFromUdp(check_and_cast<Packet *>(msg));
-    }
-}
 
 void GtpUser::handleFromTrafficFlowFilter(Packet * datagram)
 {
     // extract control info from the datagram
-    TftControlInfo * tftInfo = datagram->removeTag<TftControlInfo>();
-    TrafficFlowTemplateId flowId = tftInfo->getTft();
-    delete (tftInfo);
+     TftControlInfo * tftInfo = datagram->removeTag<TftControlInfo>();
+     TrafficFlowTemplateId flowId = tftInfo->getTft();
+     delete (tftInfo);
 
-    EV << "GtpUser::handleFromTrafficFlowFilter - Received a tftMessage with flowId[" << flowId << "]" << endl;
+     EV << "GtpUser::handleFromTrafficFlowFilter - Received a tftMessage with flowId[" << flowId << "]" << endl;
 
-    TunnelEndpointIdentifier nextTeid;
-    L3Address tunnelPeerAddress;
+     TunnelEndpointIdentifier nextTeid;
+     L3Address tunnelPeerAddress;
 
-    // search a correspondence between the flow id and the pair <teid,nextHop>
-    LabelTable::iterator tftIt;
-    tftIt = tftTable_.find(flowId);
-    if (tftIt == tftTable_.end())
-    {
-        EV << "GtpUser::handleFromTrafficFlowFilter - Cannot find entry for TFT " << flowId << ". Discarding packet;" << endl;
-        return;
-    }
-    tunnelPeerAddress = tftIt->second.nextHop;
-    nextTeid = tftIt->second.teid;
+     // search a correspondence between the flow id and the pair <teid,nextHop>
+     LabelTable::iterator tftIt;
+     tftIt = tftTable_.find(flowId);
+     if (tftIt == tftTable_.end())
+     {
+         EV << "GtpUser::handleFromTrafficFlowFilter - Cannot find entry for TFT " << flowId << ". Discarding packet;" << endl;
+         return;
+     }
+     tunnelPeerAddress = tftIt->second.nextHop;
+     nextTeid = tftIt->second.teid;
 
-    // create a new gtpUserMessage
-    auto header = makeShared<GtpUserMsg>();
-    // assign the nextTeid
-    header->setTeid(nextTeid);
-    header->setChunkLength(B(8));
-    auto gtpPacket = new Packet(datagram->getName());
-    gtpPacket->insertAtFront(header);
-    auto data = datagram->peekData();
-    gtpPacket->insertAtBack(data);
+     // create a new gtpUserMessage
+     auto header = makeShared<GtpUserMsg>();
+     // assign the nextTeid
+     header->setTeid(nextTeid);
+     header->setChunkLength(B(8));
+     auto gtpPacket = new Packet(datagram->getName());
+     gtpPacket->insertAtFront(header);
+     auto data = datagram->peekData();
+     gtpPacket->insertAtBack(data);
 
-    delete datagram;
+     delete datagram;
 
-    socket_.sendTo(gtpPacket, tunnelPeerAddress, tunnelPeerPort_);
+     socket_.sendTo(gtpPacket, tunnelPeerAddress, tunnelPeerPort_);
 }
+
+
 
 void GtpUser::handleFromUdp(Packet * pkt)
 {
@@ -178,17 +143,18 @@ void GtpUser::handleFromUdp(Packet * pkt)
     {
         EV << "GtpUser::handleFromUdp - performing label switching: [" << oldTeid << "]->[" << teidInfo.teid
            << "] - nextHop[" << teidInfo.nextHop << "]." << endl;
+        auto gtpPacket = convertToGtpUserMsg(teidInfo.teid, originalPacket);
 
         // in case of label switching, send the packet to the next tunnel
-        auto header = makeShared<GtpUserMsg>();
-        header->setTeid(teidInfo.teid);
-        header->setChunkLength(B(8));
-        auto gtpPacket = new Packet(originalPacket->getName());
-        gtpPacket->insertAtFront(header);
-        auto data = originalPacket->peekData();
-        gtpPacket->insertAtBack(data);
-
-        delete originalPacket;
+//        auto header = makeShared<GtpUserMsg>();
+//        header->setTeid(teidInfo.teid);
+//        header->setChunkLength(B(8));
+//        auto gtpPacket = new Packet(originalPacket->getName());
+//        gtpPacket->insertAtFront(header);
+//        auto data = originalPacket->peekData();
+//        gtpPacket->insertAtBack(data);
+//
+//        delete originalPacket;
 
         socket_.sendTo(gtpPacket,teidInfo.nextHop,tunnelPeerPort_);
     }
