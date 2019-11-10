@@ -10,6 +10,7 @@
 
 #include <inet/networklayer/common/L3AddressResolver.h>
 #include <inet/networklayer/ipv4/Ipv4Header_m.h>
+#include <inet/common/packet/printer/PacketPrinter.h>
 
 #include "epc/gtp/GtpUserSimplified.h"
 Define_Module(GtpUserSimplified);
@@ -79,8 +80,12 @@ void GtpUserSimplified::handleMessage(cMessage *msg)
     else if(strcmp(msg->getArrivalGate()->getFullName(),"socketIn")==0)
     {
         EV << "GtpUserSimplified::handleMessage - message from udp layer" << endl;
+        Packet *packet = check_and_cast<Packet *>(msg);
+        PacketPrinter printer; // turns packets into human readable strings
+        printer.printPacket(EV, packet); // print to standard output
 
-        handleFromUdp(check_and_cast<Packet *>(msg));
+
+        handleFromUdp(packet);
     }
 }
 

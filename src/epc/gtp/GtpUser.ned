@@ -28,8 +28,8 @@ simple GtpUser
         @display("i=block/tunnel");
 
     gates:
-        output ipSocketOut;
-        input ipSocketIn;
+        output ipOut;
+        input ipIn;
         output socketOut;
         input socketIn;
 

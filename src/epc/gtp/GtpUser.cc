@@ -11,6 +11,7 @@
 #include <iostream>
 #include <inet/networklayer/ipv4/Ipv4Header_m.h>
 #include <inet/networklayer/common/L3AddressTag_m.h>
+#include <inet/common/packet/printer/PacketPrinter.h>
 
 Define_Module(GtpUser);
 using namespace inet;
@@ -29,7 +30,7 @@ void GtpUser::initialize(int stage)
     socket_.bind(localPort_);
 
     // network layer access
-    ipSocket_.setOutputGate(gate("ipSocketOut"));
+//    ipSocket_.setOutputGate(gate("ipSocketOut"));
 
     tunnelPeerPort_ = par("tunnelPeerPort");
 
@@ -57,6 +58,8 @@ void GtpUser::handleMessage(cMessage *msg)
     {
         EV << "GtpUser::handleMessage - message from trafficFlowFilter" << endl;
         Packet* packet = check_and_cast<Packet *>(msg);
+        PacketPrinter printer;
+        printer.printPacket(EV, packet);
         handleFromTrafficFlowFilter(packet);
     }
     else if(strcmp(msg->getArrivalGate()->getFullName(),"socketIn")==0)
@@ -93,15 +96,16 @@ void GtpUser::handleFromTrafficFlowFilter(Packet * packet)
     nextHopAddress = tftIt->second.nextHop;
     auto ipHeader = packet->peekAtFront<Ipv4Header>();
     EV << "GtpUser::handleFromTrafficFlowFilter - target ip " << ipHeader->getDestAddress() << endl;
-    EV << "GtpUser::handleFromTrafficFlowFilter - resolved target IP to " << nextHopAddress.toIpv4() << ";" << endl;
+    EV << "GtpUser::handleFromTrafficFlowFilter - resolved next hop IP to " << nextHopAddress.toIpv4() << ";" << endl;
     nextTeid = tftIt->second.teid;
     auto newInfoTag = packet->addTag<TftControlInfo>();
     newInfoTag->setTft(nextTeid);
-    auto l3tag = packet->addTagIfAbsent<L3AddressReq>();
-    l3tag->setDestAddress(ipHeader->getDestAddress());
-    l3tag->setSrcAddress(ipHeader->getSourceAddress());
+//    auto l3tag = packet->addTagIfAbsent<L3AddressReq>();
+//    l3tag->setDestAddress(ipHeader->getDestAddress());
+//    l3tag->setSrcAddress(ipHeader->getSourceAddress());
+    send(packet, "ipOut");
 //    send(packet, "pppGate");
-    ipSocket_.sendTo(packet, nextHopAddress.toIpv4());
+//    ipSocket_.sendTo(packet, nextHopAddress.toIpv4());
 
 //    send(packet, "pppGate");
 

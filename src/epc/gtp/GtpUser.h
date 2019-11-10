@@ -68,7 +68,7 @@
  */
 class GtpUser : public omnetpp::cSimpleModule
 {
-    inet::Ipv4Socket ipSocket_;
+//    inet::Ipv4Socket ipSocket_;
     inet::UdpSocket socket_;
     int localPort_;
 
