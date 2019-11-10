@@ -27,7 +27,7 @@ class X2AppServer : public inet::SctpServer
         virtual void initialize(int stage) override;
         virtual void handleMessage(omnetpp::cMessage *msg) override;
         void handleTimer(omnetpp::cMessage *msg);
-        void generateAndSend(omnetpp::cPacket* pkt);
+        void generateAndSend(inet::Packet* pkt);
 };
 
 #endif

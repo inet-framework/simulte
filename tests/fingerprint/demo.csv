@@ -1,9 +1,9 @@
 # workingdir,                        args,                                     simtimelimit,    fingerprint
-/simulations/demo/,                  -f omnetpp.ini -c VideoStreaming -r 0,    5s,              ac8b-ab27/tplx
-/simulations/demo/,                  -f omnetpp.ini -c VoIP -r 0,              5s,              e9f1-68fc/tplx
-/simulations/demo/,                  -f omnetpp.ini -c VoIP_PF -r 0,           5s,              e2e0-748e/tplx
-#/simulations/demo/,                  -f omnetpp.ini -c Large-VoIP_PF -r 0,     5s,              20d0-b35d/tplx
-#/simulations/demo/,                  -f omnetpp.ini -c Large-VoIP_MaxCI -r 0,  5s,              7a2e-e489/tplx
-/simulations/demo/,                  -f omnetpp.ini -c VoIP_DL-UL -r 0,        5s,              31f9-84db/tplx
-/simulations/demo/,                  -f omnetpp.ini -c VoIP-DL -r 0,           5s,              b257-b460/tplx
-/simulations/demo/,                  -f omnetpp.ini -c VoIP-UL -r 0,           5s,              60f3-f5dd/tplx
+/simulations/demo/,                  -f omnetpp.ini -c VideoStreaming -r 0,    5s,              ac8b-ab27/tplx, PASS,
+/simulations/demo/,                  -f omnetpp.ini -c VoIP -r 0,              5s,              e9f1-68fc/tplx, PASS,
+/simulations/demo/,                  -f omnetpp.ini -c VoIP_PF -r 0,           5s,              e2e0-748e/tplx, PASS,
+#/simulations/demo/,                  -f omnetpp.ini -c Large-VoIP_PF -r 0,     5s,              20d0-b35d/tplx, PASS,
+#/simulations/demo/,                  -f omnetpp.ini -c Large-VoIP_MaxCI -r 0,  5s,              7a2e-e489/tplx, PASS,
+/simulations/demo/,                  -f omnetpp.ini -c VoIP_DL-UL -r 0,        5s,              31f9-84db/tplx, PASS,
+/simulations/demo/,                  -f omnetpp.ini -c VoIP-DL -r 0,           5s,              b257-b460/tplx, PASS,
+/simulations/demo/,                  -f omnetpp.ini -c VoIP-UL -r 0,           5s,              60f3-f5dd/tplx, PASS,

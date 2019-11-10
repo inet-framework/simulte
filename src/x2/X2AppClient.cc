@@ -53,12 +53,12 @@ void X2AppClient::initialize(int stage)
     }
 }
 
-void X2AppClient::socketEstablished(int32_t, void *, unsigned long int buffer )
+void X2AppClient::socketEstablished(inet::SctpSocket *socket, unsigned long int buffer)
 {
     EV << "X2AppClient: connected\n";
 }
 
-void X2AppClient::socketDataArrived(int32_t, void *, cPacket *msg, bool)
+void X2AppClient::socketDataArrived(SctpSocket *, Packet *msg, bool)
 {
     packetsRcvd++;
 
@@ -66,24 +66,20 @@ void X2AppClient::socketDataArrived(int32_t, void *, cPacket *msg, bool)
     emit(packetReceivedSignal, msg);
     bytesRcvd += msg->getByteLength();
 
-    SctpSimpleMessage *smsg = check_and_cast<SctpSimpleMessage*>(msg);
-    if (smsg->getEncaps())
+    msg->removeTagIfPresent<SctpSendReq>();
+
+    if (msg->getDataLength() > B(0))
     {
         EV << "X2AppClient::socketDataArrived - Forwarding packet to the X2 manager" << endl;
 
-        // extract encapsulated packet
-        cMessage* encapMsg = smsg->decapsulate();
-
         // forward to x2manager
-        send(encapMsg, x2ManagerOut_);
-
-        delete smsg;
+        send(msg, x2ManagerOut_);
     }
     else
     {
         EV << "X2AppClient::socketDataArrived - No encapsulated message. Discard." << endl;
 
-        // TODO: throw exception?
+        throw cRuntimeError("X2AppClient::socketDataArrived: No encapsulated message.");
 
         delete msg;
     }

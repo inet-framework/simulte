@@ -350,7 +350,7 @@ class LteMacBase : public omnetpp::cSimpleModule
     void fromRlc(omnetpp::cPacket *pkt);
 
     /// Lower Layer Handler
-    void fromPhy(omnetpp::cPacket *pkt);
+    virtual void fromPhy(omnetpp::cPacket *pkt);
 };
 
 #endif

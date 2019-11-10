@@ -39,8 +39,8 @@ protected:
     virtual int numInitStages() const override { return inet::NUM_INIT_STAGES; }
     void handleMessage(omnetpp::cMessage *msg) override;
 
-    virtual void fromStack(omnetpp::cPacket* pkt);
-    virtual void fromX2(omnetpp::cPacket* pkt);
+    virtual void fromStack(inet::Packet* pkt);
+    virtual void fromX2(inet::Packet* pkt);
 
 public:
     LteX2Manager();

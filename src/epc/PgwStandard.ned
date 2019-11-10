@@ -100,8 +100,6 @@ module PgwStandard extends PgwBase
         gtp_user.socketIn <-- at.out++;
         //nl.in++ <-- gtp_user.pppGate;
         
-        gtp_user.ipOut --> nl.in++;
-        gtp_user.ipIn <-- nl.out++;
         pppIf.upperLayerOut --> trafficFlowFilter.internetFilterGateIn;
         pppIf.upperLayerIn <-- gtp_user.pppGate;
         

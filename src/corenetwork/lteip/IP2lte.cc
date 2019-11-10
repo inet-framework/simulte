@@ -82,7 +82,7 @@ void IP2lte::initialize(int stage)
             throw cRuntimeError("unhandled node type: %i", nodeType_);
         }
     }
-    else if (stage == inet::INITSTAGE_NETWORK_INTERFACE_CONFIGURATION) {
+    else if (stage == inet::INITSTAGE_NETWORK_LAYER - 1) {
         if (nodeType_ == UE) {
             // TODO: shift to routing stage
             // if the UE has been created dynamically, we need to manually add a default route having "wlan" as output interface
@@ -181,9 +181,6 @@ void IP2lte::fromIpUe(Packet * datagram)
     // Remove InterfaceReq Tag (we already are on an interface now)
     datagram->removeTagIfPresent<InterfaceReq>();
 
-    // obtain the encapsulated transport packet
-    // cPacket * transportPacket = datagram->getEncapsulatedPacket();
-
     if (ueHold_)
     {
         // hold packets until handover is complete
@@ -197,9 +194,6 @@ void IP2lte::fromIpUe(Packet * datagram)
 
 void IP2lte::toStackUe(Packet * datagram)
 {
-    // obtain the encapsulated transport packet
-    // cPacket * transportPacket = datagram->getEncapsulatedPacket();
-
     // 5-Tuple infos
     unsigned short srcPort = 0;
     unsigned short dstPort = 0;
@@ -222,7 +216,6 @@ void IP2lte::toStackUe(Packet * datagram)
 
     // inspect packet depending on the transport protocol type
     // TODO: needs refactoring (redundant code, see toStackEnb())
-    //       needs to be rewritten to use inet::Packet
     switch (transportProtocol) {
         case IP_PROT_TCP: {
             auto& tcpHdr = datagram->peekAtFront<tcp::TcpHeader>(b(-1),
@@ -267,7 +260,7 @@ void IP2lte::toStackUe(Packet * datagram)
 }
 
 void IP2lte::prepareForIpv4(Packet *datagram, const Protocol *protocol){
-    // add DispatchProtocolRequest so that the packet is handled by the IPv4 layer
+    // add DispatchProtocolRequest so that the packet is handled by the specified protocol
     datagram->addTagIfAbsent<DispatchProtocolReq>()->setProtocol(protocol);
     datagram->addTagIfAbsent<PacketProtocolTag>()->setProtocol(protocol);
     // add Interface-Indication to indicate which interface this packet was received from
@@ -421,6 +414,7 @@ void IP2lte::registerInterface()
     interfaceEntry->setMtu(1500);
     // enable broadcast/multicast
     interfaceEntry->setBroadcast(true);
+    interfaceEntry->setMulticast(true);
     interfaceEntry->setLoopback(false);
 }
 

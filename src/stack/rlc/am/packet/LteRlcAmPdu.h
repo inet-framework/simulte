@@ -35,7 +35,7 @@ class LteRlcAmPdu : public LteRlcAmPdu_Base
         return *this;
     }
 
-    virtual LteRlcAmPdu* dup() const
+    virtual LteRlcAmPdu* dup() const override
     {
         return new LteRlcAmPdu(*this);
     }

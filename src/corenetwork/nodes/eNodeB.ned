@@ -62,7 +62,7 @@ module eNodeBBase
         //# Transport layer
         bool hasUdp = true;
         bool hasTcp = default(firstAvailableOrEmpty("Tcp", "TcpLwip", "TcpNsc") != "");
-        bool hasSctp = default(false);
+        bool hasSctp = true;
 
     gates:
         inout ppp;                // connection to the Core Network
@@ -192,16 +192,6 @@ module eNodeBBase
 		at.out++ --> sctp.appIn if hasSctp;
 		at.in++ <-- sctp.appOut if hasSctp;
 		
-        for i=0..numX2Apps-1 {
-            x2App[i].sctpOut[0] --> sctp.appIn;
-            x2App[i].sctpIn[0] <-- sctp.appOut;
-
-            x2App[i].sctpOut[1] --> sctp.appIn;  //FIXME: do we need a message dispatcher here? transportIn/Out were vectors in previous inet versions
-            x2App[i].sctpIn[1] <-- sctp.appOut;
-            x2App[i].x2ManagerIn <-- lteNic.x2$o++;
-            x2App[i].x2ManagerOut --> lteNic.x2$i++;
-        }
-
         //# 
         //# Transport layer to network layer connections
         //#
@@ -269,5 +259,15 @@ module eNodeB extends eNodeBBase
         gtpUserX2.lteStackIn <-- lteNic.x2$o++;
         gtpUserX2.socketOut --> at.in++;
         gtpUserX2.socketIn <-- at.out++;
+        
+        // set remaining X2 apps connections        
+        for i=0..numX2Apps-1 {
+            x2App[i].sctpOut[0] --> at.in++;
+            x2App[i].sctpIn[0] <-- at.out++;
+            x2App[i].sctpOut[1] --> at.in++;
+            x2App[i].sctpIn[1] <-- at.out++;
+            x2App[i].x2ManagerIn <-- lteNic.x2$o++;
+            x2App[i].x2ManagerOut --> lteNic.x2$i++;
+        }
     
 }

@@ -12,14 +12,21 @@
 // It contains a vector of Information Elements (see LteX2Message.h),
 // the total length of the message and the type of the message
 //
-packet LteX2Message
+import inet.common.INETDefs;
+import inet.common.packet.chunk.Chunk;
+
+class LteX2Message extends inet::FieldsChunk
 {
     @customize(true);
+    chunkLength = inet::B(11); // FIXME needs to be checked: 
+                               // realistic chunk length without X2 information elements?
+                               // Must at least be 11 Bytes for serialization: 
+                               // Type (1 B), sourceId (4 B), destinationId (4 B), IE list size (2 B))
     unsigned int sourceId;
     unsigned int destinationId;
 }
 
-packet X2InformationElement
+class X2InformationElement
 {
     @customize(true);
 }

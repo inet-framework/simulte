@@ -9,6 +9,7 @@
 
 #include <iostream>
 #include <inet/networklayer/common/L3Address.h>
+#include <inet/networklayer/ipv4/Ipv4Header_m.h>
 #include "epc/gtp/GtpUserX2.h"
 
 Define_Module(GtpUserX2);
@@ -36,56 +37,59 @@ void GtpUserX2::initialize(int stage)
 
 void GtpUserX2::handleMessage(cMessage *msg)
 {
+    Packet* pkt = check_and_cast<Packet*>(msg);
+
     if (strcmp(msg->getArrivalGate()->getFullName(), "lteStackIn") == 0)
     {
         EV << "GtpUserX2::handleMessage - message from X2 Manager" << endl;
 
-        // obtain the encapsulated Ipv4 datagram
-        LteX2Message* x2Msg = check_and_cast<LteX2Message*>(msg);
-        handleFromStack(x2Msg);
+        handleFromStack(pkt);
     }
     else if(strcmp(msg->getArrivalGate()->getFullName(),"socketIn")==0)
     {
         EV << "GtpUserX2::handleMessage - message from udp layer" << endl;
 
-        GtpUserMsg * gtpMsg = check_and_cast<GtpUserMsg *>(msg);
-        handleFromUdp(gtpMsg);
+        handleFromUdp(pkt);
     }
 }
 
-void GtpUserX2::handleFromStack(LteX2Message* x2Msg)
+void GtpUserX2::handleFromStack(Packet * pkt)
 {
+    auto x2Msg = pkt->peekAtFront<LteX2Message>();
     // extract destination from the message
     X2NodeId destId = x2Msg->getDestinationId();
-    // X2NodeId srcId = x2Msg->getSourceId();
+    X2NodeId srcId = x2Msg->getSourceId();
     EV << "GtpUserX2::handleFromStack - Received a LteX2Message with destId[" << destId << "]" << endl;
 
-    throw cRuntimeError("GtpUserX2: inet::Packet based handling still needs to be implemented!");
 
     // create a new GtpUserMessage
-    // GtpUserMsg * gtpMsg = new GtpUserMsg();
-    // gtpMsg->setName("GtpUserMessage");
+    auto header = makeShared<GtpUserMsg>();
+    header->setTeid(0);
+    header->setChunkLength(B(8));
+    auto gtpPacket = new Packet(pkt->getName());
+    gtpPacket->insertAtFront(header);
+    auto data = pkt->peekData();
+    gtpPacket->insertAtBack(data);
 
-    // encapsulate the datagram within the GtpUserX2Message
-    // gtpMsg->encapsulate(x2Msg);
+    delete pkt;
 
-    // get the IP address of the destination X2 interface from the Binder
-    // L3Address peerAddress = binder_->getX2PeerAddress(srcId, destId);
-    // socket_.sendTo(gtpMsg, peerAddress, tunnelPeerPort_);
+    L3Address peerAddress = binder_->getX2PeerAddress(srcId, destId); //L3AddressResolver().resolve(symbolicName);
+
+    socket_.sendTo(gtpPacket, peerAddress, tunnelPeerPort_);
 }
 
-void GtpUserX2::handleFromUdp(GtpUserMsg * gtpMsg)
+void GtpUserX2::handleFromUdp(Packet * pkt)
 {
     EV << "GtpUserX2::handleFromUdp - Decapsulating and sending to local connection." << endl;
 
+    // re-create the original IP datagram and send it to the local network
+    auto originalPacket = new Packet (pkt->getName());
+    auto gtpUserMsg = pkt->popAtFront<GtpUserMsg>();
+    originalPacket->insertAtBack(pkt->peekData());
+    originalPacket->addTagIfAbsent<PacketProtocolTag>()->setProtocol(&Protocol::ipv4);
 
-    throw cRuntimeError("GtpUserX2: inet::Packet based handling still needs to be implemented!");
-
-    delete(gtpMsg);
-
-    // obtain the original X2 message and send it to the X2 Manager
-    // LteX2Message * x2Msg = check_and_cast<LteX2Message*>(gtpMsg->decapsulate());
+    delete pkt;
 
     // send message to the X2 Manager
-    // send(x2Msg,"lteStackOut");
+    send(originalPacket,"lteStackOut");
 }

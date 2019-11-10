@@ -31,7 +31,7 @@ class LteSummaryBuffer
   public:
 
     LteSummaryBuffer(unsigned char dim, unsigned char cw, unsigned int b, omnetpp::simtime_t lb, omnetpp::simtime_t ub) :
-        cumulativeSummary_(cw, b, lb, ub), bufferSize_(dim), totCodewords_(cw), totBands_(b)
+        bufferSize_(dim), totCodewords_(cw), totBands_(b), cumulativeSummary_(cw, b, lb, ub)
     { }
 
     //! Put a feedback into the buffer and update current summary feedback
