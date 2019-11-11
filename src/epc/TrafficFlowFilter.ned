@@ -9,9 +9,6 @@
 
 package lte.epc;
 
-//
-// TODO auto-generated module
-//
 simple TrafficFlowFilter
 {
     parameters:
@@ -21,7 +18,6 @@ simple TrafficFlowFilter
         string ownerType; // must be one between ENODEB or PGW
     gates:
         input internetFilterGateIn;
-
         output gtpUserGateOut;
 }
 

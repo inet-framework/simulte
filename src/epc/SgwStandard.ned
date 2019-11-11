@@ -20,19 +20,25 @@ import inet.transportlayer.udp.Udp;
 module SgwStandard extends NetworkLayerNodeBase
 {
     parameters:
-    @display("bgb=920,462;i=device/server2");
-    string nodeType = "SGW";  // DO NOT CHANGE
-	forwarding = default(true);
-    multicastForwarding = default(true);
+        @display("bgb=920,462;i=device/server2");
+        @figure[applicationLayer](type=rectangle; pos=250,6; size=1000,130; lineColor=#808080; cornerRadius=5; fillColor=#ffff00; fillOpacity=0.1);
+        @figure[applicationLayer.title](type=text; pos=1245,11; anchor=ne; text="application layer");
+        @figure[transportLayer](type=rectangle; pos=250,156; size=1000,130; fillColor=#ff0000; lineColor=#808080; cornerRadius=5; fillOpacity=0.1);
+        @figure[transportLayer.title](type=text; pos=1245,161; anchor=ne; text="transport layer");
+        @figure[submodules];
+        string nodeType = "SGW";  // DO NOT CHANGE
+    	forwarding = default(true);
+        multicastForwarding = default(true);
 
     submodules:
         udp: Udp {
             @display("p=329,206");
         }
         gtp_user: GtpUser {
-            @display("p=727,206");
-            filter = false; // the sgw has no traffic flow filter
-            tftFileName = "";
+            parameters:
+                @display("p=727,206");
+                filter = false; // the sgw has no traffic flow filter
+                tftFileName = "";
         }
         tn: MessageDispatcher {
             parameters:
