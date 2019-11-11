@@ -25,7 +25,7 @@ import inet.transportlayer.udp.Udp;
 module PgwBase extends NetworkLayerNodeBase
 {
     parameters:
-        @display("bgb=1571.955,755.37;i=device/mainframe");
+        @display("bgb=1350,750;i=device/mainframe");
         @figure[applicationLayer](type=rectangle; pos=250,6; size=1000,130; lineColor=#808080; cornerRadius=5; fillColor=#ffff00; fillOpacity=0.1);
         @figure[applicationLayer.title](type=text; pos=1245,11; anchor=ne; text="application layer");
         @figure[transportLayer](type=rectangle; pos=250,156; size=1000,130; fillColor=#ff0000; lineColor=#808080; cornerRadius=5; fillOpacity=0.1);
@@ -42,7 +42,7 @@ module PgwBase extends NetworkLayerNodeBase
     submodules:
         pppIf: PppInterface {
             parameters:
-                @display("p=899.7187,374.06247");
+                @display("p=1150,525");
         }
         udp: Udp {
             parameters:
