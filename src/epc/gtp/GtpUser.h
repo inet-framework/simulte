@@ -10,14 +10,13 @@
 #ifndef _LTE_GTP_USER_H_
 #define _LTE_GTP_USER_H_
 
-#include <omnetpp.h>
-#include <inet/transportlayer/contract/udp/UdpSocket.h>
-#include <inet/networklayer/common/L3AddressResolver.h>
-#include <inet/networklayer/common/InterfaceEntry.h>
-#include "epc/gtp/TftControlInfo.h"
-#include "epc/gtp/GtpUserMsg_m.h"
-
 #include <map>
+#include <omnetpp.h>
+
+#include <inet/networklayer/common/InterfaceEntry.h>
+#include "epc/gtp/AbstractGtpUser.h"
+#include "epc/gtp/TftControlInfo.h"
+
 #include "epc/gtp_common.h"
 
 /**
@@ -66,11 +65,8 @@
  </config>
  *
  */
-class GtpUser : public omnetpp::cSimpleModule
+class GtpUser : public AbstractGtpUser
 {
-    inet::UdpSocket socket_;
-    int localPort_;
-
     /*
      * This table contains mapping between an incoming TEID and <nextTEID,nextHop>
      * The GTP-U entity reads the incoming TEID and performs a TEID switch/removal depending on the values contained in the teidTable:
@@ -86,10 +82,8 @@ class GtpUser : public omnetpp::cSimpleModule
     LabelTable tftTable_;
 
     // interface (LteNic)
-    inet::InterfaceEntry *ie_;
 
     // the GTP protocol Port
-    unsigned int tunnelPeerPort_;
 
     bool loadTeidTable(const char * teidTableFile);
     bool loadTftTable(const char * tftTableFile);
@@ -97,22 +91,16 @@ class GtpUser : public omnetpp::cSimpleModule
     // specifies the type of the node that contains this filter (it can be ENB or PGW)
     EpcNodeType ownerType_;
 
-    EpcNodeType selectOwnerType(const char * type);
-
     // detect the LteNic interface (during initialization)
-    inet::InterfaceEntry *detectInterface();
 
   protected:
-
-    virtual int numInitStages() const override { return inet::NUM_INIT_STAGES; }
     virtual void initialize(int stage) override;
-    virtual void handleMessage(omnetpp::cMessage *msg) override;
 
     // receive and IP Datagram from the traffic filter, encapsulates it in a GTP-U packet than forwards it to the proper next hop
-    void handleFromTrafficFlowFilter(inet::Packet * packet);
+    void handleFromTrafficFlowFilter(inet::Packet * packet) override;
 
     // receive a GTP-U packet from Udp, reads the TEID and decides whether performing label switching or removal
-    void handleFromUdp(inet::Packet * gtpMsg);
+    void handleFromUdp(inet::Packet * gtpMsg) override;
 };
 
 #endif

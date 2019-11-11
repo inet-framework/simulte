@@ -7,9 +7,9 @@
 #include <string.h>
 #include <omnetpp.h>
 
-#include "inet/common/INETDefs.h"
+#include <inet/common/INETDefs.h>
 #include <inet/transportlayer/contract/udp/UdpSocket.h>
-#include "inet/networklayer/common/L3AddressResolver.h"
+#include <inet/networklayer/common/L3AddressResolver.h>
 
 #include "BurstPacket_m.h"
 

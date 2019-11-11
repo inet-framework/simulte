@@ -20,10 +20,7 @@
 #include <inet/linklayer/common/InterfaceTag_m.h>
 
 #include "corenetwork/binder/LteBinder.h"
-#include "epc/gtp_common.h"
-#include "epc/gtp/TftControlInfo.h"
-#include "epc/gtp/GtpUserMsg_m.h"
-
+#include "epc/gtp/AbstractGtpUser.h"
 /**
  * GtpUserSimplified is used for building data tunnels between GTP peers.
  * GtpUserSimplified can receive two kind of packets:
@@ -31,11 +28,8 @@
  * b) GtpUserSimplifiedMsg from Udp-IP layers.
  *
  */
-class GtpUserSimplified : public omnetpp::cSimpleModule
+class GtpUserSimplified : public AbstractGtpUser
 {
-    inet::UdpSocket socket_;
-    int localPort_;
-
     // reference to the LTE Binder module
     LteBinder* binder_;
     /*
@@ -44,33 +38,20 @@ class GtpUserSimplified : public omnetpp::cSimpleModule
      */
     std::map<TrafficFlowTemplateId, inet::Ipv4Address> tftTable_;
 
-    // the GTP protocol Port
-    unsigned int tunnelPeerPort_;
-
     // IP address of the PGW
     inet::L3Address pgwAddress_;
 
     // specifies the type of the node that contains this filter (it can be ENB or PGW)
     EpcNodeType ownerType_;
 
-    EpcNodeType selectOwnerType(const char * type);
-
-    inet::InterfaceEntry *ie_;
-
   protected:
-
-    virtual int numInitStages() const override { return inet::NUM_INIT_STAGES; }
     virtual void initialize(int stage) override;
-    virtual void handleMessage(omnetpp::cMessage *msg) override;
 
     // receive and IP Datagram from the traffic filter, encapsulates it in a GTP-U packet than forwards it to the proper next hop
-    void handleFromTrafficFlowFilter(inet::Packet * datagram);
+    void handleFromTrafficFlowFilter(inet::Packet * packet) override;
 
     // receive a GTP-U packet from Udp, reads the TEID and decides whether performing label switching or removal
-    void handleFromUdp(inet::Packet * gtpMsg);
-
-    // detect outgoing interface name (LteNic)
-    inet::InterfaceEntry *detectInterface();
+    void handleFromUdp(inet::Packet * packet) override;
 };
 
 #endif

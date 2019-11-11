@@ -61,3 +61,6 @@ ui/com.simulte.configeditor/bin/
 *.swp
 *.swo
 .qtenvrc.*
+
+# project file 
+.cproject

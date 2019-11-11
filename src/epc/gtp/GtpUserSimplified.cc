@@ -10,8 +10,11 @@
 
 #include <inet/networklayer/common/L3AddressResolver.h>
 #include <inet/networklayer/ipv4/Ipv4Header_m.h>
+#include <inet/common/packet/printer/PacketPrinter.h>
 
 #include "epc/gtp/GtpUserSimplified.h"
+#include "epc/gtp/GtpUserMsg_m.h"
+#include "epc/gtp/TftControlInfo.h"
 Define_Module(GtpUserSimplified);
 
 using namespace omnetpp;
@@ -29,6 +32,7 @@ void GtpUserSimplified::initialize(int stage)
     // get reference to the binder
     binder_ = getBinder();
 
+    // transport layer access
     socket_.setOutputGate(gate("socketOut"));
     socket_.bind(localPort_);
 
@@ -40,47 +44,6 @@ void GtpUserSimplified::initialize(int stage)
     ownerType_ = selectOwnerType(getAncestorPar("nodeType"));
 
     ie_ = detectInterface();
-}
-
-InterfaceEntry *GtpUserSimplified::detectInterface()
-{
-    IInterfaceTable *ift = getModuleFromPar<IInterfaceTable>(par("interfaceTableModule"), this);
-    const char *interfaceName = par("ipOutInterface");
-    InterfaceEntry *ie = nullptr;
-
-    if (strlen(interfaceName) > 0) {
-        ie = ift->getInterfaceByName(interfaceName);
-        if (ie == nullptr)
-            throw cRuntimeError("Interface \"%s\" does not exist", interfaceName);
-    }
-
-    return ie;
-}
-
-EpcNodeType GtpUserSimplified::selectOwnerType(const char * type)
-{
-    EV << "GtpUserSimplified::selectOwnerType - setting owner type to " << type << endl;
-    if(strcmp(type,"ENODEB") == 0)
-        return ENB;
-    if(strcmp(type,"PGW") != 0)
-        error("GtpUserSimplified::selectOwnerType - unknown owner type [%s]. Aborting...",type);
-    return PGW;
-}
-
-void GtpUserSimplified::handleMessage(cMessage *msg)
-{
-    if (strcmp(msg->getArrivalGate()->getFullName(), "trafficFlowFilterGate") == 0)
-    {
-        EV << "GtpUserSimplified::handleMessage - message from trafficFlowFilter" << endl;
-        // forward the encapsulated Ipv4 datagram
-        handleFromTrafficFlowFilter(check_and_cast<Packet *>(msg));
-    }
-    else if(strcmp(msg->getArrivalGate()->getFullName(),"socketIn")==0)
-    {
-        EV << "GtpUserSimplified::handleMessage - message from udp layer" << endl;
-
-        handleFromUdp(check_and_cast<Packet *>(msg));
-    }
 }
 
 void GtpUserSimplified::handleFromTrafficFlowFilter(Packet * datagram)
@@ -139,12 +102,12 @@ void GtpUserSimplified::handleFromUdp(Packet * pkt)
     originalPacket->addTagIfAbsent<PacketProtocolTag>()->setProtocol(&Protocol::ipv4);
 
     delete pkt;
-
-    if (ownerType_ == PGW)
-    {
         const auto& hdr = originalPacket->peekAtFront<Ipv4Header>();
         const Ipv4Address& destAddr = hdr->getDestAddress();
         MacNodeId destId = binder_->getMacNodeId(destAddr);
+
+    if (ownerType_ == PGW)
+    {
         if (destId != 0)
         {
              // create a new GtpUserSimplifiedMessage
@@ -169,13 +132,11 @@ void GtpUserSimplified::handleFromUdp(Packet * pkt)
             // destination is outside the LTE network
             EV << "GtpUserSimplified::handleFromUdp - Deliver datagram to the Internet " << endl;
             send(originalPacket,"pppGate");
+            return;
         }
 
     } else if (ownerType_ == ENB)
     {
-        const auto& hdr = originalPacket->peekAtFront<Ipv4Header>();
-        const Ipv4Address& destAddr = hdr->getDestAddress();
-        MacNodeId destId = binder_->getMacNodeId(destAddr);
 
         if (destId != 0)
         {
@@ -195,18 +156,10 @@ void GtpUserSimplified::handleFromUdp(Packet * pkt)
         // send the message to the correct eNB or to the Internet, through the PGW
         // * create a new GtpUserSimplifiedMessage
         // * encapsulate the datagram within the GtpUserMsg
-        auto header = makeShared<GtpUserMsg>();
-        header->setTeid(0);
-        header->setChunkLength(B(8));
-        auto gtpMsg = new Packet(originalPacket->getName());
-        gtpMsg->insertAtFront(header);
-        auto data = originalPacket->peekData();
-        gtpMsg->insertAtBack(data);
-        delete originalPacket;
-
+        auto gtpMsg = convertToGtpUserMsg(0, originalPacket);
         socket_.sendTo(gtpMsg, pgwAddress_, tunnelPeerPort_);
 
     } else {
-        throw cRuntimeError("Unknown ownerType_ - cannot process packet");
+        throw cRuntimeError("Unknown ownerType_- cannot process packet");
     }
 }
