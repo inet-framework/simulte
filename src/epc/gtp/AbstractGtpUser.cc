@@ -19,8 +19,8 @@ EpcNodeType AbstractGtpUser::selectOwnerType(const char * type) {
             return SGW;
         else
             error("GtpUser::selectOwnerType - unknown owner type [%s]. Aborting...",type);
-        // should never be reached
-        error("should never be reached");
+        // should never be reached - return default value in order to avoid compile warnings
+        return ENB;
 }
 
 InterfaceEntry *AbstractGtpUser::detectInterface()
