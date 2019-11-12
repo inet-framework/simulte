@@ -27,46 +27,49 @@ import inet.transportlayer.tcp.Tcp;
 module LteInternet
 {
     parameters:
-
         @display("i=misc/globe;bgb=316,250");
+        
     gates:
-        //#inout peerLteIp; 
-
         inout peerLteIp[];  // gate connecting the node with an LteIp peer
 
     submodules:
 
         // Lte IP module , and gates for connecting to transport stack
         lteIp: LteIp {
-            @display("p=116,121");
-            nodeType = "INTERNET";
-            protocolMapping = "6:0,17:1";
+            parameters:
+                @display("p=116,121");
+                nodeType = "INTERNET";
+                protocolMapping = "6:0,17:1";
             gates:
                 transportIn[2];
                 transportOut[2];
         }
         tcp: Tcp {
-            @display("p=34,40");
+            parameters:
+            	@display("p=34,40");
         }
         udp: Udp {
-            @display("p=190,40");
+            parameters:
+            	@display("p=190,40");
         }
 
         mux: InternetMux {
-            @display("p=270,121");
+            parameters:
+            	@display("p=270,121");
         }
 
         internetQueue: InternetQueue {
-            @dynamic(true);
-            @display("p=270,197");
+            parameters:
+                @dynamic(true);
+                @display("p=270,197");
         }
         interfaceTable: InterfaceTable {
-            @display("p=45,121");
+            parameters:
+                    @display("p=45,121");
         }
 
+
     connections allowunconnected:
-
-
         //#
         //# Internal LTE stack to PHY and
         //# Lte IP connections
@@ -97,7 +100,6 @@ simple InternetMux
         output outMux;         // to lteIP
 
         //# externals
-
         input inExt[];                // from external (ltePeerIp)
         output outExt[];            // to internet Queues
 }

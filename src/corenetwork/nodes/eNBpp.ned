@@ -28,14 +28,18 @@ import lte.stack.LteNicEnb;
 //
 module eNBpp extends eNodeBBase
 {
+    parameters:
+        @figure[submodules];
     submodules:
         gtp_user: GtpUser {
-            @display("p=381,72");
-            ipOutInterface = "wlan";     // FIXME: we should use a different name, eg. "cellular" for the LteNic
+            parameters:
+            	@display("p=381,72");
+            	ipOutInterface = "wlan";     // FIXME: we should use a different name, eg. "cellular" for the LteNic
         }
         trafficFlowFilter: TrafficFlowFilter {
-            ownerType = nodeType;
-            @display("p=200,144");
+            parameters:
+            	ownerType = nodeType;
+            	@display("p=200,144");
         }
 
     connections allowunconnected:

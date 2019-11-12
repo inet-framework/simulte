@@ -34,17 +34,20 @@ module Relay
 
     submodules:
         mobility: StationaryMobility {
-            @display("p=50,75;is=s");
+            parameters:
+            	@display("p=50,75;is=s");
         }
         nicUe: LteNicRelay {
-            @display("p=100,150");
-            LtePdcpRrcType = "LtePdcpRrcRelayUe";
-            LteMacType = "LteMacRelayUe";
+            parameters:
+                @display("p=100,150");
+                LtePdcpRrcType = "LtePdcpRrcRelayUe";
+                LteMacType = "LteMacRelayUe";
         }
         nicEnb: LteNicRelay {
-            @display("p=200,150");
-            LtePdcpRrcType = "LtePdcpRrcRelayEnb";
-            LteMacType = "LteMacRelayEnb";
+            parameters:
+                @display("p=200,150");
+                LtePdcpRrcType = "LtePdcpRrcRelayEnb";
+                LteMacType = "LteMacRelayEnb";
         }
 
     connections allowunconnected:
