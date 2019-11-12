@@ -28,15 +28,15 @@ module Ue
 {
     parameters:
         @networkNode();
-        @display("i=device/pocketpc;bgb=1260,600");
-        @figure[applicationLayer](type=rectangle; pos=250,6; size=1000,130; lineColor=#808080; cornerRadius=5; fillColor=#ffff00; fillOpacity=0.1);
-        @figure[applicationLayer.title](type=text; pos=1245,11; anchor=ne; text="application layer");
-        @figure[transportLayer](type=rectangle; pos=250,156; size=1000,130; fillColor=#ff0000; lineColor=#808080; cornerRadius=5; fillOpacity=0.1);
-        @figure[transportLayer.title](type=text; pos=1245,161; anchor=ne; text="transport layer");
-        @figure[networkLayer](type=rectangle; pos=250,306; size=1000,130; fillColor=#00ff00; lineColor=#808080; cornerRadius=5; fillOpacity=0.1);
-        @figure[networkLayer.title](type=text; pos=1245,311; anchor=ne; text="network layer");
-        @figure[linkLayer](type=rectangle; pos=250,456; size=1000,130; fillColor=#0000ff; lineColor=#808080; cornerRadius=5; fillOpacity=0.1);
-        @figure[linkLayer.title](type=text; pos=1245,461; anchor=ne; text="link layer");
+        @display("i=device/pocketpc;bgb=860,600");
+        @figure[applicationLayer](type=rectangle; pos=250,6; size=600,130; lineColor=#808080; cornerRadius=5; fillColor=#ffff00; fillOpacity=0.1);
+        @figure[applicationLayer.title](type=text; pos=845,11; anchor=ne; text="application layer");
+        @figure[transportLayer](type=rectangle; pos=250,156; size=600,130; fillColor=#ff0000; lineColor=#808080; cornerRadius=5; fillOpacity=0.1);
+        @figure[transportLayer.title](type=text; pos=845,161; anchor=ne; text="transport layer");
+        @figure[networkLayer](type=rectangle; pos=250,306; size=600,130; fillColor=#00ff00; lineColor=#808080; cornerRadius=5; fillOpacity=0.1);
+        @figure[networkLayer.title](type=text; pos=845,311; anchor=ne; text="network layer");
+        @figure[linkLayer](type=rectangle; pos=250,456; size=600,130; fillColor=#0000ff; lineColor=#808080; cornerRadius=5; fillOpacity=0.1);
+        @figure[linkLayer.title](type=text; pos=845,461; anchor=ne; text="link layer");
         @figure[submodules];
 
 
@@ -109,17 +109,17 @@ module Ue
         // message dispatcher for SAP between application and transport layer
         at: MessageDispatcher {
             parameters:
-                @display("p=750,146;b=1000,5,,,,1");
+                @display("p=550,146;b=600,5,,,,1");
         }
         // message dispatcher for SAP between transport and network layer
         tn: MessageDispatcher {
             parameters:
-                @display("p=750,296;b=1000,5,,,,1");
+                @display("p=550,296;b=600,5,,,,1");
         }
         // message dispatcher for SAP to link layer
         nl: MessageDispatcher {
             parameters:
-                @display("p=750,446;b=1000,5,,,,1");
+                @display("p=550,446;b=600,5,,,,1");
         }
     connections allowunconnected:
         //# LTE Nic 

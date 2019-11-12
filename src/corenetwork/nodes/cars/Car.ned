@@ -28,16 +28,16 @@ import lte.stack.ILteNic;
 module Car extends Ue
 {
     parameters:
-        @display("i=device/car;is=vs;bgb=400,518");
+        @display("i=device/car");
 
         //# Mobility
         mobilityType = default("VeinsInetMobility");
-        
+
         //# Network Layer specs
         *.routingTableModule = default(absPath(".ipv4.routingTable"));
 
     submodules:
         configurator: HostAutoConfigurator {
-            @display("p=49.068,22.968");
+            @display("p=126.4,413.96");
         }
 }
