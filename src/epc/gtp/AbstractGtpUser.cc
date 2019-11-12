@@ -11,16 +11,17 @@ AbstractGtpUser::~AbstractGtpUser() {}
 
 EpcNodeType AbstractGtpUser::selectOwnerType(const char * type) {
     EV << "GtpUserSimplified::selectOwnerType - setting owner type to " << type << endl;
-        if(strcmp(type,"ENODEB") == 0)
-            return ENB;
-        else if(strcmp(type,"PGW") == 0)
-            return PGW;
-        else if(strcmp(type,"SGW") == 0)
-            return SGW;
-        else
-            error("GtpUser::selectOwnerType - unknown owner type [%s]. Aborting...",type);
-        // should never be reached - return default value in order to avoid compile warnings
+    if(strcmp(type,"ENODEB") == 0)
         return ENB;
+    else if(strcmp(type,"PGW") == 0)
+        return PGW;
+    else if(strcmp(type,"SGW") == 0)
+        return SGW;
+    else
+        error("GtpUser::selectOwnerType - unknown owner type [%s]. Aborting...",type);
+
+    // should never be reached - return default value in order to avoid compile warnings
+    return ENB;
 }
 
 InterfaceEntry *AbstractGtpUser::detectInterface()
