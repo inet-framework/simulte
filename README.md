@@ -1,7 +1,7 @@
 ﻿SimuLTE
 =======
 
-LTE user plane simulation model, compatible with the INET Framework.
+LTE/LTE-A user plane simulation model, compatible with the INET Framework.
 
 Dependencies
 ------------

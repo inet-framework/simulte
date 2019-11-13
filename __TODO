@@ -1,6 +1,9 @@
+- Significant changes had to be introduced when updating the simulte sources in order to be able to
+  run with INET 4. All simulations within the simulations subfolder are runnable again. 
+  However, a thorough comparison of the simulation results obtained with the INET 3 based version
+  still needs to be done.
+
 - use signal based statistics. In some places forwarded/dropped packets are counted inside a module.
   These can be replaced by simply emitting the given packet.
 
 - In LteBinder parameters for QCI 3 4 and 6 7 seems to be swapped ???
-
-- FeedbackTester should be moved to a separate directory.
