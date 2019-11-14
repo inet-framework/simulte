@@ -53,10 +53,14 @@ void AlertSender::initialize(int stage)
     inet::IInterfaceTable *ift = inet::getModuleFromPar< inet::IInterfaceTable >(par("interfaceTableModule"), this);
     inet::MulticastGroupList mgl = ift->collectMulticastGroups();
     socket.joinLocalMulticastGroups(mgl);
-    inet::InterfaceEntry *ie = ift->getInterfaceByName("wlan");
-    if (!ie)
-        throw cRuntimeError("Wrong multicastInterface setting: no interface named wlan");
-    socket.setMulticastOutputInterface(ie->getInterfaceId());
+
+    if( par("enableWirelessMulticastIf") ){
+        inet::InterfaceEntry *ie = ift->getInterfaceByName("wlan");
+        if (!ie)
+            throw cRuntimeError("Wrong multicastInterface setting: no interface named wlan");
+        socket.setMulticastOutputInterface(ie->getInterfaceId());
+    }
+
     // -------------------- //
 
     alertSentMsg_ = registerSignal("alertSentMsg");

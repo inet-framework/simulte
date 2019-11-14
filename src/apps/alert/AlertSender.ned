@@ -22,6 +22,7 @@ simple AlertSender like IApp
         double startTime @unit("s") = default(0s);
         double stopTime @unit("s") = default(0s); // 0 means "never stops" 
         string interfaceTableModule;
+        bool enableWirelessMulticastIf = default(true); // true: manually set the multicast interface on the socket
                
         @signal[alertSentMsg];
         @statistic[alertSentMsg](title="Alert messages sent"; unit=""; source="alertSentMsg"; record=sum,vector);

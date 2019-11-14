@@ -1,9 +1,9 @@
 # workingdir,                            args,                                          simtimelimit,    fingerprint
-/simulations/test_handover/,              -f omnetpp.ini -c Handover-General -r 0,      5s,              c690-9af1/tplx, PASS,
-/simulations/test_handover/,              -f omnetpp.ini -c VoIP-DL -r 0,               5s,              1ff7-7815/tplx, PASS,
-/simulations/test_handover/,              -f omnetpp.ini -c VoIP-UL -r 0,               5s,              719f-aecc/tplx, PASS,
-/simulations/test_handover/,              -f omnetpp.ini -c VoIP-DL_UL -r 0,            5s,              f6e4-9456/tplx, PASS,
-/simulations/test_handover/,              -f omnetpp.ini -c VoIP-D2D -r 0,              5s,              67b3-af36/tplx, PASS,
-/simulations/test_handover/,              -f omnetpp.ini -c FileTransfer-DL_UL -r 0,    5s,              003b-9dba/tplx, PASS,
-/simulations/test_handover/,              -f omnetpp.ini -c FileTransfer-D2D -r 0,      5s,              c07a-b105/tplx, PASS,
+/simulations/test_handover/,              -f omnetpp.ini -c Handover-General -r 0,      5s,              a909-bcb8/tplx, PASS,
+/simulations/test_handover/,              -f omnetpp.ini -c VoIP-DL -r 0,               5s,              c92c-85bd/tplx, PASS,
+/simulations/test_handover/,              -f omnetpp.ini -c VoIP-UL -r 0,               5s,              37f1-a5b4/tplx, PASS,
+/simulations/test_handover/,              -f omnetpp.ini -c VoIP-DL_UL -r 0,            5s,              2efc-15f7/tplx, PASS,
+/simulations/test_handover/,              -f omnetpp.ini -c VoIP-D2D -r 0,              5s,              0f17-7c4f/tplx, PASS,
+/simulations/test_handover/,              -f omnetpp.ini -c FileTransfer-DL_UL -r 0,    5s,              0bbb-cc82/tplx, PASS,
+/simulations/test_handover/,              -f omnetpp.ini -c FileTransfer-D2D -r 0,      5s,              bb3c-7798/tplx, PASS,
 
