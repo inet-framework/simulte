@@ -1,7 +1,7 @@
 #! /bin/sh
 DIR=`dirname $0`
 DIR=`(cd $DIR ; pwd)`
-INET_DIR=`(cd $DIR/../../inet/src ; pwd)`
+INET_DIR=`(cd $DIR/../../inet4/src ; pwd)`
 COMMAND_LINE_OPTIONS="-n $DIR/../simulations:$DIR:$INET_DIR"
 
 if [ -f $DIR/liblte.so -o -f $DIR/liblte.dll -o -f $DIR/liblte.dylib ]; then

@@ -16,8 +16,8 @@ Build:
     - "git clone https://gitlab-ci-token:${CI_JOB_TOKEN}@sam-dev.cs.hm.edu/rover/rover-main.git"
     # - "$RV/pull_images.sh"
     - "mv .tmp simulte"
-    - "git clone https://gitlab-ci-token:${CI_JOB_TOKEN}@sam-dev.cs.hm.edu/rover/inet.git"
-    - "cd inet"
+    - "git clone --branch v4.1.1 https://gitlab-ci-token:${CI_JOB_TOKEN}@sam-dev.cs.hm.edu/rover/inet.git inet4"
+    - "cd inet4"
     - "../$RV/omnetpp exec make makefiles"
     - "../$RV/omnetpp exec make -j16; TEST_STATUS=${PIPESTATUS[0]}"
     # we do not need the inet sources anymore - delete them to have less artifacts
@@ -33,7 +33,7 @@ Build:
     # we need to keep the ned files and the simulte lib
     - simulte
     # we need to keep the ned files and the inet lib (all stored in the src subfolder)
-    - inet/src
+    - inet4/src
     expire_in: 2 weeks
 
 # This job runs the fingerprint tests
