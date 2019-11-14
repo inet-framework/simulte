@@ -49,11 +49,6 @@ void AlertReceiver::handleMessage(cMessage *msg)
 
     Packet* pPacket = check_and_cast<Packet*>(msg);
 
-    if (pPacket == 0)
-    {
-        throw cRuntimeError("AlertReceiver::handleMessage - FATAL! Error when casting to inet packet");
-    }
-
     // read Alert header
     auto alert = pPacket->popAtFront<AlertPacket>();
 

@@ -10,6 +10,7 @@
 #include <sys/types.h>
 #include <sys/stat.h>
 #include <stdio.h>
+#include <inet/common/TimeTag_m.h>
 #include "apps/vod/VoDUDPServer.h"
 
 Define_Module(VoDUDPServer);
@@ -192,6 +193,7 @@ void VoDUDPServer::handleNS2Message(cMessage *msg)
     frame->setFrameLength(length); /* Seq_num plus frame length plus payload */
     frame->setTid(0);
     frame->setQid(0);
+    frame->addTag<CreationTimeTag>()->setCreationTime(simTime());
     packet->insertAtBack(frame);
     socket.sendTo(packet, msgNew->getClientAddr(), msgNew->getClientPort());
 
@@ -226,6 +228,7 @@ void VoDUDPServer::handleSVCMessage(cMessage *msg)
         frame->setFrameLength(svcTrace_[numPkSentApp].length + 2 * sizeof(int)); /* Seq_num plus frame length plus payload */
         frame->setTid(svcTrace_[numPkSentApp].tid);
         frame->setQid(svcTrace_[numPkSentApp].qid);
+        frame->addTag<CreationTimeTag>()->setCreationTime(simTime());
         packet->insertAtBack(frame);
 
         socket.sendTo(packet, msgNew->getClientAddr(), msgNew->getClientPort());
@@ -249,6 +252,8 @@ void VoDUDPServer::handleSVCMessage(cMessage *msg)
             frame->setTimeStamp(simTime());
             frame->setChunkLength(B(svcTrace_[numPkSentApp].length));
             frame->setFrameLength(svcTrace_[numPkSentApp].length + 2 * sizeof(int)); /* Seq_num plus frame length plus payload */
+            frame->addTag<CreationTimeTag>()->setCreationTime(simTime());
+            packet->insertAtBack(frame);
             socket.sendTo(packet, msgNew->getClientAddr(), msgNew->getClientPort());
             EV << " VoDUDPServer::handleSVCMessage sending frame " << seq_num << std::endl;
             numPkSentApp++;

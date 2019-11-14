@@ -10,6 +10,7 @@
 #include <cmath>
 #include <fstream>
 #include <inet/common/packet/chunk/ByteCountChunk.h>
+#include <inet/common/TimeTag_m.h>
 #include "apps/d2dMultihop/MultihopD2D.h"
 #include "apps/d2dMultihop/TrickleTimerMsg_m.h"
 #include "apps/d2dMultihop/MultihopD2DPacket_m.h"
@@ -179,6 +180,8 @@ void MultihopD2D::sendPacket()
         mhop->setSrcCoord(ltePhy_->getCoord());
         mhop->setMaxRadius(maxBroadcastRadius_);
     }
+    mhop->addTag<CreationTimeTag>()->setCreationTime(simTime());
+
     packet->insertAtFront(mhop);
 
     EV << "MultihopD2D::sendPacket - Sending msg (ID: "<< mhop->getMsgid() << " src: " << lteNodeId_ << " size: " << msgSize_ << ")" <<  endl;

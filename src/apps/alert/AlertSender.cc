@@ -8,7 +8,8 @@
 //
 
 #include <cmath>
-#include <inet/common/ModuleAccess.h>  // for multicast support
+#include <inet/common/ModuleAccess.h>
+#include <inet/common/TimeTag_m.h>
 
 #include "apps/alert/AlertSender.h"
 
@@ -93,11 +94,13 @@ void AlertSender::handleMessage(cMessage *msg)
 void AlertSender::sendAlertPacket()
 {
     Packet* packet = new inet::Packet("Alert");
+
     auto alert = makeShared<AlertPacket>();
     alert->setSno(nextSno_);
     alert->setTimestamp(simTime());
-
     alert->setChunkLength(B(size_));
+    alert->addTag<CreationTimeTag>()->setCreationTime(simTime());
+
     packet->insertAtBack(alert);
 
     EV << "AlertSender::sendAlertPacket - Sending message [" << nextSno_ << "]\n";

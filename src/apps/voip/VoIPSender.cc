@@ -8,6 +8,7 @@
 //
 
 #include <cmath>
+#include <inet/common/TimeTag_m.h>
 #include "apps/voip/VoIPSender.h"
 
 #define round(x) floor((x) + 0.5)
@@ -170,6 +171,7 @@ void VoIPSender::sendVoIPPacket()
     voip->setIDframe(iDframe_);
     voip->setTimestamp(simTime());
     voip->setChunkLength(B(size_));
+    voip->addTag<CreationTimeTag>()->setCreationTime(simTime());
     packet->insertAtBack(voip);
     EV << "VoIPSender::sendVoIPPacket - Talkspurt[" << iDtalk_-1 << "] - Sending frame[" << iDframe_ << "]\n";
 

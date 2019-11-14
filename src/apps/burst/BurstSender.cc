@@ -1,5 +1,14 @@
+//
+//                           SimuLTE
+//
+// This file is part of a software released under the license included in file
+// "license.pdf". This license can be also found at http://www.ltesimulator.com/
+// The above file and the present reference are part of the software itself,
+// and cannot be removed from it.
+//
 
 #include <cmath>
+#include <inet/common/TimeTag_m.h>
 #include "apps/burst/BurstSender.h"
 
 #define round(x) floor((x) + 0.5)
@@ -125,6 +134,7 @@ void BurstSender::sendPacket()
     burst->setMsgId(msgId);
     burst->setTimestamp(simTime());
     burst->setSize(size_);
+    burst->addTag<CreationTimeTag>()->setCreationTime(simTime());
     burst->setChunkLength(B(size_));
 
     packet->insertAtBack(burst);
