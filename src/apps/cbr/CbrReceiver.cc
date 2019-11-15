@@ -54,16 +54,12 @@ void CbrReceiver::handleMessage(cMessage *msg)
     if (msg->isSelfMessage())
         return;
 
-    CbrPacket* pPacket = check_and_cast<CbrPacket*>(msg);
-
-    if (pPacket == 0)
-    {
-        throw cRuntimeError("CbrReceiver::handleMessage - FATAL! Error when casting to Cbr packet");
-    }
+    Packet* pPacket = check_and_cast<Packet*>(msg);
+    auto cbrHeader = pPacket->popAtFront<CbrPacket>();
 
     numReceived_++;
-    totFrames_ = pPacket->getNframes(); // XXX this value can be written just once
-    int pktSize = (int)pPacket->getSize();
+    totFrames_ = cbrHeader->getNframes(); // XXX this value can be written just once
+    int pktSize = (int)cbrHeader->getSize();
 
     // just to make sure we do not update recvBytes AND we avoid dividing by 0
     if( simTime() > getSimulation()->getWarmupPeriod() )
@@ -72,12 +68,12 @@ void CbrReceiver::handleMessage(cMessage *msg)
         emit( cbrReceivedBytesSignal_ , pktSize );
     }
 
-    simtime_t delay = simTime()-pPacket->getTimestamp();
+    simtime_t delay = simTime()-cbrHeader->getTimestamp();
     emit(cbrFrameDelaySignal_,delay );
 
-    EV << "CbrReceiver::handleMessage - Packet received: FRAME[" << pPacket->getIDframe() << "/" << pPacket->getNframes() << "] with delay["<< delay << "]" << endl;
+    EV << "CbrReceiver::handleMessage - Packet received: FRAME[" << cbrHeader->getIDframe() << "/" << cbrHeader->getNframes() << "] with delay["<< delay << "]" << endl;
 
-    emit(cbrRcvdPkt_, (long)pPacket->getIDframe());
+    emit(cbrRcvdPkt_, (long)cbrHeader->getIDframe());
 
     delete msg;
 }
