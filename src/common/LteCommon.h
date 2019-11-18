@@ -55,7 +55,7 @@ class ExtCell;
  */
 class LteProtocol {
 public:
-    static const inet::Protocol lteuu; // IP protocol on the uU interface
+    static const inet::Protocol ipv4uu; // IP protocol on the uU interface
 };
 
 /**

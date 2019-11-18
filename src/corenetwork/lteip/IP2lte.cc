@@ -317,7 +317,7 @@ void IP2lte::fromIpEnb(Packet * datagram)
 void IP2lte::toIpEnb(Packet* datagram)
 {
     EV << "IP2lte::toIpEnb - message from stack: send to IP layer" << endl;
-    prepareForIpv4(datagram, &LteProtocol::lteuu);
+    prepareForIpv4(datagram, &LteProtocol::ipv4uu);
     send(datagram,ipGateOut_);
 }
 

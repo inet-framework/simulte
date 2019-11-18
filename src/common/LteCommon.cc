@@ -18,8 +18,8 @@
 
 using namespace inet;
 
-const inet::Protocol LteProtocol::lteuu("lteuu", "IPv4 (LTE Uu)");
-Register_Protocol_Dissector(&LteProtocol::lteuu, Ipv4ProtocolDissector);
+const inet::Protocol LteProtocol::ipv4uu("ipv4uu", "IPv4 (LTE Uu link)");
+Register_Protocol_Dissector(&LteProtocol::ipv4uu, Ipv4ProtocolDissector);
 
 
 const std::string lteTrafficClassToA(LteTrafficClass type)
