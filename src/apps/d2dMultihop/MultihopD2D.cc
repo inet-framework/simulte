@@ -327,7 +327,7 @@ void MultihopD2D::relayPacket(cMessage* msg)
     auto src = pPacket->popAtFront<MultihopD2DPacket>();
 
     // create a relay packet using the data of the source packet
-    auto data = pPacket->popAtFront<ByteCountChunk>();
+    auto data = pPacket->peekData();
     Packet* relayPacket = new inet::Packet("MultihopD2DPacket", data);
 
     // create a new header
