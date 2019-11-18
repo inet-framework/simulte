@@ -97,7 +97,7 @@ void AlertSender::sendAlertPacket()
 
     auto alert = makeShared<AlertPacket>();
     alert->setSno(nextSno_);
-    alert->setTimestamp(simTime());
+    alert->setPayloadTimestamp(simTime());
     alert->setChunkLength(B(size_));
     alert->addTag<CreationTimeTag>()->setCreationTime(simTime());
 

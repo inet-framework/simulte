@@ -17,7 +17,7 @@ import inet.common.packet.chunk.Chunk;
 class BurstPacket extends inet::FieldsChunk
 {
     unsigned int msgId;
-    simtime_t timestamp;
     simtime_t arrivalTime;
-    unsigned int size;
+    simtime_t payloadTimestamp;
+    unsigned int payloadSize;
 }

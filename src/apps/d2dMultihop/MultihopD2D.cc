@@ -170,8 +170,8 @@ void MultihopD2D::sendPacket()
     auto mhop = makeShared<MultihopD2DPacket>();
     mhop->setMsgid(msgId);
     mhop->setSrcId(lteNodeId_);
-    mhop->setTimestamp(simTime());
-    mhop->setSize(msgSize_);
+    mhop->setPayloadTimestamp(simTime());
+    mhop->setPayloadSize(msgSize_);
     mhop->setTtl(ttl_-1);
     mhop->setHops(1);                // first hop
     mhop->setLastHopSenderId(lteNodeId_);
@@ -247,7 +247,7 @@ void MultihopD2D::handleRcvdPacket(cMessage* msg)
         }
 
         // emit statistics
-        simtime_t delay = simTime() - mhop->getTimestamp();
+        simtime_t delay = simTime() - mhop->getPayloadTimestamp();
         emit(d2dMultihopRcvdMsg_, (long)1);
         stat_->recordReception(lteNodeId_, msgId, delay, mhop->getHops());
 
@@ -350,10 +350,10 @@ void MultihopD2D::relayPacket(cMessage* msg)
     // copy remaining header fields from original packet header
     dst->setSrcId(src->getSrcId());
     dst->setMsgid(src->getMsgid());
-    dst->setSize(src->getSize());
+    dst->setPayloadSize(src->getPayloadSize());
     dst->setSrcCoord(src->getSrcCoord());
     dst->setMaxRadius(src->getMaxRadius());
-    dst->setTimestamp(src->getTimestamp());
+    dst->setPayloadTimestamp(src->getPayloadTimestamp());
 
     relayPacket->insertAtFront(dst);
 

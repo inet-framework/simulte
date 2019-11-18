@@ -169,7 +169,7 @@ void VoIPSender::sendVoIPPacket()
     voip->setIDtalk(iDtalk_ - 1);
     voip->setNframes(nframes_);
     voip->setIDframe(iDframe_);
-    voip->setTimestamp(simTime());
+    voip->setPayloadTimestamp(simTime());
     voip->setChunkLength(B(size_));
     voip->addTag<CreationTimeTag>()->setCreationTime(simTime());
     packet->insertAtBack(voip);

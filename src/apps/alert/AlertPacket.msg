@@ -17,5 +17,5 @@ import inet.common.packet.chunk.Chunk;
 class AlertPacket extends inet::FieldsChunk
 {
     unsigned int sno;
-    simtime_t timestamp;
+    simtime_t payloadTimestamp;
 }

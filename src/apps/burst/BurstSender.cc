@@ -132,8 +132,8 @@ void BurstSender::sendPacket()
     auto burst = makeShared<BurstPacket>();
 
     burst->setMsgId(msgId);
-    burst->setTimestamp(simTime());
-    burst->setSize(size_);
+    burst->setPayloadTimestamp(simTime());
+    burst->setPayloadSize(size_);
     burst->addTag<CreationTimeTag>()->setCreationTime(simTime());
     burst->setChunkLength(B(size_));
 

@@ -56,7 +56,7 @@ void BurstReceiver::handleMessage(cMessage *msg)
 
     numReceived_++;
 
-    simtime_t delay = simTime()-burstHeader->getTimestamp();
+    simtime_t delay = simTime()-burstHeader->getPayloadTimestamp();
     EV << "BurstReceiver::handleMessage - Packet received: FRAME[" << burstHeader->getMsgId() << "] with delay["<< delay << "]" << endl;
 
     emit(burstPktDelay_, delay);

@@ -53,7 +53,7 @@ void AlertReceiver::handleMessage(cMessage *msg)
     auto alert = pPacket->popAtFront<AlertPacket>();
 
     // emit statistics
-    simtime_t delay = simTime() - alert->getTimestamp();
+    simtime_t delay = simTime() - alert->getPayloadTimestamp();
     emit(alertDelay_, delay);
     emit(alertRcvdMsg_, (long)1);
 

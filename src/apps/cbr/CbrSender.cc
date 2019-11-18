@@ -124,9 +124,9 @@ void CbrSender::sendCbrPacket()
     auto cbr = makeShared<CbrPacket>();
     cbr->setNframes(nframes_);
     cbr->setIDframe(iDframe_++);
-    cbr->setTimestamp(simTime());
+    cbr->setPayloadTimestamp(simTime());
     cbr->addTag<CreationTimeTag>()->setCreationTime(simTime());
-    cbr->setSize(size_);
+    cbr->setPayloadSize(size_);
     cbr->setChunkLength(B(size_));
     packet->insertAtBack(cbr);
 
