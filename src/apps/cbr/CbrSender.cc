@@ -56,12 +56,6 @@ void CbrSender::initialize(int stage)
     }
     else if (stage == INITSTAGE_APPLICATION_LAYER)
     {
-        destAddress_ = L3AddressResolver().resolve(par("destAddress").stringValue());
-        socket.setOutputGate(gate("socketOut"));
-        socket.bind(localPort_);
-
-        EV << "CbrSender::initialize - binding to port: local:" << localPort_ << " , dest:" << destPort_ << endl;
-
         // calculating traffic starting time
         startTime_ = par("startTime");
         finishTime_ = par("finishTime");
@@ -129,7 +123,7 @@ void CbrSender::sendCbrPacket()
     Packet* packet = new Packet("CBR");
     auto cbr = makeShared<CbrPacket>();
     cbr->setNframes(nframes_);
-    cbr->setIDframe(iDframe_);
+    cbr->setIDframe(iDframe_++);
     cbr->setTimestamp(simTime());
     cbr->addTag<CreationTimeTag>()->setCreationTime(simTime());
     cbr->setSize(size_);
