@@ -29,7 +29,7 @@ void LtePhyRelay::initialize(int stage)
         WATCH(nodeType_);
         WATCH(masterId_);
     }
-    else if (stage == inet::INITSTAGE_PHYSICAL_ENVIRONMENT)
+    else if (stage == inet::INITSTAGE_PHYSICAL_LAYER)
     {
         LtePhyBase::initialize(stage);
         txPower_ = relayTxPower_;

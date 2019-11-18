@@ -56,7 +56,7 @@ void LteX2Manager::initialize(int stage)
             }
         }
     }
-    else if (stage == inet::INITSTAGE_NETWORK_LAYER+1)
+    else if (stage == inet::INITSTAGE_TRANSPORT_LAYER)
     {
         // for each X2App, get the client submodule and set connection parameters (connectPort)
         for (int i=0; i<gateSize("x2$i"); i++)
@@ -134,7 +134,6 @@ void LteX2Manager::fromStack(Packet* pkt)
         X2NodeId targetEnb = *it;
         auto pktDuplicate = pkt->dup();
         auto updatedX2Msg = pktDuplicate->removeAtFront<LteX2Message>();
-        updatedX2Msg->markMutableIfExclusivelyOwned();
 
         updatedX2Msg->setSourceId(nodeId_);
         updatedX2Msg->setDestinationId(targetEnb);
