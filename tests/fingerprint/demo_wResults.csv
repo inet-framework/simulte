@@ -5,10 +5,10 @@
 #/simulations/demo/,                  -f omnetpp.ini -c Large-VoIP_PF -r 0,     5s,             ada5-c3af/s, PASS,
 #/simulations/demo/,                  -f omnetpp.ini -c Large-VoIP_MaxCI -r 0,  5s,             981a-be0c/s, PASS,
 /simulations/demo/,                  -f omnetpp.ini -c VoIP_DL-UL -r 0,        5s,              f7f9-ae18/s, PASS,
-/simulations/demo/,                  -f omnetpp.ini -c VoIP-DL -r 0,           5s,              a5c8-1b8c/s, PASS,
+/simulations/demo/,                  -f omnetpp.ini -c VoIP-DL -r 0,           5s,              1ff0-8244/s, PASS,
 /simulations/demo/,                  -f omnetpp.ini -c VoIP-UL -r 0,           5s,              ff5c-2d48/s, PASS,
 
-/simulations/demo/,                  -f omnetpp.ini -c VoIP-DL_MACresCheck -r 0,           5s,              a5c8-1b8c/s, PASS,
+/simulations/demo/,                  -f omnetpp.ini -c VoIP-DL_MACresCheck -r 0,           5s,              1ff0-8244/s, PASS,
 /simulations/demo/,                  -f omnetpp.ini -c VoIP-UL_MACresCheck -r 0,           5s,              ff5c-2d48/s, PASS,
-/simulations/demo/,                  -f omnetpp.ini -c VoIP-DL_PHYresCheck -r 0,           5s,              a5c8-1b8c/s, PASS,
+/simulations/demo/,                  -f omnetpp.ini -c VoIP-DL_PHYresCheck -r 0,           5s,              1ff0-8244/s, PASS,
 /simulations/demo/,                  -f omnetpp.ini -c VoIP-UL_PHYresCheck -r 0,           5s,              ff5c-2d48/s, PASS,
