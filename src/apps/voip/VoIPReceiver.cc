@@ -157,7 +157,7 @@ void VoIPReceiver::playout(bool finish)
     {
         pPacket = mPacketsList_.front();
 
-        sample = SIMTIME_DBL(pPacket->getArrivalTime() - pPacket->getTimestamp());
+        sample = SIMTIME_DBL(pPacket->getArrivalTime() - pPacket->getPayloadTimestamp());
         emit(voIPFrameDelaySignal_, sample);
 
         unsigned int IDframe = pPacket->getIDframe();

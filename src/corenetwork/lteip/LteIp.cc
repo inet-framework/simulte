@@ -214,6 +214,7 @@ void LteIp::fromTransport(cPacket * transportPacket, cGate *outputgate) {
     header->setTypeOfService(ipControlInfo->getTypeOfService());
     // TODO: header immutable? may be dropped
     datagram->popAtFront<Ipv4Header>();
+    datagram->trimFront();
     datagram->insertAtFront(header);
     //ipControlInfo->setTransportProtocol(ipControlInfo->getProtocol());
 
@@ -234,11 +235,11 @@ void LteIp::fromTransport(cPacket * transportPacket, cGate *outputgate) {
 
     auto protocolId = ipControlInfo->getProtocolId();
     if (protocolId == IP_PROT_TCP) {
-        inet::tcp::TcpHeader* tcpseg;
-        tcpseg = check_and_cast<inet::tcp::TcpHeader*>(transportPacket);
-        srcPort = tcpseg->getSrcPort();
-        dstPort = tcpseg->getDestPort();
-        headerSize += tcpseg->getHeaderLength();
+        auto tcppacket = check_and_cast<inet::Packet*>(transportPacket);
+        auto header = tcppacket->peekAtFront<inet::tcp::TcpHeader>();
+        srcPort = header->getSrcPort();
+        dstPort = header->getDestPort();
+        headerSize += header->getHeaderLength();
     } else if (protocolId == IP_PROT_UDP) {
         auto udppacket = check_and_cast<inet::Packet*>(transportPacket);
         auto header = udppacket->peekAtFront<UdpHeader>();
@@ -275,36 +276,8 @@ void LteIp::fromTransport(cPacket * transportPacket, cGate *outputgate) {
 void LteIp::toTransport(cPacket * msg) {
     // msg is an IP Datagram (from Lte stack or IP peer)
     inet::Packet *datagram = check_and_cast<inet::Packet *>(msg);
-    // int protocol = datagram->getTransportProtocol();
 
-
-    // transport packet
-    //cPacket *transportPacket = datagram->decapsulate();
-    auto header = datagram->peekAtFront<Ipv4Header>();
-
-    // create and fill in control info
-    auto controlInfo = make_shared<Ipv4Header>();
-    controlInfo->setProtocol(header->getProtocol());
-    controlInfo->setSrcAddress(header->getSrcAddress());
-    controlInfo->setDestAddress(header->getDestAddress());
-    controlInfo->setTypeOfService(header->getTypeOfService());
-    auto packet = make_shared<inet::Packet>(*datagram);
-
-    // XXX these two fields (interfaceId and datagram) are not actually of interest for us..
-
-    // interfaceId should be the interface on which the datagram arrived,
-    // or -1 if it was created locally
-    //controlInfo->setInterfaceId(-1);
-    // original IP datagram might be needed in upper layers
-    //controlInfo->setOrigDatagram(datagram);
-
-    // attach control info
-    //transportPacket->setControlInfo(controlInfo);
-    packet->popAtFront<Ipv4Header>();
-    packet->insertAtFront(Ptr<Ipv4Header>(controlInfo.get()));
-
-    //send(transportPacket, "transportOut", gateindex);
-    send(packet.get(), "transportOut");
+    send(datagram, "transportOut");
 }
 
 void LteIp::setNodeType(std::string s) {

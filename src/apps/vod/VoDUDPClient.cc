@@ -136,7 +136,7 @@ void VoDUDPClient::handleMessage(cMessage* msg)
 void VoDUDPClient::receiveStream(VoDPacket *msg)
 {
     // int seqNum = msg->getFrameSeqNum();
-    simtime_t sendingTime = msg->getTimeStamp();
+    simtime_t sendingTime = msg->getPayloadTimestamp();
     // int frameLength = msg->getFrameLength();
     simtime_t delay = simTime() - sendingTime;
     int layer = msg->getQid();

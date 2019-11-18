@@ -17,7 +17,7 @@ import inet.common.packet.chunk.Chunk;
 class CbrPacket extends inet::FieldsChunk {
     unsigned int nframes;
     unsigned int IDframe;
-    simtime_t timestamp;
     simtime_t arrivalTime;
-    unsigned int size;
+    simtime_t payloadTimestamp;
+    unsigned int payloadSize;
 }

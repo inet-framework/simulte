@@ -8,6 +8,7 @@ src/Makefile.vc
 *.pcap
 *.sca
 *.vec
+*.vci
 *.anf
 *.qtenvrc
 .settings/

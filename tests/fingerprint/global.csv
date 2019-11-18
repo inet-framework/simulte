@@ -12,7 +12,7 @@
 #/simulations/demo/,                -f omnetpp.ini -c Large-VoIP_PF -r 0,                   5s,             20d0-b35d/tplx, PASS,
 #/simulations/demo/,                -f omnetpp.ini -c Large-VoIP_MaxCI -r 0,                5s,             7a2e-e489/tplx, PASS,
 /simulations/demo/,                 -f omnetpp.ini -c VoIP_DL-UL -r 0,                      5s,             4a48-a24b/tplx, PASS,
-/simulations/demo/,                 -f omnetpp.ini -c VoIP-DL -r 0,                         5s,             4779-ae06/tplx, PASS,
+/simulations/demo/,                 -f omnetpp.ini -c VoIP-DL -r 0,                         5s,             9a0a-102e/tplx, PASS,
 /simulations/demo/,                 -f omnetpp.ini -c VoIP-UL -r 0,                         5s,             703c-970d/tplx, PASS,
 
 # DEMO W/ results
@@ -22,7 +22,7 @@
 #/simulations/demo/,                  -f omnetpp.ini -c Large-VoIP_PF -r 0,     5s,             ada5-c3af/tls, PASS,
 #/simulations/demo/,                  -f omnetpp.ini -c Large-VoIP_MaxCI -r 0,  5s,             981a-be0c/tls, PASS,
 /simulations/demo/,                  -f omnetpp.ini -c VoIP_DL-UL -r 0,        5s,              8110-079a/tls, PASS,
-/simulations/demo/,                  -f omnetpp.ini -c VoIP-DL -r 0,           5s,              1900-70ad/tls, PASS,
+/simulations/demo/,                  -f omnetpp.ini -c VoIP-DL -r 0,           5s,              6574-c1bf/tls, PASS,
 /simulations/demo/,                  -f omnetpp.ini -c VoIP-UL -r 0,           5s,              033c-d7d7/tls, PASS,
 
 
@@ -50,13 +50,13 @@
 /simulations/multicell/,            -f omnetpp.ini -c InterferenceTest -r 0,                5s,             d87d-bb34/tplx, PASS,
 
 # Handover
-/simulations/test_handover/,        -f omnetpp.ini -c Handover-General -r 0,                5s,              a909-bcb8/tplx, PASS,
-/simulations/test_handover/,        -f omnetpp.ini -c VoIP-DL -r 0,                         5s,              c92c-85bd/tplx, PASS,
-/simulations/test_handover/,        -f omnetpp.ini -c VoIP-UL -r 0,                         5s,              37f1-a5b4/tplx, PASS,
-/simulations/test_handover/,        -f omnetpp.ini -c VoIP-DL_UL -r 0,                      5s,              2efc-15f7/tplx, PASS,
-/simulations/test_handover/,        -f omnetpp.ini -c VoIP-D2D -r 0,                        5s,              0f17-7c4f/tplx, PASS,
-/simulations/test_handover/,        -f omnetpp.ini -c FileTransfer-DL_UL -r 0,              5s,              0bbb-cc82/tplx, PASS,
-/simulations/test_handover/,        -f omnetpp.ini -c FileTransfer-D2D -r 0,                5s,              bb3c-7798/tplx, PASS,
+/simulations/test_handover/,        -f omnetpp.ini -c Handover-General -r 0,                5s,              52dd-d12f/tplx, PASS,
+/simulations/test_handover/,        -f omnetpp.ini -c VoIP-DL -r 0,                         5s,              355c-e54c/tplx, PASS,
+/simulations/test_handover/,        -f omnetpp.ini -c VoIP-UL -r 0,                         5s,              499e-d899/tplx, PASS,
+/simulations/test_handover/,        -f omnetpp.ini -c VoIP-DL_UL -r 0,                      5s,              40ec-2d7f/tplx, PASS,
+/simulations/test_handover/,        -f omnetpp.ini -c VoIP-D2D -r 0,                        5s,              747e-1612/tplx, PASS,
+/simulations/test_handover/,        -f omnetpp.ini -c FileTransfer-DL_UL -r 0,              5s,              afaa-ee13/tplx, PASS,
+/simulations/test_handover/,        -f omnetpp.ini -c FileTransfer-D2D -r 0,                5s,              9c37-6a8c/tplx, PASS,
 
 # X2
 /simulations/x2/,                   -f omnetpp.ini -c X2-Mesh-balanced -r 0,                5s,              91ee-0b5d/tplx, PASS,

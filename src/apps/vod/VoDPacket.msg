@@ -21,5 +21,5 @@ class VoDPacket extends inet::FieldsChunk {
    int tid;
    // SNR scalability layer
    int qid;
-   simtime_t timeStamp;
+    simtime_t payloadTimestamp;
 }

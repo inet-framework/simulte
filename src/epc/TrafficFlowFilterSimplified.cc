@@ -32,7 +32,7 @@ void TrafficFlowFilterSimplified::initialize(int stage)
     ownerType_ = selectOwnerType(par("ownerType"));
 
     // register service processing IP-packets on the LTE Uu Link
-    registerService(LteProtocol::lteuu, gate("internetFilterGateIn"), gate("internetFilterGateIn"));
+    registerService(LteProtocol::ipv4uu, gate("internetFilterGateIn"), gate("internetFilterGateIn"));
 }
 
 EpcNodeType TrafficFlowFilterSimplified::selectOwnerType(const char * type)

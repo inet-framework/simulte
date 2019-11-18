@@ -7,11 +7,7 @@
 // and cannot be removed from it.
 //
 
-cplusplus {{
-#include "inet/networklayer/common/L3Address.h"
-}};
-
-class inet::L3Address { @existingClass; }
+import inet.networklayer.common.L3Address;
 
 message M1Message {
         inet::L3Address clientAddr;   // client address

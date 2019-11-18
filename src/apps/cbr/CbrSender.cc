@@ -1,6 +1,14 @@
-
+//
+//                           SimuLTE
+//
+// This file is part of a software released under the license included in file
+// "license.pdf". This license can be also found at http://www.ltesimulator.com/
+// The above file and the present reference are part of the software itself,
+// and cannot be removed from it.
+//
 
 #include <cmath>
+#include <inet/common/TimeTag_m.h>
 #include "CbrSender.h"
 
 #define round(x) floor((x) + 0.5)
@@ -48,12 +56,6 @@ void CbrSender::initialize(int stage)
     }
     else if (stage == INITSTAGE_APPLICATION_LAYER)
     {
-        destAddress_ = L3AddressResolver().resolve(par("destAddress").stringValue());
-        socket.setOutputGate(gate("socketOut"));
-        socket.bind(localPort_);
-
-        EV << "CbrSender::initialize - binding to port: local:" << localPort_ << " , dest:" << destPort_ << endl;
-
         // calculating traffic starting time
         startTime_ = par("startTime");
         finishTime_ = par("finishTime");
@@ -121,9 +123,10 @@ void CbrSender::sendCbrPacket()
     Packet* packet = new Packet("CBR");
     auto cbr = makeShared<CbrPacket>();
     cbr->setNframes(nframes_);
-    cbr->setIDframe(iDframe_);
-    cbr->setTimestamp(simTime());
-    cbr->setSize(size_);
+    cbr->setIDframe(iDframe_++);
+    cbr->setPayloadTimestamp(simTime());
+    cbr->addTag<CreationTimeTag>()->setCreationTime(simTime());
+    cbr->setPayloadSize(size_);
     cbr->setChunkLength(B(size_));
     packet->insertAtBack(cbr);
 

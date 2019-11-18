@@ -28,19 +28,6 @@
 #include "corenetwork/binder/LteBinder.h"
 #include "corenetwork/lteCellInfo/LteCellInfo.h"
 #include "corenetwork/lteip/Constants.h"
-/*
-#include "inet/transportlayer/tcp_common/TCPSegment.h"
-#include "inet/transportlayer/udp/UDPPacket.h"
-#include "inet/transportlayer/udp/UDP.h"
-#include <iostream>
-
-#include "../lteCellInfo/LteCellInfo.h"
-#include "inet/common/ModuleAccess.h"
-#include "inet/networklayer/ipv4/IPv4InterfaceData.h"
-#include "inet/networklayer/common/InterfaceEntry.h"
-#include "inet/networklayer/configurator/ipv4/IPv4NetworkConfigurator.h"
-#include "inet/networklayer/ipv4/IIPv4RoutingTable.h"
-*/
 #include "stack/mac/layer/LteMacBase.h"
 
 using namespace std;
@@ -82,7 +69,7 @@ void IP2lte::initialize(int stage)
             throw cRuntimeError("unhandled node type: %i", nodeType_);
         }
     }
-    else if (stage == inet::INITSTAGE_NETWORK_LAYER - 1) {
+    else if (stage == inet::INITSTAGE_STATIC_ROUTING) {
         if (nodeType_ == UE) {
             // TODO: shift to routing stage
             // if the UE has been created dynamically, we need to manually add a default route having "wlan" as output interface
@@ -104,7 +91,7 @@ void IP2lte::initialize(int stage)
                 irt->addRoute(defaultRoute);
             }
         }
-    } else if (stage == inet::INITSTAGE_NETWORK_LAYER + 1) {
+    } else if (stage == inet::INITSTAGE_TRANSPORT_LAYER) {
         registerMulticastGroups();
     }
 }
@@ -197,10 +184,9 @@ void IP2lte::toStackUe(Packet * datagram)
     // 5-Tuple infos
     unsigned short srcPort = 0;
     unsigned short dstPort = 0;
-    // TODO Add support to Ipv6
+    // TODO Add support to Ipv6 (=> see L3Tools.cc of INET)
     const auto& ipHdr = datagram->removeAtFront<Ipv4Header>();
     int transportProtocol = ipHdr->getProtocolId();
-    // TODO Add support to Ipv6
     Ipv4Address srcAddr  = ipHdr->getSrcAddress() ,
                 destAddr = ipHdr->getDestAddress();
 
@@ -218,16 +204,14 @@ void IP2lte::toStackUe(Packet * datagram)
     // TODO: needs refactoring (redundant code, see toStackEnb())
     switch (transportProtocol) {
         case IP_PROT_TCP: {
-            auto& tcpHdr = datagram->peekAtFront<tcp::TcpHeader>(b(-1),
-                    Chunk::PF_ALLOW_SERIALIZATION);
+            auto& tcpHdr = datagram->peekAtFront<tcp::TcpHeader>();
             srcPort = tcpHdr->getSrcPort();
             dstPort = tcpHdr->getDestPort();
             headerSize += B(tcpHdr->getHeaderLength()).get();
             break;
         }
         case IP_PROT_UDP: {
-            auto& udpHdr = datagram->peekAtFront<UdpHeader>(b(-1),
-                    Chunk::PF_ALLOW_SERIALIZATION);
+            auto& udpHdr = datagram->peekAtFront<UdpHeader>();
             srcPort = udpHdr->getSrcPort();
             dstPort = udpHdr->getDestPort();
             headerSize += UDP_HEADER_BYTES;
@@ -250,7 +234,6 @@ void IP2lte::toStackUe(Packet * datagram)
     controlInfo->setHeaderSize(headerSize);
     printControlInfo(controlInfo);
 
-    // TODO: get rid of control info and use inet::Packet instead
     cPacket* pktToLte = new cPacket(*datagram);
     pktToLte->encapsulate(datagram);
     pktToLte->setControlInfo(controlInfo);
@@ -317,7 +300,7 @@ void IP2lte::fromIpEnb(Packet * datagram)
 void IP2lte::toIpEnb(Packet* datagram)
 {
     EV << "IP2lte::toIpEnb - message from stack: send to IP layer" << endl;
-    prepareForIpv4(datagram, &LteProtocol::lteuu);
+    prepareForIpv4(datagram, &LteProtocol::ipv4uu);
     send(datagram,ipGateOut_);
 }
 
@@ -349,14 +332,14 @@ void IP2lte::toStackEnb(Packet* datagram)
     switch(transportProtocol)
     {
         case IP_PROT_TCP: {
-            auto& tcpHdr = datagram->peekAtFront<tcp::TcpHeader>(b(-1), Chunk::PF_ALLOW_SERIALIZATION);
+            auto& tcpHdr = datagram->peekAtFront<tcp::TcpHeader>();
             srcPort = tcpHdr->getSrcPort();
             dstPort = tcpHdr->getDestPort();
             headerSize += B(tcpHdr->getHeaderLength()).get();
             break;
         }
         case IP_PROT_UDP: {
-            auto& udpHdr = datagram->peekAtFront<UdpHeader>(b(-1), Chunk::PF_ALLOW_SERIALIZATION);
+            auto& udpHdr = datagram->peekAtFront<UdpHeader>();
             srcPort = udpHdr->getSrcPort();
             dstPort = udpHdr->getDestPort();
             headerSize += UDP_HEADER_BYTES;

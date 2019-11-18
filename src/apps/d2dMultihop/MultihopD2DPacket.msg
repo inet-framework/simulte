@@ -25,7 +25,6 @@ class MultihopD2DPacket extends inet::FieldsChunk
 {
     unsigned int srcId;
     uint32_t msgid;          // unique id of the message  < sender id  | local msg id >
-    unsigned int size;
     
     inet::Coord srcCoord;
     double maxRadius;
@@ -34,7 +33,9 @@ class MultihopD2DPacket extends inet::FieldsChunk
     unsigned int hops;       // number of hops
 
     unsigned int lastHopSenderId;
-    simtime_t timestamp;
+    
+    simtime_t payloadTimestamp;
+    unsigned int payloadSize;
     
     chunkLength = D2D_MULTIHOP_HEADER_LENGTH;
 }

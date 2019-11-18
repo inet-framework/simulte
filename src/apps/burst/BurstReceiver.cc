@@ -1,3 +1,11 @@
+//
+//                           SimuLTE
+//
+// This file is part of a software released under the license included in file
+// "license.pdf". This license can be also found at http://www.ltesimulator.com/
+// The above file and the present reference are part of the software itself,
+// and cannot be removed from it.
+//
 
 #include "apps/burst/BurstReceiver.h"
 
@@ -48,7 +56,7 @@ void BurstReceiver::handleMessage(cMessage *msg)
 
     numReceived_++;
 
-    simtime_t delay = simTime()-burstHeader->getTimestamp();
+    simtime_t delay = simTime()-burstHeader->getPayloadTimestamp();
     EV << "BurstReceiver::handleMessage - Packet received: FRAME[" << burstHeader->getMsgId() << "] with delay["<< delay << "]" << endl;
 
     emit(burstPktDelay_, delay);
