@@ -55,10 +55,12 @@ void AlertSender::initialize(int stage)
     inet::MulticastGroupList mgl = ift->collectMulticastGroups();
     socket.joinLocalMulticastGroups(mgl);
 
-    if( par("enableWirelessMulticastIf") ){
-        inet::InterfaceEntry *ie = ift->getInterfaceByName("wlan");
+    // if the multicastInterface parameter is not empty, set the interface explicitly
+    const char *multicastInterface = par("multicastInterface");
+    if (multicastInterface[0]) {
+        InterfaceEntry *ie = ift->getInterfaceByName(multicastInterface);
         if (!ie)
-            throw cRuntimeError("Wrong multicastInterface setting: no interface named wlan");
+            throw cRuntimeError("Wrong multicastInterface setting: no interface named \"%s\"", multicastInterface);
         socket.setMulticastOutputInterface(ie->getInterfaceId());
     }
 
@@ -114,4 +116,11 @@ void AlertSender::sendAlertPacket()
         scheduleAt(simTime() + period_, selfSender_);
     else
         EV << "AlertSender::sendAlertPacket - Stop time reached, stopping transmissions" << endl;
+}
+
+void AlertSender::refreshDisplay() const
+{
+    char buf[80];
+    sprintf(buf, "sent: %d pks", nextSno_);
+    getDisplayString().setTagArg("t", 0, buf);
 }

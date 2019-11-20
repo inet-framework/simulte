@@ -78,7 +78,7 @@ module Ue
             @display("p=127.368004,172.26001;is=s");
         }
         app[numApps]: <> like IApp {
-            @display("p=524.088,41.760002,row");
+            @display("p=524.272,61.607998,row");
         }
         udp: <default(firstAvailableOrEmpty("Udp"))> like IUdp if hasUdp {
             parameters:

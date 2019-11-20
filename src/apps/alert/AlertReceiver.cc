@@ -31,15 +31,24 @@ void AlertReceiver::initialize(int stage)
         inet::IInterfaceTable *ift = inet::getModuleFromPar<inet::IInterfaceTable>(par("interfaceTableModule"), this);
         inet::MulticastGroupList mgl = ift->collectMulticastGroups();
         socket.joinLocalMulticastGroups(mgl);
-        inet::InterfaceEntry *ie = ift->getInterfaceByName("wlan");
-        if (!ie)
-            throw cRuntimeError("Wrong multicastInterface setting: no interface named wlan");
-        socket.setMulticastOutputInterface(ie->getInterfaceId());
+
+        // if the multicastInterface parameter is not empty, set the interface explicitly
+        const char *multicastInterface = par("multicastInterface");
+        if (multicastInterface[0]) {
+            InterfaceEntry *ie = ift->getInterfaceByName(multicastInterface);
+            if (!ie)
+                throw cRuntimeError("Wrong multicastInterface setting: no interface named \"%s\"", multicastInterface);
+            socket.setMulticastOutputInterface(ie->getInterfaceId());
+        }
+
         // -------------------- //
     }
 
     alertDelay_ = registerSignal("alertDelay");
     alertRcvdMsg_ = registerSignal("alertRcvdMsg");
+
+    nrReceived = 0;
+    delaySum = 0;
 }
 
 void AlertReceiver::handleMessage(cMessage *msg)
@@ -56,9 +65,22 @@ void AlertReceiver::handleMessage(cMessage *msg)
     simtime_t delay = simTime() - alert->getPayloadTimestamp();
     emit(alertDelay_, delay);
     emit(alertRcvdMsg_, (long)1);
+    nrReceived++;
+    delaySum+=delay;
 
     EV << "AlertReceiver::handleMessage - Packet received: SeqNo[" << alert->getSno() << "] Delay[" << delay << "]" << endl;
 
     delete msg;
+}
+
+void AlertReceiver::refreshDisplay() const
+{
+    char buf[80];
+    if(nrReceived >0){
+        sprintf(buf, "received: %ld pks\nav. delay: %s s", nrReceived, (delaySum/nrReceived).format(-4).c_str());
+    } else {
+        sprintf(buf, "received: 0 pks");
+    }
+    getDisplayString().setTagArg("t", 0, buf);
 }
 

@@ -48,6 +48,9 @@ class AlertSender : public omnetpp::cSimpleModule
     virtual int numInitStages() const override { return inet::NUM_INIT_STAGES; }
     void initialize(int stage) override;
     void handleMessage(omnetpp::cMessage *msg) override;
+
+    // utility: show current statistics above the icon
+    virtual void refreshDisplay() const override;
 };
 
 #endif
