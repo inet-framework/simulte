@@ -15,8 +15,6 @@ protected:
 
     virtual void handleFromTrafficFlowFilter(inet::Packet * packet) = 0;
     virtual void handleFromUdp(inet::Packet * packet) = 0;
-    inet::Packet* convertToGtpUserMsg(int teid, inet::Packet *packet);
-
 
     inet::UdpSocket socket_;
     int localPort_;

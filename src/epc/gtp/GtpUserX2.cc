@@ -11,6 +11,7 @@
 #include <inet/networklayer/common/L3Address.h>
 #include <inet/networklayer/ipv4/Ipv4Header_m.h>
 #include "epc/gtp/GtpUserX2.h"
+#include "epc/gtp/conversion.h"
 
 Define_Module(GtpUserX2);
 
@@ -50,6 +51,8 @@ void GtpUserX2::handleMessage(cMessage *msg)
         EV << "GtpUserX2::handleMessage - message from udp layer" << endl;
 
         handleFromUdp(pkt);
+    } else {
+        error("GtpUserX2::not implemented");
     }
 }
 
@@ -60,21 +63,8 @@ void GtpUserX2::handleFromStack(Packet * pkt)
     X2NodeId destId = x2Msg->getDestinationId();
     X2NodeId srcId = x2Msg->getSourceId();
     EV << "GtpUserX2::handleFromStack - Received a LteX2Message with destId[" << destId << "]" << endl;
-
-
-    // create a new GtpUserMessage
-    auto header = makeShared<GtpUserMsg>();
-    header->setTeid(0);
-    header->setChunkLength(B(8));
-    auto gtpPacket = new Packet(pkt->getName());
-    gtpPacket->insertAtFront(header);
-    auto data = pkt->peekData();
-    gtpPacket->insertAtBack(data);
-
-    delete pkt;
-
+    auto gtpPacket = gtp::conversion::packetToGtpUserMsg(0, pkt);
     L3Address peerAddress = binder_->getX2PeerAddress(srcId, destId); //L3AddressResolver().resolve(symbolicName);
-
     socket_.sendTo(gtpPacket, peerAddress, tunnelPeerPort_);
 }
 
@@ -83,13 +73,14 @@ void GtpUserX2::handleFromUdp(Packet * pkt)
     EV << "GtpUserX2::handleFromUdp - Decapsulating and sending to local connection." << endl;
 
     // re-create the original IP datagram and send it to the local network
-    auto originalPacket = new Packet (pkt->getName());
-    auto gtpUserMsg = pkt->popAtFront<GtpUserMsg>();
-    originalPacket->insertAtBack(pkt->peekData());
-    originalPacket->addTagIfAbsent<PacketProtocolTag>()->setProtocol(&Protocol::ipv4);
-
-    delete pkt;
+//    auto originalPacket = new Packet (pkt->getName());
+//    pkt->popAtFront<GtpUserMsg>();
+//    originalPacket->insertAtBack(pkt->peekData());
+//    originalPacket->addTagIfAbsent<PacketProtocolTag>()->setProtocol(&Protocol::ipv4);
+//
+//    delete pkt;
+    auto tuple = gtp::conversion::copyAndPopGtpHeader(pkt);
 
     // send message to the X2 Manager
-    send(originalPacket,"lteStackOut");
+    send(std::get<gtp::conversion::ORIGINAL_DATAGRAM>(tuple),"lteStackOut");
 }
