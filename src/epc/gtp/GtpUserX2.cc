@@ -73,12 +73,6 @@ void GtpUserX2::handleFromUdp(Packet * pkt)
     EV << "GtpUserX2::handleFromUdp - Decapsulating and sending to local connection." << endl;
 
     // re-create the original IP datagram and send it to the local network
-//    auto originalPacket = new Packet (pkt->getName());
-//    pkt->popAtFront<GtpUserMsg>();
-//    originalPacket->insertAtBack(pkt->peekData());
-//    originalPacket->addTagIfAbsent<PacketProtocolTag>()->setProtocol(&Protocol::ipv4);
-//
-//    delete pkt;
     auto tuple = gtp::conversion::copyAndPopGtpHeader(pkt);
 
     // send message to the X2 Manager
