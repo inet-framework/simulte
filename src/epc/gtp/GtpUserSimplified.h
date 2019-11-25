@@ -14,11 +14,7 @@
 #include <omnetpp.h>
 
 #include <inet/common/ModuleAccess.h>
-#include <inet/transportlayer/contract/udp/UdpSocket.h>
-#include <inet/networklayer/common/InterfaceEntry.h>
-#include <inet/networklayer/common/L3AddressResolver.h>
 #include <inet/linklayer/common/InterfaceTag_m.h>
-
 #include "corenetwork/binder/LteBinder.h"
 #include "epc/gtp/AbstractGtpUser.h"
 /**

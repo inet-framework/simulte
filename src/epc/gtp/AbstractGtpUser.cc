@@ -55,17 +55,5 @@ void AbstractGtpUser::handleMessage(cMessage *msg)
     }
 }
 
-Packet *AbstractGtpUser::convertToGtpUserMsg(int teid, Packet * pkt) {
-    auto header = makeShared<GtpUserMsg>();
-    header->setTeid(teid);
-    header->setChunkLength(B(8));
-    auto gtpMsg = new Packet(pkt->getName());
-    gtpMsg->insertAtFront(header);
-    auto data = pkt->peekData();
-    gtpMsg->insertAtBack(data);
-    delete pkt;
-    return gtpMsg;
-}
-
 
 
