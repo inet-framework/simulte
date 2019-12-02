@@ -117,9 +117,22 @@ void LteRlcUm::sendToLowerLayer(cPacket *pkt)
     emit(sentPacketToLowerLayer, pkt);
 }
 
+void LteRlcUm::dropBufferOverflow(cPacket *pkt)
+{
+    Enter_Method_Silent("dropBufferOverflow()");                  // Direct Method Call
+    take(pkt);                                                    // Take ownership
+
+    EV << "LteRlcUm : Dropping packet " << pkt->getName() << " (queue full) \n";
+    emit(bufferOverflowDl, pkt);
+
+    delete pkt;
+}
+
 void LteRlcUm::handleUpperMessage(cPacket *pkt)
 {
     EV << "LteRlcUm::handleUpperMessage - Received packet " << pkt->getName() << " from upper layer, size " << pkt->getByteLength() << "\n";
+
+    emit(receivedPacketFromUpperLayer, pkt);
 
     FlowControlInfo* lteInfo = check_and_cast<FlowControlInfo*>(pkt->removeControlInfo());
 
@@ -142,24 +155,24 @@ void LteRlcUm::handleUpperMessage(cPacket *pkt)
     }
     else
     {
-        // create a message so as to notify the MAC layer that the queue contains new data
-        LteRlcPdu* newDataPkt = new LteRlcPdu("newDataPkt");
-        // make a copy of the RLC SDU
-        LteRlcSdu* rlcPktDup = rlcPkt->dup();
-        // the MAC will only be interested in the size of this packet
-        newDataPkt->encapsulate(rlcPktDup);
-        newDataPkt->setControlInfo(lteInfo->dup());
+        if(txbuf->enque(rlcPkt)){
+            EV << "LteRlcUm::handleUpperMessage - Enque packet " << rlcPkt->getName() << " into the Tx Buffer\n";
 
-        EV << "LteRlcUm::handleUpperMessage - Sending message " << newDataPkt->getName() << " to port UM_Sap_down$o\n";
-        send(newDataPkt, down_[OUT]);
+            // create a message so as to notify the MAC layer that the queue contains new data
+            LteRlcPdu* newDataPkt = new LteRlcPdu("newDataPkt");
+            // make a copy of the RLC SDU
+            LteRlcSdu* rlcPktDup = rlcPkt->dup();
+            // the MAC will only be interested in the size of this packet
+            newDataPkt->encapsulate(rlcPktDup);
+            newDataPkt->setControlInfo(lteInfo->dup());
 
-        // Bufferize RLC SDU
-        EV << "LteRlcUm::handleUpperMessage - Enque packet " << rlcPkt->getName() << " into the Tx Buffer\n";
-        txbuf->enque(rlcPkt);
-
+            EV << "LteRlcUm::handleUpperMessage - Sending message " << newDataPkt->getName() << " to port UM_Sap_down$o\n";
+            send(newDataPkt, down_[OUT]);
+        } else {
+            // Queue is full - drop SDU
+            dropBufferOverflow(rlcPkt);
+        }
     }
-
-    emit(receivedPacketFromUpperLayer, pkt);
 }
 
 void LteRlcUm::handleLowerMessage(cPacket *pkt)

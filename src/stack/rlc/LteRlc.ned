@@ -101,6 +101,8 @@ simple LteRlcTm {
 // UM Module for the RLC layer of LTE Stack.
 //
 moduleinterface ILteRlcUm {
+    parameters:
+        int queueSize @unit(B);
     gates:
         inout UM_Sap_up;    // Gate to PDCP
         inout UM_Sap_down;    // Gate to RLC Mux
@@ -111,6 +113,9 @@ simple LteRlcUm like ILteRlcUm {
         @class("LteRlcUm");
         
         @display("i=block/wheelbarrow");
+        
+        //# Rlc Queue
+        int queueSize @unit(B) = default(2MiB);              // RLC TX entity SDU queue size (0: unlimited)
         
         //# SDU-level statistics
         @signal[rlcDelayDl];
