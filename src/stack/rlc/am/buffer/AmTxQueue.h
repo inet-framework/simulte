@@ -17,6 +17,7 @@
 #include "stack/rlc/am/packet/LteRlcAmSdu_m.h"
 #include "stack/pdcp_rrc/packet/LtePdcpPdu_m.h"
 #include "common/LteControlInfo.h"
+#include "stack/rlc/am/LteRlcAm.h"
 
 /*
  * RLC AM Mode Transmission Entity
@@ -32,6 +33,11 @@
 class AmTxQueue : public omnetpp::cSimpleModule
 {
   protected:
+
+    /*
+     * reference to corresponding RLC AM module
+     */
+    LteRlcAm* lteRlc_;
 
     /*
      * SDU (upper layer PDU) currently being processed
@@ -62,6 +68,11 @@ class AmTxQueue : public omnetpp::cSimpleModule
      * The PDU (fragments) buffer.
      */
     omnetpp::cArray pduRtxQueue_;
+
+    /*
+     * The buffer for PDUs waiting to be requested from MAC
+     */
+    inet::cPacketQueue pduBuffer_;
 
     /*
      * The MRW PDU retransmission buffer.
@@ -98,13 +109,13 @@ class AmTxQueue : public omnetpp::cSimpleModule
     int maxRtx_;
 
     // PDU retransmission timeout
-    int pduRtxTimeout_;
+    omnetpp::simtime_t pduRtxTimeout_;
 
     // control PDU retransmission timeout
-    int ctrlPduRtxTimeout_;
+    omnetpp::simtime_t  ctrlPduRtxTimeout_;
 
     // Buffer analyze timeout
-    int bufferStatusTimeout_;
+    omnetpp::simtime_t  bufferStatusTimeout_;
 
     //-------------------------------------------------------------------------
 
@@ -125,11 +136,24 @@ class AmTxQueue : public omnetpp::cSimpleModule
      *     Fragments current SDU (or next one, if current is completed) and adds PDUs (fragments) to the transmission buffer
      */
     void addPdus();
+
+    /*
+     * Buffers a control pdu within the corresponding TxQueue
+     */
+    void bufferControlPdu(LteRlcAmPdu *pkt);
+
+    /*
+     * Send buffered PDUs until the specified size has been reached
+     * or the buffer is empty
+     *
+     * @param size   maximum amount of data to be sent down
+     */
+    void sendPdus(int size);
+
     /*
      * Receives a control message from the AM receiver buffer
      * @param pkt
      */
-
     virtual void handleControlPacket(omnetpp::cPacket*pkt);
 
   protected:
@@ -150,6 +174,15 @@ class AmTxQueue : public omnetpp::cSimpleModule
      */
     void discard(int seqNum);
 
+    /* buffers a PDU to be sent down to MAC when a new SDU is requested
+     *
+     * @param pdu PDU to be sent
+     * @param isConrol should be set to true for control packets
+     * @param isRetransmission  must be set to TRUE for retransmission
+     *        so that they can be priorized
+     */
+    void bufferFragmented(LteRlcAmPdu *pkt, bool isControl, bool isRetransmission);
+
     /* Move the transmitter window based upon reception of ACK control message
      *
      * @param seqNum
@@ -165,12 +198,6 @@ class AmTxQueue : public omnetpp::cSimpleModule
     /* Checks if receiver window has to be shifted
      */
     void checkForMrw();
-
-    /* sends down a PDU
-     *
-     * @param pdu
-     */
-    void sendPdu(LteRlcAmPdu* pdu);
 
     /* Receive a cumulative ACK from the transmitter ACK entity
      *

@@ -9,6 +9,7 @@
 
 #include <climits>
 #include "stack/mac/buffer/LteMacQueue.h"
+#include "stack/rlc/am/packet/LteRlcAmPdu.h"
 
 using namespace omnetpp;
 
@@ -81,14 +82,24 @@ int64_t LteMacQueue::getQueueSize() const
 }
 
 bool LteMacQueue::isEnqueueablePacket(cPacket* pkt){
-    LteRlcPdu_Base* pdu = dynamic_cast<LteRlcPdu_Base *>(pkt);
     if(queueSize_ == 0){
         // unlimited queue size -- nothing to check for
         return true;
     }
-    if(pdu != NULL){
+    /* Check:
+     *
+     * For AM: We need to check if all fragments will fit in the queue
+     * For UM: The new UM implementation introduced in commit 9ab9b71c5358a70278e2fbd51bf33a9d1d81cb86
+     *         by G. Nardini only sends one SDU at a time upon MAC SDU request,
+     *         therefore no check needs to be done here
+     * For TM: No fragments are to be checked, anyways.
+     */
+    LteRlcAmPdu_Base* pdu = dynamic_cast<LteRlcAmPdu*>(pkt);
+
+    if(pdu != NULL){ // for AM we need to check if all fragments will fit
         if(pdu->getTotalFragments() > 1) {
-            bool allFragsWillFit = ((pdu->getTotalFragments()-pdu->getSnoFragment())*pdu->getByteLength() + getByteLength() < queueSize_);
+            int remainingFrags = (pdu->getLastSn() - pdu->getSnoFragment() + 1);
+            bool allFragsWillFit = (remainingFrags*pdu->getByteLength()) + getByteLength() < queueSize_;
             bool enqueable = (pdu->getSnoMainPacket() != lastUnenqueueableMainSno) && allFragsWillFit;
             if(allFragsWillFit && !enqueable){
                 EV_DEBUG << "PDU would fit but discarded frags before - rejecting fragment: " << pdu->getSnoMainPacket() << ":" << pdu->getSnoFragment() << std::endl;
@@ -98,9 +109,8 @@ bool LteMacQueue::isEnqueueablePacket(cPacket* pkt){
             }
             return enqueable;
         }
-    } else {
-        EV_WARN << "LteMacQueue: cannot estimate remaining fragments - unknown packet type " << pkt->getFullName() << std::endl;
     }
+
     // no fragments or unknown type -- can always be enqueued if there is enough space in the queue
     return (pkt->getByteLength() + getByteLength() < queueSize_);
 }

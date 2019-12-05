@@ -733,11 +733,12 @@ bool LteMacEnb::bufferizePacket(cPacket* pkt)
             vqueue->pushBack(vpkt);
 
             EV << "LteMacBuffers : Using old buffer on node: " <<
-            MacCidToNodeId(cid) << " for Lcid: " << MacCidToLcid(cid) << ", Space left in the Queue: " <<
+            MacCidToNodeId(cid) << " for Lcid: " << MacCidToLcid(cid) << ", Bytes in the Queue: " <<
             vqueue->getQueueOccupancy() << "\n";
         }
 
-        return true;    // notify the activation of the connection
+        if (strcmp(pkt->getName(), "newDataPkt") == 0)
+            return true; // this is only a new packet indication - only buffered in virtual queue
     }
 
     // this is a MAC SDU, bufferize it in the MAC buffer
@@ -762,19 +763,7 @@ bool LteMacEnb::bufferizePacket(cPacket* pkt)
         LteMacQueue* queue = it->second;
         if (!queue->pushBack(pkt))
         {
-            totalOverflowedBytes_ += pkt->getByteLength();
-            double sample = (double)totalOverflowedBytes_ / (NOW - getSimulation()->getWarmupPeriod());
-            if (lteInfo->getDirection()==DL)
-            {
-                emit(macBufferOverflowDl_,sample);
-            }
-            else
-            {
-                emit(macBufferOverflowUl_,sample);
-            }
-
-            EV << "LteMacBuffers : Dropped packet: queue" << cid << " is full\n";
-            delete pkt;
+            EV << "LteMacBuffers : queue" << cid << " is full - cannot buffer packet " << pkt->getId()<< "\n";
             return false;
         }
 
@@ -783,7 +772,7 @@ bool LteMacEnb::bufferizePacket(cPacket* pkt)
         queue->getQueueSize() - queue->getByteLength() << "\n";
     }
 
-    return false; // do not need to notify the activation of the connection (already done when received newDataPkt)
+    return true;
 }
 
 void LteMacEnb::handleUpperMessage(cPacket* pkt)
@@ -791,23 +780,33 @@ void LteMacEnb::handleUpperMessage(cPacket* pkt)
     FlowControlInfo* lteInfo = check_and_cast<FlowControlInfo*>(pkt->getControlInfo());
     MacCid cid = idToMacCid(lteInfo->getDestId(), lteInfo->getLcid());
 
-    if (bufferizePacket(pkt))
-    {
-        enbSchedulerDl_->backlog(cid);
+    if (!bufferizePacket(pkt)){
+        // unable to buffer packet - drop it
+        totalOverflowedBytes_ += pkt->getByteLength();
+        double sample = (double)totalOverflowedBytes_ / (NOW - getSimulation()->getWarmupPeriod());
+
+        if (lteInfo->getDirection()==DL)
+            emit(macBufferOverflowDl_,sample);
+        else
+            emit(macBufferOverflowUl_,sample);
+
+        delete pkt;
+        return;
     }
 
-    if (strcmp(pkt->getName(), "lteRlcFragment") == 0)
-    {
-        // new MAC SDU has been received
+    if(strcmp(pkt->getName(), "lteRlcFragment") == 0 || strcmp(pkt->getName(), "rlcAmPdu") == 0){
+        // new MAC SDU has been received (was requested by MAC, no need to notify scheduler)
         if (pkt->getByteLength() == 0)
             delete pkt;
         else         // creates pdus from schedule list and puts them in harq buffers
             macPduMake(cid);
-    }
-    else
-    {
+    } else if (strcmp(pkt->getName(), "newDataPkt") == 0) {
+        // new data - inform scheduler of active connection
+        enbSchedulerDl_->backlog(cid);
+        // new data ind. - contains no data and can be deleted
         delete pkt;
     }
+
 }
 
 

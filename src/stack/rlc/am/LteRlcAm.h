@@ -12,6 +12,8 @@
 
 #include <omnetpp.h>
 #include "common/LteCommon.h"
+#include "common/LteControlInfo.h"
+#include "stack/rlc/am/packet/LteRlcAmPdu.h"
 
 class AmTxQueue;
 class AmRxQueue;
@@ -80,14 +82,13 @@ class LteRlcAm : public omnetpp::cSimpleModule
      * getTxBuffer() is used by the sender to gather the TXBuffer
      * for that CID. If TXBuffer was already present, a reference
      * is returned, otherwise a new TXBuffer is created,
-     * added to the tx_buffers map and a reference is returned aswell.
+     * added to the tx_buffers map and a reference is returned as well.
      *
-     * @param lcid Logical Connection ID
-     * @param nodeId MAC Node Id
+     * @param lteInfo flow control info
      * @return pointer to the TXBuffer for that CID
      *
      */
-    AmTxQueue* getTxBuffer(MacNodeId nodeId, LogicalCid lcid);
+    AmTxQueue* getTxBuffer(FlowControlInfo* lteInfo);
 
     /**
      * getRxBuffer() is used by the receiver to gather the RXBuffer
@@ -148,6 +149,7 @@ class LteRlcAm : public omnetpp::cSimpleModule
      * @param pkt packet to process
      */
     void routeControlMessage(omnetpp::cPacket *pkt);
+
     /**
      * sendFragmented() is invoked by the TXBuffer as a direct method
      * call and used to forward fragments to lower layers. This is needed
@@ -158,6 +160,15 @@ class LteRlcAm : public omnetpp::cSimpleModule
     void sendFragmented(omnetpp::cPacket *pkt);
 
     /**
+     * bufferControlPdu() is invoked by the RXBuffer as a direct method
+     * call and used to forward control packets to be sent down upon
+     * the next MAC request.
+     *
+     * @param pkt packet to buffer
+     */
+    void bufferControlPdu(LteRlcAmPdu *pkt);
+
+    /**
      * sendDefragmented() is invoked by the RXBuffer as a direct method
      * call and used to forward fragments to upper layers. This is needed
      * since the RXBuffer himself has no output gates
@@ -165,6 +176,12 @@ class LteRlcAm : public omnetpp::cSimpleModule
      * @param pkt packet to forward
      */
     void sendDefragmented(omnetpp::cPacket *pkt);
+
+    /**
+     * informMacOfWaitingData() sends a new data notification to the MAC
+     */
+    void indicateNewDataToMac(LteRlcAmPdu* rlcPkt);
+
 };
 
 #endif

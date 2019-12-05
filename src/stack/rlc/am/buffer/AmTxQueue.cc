@@ -8,7 +8,6 @@
 //
 
 #include "stack/rlc/am/buffer/AmTxQueue.h"
-#include "stack/rlc/am/LteRlcAm.h"
 #include "stack/mac/layer/LteMacBase.h"
 
 Define_Module(AmTxQueue);
@@ -39,6 +38,9 @@ void AmTxQueue::initialize()
     // resize status vectors
     received_.resize(txWindowDesc_.windowSize_, false);
     discarded_.resize(txWindowDesc_.windowSize_, false);
+
+    // reference to corresponding RLC AM module
+    lteRlc_ = check_and_cast<LteRlcAm *>(getParentModule()->getSubmodule("am"));
 }
 
 AmTxQueue::~AmTxQueue()
@@ -51,16 +53,8 @@ void AmTxQueue::enque(LteRlcAmSdu* sdu)
     // Buffer the SDU
     sduQueue_.insert(sdu);
 
-    // Check if there are waiting SDUs
-    if (currentSdu_ == NULL)
-    {
-        // Add AM-PDU to the transmission buffer
-        if (txWindowDesc_.seqNum_ - txWindowDesc_.firstSeqNum_ < txWindowDesc_.windowSize_)
-        {
-            // RLC AM PDUs can be added to the buffer
-            addPdus();
-        }
-    }
+    // try to fragment the SDU and send it
+    addPdus();
 }
 
 void AmTxQueue::addPdus()
@@ -107,7 +101,7 @@ void AmTxQueue::addPdus()
         // duplicate SDU control info
         FlowControlInfo* lteInfo = lteInfo_->dup();
 
-        EV << NOW << " AmTxQueue::addPdus -  create a new RLC PDU" << endl;
+        EV << NOW << " AmTxQueue::addPdus -  create a new RLC PDU [" << txWindowDesc_.seqNum_ << "]" << endl;
         LteRlcAmPdu * pdu = new LteRlcAmPdu("rlcAmPdu");
         // set RLC type descriptor
         pdu->setAmType(DATA);
@@ -150,6 +144,8 @@ void AmTxQueue::addPdus()
         if (fragDesc_.addFragment())
         {
             fragDesc_.resetFragmentation();
+            drop(currentSdu_);
+            delete currentSdu_;
             currentSdu_ = NULL;
         }
         // Update Sequence Number
@@ -163,12 +159,52 @@ void AmTxQueue::addPdus()
         }
 
         // send down the PDU
-        LteRlcAm* lteRlc = check_and_cast<LteRlcAm *>(
-            getParentModule()->getSubmodule("am"));
-        lteRlc->sendFragmented(pdu);
+        bufferFragmented(pdu, false, false);
     }
 
     EV << NOW << " AmTxQueue::addPdus - added " << addedPdus << " PDUs" << endl;
+}
+
+void AmTxQueue::sendPdus(int size){
+    auto pdu = pduBuffer_.pop();
+    if(pdu->getByteLength() > size){
+        throw cRuntimeError("AmTxQueue::sendPdus cannot return current head of line PDU - size too small.");
+    }
+
+    EV << "AmTxQueue::sendPdus sending a PDU of size " << pdu->getByteLength() << " (total requested: " << size << ")"<< std::endl;
+    lteRlc_->sendFragmented(pdu);
+
+    if(!pduBuffer_.isEmpty()){
+        lteRlc_->indicateNewDataToMac((LteRlcAmPdu *)pduBuffer_.front());
+    }
+}
+
+void AmTxQueue::bufferControlPdu(LteRlcAmPdu *pkt){
+    bufferFragmented(pkt, true, false);
+}
+
+void AmTxQueue::bufferFragmented(LteRlcAmPdu *pkt, bool isControl, bool isRetransmission)
+{
+    Enter_Method("bufferFragmented()"); // Direct Method Call
+    take(pkt); // Take ownership
+
+    EV << NOW << " AmTxQueue : Enqueuing " << pkt->getName() << " of size "
+       << pkt->getByteLength() << "  for port AM_Sap_down$o\n";
+
+    // notify MAC that new data is available
+    bool needToTriggerMac = pduBuffer_.isEmpty();
+
+    // pdu is not sent directly but queued - will be sent upon mac request
+    if((isControl || isRetransmission) && !pduBuffer_.isEmpty()) {
+        // control packets and retransmissions have priority
+        pduBuffer_.insertBefore(pduBuffer_.front(), pkt);
+    } else {
+        pduBuffer_.insert(pkt);
+    }
+
+    if (needToTriggerMac){
+        lteRlc_->indicateNewDataToMac(pkt);
+    }
 }
 
 void AmTxQueue::discard(const int seqNum)
@@ -230,6 +266,7 @@ void AmTxQueue::discard(const int seqNum)
         else
             break; // last PDU in bufer found , stopping forward search
     }
+
     // Check backward in the buffer if there are other PDUs related to the same SDU
     for (int i = txWindowIndex - 1; i >= 0; i--)
     {
@@ -431,16 +468,7 @@ void AmTxQueue::sendMrw(const int seqNum)
     // Increment mrwSn_
     mrwDesc_.mrwSeqNum_++;
     // Send the MRW message
-    sendPdu(pdu);
-}
-
-void AmTxQueue::sendPdu(LteRlcAmPdu* pdu)
-{
-    Enter_Method("sendCtrlPdu()");
-    // Pass the RLC PDU to the MAC
-    LteRlcAm* lteRlc = check_and_cast<LteRlcAm *>(
-        getParentModule()->getSubmodule("am"));
-    lteRlc->sendFragmented(pdu);
+    bufferFragmented(pdu, true, false);
 }
 
 void AmTxQueue::handleControlPacket(cPacket* pkt)
@@ -449,6 +477,8 @@ void AmTxQueue::handleControlPacket(cPacket* pkt)
     LteRlcAmPdu * pdu = check_and_cast<LteRlcAmPdu*>(pkt);
     // get RLC type descriptor
     short type = pdu->getAmType();
+
+    take(pkt);
 
     switch (type)
     {
@@ -650,7 +680,7 @@ void AmTxQueue::pduTimerHandle(const int sn)
         // Reschedule the timer
         pduTimer_.add(pduRtxTimeout_, sn);
         // send down the PDU
-        sendPdu(pdu);
+        bufferFragmented(pdu, false, true);
     }
 }
 
@@ -685,7 +715,7 @@ void AmTxQueue::mrwTimerHandle(const int sn)
         mrwRtxQueue_.addAt(sn, pduCopy);
         // Retransmit the MRW control message
         mrwTimer_.add(ctrlPduRtxTimeout_, sn);
-        sendPdu(pdu);
+        bufferFragmented(pdu, true, true);
     }
 }
 
