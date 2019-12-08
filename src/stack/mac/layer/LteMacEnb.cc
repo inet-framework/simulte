@@ -737,8 +737,7 @@ bool LteMacEnb::bufferizePacket(cPacket* pkt)
             vqueue->getQueueOccupancy() << "\n";
         }
 
-        if (strcmp(pkt->getName(), "newDataPkt") == 0)
-            return true; // this is only a new packet indication - only buffered in virtual queue
+        return true; // this is only a new packet indication - only buffered in virtual queue
     }
 
     // this is a MAC SDU, bufferize it in the MAC buffer
@@ -780,7 +779,7 @@ void LteMacEnb::handleUpperMessage(cPacket* pkt)
     FlowControlInfo* lteInfo = check_and_cast<FlowControlInfo*>(pkt->getControlInfo());
     MacCid cid = idToMacCid(lteInfo->getDestId(), lteInfo->getLcid());
 
-    if (!bufferizePacket(pkt)){
+    if (!bufferizePacket(pkt) && pkt->getByteLength() > 0){
         // unable to buffer packet - drop it
         totalOverflowedBytes_ += pkt->getByteLength();
         double sample = (double)totalOverflowedBytes_ / (NOW - getSimulation()->getWarmupPeriod());
@@ -794,19 +793,19 @@ void LteMacEnb::handleUpperMessage(cPacket* pkt)
         return;
     }
 
-    if(strcmp(pkt->getName(), "lteRlcFragment") == 0 || strcmp(pkt->getName(), "rlcAmPdu") == 0){
-        // new MAC SDU has been received (was requested by MAC, no need to notify scheduler)
-        if (pkt->getByteLength() == 0)
-            delete pkt;
-        else         // creates pdus from schedule list and puts them in harq buffers
-            macPduMake(cid);
-    } else if (strcmp(pkt->getName(), "newDataPkt") == 0) {
-        // new data - inform scheduler of active connection
-        enbSchedulerDl_->backlog(cid);
-        // new data ind. - contains no data and can be deleted
-        delete pkt;
+    if(pkt->getByteLength() > 0) {
+    	if(strcmp(pkt->getName(), "lteRlcFragment") == 0 || strcmp(pkt->getName(), "rlcAmPdu") == 0) {
+        	// new MAC SDU has been received (was requested by MAC, no need to notify scheduler)
+        	// creates pdus from schedule list and puts them in harq buffers
+        	macPduMake(cid);
+        	return;   // must not delete pkt
+        } else if (strcmp(pkt->getName(), "newDataPkt") == 0) {
+        	// new data - inform scheduler of active connection
+        	enbSchedulerDl_->backlog(cid);
+       	}
     }
 
+	delete pkt;
 }
 
 
