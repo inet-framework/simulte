@@ -259,13 +259,13 @@ void AmRxQueue::enque(LteRlcAmPdu* pdu)
         {
             rxWindowDesc_.seqNum_++;
 
-            EV << NOW << "AmRxQueue::enque DATA PDU received at index [" << index << "] with fragment number [" << tsn << "] in sequence " << endl;
+            EV << NOW << " AmRxQueue::enque DATA PDU received at index [" << index << "] with fragment number [" << tsn << "] in sequence " << endl;
         }
         else
         {
             rxWindowDesc_.seqNum_ = tsn + 1;
 
-            EV << NOW << "AmRxQueue::enque DATA PDU received at index [" << index << "] with fragment number ["
+            EV << NOW << " AmRxQueue::enque DATA PDU received at index [" << index << "] with fragment number ["
                << tsn << "] out of sequence, sending status report " << endl;
             sendStatusReport();
         }
@@ -450,15 +450,13 @@ void AmRxQueue::checkCompleteSdu(const int index)
                         }
                     }
                 }
-                firstIndex=0;
-                // all PDUs received
-                bComplete=true;
             }
         }
         else
         {
             // since PDU is the first one, backward search is automatically completed by definition
             bComplete = true;
+            firstIndex = index;
         }
     }
     if (!bComplete)
@@ -512,9 +510,8 @@ void AmRxQueue::checkCompleteSdu(const int index)
             break;
         }
     }
-            // all PDU received
-    complete = true;
 
+    // all PDU received
     if (complete == true)
     {
         EV << NOW << " AmRxQueue::checkCompleteSdu - complete SDU has been found after forward search , passing up "
