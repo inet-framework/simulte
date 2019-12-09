@@ -132,6 +132,13 @@ class LteMacBase : public omnetpp::cSimpleModule
     // record the last TTI that HARQ processes for a given UE have been aborted (useful for D2D switching)
     std::map<MacNodeId, ::omnetpp::simtime_t> resetHarq_;
 
+    // statistics in visualization
+    bool statDisplay_;
+    inet::uint64 nrFromUpper_;
+    inet::uint64 nrFromLower_;
+    inet::uint64 nrToUpper_;
+    inet::uint64 nrToLower_;
+
   public:
 
     /**
@@ -244,6 +251,9 @@ class LteMacBase : public omnetpp::cSimpleModule
         }
         return false;
     }
+
+    // visualization
+    void refreshDisplay() const override;
 
   protected:
 

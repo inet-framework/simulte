@@ -149,8 +149,34 @@ void LtePdcpRrcBase::fromDataPort(cPacket *pkt)
 
     // PDCP Packet creation
     LtePdcpPdu* pdcpPkt = new LtePdcpPdu("LtePdcpPdu");
-    pdcpPkt->setByteLength(
-        lteInfo->getRlcType() == UM ? PDCP_HEADER_UM : PDCP_HEADER_AM);
+
+    unsigned int headerLength;
+    std::string portName;
+    omnetpp::cGate* gate;
+
+    switch(lteInfo->getRlcType()){
+    case UM:
+        headerLength = PDCP_HEADER_UM;
+        portName = "UM_Sap$o";
+        gate = umSap_[OUT];
+        break;
+    case AM:
+        headerLength = PDCP_HEADER_AM;
+        portName = "AM_Sap$o";
+        gate = amSap_[OUT];
+        break;
+    case TM:
+        portName = "TM_Sap$o";
+        gate = tmSap_[OUT];
+        headerLength = 0;
+        break;
+    default:
+        throw cRuntimeError("LtePdcpRrcBase::fromDataport(): invalid RlcType %d", lteInfo->getRlcType());
+        portName = "undefined";
+        gate = nullptr;
+        headerLength = 0;
+    }
+    pdcpPkt->setByteLength(headerLength);
     pdcpPkt->encapsulate(pkt);
 
     EV << "LtePdcp : Preparing to send "
@@ -163,10 +189,10 @@ void LtePdcpRrcBase::fromDataPort(cPacket *pkt)
     pdcpPkt->setControlInfo(lteInfo);
 
     EV << "LtePdcp : Sending packet " << pdcpPkt->getName() << " on port "
-       << (lteInfo->getRlcType() == UM ? "UM_Sap$o\n" : "AM_Sap$o\n");
+       << portName.c_str() << "\n";
 
     // Send message
-    send(pdcpPkt, (lteInfo->getRlcType() == UM ? umSap_[OUT] : amSap_[OUT]));
+    send(pdcpPkt, gate);
     emit(sentPacketToLowerLayer, pdcpPkt);
 }
 

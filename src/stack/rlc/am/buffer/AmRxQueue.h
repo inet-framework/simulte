@@ -15,10 +15,14 @@
 #include "stack/rlc/am/packet/LteRlcAmPdu.h"
 #include "stack/rlc/am/packet/LteRlcAmSdu_m.h"
 #include "stack/pdcp_rrc/packet/LtePdcpPdu_m.h"
+#include "stack/rlc/am/LteRlcAm.h"
 
 class AmRxQueue : public omnetpp::cSimpleModule
 {
   protected:
+
+    // parent RLC AM module
+    LteRlcAm* lteRlc_;
 
     //! Receiver window descriptor
     RlcWindowDesc rxWindowDesc_;

@@ -42,6 +42,9 @@ simple LteMacBase like LteMac {
         //# H-ARQ
         int harqProcesses = default(8);
         int maxHarqRtx = default(3);
+        
+        //# Statistics display (in GUI)
+        bool statDisplay = default(false);
          
         //#
         //# Statistics recording

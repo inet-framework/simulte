@@ -21,14 +21,6 @@ class LteRlcPdu : public LteRlcPdu_Base {
          this->totalFragments = other.totalFragments;
          this->snoFragment = other.snoFragment;
          this->snoMainPacket = other.snoMainPacket;
-
-         // copy the attached control info, if any
-         if (other.getControlInfo() != NULL)
-         {
-             FlowControlInfo* info = omnetpp::check_and_cast<FlowControlInfo*>(other.getControlInfo());
-             FlowControlInfo* info_dup = info->dup();
-             this->setControlInfo(info_dup);
-         }
      }
 
    public:

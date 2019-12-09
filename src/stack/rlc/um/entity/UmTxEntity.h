@@ -55,8 +55,10 @@ class UmTxEntity : public omnetpp::cSimpleModule
     /*
      * Enqueues an upper layer packet into the SDU buffer
      * @param pkt the packet to be enqueued
+     *
+     * @return TRUE if packet was enqueued in SDU buffer
      */
-    void enque(omnetpp::cPacket* pkt);
+    bool enque(omnetpp::cPacket* pkt);
 
     /**
      * rlcPduMake() creates a PDU having the specified size
@@ -110,7 +112,7 @@ class UmTxEntity : public omnetpp::cSimpleModule
     /*
      * The SDU enqueue buffer.
      */
-    omnetpp::cPacketQueue sduQueue_;
+    inet::cPacketQueue sduQueue_;
 
     /*
      * Determine whether the first item in the queue is a fragment or a whole SDU
@@ -131,6 +133,17 @@ class UmTxEntity : public omnetpp::cSimpleModule
      * The SDU holding buffer.
      */
     inet::cPacketQueue sduHoldingQueue_;
+
+    /*
+     * The maximum available queue size (in bytes)
+     * (amount of data in sduQueue_ must not exceed this value)
+     */
+    unsigned int queueSize_;
+
+    /*
+     * The currently stored amount of data in the SDU queue (in bytes)
+     */
+    unsigned int queueLength_;
 
     /**
      * Initialize fragmentSize and

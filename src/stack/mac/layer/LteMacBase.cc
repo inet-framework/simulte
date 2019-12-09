@@ -54,6 +54,7 @@ void LteMacBase::sendUpperPackets(cPacket* pkt)
     EV << "LteMacBase : Sending packet " << pkt->getName() << " on port MAC_to_RLC\n";
     // Send message
     send(pkt,up_[OUT]);
+    nrToUpper_++;
     emit(sentPacketToUpperLayer, pkt);
 }
 
@@ -63,6 +64,7 @@ void LteMacBase::sendLowerPackets(cPacket* pkt)
     // Send message
     updateUserTxParam(pkt);
     send(pkt,down_[OUT]);
+    nrToLower_++;
     emit(sentPacketToLowerLayer, pkt);
 }
 
@@ -323,7 +325,16 @@ void LteMacBase::initialize(int stage)
         ttiTick_ = new cMessage("ttiTick_");
         ttiTick_->setSchedulingPriority(1);        // TTI TICK after other messages
         scheduleAt(NOW + TTI, ttiTick_);
+
+        /* statistics */
+        statDisplay_ = par("statDisplay");
         totalOverflowedBytes_ = 0;
+        nrFromUpper_ = 0;
+        nrFromLower_ = 0;
+        nrToUpper_ = 0;
+        nrToLower_ = 0;
+
+        /* register signals */
         macBufferOverflowDl_ = registerSignal("macBufferOverFlowDl");
         macBufferOverflowUl_ = registerSignal("macBufferOverFlowUl");
         if (isD2DCapable())
@@ -360,12 +371,14 @@ void LteMacBase::handleMessage(cMessage* msg)
     {
         // message from PHY_to_MAC gate (from lower layer)
         emit(receivedPacketFromLowerLayer, pkt);
+        nrFromLower_++;
         fromPhy(pkt);
     }
     else
     {
         // message from RLC_to_MAC gate (from upper layer)
         emit(receivedPacketFromUpperLayer, pkt);
+        nrFromUpper_++;
         fromRlc(pkt);
     }
     return;
@@ -380,3 +393,15 @@ void LteMacBase::deleteModule(){
     cSimpleModule::deleteModule();
 }
 
+void LteMacBase::refreshDisplay() const
+{
+    omnetpp::cSimpleModule::refreshDisplay();
+    if(statDisplay_){
+        char buf[80];
+
+        sprintf(buf, "hl: %ld in, %ld out\nll: %ld in, %ld out", nrFromUpper_, nrToUpper_, nrFromLower_, nrToLower_);
+
+        getDisplayString().setTagArg("t", 0, buf);
+        getDisplayString().setTagArg("bgtt", 0, "Number of packets in and ouf the higher layer (hl) and the lower layer (ll).");
+    }
+}

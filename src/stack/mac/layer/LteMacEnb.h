@@ -131,6 +131,9 @@ class LteMacEnb : public LteMacBase
     /**
      * bufferizePacket() is called every time a packet is
      * received from the upper layer
+     *
+     * @param pkt Packet to be buffered
+     * @return TRUE if packet was buffered successfully, FALSE otherwise.
      */
     virtual bool bufferizePacket(omnetpp::cPacket* pkt) override;
 

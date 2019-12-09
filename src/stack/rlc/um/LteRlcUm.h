@@ -88,6 +88,14 @@ class LteRlcUm : public omnetpp::cSimpleModule
      */
     virtual void sendToLowerLayer(omnetpp::cPacket *pkt);
 
+    /**
+     * dropBufferOverflow() is invoked by the TXEntity as a direct method
+     * call and used to drop fragments if the queue is full.
+     *
+     * @param pkt packet to be dropped
+     */
+    virtual void dropBufferOverflow(omnetpp::cPacket *pkt);
+
     virtual void resumeDownstreamInPackets(MacNodeId peerId) {}
 
     virtual bool isEmptyingTxBuffer(MacNodeId peerId) { return false; }
@@ -118,6 +126,8 @@ class LteRlcUm : public omnetpp::cSimpleModule
     inet::simsignal_t receivedPacketFromLowerLayer;
     inet::simsignal_t sentPacketToUpperLayer;
     inet::simsignal_t sentPacketToLowerLayer;
+    inet::simsignal_t rlcPacketLossDl;
+    inet::simsignal_t rlcPacketLossUl;
 
     /**
      * getTxBuffer() is used by the sender to gather the TXBuffer

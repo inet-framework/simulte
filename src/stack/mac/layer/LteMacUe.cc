@@ -532,7 +532,7 @@ void LteMacUe::handleUpperMessage(cPacket* pkt)
     // bufferize packet
     bufferizePacket(pkt);
 
-    if (strcmp(pkt->getName(), "lteRlcFragment") == 0)
+    if (strcmp(pkt->getName(), "lteRlcFragment") == 0 || strcmp(pkt->getName(), "rlcAmPdu") == 0)
     {
         // new MAC SDU has been received
         if (pkt->getByteLength() == 0)
