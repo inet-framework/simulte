@@ -11,3 +11,7 @@
 /simulations/demo/,                  -f omnetpp.ini -c CBR-UL -r 5,           5s,              a958-c732/tplx, PASS,
 /simulations/demo/,                  -f omnetpp.ini -c CBR-DL -r 0,           5s,              1fa8-58bb/tplx, PASS,
 /simulations/demo/,                  -f omnetpp.ini -c CBR-DL -r 5,           5s,              0243-5c3e/tplx, PASS,
+/simulations/demo/,                  -f omnetpp.ini -c RLC-AM-UL -r 0,           5s,              594e-cdc3/tplx, PASS,
+/simulations/demo/,                  -f omnetpp.ini -c RLC-AM-UL -r 5,           5s,              88ac-812f/tplx, PASS,
+/simulations/demo/,                  -f omnetpp.ini -c RLC-AM-DL -r 0,           5s,              ab51-a9ef/tplx, PASS,
+/simulations/demo/,                  -f omnetpp.ini -c RLC-AM-DL -r 5,           5s,              0012-5dd9/tplx, PASS,
