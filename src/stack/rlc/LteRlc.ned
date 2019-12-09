@@ -91,6 +91,8 @@ simple LteRlcTm {
         int queueSize @unit(B) = default(2MiB);              // RLC SDU queue size (0: unlimited)
         
         //# SDU-level statistics
+        @signal[rlcPacketLossUl];
+        @statistic[rlcPacketLossUl](title="rlc Packet Loss"; unit=""; source="rlcPacketLossUl"; record=mean);
         @signal[rlcPacketLossDl];
         @statistic[rlcPacketLossDl](title="rlc Packet Loss"; unit=""; source="rlcPacketLossDl"; record=mean);
         

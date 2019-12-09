@@ -103,6 +103,7 @@ class LteRlcTm : public omnetpp::cSimpleModule
     inet::simsignal_t sentPacketToUpperLayer;
     inet::simsignal_t sentPacketToLowerLayer;
     inet::simsignal_t rlcPacketLossDl;
+    inet::simsignal_t rlcPacketLossUl;
 };
 
 #endif

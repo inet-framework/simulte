@@ -18,20 +18,28 @@ void LteRlcTm::handleUpperMessage(cPacket *pkt)
     take(pkt);
     emit(receivedPacketFromUpperLayer, pkt);
 
+    FlowControlInfo* lteInfo = check_and_cast<FlowControlInfo*>(pkt->removeControlInfo());
+
     // check if space is available or queue size is unlimited (queueSize_ is set to 0)
     if(queuedPdus_.getLength() >= queueSize_ && queueSize_ != 0){
         // cannot queue - queue is full
-        EV << "LteRlcUm : Dropping packet " << pkt->getName() << " (queue full) \n";
-        emit(rlcPacketLossDl, pkt);
+        EV << "LteRlcTm : Dropping packet " << pkt->getName() << " (queue full) \n";
+
+        if (lteInfo->getDirection()==DL)
+            emit(rlcPacketLossDl,pkt);
+        else
+            emit(rlcPacketLossUl,pkt);
+
         drop(pkt);
         delete pkt;
+        delete lteInfo;
+
         return;
     }
 
     // build the PDU itself
     LteRlcSdu* rlcSduPkt = new LteRlcSdu("rlcTmPkt");
     LteRlcPdu* rlcPduPkt = new LteRlcPdu("rlcTmPkt");
-    FlowControlInfo* lteInfo = check_and_cast<FlowControlInfo*>(pkt->removeControlInfo());
     rlcSduPkt->encapsulate(pkt);
     rlcPduPkt->encapsulate(rlcSduPkt);
     rlcPduPkt->setControlInfo(lteInfo);
@@ -99,6 +107,7 @@ void LteRlcTm::initialize()
     sentPacketToUpperLayer = registerSignal("sentPacketToUpperLayer");
     sentPacketToLowerLayer = registerSignal("sentPacketToLowerLayer");
     rlcPacketLossDl = registerSignal("rlcPacketLossDl");
+    rlcPacketLossDl = registerSignal("rlcPacketLossUl");
 }
 
 void LteRlcTm::handleMessage(cMessage* msg)
