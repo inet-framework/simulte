@@ -84,6 +84,25 @@ class LteRlcTm : public omnetpp::cSimpleModule
 
     omnetpp::cGate* up_[2];
     omnetpp::cGate* down_[2];
+
+
+    /*
+     * Queue for storing PDUs to be delivered to MAC when LteMacSduRequest is received
+     */
+    inet::cPacketQueue queuedPdus_;
+
+    /*
+     * The maximum available queue size (in bytes)
+     * (amount of data in sduQueue_ must not exceed this value)
+     */
+    unsigned int queueSize_;
+
+    // statistics
+    inet::simsignal_t receivedPacketFromUpperLayer;
+    inet::simsignal_t receivedPacketFromLowerLayer;
+    inet::simsignal_t sentPacketToUpperLayer;
+    inet::simsignal_t sentPacketToLowerLayer;
+    inet::simsignal_t rlcPacketLossDl;
 };
 
 #endif

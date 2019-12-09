@@ -794,7 +794,9 @@ void LteMacEnb::handleUpperMessage(cPacket* pkt)
     }
 
     if(pkt->getByteLength() > 0) {
-    	if(strcmp(pkt->getName(), "lteRlcFragment") == 0 || strcmp(pkt->getName(), "rlcAmPdu") == 0) {
+    	if(strcmp(pkt->getName(), "lteRlcFragment") == 0
+    	        || strcmp(pkt->getName(), "rlcAmPdu") == 0
+    	        || strcmp(pkt->getName(), "rlcTmPkt") == 0) {
         	// new MAC SDU has been received (was requested by MAC, no need to notify scheduler)
         	// creates pdus from schedule list and puts them in harq buffers
         	macPduMake(cid);

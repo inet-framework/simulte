@@ -88,7 +88,21 @@ module LteRlc {
 simple LteRlcTm {
     parameters:
         @display("i=block/wheelbarrow");
-
+        int queueSize @unit(B) = default(2MiB);              // RLC SDU queue size (0: unlimited)
+        
+        //# SDU-level statistics
+        @signal[rlcPacketLossDl];
+        @statistic[rlcPacketLossDl](title="rlc Packet Loss"; unit=""; source="rlcPacketLossDl"; record=mean);
+        
+        //# PDU-level statistics
+        @signal[receivedPacketFromUpperLayer];
+        @statistic[receivedPacketFromUpperLayer](source="receivedPacketFromUpperLayer"; record=count,"sum(packetBytes)","vector(packetBytes)"; interpolationmode=none);
+        @signal[receivedPacketFromLowerLayer];
+        @statistic[receivedPacketFromLowerLayer](source="receivedPacketFromLowerLayer"; record=count,"sum(packetBytes)","vector(packetBytes)"; interpolationmode=none);
+        @signal[sentPacketToUpperLayer];
+        @statistic[sentPacketToUpperLayer](source="sentPacketToUpperLayer"; record=count,"sum(packetBytes)","vector(packetBytes)"; interpolationmode=none);
+        @signal[sentPacketToLowerLayer];
+        @statistic[sentPacketToLowerLayer](source="sentPacketToLowerLayer"; record=count,"sum(packetBytes)","vector(packetBytes)"; interpolationmode=none);     
     gates:
         //# 
         //# Gates connecting RLC and TM
