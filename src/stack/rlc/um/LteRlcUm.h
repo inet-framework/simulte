@@ -126,7 +126,8 @@ class LteRlcUm : public omnetpp::cSimpleModule
     inet::simsignal_t receivedPacketFromLowerLayer;
     inet::simsignal_t sentPacketToUpperLayer;
     inet::simsignal_t sentPacketToLowerLayer;
-    inet::simsignal_t bufferOverflowDl;
+    inet::simsignal_t rlcPacketLossDl;
+    inet::simsignal_t rlcPacketLossUl;
 
     /**
      * getTxBuffer() is used by the sender to gather the TXBuffer

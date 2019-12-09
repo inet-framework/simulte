@@ -123,8 +123,15 @@ void LteRlcUm::dropBufferOverflow(cPacket *pkt)
     take(pkt);                                                    // Take ownership
 
     EV << "LteRlcUm : Dropping packet " << pkt->getName() << " (queue full) \n";
-    emit(bufferOverflowDl, pkt);
 
+    FlowControlInfo* lteInfo = check_and_cast<FlowControlInfo*>(pkt->removeControlInfo());
+
+   if (lteInfo->getDirection()==DL)
+       emit(rlcPacketLossDl,pkt);
+   else
+       emit(rlcPacketLossUl,pkt);
+
+    delete lteInfo;
     delete pkt;
 }
 
@@ -266,6 +273,8 @@ void LteRlcUm::initialize(int stage)
     receivedPacketFromLowerLayer = registerSignal("receivedPacketFromLowerLayer");
     sentPacketToUpperLayer = registerSignal("sentPacketToUpperLayer");
     sentPacketToLowerLayer = registerSignal("sentPacketToLowerLayer");
+    rlcPacketLossDl = registerSignal("rlcPacketLossDl");
+    rlcPacketLossUl = registerSignal("rlcPacketLossUl");
 
     WATCH_MAP(txEntities_);
     WATCH_MAP(rxEntities_);
