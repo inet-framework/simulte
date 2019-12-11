@@ -395,7 +395,6 @@ void LteMacBase::deleteModule(){
 
 void LteMacBase::refreshDisplay() const
 {
-    omnetpp::cSimpleModule::refreshDisplay();
     if(statDisplay_){
         char buf[80];
 
