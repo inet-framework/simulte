@@ -114,6 +114,13 @@ void LteRlcUm::sendToLowerLayer(cPacket *pkt)
     EV << "LteRlcUm : Sending packet " << pkt->getName() << " to port UM_Sap_down$o\n";
     send(pkt, down_[OUT]);
 
+    FlowControlInfo* lteInfo = check_and_cast<FlowControlInfo*>(pkt->getControlInfo());
+
+    if (lteInfo->getDirection()==DL)
+        emit(rlcPacketLossDl, 0.0);
+    else
+        emit(rlcPacketLossUl, 0.0);
+
     emit(sentPacketToLowerLayer, pkt);
 }
 
@@ -127,9 +134,9 @@ void LteRlcUm::dropBufferOverflow(cPacket *pkt)
     FlowControlInfo* lteInfo = check_and_cast<FlowControlInfo*>(pkt->removeControlInfo());
 
    if (lteInfo->getDirection()==DL)
-       emit(rlcPacketLossDl,pkt);
+       emit(rlcPacketLossDl, 1.0);
    else
-       emit(rlcPacketLossUl,pkt);
+       emit(rlcPacketLossUl, 1.0);
 
     delete lteInfo;
     delete pkt;
@@ -263,21 +270,24 @@ void LteRlcUm::deleteQueues(MacNodeId nodeId)
 
 void LteRlcUm::initialize(int stage)
 {
-    up_[IN] = gate("UM_Sap_up$i");
-    up_[OUT] = gate("UM_Sap_up$o");
-    down_[IN] = gate("UM_Sap_down$i");
-    down_[OUT] = gate("UM_Sap_down$o");
+    if (stage == inet::INITSTAGE_LOCAL)
+    {
+        up_[IN] = gate("UM_Sap_up$i");
+        up_[OUT] = gate("UM_Sap_up$o");
+        down_[IN] = gate("UM_Sap_down$i");
+        down_[OUT] = gate("UM_Sap_down$o");
 
-    // statistics
-    receivedPacketFromUpperLayer = registerSignal("receivedPacketFromUpperLayer");
-    receivedPacketFromLowerLayer = registerSignal("receivedPacketFromLowerLayer");
-    sentPacketToUpperLayer = registerSignal("sentPacketToUpperLayer");
-    sentPacketToLowerLayer = registerSignal("sentPacketToLowerLayer");
-    rlcPacketLossDl = registerSignal("rlcPacketLossDl");
-    rlcPacketLossUl = registerSignal("rlcPacketLossUl");
+        // statistics
+        receivedPacketFromUpperLayer = registerSignal("receivedPacketFromUpperLayer");
+        receivedPacketFromLowerLayer = registerSignal("receivedPacketFromLowerLayer");
+        sentPacketToUpperLayer = registerSignal("sentPacketToUpperLayer");
+        sentPacketToLowerLayer = registerSignal("sentPacketToLowerLayer");
+        rlcPacketLossDl = registerSignal("rlcPacketLossDl");
+        rlcPacketLossUl = registerSignal("rlcPacketLossUl");
 
-    WATCH_MAP(txEntities_);
-    WATCH_MAP(rxEntities_);
+        WATCH_MAP(txEntities_);
+        WATCH_MAP(rxEntities_);
+    }
 }
 
 void LteRlcUm::handleMessage(cMessage* msg)

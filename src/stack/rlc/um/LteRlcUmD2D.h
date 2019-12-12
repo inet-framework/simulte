@@ -36,7 +36,6 @@ class LteRlcUmD2D : public LteRlcUm
     LteNodeType nodeType_;
 
     virtual int numInitStages() const override { return inet::NUM_INIT_STAGES; }
-    virtual void initialize(int stage) override;
 
     /**
      * getTxBuffer() is used by the sender to gather the TXBuffer

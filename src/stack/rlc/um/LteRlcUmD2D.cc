@@ -94,26 +94,6 @@ void LteRlcUmD2D::handleLowerMessage(cPacket *pkt)
         LteRlcUm::handleLowerMessage(pkt);
 }
 
-void LteRlcUmD2D::initialize(int stage)
-{
-    if (stage == inet::INITSTAGE_LOCAL)
-    {
-        up_[IN] = gate("UM_Sap_up$i");
-        up_[OUT] = gate("UM_Sap_up$o");
-        down_[IN] = gate("UM_Sap_down$i");
-        down_[OUT] = gate("UM_Sap_down$o");
-
-        // statistics
-        receivedPacketFromUpperLayer = registerSignal("receivedPacketFromUpperLayer");
-        receivedPacketFromLowerLayer = registerSignal("receivedPacketFromLowerLayer");
-        sentPacketToUpperLayer = registerSignal("sentPacketToUpperLayer");
-        sentPacketToLowerLayer = registerSignal("sentPacketToLowerLayer");
-
-        WATCH_MAP(txEntities_);
-        WATCH_MAP(rxEntities_);
-    }
-}
-
 void LteRlcUmD2D::resumeDownstreamInPackets(MacNodeId peerId)
 {
     if (peerId == 0 || (perPeerTxEntities_.find(peerId) == perPeerTxEntities_.end()))
