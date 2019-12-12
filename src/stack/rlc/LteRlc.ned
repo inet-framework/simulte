@@ -92,9 +92,9 @@ simple LteRlcTm {
         
         //# SDU-level statistics
         @signal[rlcPacketLossUl];
-        @statistic[rlcPacketLossUl](title="rlc Packet Loss"; unit=""; source="rlcPacketLossUl"; record=mean);
+        @statistic[rlcPacketLossUl](title="rlc Packet Loss"; unit=""; source="rlcPacketLossUl"; record=mean,sum);
         @signal[rlcPacketLossDl];
-        @statistic[rlcPacketLossDl](title="rlc Packet Loss"; unit=""; source="rlcPacketLossDl"; record=mean);
+        @statistic[rlcPacketLossDl](title="rlc Packet Loss"; unit=""; source="rlcPacketLossDl"; record=mean,sum);
         
         //# PDU-level statistics
         @signal[receivedPacketFromUpperLayer];
@@ -143,9 +143,9 @@ simple LteRlcUm like ILteRlcUm {
         @signal[rlcThroughputUl];
         @statistic[rlcThroughputUl](title="Throughput at the rlc layer UL"; unit="Bps"; source="rlcThroughputUl"; record=mean);
         @signal[rlcPacketLossUl];
-        @statistic[rlcPacketLossUl](title="rlc Packet Loss"; unit=""; source="rlcPacketLossUl"; record=mean);
+        @statistic[rlcPacketLossUl](title="rlc Packet Loss"; unit=""; source="rlcPacketLossUl"; record=mean,sum);
         @signal[rlcPacketLossDl];
-        @statistic[rlcPacketLossDl](title="rlc Packet Loss"; unit=""; source="rlcPacketLossDl"; record=mean);
+        @statistic[rlcPacketLossDl](title="rlc Packet Loss"; unit=""; source="rlcPacketLossDl"; record=mean,sum);
         @signal[rlcPacketLossTotal];
         @statistic[rlcPacketLossTotal](title="rlc Packet Loss"; unit=""; source="rlcPacketLossTotal"; record=mean);
 

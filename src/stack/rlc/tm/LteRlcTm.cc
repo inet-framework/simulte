@@ -25,10 +25,11 @@ void LteRlcTm::handleUpperMessage(cPacket *pkt)
         // cannot queue - queue is full
         EV << "LteRlcTm : Dropping packet " << pkt->getName() << " (queue full) \n";
 
+        // statistics: packet was lost
         if (lteInfo->getDirection()==DL)
-            emit(rlcPacketLossDl,pkt);
+            emit(rlcPacketLossDl, 1.0);
         else
-            emit(rlcPacketLossUl,pkt);
+            emit(rlcPacketLossUl, 1.0);
 
         drop(pkt);
         delete pkt;
@@ -45,6 +46,13 @@ void LteRlcTm::handleUpperMessage(cPacket *pkt)
     rlcPduPkt->setControlInfo(lteInfo);
     // buffer the PDU
     queuedPdus_.insert(rlcPduPkt);
+
+    // statistics: packet was not lost
+    if (lteInfo->getDirection()==DL)
+        emit(rlcPacketLossDl, 0.0);
+    else
+        emit(rlcPacketLossUl, 0.0);
+
 
     // create a message so as to notify the MAC layer that the queue contains new data
     LteRlcPdu* newDataPkt = new LteRlcPdu("newDataPkt");
@@ -68,6 +76,7 @@ void LteRlcTm::handleLowerMessage(cPacket *pkt)
             EV << "LteRlcTm : Received " << pkt->getName() << " - sending packet " << rlcPduPkt->getName() << " to port TM_Sap_down$o\n";
             emit(sentPacketToLowerLayer,pkt);
             drop (rlcPduPkt);
+
             send(rlcPduPkt, down_[OUT]);
         } else
             EV << "LteRlcTm : Received " << pkt->getName() << " but no PDUs buffered - nothing to send to MAC.\n";
