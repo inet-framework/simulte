@@ -119,6 +119,7 @@ simple LteRlcTm {
 moduleinterface ILteRlcUm {
     parameters:
         int queueSize @unit(B);
+        bool mapAllLcidsToSingleBearer;
     gates:
         inout UM_Sap_up;    // Gate to PDCP
         inout UM_Sap_down;    // Gate to RLC Mux
@@ -132,6 +133,7 @@ simple LteRlcUm like ILteRlcUm {
         
         //# Rlc Queue
         int queueSize @unit(B) = default(2MiB);              // RLC TX entity SDU queue size (0: unlimited)
+        bool mapAllLcidsToSingleBearer = default(false);     // if true, all LCIDs are mapped to a single bearer
         
         //# SDU-level statistics
         @signal[rlcDelayDl];

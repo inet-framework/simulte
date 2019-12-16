@@ -113,6 +113,7 @@ void UmTxEntity::rlcPduMake(int pduLength)
             // update SDU in the buffer
             int newLength = sduLength - pduLength;
             pkt->setByteLength(newLength);
+            queueLength_ -= pduLength;
 
             EV << NOW << " UmTxEntity::rlcPduMake - Data chunk in the queue is now " << newLength << " bytes, sduSno[" << sduSequenceNumber << "]" << endl;
 
