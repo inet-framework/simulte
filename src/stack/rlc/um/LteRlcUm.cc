@@ -17,7 +17,18 @@ using namespace omnetpp;
 UmTxEntity* LteRlcUm::getTxBuffer(FlowControlInfo* lteInfo)
 {
     MacNodeId nodeId = ctrlInfoToUeId(lteInfo);
-    LogicalCid lcid = lteInfo->getLcid();
+
+    /**
+     * Note: In contrast to the 3GPP specs, SimuLTE currently determines the
+     * LCID based on the src/dst ip addresses and src/dst ports and uses separate
+     * RLC entities for each of them. In order to evaluate the effect of using
+     * only a single UM LCID and a single bearer, this parameter allows to
+     * use only a single UM TxEntitiy, as it would be with a single bearer.
+     *
+     * Otherwise (i.e. if mapAllLcidsToSingleBearer_ is false), separate
+     * entities are used for each LCID.
+     */
+    LogicalCid lcid = mapAllLcidsToSingleBearer_ ? 1 : lteInfo->getLcid();
 
     // Find TXBuffer for this CID
     MacCid cid = idToMacCid(nodeId, lcid);
@@ -276,6 +287,9 @@ void LteRlcUm::initialize(int stage)
         up_[OUT] = gate("UM_Sap_up$o");
         down_[IN] = gate("UM_Sap_down$i");
         down_[OUT] = gate("UM_Sap_down$o");
+
+        // parameters
+        mapAllLcidsToSingleBearer_ = par("mapAllLcidsToSingleBearer");
 
         // statistics
         receivedPacketFromUpperLayer = registerSignal("receivedPacketFromUpperLayer");

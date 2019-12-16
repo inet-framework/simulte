@@ -129,6 +129,9 @@ class LteRlcUm : public omnetpp::cSimpleModule
     inet::simsignal_t rlcPacketLossDl;
     inet::simsignal_t rlcPacketLossUl;
 
+    // parameters
+    bool mapAllLcidsToSingleBearer_;
+
     /**
      * getTxBuffer() is used by the sender to gather the TXBuffer
      * for that CID. If TXBuffer was already present, a reference
