@@ -130,7 +130,7 @@ module eNodeBBase
 		// =============== Udp ============== //
         app[numApps]: <> like IApp {
             parameters:
-            	@display("p=943.7675,47.035,row");
+            	@display("p=375,76,row,140");
         }
         udp: Udp {
             parameters:
