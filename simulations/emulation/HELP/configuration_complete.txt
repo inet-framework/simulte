@@ -1,0 +1,105 @@
+We assume the deployment depicted in the following simplified schema, where this host runs SimuLTE and has two network interfaces.
+Its eth0 interface is attached to the Internet, whereas its eth1 is attached to another host (the client) on a private local network.
+
+|--------|                    |-----------|                                       |--------|
+| client | < ---- > [if: eth1]| this host |[if: eth0] < ---- > Internet < ---- >  | server |
+|--------|                    |-----------|                                       |--------|
+
+We assume that SimuLTE runs an instance of the network the simulation instance, we use the network called "EmulatedNetwork" included into the file "simulations/emulation/EmulatedNetwork.ned".
+We assume the server is streaming a video on a given IP address (it could be another application). The client streams the video from the server.  
+Data packets coming from the server are received by eth0 interface and injected into the "router" element of the running instance of SimuLTE. From there, 
+data are forwared through the emulated LTE network towards the UE. When data packets reach the UE, they are sent to the client host through the eth1 interface.   
+
+*****************************************
+
+In order to setup the above scenario, the following steps are required to configure the operating system on this host (these instructions refer to Ubuntu 16.04 OS).
+
+A) Setting up a (private) local network between the client and the host running the simulation (this host)
+
+    1. Physically connect the client to this host, e.g. via Ethernet cable
+    2. Within the host, identify the name of the interface the client is connected to, by running *ifconfig*. This will be eth1 in our example.
+    3. If down, activate the interface, by running "ifup eth1"
+    4. Assign an IP address to eth1
+        - Run "sudo nano /etc/network/interfaces"
+        - Add an entry like the following:
+            auto eth1
+            iface eth1 inet static
+            address 192.168.55.1
+            netmask 255.255.255.0
+            network 192.168.55.0
+            broadcast 192.168.55.255
+    
+    4bis) If you do not want to setup the address manually, setup a DHCP server on interface eth1 and assign address automatically to the client. In any case, take note of the IP address assigned to it.    
+    
+    5. If needed, "reboot" the interface by running
+        ifdown eth1; ifup eth1
+       or restart networking service
+        sudo systemctl restart networking
+
+    6. If DHCP was not used, on the client configure the network so as the client has an address belonging to the same network (e.g. 192.168.55.2) and set the gateway as the IP address of this host (e.g. 192.168.55.1). Add route towards the gateway.
+    
+B) Provide Internet access to the client through this host:
+    1. Enable IP forwarding, by running "nano /etc/sysctl.conf" and edit the file as follows:
+        - net.ipv4.ip_forward=1
+    2. Add NAT rule:
+        sudo iptables -t nat -A POSTROUTING -s 192.168.55.0/24 -o eth0 -j MASQUERADE
+        sudo iptables-save
+        sudo iptables -L
+    3. Add route for packets destined to the client's network:
+        sudo route add -net 192.168.55.0 netmask 255.255.255.0 eth1
+    
+C) Now test the client's connectivity through this host:
+    1. On the client, try to stream a video from the server
+    2. You should be able to play the video successfully (so far, SimuLTE is not used)
+
+D) In order to use SimuLTE as network, configure the OS firewall:
+    1. Run "sudo gedit /etc/ufw/before.rules" and edit the file as follows:
+        
+        # block traffic to the server on eth1
+        -A ufw-before-forward -i eth1 -d 5.6.7.8 -p tcp --dport 5678 -j DROP
+        # block traffic from server on eth0
+        -A ufw-before-forward -i eth0 -s 5.6.7.8 -p tcp --sport 5678 -j DROP
+        
+        where 5.6.7.8/5678 is the pair IP address/port where the server makes the stream available
+         
+    2. Reload firewall, by running "sudo ufw reload"
+    Note: the IP address/port must be set to the IP address/port of the server you want to download the video from 
+ 
+E) Check whether the firewall is working:
+    1. On the client, try to stream a video from the server
+    2. You should NOT be able to play the video anymore 
+    
+F) Make sure you have the correct version of OMNeT++ and INET. The framework has been tested using OMNeT++ v5.4.1 and INET-Framework v3.6.6
+    
+G) Get SimuLTE from GitHub and build it: 
+    1. Clone the *emulation* branch from the SimuLTE repository from GitHub, next to the 'inet' folder.
+        git clone --branch emulation https://github.com/inet-framework/simulte.git
+    2. Start the IDE, and ensure that the 'inet' project is open and correctly built.
+    3. Import the project using: File | Import | General | Existing projects into Workspace. Then select the workspace dir as the root directory, and be sure NOT to check the "Copy projects into workspace" box. Click Finish.
+    4. Right-click on the "inet" folder | Properties | OMNeT++ | Project Features. Tick the "Network emmulation support" box. Click OK.
+    5. You can build the project by pressing CTRL-B (Project | Build all)
+    6. To check if the installation went fine, try running an example from the IDE: select the simulation example's folder under 'simulations', and click 'Run' on the toolbar.
+    
+H) In order to make the "emulated" version of SimuLTE network working fine, hack INET soruce code:
+    1. Decompress the archive inet-hacks.tar.gz that can be found in folder 'simulations/emulation/"
+    2. Substitute the included files to the original ones in the 'inet' project.
+    3. Recompile both INET and SimuLTE
+
+I) Configure the SimuLTE environment (use the 'simulations/emulation' folder as starting point):
+    1. In the omnetpp.ini file, set the UE's 'extHostAddress' parameter to the IP address of the real host's interface (the one connected to the Internet, i.e. eth0). Get the IP address by running the command "ifconfig"
+        - *.ue.extHostAddress = "1.2.3.4"
+    2. Configure the routing tables of all the network devices in the simulated network. To do so, edit the .mrt files, included in the folder "routing". 
+        - Edit them so as to enable a path from the router to the UE, when the destination IP address is the one of the real host's interface (e.g. 1.2.3.4). 
+        - In the omnetpp.ini file, set the "routingTable.routingFiles" parameters to the path of the .mrt files.
+    3. In the omnetpp.ini file, set the "device" and "filterString" parameter for both the router and the UE.
+        - The "device" parameter is the name of the interface which you want to capture the packets from.
+        - The "filterString" parameter is filter expression specifying which packets need to be captured.
+    Note: the omnetpp.ini file includes one exemplary configuration, e.g. [Config TCP]    
+    
+J) Run the simulation from the command line, *with root privileges*
+
+J) Test the client connectivity again:
+    1. On the client, try to stream a video from the server
+    2. Make yourself comfortable and enjoy the video streamed over the LTE network! :)
+
+        
