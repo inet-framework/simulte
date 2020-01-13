@@ -202,7 +202,7 @@ void LteIp::fromTransport(cPacket * transportPacket, cGate *outputgate) {
         IInterfaceTable *interfaceTable = getModuleFromPar<IInterfaceTable>(
                 par("interfaceTableModule"), this);
         // TODO: how do we find the LTE interface?
-        src = interfaceTable->getInterfaceByName("wlan")->getIpv4Address();
+        src = interfaceTable->findInterfaceByName("wlan")->getIpv4Address();
         EV << "Local address used: " << src << endl;
     } else {
         EV << "Source address in control info from transport layer " << src

@@ -410,7 +410,7 @@ void IP2lte::registerMulticastGroups()
     IInterfaceTable *ift = getModuleFromPar<IInterfaceTable>(par("interfaceTableModule"), this);
     if (!ift)
         return;
-    interfaceEntry = ift->getInterfaceByName("wlan");
+    interfaceEntry = ift->findInterfaceByName("wlan");
     unsigned int numOfAddresses = interfaceEntry->getProtocolData<Ipv4InterfaceData>()->getNumOfJoinedMulticastGroups();
 
     for (unsigned int i=0; i<numOfAddresses; ++i)

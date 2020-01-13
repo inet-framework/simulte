@@ -126,7 +126,7 @@ void LteMacUe::initialize(int stage)
         // find interface entry and use its address
         IInterfaceTable *interfaceTable = getModuleFromPar<IInterfaceTable>(par("interfaceTableModule"), this);
         // TODO: how do we find the LTE interface?
-        InterfaceEntry * interfaceEntry = interfaceTable->getInterfaceByName("wlan");
+        InterfaceEntry * interfaceEntry = interfaceTable->findInterfaceByName("wlan");
         if(interfaceEntry == nullptr)
             throw new cRuntimeError("no interface entry for lte interface - cannot bind node %i", nodeId_);
 
