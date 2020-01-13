@@ -12,5 +12,5 @@ jobs:
     - name: Build and run fingerprint tests
       run: |
         docker run --rm -v ${{ github.workspace }}:/root/models -u "$(id -u):$(id -g)" \
-        omnetpp/inet:o5.5.1-4.1.1 \
+        omnetpp/inet:o5.5.1-4.2.0 \
         /bin/bash -c "cd /root/models && make makefiles && make tests -j4"

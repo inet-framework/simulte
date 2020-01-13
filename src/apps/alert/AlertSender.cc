@@ -58,7 +58,7 @@ void AlertSender::initialize(int stage)
     // if the multicastInterface parameter is not empty, set the interface explicitly
     const char *multicastInterface = par("multicastInterface");
     if (multicastInterface[0]) {
-        InterfaceEntry *ie = ift->getInterfaceByName(multicastInterface);
+        InterfaceEntry *ie = ift->findInterfaceByName(multicastInterface);
         if (!ie)
             throw cRuntimeError("Wrong multicastInterface setting: no interface named \"%s\"", multicastInterface);
         socket.setMulticastOutputInterface(ie->getInterfaceId());

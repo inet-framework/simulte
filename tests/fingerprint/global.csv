@@ -1,29 +1,29 @@
 # workingdir,                        args,                                                  simtimelimit,   fingerprint
 
 #Advanced
-/simulations/advanced/,             -f omnetpp.ini -c VoIP -r 0,                            5s,             e194-5483/tplx, PASS,
-/simulations/advanced/,             -f omnetpp.ini -c SchedulersTest -r 0,                  5s,             0228-b676/tplx, PASS,
-/simulations/advanced/,             -f omnetpp.ini -c SchedulersTest -r 12,                 5s,             1950-4a26/tplx, PASS,
+/simulations/advanced/,             -f omnetpp.ini -c VoIP -r 0,                            5s,             11ef-3f82/tplx, PASS,
+/simulations/advanced/,             -f omnetpp.ini -c SchedulersTest -r 0,                  5s,             b8cf-f787/tplx, PASS,
+/simulations/advanced/,             -f omnetpp.ini -c SchedulersTest -r 12,                 5s,             2aa9-b525/tplx, PASS,
 
 # DEMO  
-/simulations/demo/,                 -f omnetpp.ini -c VideoStreaming -r 0,                  5s,             781d-6311/tplx, PASS,
-/simulations/demo/,                 -f omnetpp.ini -c VoIP -r 0,                            5s,             e194-5483/tplx, PASS,
-/simulations/demo/,                 -f omnetpp.ini -c VoIP_PF -r 0,                         5s,             cc00-6d0e/tplx, PASS,
+/simulations/demo/,                 -f omnetpp.ini -c VideoStreaming -r 0,                  5s,             c930-caa6/tplx, PASS,
+/simulations/demo/,                 -f omnetpp.ini -c VoIP -r 0,                            5s,             11ef-3f82/tplx, PASS,
+/simulations/demo/,                 -f omnetpp.ini -c VoIP_PF -r 0,                         5s,             d822-50e6/tplx, PASS,
 #/simulations/demo/,                -f omnetpp.ini -c Large-VoIP_PF -r 0,                   5s,             20d0-b35d/tplx, PASS,
 #/simulations/demo/,                -f omnetpp.ini -c Large-VoIP_MaxCI -r 0,                5s,             7a2e-e489/tplx, PASS,
-/simulations/demo/,                 -f omnetpp.ini -c VoIP_DL-UL -r 0,                      5s,             4a48-a24b/tplx, PASS,
-/simulations/demo/,                 -f omnetpp.ini -c VoIP-DL -r 0,                         5s,             9a0a-102e/tplx, PASS,
-/simulations/demo/,                 -f omnetpp.ini -c VoIP-UL -r 0,                         5s,             703c-970d/tplx, PASS,
+/simulations/demo/,                 -f omnetpp.ini -c VoIP_DL-UL -r 0,                      5s,             50f7-70c3/tplx, PASS,
+/simulations/demo/,                 -f omnetpp.ini -c VoIP-DL -r 0,                         5s,             b680-b502/tplx, PASS,
+/simulations/demo/,                 -f omnetpp.ini -c VoIP-UL -r 0,                         5s,             d1e7-4ef3/tplx, PASS,
 
 # DEMO W/ results
-/simulations/demo/,                  -f omnetpp.ini -c VideoStreaming -r 0,    5s,              c27c-1e4f/tls, PASS,
-/simulations/demo/,                  -f omnetpp.ini -c VoIP -r 0,              5s,              7d56-4b30/tls, PASS,
-/simulations/demo/,                  -f omnetpp.ini -c VoIP_PF -r 0,           5s,              c931-e705/tls, PASS,
+/simulations/demo/,                  -f omnetpp.ini -c VideoStreaming -r 0,    5s,              135e-77cb/tls, PASS,
+/simulations/demo/,                  -f omnetpp.ini -c VoIP -r 0,              5s,              0a4b-c191/tls, PASS,
+/simulations/demo/,                  -f omnetpp.ini -c VoIP_PF -r 0,           5s,              bea6-9c18/tls, PASS,
 #/simulations/demo/,                  -f omnetpp.ini -c Large-VoIP_PF -r 0,     5s,             ada5-c3af/tls, PASS,
 #/simulations/demo/,                  -f omnetpp.ini -c Large-VoIP_MaxCI -r 0,  5s,             981a-be0c/tls, PASS,
-/simulations/demo/,                  -f omnetpp.ini -c VoIP_DL-UL -r 0,        5s,              e15f-d449/tls, PASS,
-/simulations/demo/,                  -f omnetpp.ini -c VoIP-DL -r 0,           5s,              9d7b-b205/tls, PASS,
-/simulations/demo/,                  -f omnetpp.ini -c VoIP-UL -r 0,           5s,              ce8b-41fd/tls, PASS,
+/simulations/demo/,                  -f omnetpp.ini -c VoIP_DL-UL -r 0,        5s,              a2be-48f3/tls, PASS,
+/simulations/demo/,                  -f omnetpp.ini -c VoIP-DL -r 0,           5s,              75dc-2d01/tls, PASS,
+/simulations/demo/,                  -f omnetpp.ini -c VoIP-UL -r 0,           5s,              d037-cc3d/tls, PASS,
 
 
 # D2D Multicast
@@ -38,26 +38,26 @@
 /simulations/d2d/,                  -f omnetpp.ini -c MultiplePairs-UDP-D2D-wReuse -r 0,    5s,             6ada-6bb0/tplx, PASS,
 
 # Eutran_epc
-/simulations/eutran_epc/,           -f omnetpp.ini -c VoIP-DL -r 0,                         5s,             6885-2fe6/tplx, PASS,
-/simulations/eutran_epc/,           -f omnetpp.ini -c Voip-UL -r 0,                         5s,             cbb4-f690/tplx, PASS,
+/simulations/eutran_epc/,           -f omnetpp.ini -c VoIP-DL -r 0,                         5s,             b820-231d/tplx, PASS,
+/simulations/eutran_epc/,           -f omnetpp.ini -c Voip-UL -r 0,                         5s,             26a1-2870/tplx, PASS,
 
 # GTP Network
-/simulations/gtpNetwork/,           -f lteCoreExample.ini -c Internet-LTE -r 0,             5s,             48d9-2594/tplx, PASS,
-/simulations/gtpNetwork/,           -f lteCoreExample.ini -c LTE-LTE -r 0,                  5s,             67cd-47e5/tplx, PASS,
+/simulations/gtpNetwork/,           -f lteCoreExample.ini -c Internet-LTE -r 0,             5s,             06f6-a266/tplx, PASS,
+/simulations/gtpNetwork/,           -f lteCoreExample.ini -c LTE-LTE -r 0,                  5s,             4608-3ef0/tplx, PASS,
 
 # Multicell
-/simulations/multicell/,            -f omnetpp.ini -c VoIP -r 0,                            5s,             0feb-2674/tplx, PASS,
-/simulations/multicell/,            -f omnetpp.ini -c InterferenceTest -r 0,                5s,             d87d-bb34/tplx, PASS,
+/simulations/multicell/,            -f omnetpp.ini -c VoIP -r 0,                            5s,             56cc-5198/tplx, PASS,
+/simulations/multicell/,            -f omnetpp.ini -c InterferenceTest -r 0,                5s,             013a-2976/tplx, PASS,
 
 # Handover
-/simulations/test_handover/,        -f omnetpp.ini -c Handover-General -r 0,                5s,              52dd-d12f/tplx, PASS,
-/simulations/test_handover/,        -f omnetpp.ini -c VoIP-DL -r 0,                         5s,              355c-e54c/tplx, PASS,
-/simulations/test_handover/,        -f omnetpp.ini -c VoIP-UL -r 0,                         5s,              499e-d899/tplx, PASS,
-/simulations/test_handover/,        -f omnetpp.ini -c VoIP-DL_UL -r 0,                      5s,              40ec-2d7f/tplx, PASS,
-/simulations/test_handover/,        -f omnetpp.ini -c VoIP-D2D -r 0,                        5s,              747e-1612/tplx, PASS,
-/simulations/test_handover/,        -f omnetpp.ini -c FileTransfer-DL_UL -r 0,              5s,              afaa-ee13/tplx, PASS,
-/simulations/test_handover/,        -f omnetpp.ini -c FileTransfer-D2D -r 0,                5s,              9c37-6a8c/tplx, PASS,
+/simulations/test_handover/,        -f omnetpp.ini -c Handover-General -r 0,                5s,              85cf-5d31/tplx, PASS,
+/simulations/test_handover/,        -f omnetpp.ini -c VoIP-DL -r 0,                         5s,              caea-a6c9/tplx, PASS,
+/simulations/test_handover/,        -f omnetpp.ini -c VoIP-UL -r 0,                         5s,              337e-78a9/tplx, PASS,
+/simulations/test_handover/,        -f omnetpp.ini -c VoIP-DL_UL -r 0,                      5s,              b745-2d7c/tplx, PASS,
+/simulations/test_handover/,        -f omnetpp.ini -c VoIP-D2D -r 0,                        5s,              83dc-6559/tplx, PASS,
+/simulations/test_handover/,        -f omnetpp.ini -c FileTransfer-DL_UL -r 0,              5s,              46c1-0295/tplx, PASS,
+/simulations/test_handover/,        -f omnetpp.ini -c FileTransfer-D2D -r 0,                5s,              6f40-ac29/tplx, PASS,
 
 # X2
-/simulations/x2/,                   -f omnetpp.ini -c X2-Mesh-balanced -r 0,                5s,              91ee-0b5d/tplx, PASS,
-/simulations/x2/,                   -f omnetpp.ini -c X2-Mesh-unbalanced -r 0,              5s,              79bf-7117/tplx, PASS,
+/simulations/x2/,                   -f omnetpp.ini -c X2-Mesh-balanced -r 0,                5s,              de8d-d348/tplx, PASS,
+/simulations/x2/,                   -f omnetpp.ini -c X2-Mesh-unbalanced -r 0,              5s,              6aeb-157a/tplx, PASS,
