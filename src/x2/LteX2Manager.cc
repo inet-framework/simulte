@@ -134,7 +134,7 @@ void LteX2Manager::fromStack(Packet* pkt)
         X2NodeId targetEnb = *it;
         auto pktDuplicate = pkt->dup();
         auto updatedX2Msg = pktDuplicate->removeAtFront<LteX2Message>();
-
+        updatedX2Msg->markMutableIfExclusivelyOwned();
         updatedX2Msg->setSourceId(nodeId_);
         updatedX2Msg->setDestinationId(targetEnb);
         pktDuplicate->insertAtFront(updatedX2Msg);
