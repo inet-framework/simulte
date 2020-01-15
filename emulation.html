@@ -1,0 +1,178 @@
+ 
+ 
+<!DOCTYPE html>
+<html>
+
+  <head>
+    <meta charset='utf-8'>
+    <meta http-equiv="X-UA-Compatible" content="chrome=1">
+    <meta name="description" content="Simulte : SimuLTE -- LTE User Plane Simulation Model for INET &amp; OMNeT++">
+
+    <link rel="stylesheet" type="text/css" media="screen" href="stylesheets/stylesheet.css">
+    <link rel="stylesheet" type="text/css" media="screen" href="stylesheets/custom.css">
+
+    <script>
+    (function(i,s,o,g,r,a,m){i['GoogleAnalyticsObject']=r;i[r]=i[r]||function(){
+    (i[r].q=i[r].q||[]).push(arguments)},i[r].l=1*new Date();a=s.createElement(o),
+    m=s.getElementsByTagName(o)[0];a.async=1;a.src=g;m.parentNode.insertBefore(a,m)
+    })(window,document,'script','//www.google-analytics.com/analytics.js','ga');
+
+    ga('create', 'UA-39973809-2', 'auto');
+    ga('send', 'pageview');
+
+    </script>
+
+    <title>SimuLTE - LTE User Plane Simulation Model for INET</title>
+
+  </head>
+
+  <body>
+
+    <!-- HEADER -->
+    <div id="header_wrap" class="outer">
+        <header class="inner_title">
+            <a id="forkme_banner" href="https://github.com/inet-framework/simulte">View on GitHub</a>   
+            <a id="title" href="index.html"><img src="images/logo.png" width="50%"/></a>
+            <h2 id="project_tagline">LTE User Plane Simulation Model for INET &amp; OMNeT++</h2>
+            
+            <section id="downloads">
+              <a class="zip_download_link" href="https://github.com/inet-framework/simulte/zipball/master">Download this project as a .zip file</a>
+              <a class="tar_download_link" href="https://github.com/inet-framework/simulte/tarball/master">Download this project as a tar.gz file</a>
+            </section>
+
+            <div id="menu">
+                <ul>
+                    <li><a href="index.html">Home</a></li>
+                    <li><a href="description.html">Description</a></li>
+                    <li><a href="guides.html">Guides</a></li>
+                    <li><a href="faq.html">FAQ</a></li>
+                    <li><a href="related.html">Publications</a></li>                    
+                    <li><a href="contacts.html">Contact us</a></li>
+                </ul>
+            </div>
+        </header>
+    </div>
+
+    <!-- MAIN CONTENT -->
+    <div id="main_content_wrap" class="outer">
+      <section id="main_content" class="inner">
+
+        <h1>Running SimuLTE as a network emulator</h1>
+        <p>In this section, the guidelines for running SimuLTE as a network emulator are described.
+        <p>Running SimuLTE as a network emulator means that the simulation must run in real time and must be able to communicate with the real world, i.e. capturing/injecting packets from/to real networks. This is especially useful for integrating SimuLTE with external real-world applications and frameworks. For example, it allows one to make SimuLTE interoperable with the <b>Intel OpenNESS</b> framework.
+        <p>OpenNESS is an open source framework that allows to run application on a real Mobile Edge Computing environment. More information on the <a href="https://www.openness.org/">OpenNESS website</a>.
+        
+        <br>
+        
+        
+        <br>
+        
+        <p>In the following, we refer to the simple architecture depicted in the figure:
+        
+        <img src="images/openness_integration.png" width="100%">
+
+                
+        <p>The main components of the above architecture are:
+        <ul>
+           <li>Host A, which acts as a client and requests a service from the OpenNESS server, e.g. the client for a video-streaming application.
+           <li>Host B, which emulates the LTE network by running an instance of SimuLTE in real-time mode</li> 
+           <li>Host C, which runs an instance of OpenNESS and acts as a server, e.g. the server-side of a video-streaming application</li>
+        </ul>
+        <p>We assume that Host B is connected to Host C and Host A through its eth0 and eth1 interface, respectively, and IP addresses are configured as shown in the figure. Moreover, we assume that Host B's eth0 has a public IP address (1.2.3.4 in this example), visible from the Internet. On the other hand, Host A is connected to Host B by means of a local private network (having IP address 192.168.1.0/24). 
+        <p>Regarding the emulated network scenario, we refer to the "EmulatedNetwork" example, included into the file "simulations/emulation/EmulatedNetwork.ned" and shown in the figure below.
+        
+        <img src="images/simulte_emulation.png" width="100%">
+        
+        <p>The router and the UE are endowed with an ExtInterface module, which is capable to capture real packets received by a given real network interface card. This way, data packets coming from Host C are received on the eth0 interface and injected into the "router" element of the running instance of SimuLTE. From there, data are forwarded through the emulated LTE network towards the UE. When data packets reach the UE, they are sent out to Host A. Vice versa, packets coming from Host A are recived on the eth1 interface and injected into the "ue" element of the running instance of SimuLTE and forwarded to the "router", which sends them out to Host C.         
+              
+              
+        <h3>Install and configure OpenNESS</h3>
+        <p>Please refer to the official <a href="https://github.com/open-ness">OpenNESS documentation</a>.
+        <br>     
+              
+              
+        <h3>Setting the environment</h3>
+        
+        <p>In order to setup the above scenario, the following steps are required to configure the OS on Host B (the one running SimuLTE).
+        <p><b>NOTE:</b>The following instructions refer to a host equipped with Linux Ubuntu 16.04 OS.
+
+        <h5>Configure the network</h5>
+        <p> Since the network between Host A and Host B is private, we need to configure the Host B's OS so that it can reroute packets from Host A to the Internet.
+        <ol>
+            <li>Enable IP forwarding on Host B, by running "sudo gedit /etc/sysctl.conf" from the terminal. Look for the ip_forward parameter and edit it as follows:
+              <pre class="code"><span class="first">net.ipv4.ip_forward=1</pre>
+            </li>
+            <li>From the terminal, add NAT (Network Address Translation) rule:
+              <pre class="code"><span class="first">sudo iptables -t nat -A POSTROUTING -s 192.168.1.0/24 -o eth0 -j MASQUERADE
+sudo iptables-save
+sudo iptables -L
+              </pre>
+            </li>
+            <li>Add IP route for packets destined to Host A:
+              <pre class="code"><span class="first">sudo route add -net 192.168.1.0 netmask 255.255.255.0 eth1</pre>
+            </li>
+        </ol>
+        <br>
+        
+        <h5>Configure the OS firewall</h5>
+        
+        <p>Since packets captured by the simulation are <i>copied</i> rather than redirected to the SimuLTE process, we need to prevent original data packets to follow the "legacy" path, i.e. the path that does not go through SimuLTE. This is accomplished by configuring the OS firewall accordingly.
+        <ol>
+            <li>Run <i>sudo gedit /etc/ufw/before.rules</i> and edit the file as follows:
+            <pre class="code"><span class="first"> # block traffic to 5.6.7.8 (TCP port 5678) on eth1   # IP address of the server
+-A ufw-before-forward -i eth1 -d 5.6.7.8 -p tcp --dport 5678 -j DROP
+# block traffic from 5.6.7.8 (TCP port 5678) on eth0
+-A ufw-before-forward -i eth0 -s 5.6.7.8 -p tcp --sport 5678 -j DROP</pre>
+            </li>
+            <li>Reload firewall, by running <i>sudo ufw reload</i></li>
+        </ol>
+        <br>
+        
+        <h5>Download and install the SimuLTE code</h5>
+          <ol>
+            <li>Clone the <a href="https://github.com/inet-framework/simulte/tree/emulation">"emulation" branch</a> from the GitHub repository.</li>
+            <li>Import the project to the OMNeT++ IDE and build it. Instructions are available <a href="install.html">here</a>.
+          </ol>
+          <p><b>NOTE:</b> This version of SimuLTE is compatible with OMNeT++ 5.5.1 and INET 3.6.6. It is <b>not</b> compatible with INET 4.x.
+
+        <br>
+        
+        <h5>Configure the simulation</h5>
+        <p>The <i>simulations/emulation</i> folder includes an exemplary <i>omnetpp.ini</i> file. You can use it as a starting point for your own configuration. 
+          <ol>
+            <li>In the </i>omnetpp.ini</i> file, set the UE's 'extHostAddress' parameter to the IP address of the <i>eth0</i> interface
+             <pre class="code"><span class="first">*.ue.extHostAddress = "1.2.3.4"</pre>
+            </li>
+            <li>Configure the routing tables of all the network devices in the simulated network. To do so, edit the <i>.mrt</i> files included in the folder 'routing'. Edit them so as to enable a path from the router to the UE. In the <i>omnetpp.ini</i> file, set the 'routingTable.routingFiles' parameters to the path of the <i>.mrt</i> files.           
+            </li>
+            <li>In the <i>omnetpp.ini</i> file, set the 'device' and 'filterString' parameters for both the router and the UE. The 'device' parameter is the name of the interface which you want to capture the packets from (i.e. eth0 and eth1, respectively). The 'filterString' parameter is the filter expression specifying which packets need to be captured and injected into the simulation.
+            </li>
+
+          </ol>
+        <h3>Run an emulation example</h3>
+        <ol>
+           <li>In your terminal, navigate to the "simulations/emulation" folder</li>
+           <li>Run the simulation <b>with root privileges</b>. This is needed for running the simulation in real time mode.</li>
+        </ol>
+
+
+        <span>Prev: <a href="guides.html">Guides</a></span>
+      </section>
+
+    
+    </div>
+
+    <!-- FOOTER  -->
+    <div id="footer_wrap" class="outer">
+      <footer class="inner">
+        <span>Published with <a href="http://pages.github.com">GitHub Pages</a></span>
+        <span id="webmaster">&copy; <a href="http://www.iet.unipi.it/a.virdis">Antonio Virdis</a> - <a href="http://www.iet.unipi.it/g.nardini/">Giovanni Nardini</a> - 2015</span>                
+      </footer>
+    </div>
+
+    
+
+  </body>
+</html>
+
+
