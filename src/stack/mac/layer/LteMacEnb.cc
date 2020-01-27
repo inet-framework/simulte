@@ -779,8 +779,10 @@ void LteMacEnb::handleUpperMessage(cPacket* pkt)
     FlowControlInfo* lteInfo = check_and_cast<FlowControlInfo*>(pkt->getControlInfo());
     MacCid cid = idToMacCid(lteInfo->getDestId(), lteInfo->getLcid());
 
-    if (!bufferizePacket(pkt) && pkt->getByteLength() > 0){
-        // unable to buffer packet - drop it
+	bool packetIsBuffered = bufferizePacket(pkt);
+
+    if (!packetIsBuffered && pkt->getByteLength() > 0) {
+        // unable to buffer packet (packet is not enqueued and will be dropped): update statistics
         totalOverflowedBytes_ += pkt->getByteLength();
         double sample = (double)totalOverflowedBytes_ / (NOW - getSimulation()->getWarmupPeriod());
 
@@ -788,9 +790,6 @@ void LteMacEnb::handleUpperMessage(cPacket* pkt)
             emit(macBufferOverflowDl_,sample);
         else
             emit(macBufferOverflowUl_,sample);
-
-        delete pkt;
-        return;
     }
 
     if(pkt->getByteLength() > 0) {
@@ -800,14 +799,18 @@ void LteMacEnb::handleUpperMessage(cPacket* pkt)
         	// new MAC SDU has been received (was requested by MAC, no need to notify scheduler)
         	// creates pdus from schedule list and puts them in harq buffers
         	macPduMake(cid);
-        	return;   // must not delete pkt
         } else if (strcmp(pkt->getName(), "newDataPkt") == 0) {
         	// new data - inform scheduler of active connection
         	enbSchedulerDl_->backlog(cid);
+        	// a new data packet indication is only enqueued in the virtual queue
+        	packetIsBuffered = false;
        	}
     }
 
-	delete pkt;
+	if (!packetIsBuffered || pkt->getByteLength() == 0) {
+		// packet was dropped or does not contain any data
+		delete pkt;
+	}
 }
 
 
