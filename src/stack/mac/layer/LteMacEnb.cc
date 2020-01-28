@@ -318,6 +318,9 @@ void LteMacEnb::macSduRequest()
         macSduRequest->setUeId(destId);
         macSduRequest->setLcid(MacCidToLcid(destCid));
         macSduRequest->setSduSize(allocatedBytes - MAC_HEADER);    // do not consider MAC header size
+        if (queueSize_ < macSduRequest->getSduSize()) {
+            EV_WARN << "LteMacEnb::macSduRequest: configured queueSize too low - requested SDU will not fit in queue!\n";
+        }
         macSduRequest->setControlInfo((&connDesc_[destCid])->dup());
         sendUpperPackets(macSduRequest);
     }

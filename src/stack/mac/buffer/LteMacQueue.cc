@@ -90,8 +90,8 @@ bool LteMacQueue::isEnqueueablePacket(cPacket* pkt){
      *
      * For AM: We need to check if all fragments will fit in the queue
      * For UM: The new UM implementation introduced in commit 9ab9b71c5358a70278e2fbd51bf33a9d1d81cb86
-     *         by G. Nardini only sends one SDU at a time upon MAC SDU request,
-     *         therefore no check needs to be done here
+     *         by G. Nardini only sends SDUs upon MAC SDU request. All SDUs are
+     *         accepted as long as the MAC queue size is not exceeded.
      * For TM: No fragments are to be checked, anyways.
      */
     LteRlcAmPdu_Base* pdu = dynamic_cast<LteRlcAmPdu*>(pkt);
