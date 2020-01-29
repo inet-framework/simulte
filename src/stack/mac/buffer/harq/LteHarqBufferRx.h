@@ -37,7 +37,7 @@ class LteHarqBufferRx
     unsigned int numHarqProcesses_;
 
     MacNodeId nodeId_; // UE nodeId for which this buffer has been created
-    LteMacBase *macUe_;
+
 
     /// processes vector
     std::vector<LteHarqProcessRx *> processes_;
@@ -54,6 +54,11 @@ class LteHarqBufferRx
 
     // reference to the eNB module
     omnetpp::cModule* nodeB_;
+
+  private:
+    // LteMacBase* for source with nodeId.
+    // Only access via methods. This can be NULL if node is removed from simulation
+    LteMacBase *macUe_;
 
   public:
     LteHarqBufferRx() {}
@@ -111,6 +116,13 @@ class LteHarqBufferRx
      */
     bool isMulticast() { return isMulticast_; }
 
+    /*
+     *  Corresponding cModule node will be removed from simulation.
+     */
+    virtual void unregister_macUe(){
+        macUe_ = nullptr;
+    }
+
     virtual ~LteHarqBufferRx();
 
   protected:
@@ -119,6 +131,22 @@ class LteHarqBufferRx
      * feedback if affirmative.
      */
     virtual void sendFeedback();
+
+    /**
+     *  Only emit signals from macUe_ if the node still exists.
+     *  It is possible that the UE left the simulation but the
+     *  Packets form the node still reside in the simulation.
+     */
+    virtual void macUe_emit(omnetpp::simsignal_t signal, double val)
+    {
+        if (macUe_){
+            macUe_->emit(signal, val);
+        }
+    }
+
+    void initMacUe(){
+        macUe_ = omnetpp::check_and_cast<LteMacBase*>(getMacByMacNodeId(nodeId_));
+    }
 };
 
 #endif

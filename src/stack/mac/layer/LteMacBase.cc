@@ -69,6 +69,17 @@ void LteMacBase::sendLowerPackets(cPacket* pkt)
 }
 
 /*
+ * Ue with nodeId left the simulation. Ensure that no
+ * signales will be emitted via the deleted node.
+ */
+void LteMacBase::unregisterHarqBufferRx(MacNodeId nodeId){
+    HarqRxBuffers::iterator it = harqRxBuffers_.find(nodeId);
+    if (it != harqRxBuffers_.end()){
+        it->second->unregister_macUe();
+    }
+}
+
+/*
  * Upper layer handler
  */
 void LteMacBase::fromRlc(cPacket *pkt)

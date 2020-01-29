@@ -22,7 +22,7 @@ LteHarqBufferRxD2D::LteHarqBufferRxD2D(unsigned int num, LteMacBase *owner, MacN
 {
     macOwner_ = owner;
     nodeId_ = nodeId;
-    macUe_ = check_and_cast<LteMacBase*>(getMacByMacNodeId(nodeId_));
+    initMacUe();
     numHarqProcesses_ = num;
     processes_.resize(numHarqProcesses_);
     totalRcvdBytes_ = 0;
@@ -144,7 +144,7 @@ std::list<LteMacPdu *> LteHarqBufferRxD2D::extractCorrectPdus()
                 }
                 else
                 {
-                    macUe_->emit(macDelay_, (NOW - temp->getCreationTime()).dbl());
+                    macUe_emit(macDelay_, (NOW - temp->getCreationTime()).dbl());
                 }
 
                 // Calculate Throughput by sending the number of bits for this packet
@@ -168,7 +168,7 @@ std::list<LteMacPdu *> LteHarqBufferRxD2D::extractCorrectPdus()
                     }
                     else  // UL
                     {
-                        macUe_->emit(macThroughput_, tputSample);
+                        macUe_emit(macDelay_, (NOW - temp->getCreationTime()).dbl());
                     }
                 }
 

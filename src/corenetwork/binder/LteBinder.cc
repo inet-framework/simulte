@@ -23,9 +23,7 @@ void LteBinder::unregisterNode(MacNodeId id)
 {
     EV << NOW << " LteBinder::unregisterNode - unregistering node " << id << endl;
 
-    if(nodeIds_.erase(id) != 1){
-        EV_ERROR << "Cannot unregister node - node id \"" << id << "\" - not found";
-    }
+
     std::map<Ipv4Address, MacNodeId>::iterator it;
     for(it = macNodeIdToIPAddress_.begin(); it != macNodeIdToIPAddress_.end(); )
     {
@@ -37,6 +35,23 @@ void LteBinder::unregisterNode(MacNodeId id)
         {
             it++;
         }
+    }
+
+    // iterate all nodeIds and find HarqRx buffers dependent on 'id'
+    std::map<int, OmnetId>::iterator idIter;
+    for (idIter = nodeIds_.begin(); idIter != nodeIds_.end(); idIter++){
+        LteMacBase* mac = getMacFromMacNodeId(idIter->first);
+        mac->unregisterHarqBufferRx(id);
+    }
+
+    // remove 'id' from LteMacBase* cache but do not delte pointer.
+    if(macNodeIdToModule_.erase(id) != 1){
+        EV_ERROR << "Cannot unregister node - node id \"" << id << "\" - not found";
+    }
+
+    // remove 'id' from MacNodeId mapping
+    if(nodeIds_.erase(id) != 1){
+        EV_ERROR << "Cannot unregister node - node id \"" << id << "\" - not found";
     }
 }
 
