@@ -252,6 +252,8 @@ class LteMacBase : public omnetpp::cSimpleModule
         return false;
     }
 
+    void unregisterHarqBufferRx(MacNodeId nodeId);
+
     // visualization
     void refreshDisplay() const override;
 

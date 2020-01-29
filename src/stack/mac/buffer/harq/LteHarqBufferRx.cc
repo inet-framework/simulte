@@ -23,7 +23,7 @@ LteHarqBufferRx::LteHarqBufferRx(unsigned int num, LteMacBase *owner,
 {
     macOwner_ = owner;
     nodeId_ = nodeId;
-    macUe_ = check_and_cast<LteMacBase*>(getMacByMacNodeId(nodeId_));
+    initMacUe();
     numHarqProcesses_ = num;
     processes_.resize(numHarqProcesses_);
     totalRcvdBytes_ = 0;
@@ -134,7 +134,7 @@ std::list<LteMacPdu *> LteHarqBufferRx::extractCorrectPdus()
                 unsigned int size = temp->getByteLength();
 
                 // emit delay statistic
-                macUe_->emit(macDelay_, (NOW - temp->getCreationTime()).dbl());
+                macUe_emit(macDelay_, (NOW - temp->getCreationTime()).dbl());
 
                 // Calculate Throughput by sending the number of bits for this packet
                 totalCellRcvdBytes_ += size;
@@ -150,7 +150,7 @@ std::list<LteMacPdu *> LteHarqBufferRx::extractCorrectPdus()
                 }
                 else  // UL
                 {
-                    macUe_->emit(macThroughput_, tputSample);
+                    macUe_emit(macThroughput_, tputSample);
                 }
 
                 macOwner_->dropObj(temp);

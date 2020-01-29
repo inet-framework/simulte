@@ -394,13 +394,13 @@ const std::string planeToA(Plane p)
 
 GrantType aToGrantType(std::string a)
 {
-    if (a == "FITALL") 
+    if (a == "FITALL")
         return FITALL;
-    else if (a == "FIXED" ) 
+    else if (a == "FIXED" )
         return FIXED_;
-    else if (a == "URGENT") 
+    else if (a == "URGENT")
         return URGENT;
-    else 
+    else
         return UNKNOWN_GRANT_TYPE;
 }
 
