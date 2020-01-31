@@ -21,7 +21,7 @@ simple EventGenerator
 {
     parameters:      
         double startTime @unit(s) = default(0.1s);
-        double eventPeriod @unit(s) = default(1s);
+        volatile double eventPeriod @unit(s) = default(1s);
         bool singleEventSource = default(true);
         
         bool forceStartingCoord = default(false);
