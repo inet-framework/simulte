@@ -1,4 +1,4 @@
 # workingdir,                        args,                                          simtimelimit,    fingerprint
-/simulations/d2d_multicast/,              -f omnetpp.ini -c D2DMulticast-1to2 -r 0,            5s,         c061-8807/tplx, PASS,
+/simulations/d2d_multicast/,              -f omnetpp.ini -c D2DMulticast-1to2 -r 0,            5s,         af95-fd66/tplx, PASS,
 /simulations/d2d_multicast/,              -f omnetpp.ini -c D2DMulticast-1toM -r 0,            5s,         d382-c606/tplx, PASS,
 
