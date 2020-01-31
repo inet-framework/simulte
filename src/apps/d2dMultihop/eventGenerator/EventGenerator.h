@@ -22,7 +22,6 @@ class EventGenerator : public omnetpp::cSimpleModule
 {
     omnetpp::cMessage *selfMessage_;
 
-    omnetpp::simtime_t eventPeriod_;
     uint32_t eventId_;
     LteBinder* binder_;
 

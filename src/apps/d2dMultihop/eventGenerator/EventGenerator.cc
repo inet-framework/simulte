@@ -31,7 +31,6 @@ void EventGenerator::initialize()
     EV << "EventGenerator initialize "<< endl;
 
     selfMessage_ = new cMessage("selfMessage");
-    eventPeriod_ = par("eventPeriod");
     binder_ = getBinder();
     singleEventSource_ = par("singleEventSource").boolValue();
 
@@ -100,7 +99,7 @@ void EventGenerator::notifyEvent()
 
     // TODO use a realistic model for generating events
 
-    simtime_t offset = eventPeriod_ + simTime();
+    simtime_t offset = par("eventPeriod") + simTime();
     scheduleAt(offset, selfMessage_);
 
     eventId_++;
