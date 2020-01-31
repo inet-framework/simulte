@@ -18,7 +18,7 @@ simple AlertSender like IApp
         int destPort = default(3000);
         string destAddress;
         int packetSize = default(10);
-        double period @unit("s") = default(0.02s);
+        volatile double period @unit("s") = default(0.02s);
         double startTime @unit("s") = default(0s);
         double stopTime @unit("s") = default(0s); // 0 means "never stops" 
         string interfaceTableModule;
