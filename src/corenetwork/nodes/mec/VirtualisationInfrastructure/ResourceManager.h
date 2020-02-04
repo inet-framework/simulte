@@ -16,14 +16,7 @@
 #define __SIMULTE_RESOURCEMANAGER_H_
 
 #include <omnetpp.h>
-
-// ME App Modules to get resource requirements
-#include "apps/mec/clusterize/MEClusterizeApp.h"
-
-// UE/ME Packets & UE/ME App to Handle
-#include "apps/mec/clusterize/packets/ClusterizePacket_m.h"
-#include "apps/mec/clusterize/packets/ClusterizePacketTypes.h"
-
+#include "common/LteCommon.h"
 
 #include "corenetwork/nodes/mec/MEPlatform/MEAppPacket_Types.h"
 #include "corenetwork/nodes/mec/MEPlatform/MEAppPacket_m.h"
@@ -44,7 +37,7 @@ struct resourceMapEntry
  * ResourceManager
  *
  *  The task of this class is:
- *       1) handling resource allocation for MEClusterizeApp:
+ *       1) handling resource allocation for MEApps:
  *              a) START_MEAPP --> check for resource availability & eventually allocate it
  *              b) STOP_MEAPP --> deallocate resources
  *              c) replying to VirtualisationManager by sending back START_MEAPP (when resource allocated) or with ACK_STOP_MEAPP
@@ -82,13 +75,6 @@ class ResourceManager : public cSimpleModule
          */
         // allocating resources based on the amount specified in the MEAppPacket
         void handleMEAppResources(MEAppPacket*);
-
-        /*
-         * --------------------ClusterizePacket handler---------------------------
-         */
-        // handling START_CLUSTERIZE and STOP_CLUSTERIZE ClusterizePackets
-        // by allocating or deallocating resources and sending back to VirtualisationManager the ClusterizePacket
-        void handleClusterizeResources(ClusterizePacket*);
 
         /*
          * utility

@@ -7,11 +7,7 @@
 // and cannot be removed from it.
 //
 
-//
-//	@author	Angelo Buono
-//
-
-package lte.simulations.MEC.InetMobility;
+package lte.simulations.test_mec;
 
 
 import inet.networklayer.configurator.ipv4.IPv4NetworkConfigurator;
@@ -23,25 +19,18 @@ import lte.epc.PgwStandardSimplified;
 import lte.corenetwork.binder.LteBinder;
 import lte.corenetwork.nodes.eNodeB;
 import lte.corenetwork.nodes.Ue;
-import lte.corenetwork.nodes.cars.Car;
 
 //mec
 import lte.corenetwork.nodes.mec.MEHost;
 import lte.corenetwork.nodes.mec.VirtualisationInfrastructure.VirtualisationInfrastructure;
 import lte.corenetwork.nodes.mec.MEPlatform.MEPlatform;
 
-//veins mobility
-import org.car2x.veins.subprojects.veins_inet.VeinsInetManager;
 
-//statistics
-import lte.apps.d2dMultihop.statistics.MultihopD2DStatistics;
-
-
-network MecInetSingleCell
+network MecSingleCell
 {
     parameters:
 
-        int numCars = default(0);
+        int numUes = default(0);
 
         double playgroundSizeX @unit(m); // x size of the area the nodes are in (in meters)
         double playgroundSizeY @unit(m); // y size of the area the nodes are in (in meters)
@@ -57,10 +46,7 @@ network MecInetSingleCell
             @display("p=985,195");
             config = xmldoc("demo.xml");
         }
-        d2dMultihopStatistics: MultihopD2DStatistics {
-            @display("p=985,340;is=s");
-        }
-        car[numCars]: Car {
+        ue[numUes]: Ue {
             @display("p=300,300");
         }
 
@@ -82,7 +68,7 @@ network MecInetSingleCell
 
         //# MEC module
         meHost: MEHost {
-            @display("p=400,100;is=vl");
+            @display("p=400,100;is=l");
         }
 
 

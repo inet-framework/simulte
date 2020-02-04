@@ -78,7 +78,6 @@ void MEWarningAlertApp::handleInfoMEWarningAlertApp(WarningAlertPacket* pkt){
 
     EV << "MEWarningAlertApp::handleInfoMEWarningAlertApp - Finalize creation of " << pkt->getType() << " type WarningAlertPacket" << endl;
 
-    //attaching info to the ClusterizeConfigPacket created by the MEClusterizeService
     pkt->setTimestamp(simTime());
     pkt->setByteLength(size_);
     pkt->setSourceAddress(meHostSimbolicAddress);
