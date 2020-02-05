@@ -42,7 +42,6 @@ void AlertSender::initialize(int stage)
     selfSender_ = new cMessage("selfSender");
 
     size_ = par("packetSize");
-    period_ = par("period");
     localPort_ = par("localPort");
     destPort_ = par("destPort");
     destAddress_ = inet::L3AddressResolver().resolve(par("destAddress").stringValue());
@@ -112,8 +111,10 @@ void AlertSender::sendAlertPacket()
 
     emit(alertSentMsg_, (long)1);
 
-    if( simTime()< stopTime_ || stopTime_ == 0 )
-        scheduleAt(simTime() + period_, selfSender_);
+    simtime_t d = simTime() + par("period");
+    if (stopTime_ <= SIMTIME_ZERO || d < stopTime_) {
+        scheduleAt(d, selfSender_);
+    }
     else
         EV << "AlertSender::sendAlertPacket - Stop time reached, stopping transmissions" << endl;
 }

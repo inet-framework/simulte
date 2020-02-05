@@ -24,7 +24,6 @@ class AlertSender : public omnetpp::cSimpleModule
     //sender
     int nextSno_;
     int size_;
-    omnetpp::simtime_t period_;
 
     omnetpp::simtime_t stopTime_;
 
