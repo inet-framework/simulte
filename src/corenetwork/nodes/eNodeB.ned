@@ -67,7 +67,7 @@ module eNodeB
 
         //#mec
         //@author Angelo Buono
-        inout pppMEHost;		// connection to the GtpEndpoint module inside MEHost
+        inout pppMEHost @loose;		// connection to the GtpEndpoint module inside MEHost
 
     submodules:
 
