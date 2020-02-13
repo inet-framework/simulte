@@ -56,9 +56,11 @@ void GtpUserSimplified::initialize(int stage)
             meHostName2 << meHost.c_str() << ".virtualisationInfrastructure";
             meHostVirtualisationInfrastructure = meHostName.str();
             meHostVirtualisationInfrastructureAddress = inet::L3AddressResolver().resolve(meHostVirtualisationInfrastructure.c_str());
-
-            myMacNodeID = getParentModule()->par("macNodeId").longValue();
         }
+    }
+
+    if(ownerType_== ENB){
+        myMacNodeID = getParentModule()->par("macNodeId").longValue();
     }
 
 }
