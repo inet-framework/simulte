@@ -52,6 +52,8 @@ module LteNicBase extends InterfaceEntry like ILteNic
         string LteMacType;          // One of: "LteMacUe", "LteMacEnb", "LteMacRelayUe", "LteMacRelayEnb"
         string LtePhyType;
         string nodeType;
+        double processingDelayIn @unit(s) = default(0s);   // additional processing delay for incoming ip packets
+        double processingDelayOut @unit(s) = default(0s);   // additional processing delay for outgoing ip packets
 
         string LteChannelModelType = default("LteRealisticChannelModel");
 
@@ -126,8 +128,8 @@ module LteNicBase extends InterfaceEntry like ILteNic
 
         //# external: lower connection
         radioIn --> phy.radioIn;
-        ip2lte.upperLayerOut --> upperLayerOut;
-        upperLayerIn --> ip2lte.upperLayerIn;
+        ip2lte.upperLayerOut --> {  delay = processingDelayOut; } --> upperLayerOut;
+        upperLayerIn --> {  delay = processingDelayIn; } --> ip2lte.upperLayerIn;
 }
 
 //
