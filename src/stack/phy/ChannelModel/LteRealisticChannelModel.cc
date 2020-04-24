@@ -86,23 +86,27 @@ void LteRealisticChannelModel::initialize()
 double LteRealisticChannelModel::getAttenuation(MacNodeId nodeId, Direction dir,
        Coord coord)
 {
-   double movement = .0;
    double speed = .0;
 
    //COMPUTE DISTANCE between ue and eNodeB
    double sqrDistance = phy_->getCoord().distance(coord);
 
-   if (dir == DL) // sender is UE
+   if (dir == DL){ // sender is UE
        speed = computeSpeed(nodeId, phy_->getCoord());
-   else
+       aggreatedMovmet_[nodeId] += computeMovement(nodeId, phy_->getCoord());
+   } else {
        speed = computeSpeed(nodeId, coord);
+       aggreatedMovmet_[nodeId] += computeMovement(nodeId, coord);
+   }
 
-   //If traveled distance is greater than correlation distance UE could have changed its state and
+   // If (aggregated) traveled distance since last Los probabilty computation is greater than
+   // correlation distance UE could have changed its state and
    // its visibility from eNodeb, hence it is correct to recompute the los probability
-   if (movement > correlationDistance_
+   if (aggreatedMovmet_[nodeId] > correlationDistance_
            || losMap_.find(nodeId) == losMap_.end())
    {
        computeLosProbability(sqrDistance, nodeId);
+       aggreatedMovmet_[nodeId] = 0.0;
    }
 
    //compute attenuation based on selected scenario and based on LOS or NLOS
@@ -190,20 +194,22 @@ double LteRealisticChannelModel::getAttenuation(MacNodeId nodeId, Direction dir,
 
 double LteRealisticChannelModel::getAttenuation_D2D(MacNodeId nodeId, Direction dir, Coord coord,MacNodeId node2_Id, Coord coord_2)
 {
-   double movement = .0;
    double speed = .0;
 
    //COMPUTE DISTANCE between ue1 and ue2
    //double sqrDistance = phy_->getCoord().distance(coord);
    double sqrDistance = coord.distance(coord_2);
    speed = computeSpeed(nodeId, coord);
+   aggreatedMovmet_[nodeId] += computeMovement(nodeId, coord);
 
-   //If traveled distance is greater than correlation distance UE could have changed its state and
+   // If (aggregated) traveled distance since last Los probabilty computation is greater than
+   // correlation distance UE could have changed its state and
    // its visibility from eNodeb, hence it is correct to recompute the los probability
-   if (movement > correlationDistance_
+   if (aggreatedMovmet_[nodeId] > correlationDistance_
        || losMap_.find(nodeId) == losMap_.end())
    {
        computeLosProbability(sqrDistance, nodeId);
+       aggreatedMovmet_[nodeId] = 0;
    }
 
    //compute attenuation based on selected scenario and based on LOS or NLOS
@@ -299,6 +305,37 @@ void LteRealisticChannelModel::updatePositionHistory(const MacNodeId nodeId,
        // drop the oldest one
        positionHistory_[nodeId].pop();
 }
+
+
+double LteRealisticChannelModel::computeMovement(const MacNodeId nodeId, const inet::Coord coord){
+    double movement;
+
+    if (positionHistory_.find(nodeId) == positionHistory_.end())
+    {
+        // no entries
+        movement = 0.0;
+    }
+    else
+    {
+        //compute distance traveled from last update by UE (eNodeB position is fixed)
+
+        if (positionHistory_[nodeId].size() == 1)
+        {
+            // the only element refers to present , return 0
+            movement = 0.0;
+        }
+        else
+        {
+            movement = positionHistory_[nodeId].front().second.distance(coord);
+
+            if (movement <= 0.0)
+                movement = 0.0;
+        }
+    }
+
+    return movement;
+}
+
 
 double LteRealisticChannelModel::computeSpeed(const MacNodeId nodeId,
        const Coord coord)
@@ -688,7 +725,7 @@ std::vector<double> LteRealisticChannelModel::getRSRP_D2D(LteAirFrame *frame, Us
    bool cqiDl = false;
    // Get the direction
    Direction dir = (Direction) lteInfo_1->getDirection();
-   dir = D2D;
+   dir = D2D; //todo[stsc]: dir is overriten? why?
 
    EV << "------------ GET RSRP D2D----------------" << endl;
 
