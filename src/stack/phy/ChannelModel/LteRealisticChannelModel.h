@@ -57,10 +57,9 @@ private:
   // last position of current user
   std::map<MacNodeId, std::queue<Position> > positionHistory_;
 
-  // map that stores the aggregated movement of the given MacNode since
-  // last LOS probability computation. Will be reset to 0 when
-  // correlation distance is reached. See correlationDistance_.
-  std::map<MacNodeId, double> aggreatedMovmet_;
+  // last position of current user at which probability of LOS
+  // was computed.
+  std::map<MacNodeId, Position> lastCorrelationPoint_;
 
   // scenario
   DeploymentScenario scenario_;
@@ -315,11 +314,16 @@ protected:
   double computeSpeed(const MacNodeId nodeId, const inet::Coord coord);
 
   /*
-   * compute movement (m) for given node between current and last position update.
-   * @param nodeid mac node id of UE
-   * @return the movement in m
+   * compute the euclidean distance between the current position and the
+   * last position used to calculate the LOS probability
    */
-  double computeMovement(const MacNodeId nodeId, const inet::Coord coord);
+  double computeCorrelationDistance(const MacNodeId nodeId, const inet::Coord coord);
+
+  /*
+   * update base point if distance to previous value is greater than the
+   * correlationDistance_
+   */
+  void updateCorrelationDistance(const MacNodeId nodeId, const inet::Coord coord);
 
   /*
    * Updates position for a given node
