@@ -57,6 +57,10 @@ private:
   // last position of current user
   std::map<MacNodeId, std::queue<Position> > positionHistory_;
 
+  // last position of current user at which probability of LOS
+  // was computed.
+  std::map<MacNodeId, Position> lastCorrelationPoint_;
+
   // scenario
   DeploymentScenario scenario_;
 
@@ -308,6 +312,18 @@ protected:
    * @return the speed in m/s
    */
   double computeSpeed(const MacNodeId nodeId, const inet::Coord coord);
+
+  /*
+   * compute the euclidean distance between the current position and the
+   * last position used to calculate the LOS probability
+   */
+  double computeCorrelationDistance(const MacNodeId nodeId, const inet::Coord coord);
+
+  /*
+   * update base point if distance to previous value is greater than the
+   * correlationDistance_
+   */
+  void updateCorrelationDistance(const MacNodeId nodeId, const inet::Coord coord);
 
   /*
    * Updates position for a given node
