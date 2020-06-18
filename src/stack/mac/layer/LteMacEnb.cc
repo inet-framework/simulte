@@ -22,6 +22,8 @@
 #include "stack/mac/packet/LteRac_m.h"
 #include "stack/mac/packet/LteMacSduRequest.h"
 #include "common/LteCommon.h"
+#include "stack/rlc/packet/LteRlcDataPdu.h"
+#include "stack/rlc/am/packet/LteRlcAmPdu_m.h"
 
 Define_Module( LteMacEnb);
 
@@ -314,16 +316,23 @@ void LteMacEnb::macSduRequest()
         }
 
         // send the request message to the upper layer
-        LteMacSduRequest* macSduRequest = new LteMacSduRequest("LteMacSduRequest");
+        auto pkt = new Packet("LteMacSduRequest");
+        auto macSduRequest = makeShared<LteMacSduRequest>();
+        macSduRequest->setChunkLength(b(1)); // TODO: should be 0
         macSduRequest->setUeId(destId);
         macSduRequest->setLcid(MacCidToLcid(destCid));
         macSduRequest->setSduSize(allocatedBytes - MAC_HEADER);    // do not consider MAC header size
+        pkt->insertAtFront(macSduRequest);
+
         if (queueSize_ != 0 && queueSize_ < macSduRequest->getSduSize()) {
             throw cRuntimeError("LteMacEnb::macSduRequest: configured queueSize too low - requested SDU will not fit in queue!"
                     " (queue size: %d, sdu request requires: %d)", queueSize_, macSduRequest->getSduSize());
         }
-        macSduRequest->setControlInfo((&connDesc_[destCid])->dup());
-        sendUpperPackets(macSduRequest);
+
+        auto tag = pkt->addTag<FlowControlInfo>();
+        *tag = connDesc_[destCid];
+
+        sendUpperPackets(pkt);
     }
 
     EV << "------ END LteMacEnb::macSduRequest ------\n";
@@ -438,9 +447,11 @@ void LteMacEnb::sendGrants(LteMacScheduleList* scheduleList)
            << granted << " blocks to grant for user " << nodeId << " on "
            << codewords << " codewords. CW[" << cw << "\\" << otherCw << "]" << endl;
 
+        // TODO: change to tag instead chunk
         // TODO Grant is set aperiodic as default
-        LteSchedulingGrant* grant = new LteSchedulingGrant("LteGrant");
+        auto pkt = new Packet("LteGrant");
 
+        auto grant = makeShared<LteSchedulingGrant>();
         grant->setDirection(UL);
 
         grant->setCodewords(codewords);
@@ -448,12 +459,9 @@ void LteMacEnb::sendGrants(LteMacScheduleList* scheduleList)
         // set total granted blocks
         grant->setTotalGrantedBlocks(granted);
 
-        UserControlInfo* uinfo = new UserControlInfo();
-        uinfo->setSourceId(getMacNodeId());
-        uinfo->setDestId(nodeId);
-        uinfo->setFrameType(GRANTPKT);
-
-        grant->setControlInfo(uinfo);
+        pkt->addTagIfAbsent<UserControlInfo>()->setSourceId(getMacNodeId());
+        pkt->addTagIfAbsent<UserControlInfo>()->setDestId(nodeId);
+        pkt->addTagIfAbsent<UserControlInfo>()->setFrameType(GRANTPKT);
 
         // get and set the user's UserTxParams
         const UserTxParams& ui = getAmc()->computeTxParams(nodeId, UL);
@@ -493,30 +501,32 @@ void LteMacEnb::sendGrants(LteMacScheduleList* scheduleList)
         enbSchedulerUl_->readRbOccupation(nodeId, map);
 
         grant->setGrantedBlocks(map);
-
+        pkt->insertAtFront(grant);
         // send grant to PHY layer
-        sendLowerPackets(grant);
+        sendLowerPackets(pkt);
     }
 }
 
-void LteMacEnb::macHandleRac(cPacket* pkt)
+void LteMacEnb::macHandleRac(cPacket* pktAux)
 {
     EV << NOW << " LteMacEnb::macHandleRac" << endl;
 
-    LteRac* racPkt = check_and_cast<LteRac*> (pkt);
-    UserControlInfo* uinfo = check_and_cast<UserControlInfo*> (
-        racPkt->getControlInfo());
+    auto pkt = check_and_cast<Packet *>(pktAux);
 
+    auto racPkt = pkt->removeAtFront<LteRac>();
+    auto uinfo = pkt->getTag<UserControlInfo>();
+    
     enbSchedulerUl_->signalRac(uinfo->getSourceId());
 
     // TODO all RACs are marked are successful
     racPkt->setSuccess(true);
+    pkt->insertAtFront(racPkt);
 
     uinfo->setDestId(uinfo->getSourceId());
     uinfo->setSourceId(nodeId_);
     uinfo->setDirection(DL);
 
-    sendLowerPackets(racPkt);
+    sendLowerPackets(pkt);
 }
 
 void LteMacEnb::macPduMake(MacCid cid)
@@ -531,8 +541,7 @@ void LteMacEnb::macPduMake(MacCid cid)
     LteMacScheduleList::const_iterator it;
     for (it = scheduleListDl_->begin(); it != scheduleListDl_->end(); it++)
     {
-        LteMacPdu* macPkt;
-        cPacket* pkt;
+        Packet *macPacket = nullptr;
         MacCid destCid = it->first.first;
 
         if (destCid != cid)
@@ -561,39 +570,42 @@ void LteMacEnb::macPduMake(MacCid cid)
 
             // Add SDU to PDU
             // FIXME *move outside cycle* Find Mac Pkt
-            MacPduList::iterator pit = macPduList_.find(pktId);
+            auto pit = macPduList_.find(pktId);
 
             // No packets for this user on this codeword
             if (pit == macPduList_.end())
             {
-                UserControlInfo* uinfo = new UserControlInfo();
-                uinfo->setSourceId(getMacNodeId());
-                uinfo->setDestId(destId);
-                uinfo->setDirection(DL);
+
+                auto pkt = new Packet("LteMacPdu");
+                pkt->addTagIfAbsent<UserControlInfo>()->setSourceId(getMacNodeId());
+                pkt->addTagIfAbsent<UserControlInfo>()->setDestId(destId);
+                pkt->addTagIfAbsent<UserControlInfo>()->setDirection(DL);
 
                 const UserTxParams& txInfo = amc_->computeTxParams(destId, DL);
 
                 UserTxParams* txPara = new UserTxParams(txInfo);
 
-                uinfo->setUserTxParams(txPara);
+                pkt->addTagIfAbsent<UserControlInfo>()->setUserTxParams(txPara);
                 txmode = txInfo.readTxMode();
                 RbMap rbMap;
-                uinfo->setTxMode(txmode);
-                uinfo->setCw(cw);
+
+                pkt->addTagIfAbsent<UserControlInfo>()->setTxMode(txmode);
+                pkt->addTagIfAbsent<UserControlInfo>()->setCw(cw);
+
                 grantedBlocks = enbSchedulerDl_->readRbOccupation(destId, rbMap);
 
-                uinfo->setGrantedBlocks(rbMap);
-                uinfo->setTotalGrantedBlocks(grantedBlocks);
+                pkt->addTagIfAbsent<UserControlInfo>()->setGrantedBlocks(rbMap);
+                pkt->addTagIfAbsent<UserControlInfo>()->setTotalGrantedBlocks(grantedBlocks);
+                macPacket = pkt;
 
-                macPkt = new LteMacPdu("LteMacPdu");
+                auto macPkt = makeShared<LteMacPdu>();
                 macPkt->setHeaderLength(MAC_HEADER);
-                macPkt->setControlInfo(uinfo);
-                macPkt->setTimestamp(NOW);
-                macPduList_[pktId] = macPkt;
+                macPacket->insertAtFront(macPkt);
+                macPduList_[pktId] = macPacket;
             }
             else
             {
-                macPkt = pit->second;
+                macPacket = pit->second;
             }
             if (mbuf_[destCid]->getQueueLength() == 0)
             {
@@ -601,12 +613,14 @@ void LteMacEnb::macPduMake(MacCid cid)
                     "Queue real SDU length is %d  while scheduled SDUs are %d",
                     destCid, mbuf_[destCid]->getQueueLength(), sduPerCid);
             }
-            pkt = mbuf_[destCid]->popFront();
+            auto pkt = check_and_cast<Packet *>(mbuf_[destCid]->popFront());
 
             ASSERT(pkt != NULL);
 
             drop(pkt);
+            auto macPkt =  macPacket->removeAtFront<LteMacPdu>();
             macPkt->pushSdu(pkt);
+            macPacket->insertAtFront(macPkt);
             sduPerCid--;
         }
     }
@@ -633,28 +647,32 @@ void LteMacEnb::macPduMake(MacCid cid)
         }
         UnitList txList = (txBuf->firstAvailable());
 
-        LteMacPdu* macPkt = pit->second;
-        EV << "LteMacBase: pduMaker created PDU: " << macPkt->info() << endl;
+        auto macPacket = pit->second;
+        auto header = macPacket->peekAtFront<LteMacPdu>();
+
+        EV << "LteMacBase: pduMaker created PDU: " << header->str() << endl;
 
         // pdu transmission here (if any)
         if (txList.second.empty())
         {
             EV << "macPduMake() : no available process for this MAC pdu in TxHarqBuffer" << endl;
-            delete macPkt;
+            delete macPacket;
         }
         else
         {
             if (txList.first == HARQ_NONE)
             throw cRuntimeError("LteMacBase: pduMaker sending to uncorrect void H-ARQ process. Aborting");
-            txBuf->insertPdu(txList.first, cw, macPkt);
+            txBuf->insertPdu(txList.first, cw, macPacket);
         }
     }
     EV << "------ END LteMacEnb::macPduMake ------\n";
 }
 
-void LteMacEnb::macPduUnmake(cPacket* pkt)
+void LteMacEnb::macPduUnmake(cPacket* pktAux)
 {
-    LteMacPdu* macPkt = check_and_cast<LteMacPdu*>(pkt);
+    auto pkt = check_and_cast<Packet*>(pktAux);
+    auto macPkt = pkt->removeAtFront<LteMacPdu>();
+
     while (macPkt->hasSdu())
     {
         // Extract and send SDU
@@ -671,14 +689,15 @@ void LteMacEnb::macPduUnmake(cPacket* pkt)
         // Extract CE
         // TODO: vedere se bsr  per cid o lcid
         MacBsr* bsr = check_and_cast<MacBsr*>(macPkt->popCe());
-        UserControlInfo* lteInfo = check_and_cast<UserControlInfo*>(macPkt->getControlInfo());
+        auto lteInfo = pkt->getTag<UserControlInfo>();
         MacCid cid = idToMacCid(lteInfo->getSourceId(), 0);
         bufferizeBsr(bsr, cid);
         delete bsr;
     }
+    pkt->insertAtFront(macPkt);
 
-    ASSERT(macPkt->getOwner() == this);
-    delete macPkt;
+    ASSERT(pkt->getOwner() == this);
+    delete pkt;
 
 }
 
@@ -692,20 +711,21 @@ int LteMacEnb::getNumRbUl()
     return numRbUl_;
 }
 
-bool LteMacEnb::bufferizePacket(cPacket* pkt)
+bool LteMacEnb::bufferizePacket(cPacket* pktAux)
 {
-    if (pkt->getByteLength() == 0)
+    if (pktAux->getByteLength() <= 1)
         return false;
 
+    auto pkt = check_and_cast<Packet *>(pktAux);
     pkt->setTimestamp();        // Add timestamp with current time to packet
 
-    FlowControlInfo* lteInfo = check_and_cast<FlowControlInfo*>(pkt->getControlInfo());
+    auto lteInfo = pkt->getTag<FlowControlInfo>();
 
     // obtain the cid from the packet informations
     MacCid cid = ctrlInfoToMacCid(lteInfo);
 
     // this packet is used to signal the arrival of new data in the RLC buffers
-    if (strcmp(pkt->getName(), "newDataPkt") == 0)
+    if (checkIfHeaderType<LteRlcPduNewData>(pkt))
     {
         // update the virtual buffer for this connection
 
@@ -737,7 +757,7 @@ bool LteMacEnb::bufferizePacket(cPacket* pkt)
             vqueue->pushBack(vpkt);
 
             EV << "LteMacBuffers : Using old buffer on node: " <<
-            MacCidToNodeId(cid) << " for Lcid: " << MacCidToLcid(cid) << ", Bytes in the Queue: " <<
+            MacCidToNodeId(cid) << " for Lcid: " << MacCidToLcid(cid) << ", Space left in the Queue: " <<
             vqueue->getQueueOccupancy() << "\n";
         }
 
@@ -778,9 +798,10 @@ bool LteMacEnb::bufferizePacket(cPacket* pkt)
     return true;
 }
 
-void LteMacEnb::handleUpperMessage(cPacket* pkt)
+void LteMacEnb::handleUpperMessage(cPacket* pktAux)
 {
-    FlowControlInfo* lteInfo = check_and_cast<FlowControlInfo*>(pkt->getControlInfo());
+	auto pkt = check_and_cast<Packet *>(pktAux);
+    auto lteInfo = pkt->getTag<FlowControlInfo>();
     MacCid cid = idToMacCid(lteInfo->getDestId(), lteInfo->getLcid());
 
 	bool packetIsBuffered = bufferizePacket(pkt);
@@ -796,14 +817,14 @@ void LteMacEnb::handleUpperMessage(cPacket* pkt)
             emit(macBufferOverflowUl_,sample);
     }
 
-    if(pkt->getByteLength() > 0) {
+    if(pkt->getByteLength() > 0) { //FIXME: check header types
     	if(strcmp(pkt->getName(), "lteRlcFragment") == 0
     	        || strcmp(pkt->getName(), "rlcAmPdu") == 0
     	        || strcmp(pkt->getName(), "rlcTmPkt") == 0) {
         	// new MAC SDU has been received (was requested by MAC, no need to notify scheduler)
         	// creates pdus from schedule list and puts them in harq buffers
         	macPduMake(cid);
-        } else if (strcmp(pkt->getName(), "newDataPkt") == 0) {
+        } else if (checkIfHeaderType<LteRlcPduNewData>(pkt)) {
         	// new data - inform scheduler of active connection
         	enbSchedulerDl_->backlog(cid);
         	// a new data packet indication is only enqueued in the virtual queue
@@ -811,7 +832,7 @@ void LteMacEnb::handleUpperMessage(cPacket* pkt)
        	}
     }
 
-	if (!packetIsBuffered || pkt->getByteLength() == 0) {
+	if (!packetIsBuffered) {
 		// packet was dropped or does not contain any data
 		delete pkt;
 	}
@@ -835,17 +856,20 @@ void LteMacEnb::handleSelfMessage()
     // extract pdus from all harqrxbuffers and pass them to unmaker
     HarqRxBuffers::iterator hit = harqRxBuffers_.begin();
     HarqRxBuffers::iterator het = harqRxBuffers_.end();
-    LteMacPdu *pdu = NULL;
-    std::list<LteMacPdu*> pduList;
+    //LteMacPdu *pdu = NULL;
+    //std::list<LteMacPdu*> pduList;
+
+    //LteMacPdu *pdu = NULL;
 
     for (; hit != het; hit++)
     {
-        pduList = hit->second->extractCorrectPdus();
+        auto pduList = hit->second->extractCorrectPdus();
         while (!pduList.empty())
         {
-            pdu = pduList.front();
+            auto pktPdu = pduList.front();
+            auto pdu = pktPdu->peekAtFront<LteMacPdu>();
             pduList.pop_front();
-            macPduUnmake(pdu);
+            macPduUnmake(pktPdu);
         }
     }
 
@@ -909,9 +933,14 @@ void LteMacEnb::flushHarqBuffers()
         it->second->sendSelectedDown();
 }
 
-void LteMacEnb::macHandleFeedbackPkt(cPacket *pkt)
+void LteMacEnb::macHandleFeedbackPkt(cPacket *pktAux)
 {
-    LteFeedbackPkt* fb = check_and_cast<LteFeedbackPkt*>(pkt);
+
+
+    auto pkt = check_and_cast<Packet *>(pktAux);
+    auto fb = pkt->peekAtFront<LteFeedbackPkt>();
+
+    //LteFeedbackPkt* fb = check_and_cast<LteFeedbackPkt*>(pkt);
     LteFeedbackDoubleVector fbMapDl = fb->getLteFeedbackDoubleVectorDl();
     LteFeedbackDoubleVector fbMapUl = fb->getLteFeedbackDoubleVectorUl();
     //get Source Node Id<
@@ -929,7 +958,7 @@ void LteMacEnb::macHandleFeedbackPkt(cPacket *pkt)
             {
                 amc_->pushFeedback(id, DL, (*jt));
                 // LteMacUe* macUe = check_and_cast<LteMacUe*>(getMacByMacNodeId(id));
-                // macUe->collectCqiStatistics(id, DL, (*jt));
+                //  macUe->collectCqiStatistics(id, DL, (*jt));
             }
             i++;
         }
@@ -942,18 +971,19 @@ void LteMacEnb::macHandleFeedbackPkt(cPacket *pkt)
                 amc_->pushFeedback(id, UL, (*jt));
         }
     }
-    delete fb;
+    delete pkt;
 }
 
-void LteMacEnb::updateUserTxParam(cPacket* pkt)
+void LteMacEnb::updateUserTxParam(cPacket* pktAux)
 {
-    UserControlInfo *lteInfo = check_and_cast<UserControlInfo *>(
-        pkt->getControlInfo());
+
+    auto pkt = check_and_cast<Packet *>(pktAux);
+    auto lteInfo = pkt->getTag<UserControlInfo>();
 
     if (lteInfo->getFrameType() != DATAPKT)
         return; // TODO check if this should be removed.
 
-    Direction dir = (Direction) lteInfo->getDirection();
+    auto dir = (Direction) lteInfo->getDirection();
 
     const UserTxParams& newParam = amc_->computeTxParams(lteInfo->getDestId(), dir);
     UserTxParams* tmp = new UserTxParams(newParam);

@@ -11,6 +11,7 @@
 #define _LTE_LTEMACQUEUE_H_
 
 #include <omnetpp.h>
+#include "inet/common/packet/Packet.h"
 #include "stack/rlc/packet/LteRlcPdu_m.h"
 
 //using namespace omnetpp;
@@ -137,7 +138,7 @@ class LteMacQueue : public omnetpp::cPacketQueue
      *    b) we have enough space in the queue to hold all remaining fragments of the same packet
      *
      */
-    bool isEnqueueablePacket(omnetpp::cPacket* pkt);
+    bool isEnqueueablePacket(inet::Packet* pkt);
     unsigned int lastUnenqueueableMainSno; //<seq. number of
   private:
     /// Size of queue

@@ -41,6 +41,16 @@ class LteRlcUm;
  */
 class UmTxEntity : public omnetpp::cSimpleModule
 {
+    struct FragmentInfo {
+        inet::Packet * pkt= nullptr;
+        int size = 0;
+    };
+
+    FragmentInfo *fragmentInfo = nullptr;
+
+  protected:
+    std::deque<inet::Packet *> *fragments = nullptr;
+
   public:
     UmTxEntity()
     {

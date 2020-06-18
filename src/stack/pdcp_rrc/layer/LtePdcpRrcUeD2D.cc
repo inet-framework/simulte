@@ -34,12 +34,13 @@ MacNodeId LtePdcpRrcUeD2D::getDestId(FlowControlInfo* lteInfo)
 /*
  * Upper Layer handlers
  */
-void LtePdcpRrcUeD2D::fromDataPort(cPacket *pkt)
+void LtePdcpRrcUeD2D::fromDataPort(cPacket *pktAux)
 {
-    emit(receivedPacketFromUpperLayer, pkt);
+    emit(receivedPacketFromUpperLayer, pktAux);
 
     // Control Informations
-    FlowControlInfo* lteInfo = check_and_cast<FlowControlInfo*>(pkt->removeControlInfo());
+    auto pkt = check_and_cast<Packet *>(pktAux);
+    auto lteInfo = pkt->getTag<FlowControlInfo>();
     setTrafficInformation(pkt, lteInfo);
     headerCompress(pkt, lteInfo->getHeaderSize()); // header compression
 
@@ -138,22 +139,50 @@ void LtePdcpRrcUeD2D::fromDataPort(cPacket *pkt)
     // set some flow-related info
     lteInfo->setLcid(mylcid);
     lteInfo->setSourceId(nodeId_);
+
+    unsigned int headerLength;
+    std::string portName;
+    omnetpp::cGate* gate;
+
+    switch(lteInfo->getRlcType()){
+    case UM:
+        headerLength = PDCP_HEADER_UM;
+        portName = "UM_Sap$o";
+        gate = umSap_[OUT_GATE];
+        break;
+    case AM:
+        headerLength = PDCP_HEADER_AM;
+        portName = "AM_Sap$o";
+        gate = amSap_[OUT_GATE];
+        break;
+    case TM:
+        portName = "TM_Sap$o";
+        gate = tmSap_[OUT_GATE];
+        headerLength = 0;
+        break;
+    default:
+        throw cRuntimeError("LtePdcpRrcUeD2D::fromDataport(): invalid RlcType %d", lteInfo->getRlcType());
+        portName = "undefined";
+        gate = nullptr;
+        headerLength = 0;
+    }
+
     // PDCP Packet creation
-    LtePdcpPdu* pdcpPkt = new LtePdcpPdu("LtePdcpPdu");
-    pdcpPkt->setByteLength(lteInfo->getRlcType() == UM ? PDCP_HEADER_UM : PDCP_HEADER_AM);
-    pdcpPkt->encapsulate(pkt);
-    pdcpPkt->setControlInfo(lteInfo);
+    auto pdcpPkt = makeShared<LtePdcpPdu>();
+    pdcpPkt->setChunkLength(B(lteInfo->getRlcType() == UM ? PDCP_HEADER_UM : PDCP_HEADER_AM));
+    pkt->trim();
+    pkt->insertAtFront(pdcpPkt);
 
     EV << "LtePdcp : Preparing to send "
        << lteTrafficClassToA((LteTrafficClass) lteInfo->getTraffic())
        << " traffic\n";
-    EV << "LtePdcp : Packet size " << pdcpPkt->getByteLength() << " Bytes\n";
-    EV << "LtePdcp : Sending packet " << pdcpPkt->getName() << " on port "
-       << (lteInfo->getRlcType() == UM ? "UM_Sap$o\n" : "AM_Sap$o\n");
+    EV << "LtePdcp : Packet size " << pkt->getByteLength() << " Bytes\n";
+    EV << "LtePdcp : Sending packet " << pkt->getName() << " on port "
+       << portName;
 
     // Send message
-    send(pdcpPkt, (lteInfo->getRlcType() == UM ? umSap_[OUT] : amSap_[OUT]));
-    emit(sentPacketToLowerLayer, pdcpPkt);
+    send(pkt, gate);
+    emit(sentPacketToLowerLayer, pkt);
 }
 /*
 void LtePdcpRrcUeD2D::initialize(int stage)

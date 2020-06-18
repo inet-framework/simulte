@@ -7,16 +7,18 @@
 // and cannot be removed from it.
 //
 
-
+import inet.common.INETDefs;
+import inet.common.packet.chunk.Chunk;
 //
 // TODO generated message class
 //
-packet LteSchedulingGrant extends cPacket
+class LteSchedulingGrant extends inet::FieldsChunk
 {
     @customize(true);  // see the generated C++ header for more info
+    chunkLength = inet::B(1); // TODO: size 0
     bool periodic;
-       unsigned int period;
-       unsigned int expiration;
+    unsigned int period;
+    unsigned int expiration;
        // blocks granted on all Remotes, all Bands
     unsigned int totalGrantedBlocks;
     // number of codewords

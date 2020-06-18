@@ -105,7 +105,7 @@ class LteHarqBufferTx
      * @param unitId id of the destination unit
      * @param pdu pdu to be inserted
      */
-    void insertPdu(unsigned char acid, Codeword cw, LteMacPdu *pdu);
+    void insertPdu(unsigned char acid, Codeword cw, Packet *pdu);
 
     /**
      * Returns a pair with h-arq process id and a list of its empty units to be used for transmission.
@@ -128,7 +128,7 @@ class LteHarqBufferTx
      *
      * @param fbpkt received feedback packet
      */
-    void receiveHarqFeedback(LteHarqFeedback *fbpkt);
+    void receiveHarqFeedback(Packet *fbpkt);
 
     /**
      * Sends all pdus contained in units of selected process down

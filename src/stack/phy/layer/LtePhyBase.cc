@@ -86,9 +86,10 @@ void LtePhyBase::handleMessage(cMessage* msg)
 void LtePhyBase::handleControlMsg(LteAirFrame *frame,
     UserControlInfo *userInfo)
 {
-    cPacket *pkt = frame->decapsulate();
+    auto pkt = check_and_cast<inet::Packet *>(frame->decapsulate());
     delete frame;
-    pkt->setControlInfo(userInfo);
+    *(pkt->addTagIfAbsent<UserControlInfo>()) = *userInfo;
+    delete userInfo;
     send(pkt, upperGateOut_);
     return;
 }
@@ -116,8 +117,8 @@ void LtePhyBase::handleUpperMessage(cMessage* msg)
 {
     EV << "LtePhy: message from stack" << endl;
 
-    UserControlInfo* lteInfo = check_and_cast<UserControlInfo*>(
-        msg->removeControlInfo());
+    auto pkt = check_and_cast<inet::Packet *>(msg);
+    auto lteInfo = pkt->removeTag<UserControlInfo>();
 
     LteAirFrame* frame = NULL;
 
@@ -137,12 +138,12 @@ void LtePhyBase::handleUpperMessage(cMessage* msg)
     frame->encapsulate(check_and_cast<cPacket*>(msg));
 
     // initialize frame fields
-
     if (lteInfo->getFrameType() == D2DMODESWITCHPKT)
         frame->setSchedulingPriority(-1);
     else
         frame->setSchedulingPriority(airFramePriority_);
     frame->setDuration(TTI);
+
     // set current position
     lteInfo->setCoord(getRadioPosition());
 

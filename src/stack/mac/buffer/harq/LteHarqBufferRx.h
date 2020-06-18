@@ -70,7 +70,7 @@ class LteHarqBufferRx
      *
      * @param pdu to be inserted
      */
-    virtual void insertPdu(Codeword cw, LteMacPdu *pdu);
+    virtual void insertPdu(Codeword cw, inet::Packet *pkt);
 
     /**
      * Sends feedback for all processes which are older than
@@ -78,7 +78,7 @@ class LteHarqBufferRx
      *
      * @return uncorrupted pdus or empty list if none
      */
-    virtual std::list<LteMacPdu*> extractCorrectPdus();
+    virtual std::list<inet::Packet*> extractCorrectPdus();
 
     /**
      * Purges PDUs in corrupted state (if any)

@@ -22,6 +22,11 @@
  */
 class LteMacSduRequest : public LteMacSduRequest_Base
 {
+  private:
+    void copy(const LteMacSduRequest& other) {
+        ueId_ = other.ueId_;
+        lcid_ = other.lcid_;
+    }
   protected:
     /// ID of the destination UE associated with the request
     MacNodeId ueId_;
@@ -34,8 +39,8 @@ class LteMacSduRequest : public LteMacSduRequest_Base
     /**
      * Constructor
      */
-    LteMacSduRequest(const char* name = NULL, int kind = 0) :
-        LteMacSduRequest_Base(name, kind)
+    LteMacSduRequest() :
+        LteMacSduRequest_Base()
     {
     }
 
@@ -47,9 +52,10 @@ class LteMacSduRequest : public LteMacSduRequest_Base
     }
 
     LteMacSduRequest(const LteMacSduRequest& other) :
-        LteMacSduRequest_Base()
+        LteMacSduRequest_Base(other)
     {
-        operator=(other);
+        //operator=(other);
+        copy(other);
     }
 
     LteMacSduRequest& operator=(const LteMacSduRequest& other)
@@ -57,6 +63,7 @@ class LteMacSduRequest : public LteMacSduRequest_Base
         if (&other == this)
             return *this;
         LteMacSduRequest_Base::operator=(other);
+        copy(other);
         return *this;
     }
 

@@ -15,14 +15,11 @@
 #include "stack/rlc/am/packet/LteRlcAmPdu.h"
 #include "stack/rlc/am/packet/LteRlcAmSdu_m.h"
 #include "stack/pdcp_rrc/packet/LtePdcpPdu_m.h"
-#include "stack/rlc/am/LteRlcAm.h"
+#include "inet/common/packet/Packet.h"
 
 class AmRxQueue : public omnetpp::cSimpleModule
 {
   protected:
-
-    // parent RLC AM module
-    LteRlcAm* lteRlc_;
 
     //! Receiver window descriptor
     RlcWindowDesc rxWindowDesc_;
@@ -79,13 +76,13 @@ class AmRxQueue : public omnetpp::cSimpleModule
     virtual ~AmRxQueue();
 
     //! Receive an RLC PDU from the lower layer
-    void enque(LteRlcAmPdu* pdu);
+    void enque(inet::Packet* pdu);
 
     //! Send a buffer status report to the ACK manager
-    virtual void handleMessage(omnetpp::cMessage* msg) override;
+    virtual void handleMessage(omnetpp::cMessage* msg);
 
     //initialize
-    void initialize() override;
+    void initialize();
 
   protected:
 
@@ -99,7 +96,6 @@ class AmRxQueue : public omnetpp::cSimpleModule
     /** @param <index> index The index of the first PDU related to
      *  the target SDU (i.e.) the SDU that has been completely received
      */
-
     void passUp(const int index);
 
     //! Check if the SDU carried in the index PDU has been
@@ -120,6 +116,9 @@ class AmRxQueue : public omnetpp::cSimpleModule
 
     //! Discard out of MRW PDUs
     void discard(const int sn);
+
+    //! Defragment received frame
+    inet::Packet *defragmentFrames(std::deque<inet::Packet *> &fragmentFrames);
 };
 
 #endif

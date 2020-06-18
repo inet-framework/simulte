@@ -61,15 +61,23 @@ UmTxEntity* LteRlcUmD2D::getTxBuffer(FlowControlInfo* lteInfo)
     }
 }
 
-void LteRlcUmD2D::handleLowerMessage(cPacket *pkt)
+void LteRlcUmD2D::handleLowerMessage(cPacket *pktAux)
 {
-    if (strcmp(pkt->getName(), "D2DModeSwitchNotification") == 0)
+
+    auto pkt = check_and_cast<inet::Packet *>(pktAux);
+
+    auto chunk = pkt->peekAtFront<inet::Chunk>();
+
+    if (inet::dynamicPtrCast<const D2DModeSwitchNotification>(chunk) != nullptr)
     {
         EV << NOW << " LteRlcUmD2D::handleLowerMessage - Received packet " << pkt->getName() << " from lower layer\n";
 
+        auto switchPkt = pkt->peekAtFront<D2DModeSwitchNotification>();
+        auto lteInfo = pkt->getTag<FlowControlInfo>();
+
         // add here specific behavior for handling mode switch at the RLC layer
-        D2DModeSwitchNotification* switchPkt = check_and_cast<D2DModeSwitchNotification*>(pkt);
-        FlowControlInfo* lteInfo = check_and_cast<FlowControlInfo*>(switchPkt->getControlInfo());
+        //D2DModeSwitchNotification* switchPkt = check_and_cast<D2DModeSwitchNotification*>(pkt);
+        //FlowControlInfo* lteInfo = check_and_cast<FlowControlInfo*>(switchPkt->getControlInfo());
 
         if (switchPkt->getTxSide())
         {
@@ -79,7 +87,7 @@ void LteRlcUmD2D::handleLowerMessage(cPacket *pkt)
 
             // forward packet to PDCP
             EV << "LteRlcUmD2D::handleLowerMessage - Sending packet " << pkt->getName() << " to port UM_Sap_up$o\n";
-            send(pkt, up_[OUT]);
+            send(pkt, up_[OUT_GATE]);
         }
         else  // rx side
         {
@@ -87,11 +95,31 @@ void LteRlcUmD2D::handleLowerMessage(cPacket *pkt)
             UmRxEntity* rxbuf = getRxBuffer(lteInfo);
             rxbuf->rlcHandleD2DModeSwitch(switchPkt->getOldConnection(), switchPkt->getOldMode(), switchPkt->getClearRlcBuffer());
 
-            delete switchPkt;
+            delete pkt;
         }
     }
     else
         LteRlcUm::handleLowerMessage(pkt);
+}
+
+void LteRlcUmD2D::initialize(int stage)
+{
+    if (stage == inet::INITSTAGE_LOCAL)
+    {
+        up_[IN_GATE] = gate("UM_Sap_up$i");
+        up_[OUT_GATE] = gate("UM_Sap_up$o");
+        down_[IN_GATE] = gate("UM_Sap_down$i");
+        down_[OUT_GATE] = gate("UM_Sap_down$o");
+
+        // statistics
+        receivedPacketFromUpperLayer = registerSignal("receivedPacketFromUpperLayer");
+        receivedPacketFromLowerLayer = registerSignal("receivedPacketFromLowerLayer");
+        sentPacketToUpperLayer = registerSignal("sentPacketToUpperLayer");
+        sentPacketToLowerLayer = registerSignal("sentPacketToLowerLayer");
+
+        WATCH_MAP(txEntities_);
+        WATCH_MAP(rxEntities_);
+    }
 }
 
 void LteRlcUmD2D::resumeDownstreamInPackets(MacNodeId peerId)

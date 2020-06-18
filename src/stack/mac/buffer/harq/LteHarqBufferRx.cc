@@ -51,20 +51,23 @@ LteHarqBufferRx::LteHarqBufferRx(unsigned int num, LteMacBase *owner,
     }
 }
 
-void LteHarqBufferRx::insertPdu(Codeword cw, LteMacPdu *pdu)
+void LteHarqBufferRx::insertPdu(Codeword cw, inet::Packet *pkt)
 {
-    UserControlInfo *uInfo = check_and_cast<UserControlInfo *>(pdu->getControlInfo());
+
+    auto pdu = pkt->peekAtFront<LteMacPdu>();
+    auto uInfo = pkt->getTag<UserControlInfo>();
+
     MacNodeId srcId = uInfo->getSourceId();
     if (macOwner_->isHarqReset(srcId))
     {
         // if the HARQ processes have been aborted during this TTI (e.g. due to a D2D mode switch),
         // incoming packets should not be accepted
-        delete pdu;
+        delete pkt;
         return;
     }
     unsigned char acid = uInfo->getAcid();
     // TODO add codeword to inserPdu
-    processes_[acid]->insertPdu(cw, pdu);
+    processes_[acid]->insertPdu(cw, pkt);
     // debug output
     EV << "H-ARQ RX: new pdu (id " << pdu->getId()
        << " ) inserted into process " << (int) acid << endl;
@@ -78,19 +81,20 @@ void LteHarqBufferRx::sendFeedback()
         {
             if (processes_[i]->isEvaluated(cw))
             {
-                LteHarqFeedback *hfb = processes_[i]->createFeedback(cw);
+                auto pkt = processes_[i]->createFeedback(cw);
+                auto hfb = pkt->peekAtFront<LteHarqFeedback>();
 
                 // debug output:
+                auto uInfo = pkt->getTag<UserControlInfo>();
                 const char *r = hfb->getResult() ? "ACK" : "NACK";
                 EV << "H-ARQ RX: feedback sent to TX process "
                    << (int) hfb->getAcid() << " Codeword  " << (int) cw
                    << "of node with id "
-                   << check_and_cast<UserControlInfo *>(
-                    hfb->getControlInfo())->getDestId()
+                   << uInfo->getDestId()
                    << " result: " << r << endl;
 
-                macOwner_->takeObj(hfb);
-                macOwner_->sendLowerPackets(hfb);
+                macOwner_->takeObj(pkt);
+                macOwner_->sendLowerPackets(pkt);
             }
         }
     }
@@ -118,10 +122,11 @@ unsigned int LteHarqBufferRx::purgeCorruptedPdus()
     return purged;
 }
 
-std::list<LteMacPdu *> LteHarqBufferRx::extractCorrectPdus()
+std::list<Packet *> LteHarqBufferRx::extractCorrectPdus()
 {
     this->sendFeedback();
-    std::list<LteMacPdu*> ret;
+    //std::list<LteMacPdu*> ret;
+    std::list<Packet*> ret;
     unsigned char acid = 0;
     for (unsigned int i = 0; i < numHarqProcesses_; i++)
     {
@@ -129,12 +134,15 @@ std::list<LteMacPdu *> LteHarqBufferRx::extractCorrectPdus()
         {
             if (processes_[i]->isCorrect(cw))
             {
-                LteMacPdu* temp = processes_[i]->extractPdu(cw);
-                UserControlInfo *uInfo = check_and_cast<UserControlInfo *>(temp->getControlInfo());
-                unsigned int size = temp->getByteLength();
+                auto pktTemp = processes_[i]->extractPdu(cw);
+                auto temp = pktTemp->peekAtFront<LteMacPdu>();
+                auto uInfo = pktTemp->getTag<UserControlInfo>();
+                //LteMacPdu* temp = processes_[i]->extractPdu(cw);
+                //UserControlInfo *uInfo = check_and_cast<UserControlInfo *>(temp->getControlInfo());
+                unsigned int size = pktTemp->getByteLength();
 
                 // emit delay statistic
-                macUe_emit(macDelay_, (NOW - temp->getCreationTime()).dbl());
+                macUe_->emit(macDelay_, (NOW - pktTemp->getCreationTime()).dbl());
 
                 // Calculate Throughput by sending the number of bits for this packet
                 totalCellRcvdBytes_ += size;
@@ -150,11 +158,11 @@ std::list<LteMacPdu *> LteHarqBufferRx::extractCorrectPdus()
                 }
                 else  // UL
                 {
-                    macUe_emit(macThroughput_, tputSample);
+                    macUe_->emit(macThroughput_, tputSample);
                 }
 
-                macOwner_->dropObj(temp);
-                ret.push_back(temp);
+                macOwner_->dropObj(pktTemp);
+                ret.push_back(pktTemp);
                 acid = i;
 
                 EV << "LteHarqBufferRx::extractCorrectPdus H-ARQ RX: pdu (id " << ret.back()->getId()

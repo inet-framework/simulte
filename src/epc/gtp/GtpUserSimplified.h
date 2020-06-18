@@ -10,22 +10,29 @@
 #ifndef _LTE_GTP_USER_SIMPLIFIED_H_
 #define _LTE_GTP_USER_SIMPLIFIED_H_
 
-#include <map>
 #include <omnetpp.h>
-
-#include <inet/common/ModuleAccess.h>
-#include <inet/linklayer/common/InterfaceTag_m.h>
+#include "inet/transportlayer/contract/udp/UdpSocket.h"
+#include <inet/networklayer/common/InterfaceEntry.h>
+#include "inet/networklayer/common/L3AddressResolver.h"
+#include "inet/networklayer/ipv4/Ipv4Header_m.h"
+#include "epc/gtp/TftControlInfo.h"
+#include "epc/gtp/GtpUserMsg_m.h"
 #include "corenetwork/binder/LteBinder.h"
-#include "epc/gtp/AbstractGtpUser.h"
+#include <map>
+#include "epc/gtp_common.h"
+
 /**
  * GtpUserSimplified is used for building data tunnels between GTP peers.
  * GtpUserSimplified can receive two kind of packets:
  * a) IP datagram from a trafficFilter. Those packets are labeled with a tftId
- * b) GtpUserSimplifiedMsg from Udp-IP layers.
+ * b) GtpUserSimplifiedMsg from UDP-IP layers.
  *
  */
-class GtpUserSimplified : public AbstractGtpUser
+class GtpUserSimplified : public omnetpp::cSimpleModule
 {
+    inet::UdpSocket socket_;
+    int localPort_;
+
     // reference to the LTE Binder module
     LteBinder* binder_;
     /*
@@ -34,20 +41,33 @@ class GtpUserSimplified : public AbstractGtpUser
      */
     std::map<TrafficFlowTemplateId, inet::Ipv4Address> tftTable_;
 
+    // the GTP protocol Port
+    unsigned int tunnelPeerPort_;
+
     // IP address of the PGW
     inet::L3Address pgwAddress_;
 
     // specifies the type of the node that contains this filter (it can be ENB or PGW)
     EpcNodeType ownerType_;
 
+    // determine gtpuser runs on PGW oder eNB
+    EpcNodeType selectOwnerType(const char * type);
+
+    // detect LTE interface
+    inet::InterfaceEntry* detectInterface();
+    inet::InterfaceEntry* ie_;
+
   protected:
-    virtual void initialize(int stage) override;
+
+    virtual int numInitStages() const { return inet::NUM_INIT_STAGES; }
+    virtual void initialize(int stage);
+    virtual void handleMessage(inet::cMessage *msg);
 
     // receive and IP Datagram from the traffic filter, encapsulates it in a GTP-U packet than forwards it to the proper next hop
-    void handleFromTrafficFlowFilter(inet::Packet * packet) override;
+    void handleFromTrafficFlowFilter(inet::Packet * datagram);
 
-    // receive a GTP-U packet from Udp, reads the TEID and decides whether performing label switching or removal
-    void handleFromUdp(inet::Packet * packet) override;
+    // receive a GTP-U packet from UDP, reads the TEID and decides whether performing label switching or removal
+    void handleFromUdp(inet::Packet * gtpMsg);
 };
 
 #endif

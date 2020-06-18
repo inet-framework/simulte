@@ -14,7 +14,7 @@ void LteRlcDataPdu::setPduSequenceNumber(unsigned int sno)
     pduSequenceNumber_ = sno;
 }
 
-unsigned int LteRlcDataPdu::getPduSequenceNumber()
+unsigned int LteRlcDataPdu::getPduSequenceNumber() const
 {
     return pduSequenceNumber_;
 }
@@ -24,7 +24,7 @@ void LteRlcDataPdu::setFramingInfo(FramingInfo fi)
     fi_ = fi;
 }
 
-FramingInfo LteRlcDataPdu::getFramingInfo()
+FramingInfo LteRlcDataPdu::getFramingInfo() const
 {
     return fi_;
 }

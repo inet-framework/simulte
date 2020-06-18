@@ -11,8 +11,26 @@
 #define _LTE_LTERLCDEFS_H_
 
 #include "common/LteControlInfo.h"
-#include "stack/rlc/packet/LteRlcPdu.h"
-#include "stack/rlc/packet/LteRlcSdu.h"
+#include "stack/rlc/packet/LteRlcPdu_m.h"
+#include "stack/rlc/packet/LteRlcSdu_m.h"
+
+/*!
+ * LTE RLC AM Types
+ */
+enum LteAmType
+{
+    //! Data packet
+    DATA = 0,
+    //****** control packets ********
+    //! ACK
+    ACK = 1,
+    //! Move Receiver Window
+    MRW = 2,
+    //! Move Receiver Window ACK
+    MRW_ACK = 3,
+//! BITMAP
+//BITMAP = 4
+};
 
 /*
  * RLC AM Window descriptor

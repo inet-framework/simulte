@@ -7,7 +7,7 @@
 // and cannot be removed from it.
 //
 
-packet TrickleTimerMsg
+message TrickleTimerMsg
 {
     uint32_t msgid;          // unique id of the message  < sender id  | local msg id >
 }

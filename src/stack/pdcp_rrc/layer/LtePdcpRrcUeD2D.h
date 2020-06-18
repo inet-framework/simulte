@@ -37,6 +37,8 @@ class LtePdcpRrcUeD2D : public LtePdcpRrcUe
 
     virtual MacNodeId getDestId(FlowControlInfo* lteInfo) override;
 
+    using LtePdcpRrcUe::getDirection;  // base class variant: return direction for comm. with eNB
+    // additional getDirection method determining if D2D comm. is available to a specific destination
     Direction getDirection(MacNodeId destId)
     {
         if (binder_->getD2DCapability(nodeId_, destId) && binder_->getD2DMode(nodeId_, destId) == DM)

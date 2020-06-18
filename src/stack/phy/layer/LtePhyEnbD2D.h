@@ -21,7 +21,7 @@ class LtePhyEnbD2D : public LtePhyEnb
   protected:
 
     virtual void initialize(int stage) override;
-    virtual void requestFeedback(UserControlInfo* lteinfo, LteAirFrame* frame, LteFeedbackPkt* pkt) override;
+    virtual void requestFeedback(UserControlInfo* lteinfo, LteAirFrame* frame, inet::Packet * pkt) override;
     virtual void handleAirFrame(omnetpp::cMessage* msg) override;
 
   public:

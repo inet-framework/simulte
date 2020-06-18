@@ -14,8 +14,6 @@
 #include "common/LteCommon.h"
 #include "x2/packet/X2InformationElement.h"
 
-//using namespace omnetpp;
-
 // add here new X2 message types
 enum LteX2MessageType
 {
@@ -61,11 +59,7 @@ class LteX2Message : public LteX2Message_Base
      * FIXME Copy constructors do not preserve ownership
      * Here I should iterate on the list and set all ownerships
      */
-    LteX2Message(const LteX2Message& other) :
-        LteX2Message_Base()
-    {
-        operator=(other);
-    }
+
 
     LteX2Message& operator=(const LteX2Message& other)
     {
@@ -78,6 +72,11 @@ class LteX2Message : public LteX2Message_Base
         return *this;
     }
 
+    LteX2Message(const LteX2Message& other) : LteX2Message_Base() {
+        operator=(other);
+    }
+
+
     virtual LteX2Message *dup() const
     {
         return new LteX2Message(*this);
@@ -85,8 +84,8 @@ class LteX2Message : public LteX2Message_Base
 
     virtual ~LteX2Message()
     {
-        while(!ieList_.empty())
-        {
+        while (!ieList_.empty()){
+            delete ieList_.front();
             ieList_.pop_front();
         }
     }

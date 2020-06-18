@@ -67,7 +67,7 @@ class LteMacUeD2D : public LteMacUe
 
     void macHandleD2DModeSwitch(omnetpp::cPacket* pkt);
 
-    virtual LteMacPdu* makeBsr(int size);
+    virtual Packet* makeBsr(int size);
 
     /**
      * macPduMake() creates MAC PDUs (one for each CID)

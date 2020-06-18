@@ -12,6 +12,7 @@
 #include "stack/rlc/am/packet/LteRlcAmPdu.h"
 
 using namespace omnetpp;
+using namespace inet;
 
 LteMacQueue::LteMacQueue(int queueSize) :
     cPacketQueue("LteMacQueue")
@@ -40,7 +41,8 @@ LteMacQueue* LteMacQueue::dup() const
 // ENQUEUE
 bool LteMacQueue::pushBack(cPacket *pkt)
 {
-    if (!isEnqueueablePacket(pkt))
+    Packet * pktAux = check_and_cast<Packet*>(pkt);
+    if (!isEnqueueablePacket(pktAux))
          return false; // packet queue full or we have discarded fragments for this main packet
 
     cPacketQueue::insert(pkt);
@@ -49,7 +51,8 @@ bool LteMacQueue::pushBack(cPacket *pkt)
 
 bool LteMacQueue::pushFront(cPacket *pkt)
 {
-    if (!isEnqueueablePacket(pkt))
+    Packet * pktAux = check_and_cast<Packet*>(pkt);
+    if (!isEnqueueablePacket(pktAux))
         return false; // packet queue full or we have discarded fragments for this main packet
 
     cPacketQueue::insertBefore(cPacketQueue::front(), pkt);
@@ -81,7 +84,11 @@ int64_t LteMacQueue::getQueueSize() const
     return queueSize_;
 }
 
-bool LteMacQueue::isEnqueueablePacket(cPacket* pkt){
+bool LteMacQueue::isEnqueueablePacket(Packet* pkt){
+
+    auto chunk = pkt->peekAtFront<Chunk>();
+    auto pdu = dynamicPtrCast<const LteRlcAmPdu>(chunk);
+
     if(queueSize_ == 0){
         // unlimited queue size -- nothing to check for
         return true;
@@ -94,12 +101,10 @@ bool LteMacQueue::isEnqueueablePacket(cPacket* pkt){
      *         accepted as long as the MAC queue size is not exceeded.
      * For TM: No fragments are to be checked, anyways.
      */
-    LteRlcAmPdu_Base* pdu = dynamic_cast<LteRlcAmPdu*>(pkt);
-
     if(pdu != NULL){ // for AM we need to check if all fragments will fit
         if(pdu->getTotalFragments() > 1) {
             int remainingFrags = (pdu->getLastSn() - pdu->getSnoFragment() + 1);
-            bool allFragsWillFit = (remainingFrags*pdu->getByteLength()) + getByteLength() < queueSize_;
+            bool allFragsWillFit = (remainingFrags*pkt->getByteLength()) + getByteLength() < queueSize_;
             bool enqueable = (pdu->getSnoMainPacket() != lastUnenqueueableMainSno) && allFragsWillFit;
             if(allFragsWillFit && !enqueable){
                 EV_DEBUG << "PDU would fit but discarded frags before - rejecting fragment: " << pdu->getSnoMainPacket() << ":" << pdu->getSnoFragment() << std::endl;

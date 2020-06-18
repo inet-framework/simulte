@@ -7,7 +7,10 @@
 // and cannot be removed from it.
 //
 
-packet LteHarqFeedback
+import inet.common.INETDefs;
+import inet.common.packet.chunk.Chunk;
+
+class LteHarqFeedback extends inet::FieldsChunk
 {
     // H-ARQ acid to which this fb is addressed
     unsigned char acid;
@@ -19,9 +22,10 @@ packet LteHarqFeedback
     long fbMacPduId;
     // if this flag is true, then the feedback refers to a D2D connection
     bool d2dFeedback = false;
+    chunkLength = inet::B(1); // TODO: size 0
 }
 
-packet LteHarqFeedbackMirror extends LteHarqFeedback
+class LteHarqFeedbackMirror extends LteHarqFeedback
 {
     d2dFeedback = true;
     

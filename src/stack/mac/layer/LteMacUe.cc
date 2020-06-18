@@ -189,12 +189,16 @@ int LteMacUe::macSduRequest()
         EV << NOW <<" LteMacUe::macSduRequest - cid[" << destCid << "] - sdu size[" << sduSize<< "B] - " << allocatedBytes[cw] << " bytes left on codeword " << cw << endl;
 
         // send the request message to the upper layer
-        LteMacSduRequest* macSduRequest = new LteMacSduRequest("LteMacSduRequest");
+        // TODO: Replace by tag
+        auto pkt = new Packet("LteMacSduRequest");
+        auto macSduRequest = makeShared<LteMacSduRequest>();
+        macSduRequest->setChunkLength(b(1)); // TODO: should be 0
         macSduRequest->setUeId(destId);
         macSduRequest->setLcid(MacCidToLcid(destCid));
         macSduRequest->setSduSize(sduSize);
-        macSduRequest->setControlInfo((&connDesc_[destCid])->dup());
-        sendUpperPackets(macSduRequest);
+        pkt->insertAtFront(macSduRequest);
+        *(pkt->addTag<FlowControlInfo>()) = connDesc_[destCid];
+        sendUpperPackets(pkt);
 
         numRequestedSdus++;
     }
@@ -311,8 +315,7 @@ void LteMacUe::macPduMake(MacCid cid)
     LteMacScheduleList::const_iterator it;
     for (it = scheduleList_->begin(); it != scheduleList_->end(); it++)
     {
-        LteMacPdu* macPkt;
-        cPacket* pkt;
+        Packet *macPkt = nullptr;
 
         MacCid destCid = it->first.first;
         Codeword cw = it->first.second;
@@ -333,14 +336,17 @@ void LteMacUe::macPduMake(MacCid cid)
         // No packets for this user on this codeword
         if (pit == macPduList_.end())
         {
-            UserControlInfo* uinfo = new UserControlInfo();
-            uinfo->setSourceId(getMacNodeId());
-            uinfo->setDestId(destId);
-            uinfo->setDirection(UL);
-            uinfo->setUserTxParams(schedulingGrant_->getUserTxParams()->dup());
-            macPkt = new LteMacPdu("LteMacPdu");
-            macPkt->setHeaderLength(MAC_HEADER);
-            macPkt->setControlInfo(uinfo);
+            macPkt = new Packet("LteMacPdu");
+            auto header = makeShared<LteMacPdu>();
+            header->setHeaderLength(MAC_HEADER);
+            macPkt->insertAtFront(header);
+
+            macPkt->addTagIfAbsent<UserControlInfo>()->setSourceId(getMacNodeId());
+            macPkt->addTagIfAbsent<UserControlInfo>()->setDestId(destId);
+            macPkt->addTagIfAbsent<UserControlInfo>()->setDirection(UL);
+            macPkt->addTagIfAbsent<UserControlInfo>()->setUserTxParams(schedulingGrant_->getUserTxParams()->dup());
+
+            //macPkt->setControlInfo(uinfo);
             macPkt->setTimestamp(NOW);
             macPduList_[pktId] = macPkt;
         }
@@ -360,9 +366,12 @@ void LteMacUe::macPduMake(MacCid cid)
             if (mbuf_[destCid]->isEmpty())
                 throw cRuntimeError("Empty buffer for cid %d, while expected SDUs were %d", destCid, sduPerCid);
 
-            pkt = mbuf_[destCid]->popFront();
+            auto pkt = check_and_cast<Packet *>(mbuf_[destCid]->popFront());
             drop(pkt);
-            macPkt->pushSdu(pkt);
+
+            auto header = macPkt->removeAtFront<LteMacPdu>();
+            header->pushSdu(pkt);
+            macPkt->insertAtFront(header);
             sduPerCid--;
         }
         // consider virtual buffers to compute BSR size
@@ -401,7 +410,7 @@ void LteMacUe::macPduMake(MacCid cid)
         UnitList txList = txBuf->getEmptyUnits(currentHarq_);
         EV << "LteMacUe::macPduMake - [Used Acid=" << (unsigned int)txList.first << "] , [curr=" << (unsigned int)currentHarq_ << "]" << endl;
 
-        LteMacPdu* macPkt = pit->second;
+        auto macPkt = pit->second;
 
         // BSR related operations
 
@@ -471,17 +480,20 @@ void LteMacUe::macPduMake(MacCid cid)
         //
         //        }
 
+        auto header = macPkt->removeAtFront<LteMacPdu>();
         if (bsrTriggered_)
         {
             MacBsr* bsr = new MacBsr();
+
             bsr->setTimestamp(simTime().dbl());
             bsr->setSize(size);
-            macPkt->pushCe(bsr);
+            header->pushCe(bsr);
+
             bsrTriggered_ = false;
             EV << "LteMacUe::macPduMake - BSR with size " << size << "created" << endl;
         }
 
-        EV << "LteMacUe: pduMaker created PDU: " << macPkt->info() << endl;
+        EV << "LteMacUe: pduMaker created PDU: " << macPkt->str() << endl;
 
         // TODO: harq test
         // pdu transmission here (if any)
@@ -498,20 +510,21 @@ void LteMacUe::macPduMake(MacCid cid)
     }
 }
 
-void LteMacUe::macPduUnmake(cPacket* pkt)
+void LteMacUe::macPduUnmake(cPacket* pktAux)
 {
-    LteMacPdu* macPkt = check_and_cast<LteMacPdu*>(pkt);
+    auto pkt = check_and_cast<Packet *>(pktAux);
+    auto macPkt = pkt->removeAtFront<LteMacPdu>();
     while (macPkt->hasSdu())
     {
         // Extract and send SDU
-        cPacket* upPkt = macPkt->popSdu();
+        auto upPkt = macPkt->popSdu();
         take(upPkt);
 
         /* TODO: upPkt->info() */
         EV << "LteMacBase: pduUnmaker extracted SDU" << endl;
 
         // store descriptor for the incoming connection, if not already stored
-        FlowControlInfo* lteInfo = check_and_cast<FlowControlInfo*>(upPkt->getControlInfo());
+        auto lteInfo = upPkt->getTag<FlowControlInfo>();
         MacNodeId senderId = lteInfo->getSourceId();
         LogicalCid lcid = lteInfo->getLcid();
         MacCid cid = idToMacCid(senderId, lcid);
@@ -523,8 +536,10 @@ void LteMacUe::macPduUnmake(cPacket* pkt)
         sendUpperPackets(upPkt);
     }
 
-    ASSERT(macPkt->getOwner() == this);
-    delete macPkt;
+    pkt->insertAtFront(macPkt);
+
+    ASSERT(pkt->getOwner() == this);
+    delete pkt;
 }
 
 void LteMacUe::handleUpperMessage(cPacket* pkt)
@@ -561,15 +576,15 @@ void LteMacUe::handleSelfMessage()
     // extract pdus from all harqrxbuffers and pass them to unmaker
     HarqRxBuffers::iterator hit = harqRxBuffers_.begin();
     HarqRxBuffers::iterator het = harqRxBuffers_.end();
-    LteMacPdu *pdu = NULL;
-    std::list<LteMacPdu*> pduList;
+
+    std::list<Packet*> pduList;
 
     for (; hit != het; ++hit)
     {
         pduList=hit->second->extractCorrectPdus();
         while (! pduList.empty())
         {
-            pdu=pduList.front();
+            auto pdu=pduList.front();
             pduList.pop_front();
             macPduUnmake(pdu);
         }
@@ -869,15 +884,17 @@ LteMacUe::checkRAC()
 
     if ((racRequested_=trigger))
     {
-        LteRac* racReq = new LteRac("RacRequest");
-        UserControlInfo* uinfo = new UserControlInfo();
-        uinfo->setSourceId(getMacNodeId());
-        uinfo->setDestId(getMacCellId());
-        uinfo->setDirection(UL);
-        uinfo->setFrameType(RACPKT);
-        racReq->setControlInfo(uinfo);
+        auto pkt = new Packet("RacRequest");
 
-        sendLowerPackets(racReq);
+        auto racReq = makeShared<LteRac>();
+        pkt->insertAtFront(racReq);
+
+        pkt->addTagIfAbsent<UserControlInfo>()->setSourceId(getMacNodeId());
+        pkt->addTagIfAbsent<UserControlInfo>()->setDestId(getMacCellId());
+        pkt->addTagIfAbsent<UserControlInfo>()->setDirection(UL);
+        pkt->addTagIfAbsent<UserControlInfo>()->setFrameType(RACPKT);
+
+        sendLowerPackets(pkt);
 
         EV << NOW << " Ue  " << nodeId_ << " cell " << cellId_ << " ,RAC request sent to PHY " << endl;
 
@@ -887,10 +904,11 @@ LteMacUe::checkRAC()
 }
 
 void
-LteMacUe::updateUserTxParam(cPacket* pkt)
+LteMacUe::updateUserTxParam(cPacket* pktAux)
 {
-    UserControlInfo *lteInfo = check_and_cast<UserControlInfo *>
-        (pkt->getControlInfo());
+    auto pkt = check_and_cast<inet::Packet *>(pktAux);
+
+    auto lteInfo = pkt->getTag<UserControlInfo> ();
 
     if (lteInfo->getFrameType() != DATAPKT)
         return;

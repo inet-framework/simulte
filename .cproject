@@ -41,7 +41,7 @@
                             							
                             <targetPlatform binaryParser="org.eclipse.cdt.core.ELF;org.eclipse.cdt.core.MachO64;org.eclipse.cdt.core.PE" id="org.omnetpp.cdt.targetPlatform.1175350791" isAbstract="false" name="Windows, Linux, Mac" osList="win32,linux,macosx" superClass="org.omnetpp.cdt.targetPlatform"/>
                             							
-                            <builder autoBuildTarget="all" buildPath="${ProjDirPath}" cleanBuildTarget="clean" enableAutoBuild="false" enableCleanBuild="true" enabledIncrementalBuild="true" id="org.omnetpp.cdt.gnu.builder.debug.1123895100" incrementalBuildTarget="all" keepEnvironmentInBuildfile="false" managedBuildOn="false" name="OMNeT++ Make Builder (opp_makemake)" parallelBuildOn="true" parallelizationNumber="optimal" superClass="org.omnetpp.cdt.gnu.builder.debug"/>
+                            <builder arguments="MODE=debug" autoBuildTarget="all" buildPath="${ProjDirPath}" cleanBuildTarget="clean" command="make" enableAutoBuild="false" enableCleanBuild="true" enabledIncrementalBuild="true" id="org.omnetpp.cdt.gnu.builder.debug.1123895100" incrementalBuildTarget="all" keepEnvironmentInBuildfile="false" managedBuildOn="false" name="OMNeT++ Make Builder (opp_makemake)" parallelBuildOn="true" parallelizationNumber="optimal" superClass="org.omnetpp.cdt.gnu.builder.debug"/>
                             							
                             <tool id="cdt.managedbuild.tool.gnu.archiver.base.1761731509" name="GCC Archiver" superClass="cdt.managedbuild.tool.gnu.archiver.base"/>
                             							
@@ -176,26 +176,6 @@
                                 <inputType id="cdt.managedbuild.tool.gnu.assembler.input.1529395968" superClass="cdt.managedbuild.tool.gnu.assembler.input"/>
                                 							
                             </tool>
-                            						
-                        </toolChain>
-                        					
-                    </folderInfo>
-                    					
-                    <folderInfo id="org.omnetpp.cdt.gnu.config.release.708846711.240658587" name="/" resourcePath="simulations/advanced">
-                        						
-                        <toolChain id="org.omnetpp.cdt.gnu.toolchain.release.553808820" name="GCC for OMNeT++" superClass="org.omnetpp.cdt.gnu.toolchain.release" unusedChildren="">
-                            							
-                            <tool id="cdt.managedbuild.tool.gnu.archiver.base.1677227009" name="GCC Archiver" superClass="cdt.managedbuild.tool.gnu.archiver.base.701270765"/>
-                            							
-                            <tool id="cdt.managedbuild.tool.gnu.cpp.compiler.base.1704021679" name="GCC C++ Compiler" superClass="cdt.managedbuild.tool.gnu.cpp.compiler.base.170720259"/>
-                            							
-                            <tool id="cdt.managedbuild.tool.gnu.c.compiler.base.382792303" name="GCC C Compiler" superClass="cdt.managedbuild.tool.gnu.c.compiler.base.855195235"/>
-                            							
-                            <tool id="cdt.managedbuild.tool.gnu.c.linker.base.1448523182" name="GCC C Linker" superClass="cdt.managedbuild.tool.gnu.c.linker.base.640807459"/>
-                            							
-                            <tool id="cdt.managedbuild.tool.gnu.cpp.linker.base.1009315402" name="GCC C++ Linker" superClass="cdt.managedbuild.tool.gnu.cpp.linker.base.1214677774"/>
-                            							
-                            <tool id="cdt.managedbuild.tool.gnu.assembler.base.105858057" name="GCC Assembler" superClass="cdt.managedbuild.tool.gnu.assembler.base.1759902565"/>
                             						
                         </toolChain>
                         					

@@ -9,18 +9,24 @@
 
 #include "common/LteCommon.h"
 
-#include "../corenetwork/lteCellInfo/LteCellInfo.h"
+#include "inet/common/packet/dissector/ProtocolDissectorRegistry.h"
+#include "inet/networklayer/ipv4/Ipv4ProtocolDissector.h"
+#include "inet/common/IProtocolRegistrationListener.h"
+#include "inet/common/ProtocolTag_m.h"
+
+#include "corenetwork/lteCellInfo/LteCellInfo.h"
 #include "corenetwork/binder/LteBinder.h"
 #include "stack/mac/layer/LteMacEnb.h"
 #include "common/LteControlInfo.h"
-#include "inet/common/packet/dissector/ProtocolDissectorRegistry.h"
-#include "inet/networklayer/ipv4/Ipv4ProtocolDissector.h"
+#include "x2/packet/X2ControlInfo_m.h"
+#include "epc/gtp/TftControlInfo_m.h"
 
 using namespace inet;
 
 const inet::Protocol LteProtocol::ipv4uu("ipv4uu", "IPv4 (LTE Uu link)");
 Register_Protocol_Dissector(&LteProtocol::ipv4uu, Ipv4ProtocolDissector);
 
+const inet::Protocol LteProtocol::lte("lte", "LTE", Protocol::LinkLayer); //LTE Protocol
 
 const std::string lteTrafficClassToA(LteTrafficClass type)
 {
@@ -394,13 +400,13 @@ const std::string planeToA(Plane p)
 
 GrantType aToGrantType(std::string a)
 {
-    if (a == "FITALL")
+    if (a == "FITALL") 
         return FITALL;
-    else if (a == "FIXED" )
+    else if (a == "FIXED" ) 
         return FIXED_;
-    else if (a == "URGENT")
+    else if (a == "URGENT") 
         return URGENT;
-    else
+    else 
         return UNKNOWN_GRANT_TYPE;
 }
 
@@ -571,7 +577,7 @@ LteMacBase* getMacUe(MacNodeId nodeId)
     return check_and_cast<LteMacBase*>(getMacByMacNodeId(nodeId));
 }
 
-void getParametersFromXML(omnetpp::cXMLElement* xmlData, ParameterMap& outputMap)
+void getParametersFromXML(cXMLElement* xmlData, ParameterMap& outputMap)
 {
     cXMLElementList parameters = xmlData->getElementsByTagName("Parameter");
 
@@ -689,3 +695,22 @@ void initializeAllChannels(cModule *mod)
         initializeAllChannels(submodule);
     }
 }
+
+void removeAllSimuLteTags(inet::Packet *pkt) {
+    auto c2 = pkt->removeTagIfPresent<TftControlInfo>();
+    if (c2)
+        delete c2;
+    auto c3 = pkt->removeTagIfPresent<X2ControlInfoTag>();
+    if (c3)
+        delete c3;
+    auto c4 = pkt->removeTagIfPresent<FlowControlInfo>();
+    if (c4)
+        delete c4;
+    auto c5 = pkt->removeTagIfPresent<UserControlInfo>();
+    if (c5)
+        delete c5;
+    auto c1 = pkt->removeTagIfPresent<LteControlInfo>();
+    if (c1)
+        delete c1;
+}
+

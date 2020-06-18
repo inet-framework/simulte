@@ -59,22 +59,24 @@ LteHarqBufferRxD2D::LteHarqBufferRxD2D(unsigned int num, LteMacBase *owner, MacN
     }
 }
 
-void LteHarqBufferRxD2D::insertPdu(Codeword cw, LteMacPdu *pdu)
+void LteHarqBufferRxD2D::insertPdu(Codeword cw, Packet *pkt)
 {
-    UserControlInfo *uInfo = check_and_cast<UserControlInfo *>(pdu->getControlInfo());
+    auto pdu = pkt->peekAtFront<LteMacPdu>();
+    auto uInfo = pkt->getTag<UserControlInfo>();
+
 
     MacNodeId srcId = uInfo->getSourceId();
     if (macOwner_->isHarqReset(srcId))
     {
         // if the HARQ processes have been aborted during this TTI (e.g. due to a D2D mode switch),
         // incoming packets should not be accepted
-        delete pdu;
+        delete pkt;
         return;
     }
 
     unsigned char acid = uInfo->getAcid();
     // TODO add codeword to inserPdu
-    processes_[acid]->insertPdu(cw, pdu);
+    processes_[acid]->insertPdu(cw, pkt);
     // debug output
     EV << "H-ARQ RX: new pdu (id " << pdu->getId() << " ) inserted into process " << (int) acid << endl;
 }
@@ -88,44 +90,46 @@ void LteHarqBufferRxD2D::sendFeedback()
             if (processes_[i]->isEvaluated(cw))
             {
                 // create a copy of the feedback to be sent to the eNB
-                LteHarqFeedbackMirror *mirrorHfb = check_and_cast<LteHarqProcessRxD2D*>(processes_[i])->createFeedbackMirror(cw);
-                if (mirrorHfb == NULL)
+                auto pkt = check_and_cast<LteHarqProcessRxD2D*>(processes_[i])->createFeedbackMirror(cw);
+                if (pkt == NULL)
                 {
                     EV<<NOW<<"LteHarqBufferRxD2D::sendFeedback - cw "<< cw << " of process " << i
                             << " contains a pdu belonging to a multicast/broadcast connection. Don't send feedback mirror." << endl;
                 }
                 else
                 {
-                    macOwner_->sendLowerPackets(mirrorHfb);
+                    macOwner_->sendLowerPackets(pkt);
                 }
 
-                LteHarqFeedback *hfb = processes_[i]->createFeedback(cw);
-                if (hfb == NULL)
+                auto pktHbf = (processes_[i])->createFeedback(cw);
+
+                if (pktHbf == nullptr)
                 {
                     EV<<NOW<<"LteHarqBufferRxD2D::sendFeedback - cw "<< cw << " of process " << i
                             << " contains a pdu belonging to a multicast/broadcast connection. Don't send feedback." << endl;
                     continue;
                 }
 
+                auto hfb = pktHbf->peekAtFront<LteHarqFeedback>();
                 // debug output:
+                auto cInfo = pktHbf->getTag<UserControlInfo>();
                 const char *r = hfb->getResult() ? "ACK" : "NACK";
                 EV << "H-ARQ RX: feedback sent to TX process "
                    << (int) hfb->getAcid() << " Codeword  " << (int) cw
                    << "of node with id "
-                   << check_and_cast<UserControlInfo *>(
-                    hfb->getControlInfo())->getDestId()
+                   << cInfo ->getDestId()
                    << " result: " << r << endl;
 
-                macOwner_->sendLowerPackets(hfb);
+                macOwner_->sendLowerPackets(pktHbf);
             }
         }
     }
 }
 
-std::list<LteMacPdu *> LteHarqBufferRxD2D::extractCorrectPdus()
+std::list<Packet *> LteHarqBufferRxD2D::extractCorrectPdus()
 {
     this->sendFeedback();
-    std::list<LteMacPdu*> ret;
+    std::list<Packet*> ret;
     unsigned char acid = 0;
     for (unsigned int i = 0; i < numHarqProcesses_; i++)
     {
@@ -133,10 +137,10 @@ std::list<LteMacPdu *> LteHarqBufferRxD2D::extractCorrectPdus()
         {
             if (processes_[i]->isCorrect(cw))
             {
-                LteMacPdu* temp = processes_[i]->extractPdu(cw);
+                auto temp = processes_[i]->extractPdu(cw);
                 unsigned int size = temp->getByteLength();
-                UserControlInfo* info = check_and_cast<UserControlInfo*>(temp->getControlInfo());
-
+                auto info = temp->getTag<UserControlInfo>();
+                
                 // emit delay statistic
                 if (info->getDirection() == D2D)
                 {
@@ -168,7 +172,7 @@ std::list<LteMacPdu *> LteHarqBufferRxD2D::extractCorrectPdus()
                     }
                     else  // UL
                     {
-                        macUe_emit(macDelay_, (NOW - temp->getCreationTime()).dbl());
+                        macUe_emit(macThroughput_, tputSample);
                     }
                 }
 

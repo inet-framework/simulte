@@ -15,6 +15,16 @@
 
 class LteFeedbackPkt : public LteFeedbackPkt_Base
 {
+private:
+    void copy(const LteFeedbackPkt& other) {
+        lteFeedbackDoubleVectorDl_ = other.lteFeedbackDoubleVectorDl_;
+        lteFeedbackDoubleVectorUl_ = other.lteFeedbackDoubleVectorUl_;
+        lteFeedbackMapDoubleVectorD2D_ = other.lteFeedbackMapDoubleVectorD2D_;
+        sourceNodeId_ = other.sourceNodeId_;
+        lteFeedbackDoubleVectorDl_ = other.lteFeedbackDoubleVectorDl_;
+        lteFeedbackDoubleVectorUl_ = other.lteFeedbackDoubleVectorUl_;
+        sourceNodeId_ = other.sourceNodeId_;
+    }
   protected:
     // vector of vector with RU and TxMode as indexes
     LteFeedbackDoubleVector lteFeedbackDoubleVectorDl_;
@@ -25,25 +35,21 @@ class LteFeedbackPkt : public LteFeedbackPkt_Base
     //MacNodeId of the source
     MacNodeId sourceNodeId_;
     public:
-    LteFeedbackPkt(const char *name = NULL, int kind = 0) :
-        LteFeedbackPkt_Base(name, kind)
+    LteFeedbackPkt() :
+        LteFeedbackPkt_Base()
     {
     }
     LteFeedbackPkt(const LteFeedbackPkt& other) :
-        LteFeedbackPkt_Base(other.getName())
+        LteFeedbackPkt_Base(other)
     {
-        operator=(other);
+        //operator=(other);
+        copy(other);
     }
     LteFeedbackPkt& operator=(const LteFeedbackPkt& other)
     {
-        lteFeedbackDoubleVectorDl_ = other.lteFeedbackDoubleVectorDl_;
-        lteFeedbackDoubleVectorUl_ = other.lteFeedbackDoubleVectorUl_;
-        lteFeedbackMapDoubleVectorD2D_ = other.lteFeedbackMapDoubleVectorD2D_;
-        sourceNodeId_ = other.sourceNodeId_;
+        if (this == &other) return *this;
         LteFeedbackPkt_Base::operator=(other);
-	lteFeedbackDoubleVectorDl_ = other.lteFeedbackDoubleVectorDl_;
-	lteFeedbackDoubleVectorUl_ = other.lteFeedbackDoubleVectorUl_;
-	sourceNodeId_ = other.sourceNodeId_;
+        copy(other);
         return *this;
     }
     virtual LteFeedbackPkt *dup() const
@@ -51,14 +57,14 @@ class LteFeedbackPkt : public LteFeedbackPkt_Base
         return new LteFeedbackPkt(*this);
     }
     // ADD CODE HERE to redefine and implement pure virtual functions from LteFeedbackPkt_Base
-    LteFeedbackDoubleVector getLteFeedbackDoubleVectorDl();
+    LteFeedbackDoubleVector getLteFeedbackDoubleVectorDl() const;
     void setLteFeedbackDoubleVectorDl(LteFeedbackDoubleVector lteFeedbackDoubleVector_);
-    LteFeedbackDoubleVector getLteFeedbackDoubleVectorUl();
+    LteFeedbackDoubleVector getLteFeedbackDoubleVectorUl() const;
     void setLteFeedbackDoubleVectorUl(LteFeedbackDoubleVector lteFeedbackDoubleVector_);
-    std::map<MacNodeId, LteFeedbackDoubleVector> getLteFeedbackDoubleVectorD2D();
+    std::map<MacNodeId, LteFeedbackDoubleVector> getLteFeedbackDoubleVectorD2D() const;
     void setLteFeedbackDoubleVectorD2D(MacNodeId peerId, LteFeedbackDoubleVector lteFeedbackDoubleVector_);
     void setSourceNodeId(MacNodeId id);
-    MacNodeId getSourceNodeId();
+    MacNodeId getSourceNodeId() const;
 };
 
 #endif
