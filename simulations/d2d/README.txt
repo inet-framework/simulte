@@ -17,7 +17,7 @@ Main features are listed below:
 - Modification of channel model (getSinr() and error() functions) so as to support D2D transmissions
 - New MAC- and RLC-level statistics for D2D flows
 - Modification of MaxCI and PF schedulers for supporting D2D flows
-- *** NEW *** Dynamic switching from cellular(infrastructure) mode to D2D mode and vice versa.
+- Dynamic switching from cellular(infrastructure) mode to D2D mode and vice versa.
 
 This is an experimental version for D2D communications. Any feedback and/or suggestion is highly appreciated.
 
@@ -27,22 +27,17 @@ This is an experimental version for D2D communications. Any feedback and/or sugg
 *****************************
 
 === D2D capabilities of eNodeBs and UEs ===
-You need to enable D2D capabilities for both the eNodeB and the UEs, by setting the "d2dCapable" parameter. 
-E.g. *.eNodeB.d2dCapable = true
-     *.ue[*].d2dCapable = true
+You need to enable D2D capabilities for both the eNodeB and the UEs by setting the "nicType" parameter
+to the NIC variants with D2D support. 
+E.g. *.eNB*.nicType = "LteNicEnbD2D"
+     *.ue[*].nicType = "LteNicUeD2D"
 
 
 === D2D peering association between UEs ===
 By default, D2D-capable UEs still communicate using the traditional cellular mode (e.g. via the eNodeB). 
-You need to  add peering capabilities between UEs, i.e. for each D2D-capable UE, it is required to specify 
-a list of IP addresses (or aliases) that can be reached using D2D links. This can be accomplished 
-by setting the "d2dPeerAddresses" parameter (list of IP aliases separated by blank spaces) 
-E.g.: *.ue[0].d2dPeerAddresses = "ue[1] ue[2]"  # ue[0] can transmit in D2D mode to both ue[1] and ue[2]
-     
-Note that the association is unidirectional. If you want that also ue[1] and ue[2] transmit
-to ue[0] in D2D mode, you need to specify it explicitly.
-E.g.: *.ue[1].d2dPeerAddresses = "ue[0]"
-      *.ue[2].d2dPeerAddresses = "ue[0]"
+You need to enable the setup of a D2D peering-map by enabling the "d2dInitialMode".
+
+*.ue[*].lteNic.d2dInitialMode = true
 
 
 === D2D Transmission Power ===
