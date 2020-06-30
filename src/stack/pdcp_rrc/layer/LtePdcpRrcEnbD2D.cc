@@ -42,7 +42,7 @@ void LtePdcpRrcEnbD2D::fromDataPort(cPacket *pkt)
     lteInfo->setDirection(getDirection());
 
     // check if src and dest of the flow are D2D-capable (currently in IM)
-    if (binder_->getD2DCapability(srcId, destId))
+    if (getNodeTypeById(srcId) == UE && getNodeTypeById(destId) == UE && binder_->getD2DCapability(srcId, destId))
     {
         // this way, we record the ID of the endpoint even if the connection is in IM
         // this is useful for mode switching
