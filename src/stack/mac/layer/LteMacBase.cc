@@ -51,7 +51,7 @@ LteMacBase::~LteMacBase()
 
 void LteMacBase::sendUpperPackets(cPacket* pkt)
 {
-    EV << "LteMacBase : Sending packet " << pkt->getName() << " on port MAC_to_RLC\n";
+    EV << NOW << " LteMacBase::sendUpperPackets, Sending packet " << pkt->getName() << " on port MAC_to_RLC\n";
     // Send message
     send(pkt,up_[OUT]);
     nrToUpper_++;
@@ -60,7 +60,7 @@ void LteMacBase::sendUpperPackets(cPacket* pkt)
 
 void LteMacBase::sendLowerPackets(cPacket* pkt)
 {
-    EV << "LteMacBase : Sending packet " << pkt->getName() << " on port MAC_to_PHY\n";
+    EV << NOW << "LteMacBase::sendLowerPackets, Sending packet " << pkt->getName() << " on port MAC_to_PHY\n";
     // Send message
     updateUserTxParam(pkt);
     send(pkt,down_[OUT]);
