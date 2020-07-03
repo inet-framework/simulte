@@ -62,8 +62,8 @@ LteMacUe::~LteMacUe()
 
     if (schedulingGrant_!=NULL)
     {
-        delete schedulingGrant_;
-        schedulingGrant_ = NULL;
+        // delete schedulingGrant_;
+        schedulingGrant_ = nullptr;
     }
 }
 
@@ -207,20 +207,21 @@ int LteMacUe::macSduRequest()
     return numRequestedSdus;
 }
 
-bool LteMacUe::bufferizePacket(cPacket* pkt)
+bool LteMacUe::bufferizePacket(cPacket* pktAux)
 {
+    auto pkt = check_and_cast<Packet *>(pktAux);
     if (pkt->getByteLength() == 0)
         return false;
 
     pkt->setTimestamp();        // Add timestamp with current time to packet
 
-    FlowControlInfo* lteInfo = check_and_cast<FlowControlInfo*>(pkt->getControlInfo());
+    auto lteInfo = pkt->getTag<FlowControlInfo>();
 
     // obtain the cid from the packet informations
     MacCid cid = ctrlInfoToMacCid(lteInfo);
 
     // this packet is used to signal the arrival of new data in the RLC buffers
-    if (strcmp(pkt->getName(), "newDataPkt") == 0)
+    if (checkIfHeaderType<LteRlcPduNewData>(pkt))
     {
         // update the virtual buffer for this connection
 
@@ -493,6 +494,9 @@ void LteMacUe::macPduMake(MacCid cid)
             EV << "LteMacUe::macPduMake - BSR with size " << size << "created" << endl;
         }
 
+        // insert updated MacPdu
+        macPkt->insertAtFront(header);
+
         EV << "LteMacUe: pduMaker created PDU: " << macPkt->str() << endl;
 
         // TODO: harq test
@@ -615,8 +619,8 @@ void LteMacUe::handleSelfMessage()
         if(--expirationCounter_ < 0)
         {
             // Periodic grant is expired
-            delete schedulingGrant_;
-            schedulingGrant_ = NULL;
+            // delete schedulingGrant_;
+            schedulingGrant_ = nullptr;
             // if necessary, a RAC request will be sent to obtain a grant
             checkRAC();
             //return;
@@ -766,19 +770,21 @@ void LteMacUe::handleSelfMessage()
 }
 
 void
-LteMacUe::macHandleGrant(cPacket* pkt)
+LteMacUe::macHandleGrant(cPacket* pktAux)
 {
     EV << NOW << " LteMacUe::macHandleGrant - UE [" << nodeId_ << "] - Grant received" << endl;
-    // delete old grant
-    LteSchedulingGrant* grant = check_and_cast<LteSchedulingGrant*>(pkt);
+
+    auto pkt = check_and_cast<inet::Packet*> (pktAux);
+    auto grant = pkt->popAtFront<LteSchedulingGrant>();
+    delete pkt;
+
     EV << NOW << " LteMacUe::macHandleGrant - Direction: " << dirToA(grant->getDirection()) << endl;
 
-    //Codeword cw = grant->getCodeword();
-
+    // delete old grant
     if (schedulingGrant_!=NULL)
     {
-        delete schedulingGrant_;
-        schedulingGrant_ = NULL;
+        // delete schedulingGrant_;
+        schedulingGrant_ = nullptr;
     }
 
     // store received grant
@@ -801,9 +807,10 @@ LteMacUe::macHandleGrant(cPacket* pkt)
 }
 
 void
-LteMacUe::macHandleRac(cPacket* pkt)
+LteMacUe::macHandleRac(cPacket* pktAux)
 {
-    LteRac* racPkt = check_and_cast<LteRac*>(pkt);
+    auto pkt = check_and_cast<inet::Packet*> (pktAux);
+    auto racPkt = pkt->peekAtFront<LteRac>();
 
     if (racPkt->getSuccess())
     {
@@ -835,7 +842,7 @@ LteMacUe::macHandleRac(cPacket* pkt)
             EV << NOW << " Ue " << nodeId_ << " RAC attempt failed, backoff extracted : " << racBackoffTimer_ << endl;
         }
     }
-    delete racPkt;
+    delete pkt;
 }
 
 void
@@ -933,8 +940,8 @@ void LteMacUe::flushHarqBuffers()
     // deleting non-periodic grant
     if (schedulingGrant_ != NULL && !schedulingGrant_->getPeriodic())
     {
-        delete schedulingGrant_;
-        schedulingGrant_=NULL;
+        // delete schedulingGrant_;
+        schedulingGrant_=nullptr;
     }
 }
 

@@ -435,8 +435,8 @@ LteMacUeD2D::macHandleGrant(cPacket* pkt)
 
     if (schedulingGrant_!=NULL)
     {
-        delete schedulingGrant_;
-        schedulingGrant_ = NULL;
+        // delete schedulingGrant_;
+        schedulingGrant_ = nullptr;
     }
 
     // store received grant
@@ -530,9 +530,10 @@ void LteMacUeD2D::checkRAC()
     }
 }
 
-void LteMacUeD2D::macHandleRac(cPacket* pkt)
+void LteMacUeD2D::macHandleRac(cPacket* pktAux)
 {
-    LteRac* racPkt = check_and_cast<LteRac*>(pkt);
+    auto pkt = check_and_cast<inet::Packet*> (pktAux);
+    auto racPkt = pkt->peekAtFront<LteRac>();
 
     if (racPkt->getSuccess())
     {
@@ -568,7 +569,7 @@ void LteMacUeD2D::macHandleRac(cPacket* pkt)
             EV << NOW << " Ue " << nodeId_ << " RAC attempt failed, backoff extracted : " << racBackoffTimer_ << endl;
         }
     }
-    delete racPkt;
+    delete pkt;
 }
 
 
@@ -611,8 +612,8 @@ void LteMacUeD2D::handleSelfMessage()
         if(--expirationCounter_ < 0)
         {
             // Periodic grant is expired
-            delete schedulingGrant_;
-            schedulingGrant_ = NULL;
+            // delete schedulingGrant_;
+            schedulingGrant_ = nullptr;
             // if necessary, a RAC request will be sent to obtain a grant
             checkRAC();
         }
