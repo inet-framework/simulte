@@ -148,6 +148,7 @@ void GtpUserSimplified::handleFromUdp(Packet *pkt)
     // obtain the original IP datagram and send it to the local network
     auto ipHeader = pkt->peekAtFront<Ipv4Header>();
     pkt->addTagIfAbsent<NetworkProtocolInd>()->setProtocol(&Protocol::ipv4);
+    pkt->addTagIfAbsent<PacketProtocolTag>()->setProtocol(&Protocol::ipv4);
     pkt->addTagIfAbsent<NetworkProtocolInd>()->setNetworkProtocolHeader(ipHeader);
 
     if (ownerType_ == PGW)

@@ -6,27 +6,34 @@
 // The above file and the present reference are part of the software itself,
 // and cannot be removed from it.
 //
+#include <iostream>
+#include <inet/common/ModuleAccess.h>
+#include <inet/common/IInterfaceRegistrationListener.h>
+
+#include <inet/applications/common/SocketTag_m.h>
+
+#include <inet/transportlayer/tcp_common/TcpHeader.h>
+#include <inet/transportlayer/udp/Udp.h>
+#include <inet/transportlayer/tcp_common/TcpHeader.h>
+#include <inet/transportlayer/udp/UdpHeader_m.h>
+#include <inet/transportlayer/common/L4Tools.h>
+
+#include <inet/networklayer/common/InterfaceEntry.h>
+#include <inet/networklayer/ipv4/Ipv4InterfaceData.h>
+#include <inet/networklayer/ipv4/Ipv4Route.h>
+#include <inet/networklayer/ipv4/IIpv4RoutingTable.h>
+#include <inet/networklayer/common/L3Tools.h>
+#include <inet/networklayer/ipv4/Ipv4Header_m.h>
+
+#include <inet/linklayer/common/InterfaceTag_m.h>
 
 #include "corenetwork/lteip/IP2lte.h"
+#include "corenetwork/lteip/Constants.h"
+
 #include "corenetwork/binder/LteBinder.h"
-#include "inet/transportlayer/udp/Udp.h"
-#include <iostream>
-
-#include "inet/transportlayer/udp/UdpHeader_m.h"
-#include "inet/transportlayer/tcp_common/TcpHeader.h"
-
-#include "../lteCellInfo/LteCellInfo.h"
-#include "inet/common/ModuleAccess.h"
-#include "inet/networklayer/ipv4/Ipv4InterfaceData.h"
-#include "inet/networklayer/common/InterfaceEntry.h"
-#include "inet/networklayer/configurator/ipv4/Ipv4NetworkConfigurator.h"
-#include "inet/networklayer/ipv4/IIpv4RoutingTable.h"
+#include "corenetwork/lteCellInfo/LteCellInfo.h"
+#include "corenetwork/lteip/Constants.h"
 #include "stack/mac/layer/LteMacBase.h"
-#include "inet/networklayer/common/L3Tools.h"
-#include "inet/transportlayer/common/L4Tools.h"
-#include "inet/common/MessageDispatcher.h"
-#include "inet/applications/common/SocketTag_m.h"
-#include "inet/linklayer/common/InterfaceTag_m.h"
 
 using namespace std;
 using namespace inet;
@@ -36,9 +43,7 @@ Define_Module(IP2lte);
 
 void IP2lte::initialize(int stage)
 {
-    inet::MacProtocolBase::initialize(stage);
-    if (stage == inet::INITSTAGE_LOCAL)
-    {
+    if (stage == inet::INITSTAGE_LOCAL) {
         stackGateOut_ = gate("stackLte$o");
         ipGateOut_ = gate("upperLayerOut");
 
@@ -52,71 +57,76 @@ void IP2lte::initialize(int stage)
 
         binder_ = getBinder();
 
-        if (nodeType_ == ENODEB)
-        {
-            // TODO not so elegant
+        if (nodeType_ == ENODEB) {
             cModule *enodeb = getParentModule()->getParentModule();
             MacNodeId cellId = getBinder()->registerNode(enodeb, nodeType_);
             nodeId_ = cellId;
-            //registerInterface();
         }
-
     }
-    else if (stage == inet::INITSTAGE_LINK_LAYER)  // the configurator runs at stage NETWORK_LAYER, so the interface
-    {                                                // must be configured at a previous stage
-        if (nodeType_ == UE)
-        {
-            // TODO not so elegant
+    else if (stage == inet::INITSTAGE_LINK_LAYER) {
+        if(nodeType_ == ENODEB) {
+            registerInterface();
+        } else if (nodeType_ == UE) {
             cModule *ue = getParentModule()->getParentModule();
             nodeId_ = binder_->registerNode(ue, nodeType_, ue->par("masterId"));
-            // registerInterface();
-
+            registerInterface();
+        } else {
+            throw cRuntimeError("unhandled node type: %i", nodeType_);
+        }
+    }
+    else if (stage == inet::INITSTAGE_STATIC_ROUTING) {
+        if (nodeType_ == UE) {
+            // TODO: shift to routing stage
             // if the UE has been created dynamically, we need to manually add a default route having "wlan" as output interface
             // otherwise we are not able to reach devices outside the cellular network
-            if (NOW > 0)
-            {
-                IIpv4RoutingTable *irt = getModuleFromPar<IIpv4RoutingTable>(par("routingTableModule"), this);
+            if (NOW > 0) {
+                /**
+                 * TODO:might need a bit more care, if interface has changed, the query might, too
+                 */
+                IIpv4RoutingTable *irt = getModuleFromPar<IIpv4RoutingTable>(
+                        par("routingTableModule"), this);
                 Ipv4Route * defaultRoute = new Ipv4Route();
-                defaultRoute->setDestination(Ipv4Address(inet::Ipv4Address::UNSPECIFIED_ADDRESS));
-                defaultRoute->setNetmask(Ipv4Address(inet::Ipv4Address::UNSPECIFIED_ADDRESS));
+                defaultRoute->setDestination(
+                        Ipv4Address(inet::Ipv4Address::UNSPECIFIED_ADDRESS));
+                defaultRoute->setNetmask(
+                        Ipv4Address(inet::Ipv4Address::UNSPECIFIED_ADDRESS));
 
-                IInterfaceTable *ift = getModuleFromPar<IInterfaceTable>(par("interfaceTableModule"), this);
-                InterfaceEntry * interfaceEntry = ift->findInterfaceByName("wlan");
                 defaultRoute->setInterface(interfaceEntry);
 
                 irt->addRoute(defaultRoute);
             }
         }
-        auto endGate = ipGateOut_->getPathEndGate();
-        auto mod = endGate->getOwnerModule();
-        if (dynamic_cast<inet::MessageDispatcher *>(mod)) {
-            auto parent = this->getParentModule();
-            inet::registerService(LteProtocol::lte, parent->gate("upperLayerIn"), nullptr);
-            inet::registerProtocol(LteProtocol::lte, nullptr, parent->gate("upperLayerOut"));
-        }
-    }
-    else if (stage == inet::INITSTAGE_TRANSPORT_LAYER)
-    {
+    } else if (stage == inet::INITSTAGE_TRANSPORT_LAYER) {
         registerMulticastGroups();
     }
 }
 
-void IP2lte::handleMessageWhenUp(cMessage *msg)
+void IP2lte::handleMessage(cMessage *msg)
 {
     if( nodeType_ == ENODEB )
     {
         // message from IP Layer: send to stack
         if (msg->getArrivalGate()->isName("upperLayerIn"))
         {
-            auto pkt = check_and_cast<Packet *>(msg);
-            auto ipDatagram = pkt->peekAtFront<Ipv4Header>();
-            fromIpEnb(pkt);
+            auto ipDatagram = check_and_cast<Packet *>(msg);
+            fromIpEnb(ipDatagram);
         }
         // message from stack: send to peer
-        else if(msg->getArrivalGate()->isName("stackLte$i")) {
+        else if(msg->getArrivalGate()->isName("stackLte$i")){
             auto pkt = check_and_cast<Packet *>(msg);
-            decapsulate(pkt);
-            toIpEnb(msg);
+            
+            auto sockInd = pkt->removeTagIfPresent<SocketInd>();
+    		if (sockInd)
+        		delete sockInd;
+    		removeAllSimuLteTags(pkt);
+    		auto ipDatagram = pkt->peekAtFront<Ipv4Header>();
+    		auto networkProtocolInd = pkt->addTagIfAbsent<NetworkProtocolInd>();
+    		networkProtocolInd->setProtocol(&Protocol::ipv4);
+    		networkProtocolInd->setNetworkProtocolHeader(ipDatagram);
+    		pkt->addTagIfAbsent<PacketProtocolTag>()->setProtocol(&Protocol::ipv4);
+    		pkt->addTagIfAbsent<DispatchProtocolReq>()->setProtocol(&Protocol::ipv4);
+            
+            toIpEnb(pkt);
         }
         else
         {
@@ -131,21 +141,27 @@ void IP2lte::handleMessageWhenUp(cMessage *msg)
         // message from transport: send to stack
         if (msg->getArrivalGate()->isName("upperLayerIn"))
         {
-            auto pkt = check_and_cast<Packet *>(msg);
-            auto sockInd = pkt->removeTagIfPresent<SocketInd>();
-            if (sockInd)
-                delete sockInd;
-            auto header = pkt->peekAtFront<Ipv4Header>();
+
+            auto ipDatagram = check_and_cast<Packet *>(msg);
             EV << "LteIp: message from transport: send to stack" << endl;
-            pkt->addTagIfAbsent<PacketProtocolTag>()->setProtocol(&LteProtocol::lte);
-            fromIpUe(pkt);
+            fromIpUe(ipDatagram);
         }
         else if(msg->getArrivalGate()->isName("stackLte$i"))
         {
             // message from stack: send to transport
             EV << "LteIp: message from stack: send to transport" << endl;
             auto pkt = check_and_cast<Packet *>(msg);
-            decapsulate(pkt);
+            auto sockInd = pkt->removeTagIfPresent<SocketInd>();
+    		if (sockInd)
+        		delete sockInd;
+    		removeAllSimuLteTags(pkt);
+    		auto ipDatagram = pkt->peekAtFront<Ipv4Header>();
+    		auto networkProtocolInd = pkt->addTagIfAbsent<NetworkProtocolInd>();
+    		networkProtocolInd->setProtocol(&Protocol::ipv4);
+    		networkProtocolInd->setNetworkProtocolHeader(ipDatagram);
+    		pkt->addTagIfAbsent<PacketProtocolTag>()->setProtocol(&Protocol::ipv4);
+    		pkt->addTagIfAbsent<DispatchProtocolReq>()->setProtocol(&Protocol::ipv4);
+            
             toIpUe(pkt);
         }
         else
@@ -157,20 +173,6 @@ void IP2lte::handleMessageWhenUp(cMessage *msg)
     }
 }
 
-void IP2lte::decapsulate(Packet *pkt)
-{
-    auto sockInd = pkt->removeTagIfPresent<SocketInd>();
-    if (sockInd)
-        delete sockInd;
-    removeAllSimuLteTags(pkt);
-    auto ipDatagram = pkt->peekAtFront<Ipv4Header>();
-    auto networkProtocolInd = pkt->addTagIfAbsent<NetworkProtocolInd>();
-    networkProtocolInd->setProtocol(&Protocol::ipv4);
-    networkProtocolInd->setNetworkProtocolHeader(ipDatagram);
-    pkt->addTagIfAbsent<PacketProtocolTag>()->setProtocol(&Protocol::ipv4);
-    pkt->addTagIfAbsent<DispatchProtocolReq>()->setProtocol(&Protocol::ipv4);
-    pkt->addTagIfAbsent<InterfaceInd>()->setInterfaceId(interfaceEntry->getInterfaceId());
-}
 
 void IP2lte::setNodeType(std::string s)
 {
@@ -178,44 +180,42 @@ void IP2lte::setNodeType(std::string s)
     EV << "Node type: " << s << " -> " << nodeType_ << endl;
 }
 
-void IP2lte::fromIpUe(Packet * pkt)
-{
 
-    EV << "IP2lte::fromIpUe - message from IP layer: send to stack" << endl;
+void IP2lte::fromIpUe(Packet * datagram)
+{
+    EV << "IP2lte::fromIpUe - message from IP layer: send to stack: "  << datagram->str() << std::endl;
     // Remove control info from IP datagram
-    auto sockInd = pkt->removeTagIfPresent<SocketInd>();
+    auto sockInd = datagram->removeTagIfPresent<SocketInd>();
     if (sockInd)
         delete sockInd;
-    removeAllSimuLteTags(pkt);
+    removeAllSimuLteTags(datagram);
 
-    auto tag = pkt->removeTagIfPresent<FlowControlInfo>();
+    auto tag = datagram->removeTagIfPresent<FlowControlInfo>();
     if (tag)
         delete tag;
+    // Remove InterfaceReq Tag (we already are on an interface now)
+    datagram->removeTagIfPresent<InterfaceReq>();
 
     if (ueHold_)
     {
         // hold packets until handover is complete
-        ueHoldFromIp_.push_back(pkt);
+        ueHoldFromIp_.push_back(datagram);
     }
     else
     {
-        toStackUe(pkt);
+        toStackUe(datagram);
     }
 }
 
 void IP2lte::toStackUe(Packet * pkt)
 {
-    // obtain the encapsulated transport packet
-   // cPacket * transportPacket = datagram->getEncapsulatedPacket();
-
     // 5-Tuple infos
     unsigned short srcPort = 0;
     unsigned short dstPort = 0;
-
-
+    
     auto protocolId = getProtocolId(pkt);
     auto datagram = pkt->peekAtFront<Ipv4Header>();
-    auto trasnportHeader = getTransportProtocolHeader(pkt);
+    auto transportHeader = getTransportProtocolHeader(pkt);
 
     int transportProtocol = datagram->getProtocolId();
     // TODO Add support to IPv6 (=> see L3Tools.cc of INET)
@@ -233,19 +233,25 @@ void IP2lte::toStackUe(Packet * pkt)
     int headerSize = datagram->getHeaderLength().get();
 
     // inspect packet depending on the transport protocol type
-    if (IP_PROT_TCP == transportProtocol) {
-        auto tcpseg = dynamicPtrCast<const tcp::TcpHeader>(trasnportHeader);
-        srcPort = tcpseg->getSrcPort();
-        dstPort = tcpseg->getDestPort();
-        headerSize += tcpseg->getHeaderLength().get();
-    }
-    else if (IP_PROT_UDP == transportProtocol) {
-        auto udppacket = dynamicPtrCast<const UdpHeader>(trasnportHeader);
-        srcPort = udppacket->getSrcPort();
-        dstPort = udppacket->getDestPort();
-        headerSize += inet::UDP_HEADER_LENGTH.get();
-    } else {
-        EV_ERROR << "Unknown transport protocol id." << endl;
+    // TODO: needs refactoring (redundant code, see toStackEnb())
+    switch (transportProtocol) {
+        case IP_PROT_TCP: {
+            auto tcpHdr = dynamicPtrCast<const tcp::TcpHeader>(transportHeader);
+            srcPort = tcpHdr->getSrcPort();
+            dstPort = tcpHdr->getDestPort();
+            headerSize += B(tcpHdr->getHeaderLength()).get();
+            break;
+        }
+        case IP_PROT_UDP: {
+            auto udpHdr = dynamicPtrCast<const UdpHeader>(transportHeader);
+            srcPort = udpHdr->getSrcPort();
+            dstPort = udpHdr->getDestPort();
+            headerSize += UDP_HEADER_BYTES;
+            break;
+        }
+        default: {
+            EV_ERROR << "Unknown transport protocol id." << endl;
+        }
     }
 
     pkt->addTagIfAbsent<FlowControlInfo>()->setSrcAddr(srcAddr.getInt());
@@ -254,15 +260,13 @@ void IP2lte::toStackUe(Packet * pkt)
     pkt->addTagIfAbsent<FlowControlInfo>()->setDstPort(dstPort);
     pkt->addTagIfAbsent<FlowControlInfo>()->setSequenceNumber(seqNums_[pair]++);
     pkt->addTagIfAbsent<FlowControlInfo>()->setHeaderSize(headerSize);
+    
     printControlInfo(pkt);
-
-    //datagram->setControlInfo(controlInfo);
 
     //** Send datagram to lte stack or LteIp peer **
     send(pkt,stackGateOut_);
 }
 
-/*
 void IP2lte::prepareForIpv4(Packet *datagram, const Protocol *protocol){
     // add DispatchProtocolRequest so that the packet is handled by the specified protocol
     datagram->addTagIfAbsent<DispatchProtocolReq>()->setProtocol(protocol);
@@ -270,11 +274,11 @@ void IP2lte::prepareForIpv4(Packet *datagram, const Protocol *protocol){
     // add Interface-Indication to indicate which interface this packet was received from
     datagram->addTagIfAbsent<InterfaceInd>()->setInterfaceId(interfaceEntry->getInterfaceId());
 }
-*/
 
 void IP2lte::toIpUe(Packet *datagram)
 {
     EV << "IP2lte::toIpUe - message from stack: send to IP layer" << endl;
+    prepareForIpv4(datagram);
     send(datagram,ipGateOut_);
 }
 
@@ -285,13 +289,14 @@ void IP2lte::fromIpEnb(Packet * pkt)
     auto sockInd = pkt->removeTagIfPresent<SocketInd>();
     if (sockInd)
         delete sockInd;
-    //delete(datagram->removeControlInfo());
     removeAllSimuLteTags(pkt);
 
-    auto datagram = pkt->peekAtFront<Ipv4Header>();
+    // Remove InterfaceReq Tag (we already are on an interface now)
+    pkt->removeTagIfPresent<InterfaceReq>();
 
-    // TODO Add support to IPv6
-    Ipv4Address destAddr = datagram->getDestAddress();
+    // TODO Add support to Ipv6
+    auto datagram = pkt->peekAtFront<Ipv4Header>();
+    const Ipv4Address& destAddr = datagram->getDestAddress();
 
     // handle "forwarding" of packets during handover
     MacNodeId destId = binder_->getMacNodeId(destAddr);
@@ -320,24 +325,24 @@ void IP2lte::fromIpEnb(Packet * pkt)
     toStackEnb(pkt);
 }
 
-void IP2lte::toIpEnb(cMessage * msg)
+void IP2lte::toIpEnb(Packet* datagram)
 {
     EV << "IP2lte::toIpEnb - message from stack: send to IP layer" << endl;
-    // prepareForIpv4(msg, &LteProtocol::ipv4uu);
-    send(msg,ipGateOut_);
+    prepareForIpv4(datagram, &LteProtocol::ipv4uu);
+    send(datagram,ipGateOut_);
 }
 
 void IP2lte::toStackEnb(Packet* pkt)
 {
-    // obtain the encapsulated transport packet
-    auto datagram = pkt->peekAtFront<Ipv4Header>();
-    auto transportHeader = getTransportProtocolHeader(pkt);
+    EV << "IP2lte::toStackEnb - packet is forwarded to stack" << endl;
     // 5-Tuple infos
     unsigned short srcPort = 0;
     unsigned short dstPort = 0;
-    int transportProtocol = datagram->getProtocolId();
-    Ipv4Address srcAddr  = datagram->getSrcAddress() ,
-                destAddr = datagram->getDestAddress();
+    auto& iphdr = pkt->peekAtFront<Ipv4Header>();
+    auto transportHeader = getTransportProtocolHeader(pkt);
+    int transportProtocol = iphdr->getProtocolId();
+    Ipv4Address srcAddr  = iphdr->getSrcAddress(),
+                destAddr = iphdr->getDestAddress();
     MacNodeId destId = binder_->getMacNodeId(destAddr);
 
     // if needed, create a new structure for the flow
@@ -350,22 +355,33 @@ void IP2lte::toStackEnb(Packet* pkt)
 
     int headerSize = 0;
 
-    if (IP_PROT_TCP == transportProtocol) {
-        auto tcpseg = dynamicPtrCast<const tcp::TcpHeader>(transportHeader);
-        srcPort = tcpseg->getSrcPort();
-        dstPort = tcpseg->getDestPort();
-        headerSize += tcpseg->getHeaderLength().get();
-    }
-    else if (IP_PROT_UDP == transportProtocol) {
-        auto udppacket = dynamicPtrCast<const UdpHeader>(transportHeader);
-        srcPort = udppacket->getSrcPort();
-        dstPort = udppacket->getDestPort();
-        headerSize += inet::UDP_HEADER_LENGTH.get();
-    } else {
-            EV_ERROR << "Unknown transport protocol id." << endl;
-    }
+    // iphdr->setCrcMode(inet::CrcMode::CRC_COMPUTED);
+    // iphdr->getCrc();
 
-    // FlowControlInfo *controlInfo = new FlowControlInfo();
+    switch(transportProtocol)
+    {
+        case IP_PROT_TCP: {
+            auto tcpHdr = dynamicPtrCast<const tcp::TcpHeader>(transportHeader);
+            srcPort = tcpHdr->getSrcPort();
+            dstPort = tcpHdr->getDestPort();
+            headerSize += B(tcpHdr->getHeaderLength()).get();
+            break;
+        }
+        case IP_PROT_UDP: {
+            auto udpHdr = dynamicPtrCast<const UdpHeader>(transportHeader);
+            srcPort = udpHdr->getSrcPort();
+            dstPort = udpHdr->getDestPort();
+            headerSize += inet::UDP_HEADER_LENGTH.get();
+            break;
+        }
+        default: {
+            EV_ERROR << "Unknown transport protocol id." << endl;
+        }
+    }
+    // re-insert ip header
+    // not necessary anymore - has not been removed: datagram->insertAtFront(iphdr);
+
+    // prepare flow info for LTE stack
     pkt->addTagIfAbsent<FlowControlInfo>()->setSrcAddr(srcAddr.getInt());
     pkt->addTagIfAbsent<FlowControlInfo>()->setDstAddr(destAddr.getInt());
     pkt->addTagIfAbsent<FlowControlInfo>()->setSrcPort(srcPort);
@@ -378,7 +394,7 @@ void IP2lte::toStackEnb(Packet* pkt)
 
     pkt->addTagIfAbsent<FlowControlInfo>()->setDestId(master);
     printControlInfo(pkt);
-    //datagram->setControlInfo(controlInfo);
+
     send(pkt,stackGateOut_);
 }
 
@@ -394,17 +410,20 @@ void IP2lte::printControlInfo(Packet* pkt)
 }
 
 
-void IP2lte::configureInterfaceEntry()
+void IP2lte::registerInterface()
 {
-    // data rate
-    interfaceEntry->setInterfaceName("wlan");
+    IInterfaceTable *ift = getModuleFromPar<IInterfaceTable>(par("interfaceTableModule"), this);
+    if (!ift)
+        return;
+    interfaceEntry = getContainingNicModule(this);
+    interfaceEntry->setInterfaceName("wlan");           // FIXME: user different name for lte interfaces
     // TODO configure MTE size from NED
     interfaceEntry->setMtu(1500);
     // enable broadcast/multicast
     interfaceEntry->setBroadcast(true);
     interfaceEntry->setMulticast(true);
     interfaceEntry->setLoopback(false);
-
+    
     // generate a link-layer address to be used as interface token for IPv6
     InterfaceToken token(0, getSimulation()->getUniqueNumber(), 64);
     interfaceEntry->setInterfaceToken(token);
@@ -425,6 +444,7 @@ void IP2lte::registerMulticastGroups()
         return;
     interfaceEntry = ift->findInterfaceByName("wlan");
     unsigned int numOfAddresses = interfaceEntry->getProtocolData<Ipv4InterfaceData>()->getNumOfJoinedMulticastGroups();
+
     for (unsigned int i=0; i<numOfAddresses; ++i)
     {
         Ipv4Address addr = interfaceEntry->getProtocolData<Ipv4InterfaceData>()->getJoinedMulticastGroup(i);
@@ -456,20 +476,19 @@ void IP2lte::triggerHandoverTarget(MacNodeId ueId, MacNodeId sourceEnb)
 }
 
 
-void IP2lte::sendTunneledPacketOnHandover(Packet* pkt, MacNodeId targetEnb)
+void IP2lte::sendTunneledPacketOnHandover(Packet* datagram, MacNodeId targetEnb)
 {
     EV << "IP2lte::sendTunneledPacketOnHandover - destination is handing over to eNB " << targetEnb << ". Forward packet via X2." << endl;
     if (hoManager_ == NULL)
         hoManager_ = check_and_cast<LteHandoverManager*>(getParentModule()->getSubmodule("handoverManager"));
-    hoManager_->forwardDataToTargetEnb(pkt, targetEnb);
+    hoManager_->forwardDataToTargetEnb(datagram, targetEnb);
 }
 
-void IP2lte::receiveTunneledPacketOnHandover(Packet* pkt, MacNodeId sourceEnb)
+void IP2lte::receiveTunneledPacketOnHandover(Packet* datagram, MacNodeId sourceEnb)
 {
     EV << "IP2lte::receiveTunneledPacketOnHandover - received packet via X2 from " << sourceEnb << endl;
-
-    auto datagram = pkt->peekAtFront<Ipv4Header>();
-    Ipv4Address destAddr = datagram->getDestAddress();
+    const auto& hdr = datagram->peekAtFront<Ipv4Header>();
+    const Ipv4Address& destAddr = hdr->getDestAddress();
     MacNodeId destId = binder_->getMacNodeId(destAddr);
     if (hoFromX2_.find(destId) == hoFromX2_.end())
     {
@@ -477,7 +496,7 @@ void IP2lte::receiveTunneledPacketOnHandover(Packet* pkt, MacNodeId sourceEnb)
         hoFromX2_[destId] = queue;
     }
 
-    hoFromX2_[destId].push_back(pkt);
+    hoFromX2_[destId].push_back(datagram);
 }
 
 void IP2lte::signalHandoverCompleteSource(MacNodeId ueId, MacNodeId targetEnb)
@@ -507,7 +526,7 @@ void IP2lte::signalHandoverCompleteTarget(MacNodeId ueId, MacNodeId sourceEnb)
     {
         while (!it->second.empty())
         {
-            auto pkt = it->second.front();
+            Packet* pkt = it->second.front();
             it->second.pop_front();
 
             // send pkt down
@@ -520,7 +539,7 @@ void IP2lte::signalHandoverCompleteTarget(MacNodeId ueId, MacNodeId sourceEnb)
     {
         while (!it->second.empty())
         {
-            auto pkt = it->second.front();
+            Packet* pkt = it->second.front();
             it->second.pop_front();
 
             // send pkt down
@@ -567,7 +586,7 @@ IP2lte::~IP2lte()
     {
         while (!it->second.empty())
         {
-            auto pkt = it->second.front();
+            Packet* pkt = it->second.front();
             it->second.pop_front();
             delete pkt;
         }
@@ -577,7 +596,7 @@ IP2lte::~IP2lte()
     {
         while (!it->second.empty())
         {
-            auto pkt = it->second.front();
+            Packet* pkt = it->second.front();
             it->second.pop_front();
             delete pkt;
         }
