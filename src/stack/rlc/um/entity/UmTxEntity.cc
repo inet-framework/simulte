@@ -76,7 +76,7 @@ void UmTxEntity::rlcPduMake(int pduLength)
         int sduLength = pkt->getByteLength(); // length without the SDU header
         pkt->insertAtFront(rlcSdu);
 
-        if (fragmentInfo) {
+        if (fragmentInfo != nullptr) {
             if (fragmentInfo->pkt != pkt)
                 throw cRuntimeError("Packets are different");
             sduLength = fragmentInfo->size;
@@ -118,7 +118,7 @@ void UmTxEntity::rlcPduMake(int pduLength)
             len += pduLength;
 
             auto rlcSduDup = pkt->dup();
-            if (fragmentInfo) {
+            if (fragmentInfo != nullptr) {
                 fragmentInfo->size -= pduLength;
                 if (fragmentInfo->size < 0)
                     throw cRuntimeError("Fragmentation error");
@@ -209,6 +209,11 @@ void UmTxEntity::clearQueue()
     // empty buffer
     while (!sduQueue_.isEmpty())
         delete sduQueue_.pop();
+
+    if (fragmentInfo) {
+        delete fragmentInfo;
+        fragmentInfo = nullptr;
+    }
 
     queueLength_ = 0;
 

@@ -434,8 +434,6 @@ void LteMacEnbD2D::macHandleD2DModeSwitch(cPacket* pktAux)
     auto switchPkt = pkt->peekAtFront<D2DModeSwitchNotification>();
     auto uinfo = pkt->getTag<UserControlInfo>();
 
-    //D2DModeSwitchNotification* switchPkt = check_and_cast<D2DModeSwitchNotification*>(pkt);
-    //UserControlInfo* uinfo = check_and_cast<UserControlInfo*>(switchPkt->getControlInfo());
     MacNodeId nodeId = uinfo->getDestId();
     LteD2DMode oldMode = switchPkt->getOldMode();
 
@@ -456,7 +454,6 @@ void LteMacEnbD2D::macHandleD2DModeSwitch(cPacket* pktAux)
                 if (tag)
                     delete tag;
                 auto switchPktTx = pktTx->removeAtFront<D2DModeSwitchNotification>();
-                //D2DModeSwitchNotification* switchPktTx = switchPkt->dup();
                 switchPktTx->setTxSide(true);
 
                 if (oldMode == IM)
@@ -511,17 +508,16 @@ void LteMacEnbD2D::macHandleD2DModeSwitch(cPacket* pktAux)
                 auto switchPktRx = pktRx->removeAtFront<D2DModeSwitchNotification>();
 
                 EV << NOW << " LteMacEnbD2D::sendModeSwitchNotification - send signal for RX entity to upper layers in the eNB (cid=" << cid << ")" << endl;
-                //D2DModeSwitchNotification* switchPktRx = switchPkt->dup();
+
                 switchPktRx->setTxSide(false);
                 if (oldMode == IM)
                     switchPktRx->setOldConnection(true);
                 else
                     switchPktRx->setOldConnection(false);
+
                 pktRx->insertAtFront(switchPktRx);
                 *(pktRx->addTag<FlowControlInfo>()) = *lteInfo;
                 sendUpperPackets(pktRx);
-                //switchPktRx->setControlInfo(lteInfo->dup());
-                //sendUpperPackets(switchPktRx);
                 break;
             }
         }

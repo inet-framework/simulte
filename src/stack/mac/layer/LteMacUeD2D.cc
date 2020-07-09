@@ -817,7 +817,6 @@ void LteMacUeD2D::macHandleD2DModeSwitch(cPacket* pktAux)
     LteD2DMode newMode = switchPkt->getNewMode();
     LteD2DMode oldMode = switchPkt->getOldMode();
 
-    // auto uInfo = pkt->getTag<UserControlInfo>();
     if (txSide)
     {
         emit(rcvdD2DModeSwitchNotification_,(long)1);
@@ -902,6 +901,7 @@ void LteMacUeD2D::macHandleD2DModeSwitch(cPacket* pktAux)
                 auto switchPkt_dup = pktDup->removeAtFront<D2DModeSwitchNotification>();
                 switchPkt_dup->setOldConnection(true);
                 pktDup->insertAtFront(switchPkt_dup);
+                *(pktDup->addTagIfAbsent<FlowControlInfo>()) = *lteInfo;
                 sendUpperPackets(pktDup);
 
                 if (oldDirection != newDirection && switchPkt->getClearRlcBuffer())
@@ -935,6 +935,7 @@ void LteMacUeD2D::macHandleD2DModeSwitch(cPacket* pktAux)
                     switchPkt_dup->setOldConnection(false);
                     // switchPkt_dup->setSchedulingPriority(1);        // always after the old mode
                     pktDup->insertAtFront(switchPkt_dup);
+                    *(pktDup->addTagIfAbsent<FlowControlInfo>()) = *lteInfo;
                     sendUpperPackets(pktDup);
                 }
             }
@@ -987,6 +988,7 @@ void LteMacUeD2D::macHandleD2DModeSwitch(cPacket* pktAux)
                     auto switchPkt_dup = pktDup->removeAtFront<D2DModeSwitchNotification>();
                     switchPkt_dup->setOldConnection(true);
                     pktDup->insertAtFront(switchPkt_dup);
+                    *(pktDup->addTagIfAbsent<FlowControlInfo>()) = *lteInfo;
                     sendUpperPackets(pktDup);
                 }
             }
@@ -1000,6 +1002,7 @@ void LteMacUeD2D::macHandleD2DModeSwitch(cPacket* pktAux)
                     auto switchPkt_dup = pktDup->removeAtFront<D2DModeSwitchNotification>();
                     switchPkt_dup->setOldConnection(false);
                     pktDup->insertAtFront(switchPkt_dup);
+                    *(pktDup->addTagIfAbsent<FlowControlInfo>()) = *lteInfo;
                     sendUpperPackets(pktDup);
                 }
             }

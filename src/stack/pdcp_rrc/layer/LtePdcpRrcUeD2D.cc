@@ -208,19 +208,20 @@ void LtePdcpRrcUeD2D::initialize(int stage)
 */
 void LtePdcpRrcUeD2D::handleMessage(cMessage* msg)
 {
-    cPacket* pkt = check_and_cast<cPacket *>(msg);
+    cPacket* pktAux = check_and_cast<cPacket *>(msg);
 
     // check whether the message is a notification for mode switch
-    if (strcmp(pkt->getName(),"D2DModeSwitchNotification") == 0)
+    if (strcmp(pktAux->getName(),"D2DModeSwitchNotification") == 0)
     {
-        EV << "LtePdcpRrcUeD2D::handleMessage - Received packet " << pkt->getName() << " from port " << pkt->getArrivalGate()->getName() << endl;
+        EV << "LtePdcpRrcUeD2D::handleMessage - Received packet " << pktAux->getName() << " from port " << pktAux->getArrivalGate()->getName() << endl;
 
-        D2DModeSwitchNotification* switchPkt = check_and_cast<D2DModeSwitchNotification*>(pkt);
+        auto pkt = check_and_cast<inet::Packet *>(pktAux);
+        auto switchPkt = pkt->peekAtFront<D2DModeSwitchNotification>();
 
         // call handler
         pdcpHandleD2DModeSwitch(switchPkt->getPeerId(), switchPkt->getNewMode());
 
-        delete pkt;
+        delete pktAux;
     }
     else
     {
