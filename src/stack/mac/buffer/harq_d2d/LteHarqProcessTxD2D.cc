@@ -45,7 +45,7 @@ Packet *LteHarqProcessTxD2D::extractPdu(Codeword cw)
         throw cRuntimeError("No tag of type LteControlInfo found");
     auto info = infoVec.front();
 
-    if (info->getDirection() == D2D_MULTI)
+    if (info.getDirection() == D2D_MULTI)
     {
         // if the pdu is for a multicast/broadcast connection, the selected unit has been emptied
         numEmptyUnits_++;

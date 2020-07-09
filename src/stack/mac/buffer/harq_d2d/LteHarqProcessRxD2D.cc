@@ -24,7 +24,6 @@ LteHarqProcessRxD2D::~LteHarqProcessRxD2D()
 {
 }
 
-//LteHarqFeedback *LteHarqProcessRxD2D::createFeedback(Codeword cw)
 Packet *LteHarqProcessRxD2D::createFeedback(Codeword cw)
 {
     if (!isEvaluated(cw))
@@ -35,6 +34,7 @@ Packet *LteHarqProcessRxD2D::createFeedback(Codeword cw)
     Packet *pkt = nullptr;
     
     auto pduInfo = (pdu_.at(cw)->getTag<UserControlInfo>());
+    auto pdu = pdu_.at(cw)->peekAtFront<LteMacPdu>();
 
     // if the PDU belongs to a multicast connection, then do not create feedback
     // (i.e., in all other cases, feedback is created)
@@ -43,11 +43,10 @@ Packet *LteHarqProcessRxD2D::createFeedback(Codeword cw)
         // TODO: Change LteHarqFeedback from chunk to tag,
         pkt = new Packet();
         auto fb = makeShared<LteHarqFeedback>();
-        //fb = new LteHarqFeedback();
         fb->setAcid(acid_);
         fb->setCw(cw);
         fb->setResult(result_.at(cw));
-        fb->setFbMacPduId(pdu_.at(cw)->getId());
+        fb->setFbMacPduId(pdu->getMacPduId());
         //fb->setByteLength(0);
         fb->setChunkLength(b(1));
         pkt->addTagIfAbsent<UserControlInfo>()->setSourceId(pduInfo->getDestId());
@@ -96,6 +95,7 @@ Packet* LteHarqProcessRxD2D::createFeedbackMirror(Codeword cw)
         throw cRuntimeError("Cannot send feedback for a pdu not in EVALUATING state");
 
     auto pduInfo = pdu_.at(cw)->getTag<UserControlInfo>();
+    auto pdu = pdu_.at(cw)->peekAtFront<LteMacPdu>();
 
     Packet *pkt = nullptr;
 
@@ -109,9 +109,9 @@ Packet* LteHarqProcessRxD2D::createFeedbackMirror(Codeword cw)
         fb->setAcid(acid_);
         fb->setCw(cw);
         fb->setResult(result_.at(cw));
-        fb->setFbMacPduId(pdu_.at(cw)->getId());
+        fb->setFbMacPduId(pdu->getMacPduId());
         fb->setChunkLength(b(1)); // TODO: should be 0
-        fb->setPduLength(pdu_.at(cw)->getByteLength());
+        fb->setPduLength(pdu->getByteLength());
         fb->setD2dSenderId(pduInfo->getSourceId());
         fb->setD2dReceiverId(pduInfo->getDestId());
         pkt->insertAtFront(fb);

@@ -78,16 +78,6 @@ class LteMacPdu : public LteMacPdu_Base
      */
     inet::int64 macPduId_;
 
-    inet::int64 getByteLength() const
-    {
-        return macPduLength_ + getHeaderLength();
-    }
-
-    inet::int64 getBitLength() const
-    {
-        return (getByteLength() * 8);
-    }
-
   public:
 
     /**
@@ -201,6 +191,17 @@ class LteMacPdu : public LteMacPdu_Base
 
         // remove and delete control UserControlInfo - if it exists
     }
+
+    inet::int64 getByteLength() const
+    {
+        return macPduLength_ + getHeaderLength();
+    }
+
+    inet::int64 getBitLength() const
+    {
+        return (getByteLength() * 8);
+    }
+
 
     virtual void setSduArraySize(size_t size) override
     {

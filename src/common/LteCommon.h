@@ -713,9 +713,9 @@ template <typename T>
 }
 
 template <typename T>
-std::vector<T *> getTagsWithInherit(inet::Packet *pkt)
+std::vector<T> getTagsWithInherit(inet::Packet *pkt)
 {
-    std::vector<T *> t;
+    std::vector<T> t;
     auto tags = pkt->getTags();
     if (tags.getNumTags() == 0)
         return t;
@@ -725,7 +725,7 @@ std::vector<T *> getTagsWithInherit(inet::Packet *pkt)
     for (unsigned int i = 0; i < tags.getNumTags(); i++) {
         T * temp = dynamic_cast<T *> (tags.getTag(i));
         if (temp != nullptr) {
-            t.push_back(temp);
+            t.push_back(*temp);
         }
     }
     return t;

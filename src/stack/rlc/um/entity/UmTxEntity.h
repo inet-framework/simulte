@@ -54,8 +54,8 @@ class UmTxEntity : public omnetpp::cSimpleModule
   public:
     UmTxEntity()
     {
-        flowControlInfo_ = NULL;
-        lteRlc_ = NULL;
+        flowControlInfo_ = nullptr;
+        lteRlc_ = nullptr;
     }
     virtual ~UmTxEntity()
     {

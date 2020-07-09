@@ -20,9 +20,11 @@ LteHarqBufferMirrorD2D::LteHarqBufferMirrorD2D(unsigned int numProc, unsigned ch
         processes_[i] = new LteHarqProcessMirrorD2D(MAX_CODEWORDS, maxHarqRtx_);
 }
 
-void LteHarqBufferMirrorD2D::receiveHarqFeedback(LteHarqFeedbackMirror *fbpkt)
+void LteHarqBufferMirrorD2D::receiveHarqFeedback(inet::Packet *pkt)
 {
     EV << "LteHarqBufferMirrorD2D::receiveHarqFeedback - start" << endl;
+
+    auto fbpkt = pkt->peekAtFront<LteHarqFeedbackMirror>();
 
     bool result = fbpkt->getResult();
     HarqAcknowledgment harqResult = result ? HARQACK : HARQNACK;
@@ -35,7 +37,7 @@ void LteHarqBufferMirrorD2D::receiveHarqFeedback(LteHarqFeedbackMirror *fbpkt)
     // debug output
     const char *ack = result ? "ACK" : "NACK";
     EV << "H-ARQ MIRROR: feedback received for process " << (int)acid << " codeword " << (int)cw << " result is " << ack << endl;
-    delete fbpkt;
+    delete pkt;
 }
 
 void LteHarqBufferMirrorD2D::markSelectedAsWaiting()

@@ -125,7 +125,6 @@ unsigned int LteHarqBufferRx::purgeCorruptedPdus()
 std::list<Packet *> LteHarqBufferRx::extractCorrectPdus()
 {
     this->sendFeedback();
-    //std::list<LteMacPdu*> ret;
     std::list<Packet*> ret;
     unsigned char acid = 0;
     for (unsigned int i = 0; i < numHarqProcesses_; i++)
@@ -137,8 +136,7 @@ std::list<Packet *> LteHarqBufferRx::extractCorrectPdus()
                 auto pktTemp = processes_[i]->extractPdu(cw);
                 auto temp = pktTemp->peekAtFront<LteMacPdu>();
                 auto uInfo = pktTemp->getTag<UserControlInfo>();
-                //LteMacPdu* temp = processes_[i]->extractPdu(cw);
-                //UserControlInfo *uInfo = check_and_cast<UserControlInfo *>(temp->getControlInfo());
+
                 unsigned int size = pktTemp->getByteLength();
 
                 // emit delay statistic

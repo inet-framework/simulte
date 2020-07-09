@@ -204,14 +204,15 @@ void LtePhyUeD2D::handleAirFrame(cMessage* msg)
     EV << "Handled LteAirframe with ID " << frame->getId() << " with result "
        << ( result ? "RECEIVED" : "NOT RECEIVED" ) << endl;
 
-    cPacket* pkt = frame->decapsulate();
+    auto pkt = check_and_cast<inet::Packet *>(frame->decapsulate());
 
     // here frame has to be destroyed since it is no more useful
     delete frame;
 
     // attach the decider result to the packet as control info
     lteInfo->setDeciderResult(result);
-    pkt->setControlInfo(lteInfo);
+    *(pkt->addTagIfAbsent<UserControlInfo>()) = *lteInfo;
+    delete lteInfo;
 
     // send decapsulated message along with result control info to upperGateOut_
     send(pkt, upperGateOut_);
@@ -256,7 +257,8 @@ void LtePhyUeD2D::handleUpperMessage(cMessage* msg)
 //    TODO     BatteryAccess::drawCurrent(txAmount_, 1);
 //    }
 
-    UserControlInfo* lteInfo = check_and_cast<UserControlInfo*>(msg->removeControlInfo());
+    auto pkt = check_and_cast<inet::Packet *>(msg);
+    auto lteInfo = pkt->removeTag<UserControlInfo>();
 
     if (lteInfo->getFrameType() == DATAPKT && (channelModel_->isUplinkInterferenceEnabled() || channelModel_->isD2DInterferenceEnabled()))
     {
@@ -486,11 +488,15 @@ void LtePhyUeD2D::sendFeedback(LteFeedbackDoubleVector fbDl, LteFeedbackDoubleVe
     EV << "LtePhyUeD2D: feedback from Feedback Generator" << endl;
 
     //Create a feedback packet
-    LteFeedbackPkt* fbPkt = new LteFeedbackPkt();
+    auto fbPkt = makeShared<LteFeedbackPkt>();
     //Set the feedback
     fbPkt->setLteFeedbackDoubleVectorDl(fbDl);
     fbPkt->setLteFeedbackDoubleVectorDl(fbUl);
     fbPkt->setSourceNodeId(nodeId_);
+
+    auto pkt = new Packet("feedback_pkt");
+    pkt->insertAtFront(fbPkt);
+
     UserControlInfo* uinfo = new UserControlInfo();
     uinfo->setSourceId(nodeId_);
     uinfo->setDestId(masterId_);
@@ -498,7 +504,7 @@ void LtePhyUeD2D::sendFeedback(LteFeedbackDoubleVector fbDl, LteFeedbackDoubleVe
     uinfo->setIsCorruptible(false);
     // create LteAirFrame and encapsulate a feedback packet
     LteAirFrame* frame = new LteAirFrame("feedback_pkt");
-    frame->encapsulate(check_and_cast<cPacket*>(fbPkt));
+    frame->encapsulate(check_and_cast<cPacket*>(pkt));
     uinfo->feedbackReq = req;
     uinfo->setDirection(UL);
     simtime_t signalLength = TTI;

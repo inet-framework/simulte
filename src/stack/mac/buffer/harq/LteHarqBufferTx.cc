@@ -220,9 +220,10 @@ void LteHarqBufferTx::receiveHarqFeedback(Packet *pkt)
         // todo: comment endsim after tests
         throw cRuntimeError("H-ARQ TX: fb is not for the pdu in this unit, maybe the addressed one was dropped");
     }
+
     bool reset = (*processes_)[acid]->pduFeedback(harqResult, cw);
     if (reset)
-    numEmptyProc_++;
+        numEmptyProc_++;
 
     // debug output
     const char *ack = result ? "ACK" : "NACK";

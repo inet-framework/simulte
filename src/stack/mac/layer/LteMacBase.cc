@@ -97,7 +97,6 @@ void LteMacBase::fromPhy(cPacket *pktAux)
     // TODO: harq test (comment fromPhy: it has only to pass pdus to proper rx buffer and
     // to manage H-ARQ feedback)
 
-    //UserControlInfo *userInfo = check_and_cast<UserControlInfo *>(pkt->getControlInfo());
     auto pkt = check_and_cast<inet::Packet*> (pktAux);
     auto userInfo = pkt->getTag<UserControlInfo>();
 
@@ -120,7 +119,6 @@ void LteMacBase::fromPhy(cPacket *pktAux)
             throw cRuntimeError("Mac::fromPhy(): Received feedback for an unexisting H-ARQ tx buffer");
         }
 
-        //LteHarqFeedback *hfbpkt = check_and_cast<LteHarqFeedback *>(pkt);
         auto hfbpkt = pkt->peekAtFront<LteHarqFeedback>();
         htit->second->receiveHarqFeedback(pkt);
         //auto hfbpkt = pkt->removeAtFront<LteHarqFeedback>();

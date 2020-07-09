@@ -54,9 +54,9 @@ void LteMacUeD2D::initialize(int stage)
         preconfiguredTxParams_ = getPreconfiguredTxParams();
 
         // get the reference to the eNB
-        enb_ = check_and_cast<LteMacEnbD2D*>(getSimulation()->getModule(binder_->getOmnetId(cellId_))->getSubmodule("wlanLteNic")->getSubmodule("mac"));
+        enb_ = check_and_cast<LteMacEnbD2D*>(getSimulation()->getModule(binder_->getOmnetId(cellId_))->getSubmodule("lteNic")->getSubmodule("mac"));
 
-        LteAmc *amc = check_and_cast<LteMacEnb *>(getSimulation()->getModule(binder_->getOmnetId(cellId_))->getSubmodule("wlanLteNic")->getSubmodule("mac"))->getAmc();
+        LteAmc *amc = check_and_cast<LteMacEnb *>(getSimulation()->getModule(binder_->getOmnetId(cellId_))->getSubmodule("lteNic")->getSubmodule("mac"))->getAmc();
         amc->attachUser(nodeId_, D2D);
     }
 }
@@ -227,7 +227,7 @@ void LteMacUeD2D::macPduMake(MacCid cid)
 
                 if (infoVec.empty())
                     throw cRuntimeError("No tag of type LteControlInfo found");
-                int32 groupId =  infoVec.front()->getMulticastGroupId();
+                int32 groupId =  infoVec.front().getMulticastGroupId();
 
                 if (groupId >= 0) // for unicast, group id is -1
                     macPkt->getTag<UserControlInfo>()->setMulticastGroupId(groupId);
@@ -276,10 +276,12 @@ void LteMacUeD2D::macPduMake(MacCid cid)
             // FIXME: hb is never deleted
             auto info = pit->second->getTag<UserControlInfo>();
             
-            if (info->getDirection() == UL)
+            if (info->getDirection() == UL) {
                 hb = new LteHarqBufferTx((unsigned int) ENB_TX_HARQ_PROCESSES, this, (LteMacBase*) getMacByMacNodeId(destId));
-            else // D2D or D2D_MULTI
+            }
+            else { // D2D or D2D_MULTI
                 hb = new LteHarqBufferTxD2D((unsigned int) ENB_TX_HARQ_PROCESSES, this, (LteMacBase*) getMacByMacNodeId(destId));
+            }
             harqTxBuffers_[destId] = hb;
             txBuf = hb;
         }
@@ -426,12 +428,14 @@ void LteMacUeD2D::handleMessage(cMessage* msg)
 }
 
 void
-LteMacUeD2D::macHandleGrant(cPacket* pkt)
+LteMacUeD2D::macHandleGrant(cPacket* pktAux)
 {
     EV << NOW << " LteMacUeD2D::macHandleGrant - UE [" << nodeId_ << "] - Grant received " << endl;
 
-    // delete old grant
-    LteSchedulingGrant* grant = check_and_cast<LteSchedulingGrant*>(pkt);
+    // extract grant
+    auto pkt = check_and_cast<inet::Packet*> (pktAux);
+    auto grant = pkt->popAtFront<LteSchedulingGrant>();
+    delete pkt;
 
     if (schedulingGrant_!=NULL)
     {

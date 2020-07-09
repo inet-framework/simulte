@@ -78,9 +78,11 @@ void LteMacEnbD2D::initialize(int stage)
     }
 }
 
-void LteMacEnbD2D::macHandleFeedbackPkt(cPacket *pkt)
+void LteMacEnbD2D::macHandleFeedbackPkt(cPacket *pktAux)
 {
-    LteFeedbackPkt* fb = check_and_cast<LteFeedbackPkt*>(pkt);
+    auto pkt = check_and_cast<Packet *>(pktAux);
+    auto fb = pkt->peekAtFront<LteFeedbackPkt>();
+
     std::map<MacNodeId, LteFeedbackDoubleVector> fbMapD2D = fb->getLteFeedbackDoubleVectorD2D();
 
     // skip if no D2D CQI has been reported
@@ -541,17 +543,18 @@ void LteMacEnbD2D::flushHarqBuffers()
 /*
  * Lower layer handler
  */
-void LteMacEnbD2D::fromPhy(cPacket *pkt)
+void LteMacEnbD2D::fromPhy(cPacket *pktAux)
 {
     // TODO: harq test (comment fromPhy: it has only to pass pdus to proper rx buffer and
     // to manage H-ARQ feedback)
-    UserControlInfo *userInfo = check_and_cast<UserControlInfo *>(pkt->getControlInfo());
+    auto pkt = check_and_cast<inet::Packet*> (pktAux);
+    auto userInfo = pkt->getTag<UserControlInfo>();
     if (userInfo->getFrameType() == HARQPKT)
     {
         MacNodeId src = userInfo->getSourceId();
 
         // this feedback refers to a mirrored H-ARQ buffer
-        LteHarqFeedback *hfbpkt = check_and_cast<LteHarqFeedback *>(pkt);
+        auto hfbpkt = pkt->peekAtFront<LteHarqFeedback>();
         if (!hfbpkt->getD2dFeedback())   // this is not a mirror feedback
         {
             LteMacBase::fromPhy(pkt);
@@ -559,8 +562,9 @@ void LteMacEnbD2D::fromPhy(cPacket *pkt)
         }
 
         // H-ARQ feedback, send it to mirror buffer of the D2D pair
-        MacNodeId d2dSender = check_and_cast<LteHarqFeedbackMirror*>(hfbpkt)->getD2dSenderId();
-        MacNodeId d2dReceiver = check_and_cast<LteHarqFeedbackMirror*>(hfbpkt)->getD2dReceiverId();
+        auto mfbpkt = pkt->peekAtFront<LteHarqFeedbackMirror>();
+        MacNodeId d2dSender = mfbpkt->getD2dSenderId();
+        MacNodeId d2dReceiver = mfbpkt->getD2dReceiverId();
         D2DPair pair(d2dSender, d2dReceiver);
         HarqBuffersMirrorD2D::iterator hit = harqBuffersMirrorD2D_.find(pair);
         EV << NOW << "LteMacEnbD2D::fromPhy - node " << nodeId_ << " Received HARQ Feedback pkt (mirrored)" << endl;
@@ -575,11 +579,11 @@ void LteMacEnbD2D::fromPhy(cPacket *pkt)
             // create buffer
             LteHarqBufferMirrorD2D* hb = new LteHarqBufferMirrorD2D((unsigned int) UE_TX_HARQ_PROCESSES, (unsigned char)par("maxHarqRtx"));
             harqBuffersMirrorD2D_[pair] = hb;
-            hb->receiveHarqFeedback(check_and_cast<LteHarqFeedbackMirror*>(hfbpkt));
+            hb->receiveHarqFeedback(pkt);
         }
         else
         {
-            hit->second->receiveHarqFeedback(check_and_cast<LteHarqFeedbackMirror*>(hfbpkt));
+            hit->second->receiveHarqFeedback(pkt);
         }
     }
     else
