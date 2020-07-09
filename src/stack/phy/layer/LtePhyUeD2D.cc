@@ -468,11 +468,15 @@ void LtePhyUeD2D::decodeAirFrame(LteAirFrame* frame, UserControlInfo* lteInfo)
     EV << "Handled LteAirframe with ID " << frame->getId() << " with result "
        << ( result ? "RECEIVED" : "NOT RECEIVED" ) << endl;
 
-    cPacket* pkt = frame->decapsulate();
+    auto pkt = check_and_cast<inet::Packet *>(frame->decapsulate());
+
+    // Note: no need to delete the frame itself - will be deleted later when the buffer of
+    // received frames is cleared
 
     // attach the decider result to the packet as control info
     lteInfo->setDeciderResult(result);
-    pkt->setControlInfo(lteInfo);
+    *(pkt->addTagIfAbsent<UserControlInfo>()) = *lteInfo;
+    delete lteInfo;
 
     // send decapsulated message along with result control info to upperGateOut_
     send(pkt, upperGateOut_);
