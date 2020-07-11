@@ -57,7 +57,6 @@ void UmTxEntity::rlcPduMake(int pduLength)
     // create the RLC PDU
     auto pktAux = new inet::Packet("lteRlcFragment");
     auto rlcPdu = inet::makeShared<LteRlcUmDataPdu>();
-    //LteRlcUmDataPdu* rlcPdu = new LteRlcUmDataPdu("lteRlcFragment");
 
     // the request from MAC takes into account also the size of the RLC header
     pduLength -= RLC_HEADER_UM;
@@ -150,9 +149,9 @@ void UmTxEntity::rlcPduMake(int pduLength)
 
     if (len == 0)
     {
-        // send an empty message to notify the MAC that there is not enough space to send RLC PDU
-        rlcPdu->setChunkLength(inet::b(1)); // send only a bit, minimum size.
-        *pktAux->addTagIfAbsent<FlowControlInfo>() = *flowControlInfo_;
+        // send an empty (1-bit) message to notify the MAC that there is not enough space to send RLC PDU
+        // (TODO: ugly, should be indicated in a better way)
+        rlcPdu->setChunkLength(inet::b(1)); // send only a bit, minimum size
     }
     else
     {
@@ -173,9 +172,10 @@ void UmTxEntity::rlcPduMake(int pduLength)
 
         rlcPdu->setFramingInfo(fi);
         rlcPdu->setPduSequenceNumber(sno_++);
-        *(pktAux->addTagIfAbsent<FlowControlInfo>()) = *flowControlInfo_;
-        rlcPdu->setChunkLength(inet::B(RLC_HEADER_UM + len)); // send only a bit, minimum size.
+        rlcPdu->setChunkLength(inet::B(RLC_HEADER_UM + len));
     }
+
+    *pktAux->addTagIfAbsent<FlowControlInfo>() = *flowControlInfo_;
 
     // send to MAC layer
     pktAux->insertAtFront(rlcPdu);

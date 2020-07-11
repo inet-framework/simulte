@@ -210,10 +210,10 @@ int LteMacUe::macSduRequest()
 bool LteMacUe::bufferizePacket(cPacket* pktAux)
 {
     auto pkt = check_and_cast<Packet *>(pktAux);
-    if (pkt->getByteLength() == 0)
+    if (pkt->getBitLength() <= 1)  // no data in this packet - should not be buffered
         return false;
 
-    pkt->setTimestamp();        // Add timestamp with current time to packet
+    pkt->setTimestamp();           // add time-stamp with current time to packet
 
     auto lteInfo = pkt->getTag<FlowControlInfo>();
 
@@ -553,8 +553,8 @@ void LteMacUe::handleUpperMessage(cPacket* pkt)
 
     if (strcmp(pkt->getName(), "lteRlcFragment") == 0 || strcmp(pkt->getName(), "rlcAmPdu") == 0)
     {
-        // new MAC SDU has been received
-        if (pkt->getByteLength() == 0)
+        // new MAC SDU has been received if size is 1 bit or less
+        if (pkt->getBitLength() <= 1)
             delete pkt;
 
         // build a MAC PDU only after all MAC SDUs have been received from RLC

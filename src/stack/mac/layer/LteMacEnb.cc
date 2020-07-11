@@ -713,7 +713,7 @@ int LteMacEnb::getNumRbUl()
 
 bool LteMacEnb::bufferizePacket(cPacket* pktAux)
 {
-    if (pktAux->getByteLength() <= 1)
+    if (pktAux->getBitLength() <= 1)   // single bit packet (min. size) is considered to be empty
         return false;
 
     auto pkt = check_and_cast<Packet *>(pktAux);
@@ -817,7 +817,7 @@ void LteMacEnb::handleUpperMessage(cPacket* pktAux)
             emit(macBufferOverflowUl_,sample);
     }
 
-    if(pkt->getByteLength() > 0) { //FIXME: check header types
+    if(pkt->getBitLength() > 1) { //FIXME: check header types
     	if(strcmp(pkt->getName(), "lteRlcFragment") == 0
     	        || strcmp(pkt->getName(), "rlcAmPdu") == 0
     	        || strcmp(pkt->getName(), "rlcTmPkt") == 0) {
