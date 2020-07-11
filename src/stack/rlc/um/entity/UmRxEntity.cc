@@ -332,7 +332,8 @@ void UmRxEntity::reassemble(unsigned int index)
         EV << NOW << " UmRxEntity::reassemble PDU at index " << index << " has not been received or already delivered" << endl;
         return;
     }
-    std::cout << NOW << " UmRxEntity::reassemble Consider PDU at index " << index << " for reassembly" << endl;
+
+    EV  << NOW << " UmRxEntity::reassemble Consider PDU at index " << index << " for reassembly" << endl;
 
     auto pktPdu = check_and_cast<Packet*>(pduBuffer_.get(index));
     auto pdu = pktPdu->removeAtFront<LteRlcUmDataPdu>();

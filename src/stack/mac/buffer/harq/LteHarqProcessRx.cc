@@ -84,7 +84,7 @@ Packet *LteHarqProcessRx::createFeedback(Codeword cw)
     fb->setFbMacPduId(pdu->getMacPduId());
     fb->setChunkLength(b(1)); // TODO: should be 0
     // fb->setByteLength(0);
-    auto pkt = new Packet();
+    auto pkt = new Packet("harqFeedback");
     pkt->insertAtFront(fb);
 
     pkt->addTagIfAbsent<UserControlInfo>()->setSourceId(pduInfo->getDestId());
