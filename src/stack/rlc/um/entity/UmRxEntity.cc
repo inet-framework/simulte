@@ -33,8 +33,10 @@ UmRxEntity::UmRxEntity() :
 
 UmRxEntity::~UmRxEntity()
 {
-    if (buffered_.pkt != NULL)
-        delete buffered_.pkt;
+    if (buffered_.pkt != nullptr){
+        	delete buffered_.pkt;
+        	buffered_.pkt = nullptr;
+        }
 
     delete flowControlInfo_;
 }
@@ -43,9 +45,6 @@ void UmRxEntity::enque(cPacket* pktAux)
 {
     Enter_Method("enque()");
     EV << NOW << " UmRxEntity::enque - buffering new PDU" << endl;
-
-//    LteRlcUmDataPdu* pdu = check_and_cast<LteRlcUmDataPdu*>(pkt);
-//    FlowControlInfo* lteInfo = check_and_cast<FlowControlInfo*>(pdu->getControlInfo());
 
     auto pktPdu = check_and_cast<Packet *>(pktAux);
     auto pdu = pktPdu->peekAtFront<LteRlcUmDataPdu>();
@@ -333,10 +332,7 @@ void UmRxEntity::reassemble(unsigned int index)
         EV << NOW << " UmRxEntity::reassemble PDU at index " << index << " has not been received or already delivered" << endl;
         return;
     }
-    EV << NOW << " UmRxEntity::reassemble Consider PDU at index " << index << " for reassembly" << endl;
-
-    //LteRlcUmDataPdu* pdu = check_and_cast<LteRlcUmDataPdu*>(pduBuffer_.get(index));
-    //FlowControlInfo* lteInfo = check_and_cast<FlowControlInfo*>(pdu->removeControlInfo());
+    std::cout << NOW << " UmRxEntity::reassemble Consider PDU at index " << index << " for reassembly" << endl;
 
     auto pktPdu = check_and_cast<Packet*>(pduBuffer_.get(index));
     auto pdu = pktPdu->removeAtFront<LteRlcUmDataPdu>();
@@ -392,9 +388,9 @@ void UmRxEntity::reassemble(unsigned int index)
                         if (sduLengthPktLeng != sduWholeLength)
                             throw cRuntimeError("UmRxEntity::reassemble(): failed reassembly, the reassembled SDU has size %d B, while the original SDU had size %d B",sduLengthPktLeng,sduWholeLength);
 
-                        //toPdcp(rlcSdu);
                         toPdcp(pktSdu);
                         pktSdu = nullptr;
+                        
                         if (buffered_.pkt != nullptr)
                         {
                             delete buffered_.pkt;
@@ -490,8 +486,10 @@ void UmRxEntity::reassemble(unsigned int index)
                         EV << NOW << " UmRxEntity::reassemble The PDU includes the mid part [" << sduLengthPktLeng <<" B] of a SDU [sno=" << sduSno << "]" << endl;
 
                         // check SDU SN
-                        auto sduHeader = buffered_.pkt->peekAtFront<LteRlcSdu>();
-                        if (buffered_.pkt == nullptr || (rlcSdu->getSnoMainPacket() != sduHeader->getSnoMainPacket()))
+                        int snoMainPacketBuffered;
+                        if (buffered_.pkt != nullptr)
+                            snoMainPacketBuffered = buffered_.pkt->peekAtFront<LteRlcSdu>()->getSnoMainPacket();
+                        if (buffered_.pkt == nullptr || (rlcSdu->getSnoMainPacket() != snoMainPacketBuffered))
                         {
                             if (buffered_.pkt != nullptr)
                             {
@@ -579,6 +577,7 @@ void UmRxEntity::reassemble(unsigned int index)
                             {
                                 delete buffered_.pkt;
                                 buffered_.pkt = nullptr;
+                                buffered_.size = 0;
                             }
 
                             EV << NOW << " UmRxEntity::reassemble The SDU cannot be reassembled, mid part missing" << endl;
