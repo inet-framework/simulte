@@ -158,18 +158,18 @@ void LtePdcpRrcUeD2D::fromDataPort(cPacket *pktAux)
     case TM:
         portName = "TM_Sap$o";
         gate = tmSap_[OUT_GATE];
-        headerLength = 0;
+        headerLength = 1;
         break;
     default:
         throw cRuntimeError("LtePdcpRrcUeD2D::fromDataport(): invalid RlcType %d", lteInfo->getRlcType());
         portName = "undefined";
         gate = nullptr;
-        headerLength = 0;
+        headerLength = 1;
     }
 
     // PDCP Packet creation
     auto pdcpPkt = makeShared<LtePdcpPdu>();
-    pdcpPkt->setChunkLength(B(lteInfo->getRlcType() == UM ? PDCP_HEADER_UM : PDCP_HEADER_AM));
+    pdcpPkt->setChunkLength(B(headerLength));
     pkt->trim();
     pkt->insertAtFront(pdcpPkt);
 
@@ -179,6 +179,8 @@ void LtePdcpRrcUeD2D::fromDataPort(cPacket *pktAux)
     EV << "LtePdcp : Packet size " << pkt->getByteLength() << " Bytes\n";
     EV << "LtePdcp : Sending packet " << pkt->getName() << " on port "
        << portName;
+
+    pkt->addTagIfAbsent<PacketProtocolTag>()->setProtocol(&LteProtocol::pdcp);
 
     // Send message
     send(pkt, gate);

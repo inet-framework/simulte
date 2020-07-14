@@ -7,6 +7,8 @@
 // and cannot be removed from it.
 //
 
+#include <inet/common/ProtocolTag_m.h>
+
 #include "stack/rlc/am/LteRlcAm.h"
 #include "common/LteCommon.h"
 #include "stack/rlc/am/buffer/AmTxQueue.h"
@@ -84,20 +86,24 @@ LteRlcAm::getRxBuffer(MacNodeId nodeId, LogicalCid lcid)
     }
 }
 
-void LteRlcAm::sendDefragmented(cPacket *pkt)
+void LteRlcAm::sendDefragmented(cPacket *pktAux)
 {
     Enter_Method("sendDefragmented()"); // Direct Method Call
-    take(pkt); // Take ownership
+    take(pktAux); // Take ownership
+    auto pkt = check_and_cast<inet::Packet *> (pktAux);
+    pkt->addTagIfAbsent<inet::PacketProtocolTag>()->setProtocol(&LteProtocol::pdcp);
 
     EV << NOW << " LteRlcAm : Sending packet " << pkt->getName()
        << " to port AM_Sap_up$o\n";
     send(pkt, up_[OUT_GATE]);
 }
 
-void LteRlcAm::sendFragmented(cPacket *pkt)
+void LteRlcAm::sendFragmented(cPacket *pktAux)
 {
     Enter_Method("sendFragmented()"); // Direct Method Call
-    take(pkt); // Take ownership
+    take(pktAux); // Take ownership
+    auto pkt = check_and_cast<inet::Packet *> (pktAux);
+    pkt->addTagIfAbsent<inet::PacketProtocolTag>()->setProtocol(&LteProtocol::rlc);
 
     EV << NOW << " LteRlcAm : Sending packet " << pkt->getName() << " of size "
        << pkt->getByteLength() << "  to port AM_Sap_down$o\n";

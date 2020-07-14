@@ -7,6 +7,8 @@
 // and cannot be removed from it.
 //
 
+#include <inet/common/ProtocolTag_m.h>
+
 #include "stack/rlc/tm/LteRlcTm.h"
 #include "stack/mac/packet/LteMacSduRequest.h"
 
@@ -44,6 +46,7 @@ void LteRlcTm::handleUpperMessage(cPacket *pktAux)
     auto rlcPdu = inet::makeShared<LteRlcPdu>();
     pkt->insertAtFront(rlcSdu);
     pkt->insertAtFront(rlcPdu);
+    pkt->addTagIfAbsent<inet::PacketProtocolTag>()->setProtocol(&LteProtocol::rlc);
 
     // buffer the PDU
     queuedPdus_.insert(pkt);
@@ -83,11 +86,13 @@ void LteRlcTm::handleLowerMessage(cPacket *pkt)
             EV << "LteRlcTm : Received " << pkt->getName() << " but no PDUs buffered - nothing to send to MAC.\n";
 
     } else {
+        // FIXME: needs to be changed to use inet::Packet
         FlowControlInfo* lteInfo = check_and_cast<FlowControlInfo*>(pkt->removeControlInfo());
         cPacket* upPkt = check_and_cast<cPacket *>(pkt->decapsulate());
         cPacket* upUpPkt = check_and_cast<cPacket *>(upPkt->decapsulate());
         upUpPkt->setControlInfo(lteInfo);
         delete upPkt;
+        // pkt->addTagIfAbsent<inet::PacketProtocolTag>()->setProtocol(&LteProtocol::pdcp);
 
         EV << "LteRlcTm : Sending packet " << upUpPkt->getName() << " to port TM_Sap_up$o\n";
         emit(sentPacketToUpperLayer, upUpPkt);

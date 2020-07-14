@@ -174,13 +174,13 @@ void LtePdcpRrcBase::fromDataPort(cPacket *pktAux)
     case TM:
         portName = "TM_Sap$o";
         gate = tmSap_[OUT_GATE];
-        headerLength = 0;
+        headerLength = 1;
         break;
     default:
         throw cRuntimeError("LtePdcpRrcBase::fromDataport(): invalid RlcType %d", lteInfo->getRlcType());
         portName = "undefined";
         gate = nullptr;
-        headerLength = 0;
+        headerLength = 1;
     }
     pdcpPkt->setChunkLength(B(headerLength));
     pkt->trim();
@@ -194,8 +194,10 @@ void LtePdcpRrcBase::fromDataPort(cPacket *pktAux)
     lteInfo->setSourceId(nodeId_);
     lteInfo->setLcid(mylcid);
 
-    EV << "LtePdcp : Sending packet " << pdcpPkt->getName() << " on port "
+    EV << "LtePdcp : Sending packet " << pkt->getName() << " on port "
        << portName.c_str() << "\n";
+
+    pkt->addTagIfAbsent<PacketProtocolTag>()->setProtocol(&LteProtocol::pdcp);
 
     // Send message
     send(pkt, gate);
@@ -223,17 +225,16 @@ void LtePdcpRrcBase::toDataPort(cPacket *pktAux)
     auto pkt = check_and_cast<Packet *>(pktAux);
     emit(receivedPacketFromLowerLayer, pkt);
 
-    auto pdcpPkt = pkt->peekAtFront<LtePdcpPdu>();
+    auto pdcpPkt = pkt->popAtFront<LtePdcpPdu>();
     auto lteInfo = pkt->removeTag<FlowControlInfo>();
 
     EV << "LtePdcp : Received packet with CID " << lteInfo->getLcid() << "\n";
     EV << "LtePdcp : Packet size " << pkt->getByteLength() << " Bytes\n";
 
-    // Decapsulate packet
-    pkt->popAtFront();
-
     headerDecompress(pkt, lteInfo->getHeaderSize()); // Decompress packet header
     handleControlInfo(pkt, lteInfo);
+
+    pkt->addTagIfAbsent<PacketProtocolTag>()->setProtocol(&Protocol::ipv4);
 
     EV << "LtePdcp : Sending packet " << pkt->getName()
        << " on port DataPort$o\n";

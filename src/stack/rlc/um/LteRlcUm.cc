@@ -7,6 +7,8 @@
 // and cannot be removed from it.
 //
 
+#include <inet/common/ProtocolTag_m.h>
+
 #include "stack/rlc/um/LteRlcUm.h"
 #include "stack/mac/packet/LteMacSduRequest.h"
 
@@ -122,10 +124,11 @@ void LteRlcUm::sendToLowerLayer(cPacket *pktAux)
 {
     Enter_Method_Silent("sendToLowerLayer()");                    // Direct Method Call
     take(pktAux);                                                    // Take ownership
+    auto pkt = check_and_cast<inet::Packet *> (pktAux);
+    pkt->addTagIfAbsent<inet::PacketProtocolTag>()->setProtocol(&LteProtocol::rlc);
     EV << "LteRlcUm : Sending packet " << pktAux->getName() << " to port UM_Sap_down$o\n";
     send(pktAux, down_[OUT_GATE]);
 
-    auto pkt = check_and_cast<inet::Packet *> (pktAux);
     auto  lteInfo = pkt->getTag<FlowControlInfo>();
 
     if (lteInfo->getDirection()==DL)

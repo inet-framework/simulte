@@ -96,10 +96,12 @@ void UmTxEntity::rlcPduMake(int pduLength)
             pduLength -= sduLength;
             len += sduLength;
 
-            sduQueue_.pop();
+            pkt = check_and_cast<inet::Packet *>(sduQueue_.pop());
+
             queueLength_ -= sduLength;
 
             rlcPdu->pushSdu(pkt, sduLength);
+            pkt = nullptr;
 
             EV << NOW << " UmTxEntity::rlcPduMake - Pop data chunk from the queue, sduSno[" << sduSequenceNumber << "]" << endl;
 

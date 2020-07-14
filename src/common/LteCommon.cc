@@ -26,7 +26,9 @@ using namespace inet;
 const inet::Protocol LteProtocol::ipv4uu("ipv4uu", "IPv4 (LTE Uu link)");
 Register_Protocol_Dissector(&LteProtocol::ipv4uu, Ipv4ProtocolDissector);
 
-const inet::Protocol LteProtocol::lte("lte", "LTE", Protocol::LinkLayer); //LTE Protocol
+const inet::Protocol LteProtocol::pdcp("pdcp", "PDCP");         // Packet Data Convergence Protocol
+const inet::Protocol LteProtocol::rlc("rlc", "RLC");            // Radio Link Control
+const inet::Protocol LteProtocol::ltemac("ltemac", "LTE-MAC");  // Medium Access Control
 
 const std::string lteTrafficClassToA(LteTrafficClass type)
 {
