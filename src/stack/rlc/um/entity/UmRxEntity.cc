@@ -362,10 +362,10 @@ void UmRxEntity::reassemble(unsigned int index)
         size_t sduLengthPktLeng;
         auto pktSdu = check_and_cast<Packet *>(pdu->popSdu(sduLengthPktLeng));
 
-        auto rlcSdu = pktSdu->removeAtFront<LteRlcSdu>();
+        auto rlcSdu = pktSdu->peekAtFront<LteRlcSdu>();
         unsigned int sduSno = rlcSdu->getSnoMainPacket();
         unsigned int sduWholeLength = rlcSdu->getLengthMainPacket(); // the length of the whole sdu
-        pktSdu->insertAtFront(rlcSdu);
+        // pktSdu->insertAtFront(rlcSdu);
 
         if (i==0) // first SDU
         {

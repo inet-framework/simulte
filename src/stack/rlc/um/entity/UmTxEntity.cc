@@ -70,10 +70,10 @@ void UmTxEntity::rlcPduMake(int pduLength)
     {
         // detach data from the SDU buffer
         auto pkt = check_and_cast<inet::Packet *>(sduQueue_.front());
-        auto rlcSdu = pkt->removeAtFront<LteRlcSdu>();
+        auto rlcSdu = pkt->peekAtFront<LteRlcSdu>();
         unsigned int sduSequenceNumber = rlcSdu->getSnoMainPacket();
-        int sduLength = pkt->getByteLength(); // length without the SDU header
-        pkt->insertAtFront(rlcSdu);
+        int sduLength = rlcSdu->getLengthMainPacket(); // length without the SDU header
+        // pkt->insertAtFront(rlcSdu);
 
         if (fragmentInfo != nullptr) {
             if (fragmentInfo->pkt != pkt)

@@ -21,6 +21,10 @@
 #include "corenetwork/binder/LteBinder.h"
 #include "stack/phy/layer/LtePhyBase.h"
 #include "stack/mac/packet/LteMacSduRequest.h"
+#include "stack/rlc/um/LteRlcUm.h"
+#include "common/LteCommon.h"
+#include "stack/rlc/packet/LteRlcDataPdu.h"
+#include "stack/rlc/am/packet/LteRlcAmPdu_m.h"
 
 Define_Module(LteMacUe);
 
@@ -210,8 +214,11 @@ int LteMacUe::macSduRequest()
 bool LteMacUe::bufferizePacket(cPacket* pktAux)
 {
     auto pkt = check_and_cast<Packet *>(pktAux);
-    if (pkt->getBitLength() <= 1)  // no data in this packet - should not be buffered
+
+    if (pkt->getBitLength() <= 1) { // no data in this packet - should not be buffered
+        delete pkt;
         return false;
+    }
 
     pkt->setTimestamp();           // add time-stamp with current time to packet
 
@@ -226,7 +233,9 @@ bool LteMacUe::bufferizePacket(cPacket* pktAux)
         // update the virtual buffer for this connection
 
         // build the virtual packet corresponding to this incoming packet
-        PacketInfo vpkt(pkt->getByteLength(), pkt->getTimestamp());
+        pkt->popAtFront<LteRlcPduNewData>();
+        auto rlcSdu = pkt->peekAtFront<LteRlcSdu>();
+        PacketInfo vpkt(rlcSdu->getLengthMainPacket(), pkt->getTimestamp());
 
         LteMacBufferMap::iterator it = macBuffers_.find(cid);
         if (it == macBuffers_.end())
@@ -257,6 +266,7 @@ bool LteMacUe::bufferizePacket(cPacket* pktAux)
             vqueue->getQueueOccupancy() << "\n";
         }
 
+        delete pkt;
         return true;    // notify the activation of the connection
     }
 
@@ -546,17 +556,22 @@ void LteMacUe::macPduUnmake(cPacket* pktAux)
     delete pkt;
 }
 
-void LteMacUe::handleUpperMessage(cPacket* pkt)
+void LteMacUe::handleUpperMessage(cPacket* pktAux)
 {
+    auto pkt = check_and_cast<Packet *>(pktAux);
+    bool isLteRlcPduNewData = checkIfHeaderType<LteRlcPduNewData>(pkt);
+
+    // bool isLteRlcDataPdu = !isLteRlcPduNewData && pkt->getByteLength() > 1 &&
+    //            (checkIfHeaderType<LteRlcUmDataPdu>(pkt) || checkIfHeaderType<LteRlcAmPdu>(pkt) || */checkIfHeaderType<LteRlcPdu>(pkt));
+    bool isLteRlcDataPdu = !isLteRlcPduNewData && /* pkt->getByteLength() > 1 &&*/ (strcmp(pkt->getName(), "lteRlcFragment") == 0
+                            || strcmp(pkt->getName(), "rlcAmPdu") == 0
+                            || strcmp(pkt->getName(), "rlcTmPkt") == 0);
+
     // bufferize packet
     bufferizePacket(pkt);
 
-    if (strcmp(pkt->getName(), "lteRlcFragment") == 0 || strcmp(pkt->getName(), "rlcAmPdu") == 0)
+    if (isLteRlcDataPdu)
     {
-        // new MAC SDU has been received if size is 1 bit or less
-        if (pkt->getBitLength() <= 1)
-            delete pkt;
-
         // build a MAC PDU only after all MAC SDUs have been received from RLC
         requestedSdus_--;
         if (requestedSdus_ == 0)
@@ -566,10 +581,6 @@ void LteMacUe::handleUpperMessage(cPacket* pkt)
             EV << NOW << " LteMacUe::handleMessage - incrementing counter for HARQ processes " << (unsigned int)currentHarq_ << " --> " << (currentHarq_+1)%harqProcesses_ << endl;
             currentHarq_ = (currentHarq_+1) % harqProcesses_;
         }
-    }
-    else
-    {
-        delete pkt;
     }
 }
 

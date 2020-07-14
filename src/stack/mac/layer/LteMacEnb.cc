@@ -713,10 +713,13 @@ int LteMacEnb::getNumRbUl()
 
 bool LteMacEnb::bufferizePacket(cPacket* pktAux)
 {
-    if (pktAux->getBitLength() <= 1)   // single bit packet (min. size) is considered to be empty
-        return false;
-
     auto pkt = check_and_cast<Packet *>(pktAux);
+
+    if (pkt->getBitLength() <= 1) { // no data in this packet - must not be buffered
+        delete pkt;
+        return false;
+    }
+
     pkt->setTimestamp();        // Add timestamp with current time to packet
 
     auto lteInfo = pkt->getTag<FlowControlInfo>();
@@ -730,7 +733,9 @@ bool LteMacEnb::bufferizePacket(cPacket* pktAux)
         // update the virtual buffer for this connection
 
         // build the virtual packet corresponding to this incoming packet
-        PacketInfo vpkt(pkt->getByteLength(), pkt->getTimestamp());
+        pkt->popAtFront<LteRlcPduNewData>();
+        auto rlcSdu = pkt->peekAtFront<LteRlcSdu>();
+        PacketInfo vpkt(rlcSdu->getLengthMainPacket(), pkt->getTimestamp());
 
         LteMacBufferMap::iterator it = macBuffers_.find(cid);
         if (it == macBuffers_.end())
@@ -761,6 +766,7 @@ bool LteMacEnb::bufferizePacket(cPacket* pktAux)
             vqueue->getQueueOccupancy() << "\n";
         }
 
+        delete pkt;
         return true; // this is only a new packet indication - only buffered in virtual queue
     }
 
@@ -804,9 +810,17 @@ void LteMacEnb::handleUpperMessage(cPacket* pktAux)
     auto lteInfo = pkt->getTag<FlowControlInfo>();
     MacCid cid = idToMacCid(lteInfo->getDestId(), lteInfo->getLcid());
 
-	bool packetIsBuffered = bufferizePacket(pkt);
+    bool isLteRlcPduNewData = checkIfHeaderType<LteRlcPduNewData>(pkt);
 
-    if (!packetIsBuffered && pkt->getByteLength() > 0) {
+    // bool isLteRlcDataPdu = !isLteRlcPduNewData && pkt->getByteLength() > 1 &&
+    //            (checkIfHeaderType<LteRlcUmDataPdu>(pkt) || checkIfHeaderType<LteRlcAmPdu>(pkt) || */checkIfHeaderType<LteRlcPdu>(pkt));
+    bool isLteRlcDataPdu = !isLteRlcPduNewData && pkt->getByteLength() > 1 && (strcmp(pkt->getName(), "lteRlcFragment") == 0
+                            || strcmp(pkt->getName(), "rlcAmPdu") == 0
+                            || strcmp(pkt->getName(), "rlcTmPkt") == 0);
+
+	bool packetIsBuffered = bufferizePacket(pkt);  // will buffer (or destroy if queue is full)
+
+    if (!packetIsBuffered && isLteRlcDataPdu) {
         // unable to buffer packet (packet is not enqueued and will be dropped): update statistics
         totalOverflowedBytes_ += pkt->getByteLength();
         double sample = (double)totalOverflowedBytes_ / (NOW - getSimulation()->getWarmupPeriod());
@@ -817,25 +831,16 @@ void LteMacEnb::handleUpperMessage(cPacket* pktAux)
             emit(macBufferOverflowUl_,sample);
     }
 
-    if(pkt->getBitLength() > 1) { //FIXME: check header types
-    	if(strcmp(pkt->getName(), "lteRlcFragment") == 0
-    	        || strcmp(pkt->getName(), "rlcAmPdu") == 0
-    	        || strcmp(pkt->getName(), "rlcTmPkt") == 0) {
-        	// new MAC SDU has been received (was requested by MAC, no need to notify scheduler)
-        	// creates pdus from schedule list and puts them in harq buffers
-        	macPduMake(cid);
-        } else if (checkIfHeaderType<LteRlcPduNewData>(pkt)) {
-        	// new data - inform scheduler of active connection
-        	enbSchedulerDl_->backlog(cid);
-        	// a new data packet indication is only enqueued in the virtual queue
-        	packetIsBuffered = false;
-       	}
+
+    if(isLteRlcDataPdu) {
+        // new MAC SDU has been received (was requested by MAC, no need to notify scheduler)
+        // creates pdus from schedule list and puts them in harq buffers
+        macPduMake(cid);
+    } else if (isLteRlcPduNewData) {
+        // new data - inform scheduler of active connection
+        enbSchedulerDl_->backlog(cid);
     }
 
-	if (!packetIsBuffered) {
-		// packet was dropped or does not contain any data
-		delete pkt;
-	}
 }
 
 
