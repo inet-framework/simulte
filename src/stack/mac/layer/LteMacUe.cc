@@ -144,7 +144,7 @@ void LteMacUe::initialize(int stage)
         if (getAncestorPar("enableExtInterface").boolValue())
         {
             // get address of the localhost to enable forwarding
-            IPv4Address extHostAddress = IPv4Address(getAncestorPar("extHostAddress").stringValue());
+            Ipv4Address extHostAddress = Ipv4Address(getAncestorPar("extHostAddress").stringValue());
             binder_->setMacNodeId(extHostAddress, nodeId_);
         }
     }
