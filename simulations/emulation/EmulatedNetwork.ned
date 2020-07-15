@@ -15,7 +15,7 @@ import inet.node.inet.Router;
 import inet.node.inet.StandardHost;
 import lte.corenetwork.binder.LteBinder;
 import lte.corenetwork.nodes.eNodeB;
-import lte.corenetwork.nodes.EmulatedUe;
+import lte.corenetwork.nodes.Ue;
 import lte.world.radio.LteChannelControl;
 import lte.epc.PgwStandardSimplified;
 import lte.corenetwork.nodes.ExtCell;
@@ -44,8 +44,6 @@ network EmulatedNetwork
             @display("p=73.38125,261.1875;is=s");
         }
         router: Router {
-            // the router is endowed with an EXT interface
-            numExtInterfaces = 1;   
             @display("p=223.875,175.36874;i=device/smallrouter");
         }
         pgw: PgwStandardSimplified {
@@ -55,7 +53,7 @@ network EmulatedNetwork
         enb: eNodeB {
             @display("p=671.625,174.125;is=vl");
         }
-        ue: EmulatedUe {
+        ue: Ue {
             @display("p=671.625,309.69376");
         }
         extCell[numExtCells]: ExtCell {

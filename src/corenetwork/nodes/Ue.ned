@@ -10,9 +10,11 @@
 
 package lte.corenetwork.nodes;
 
+import inet.common.packet.PcapRecorder;
 import inet.applications.contract.ITCPApp;
 import inet.applications.contract.IUDPApp;
 import inet.mobility.contract.IMobility;
+import inet.linklayer.contract.IExternalNic;
 import inet.networklayer.common.InterfaceTable;
 import inet.networklayer.contract.IRoutingTable;
 import inet.networklayer.contract.INetworkLayer;
@@ -50,6 +52,12 @@ module Ue
         string routingTableType = default("IPv4RoutingTable");
         *.interfaceTableModule = default(absPath(".interfaceTable"));
         *.routingTableModule = default(absPath(".routingTable"));
+        
+        //# Ext Interface
+        bool enableExtInterface = default(false);
+        string extHostAddress = default("");
+        
+        int numPcapRecorders = default(0); // no of PcapRecorders
 
     gates:
         input radioIn @directIn;     // connection to master
@@ -87,6 +95,15 @@ module Ue
         networkLayer: <networkLayerType> like INetworkLayer {
             parameters:
                 @display("p=250,258");
+        }
+                
+        ext: <default("ExtInterface")> like IExternalNic if enableExtInterface {
+            parameters:
+                @display("p=110.664,406.116,row,10;q=txQueue;i=block/ifcard");
+        }
+
+        pcapRecorder[numPcapRecorders]: PcapRecorder {
+            @display("p=53,350,r,10");
         }
     connections allowunconnected:
         //# 
