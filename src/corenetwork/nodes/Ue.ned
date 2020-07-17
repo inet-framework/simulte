@@ -130,4 +130,10 @@ module Ue
 
         networkLayer.ifOut++ --> lteNic.upperLayerIn;
         networkLayer.ifIn++ <-- lteNic.upperLayerOut;
+        
+        //#
+        //# Connections between Ext interface and IP layer 
+        //#
+        networkLayer.ifOut++ --> ext.upperLayerIn if enableExtInterface;
+        networkLayer.ifIn++ <-- ext.upperLayerOut if enableExtInterface;
 }
