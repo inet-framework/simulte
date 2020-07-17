@@ -191,6 +191,9 @@ module Ue
         tn.out++ --> nl.in++;
         tn.in++ <-- nl.out++;
 
-        at.out++ --> tn.in++;
-        at.in++ <-- tn.out++;
+        //#
+        //# Connections between Ext interface and IP layer 
+        //#
+        nl.out++ --> ext.upperLayerIn if enableExtInterface;
+        nl.in++ <-- ext.upperLayerOut if enableExtInterface;
 }
