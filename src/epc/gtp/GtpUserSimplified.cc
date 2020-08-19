@@ -79,10 +79,6 @@ void GtpUserSimplified::handleMessage(cMessage *msg)
         EV << "GtpUserSimplified::handleMessage - message from trafficFlowFilter" << endl;
         // obtain the encapsulated IPv4 datagram
         auto pkt = check_and_cast<Packet*>(msg);
-        pkt->trim();
-        auto ipHeader = pkt->peekAtFront<Ipv4Header>();
-        pkt->addTagIfAbsent<NetworkProtocolInd>()->setProtocol(&Protocol::ipv4);
-        pkt->addTagIfAbsent<NetworkProtocolInd>()->setNetworkProtocolHeader(ipHeader);
         handleFromTrafficFlowFilter(pkt);
     }
     else if(strcmp(msg->getArrivalGate()->getFullName(),"socketIn")==0)
@@ -90,7 +86,6 @@ void GtpUserSimplified::handleMessage(cMessage *msg)
         EV << "GtpUserSimplified::handleMessage - message from udp layer" << endl;
         auto pkt = check_and_cast<Packet*>(msg);
         pkt->trim();
-        auto gtpMsg = pkt->peekAtFront<GtpUserMsg>();
         handleFromUdp(pkt);
     }
 }
@@ -100,7 +95,7 @@ void GtpUserSimplified::handleFromTrafficFlowFilter(Packet * pkt)
     // extract control info from the datagram
     auto tftInfo = pkt->removeTag<TftControlInfo>();
     TrafficFlowTemplateId flowId = tftInfo->getTft();
-    delete (tftInfo);
+    delete tftInfo;
     removeAllSimuLteTags(pkt);
 
     EV << "GtpUserSimplified::handleFromTrafficFlowFilter - Received a tftMessage with flowId[" << flowId << "]" << endl;
@@ -116,13 +111,10 @@ void GtpUserSimplified::handleFromTrafficFlowFilter(Packet * pkt)
         // create a new GtpUserSimplifiedMessage
         auto gtpMsg = makeShared<GtpUserMsg>();
 
-        auto ipHeader = pkt->peekAtFront<Ipv4Header>();
-        pkt->addTagIfAbsent<NetworkProtocolInd>()->setProtocol(&Protocol::ipv4);
-        pkt->addTagIfAbsent<NetworkProtocolInd>()->setNetworkProtocolHeader(ipHeader);
-
         // encapsulate the datagram within the GtpUserSimplifiedMessage
         pkt->trim();
         pkt->insertAtFront(gtpMsg);
+        pkt->addTagIfAbsent<PacketProtocolTag>()->setProtocol(&LteProtocol::gtp);
 
         L3Address tunnelPeerAddress;
         if (flowId == -1) // send to the PGW
@@ -144,13 +136,16 @@ void GtpUserSimplified::handleFromUdp(Packet *pkt)
 {
     EV << "GtpUserSimplified::handleFromUdp - Decapsulating datagram from GTP tunnel" << endl;
 
-    auto gtpMsg = pkt->removeAtFront<GtpUserMsg>();
     // obtain the original IP datagram and send it to the local network
+    pkt->removeAtFront<GtpUserMsg>();
     auto ipHeader = pkt->peekAtFront<Ipv4Header>();
-    pkt->addTagIfAbsent<NetworkProtocolInd>()->setProtocol(&Protocol::ipv4);
-    pkt->addTagIfAbsent<PacketProtocolTag>()->setProtocol(&Protocol::ipv4);
-    pkt->addTagIfAbsent<NetworkProtocolInd>()->setNetworkProtocolHeader(ipHeader);
 
+    // remove any pending socket indications
+    auto sockInd = pkt->removeTagIfPresent<SocketInd>();
+    if (sockInd)
+        delete sockInd;
+    
+    // handle decapsulated packet according to owner type
     if (ownerType_ == PGW)
     {
         Ipv4Address destAddr = ipHeader->getDestAddress();
@@ -162,6 +157,7 @@ void GtpUserSimplified::handleFromUdp(Packet *pkt)
 
              // encapsulate the datagram within the GtpUserSimplifiedMessage
              pkt->insertAtFront(gtpMsg);
+             pkt->addTagIfAbsent<PacketProtocolTag>()->setProtocol(&LteProtocol::gtp);
 
              MacNodeId destMaster = binder_->getNextHop(destId);
              const char* symbolicName = binder_->getModuleNameByMacNodeId(destMaster);
@@ -173,6 +169,7 @@ void GtpUserSimplified::handleFromUdp(Packet *pkt)
         {
             // destination is outside the LTE network
             EV << "GtpUserSimplified::handleFromUdp - Deliver datagram to the internet " << endl;
+            pkt->addTagIfAbsent<PacketProtocolTag>()->setProtocol(&Protocol::ipv4);
             send(pkt,"pppGate");
         }
     }
@@ -188,15 +185,11 @@ void GtpUserSimplified::handleFromUdp(Packet *pkt)
             {
                 EV << "GtpUserSimplified::handleFromUdp - Deliver datagram to the LTE NIC " << endl;
 
-                // remove any pending socket indications
-                auto sockInd = pkt->removeTagIfPresent<SocketInd>();
-                if (sockInd)
-                    delete sockInd;
-
                 // add Interface-Request for LteNic
                 if (ie_ != nullptr)
                     pkt->addTagIfAbsent<inet::InterfaceReq>()->setInterfaceId(ie_->getInterfaceId());
 
+                pkt->addTagIfAbsent<PacketProtocolTag>()->setProtocol(&Protocol::ipv4);
                 send(pkt,"pppGate");
                 return;
             }
@@ -205,6 +198,7 @@ void GtpUserSimplified::handleFromUdp(Packet *pkt)
         // create a new GtpUserSimplifiedMessage
         auto gtpMsg = makeShared<GtpUserMsg>();
         pkt->insertAtFront(gtpMsg);
+        pkt->addTagIfAbsent<PacketProtocolTag>()->setProtocol(&LteProtocol::gtp);
 
         socket_.sendTo(pkt, pgwAddress_, tunnelPeerPort_);
 

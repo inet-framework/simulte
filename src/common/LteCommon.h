@@ -56,6 +56,7 @@ public:
     static const inet::Protocol pdcp;    // Packet Data Convergence Protocol
     static const inet::Protocol rlc;     // Radio Link Control
     static const inet::Protocol ltemac;  // LTE Medium Access Control
+    static const inet::Protocol gtp;     // GPRS Tunneling Protocol
 };
 
 /**

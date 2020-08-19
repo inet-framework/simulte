@@ -29,6 +29,7 @@ Register_Protocol_Dissector(&LteProtocol::ipv4uu, Ipv4ProtocolDissector);
 const inet::Protocol LteProtocol::pdcp("pdcp", "PDCP");         // Packet Data Convergence Protocol
 const inet::Protocol LteProtocol::rlc("rlc", "RLC");            // Radio Link Control
 const inet::Protocol LteProtocol::ltemac("ltemac", "LTE-MAC");  // Medium Access Control
+const inet::Protocol LteProtocol::gtp("gtp", "GTP");            // GPRS Tunneling Protocol
 
 const std::string lteTrafficClassToA(LteTrafficClass type)
 {
