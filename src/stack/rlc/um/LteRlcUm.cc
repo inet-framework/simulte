@@ -213,8 +213,8 @@ void LteRlcUm::deleteQueues(MacNodeId nodeId)
     {
         if (nodeType == UE || (nodeType == ENODEB && MacCidToNodeId(tit->first) == nodeId))
         {
-            delete tit->second;        // Delete Entity
-            txEntities_.erase(tit++);    // Delete Elem
+            tit->second->deleteModule();        // Delete Entity
+            tit = txEntities_.erase(tit);    // Delete Elem
         }
         else
         {
@@ -225,8 +225,8 @@ void LteRlcUm::deleteQueues(MacNodeId nodeId)
     {
         if (nodeType == UE || (nodeType == ENODEB && MacCidToNodeId(rit->first) == nodeId))
         {
-            delete rit->second;        // Delete Entity
-            rxEntities_.erase(rit++);    // Delete Elem
+            rit->second->deleteModule();        // Delete Entity
+            rit = rxEntities_.erase(rit);    // Delete Elem
         }
         else
         {
