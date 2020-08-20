@@ -47,7 +47,7 @@ void UmRxEntity::enque(cPacket* pkt)
     // Get the RLC PDU Transmission sequence number (x)
     unsigned int tsn = pdu->getPduSequenceNumber();
 
-    if (!init_ && lteInfo->getDirection() == D2D_MULTI)
+    if (!init_ && isD2DMultiConnection())
     {
         // for D2D multicast connections, the first received PDU must be considered as the first valid PDU
         rxWindowDesc_.clear(tsn);

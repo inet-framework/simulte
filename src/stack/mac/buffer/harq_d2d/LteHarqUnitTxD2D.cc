@@ -82,7 +82,7 @@ bool LteHarqUnitTxD2D::pduFeedback(HarqAcknowledgment a)
     }
 
     LteMacBase* ue;
-    if (dir == DL || dir == D2D)
+    if (dir == DL || dir == D2D || dir == D2D_MULTI)
     {
         ue = dstMac_;
     }
@@ -96,7 +96,7 @@ bool LteHarqUnitTxD2D::pduFeedback(HarqAcknowledgment a)
     }
 
     // emit H-ARQ statistics
-    if (dir == D2D)
+    if (dir == D2D || dir == D2D_MULTI)
     {
         switch (ntx)
         {
@@ -118,7 +118,7 @@ bool LteHarqUnitTxD2D::pduFeedback(HarqAcknowledgment a)
 
         check_and_cast<LteMacUeD2D*>(ue)->emit(harqErrorRateD2D_, sample);
 
-        if (reset)
+        if (reset || dir == D2D_MULTI)
         {
             check_and_cast<LteMacUeD2D*>(ue)->emit(macPacketLossD2D_, sample);
             check_and_cast<LteMacEnbD2D*>(nodeB_)->emit(macCellPacketLossD2D_, sample);
