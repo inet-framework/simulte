@@ -31,6 +31,8 @@ class LteHarqBufferRxD2D : public LteHarqBufferRx
   protected:
 
     // D2D Statistics
+    static unsigned int totalCellRcvdBytesD2D_;
+    unsigned int intervalStartCellRcvdBytesD2D_ = 0;
     simsignal_t macDelayD2D_;
     simsignal_t macCellThroughputD2D_;
     simsignal_t macThroughputD2D_;

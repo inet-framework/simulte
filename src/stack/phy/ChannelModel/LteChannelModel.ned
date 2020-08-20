@@ -103,6 +103,20 @@ simple LteRealisticChannelModel like LteChannelModelInterface
     // statistics
     @signal[rcvdSinr];
     @statistic[rcvdSinr](title="SINR measured at packet reception"; unit="dB"; source="rcvdSinr"; record=mean,vector);
+    @signal[pathLoss];
+    @statistic[pathLoss](title="path loss measured at path loss computation"; unit="dB"; source="pathLoss"; record=mean,vector);
+    @signal[fadingAttenuation];
+    @statistic[fadingAttenuation](title="fading measured after fading calculation"; unit="dB"; source="fadingAttenuation"; record=mean,vector);
+}
+
+simple LteGilbertElliotChannelModel extends LteRealisticChannelModel
+{
+	parameters:
+	@class("LteGilbertElliotChannelModel");
+	double error_prob_good_state = default(0.0);
+	double error_prob_bad_state = default(1.0);
+	double trans_prob_good_state = default(0.5);
+	double trans_prob_bad_state = default(0.5);    
 }
 
 simple LteMagicChannelModel like LteChannelModelInterface

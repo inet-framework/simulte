@@ -46,11 +46,20 @@ class LteHarqBufferRx
     bool isMulticast_;
 
     //Statistics
-    static unsigned int totalCellRcvdBytes_;
+    static unsigned int totalCellRcvdBytesDl_;
+    static unsigned int totalCellRcvdBytesUl_;
     unsigned int totalRcvdBytes_ = 0;
+    unsigned int intervalStartCellRcvdBytesDl_ = 0;
+    unsigned int intervalStartCellRcvdBytesUl_ = 0;
+    unsigned int intervalRcvdBytes_ = 0;
+    simtime_t tpIntervalStart = 0;
+    simtime_t tpIntervalLength_ = SimTime(1000, SIMTIME_MS);
     simsignal_t macDelay_;
     simsignal_t macCellThroughput_;
     simsignal_t macThroughput_;
+    simsignal_t macCellThroughputInterval_;
+    simsignal_t macThroughputInterval_;
+    simsignal_t macPacketSize_;
 
     // reference to the eNB module
     cModule* nodeB_;

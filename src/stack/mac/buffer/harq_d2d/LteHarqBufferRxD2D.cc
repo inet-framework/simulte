@@ -16,6 +16,8 @@
 #include "stack/mac/layer/LteMacUeD2D.h"
 #include "stack/mac/layer/LteMacEnbD2D.h"
 
+unsigned int LteHarqBufferRxD2D::totalCellRcvdBytesD2D_ = 0;
+
 LteHarqBufferRxD2D::LteHarqBufferRxD2D(unsigned int num, LteMacBase *owner, MacNodeId nodeId, bool isMulticast)
 {
     macOwner_ = owner;
@@ -146,28 +148,74 @@ std::list<LteMacPdu *> LteHarqBufferRxD2D::extractCorrectPdus()
                 }
 
                 // Calculate Throughput by sending the number of bits for this packet
-                totalRcvdBytes_ += size;
-                totalCellRcvdBytes_ += size;
-                double tputSample = (double)totalRcvdBytes_ / (NOW - getSimulation()->getWarmupPeriod());
-                double cellTputSample = (double)totalCellRcvdBytes_ / (NOW - getSimulation()->getWarmupPeriod());
+                if (NOW > getSimulation()->getWarmupPeriod())
+                {
+                    totalRcvdBytes_ += size;
+                    intervalRcvdBytes_ += size;
 
-                // emit throughput statistics
-                if (info->getDirection() == D2D)
-                {
-                    check_and_cast<LteMacEnbD2D*>(nodeB_)->emit(macCellThroughputD2D_, cellTputSample);
-                    check_and_cast<LteMacUeD2D*>(macOwner_)->emit(macThroughputD2D_, tputSample);
+                    double tputSample = (double)totalRcvdBytes_ / (NOW - getSimulation()->getWarmupPeriod());
+
+                    // emit throughput statistics
+                    if (info->getDirection() == D2D)
+                    {
+                        totalCellRcvdBytesD2D_ += size;
+                        double cellTputSample = (double)totalCellRcvdBytesD2D_ / (NOW - getSimulation()->getWarmupPeriod());
+                        check_and_cast<LteMacEnbD2D*>(nodeB_)->emit(macCellThroughputD2D_, cellTputSample);
+                        check_and_cast<LteMacUeD2D*>(macOwner_)->emit(macThroughputD2D_, tputSample);
+                        check_and_cast<LteMacUeD2D*>(macOwner_)->emit(macPacketSize_, size);
+                    }
+                    else
+                    {
+                        if (info->getDirection() == DL)
+                        {
+                            totalCellRcvdBytesDl_ += size;
+                            double cellTputSample = (double)totalCellRcvdBytesDl_ / (NOW - getSimulation()->getWarmupPeriod());
+                            nodeB_->emit(macCellThroughput_, cellTputSample);
+                            macOwner_->emit(macThroughput_, tputSample);
+                            macOwner_->emit(macPacketSize_, size);
+                        }
+                        else  // UL
+                        {
+                            totalCellRcvdBytesUl_ += size;
+                            double cellTputSample = (double)totalCellRcvdBytesUl_ / (NOW - getSimulation()->getWarmupPeriod());
+                            nodeB_->emit(macCellThroughput_, cellTputSample);
+                            macUe_->emit(macThroughput_, tputSample);
+                            macUe_->emit(macPacketSize_, size);
+                        }
+                    }
                 }
-                else
+
+                if (NOW > getSimulation()->getWarmupPeriod() && NOW > tpIntervalStart + tpIntervalLength_)
                 {
-                    nodeB_->emit(macCellThroughput_, cellTputSample);
-                    if (info->getDirection() == DL)
+                    double tputSample = (double)intervalRcvdBytes_ / (NOW - tpIntervalStart);
+
+                    // emit throughput statistics
+                    if (info->getDirection() == D2D)
                     {
-                        macOwner_->emit(macThroughput_, tputSample);
+                        double cellTputSample = (double) (totalCellRcvdBytesD2D_ - intervalStartCellRcvdBytesD2D_) / (NOW - tpIntervalStart);
+                        check_and_cast<LteMacEnbD2D*>(nodeB_)->emit(macCellThroughputD2D_, cellTputSample);
+                        check_and_cast<LteMacUeD2D*>(macOwner_)->emit(macThroughputD2D_, tputSample);
                     }
-                    else  // UL
+                    else
                     {
-                        macUe_->emit(macThroughput_, tputSample);
+                        if (info->getDirection() == DL)
+                        {
+                            double cellTputSample = (double) (totalCellRcvdBytesDl_ - intervalStartCellRcvdBytesDl_) / (NOW - tpIntervalStart);
+                            nodeB_->emit(macCellThroughputInterval_, cellTputSample);
+                            macOwner_->emit(macThroughputInterval_, tputSample);
+                        }
+                        else  // UL
+                        {
+                            double cellTputSample = (double) (totalCellRcvdBytesUl_ - intervalStartCellRcvdBytesUl_) / (NOW - tpIntervalStart);
+                            nodeB_->emit(macCellThroughputInterval_, cellTputSample);
+                            macUe_->emit(macThroughputInterval_, tputSample);
+                        }
                     }
+                    intervalStartCellRcvdBytesD2D_ = totalCellRcvdBytesD2D_;
+                    intervalStartCellRcvdBytesDl_ = totalCellRcvdBytesDl_;
+                    intervalStartCellRcvdBytesUl_ = totalCellRcvdBytesUl_;
+                    intervalRcvdBytes_ = 0;
+                    tpIntervalStart = NOW;
                 }
 
                 ret.push_back(temp);

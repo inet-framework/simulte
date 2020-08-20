@@ -142,6 +142,8 @@ private:
 
   // statistics
   simsignal_t rcvdSinr_;
+  simsignal_t pathLoss_;
+  simsignal_t fadingAttenuation_;
 
 
 public:

@@ -78,6 +78,8 @@ void LteRealisticChannelModel::initialize()
 
    // statistics
    rcvdSinr_ = registerSignal("rcvdSinr");
+   pathLoss_ = registerSignal("pathLoss");
+   fadingAttenuation_ = registerSignal("fadingAttenuation");
 }
 
 
@@ -568,6 +570,7 @@ std::vector<double> LteRealisticChannelModel::getSINR(LteAirFrame *frame, UserCo
            else if (fadingType_ == JAKES)
                fadingAttenuation = jakesFading(ueId, speed, i, cqiDl);
        }
+       emit(fadingAttenuation_,fadingAttenuation);
        // add fading contribution to the received pwr
        double finalRecvPower = recvPower + fadingAttenuation; // (dBm+dB)=dBm
 
@@ -1648,6 +1651,7 @@ double LteRealisticChannelModel::computePathLoss(double distance, double dbp, bo
     default:
         throw cRuntimeError("Wrong value %d for path-loss scenario", scenario_);
     }
+    emit(pathLoss_,pathLoss);
     return pathLoss;
 }
 
