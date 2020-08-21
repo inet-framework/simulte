@@ -812,15 +812,9 @@ void LteMacEnb::handleUpperMessage(cPacket* pktAux)
 
     bool isLteRlcPduNewData = checkIfHeaderType<LteRlcPduNewData>(pkt);
 
-    // bool isLteRlcDataPdu = !isLteRlcPduNewData && pkt->getByteLength() > 1 &&
-    //            (checkIfHeaderType<LteRlcUmDataPdu>(pkt) || checkIfHeaderType<LteRlcAmPdu>(pkt) || */checkIfHeaderType<LteRlcPdu>(pkt));
-    bool isLteRlcDataPdu = !isLteRlcPduNewData && pkt->getByteLength() > 1 && (strcmp(pkt->getName(), "lteRlcFragment") == 0
-                            || strcmp(pkt->getName(), "rlcAmPdu") == 0
-                            || strcmp(pkt->getName(), "rlcTmPkt") == 0);
-
 	bool packetIsBuffered = bufferizePacket(pkt);  // will buffer (or destroy if queue is full)
 
-    if (!packetIsBuffered && isLteRlcDataPdu) {
+    if (!packetIsBuffered && !isLteRlcPduNewData) {
         // unable to buffer packet (packet is not enqueued and will be dropped): update statistics
         totalOverflowedBytes_ += pkt->getByteLength();
         double sample = (double)totalOverflowedBytes_ / (NOW - getSimulation()->getWarmupPeriod());
@@ -832,7 +826,7 @@ void LteMacEnb::handleUpperMessage(cPacket* pktAux)
     }
 
 
-    if(isLteRlcDataPdu) {
+    if(!isLteRlcPduNewData) {
         // new MAC SDU has been received (was requested by MAC, no need to notify scheduler)
         // creates pdus from schedule list and puts them in harq buffers
         macPduMake(cid);

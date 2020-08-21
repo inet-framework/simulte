@@ -48,32 +48,32 @@ void AmRxQueue::initialize()
     received_.resize(rxWindowDesc_.windowSize_);
     totalRcvdBytes_ = 0;
 
-    cModule* parent = check_and_cast<LteRlcAm*>(
-        getParentModule()->getSubmodule("am"));
+    lteRlc_ = check_and_cast<LteRlcAm *>(getParentModule()->getSubmodule("am"));
+
     //statistics
     LteMacBase* mac = check_and_cast<LteMacBase*>(
         getParentModule()->getParentModule()->getSubmodule("mac"));
 
     if (mac->getNodeType() == ENODEB)
     {
-        rlcCellPacketLoss_ = parent->registerSignal("rlcCellPacketLossUl");
-        rlcPacketLoss_ = parent->registerSignal("rlcPacketLossUl");
-        rlcPduPacketLoss_ = parent->registerSignal("rlcPduPacketLossUl");
-        rlcDelay_ = parent->registerSignal("rlcDelayUl");
-        rlcThroughput_ = parent->registerSignal("rlcThroughputUl");
-        rlcPduDelay_ = parent->registerSignal("rlcPduDelayUl");
-        rlcPduThroughput_ = parent->registerSignal("rlcPduThroughputUl");
-        rlcCellThroughput_ = parent->registerSignal("rlcCellThroughputUl");
+        rlcCellPacketLoss_ = lteRlc_->registerSignal("rlcCellPacketLossUl");
+        rlcPacketLoss_ = lteRlc_->registerSignal("rlcPacketLossUl");
+        rlcPduPacketLoss_ = lteRlc_->registerSignal("rlcPduPacketLossUl");
+        rlcDelay_ = lteRlc_->registerSignal("rlcDelayUl");
+        rlcThroughput_ = lteRlc_->registerSignal("rlcThroughputUl");
+        rlcPduDelay_ = lteRlc_->registerSignal("rlcPduDelayUl");
+        rlcPduThroughput_ = lteRlc_->registerSignal("rlcPduThroughputUl");
+        rlcCellThroughput_ = lteRlc_->registerSignal("rlcCellThroughputUl");
     }
     else
     {
         cModule* nodeB = getRlcByMacNodeId(mac->getMacCellId(), UM);
-        rlcPacketLoss_ = parent->registerSignal("rlcPacketLossDl");
-        rlcPduPacketLoss_ = parent->registerSignal("rlcPduPacketLossDl");
-        rlcDelay_ = parent->registerSignal("rlcDelayDl");
-        rlcThroughput_ = parent->registerSignal("rlcThroughputDl");
-        rlcPduDelay_ = parent->registerSignal("rlcPduDelayDl");
-        rlcPduThroughput_ = parent->registerSignal("rlcPduThroughputDl");
+        rlcPacketLoss_ = lteRlc_->registerSignal("rlcPacketLossDl");
+        rlcPduPacketLoss_ = lteRlc_->registerSignal("rlcPduPacketLossDl");
+        rlcDelay_ = lteRlc_->registerSignal("rlcDelayDl");
+        rlcThroughput_ = lteRlc_->registerSignal("rlcThroughputDl");
+        rlcPduDelay_ = lteRlc_->registerSignal("rlcPduDelayDl");
+        rlcPduThroughput_ = lteRlc_->registerSignal("rlcPduThroughputDl");
         rlcCellThroughput_ = nodeB->registerSignal("rlcCellThroughputDl");
         rlcCellPacketLoss_ = nodeB->registerSignal("rlcCellPacketLossDl");
     }
@@ -102,6 +102,8 @@ void AmRxQueue::handleMessage(cMessage* msg)
             break;
         }
     }
+
+    delete msg;
 }
 
 Packet *AmRxQueue::defragmentFrames(std::deque<Packet *> &fragmentFrames)
@@ -109,19 +111,21 @@ Packet *AmRxQueue::defragmentFrames(std::deque<Packet *> &fragmentFrames)
     EV_DEBUG << "Defragmenting " << fragmentFrames.size() << " fragments.\n";
     auto defragmentedFrame = new Packet();
     defragmentedFrame->copyTags(*(fragmentFrames.at(0)));
-    auto defragmentedHeader = fragmentFrames.at(0)->peekAtFront<LteRlcAmPdu>()->dupShared();
+
+    std::string defragmentedName(fragmentFrames.at(0)->getName());
+    auto index = defragmentedName.find("-frag");
+    if (index != std::string::npos)
+        defragmentedFrame->setName(defragmentedName.substr(0, index).c_str());
+
     for (auto fragmentFrame : fragmentFrames) {
         fragmentFrame->popAtFront<LteRlcAmPdu>();
         defragmentedFrame->insertAtBack(fragmentFrame->peekData());
-        std::string defragmentedName(fragmentFrame->getName());
-        auto index = defragmentedName.find("-frag");
-        if (index != std::string::npos)
-            defragmentedFrame->setName(defragmentedName.substr(0, index).c_str());
         delete fragmentFrame;
     }
+
     EV_TRACE << "Created " << *defragmentedFrame << ".\n";
     fragmentFrames.clear();
-    defragmentedFrame->insertAtFront(defragmentedHeader);
+
     return defragmentedFrame;
 }
 
@@ -143,7 +147,7 @@ void AmRxQueue::discard(const int sn)
     {
         discarded_.at(i) = true;
 
-        if (pduBuffer_.get(i) != NULL)
+        if (pduBuffer_.get(i) != nullptr)
         {
             auto pkt = check_and_cast<inet::Packet*>(pduBuffer_.remove(i));
             //LteRlcAmPdu* pdu = check_and_cast<LteRlcAmPdu*>(pduBuffer_.remove(i));
@@ -179,7 +183,6 @@ void AmRxQueue::enque(Packet *pkt)
     Enter_Method("enque()");
 
     auto pdu = pkt->peekAtFront<LteRlcAmPdu>();
-    LteRlcAm* lteRlc = check_and_cast<LteRlcAm *>(getParentModule()->getSubmodule("am"));
 
     // Check if a control PDU has been received
     if (pdu->getAmType() != DATA)
@@ -188,10 +191,8 @@ void AmRxQueue::enque(Packet *pkt)
         {
             EV << NOW << " AmRxQueue::enque Received ACK message" << endl;
             // forwarding ACK to associated transmitting entity
-            lteRlc->routeControlMessage(pkt);
-            return;
+            lteRlc_->routeControlMessage(pkt);
         }
-
         else if ((pdu->getAmType() == MRW))
         {
             EV << NOW << " AmRxQueue::enque MRW command [" <<
@@ -199,13 +200,12 @@ void AmRxQueue::enque(Packet *pkt)
                << "] received for sequence number  " << pdu->getLastSn() << endl;
             // Move the receiver window
             moveRxWindow(pdu->getLastSn());
-            // ACK This message
 
-            auto pktAux = new Packet("rlcAmPdu");
+            // ACK This message
+            auto pktAux = new Packet("rlcAmPdu (MRW ACK)");
 
             auto mrw = makeShared<LteRlcAmPdu>();
             mrw->setAmType(MRW_ACK);
-            mrw->getSnoMainPacket();
             mrw->setSnoMainPacket(pdu->getSnoMainPacket());
             mrw->setSnoFragment(rxWindowDesc_.firstSeqNum_);
             // todo setting AM ctrl byte size
@@ -214,20 +214,22 @@ void AmRxQueue::enque(Packet *pkt)
             // set flowcontrolinfo
             *pktAux->addTagIfAbsent<FlowControlInfo>() = *flowControlInfo_;
             // sending control PDU
-            lteRlc->sendFragmented(pktAux);
+            lteRlc_->bufferControlPdu(pktAux);
             EV << NOW << " AmRxQueue::enque sending MRW_ACK message " << pdu->getSnoMainPacket() << endl;
+
+            delete pkt;
         }
         else if ((pdu->getAmType() == MRW_ACK))
         {
             EV << NOW << " MRW ACK routing to TX entity " << endl;
             // route message to reverse link TX entity
-            lteRlc->routeControlMessage(pkt);
-            return;
+            lteRlc_->routeControlMessage(pkt);
         }
         else
         {
             throw cRuntimeError("RLC AM - Unknown status PDU");
         }
+        // control PDU (not a DATA PDU) - completely processed
         return;
     }
 
@@ -243,7 +245,7 @@ void AmRxQueue::enque(Packet *pkt)
     }
 
     // check if we need to extract FlowControlInfo for building up the matrix
-    if (flowControlInfo_ == NULL)
+    if (flowControlInfo_ == nullptr)
     {
         auto orig = pkt->getTag<FlowControlInfo>();
         // make a copy of original control info
@@ -254,7 +256,7 @@ void AmRxQueue::enque(Packet *pkt)
         flowControlInfo_->setSrcAddr(orig->getDstAddr());
         flowControlInfo_->setDestId(orig->getSourceId());
         flowControlInfo_->setDstPort(orig->getSrcPort());
-        flowControlInfo_->setDstAddr(orig->getDstAddr());
+        flowControlInfo_->setDstAddr(orig->getSrcAddr());
         // set up other field
         flowControlInfo_->setDirection((orig->getDirection() == DL) ? UL : DL);
     }
@@ -334,8 +336,6 @@ void AmRxQueue::passUp(const int index)
 {
     Enter_Method("passUp");
 
-    LteRlcAm* lteRlc = check_and_cast<LteRlcAm *>(getParentModule()->getSubmodule("am"));
-
     std::deque<Packet *>frameBuff;
 
     Packet *pkt = nullptr;
@@ -344,12 +344,12 @@ void AmRxQueue::passUp(const int index)
     if (!header->isWhole()) {
         // assemble frame
         int auxIndex = index;
-        frameBuff.push_front(check_and_cast<Packet*>(pduBuffer_.get(index))->dup());
         const auto pkId = header->getSnoMainPacket();
-        for (int i = 1; i < pduBuffer_.size(); i++) {
+        for (int i = 0; i < pduBuffer_.size(); i++) {
             auto headerAux = check_and_cast<Packet*>(pduBuffer_.get(auxIndex))->peekAtFront<LteRlcAmPdu>();
+            // duplicate buffered PDU. We cannot detach it from receiver window until a move Rx command is executed.
             if (pkId == headerAux->getSnoMainPacket())
-                frameBuff.push_front(check_and_cast<Packet*>(pduBuffer_.get(auxIndex))->dup());
+                frameBuff.push_back(check_and_cast<Packet*>(pduBuffer_.get(auxIndex))->dup());
             auxIndex++;
             if (auxIndex >= pduBuffer_.size())
                 auxIndex = 0;
@@ -357,22 +357,23 @@ void AmRxQueue::passUp(const int index)
         pkt = defragmentFrames(frameBuff);
     }
     else
+    {
         pkt = (check_and_cast<Packet*>(pduBuffer_.get(index)))->dup();
+        pkt->removeAtFront<LteRlcAmPdu>();
+    }
 
-    auto bufferedpdu = pkt->removeAtFront<LteRlcAmPdu>();
-    int bufPacketSize  = pkt->getByteLength();
+    // auto bufferedpdu = pkt->removeAtFront<LteRlcAmPdu>();
+    // int bufPacketSize  = pkt->getByteLength();
 
-    pkt->popAtFront<FieldsChunk>();
+    pkt->trim();
 
-    EV << NOW << " AmRxQueue::passUp passing up SDU[" << bufferedpdu->getSnoMainPacket() << "] referenced by PDU at position " << index << endl;
+    auto sdu = pkt->popAtFront<LteRlcAmSdu>();
 
-    // duplicate buffered PDU control info too.
+    EV << NOW << " AmRxQueue::passUp passing up SDU[" << sdu->getSnoMainPacket() << "] referenced by PDU at position " << index << endl;
 
     auto ci = pkt->getTag<FlowControlInfo>();
 
-    //int origPktSize = bufferedpdu->getEncapsulatedPacket()->getEncapsulatedPacket()->getByteLength();
-
-    EV << NOW << " AmRxQueue::passUp original packet size  " << pkt->getByteLength() << " pdu orig size " << bufPacketSize << "header size" <<  B(bufferedpdu->getChunkLength()).get() << endl;
+    // EV << NOW << " AmRxQueue::passUp original packet size  " << pkt->getByteLength() << " pdu orig size " << bufPacketSize << "header size" <<  B(bufferedpdu->getChunkLength()).get() << endl;
 
     Direction dir = (Direction) ci->getDirection();
     MacNodeId dstId = ci->getDestId();
@@ -402,8 +403,10 @@ void AmRxQueue::passUp(const int index)
     ue->emit(rlcDelay_, delay);
     ue->emit(rlcPacketLoss_, 0.0);
     nodeb->emit(rlcCellPacketLoss_, 0.0);
+
     // Get the SDU and pass it to the upper layers - PDU // SDU // PDCPPDU
-    lteRlc->sendDefragmented(pkt);
+    lteRlc_->sendDefragmented(pkt);
+
     // send buffer status report
     sendStatusReport();
 }
@@ -542,7 +545,6 @@ void AmRxQueue::checkCompleteSdu(const int index)
         {
             auto temPkt = check_and_cast<Packet *>(pduBuffer_.get(i));
             tempPdu = constPtrCast<LteRlcAmPdu>(temPkt->peekAtFront<LteRlcAmPdu>());
-            // tempPdu = check_and_cast<LteRlcAmPdu*>(pduBuffer_.get(i));
             tempSdu = tempPdu->getSnoMainPacket();
             if (tempSdu != incomingSdu)
             throw cRuntimeError("AmRxQueue::checkCompleteSdu(): SDU numbers differ from position %d to %d : former SDU %d second %d",i,i-1,incomingSdu,tempSdu);
@@ -561,7 +563,8 @@ void AmRxQueue::checkCompleteSdu(const int index)
             break;
         }
     }
-            // all PDU received
+
+    // all PDUs for this SDU have been received
     complete = true;
 
     if (complete == true)
@@ -612,12 +615,12 @@ void AmRxQueue::sendStatusReport()
     // are stored.
 
     EV << NOW << " AmRxQueue::sendStatusReport : cumulative ACK value "
-       << cumulative << " bitmap lenght " << bitmap.size() << endl;
+       << cumulative << " bitmap length " << bitmap.size() << endl;
 
     if ((cumulative > 0) || bitmap.size() > 0)
     {
         // create a new RLC PDU
-        auto pktPdu = new Packet("rlcAmPdu");
+        auto pktPdu = new Packet("rlcAmPdu (Cum. ACK)");
         auto pdu = makeShared<LteRlcAmPdu>();
 
         // set RLC type descriptor
@@ -646,9 +649,8 @@ void AmRxQueue::sendStatusReport()
         // set flowcontrolinfo
         *pktPdu->addTagIfAbsent<FlowControlInfo>() = *flowControlInfo_;
         // sending control PDU
-        LteRlcAm* lteRlc = check_and_cast<LteRlcAm *>(getParentModule()->getSubmodule("am"));
         pktPdu->insertAtFront(pdu);
-        lteRlc->sendFragmented(pktPdu);
+        lteRlc_->bufferControlPdu(pktPdu);
         lastSentAck_ = NOW;
     }
     else
@@ -687,7 +689,7 @@ void AmRxQueue::moveRxWindow(const int seqNum)
     return;  // ignore the shift , it is uneffective.
 
     if (pos>rxWindowDesc_.windowSize_)
-    throw cRuntimeError("AmRxQueue::moveRxWindow(): positions %d win size %d , seq num %d",pos,rxWindowDesc_.windowSize_,seqNum);
+        throw cRuntimeError("AmRxQueue::moveRxWindow(): positions %d win size %d , seq num %d",pos,rxWindowDesc_.windowSize_,seqNum);
 
     // Shift the window and check if a complete SDU is shifted or if
     // part of an SDU is still in the buffer
@@ -698,7 +700,7 @@ void AmRxQueue::moveRxWindow(const int seqNum)
 
     for ( int i = 0; i < pos; ++i)
     {
-        if (pduBuffer_.get(i) != NULL)
+        if (pduBuffer_.get(i) != nullptr)
         {
 
             auto pktPdu = check_and_cast<Packet *>(pduBuffer_.remove(i));
@@ -746,5 +748,13 @@ void AmRxQueue::moveRxWindow(const int seqNum)
 
 AmRxQueue::~AmRxQueue()
 {
+    // clear buffered PDUs
+    for (int i = 0; i < pduBuffer_.size(); i++) {
+        if (pduBuffer_.get(i) != nullptr)
+        {
+            auto pktPdu = check_and_cast<Packet *>(pduBuffer_.remove(i));
+            delete pktPdu;
+        }
+    }
 }
 

@@ -159,6 +159,15 @@ class LteRlcAm : public omnetpp::cSimpleModule
     void sendFragmented(omnetpp::cPacket *pkt);
 
     /**
+     * bufferControlPdu() is invoked by the RXBuffer as a direct method
+     * call and used to forward control packets to be sent down upon
+     * the next MAC request.
+     *
+     * @param pkt packet to buffer
+     */
+    void bufferControlPdu(omnetpp::cPacket *pkt);
+
+    /**
      * sendDefragmented() is invoked by the RXBuffer as a direct method
      * call and used to forward fragments to upper layers. This is needed
      * since the RXBuffer himself has no output gates
@@ -166,6 +175,11 @@ class LteRlcAm : public omnetpp::cSimpleModule
      * @param pkt packet to forward
      */
     void sendDefragmented(omnetpp::cPacket *pkt);
+
+    /**
+     * informMacOfWaitingData() sends a new data notification to the MAC
+     */
+    void indicateNewDataToMac(omnetpp::cPacket *pkt);
 };
 
 #endif

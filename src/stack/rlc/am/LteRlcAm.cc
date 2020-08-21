@@ -9,10 +9,11 @@
 
 #include <inet/common/ProtocolTag_m.h>
 
-#include "stack/rlc/am/LteRlcAm.h"
 #include "common/LteCommon.h"
+#include "stack/rlc/am/LteRlcAm.h"
 #include "stack/rlc/am/buffer/AmTxQueue.h"
 #include "stack/rlc/am/buffer/AmRxQueue.h"
+#include "stack/mac/packet/LteMacSduRequest.h"
 
 Define_Module(LteRlcAm);
 
@@ -98,6 +99,13 @@ void LteRlcAm::sendDefragmented(cPacket *pktAux)
     send(pkt, up_[OUT_GATE]);
 }
 
+void LteRlcAm::bufferControlPdu(omnetpp::cPacket *pktAux){
+    auto pkt = check_and_cast<inet::Packet *> (pktAux);
+    auto lteInfo = pkt->getTag<FlowControlInfo>();
+    AmTxQueue* txbuf = getTxBuffer(ctrlInfoToUeId(lteInfo), lteInfo->getLcid());
+    txbuf->bufferControlPdu(pkt);
+}
+
 void LteRlcAm::sendFragmented(cPacket *pktAux)
 {
     Enter_Method("sendFragmented()"); // Direct Method Call
@@ -110,27 +118,6 @@ void LteRlcAm::sendFragmented(cPacket *pktAux)
 
     send(pkt, down_[OUT_GATE]);
 }
-
-/**
- * Note: The current implementation of the
- *       newDataPkt to MAC, MacSduRequest to RlcAm mechanism is a workaround:
- *       Instead of sending one newDataPkt for a new SDU, we send a newDataPkt
- *       for each PDU since the number of retransmissions is not known beforehand.
- *
-void LteRlcAm::indicateNewDataToMac(LteRlcAmPdu* rlcPkt) {
-    Enter_Method("indicateNewDataToMac()");
-
-    // create a message so as to notify the MAC layer that the queue contains new data
-    LteRlcPdu* newDataPkt = new LteRlcPdu("newDataPkt");
-    // make a copy of the RLC SDU
-    LteRlcPdu* rlcPktDup = rlcPkt->dup();
-    // the MAC will only be interested in the size of this packet
-    newDataPkt->encapsulate(rlcPktDup);
-    newDataPkt->setControlInfo(rlcPkt->getControlInfo()->dup());
-    EV << "LteRlcAm::sendNewDataPkt - Sending message " << newDataPkt->getName() << " to port AM_Sap_down$o\n";
-    send(newDataPkt, down_[OUT_GATE]);
-}
-*/
 
 void LteRlcAm::handleUpperMessage(cPacket *pktAux)
 {
@@ -164,21 +151,17 @@ void LteRlcAm::routeControlMessage(cPacket *pktAux)
 void LteRlcAm::handleLowerMessage(cPacket *pktAux)
 {
     auto pkt = check_and_cast<Packet *>(pktAux);
-    auto pdu = pkt->peekAtFront<LteRlcAmPdu>();
-    
-    /*
-     * TODO: check/implement
-     * 
-     *
-     *
-     FlowControlInfo* lteInfo = check_and_cast<FlowControlInfo*>(pkt->getControlInfo());
+    auto lteInfo = pkt->getTag<FlowControlInfo>();
+    auto chunk = pkt->peekAtFront<inet::Chunk>();
 
-    if (strcmp(pkt->getName(), "LteMacSduRequest") == 0)
+    if (inet::dynamicPtrCast<const LteMacSduRequest>(chunk) != nullptr)
     {
-        // get the corresponding Tx buffer
-        AmTxQueue* txbuf = getTxBuffer(lteInfo);
+        // process SDU request received from MAC
 
-        LteMacSduRequest* macSduRequest = check_and_cast<LteMacSduRequest*>(pkt);
+        // get the corresponding Tx buffer
+        AmTxQueue* txbuf = getTxBuffer(ctrlInfoToUeId(lteInfo), lteInfo->getLcid());
+
+        auto macSduRequest = pkt->peekAtFront<LteMacSduRequest>();
         unsigned int size = macSduRequest->getSduSize();
 
         txbuf->sendPdus(size);
@@ -188,36 +171,25 @@ void LteRlcAm::handleLowerMessage(cPacket *pktAux)
         delete pkt;
 
     } else {
-
-        LteRlcAmPdu* pdu = check_and_cast<LteRlcAmPdu*>(pkt);
-
+        // process AM PDU
+        auto pdu = pkt->peekAtFront<LteRlcAmPdu>();
         if ((pdu->getAmType() == ACK) || (pdu->getAmType() == MRW_ACK))
         {
             EV << NOW << " LteRlcAm::handleLowerMessage Received ACK message" << endl;
 
             // forwarding ACK to associated transmitting entity
-            routeControlMessage(pdu);
+            routeControlMessage(pkt);
             return;
         }
-     */
 
-    if ((pdu->getAmType() == ACK) || (pdu->getAmType() == MRW_ACK))
-    {
-        EV << NOW << " LteRlcAm::handleLowerMessage Received ACK message" << endl;
+        // Extract informations from fragment
+        AmRxQueue* rxbuf = getRxBuffer(ctrlInfoToUeId(lteInfo), lteInfo->getLcid());
+        drop(pkt);
 
-        // forwarding ACK to associated transmitting entity
-        routeControlMessage(pkt);
-        return;
+        EV << NOW << " LteRlcAm::handleLowerMessage sending packet to AM RX Queue " << endl;
+        // Defragment packet
+        rxbuf->enque(pkt);
     }
-
-    // Extract informations from fragment
-    auto lteInfo = pkt->getTag<FlowControlInfo>();
-    AmRxQueue* rxbuf = getRxBuffer(ctrlInfoToUeId(lteInfo), lteInfo->getLcid());
-    drop(pkt);
-
-    EV << NOW << " LteRlcAm::handleLowerMessage sending packet to AM RX Queue " << endl;
-    // Defragment packet
-    rxbuf->enque(pkt);
 }
 
 void LteRlcAm::deleteQueues(MacNodeId nodeId)
@@ -249,6 +221,35 @@ void LteRlcAm::deleteQueues(MacNodeId nodeId)
             ++rit;
         }
     }
+}
+
+/**
+ * Note: The current implementation of the
+ *       newDataPkt to MAC, MacSduRequest to RlcAm mechanism is a workaround:
+ *       Instead of sending one newDataPkt for a new SDU, we send a newDataPkt
+ *       for each PDU since the number of retransmissions is not known beforehand.
+ */
+void LteRlcAm::indicateNewDataToMac(cPacket* pktAux) {
+    Enter_Method("indicateNewDataToMac()");
+
+    auto pkt = check_and_cast<inet::Packet *> (pktAux);
+
+   // create a message so as to notify the MAC layer that the queue contains new data
+   // (MAC is only interested in FlowControlInfo tag and size)
+
+    auto newData = new Packet("AM-NewData");
+    auto rlcSdu = inet::makeShared<LteRlcSdu>();
+    rlcSdu->setLengthMainPacket(pkt->getByteLength());
+
+    newData->insertAtFront(rlcSdu);
+
+    auto newDataHdr = inet::makeShared<LteRlcPduNewData>();
+    newData->insertAtFront(newDataHdr);
+
+    newData->copyTags(*pkt);
+
+    EV << "LteRlcAm::sendNewDataPkt - Sending message " << newData->getName() << " to port AM_Sap_down$o\n";
+    send(newData, down_[OUT_GATE]);
 }
 
 /*
