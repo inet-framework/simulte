@@ -8,6 +8,7 @@
 //
 
 #include "epc/gtp/GtpUser.h"
+#include "inet/applications/common/SocketTag_m.h"
 #include <iostream>
 
 Define_Module(GtpUser);
@@ -71,13 +72,11 @@ void GtpUser::handleFromTrafficFlowFilter(Packet *pkt) {
     // extract control info from the datagram
     auto tftInfo = pkt->removeTag<TftControlInfo>();
     TrafficFlowTemplateId flowId = tftInfo->getTft();
-
     delete tftInfo;
     removeAllSimuLteTags(pkt);
 
-    EV
-              << "GtpUser::handleFromTrafficFlowFilter - Received a tftMessage with flowId["
-              << flowId << "]" << endl;
+    EV << "GtpUser::handleFromTrafficFlowFilter - Received a tftMessage with flowId["
+       << flowId << "]" << endl;
 
     TunnelEndpointIdentifier nextTeid;
     L3Address tunnelPeerAddress;
@@ -96,12 +95,15 @@ void GtpUser::handleFromTrafficFlowFilter(Packet *pkt) {
 
     // create a new gtpUserMessage
     auto gtpMsg = makeShared<GtpUserMsg>();
-    gtpMsg->setChunkLength(b(1)); // TODO: should be 0
+
     // assign the nextTeid
     gtpMsg->setTeid(nextTeid);
 
-    // encapsulate the datagram within the gtpUserMessage
+    // add GTP header
     pkt->insertAtFront(gtpMsg);
+    pkt->addTagIfAbsent<PacketProtocolTag>()->setProtocol(&LteProtocol::gtp);
+
+
     socket_.sendTo(pkt, tunnelPeerAddress, tunnelPeerPort_);
 }
 
@@ -109,7 +111,13 @@ void GtpUser::handleFromUdp(Packet *pkt) {
     TunnelEndpointIdentifier oldTeid;
     L3Address nextHopAddr;
 
+    // remove GTP header
     auto gtpMsg = pkt->removeAtFront<GtpUserMsg>();
+
+    // remove any pending socket indications
+    auto sockInd = pkt->removeTagIfPresent<SocketInd>();
+    if (sockInd)
+        delete sockInd;
 
     // obtain the incoming TEID from message
     oldTeid = gtpMsg->getTeid();
@@ -131,11 +139,9 @@ void GtpUser::handleFromUdp(Packet *pkt) {
                   << "GtpUser::handleFromUdp - IP packet pointing to this network. Decapsulating and sending to local connection."
                   << endl;
 
-        // obtain the original IP datagram and send it to the local network
-        auto ipDatagram = pkt->peekAtFront<Ipv4Header>();
-        pkt->addTagIfAbsent<NetworkProtocolInd>()->setProtocol(&Protocol::ipv4);
-        pkt->addTagIfAbsent<NetworkProtocolInd>()->setNetworkProtocolHeader(
-                ipDatagram);
+        // send original IP datagram to the local network
+        pkt->addTagIfAbsent<PacketProtocolTag>()->setProtocol(&Protocol::ipv4);
+        pkt->addTagIfAbsent<DispatchProtocolReq>()->setProtocol(&Protocol::ipv4);
         send(pkt, "pppGate");
     } else // label switching
     {
