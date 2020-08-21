@@ -338,8 +338,7 @@ void IP2lte::toStackEnb(Packet* pkt)
     // 5-Tuple infos
     unsigned short srcPort = 0;
     unsigned short dstPort = 0;
-    auto& iphdr = pkt->peekAtFront<Ipv4Header>();
-    auto transportHeader = getTransportProtocolHeader(pkt);
+    auto& iphdr = pkt->removeAtFront<Ipv4Header>();
     int transportProtocol = iphdr->getProtocolId();
     Ipv4Address srcAddr  = iphdr->getSrcAddress(),
                 destAddr = iphdr->getDestAddress();
@@ -361,14 +360,14 @@ void IP2lte::toStackEnb(Packet* pkt)
     switch(transportProtocol)
     {
         case IP_PROT_TCP: {
-            auto tcpHdr = dynamicPtrCast<const tcp::TcpHeader>(transportHeader);
+            auto& tcpHdr = pkt->peekAtFront<tcp::TcpHeader>();
             srcPort = tcpHdr->getSrcPort();
             dstPort = tcpHdr->getDestPort();
             headerSize += B(tcpHdr->getHeaderLength()).get();
             break;
         }
         case IP_PROT_UDP: {
-            auto udpHdr = dynamicPtrCast<const UdpHeader>(transportHeader);
+            auto& udpHdr = pkt->peekAtFront<UdpHeader>();
             srcPort = udpHdr->getSrcPort();
             dstPort = udpHdr->getDestPort();
             headerSize += inet::UDP_HEADER_LENGTH.get();
@@ -379,7 +378,7 @@ void IP2lte::toStackEnb(Packet* pkt)
         }
     }
     // re-insert ip header
-    // not necessary anymore - has not been removed: datagram->insertAtFront(iphdr);
+    pkt->insertAtFront(iphdr);
 
     // prepare flow info for LTE stack
     pkt->addTagIfAbsent<FlowControlInfo>()->setSrcAddr(srcAddr.getInt());
@@ -531,6 +530,7 @@ void IP2lte::signalHandoverCompleteTarget(MacNodeId ueId, MacNodeId sourceEnb)
 
             // send pkt down
             take(pkt);
+            pkt->trim();
             toStackEnb(pkt);
         }
     }
