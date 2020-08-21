@@ -715,8 +715,8 @@ bool LteMacEnb::bufferizePacket(cPacket* pktAux)
 {
     auto pkt = check_and_cast<Packet *>(pktAux);
 
-    if (pkt->getBitLength() <= 1) { // no data in this packet - must not be buffered
-        delete pkt;
+    if (pkt->getBitLength() <= 1) { // no data in this packet
+        delete pktAux;
         return false;
     }
 
@@ -790,10 +790,19 @@ bool LteMacEnb::bufferizePacket(cPacket* pktAux)
     {
         // Found
         LteMacQueue* queue = it->second;
+
         if (!queue->pushBack(pkt))
         {
+            // unable to buffer packet (packet is not enqueued and will be dropped): update statistics
             EV << "LteMacBuffers : queue" << cid << " is full - cannot buffer packet " << pkt->getId()<< "\n";
-            return false;
+
+            totalOverflowedBytes_ += pkt->getByteLength();
+            double sample = (double)totalOverflowedBytes_ / (NOW - getSimulation()->getWarmupPeriod());
+
+            if (lteInfo->getDirection() == DL)
+                emit(macBufferOverflowDl_,sample);
+            else
+                emit(macBufferOverflowUl_,sample);
         }
 
         EV << "LteMacBuffers : Using old buffer on node: " <<
@@ -814,19 +823,7 @@ void LteMacEnb::handleUpperMessage(cPacket* pktAux)
 
 	bool packetIsBuffered = bufferizePacket(pkt);  // will buffer (or destroy if queue is full)
 
-    if (!packetIsBuffered && !isLteRlcPduNewData) {
-        // unable to buffer packet (packet is not enqueued and will be dropped): update statistics
-        totalOverflowedBytes_ += pkt->getByteLength();
-        double sample = (double)totalOverflowedBytes_ / (NOW - getSimulation()->getWarmupPeriod());
-
-        if (lteInfo->getDirection()==DL)
-            emit(macBufferOverflowDl_,sample);
-        else
-            emit(macBufferOverflowUl_,sample);
-    }
-
-
-    if(!isLteRlcPduNewData) {
+    if(!isLteRlcPduNewData && packetIsBuffered) {
         // new MAC SDU has been received (was requested by MAC, no need to notify scheduler)
         // creates pdus from schedule list and puts them in harq buffers
         macPduMake(cid);
@@ -834,7 +831,6 @@ void LteMacEnb::handleUpperMessage(cPacket* pktAux)
         // new data - inform scheduler of active connection
         enbSchedulerDl_->backlog(cid);
     }
-
 }
 
 

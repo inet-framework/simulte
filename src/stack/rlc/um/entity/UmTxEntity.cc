@@ -55,7 +55,7 @@ void UmTxEntity::rlcPduMake(int pduLength)
     EV << NOW << " UmTxEntity::rlcPduMake - PDU with size " << pduLength << " requested from MAC"<< endl;
 
     // create the RLC PDU
-    auto pktAux = new inet::Packet("lteRlcFragment");
+    auto pkt = new inet::Packet("lteRlcFragment");
     auto rlcPdu = inet::makeShared<LteRlcUmDataPdu>();
 
     // the request from MAC takes into account also the size of the RLC header
@@ -153,6 +153,7 @@ void UmTxEntity::rlcPduMake(int pduLength)
     {
         // send an empty (1-bit) message to notify the MAC that there is not enough space to send RLC PDU
         // (TODO: ugly, should be indicated in a better way)
+        pkt->setName("lteRlcFragment (empty)");
         rlcPdu->setChunkLength(inet::b(1)); // send only a bit, minimum size
     }
     else
@@ -177,12 +178,12 @@ void UmTxEntity::rlcPduMake(int pduLength)
         rlcPdu->setChunkLength(inet::B(RLC_HEADER_UM + len));
     }
 
-    *pktAux->addTagIfAbsent<FlowControlInfo>() = *flowControlInfo_;
+    *pkt->addTagIfAbsent<FlowControlInfo>() = *flowControlInfo_;
 
     // send to MAC layer
-    pktAux->insertAtFront(rlcPdu);
-    EV << NOW << " UmTxEntity::rlcPduMake - send PDU " << rlcPdu->getPduSequenceNumber() << " with size " << pktAux->getByteLength() << " bytes to lower layer" << endl;
-    lteRlc_->sendToLowerLayer(pktAux);
+    pkt->insertAtFront(rlcPdu);
+    EV << NOW << " UmTxEntity::rlcPduMake - send PDU " << rlcPdu->getPduSequenceNumber() << " with size " << pkt->getByteLength() << " bytes to lower layer" << endl;
+    lteRlc_->sendToLowerLayer(pkt);
 
     // if incoming connection was halted
     if (notifyEmptyBuffer_ && sduQueue_.isEmpty())
