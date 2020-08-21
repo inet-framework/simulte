@@ -425,8 +425,7 @@ void UmRxEntity::reassemble(unsigned int index)
                         EV << NOW << " UmRxEntity::reassemble The PDU includes the last part [" << sduLengthPktLeng <<" B] of a SDU [sno=" << sduSno << "]" << endl;
 
                         // check SDU SN
-                        auto sduHeader = buffered_.pkt->peekAtFront<LteRlcSdu>();
-                        if (buffered_.pkt == nullptr || (rlcSdu->getSnoMainPacket() != sduHeader->getSnoMainPacket()) || ignoreFragment)
+                        if (buffered_.pkt == nullptr || (rlcSdu->getSnoMainPacket() != buffered_.pkt->peekAtFront<LteRlcSdu>()->getSnoMainPacket()) || ignoreFragment)
                         {
                             if (buffered_.pkt != nullptr)
                             {
@@ -551,8 +550,7 @@ void UmRxEntity::reassemble(unsigned int index)
                         EV << NOW << " UmRxEntity::reassemble This is the last part [" << sduLengthPktLeng <<" B] of a SDU [sno=" << sduSno << "]" << endl;
 
                         // check SDU SN
-                        auto sduHeader = buffered_.pkt->peekAtFront<LteRlcSdu>();
-                        if (buffered_.pkt == nullptr || (rlcSdu->getSnoMainPacket() != sduHeader->getSnoMainPacket()) || ignoreFragment)
+                        if (buffered_.pkt == nullptr || (rlcSdu->getSnoMainPacket() != buffered_.pkt->peekAtFront<LteRlcSdu>()->getSnoMainPacket()) || ignoreFragment)
                         {
                             if (buffered_.pkt != nullptr)
                             {
