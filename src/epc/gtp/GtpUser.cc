@@ -8,7 +8,9 @@
 //
 
 #include "epc/gtp/GtpUser.h"
+#include <inet/common/ModuleAccess.h>
 #include "inet/applications/common/SocketTag_m.h"
+#include <inet/linklayer/common/InterfaceTag_m.h>
 #include <iostream>
 
 Define_Module(GtpUser);
@@ -26,6 +28,10 @@ void GtpUser::initialize(int stage) {
     socket_.bind(localPort_);
 
     tunnelPeerPort_ = par("tunnelPeerPort");
+
+    ownerType_ = selectOwnerType(getAncestorPar("nodeType"));
+
+    ie_ = detectInterface();
 
     //============= Reading XML files =============
     const char *filename = par("teidFileName");
@@ -45,6 +51,32 @@ void GtpUser::initialize(int stage) {
             error("GtpUser::initialize - Wrong xml file format");
     }
     //=============================================
+}
+
+InterfaceEntry *GtpUser::detectInterface()
+{
+    IInterfaceTable *ift = getModuleFromPar<IInterfaceTable>(par("interfaceTableModule"), this);
+    const char *interfaceName = par("ipOutInterface");
+    InterfaceEntry *ie = nullptr;
+
+    if (strlen(interfaceName) > 0) {
+        ie = ift->findInterfaceByName(interfaceName);
+        if (ie == nullptr)
+            throw cRuntimeError("Interface \"%s\" does not exist", interfaceName);
+    }
+
+    return ie;
+}
+
+
+EpcNodeType GtpUser::selectOwnerType(const char * type)
+{
+    EV << "GtpUserSimplified::selectOwnerType - setting owner type to " << type << endl;
+    if(strcmp(type,"ENODEB") == 0)
+        return ENB;
+    if(strcmp(type,"PGW") != 0)
+        error("GtpUserSimplified::selectOwnerType - unknown owner type [%s]. Aborting...",type);
+    return PGW;
 }
 
 void GtpUser::handleMessage(cMessage *msg) {
@@ -142,6 +174,12 @@ void GtpUser::handleFromUdp(Packet *pkt) {
         // send original IP datagram to the local network
         pkt->addTagIfAbsent<PacketProtocolTag>()->setProtocol(&Protocol::ipv4);
         pkt->addTagIfAbsent<DispatchProtocolReq>()->setProtocol(&Protocol::ipv4);
+
+        if (ownerType_ == ENB && ie_ != nullptr) {
+            // on the ENB we need an InterfaceReq to send the packet via WLAN
+            pkt->addTagIfAbsent<InterfaceReq>()->setInterfaceId(ie_->getInterfaceId());
+        }
+
         send(pkt, "pppGate");
     } else // label switching
     {

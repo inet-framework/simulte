@@ -42,7 +42,7 @@ void LteX2MsgSerializer::serialize(MemoryOutputStream& stream, const Ptr<const C
     const auto& msg = staticPtrCast<const LteX2Message>(chunk);
     LteX2MessageType type = msg->getType();
     if(type != X2_COMP_MSG && type != X2_HANDOVER_CONTROL_MSG && type != X2_HANDOVER_DATA_MSG)
-        throw cRuntimeError("LteX2MsgSerializer::serialize of X2 message type ist not implemented!");
+        throw cRuntimeError("LteX2MsgSerializer::serialize of X2 message type is not implemented!");
 
     stream.writeByte(type);
     stream.writeUint32Be(msg->getSourceId());

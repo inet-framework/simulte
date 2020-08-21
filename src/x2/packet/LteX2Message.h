@@ -67,8 +67,14 @@ class LteX2Message : public LteX2Message_Base
             return *this;
         LteX2Message_Base::operator=(other);
         type_ = other.type_;
-        ieList_ = other.ieList_;
+
+        // perform deep-copy of element list
         msgLength_ = other.msgLength_;
+        ieList_.clear();
+        for (auto it = other.ieList_.begin(); it != other.ieList_.end(); ++it){
+            ieList_.push_back((*it)->dup());
+        }
+
         return *this;
     }
 

@@ -92,6 +92,16 @@ class GtpUser : public omnetpp::cSimpleModule
     bool loadTeidTable(const char * teidTableFile);
     bool loadTftTable(const char * tftTableFile);
 
+    // specifies the type of the node that contains this filter (it can be ENB or PGW)
+    EpcNodeType ownerType_;
+
+    // determine gtpuser runs on PGW oder eNB
+    EpcNodeType selectOwnerType(const char * type);
+
+    // detect LTE interface
+    inet::InterfaceEntry* detectInterface();
+    inet::InterfaceEntry* ie_;
+
   protected:
 
     virtual int numInitStages() const { return inet::NUM_INIT_STAGES; }

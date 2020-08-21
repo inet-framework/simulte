@@ -9,6 +9,7 @@
 
 #include "stack/handoverManager/LteHandoverManager.h"
 #include "stack/handoverManager/X2HandoverCommandIE.h"
+#include "inet/common/ProtocolTag_m.h"
 
 Define_Module(LteHandoverManager);
 
@@ -57,7 +58,7 @@ void LteHandoverManager::handleX2Message(cPacket* pkt)
 {
     inet::Packet* datagram = check_and_cast<inet::Packet*>(pkt);
 
-    auto x2msg = datagram->removeAtFront<LteX2Message>();
+    auto x2msg = datagram->popAtFront<LteX2Message>();
     datagram->removeTagIfPresent<X2ControlInfoTag>();
 
     X2NodeId sourceId = x2msg->getSourceId();
@@ -74,8 +75,8 @@ void LteHandoverManager::handleX2Message(cPacket* pkt)
 
         delete hoCommandIe;
         // delete hoCommandMsg;
+        delete pkt;
     }
-
 }
 
 void LteHandoverManager::sendHandoverCommand(MacNodeId ueId, MacNodeId enb, bool startHo)
@@ -102,6 +103,7 @@ void LteHandoverManager::sendHandoverCommand(MacNodeId ueId, MacNodeId enb, bool
     auto hoMsg = makeShared<X2HandoverControlMsg>();
     hoMsg->pushIe(hoCommandIe);
     pkt->insertAtFront(hoMsg);
+    pkt->addTagIfAbsent<PacketProtocolTag>()->setProtocol(&LteProtocol::x2ap);
 
     // send to X2 Manager
     send(pkt,x2Manager_[OUT_GATE]);
@@ -134,6 +136,7 @@ void LteHandoverManager::forwardDataToTargetEnb(Packet* datagram, MacNodeId targ
     // build X2 Handover Msg
     auto hoMsg = makeShared<X2HandoverDataMsg>();
     datagram->insertAtFront(hoMsg);
+    datagram->addTagIfAbsent<PacketProtocolTag>()->setProtocol(&LteProtocol::x2ap);
 
     EV<<NOW<<" LteHandoverManager::forwardDataToTargetEnb - Send IP datagram to eNB " << targetEnb << endl;
 
