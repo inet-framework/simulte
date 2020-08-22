@@ -502,7 +502,7 @@ void AmTxQueue::sendMrw(const int seqNum)
     bufferControlPdu(pktPdu);
 }
 
-void inline AmTxQueue::bufferControlPdu(cPacket *pkt){
+void AmTxQueue::bufferControlPdu(cPacket *pkt){
     bufferPdu(pkt, true, false);
 }
 

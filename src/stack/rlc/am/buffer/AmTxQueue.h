@@ -152,7 +152,7 @@ class AmTxQueue : public cSimpleModule
     /*
      * Buffers a control pdu within the corresponding TxQueue
      */
-    void bufferControlPdu(cPacket *pkt);
+    void bufferControlPdu(cPacket* pkt);
 
     /*
      * Receives a control message from the AM receiver buffer
