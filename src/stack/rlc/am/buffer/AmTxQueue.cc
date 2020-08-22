@@ -533,13 +533,32 @@ void AmTxQueue::bufferPdu(cPacket *pktAux, bool isControl, bool isRetransmission
 }
 
 void AmTxQueue::sendPdus(int size){
-    auto pdu = pduBuffer_.pop();
-    if(pdu->getByteLength() > size){
-        throw cRuntimeError("AmTxQueue::sendPdus cannot return current head of line PDU - size too small.");
+    auto pkt = pduBuffer_.front();
+    if (pkt->getByteLength() <= size) {
+        // next PDU does fit - pop it
+        pkt = pduBuffer_.pop();
+
+        EV << "AmTxQueue::sendPdus sending a PDU of size "
+                  << pkt->getByteLength() << " (total requested: " << size
+                  << ")" << std::endl;
+
+    } else {
+        // throw cRuntimeError("AmTxQueue::sendPdus cannot return current head of line PDU - size too small.");
+        EV << NOW
+                  << " AmTxQueue::sendPdus: Cannot send PDU - PDU is larger than requested size (size == "
+                  << size << endl;
+
+        // send an empty (1-bit) message to notify the MAC that there is not enough space to send RLC PDU
+        auto pktCopy = check_and_cast<Packet*>(pkt->dup());
+        pktCopy->setName("lteRlcFragment (empty)");
+        auto rlcPdu = pktCopy->removeAtFront<LteRlcAmPdu>();
+        rlcPdu->markMutableIfExclusivelyOwned();
+        rlcPdu->setChunkLength(inet::b(1)); // send only a bit, minimum size
+        pktCopy->insertAtFront(rlcPdu);
+        pkt = pktCopy; // send modified copy, original packet will be sent when it fits
     }
 
-    EV << "AmTxQueue::sendPdus sending a PDU of size " << pdu->getByteLength() << " (total requested: " << size << ")"<< std::endl;
-    lteRlc_->sendFragmented(pdu);
+    lteRlc_->sendFragmented(pkt);
 
     if(!pduBuffer_.isEmpty()){
         lteRlc_->indicateNewDataToMac(pduBuffer_.front());

@@ -345,7 +345,7 @@ void AmRxQueue::passUp(const int index)
         // assemble frame
         int auxIndex = index;
         const auto pkId = header->getSnoMainPacket();
-        for (int i = 0; i < pduBuffer_.size(); i++) {
+        for (int i = 0; i < pduBuffer_.size() && frameBuff.size() < header->getTotalFragments(); i++) {
             auto headerAux = check_and_cast<Packet*>(pduBuffer_.get(auxIndex))->peekAtFront<LteRlcAmPdu>();
             // duplicate buffered PDU. We cannot detach it from receiver window until a move Rx command is executed.
             if (pkId == headerAux->getSnoMainPacket())
@@ -415,7 +415,6 @@ void AmRxQueue::checkCompleteSdu(const int index)
 {
 
     auto pkt = check_and_cast<Packet*>(pduBuffer_.get(index));
-    //LteRlcAmPdu* pdu = check_and_cast<LteRlcAmPdu*>(pduBuffer_.get(index));
     auto pdu = pkt->peekAtFront<LteRlcAmPdu>();
 
     int incomingSdu = pdu->getSnoMainPacket();
@@ -432,7 +431,6 @@ void AmRxQueue::checkCompleteSdu(const int index)
     bool complete = false;
     // backward search OK flag
     bool bComplete = false;
-    //LteRlcAmPdu* tempPdu = NULL;
 
     Ptr<LteRlcAmPdu> tempPdu = nullptr;
     int tempSdu = -1;
@@ -459,7 +457,7 @@ void AmRxQueue::checkCompleteSdu(const int index)
                     bComplete = true;
                 }
                 else
-                throw cRuntimeError("AmRxQueue::checkCompleteSdu(): first SDU error : %d",firstSdu_);
+                    throw cRuntimeError("AmRxQueue::checkCompleteSdu(): first SDU error : %d",firstSdu_);
             }
             else
             {
@@ -481,7 +479,7 @@ void AmRxQueue::checkCompleteSdu(const int index)
                         tempSdu = tempPdu->getSnoMainPacket();
 
                         if (tempSdu != incomingSdu)
-                        throw cRuntimeError("AmRxQueue::checkCompleteSdu(): backward search: fragmentation error : the receiver buffer contains parts of different SDUs, PDU seqnum %d",pdu->getSnoFragment());
+                            throw cRuntimeError("AmRxQueue::checkCompleteSdu(): backward search: fragmentation error : the receiver buffer contains parts of different SDUs, PDU seqnum %d",pdu->getSnoFragment());
 
                         if (tempPdu->isFirst())
                         {
@@ -500,15 +498,13 @@ void AmRxQueue::checkCompleteSdu(const int index)
                         }
                     }
                 }
-                firstIndex=0;
-                // all PDUs received
-                bComplete=true;
             }
         }
         else
         {
             // since PDU is the first one, backward search is automatically completed by definition
             bComplete = true;
+            firstIndex = index;
         }
     }
     if (!bComplete)
@@ -518,7 +514,7 @@ void AmRxQueue::checkCompleteSdu(const int index)
            << index << endl;
         return;
     }
-        // search ended with current PDU, the whole SDU can be reconstructed.
+    // search ended with current PDU, the whole SDU can be reconstructed.
     if (pdu->isLast())
     {
         EV << NOW << " AmRxQueue::checkCompleteSdu - complete SDU has been found, backward search was successful, and current was last of its SDU"
@@ -547,7 +543,7 @@ void AmRxQueue::checkCompleteSdu(const int index)
             tempPdu = constPtrCast<LteRlcAmPdu>(temPkt->peekAtFront<LteRlcAmPdu>());
             tempSdu = tempPdu->getSnoMainPacket();
             if (tempSdu != incomingSdu)
-            throw cRuntimeError("AmRxQueue::checkCompleteSdu(): SDU numbers differ from position %d to %d : former SDU %d second %d",i,i-1,incomingSdu,tempSdu);
+                throw cRuntimeError("AmRxQueue::checkCompleteSdu(): SDU numbers differ from position %d to %d : former SDU %d second %d",i,i-1,incomingSdu,tempSdu);
         }
         if (tempPdu->isLast())
         {
@@ -564,9 +560,7 @@ void AmRxQueue::checkCompleteSdu(const int index)
         }
     }
 
-    // all PDUs for this SDU have been received
-    complete = true;
-
+    // check if all PDUs for this SDU have been received
     if (complete == true)
     {
         EV << NOW << " AmRxQueue::checkCompleteSdu - complete SDU has been found after forward search , passing up "
@@ -575,6 +569,7 @@ void AmRxQueue::checkCompleteSdu(const int index)
         return;
     }
 }
+
 
 void AmRxQueue::sendStatusReport()
 {

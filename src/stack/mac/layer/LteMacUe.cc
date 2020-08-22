@@ -562,9 +562,9 @@ void LteMacUe::handleUpperMessage(cPacket* pktAux)
     bool isLteRlcPduNewData = checkIfHeaderType<LteRlcPduNewData>(pkt);
 
     // bufferize packet
-    bufferizePacket(pkt);
+    bool packetIsBuffered = bufferizePacket(pkt);
 
-    if (!isLteRlcPduNewData)
+    if (!isLteRlcPduNewData && packetIsBuffered)
     {
         // build a MAC PDU only after all MAC SDUs have been received from RLC
         requestedSdus_--;
