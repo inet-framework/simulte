@@ -7,4 +7,4 @@
 /simulations/demo/,                  -f omnetpp.ini -c VoIP_PF -r 0,           5s,              2e26-f350/tplx, PASS,
 /simulations/demo/,                  -f omnetpp.ini -c Large-VoIP_PF -r 0,     5s,              e250-ee35/tplx, PASS,
 /simulations/demo/,                  -f omnetpp.ini -c Large-VoIP_MaxCI -r 0,  5s,              3904-387b/tplx, PASS,
-/simulations/demo/,                  -f omnetpp.ini -c VoIP_DL-UL -r 0,        5s,              bdba-37ce/tplx, PASS,
+/simulations/demo/,                  -f omnetpp.ini -c VoIP_DL-UL -r 0,        5s,              e0e8-a19d/tplx, PASS,

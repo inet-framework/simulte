@@ -313,7 +313,7 @@ bool LteMacUe::bufferizePacket(cPacket* pktAux)
         queue->getQueueSize() - queue->getByteLength() << "\n";
     }
 
-    return false; // do not need to notify the activation of the connection (already done when received newDataPkt)
+    return true;
 }
 
 void LteMacUe::macPduMake(MacCid cid)
