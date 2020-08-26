@@ -45,8 +45,8 @@ class AmTxQueue : public cSimpleModule
      * SDU (upper layer PDU) currently being processed
      */
     Packet * currentSdu_ = nullptr;
-    std::deque<Packet *> *fragmentList = nullptr;
-    std::deque<int> txWindowIndexList;
+    std::deque<Packet *> *fragmentList_ = nullptr;
+    std::deque<int> txWindowIndexList_;
 
     /*
      * SDU Fragmentation descriptor
@@ -181,11 +181,8 @@ class AmTxQueue : public cSimpleModule
     /* buffers a PDU to be sent down to MAC when a new SDU is requested
      *
      * @param pdu PDU to be sent
-     * @param isConrol should be set to true for control packets
-     * @param isRetransmission  must be set to TRUE for retransmission
-     *        so that they can be priorized
      */
-    void bufferPdu(cPacket *pdu, bool isControl, bool isRetransmission);
+    void bufferPdu(cPacket *pdu);
 
     /* Move the transmitter window based upon reception of ACK control message
      *

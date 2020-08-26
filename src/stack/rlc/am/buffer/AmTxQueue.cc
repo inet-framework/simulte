@@ -36,7 +36,7 @@ void AmTxQueue::initialize()
     txWindowDesc_.windowSize_ = par("txWindowSize");
     // resize status vectors
     received_.resize(txWindowDesc_.windowSize_, false);
-    discarded_.resize(txWindowDesc_.windowSize_, false);
+    discarded_.resize(txWindowDesc_.windowSize_+1, false);
 
     // reference to corresponding RLC AM module
     lteRlc_ = check_and_cast<LteRlcAm *>(getParentModule()->getSubmodule("am"));
@@ -127,6 +127,8 @@ std::deque<Packet *> *AmTxQueue::fragmentFrame(Packet *frame, std::deque<int>& w
         EV_TRACE << "Created " << *fragment << " fragment.\n";
         // prepare list of tx window indices
         int txWindowIndex = tmp.seqNum_ - tmp.firstSeqNum_;
+        if(txWindowIndex>=200)
+            throw cRuntimeError("Illegal i");
         windowsIndex.push_back(txWindowIndex);
         fragment->copyTags(*frame);
         fragments->push_back(fragment);
@@ -150,7 +152,7 @@ void AmTxQueue::addPdus()
 
     while ((txWindowDesc_.seqNum_ - txWindowDesc_.firstSeqNum_) < txWindowDesc_.windowSize_)
     {
-        if (currentSdu_ == nullptr && sduQueue_.isEmpty())
+        if (currentSdu_ == nullptr && sduQueue_.isEmpty() && (fragmentList_ == nullptr || fragmentList_->size() == 0))
         {
             // No data to send
             EV << NOW << " AmTxQueue::addPdus - No data to send " << endl;
@@ -164,30 +166,43 @@ void AmTxQueue::addPdus()
             // Get the first available SDU (buffer has already been check'd being non empty)
             auto pkt = check_and_cast<Packet *>(sduQueue_.pop());
             auto header = pkt->peekAtFront<LteRlcAmSdu>();
-            currentSdu_ = pkt;
 
-            fragDesc_.startFragmentation(currentSdu_->getByteLength(), txWindowDesc_.seqNum_);
+            int nrFragments = ceil((double) pkt->getByteLength() / (double) fragDesc_.fragUnit_);
 
-            fragmentList = fragmentFrame(pkt->dup(), txWindowIndexList, fragDesc_);
+            if(txWindowDesc_.seqNum_ + nrFragments < txWindowDesc_.firstSeqNum_ + txWindowDesc_.windowSize_)
+            {
+                fragDesc_.startFragmentation(pkt->getByteLength(), txWindowDesc_.seqNum_);
 
-            // Starting Fragmentation
-            EV << NOW << " AmTxQueue::addPdus current SDU size "
-               << currentSdu_->getByteLength() << " will be fragmented in "
-               << fragDesc_.totalFragments_ << " PDUs, each  of size "
-               << fragDesc_.fragUnit_ << endl;
+                currentSdu_ = pkt;
+                fragmentList_ = fragmentFrame(pkt->dup(), txWindowIndexList_, fragDesc_);
 
-            if (lteInfo_ != nullptr)
-            delete lteInfo_;
+                // Starting Fragmentation
+                EV << NOW << " AmTxQueue::addPdus current SDU size "
+                   << currentSdu_->getByteLength() << " will be fragmented in "
+                   << fragDesc_.totalFragments_ << " PDUs, each  of size "
+                   << fragDesc_.fragUnit_ << endl;
 
-            lteInfo_ = currentSdu_->getTag<FlowControlInfo>()->dup();
+                if (lteInfo_ != nullptr)
+                    delete lteInfo_;
+
+                lteInfo_ = currentSdu_->getTag<FlowControlInfo>()->dup();
+
+            } else {
+                // EV << NOW << " AmTxQueue::addPdus   cannot fragment new SDU since fragments do not fit - tx window is full" << std::endl;
+            }
+        }
+
+        if (fragmentList_ == nullptr){
+            // nothing more to do
+            break;
         }
 
         EV << NOW << " AmTxQueue::addPdus - prepare new RLC PDU" << endl;
 
-        auto pdu = fragmentList->front();
-        fragmentList->pop_front();
-        auto txWindowIndex = txWindowIndexList.front();
-        txWindowIndexList.pop_front();
+        auto pdu = fragmentList_->front();
+        fragmentList_->pop_front();
+        auto txWindowIndex = txWindowIndexList_.front();
+        txWindowIndexList_.pop_front();
 
         auto pduHeader = pdu->peekAtFront<LteRlcAmPdu>();
 
@@ -201,6 +216,9 @@ void AmTxQueue::addPdus()
             //pduCopy->setControlInfo(lteInfo->dup());
             pduRtxQueue_.addAt(txWindowIndex, pduCopy);
 
+            if(txWindowIndex>=200)
+                throw cRuntimeError("Illegal i");
+
             if (received_.at(txWindowIndex) || discarded_.at(txWindowIndex))
                 throw cRuntimeError("AmTxQueue::addPdus(): trying to add a PDU to a  position marked received [%d] discarded [%d]",
                     (int)(received_.at(txWindowIndex)) ,(int)(discarded_.at(txWindowIndex)));
@@ -213,11 +231,11 @@ void AmTxQueue::addPdus()
         pduTimer_.add(pduRtxTimeout_, txWindowDesc_.seqNum_);
 
         // Update number of added PDUs for the current SDU and check if all fragments have been transmitted
-        if (fragDesc_.addFragment() || (fragmentList && fragmentList->empty()))
+        if (fragDesc_.addFragment() || (fragmentList_ && fragmentList_->empty()))
         {
-            delete fragmentList;
-            fragmentList = nullptr;
-            txWindowIndexList.clear();
+            delete fragmentList_;
+            fragmentList_ = nullptr;
+            txWindowIndexList_.clear();
             fragDesc_.resetFragmentation();
             delete currentSdu_;
             currentSdu_ = nullptr;
@@ -233,9 +251,10 @@ void AmTxQueue::addPdus()
         }
 
         // buffer (and send down) the PDU
-        bufferPdu(pdu, false, false);
+        bufferPdu(pdu);
     }
-
+    ASSERT(fragmentList_ == nullptr);
+    ASSERT(txWindowIndexList_.empty());
     EV << NOW << " AmTxQueue::addPdus - added " << addedPdus << " PDUs" << endl;
 }
 
@@ -398,7 +417,7 @@ void AmTxQueue::moveTxWindow(const int seqNum)
             discarded_.at(i)=false;
         }
         else
-        throw cRuntimeError("AmTxQueue::moveTxWindow(): encountered empty PDU at location %d, shift position %d", i, pos);
+            throw cRuntimeError("AmTxQueue::moveTxWindow(): encountered empty PDU at location %d, shift position %d", i, pos);
     }
 
     for (int i = pos;
@@ -503,10 +522,10 @@ void AmTxQueue::sendMrw(const int seqNum)
 }
 
 void AmTxQueue::bufferControlPdu(cPacket *pkt){
-    bufferPdu(pkt, true, false);
+    bufferPdu(pkt);
 }
 
-void AmTxQueue::bufferPdu(cPacket *pktAux, bool isControl, bool isRetransmission)
+void AmTxQueue::bufferPdu(cPacket *pktAux)
 {
     Enter_Method("bufferFragmented()"); // Direct Method Call
     take(pktAux); // Take ownership
@@ -520,12 +539,7 @@ void AmTxQueue::bufferPdu(cPacket *pktAux, bool isControl, bool isRetransmission
     bool needToTriggerMac = pduBuffer_.isEmpty();
 
     // pdu is not sent directly but queued - will be sent upon mac request
-    if((isControl || isRetransmission) && !pduBuffer_.isEmpty()) {
-        // control packets and retransmissions have priority
-        pduBuffer_.insertBefore(pduBuffer_.front(), pkt);
-    } else {
-        pduBuffer_.insert(pkt);
-    }
+    pduBuffer_.insert(pkt);
 
     if (needToTriggerMac){
         lteRlc_->indicateNewDataToMac(pkt);
@@ -642,6 +656,7 @@ void AmTxQueue::recvAck(const int seqNum)
         pduTimer_.remove(index + txWindowDesc_.firstSeqNum_);
         // Received status variable is set at true after the
         received_.at(index) = true;
+        ASSERT(pduRtxQueue_.get(index) != nullptr);
     }
 }
 
@@ -775,7 +790,7 @@ void AmTxQueue::pduTimerHandle(const int sn)
         // Reschedule the timer
         pduTimer_.add(pduRtxTimeout_, sn);
         // send down the PDU
-        bufferPdu(pduPkt, false, true);
+        bufferPdu(pduPkt);
     }
 }
 
@@ -809,7 +824,7 @@ void AmTxQueue::mrwTimerHandle(const int sn)
         mrwRtxQueue_.addAt(sn, pduCopy);
         // Retransmit the MRW control message
         mrwTimer_.add(ctrlPduRtxTimeout_, sn);
-        bufferPdu(pktPdu, true, true);
+        bufferPdu(pktPdu);
     }
 }
 

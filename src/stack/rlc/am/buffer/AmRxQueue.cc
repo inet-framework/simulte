@@ -32,7 +32,7 @@ AmRxQueue::AmRxQueue() :
     // in order create a back connection (AM CTRL) , a flow control
     // info for sending ctrl messages to tx entity is required
 
-    flowControlInfo_ = NULL;
+    flowControlInfo_ = nullptr;
 
     timer_.setTimerId(BUFFERSTATUS_T);
 }
@@ -96,7 +96,7 @@ void AmRxQueue::handleMessage(cMessage* msg)
 
     for (unsigned int i = 0; i < rxWindowDesc_.windowSize_; i++)
     {
-        if (pduBuffer_.get(i) != 0)
+        if (pduBuffer_.get(i) != nullptr)
         {
             timer_.start(statusReportInterval_);
             break;
@@ -123,8 +123,9 @@ Packet *AmRxQueue::defragmentFrames(std::deque<Packet *> &fragmentFrames)
         delete fragmentFrame;
     }
 
-    EV_TRACE << "Created " << *defragmentedFrame << ".\n";
     fragmentFrames.clear();
+
+    EV_TRACE << "Created " << *defragmentedFrame << ".\n";
 
     return defragmentedFrame;
 }
@@ -157,6 +158,14 @@ void AmRxQueue::discard(const int sn)
             dir = (Direction) ci->getDirection();
             dstId = ci->getDestId();
             srcId = ci->getSourceId();
+            // Erase element from pendingPduBuffer_ (if it is within the buffer)
+            for (auto it = pendingPduBuffer_.begin(); it != pendingPduBuffer_.end(); ) {
+                if (*it == pkt) {
+                    it = pendingPduBuffer_.erase(it);
+                } else {
+                    ++it;
+                }
+            }
             delete pkt;
             ++discarded;
         }
@@ -181,6 +190,8 @@ void AmRxQueue::discard(const int sn)
 void AmRxQueue::enque(Packet *pkt)
 {
     Enter_Method("enque()");
+
+    take(pkt);
 
     auto pdu = pkt->peekAtFront<LteRlcAmPdu>();
 
@@ -336,15 +347,29 @@ void AmRxQueue::passUp(const int index)
 {
     Enter_Method("passUp");
 
-    std::deque<Packet *>frameBuff;
-
     Packet *pkt = nullptr;
 
     auto header = check_and_cast<Packet*>(pduBuffer_.get(index))->peekAtFront<LteRlcAmPdu>();
     if (!header->isWhole()) {
         // assemble frame
-        int auxIndex = index;
+        std::deque<Packet *>frameBuff;
         const auto pkId = header->getSnoMainPacket();
+
+        // handle special case: some fragments have already been moved out of the receive window and
+        // are available in the pendingPduBuffer
+        if(index == 0 && !header->isFirst()){
+            for(auto &p: pendingPduBuffer_){
+                auto frgId = p->peekAtFront<LteRlcAmPdu>()->getSnoMainPacket();
+                if( frgId != pkId){
+                    throw cRuntimeError("AmRxQueue::passUp(): fragment buffer has fragments for SDU %d while trying to pass up %d",frgId, pkId);
+                }
+                frameBuff.push_back(p);
+            }
+            pendingPduBuffer_.clear();
+        }
+
+        int auxIndex = index;
+
         for (int i = 0; i < pduBuffer_.size() && frameBuff.size() < header->getTotalFragments(); i++) {
             auto headerAux = check_and_cast<Packet*>(pduBuffer_.get(auxIndex))->peekAtFront<LteRlcAmPdu>();
             // duplicate buffered PDU. We cannot detach it from receiver window until a move Rx command is executed.
@@ -354,6 +379,8 @@ void AmRxQueue::passUp(const int index)
             if (auxIndex >= pduBuffer_.size())
                 auxIndex = 0;
         }
+
+        // now all fragments (PDUs) are available and the SDU can be defragmented
         pkt = defragmentFrames(frameBuff);
     }
     else
@@ -361,9 +388,6 @@ void AmRxQueue::passUp(const int index)
         pkt = (check_and_cast<Packet*>(pduBuffer_.get(index)))->dup();
         pkt->removeAtFront<LteRlcAmPdu>();
     }
-
-    // auto bufferedpdu = pkt->removeAtFront<LteRlcAmPdu>();
-    // int bufPacketSize  = pkt->getByteLength();
 
     pkt->trim();
 
@@ -378,8 +402,8 @@ void AmRxQueue::passUp(const int index)
     Direction dir = (Direction) ci->getDirection();
     MacNodeId dstId = ci->getDestId();
     MacNodeId srcId = ci->getSourceId();
-    cModule* nodeb = NULL;
-    cModule* ue = NULL;
+    cModule* nodeb = nullptr;
+    cModule* ue = nullptr;
     double delay = (NOW - pkt->getCreationTime()).dbl();
 
     if (dir == DL)
@@ -450,7 +474,8 @@ void AmRxQueue::checkCompleteSdu(const int index)
             if ((index) == 0)
             {
                 // We are at the beginning of the buffer and PDU is in the middle of its SDU sequence.
-                // Check if the previous PDU of this SDU have been correctly received.
+                // Since the window has been moved, previous PDUs of this SDU have been correctly received
+                // and are available in the pending PDUs buffer.
                 if (firstSdu_ == incomingSdu)
                 {
                     firstIndex = index;
@@ -681,7 +706,7 @@ void AmRxQueue::moveRxWindow(const int seqNum)
     int pos = seqNum - rxWindowDesc_.firstSeqNum_;
 
     if (pos <= 0)
-    return;  // ignore the shift , it is uneffective.
+        return;  // ignore the shift , it is uneffective.
 
     if (pos>rxWindowDesc_.windowSize_)
         throw cRuntimeError("AmRxQueue::moveRxWindow(): positions %d win size %d , seq num %d",pos,rxWindowDesc_.windowSize_,seqNum);
@@ -706,8 +731,17 @@ void AmRxQueue::moveRxWindow(const int seqNum)
             {
                 // Reset the last PDU seen.
                 currentSdu = -1;
+                // Remove all PDUs from pending PDU buffer.
+                for(auto &p: pendingPduBuffer_){
+                    // EV << NOW << " AmRxQueue::moveRxWindow deleting" << p->getName() << "(buffer has "<< pendingPduBuffer_.size() << " elements) "<< std::endl;
+                    delete p;
+                }
+                pendingPduBuffer_.clear();
+                delete pktPdu;
+            } else {
+                // temporarily store PDU until the window is shifted to last PDU of its SDU
+                pendingPduBuffer_.push_back(pktPdu);
             }
-            delete pktPdu;
         }
         else
         {
@@ -744,12 +778,20 @@ void AmRxQueue::moveRxWindow(const int seqNum)
 AmRxQueue::~AmRxQueue()
 {
     // clear buffered PDUs
-    for (int i = 0; i < pduBuffer_.size(); i++) {
+    for (int i = 0; i < pduBuffer_.size(); i++)
+    {
         if (pduBuffer_.get(i) != nullptr)
         {
             auto pktPdu = check_and_cast<Packet *>(pduBuffer_.remove(i));
             delete pktPdu;
         }
     }
+
+    // Remove all PDUs from pending PDU buffer.
+    for(auto &p: pendingPduBuffer_)
+    {
+        delete p;
+    }
+    pendingPduBuffer_.clear();
 }
 

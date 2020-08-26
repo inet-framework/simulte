@@ -46,6 +46,11 @@ class AmRxQueue : public omnetpp::cSimpleModule
     //! AM PDU buffer
     omnetpp::cArray pduBuffer_;
 
+    //! AM PDU fragment buffer
+    //  (stores PDUs of the next SDU if they are shifted out of the PDU buffer before the SDU is completely
+    //   received and can be passed to the upper layer)
+    std::deque<inet::Packet *>pendingPduBuffer_;
+
     //! AM PDU Received vector
     /** For each AM PDU a received status variable is kept.
      */
