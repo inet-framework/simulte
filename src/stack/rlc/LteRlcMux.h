@@ -14,10 +14,6 @@
 #include "common/LteCommon.h"
 #include "common/LteControlInfo.h"
 
-/*
- * TODO: make use of the new packet API
- */
-
 /**
  * \class LteRLC
  * \brief RLC Layer

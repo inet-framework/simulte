@@ -45,6 +45,9 @@ class UmRxEntity : public omnetpp::cSimpleModule
     void setFlowControlInfo(FlowControlInfo* lteInfo) { flowControlInfo_ = lteInfo; }
     FlowControlInfo* getFlowControlInfo() { return flowControlInfo_; }
 
+    // returns true if this entity is for a D2D_MULTI connection
+    bool isD2DMultiConnection() { return (flowControlInfo_->getDirection() == D2D_MULTI); }
+
     // called when a D2D mode switch is triggered
     void rlcHandleD2DModeSwitch(bool oldConnection, bool oldMode, bool clearBuffer=true);
 
@@ -69,6 +72,7 @@ class UmRxEntity : public omnetpp::cSimpleModule
     omnetpp::simsignal_t rlcCellThroughput_;
     omnetpp::simsignal_t rlcThroughput_;
     omnetpp::simsignal_t rlcPduThroughput_;
+    omnetpp::simsignal_t rlcPacketLossTotal_;
 
     // statistics for D2D
     omnetpp::simsignal_t rlcPacketLossD2D_;
@@ -78,8 +82,8 @@ class UmRxEntity : public omnetpp::cSimpleModule
     omnetpp::simsignal_t rlcThroughputD2D_;
     omnetpp::simsignal_t rlcPduThroughputD2D_;
 
-    omnetpp::simsignal_t rlcPacketLossTotal_;
-
+    // buffered fragments
+    std::deque<inet::Packet *> *fragments = nullptr;
   private:
 
     LteBinder* binder_;
@@ -112,7 +116,10 @@ class UmRxEntity : public omnetpp::cSimpleModule
     std::vector<bool> received_;
 
     // The SDU waiting for the missing portion
-    LteRlcSdu* buffered_;
+    struct Buffered {
+         inet::Packet* pkt = nullptr;
+         size_t size;
+    } buffered_;
 
     // Sequence number of the last SDU delivered to the upper layer
     unsigned int lastSnoDelivered_;
@@ -134,7 +141,7 @@ class UmRxEntity : public omnetpp::cSimpleModule
     void reassemble(unsigned int index);
 
     // deliver a PDCP PDU to the PDCP layer
-    void toPdcp(LteRlcSdu* rlcSdu);
+    void toPdcp(inet::Packet* rlcSdu);
 };
 
 #endif

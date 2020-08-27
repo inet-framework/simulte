@@ -8,10 +8,11 @@
 //
 
 #include "stack/rlc/um/entity/UmTxEntity.h"
+#include "stack/rlc/am/packet/LteRlcAmPdu.h"
 
 Define_Module(UmTxEntity);
 
-using namespace omnetpp;
+using namespace inet;
 
 /*
  * Main functions
@@ -54,7 +55,8 @@ void UmTxEntity::rlcPduMake(int pduLength)
     EV << NOW << " UmTxEntity::rlcPduMake - PDU with size " << pduLength << " requested from MAC"<< endl;
 
     // create the RLC PDU
-    LteRlcUmDataPdu* rlcPdu = new LteRlcUmDataPdu("lteRlcFragment");
+    auto pkt = new inet::Packet("lteRlcFragment");
+    auto rlcPdu = inet::makeShared<LteRlcUmDataPdu>();
 
     // the request from MAC takes into account also the size of the RLC header
     pduLength -= RLC_HEADER_UM;
@@ -67,11 +69,16 @@ void UmTxEntity::rlcPduMake(int pduLength)
     while (!sduQueue_.isEmpty() && pduLength > 0)
     {
         // detach data from the SDU buffer
-        cPacket* pkt = sduQueue_.front();
-        LteRlcSdu* rlcSdu = check_and_cast<LteRlcSdu*>(pkt);
-
+        auto pkt = check_and_cast<inet::Packet *>(sduQueue_.front());
+        auto rlcSdu = pkt->peekAtFront<LteRlcSdu>();
         unsigned int sduSequenceNumber = rlcSdu->getSnoMainPacket();
-        int sduLength = rlcSdu->getByteLength();
+        int sduLength = rlcSdu->getLengthMainPacket(); // length without the SDU header
+
+        if (fragmentInfo != nullptr) {
+            if (fragmentInfo->pkt != pkt)
+                throw cRuntimeError("Packets are different");
+            sduLength = fragmentInfo->size;
+        }
 
         EV << NOW << " UmTxEntity::rlcPduMake - Next data chunk from the queue, sduSno[" << sduSequenceNumber
                 << "], length[" << sduLength << "]"<< endl;
@@ -81,13 +88,18 @@ void UmTxEntity::rlcPduMake(int pduLength)
             EV << NOW << " UmTxEntity::rlcPduMake - Add " << sduLength << " bytes to the new SDU, sduSno[" << sduSequenceNumber << "]" << endl;
 
             // add the whole SDU
+            if (fragmentInfo) {
+                delete fragmentInfo;
+                fragmentInfo = nullptr;
+            }
             pduLength -= sduLength;
             len += sduLength;
 
-            sduQueue_.pop();
-            queueLength_ -= sduLength;
+            pkt = check_and_cast<inet::Packet *>(sduQueue_.pop());
+            queueLength_ -= pkt->getByteLength();
 
-            rlcPdu->pushSdu(rlcSdu);
+            rlcPdu->pushSdu(pkt, sduLength);
+            pkt = nullptr;
 
             EV << NOW << " UmTxEntity::rlcPduMake - Pop data chunk from the queue, sduSno[" << sduSequenceNumber << "]" << endl;
 
@@ -104,16 +116,24 @@ void UmTxEntity::rlcPduMake(int pduLength)
 
             len += pduLength;
 
-            LteRlcSdu* rlcSduDup = rlcSdu->dup();
-            rlcSduDup->setByteLength(pduLength);
-            rlcPdu->pushSdu(rlcSduDup);
+            auto rlcSduDup = pkt->dup();
+            if (fragmentInfo != nullptr) {
+                fragmentInfo->size -= pduLength;
+                if (fragmentInfo->size < 0)
+                    throw cRuntimeError("Fragmentation error");
+            }
+            else {
+                fragmentInfo  = new FragmentInfo;
+                fragmentInfo->pkt = pkt;
+                fragmentInfo->size = sduLength - pduLength;
+            }
+            rlcPdu->pushSdu(rlcSduDup, pduLength);
 
             endFrag = true;
 
             // update SDU in the buffer
             int newLength = sduLength - pduLength;
-            pkt->setByteLength(newLength);
-            queueLength_ -= pduLength;
+            // queueLength_ will be adapted when the whole SDU is removed from the queue
 
             EV << NOW << " UmTxEntity::rlcPduMake - Data chunk in the queue is now " << newLength << " bytes, sduSno[" << sduSequenceNumber << "]" << endl;
 
@@ -129,9 +149,10 @@ void UmTxEntity::rlcPduMake(int pduLength)
 
     if (len == 0)
     {
-        // send an empty message to notify the MAC that there is not enough space to send RLC PDU
-        rlcPdu->setControlInfo(flowControlInfo_->dup());
-        rlcPdu->setByteLength(len);
+        // send an empty (1-bit) message to notify the MAC that there is not enough space to send RLC PDU
+        // (TODO: ugly, should be indicated in a better way)
+        pkt->setName("lteRlcFragment (empty)");
+        rlcPdu->setChunkLength(inet::b(1)); // send only a bit, minimum size
     }
     else
     {
@@ -152,13 +173,15 @@ void UmTxEntity::rlcPduMake(int pduLength)
 
         rlcPdu->setFramingInfo(fi);
         rlcPdu->setPduSequenceNumber(sno_++);
-        rlcPdu->setControlInfo(flowControlInfo_->dup());
-        rlcPdu->setByteLength(RLC_HEADER_UM + len);  // add the header size
+        rlcPdu->setChunkLength(inet::B(RLC_HEADER_UM + len));
     }
 
+    *pkt->addTagIfAbsent<FlowControlInfo>() = *flowControlInfo_;
+
     // send to MAC layer
-    EV << NOW << " UmTxEntity::rlcPduMake - send PDU " << rlcPdu->getPduSequenceNumber() << " with size " << rlcPdu->getByteLength() << " bytes to lower layer" << endl;
-    lteRlc_->sendToLowerLayer(rlcPdu);
+    pkt->insertAtFront(rlcPdu);
+    EV << NOW << " UmTxEntity::rlcPduMake - send PDU " << rlcPdu->getPduSequenceNumber() << " with size " << pkt->getByteLength() << " bytes to lower layer" << endl;
+    lteRlc_->sendToLowerLayer(pkt);
 
     // if incoming connection was halted
     if (notifyEmptyBuffer_ && sduQueue_.isEmpty())
@@ -180,6 +203,7 @@ void UmTxEntity::removeDataFromQueue()
     // ...and remove it
     cPacket* retPkt = sduQueue_.remove(pkt);
     queueLength_ -= retPkt->getByteLength();
+    ASSERT(queueLength_ >= 0);
     delete retPkt;
 }
 
@@ -188,6 +212,11 @@ void UmTxEntity::clearQueue()
     // empty buffer
     while (!sduQueue_.isEmpty())
         delete sduQueue_.pop();
+
+    if (fragmentInfo) {
+        delete fragmentInfo;
+        fragmentInfo = nullptr;
+    }
 
     queueLength_ = 0;
 
@@ -216,25 +245,24 @@ void UmTxEntity::resumeDownstreamInPackets()
     // move all SDUs in the holding buffer to the TX buffer
     while (!sduHoldingQueue_.isEmpty())
     {
-        LteRlcSdu* rlcPkt = check_and_cast<LteRlcSdu*>(sduHoldingQueue_.front());
+        auto pktRlc = check_and_cast<inet::Packet *> (sduHoldingQueue_.front());
+        auto rlcHeader = pktRlc->peekAtFront<LteRlcSdu>();
+        //LteRlcSdu* rlcPkt = check_and_cast<LteRlcSdu*>(sduHoldingQueue_.front());
         sduHoldingQueue_.pop();
 
         // store the SDU in the TX buffer
-        if(enque(rlcPkt)){
-            // create a message so as to notify the MAC layer that the queue contains new data
-            LteRlcPdu* newDataPkt = new LteRlcPdu("newDataPkt");
-            // make a copy of the RLC SDU
-            LteRlcSdu* rlcPktDup = rlcPkt->dup();
-            FlowControlInfo* lteInfo = check_and_cast<FlowControlInfo*>(rlcPkt->getControlInfo());
-            // the MAC will only be interested in the size of this packet
-            newDataPkt->encapsulate(rlcPktDup);
-            newDataPkt->setControlInfo(lteInfo->dup());
-
-            lteRlc_->sendToLowerLayer(newDataPkt);
+        if(enque(pktRlc)){
+        	// create a message so as to notify the MAC layer that the queue contains new data
+        	auto newDataPkt = inet::makeShared<LteRlcPduNewData>();
+        	// make a copy of the RLC SDU
+        	auto pktRlcdup = pktRlc->dup();
+        	pktRlcdup->insertAtFront(newDataPkt);
+            // send the new data indication to the MAC
+        	lteRlc_->sendToLowerLayer(pktRlcdup);
         } else {
-            // Queue is full - drop SDU
+        	// Queue is full - drop SDU
             EV << "UmTxEntity::resumeDownstreamInPackets - cannot buffer SDU (queue is full), dropping" << std::endl;
-            lteRlc_->dropBufferOverflow(rlcPkt);
+            lteRlc_->dropBufferOverflow(pktRlc);
         }
     }
 }

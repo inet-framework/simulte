@@ -7,16 +7,14 @@
 // and cannot be removed from it.
 //
 
-/// D2D Modes
-// IM = Infastructure Mode
-// DM = Direct (D2D) Mode
-enum LteD2DMode
-{
-    IM=0; DM=1;
-};
+import common.LteCommonEnum;
+import common.LteCommon;
+import inet.common.packet.chunk.Chunk;
 
-packet D2DModeSwitchNotification
+//packet D2DModeSwitchNotification
+class D2DModeSwitchNotification extends inet::FieldsChunk
 {
+    chunkLength = inet::B(1); // TODO: size 0
     unsigned int peerId;
     bool txSide;
     LteD2DMode oldMode;

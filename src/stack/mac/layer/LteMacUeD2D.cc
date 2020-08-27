@@ -62,21 +62,24 @@ void LteMacUeD2D::initialize(int stage)
 }
 
 //Function for create only a BSR for the eNB
-LteMacPdu* LteMacUeD2D::makeBsr(int size){
+Packet* LteMacUeD2D::makeBsr(int size){
 
-    UserControlInfo* uinfo = new UserControlInfo();
-    uinfo->setSourceId(getMacNodeId());
-    uinfo->setDestId(getMacCellId());
-    uinfo->setDirection(UL);
-    uinfo->setUserTxParams(schedulingGrant_->getUserTxParams()->dup());
-    LteMacPdu* macPkt = new LteMacPdu("LteMacPdu");
-    macPkt->setHeaderLength(MAC_HEADER);
-    macPkt->setControlInfo(uinfo);
+    auto macPkt = new Packet("LteMacPdu");
+    auto header = makeShared<LteMacPdu>();
+    header->setHeaderLength(MAC_HEADER);
     macPkt->setTimestamp(NOW);
+
     MacBsr* bsr = new MacBsr();
     bsr->setTimestamp(simTime().dbl());
     bsr->setSize(size);
-    macPkt->pushCe(bsr);
+    header->pushCe(bsr);
+    macPkt->insertAtFront(header);
+    macPkt->addTagIfAbsent<UserControlInfo>()->setSourceId(getMacNodeId());
+    macPkt->addTagIfAbsent<UserControlInfo>()->setDestId(getMacCellId());
+    macPkt->addTagIfAbsent<UserControlInfo>()->setDirection(UL);
+    macPkt->addTagIfAbsent<UserControlInfo>()->setUserTxParams(schedulingGrant_->getUserTxParams()->dup());
+
+
     bsrTriggered_ = false;
     EV << "LteMacUeD2D::makeBsr() - BSR with size " << size << "created" << endl;
     return macPkt;
@@ -121,8 +124,10 @@ void LteMacUeD2D::macPduMake(MacCid cid)
         if (sizeBsr > 0)
         {
             // Call the appropriate function for make a BSR for a D2D communication
-            LteMacPdu* macPktBsr = makeBsr(sizeBsr);
-            UserControlInfo* info = check_and_cast<UserControlInfo*>(macPktBsr->getControlInfo());
+            auto macPktBsr = makeBsr(sizeBsr);
+            //auto LteMacPdu* macPktBsr = makeBsr(sizeBsr);
+            //auto info = check_and_cast<UserControlInfo*>(macPktBsr->getControlInfo());
+            auto info = macPktBsr->getTag<UserControlInfo>();
             if (bsrD2DMulticastTriggered_)
             {
                 info->setLcid(D2D_MULTI_SHORT_BSR);
@@ -153,8 +158,7 @@ void LteMacUeD2D::macPduMake(MacCid cid)
         LteMacScheduleList::const_iterator it;
         for (it = scheduleList_->begin(); it != scheduleList_->end(); it++)
         {
-            LteMacPdu* macPkt;
-            cPacket* pkt;
+            Packet * macPkt = nullptr;
 
             MacCid destCid = it->first.first;
             Codeword cw = it->first.second;
@@ -179,20 +183,23 @@ void LteMacUeD2D::macPduMake(MacCid cid)
             {
                 // Always goes here because of the macPduList_.clear() at the beginning
                 // Build the Control Element of the MAC PDU
-                UserControlInfo* uinfo = new UserControlInfo();
-                uinfo->setSourceId(getMacNodeId());
-                uinfo->setDestId(destId);
-                uinfo->setLcid(MacCidToLcid(destCid));
-                uinfo->setDirection(dir);
-                uinfo->setLcid(MacCidToLcid(SHORT_BSR));
-                if (usePreconfiguredTxParams_)
-                    uinfo->setUserTxParams(preconfiguredTxParams_->dup());
-                else
-                    uinfo->setUserTxParams(schedulingGrant_->getUserTxParams()->dup());
+
                 // Create a PDU
-                macPkt = new LteMacPdu("LteMacPdu");
-                macPkt->setHeaderLength(MAC_HEADER);
-                macPkt->setControlInfo(uinfo);
+                macPkt = new Packet("LteMacPdu");
+                auto header = makeShared<LteMacPdu>();
+                //macPkt = new LteMacPdu("LteMacPdu");
+                header->setHeaderLength(MAC_HEADER);
+                macPkt->insertAtFront(header);
+                macPkt->addTagIfAbsent<UserControlInfo>()->setSourceId(getMacNodeId());
+                macPkt->addTagIfAbsent<UserControlInfo>()->setDestId(destId);
+                macPkt->addTagIfAbsent<UserControlInfo>()->setLcid(MacCidToLcid(destCid));
+                macPkt->addTagIfAbsent<UserControlInfo>()->setDirection(dir);
+                macPkt->addTagIfAbsent<UserControlInfo>()->setLcid(MacCidToLcid(SHORT_BSR));
+                if (usePreconfiguredTxParams_)
+                    macPkt->addTagIfAbsent<UserControlInfo>()->setUserTxParams(preconfiguredTxParams_->dup());
+                else
+                    macPkt->addTagIfAbsent<UserControlInfo>()->setUserTxParams(schedulingGrant_->getUserTxParams()->dup());
+
                 macPkt->setTimestamp(NOW);
                 macPduList_[pktId] = macPkt;
             }
@@ -212,17 +219,24 @@ void LteMacUeD2D::macPduMake(MacCid cid)
                 if (mbuf_[destCid]->isEmpty())
                     throw cRuntimeError("Empty buffer for cid %d, while expected SDUs were %d", destCid, sduPerCid);
 
-                pkt = mbuf_[destCid]->popFront();
+                auto pkt = check_and_cast<Packet *>(mbuf_[destCid]->popFront());
 
                 // multicast support
                 // this trick gets the group ID from the MAC SDU and sets it in the MAC PDU
-                int32 groupId = check_and_cast<LteControlInfo*>(pkt->getControlInfo())->getMulticastGroupId();
+                auto infoVec = getTagsWithInherit<LteControlInfo>(pkt);
+
+                if (infoVec.empty())
+                    throw cRuntimeError("No tag of type LteControlInfo found");
+                int32 groupId =  infoVec.front().getMulticastGroupId();
+
                 if (groupId >= 0) // for unicast, group id is -1
-                    check_and_cast<LteControlInfo*>(macPkt->getControlInfo())->setMulticastGroupId(groupId);
+                    macPkt->getTag<UserControlInfo>()->setMulticastGroupId(groupId);
 
                 drop(pkt);
 
-                macPkt->pushSdu(pkt);
+                auto header = macPkt->removeAtFront<LteMacPdu>();
+                header->pushSdu(pkt);
+                macPkt->insertAtFront(header);
                 sduPerCid--;
             }
 
@@ -260,11 +274,14 @@ void LteMacUeD2D::macPduMake(MacCid cid)
             // The tx buffer does not exist yet for this mac node id, create one
             LteHarqBufferTx* hb;
             // FIXME: hb is never deleted
-            UserControlInfo* info = check_and_cast<UserControlInfo*>(pit->second->getControlInfo());
-            if (info->getDirection() == UL)
+            auto info = pit->second->getTag<UserControlInfo>();
+            
+            if (info->getDirection() == UL) {
                 hb = new LteHarqBufferTx((unsigned int) ENB_TX_HARQ_PROCESSES, this, (LteMacBase*) getMacByMacNodeId(destId));
-            else // D2D or D2D_MULTI
+            }
+            else { // D2D or D2D_MULTI
                 hb = new LteHarqBufferTxD2D((unsigned int) ENB_TX_HARQ_PROCESSES, this, (LteMacBase*) getMacByMacNodeId(destId));
+            }
             harqTxBuffers_[destId] = hb;
             txBuf = hb;
         }
@@ -274,7 +291,7 @@ void LteMacUeD2D::macPduMake(MacCid cid)
         EV << "LteMacUeD2D::macPduMake - [Used Acid=" << (unsigned int)txList.first << "] , [curr=" << (unsigned int)currentHarq_ << "]" << endl;
 
         //Get a reference of the LteMacPdu from pit pointer (extract Pdu from the MAP)
-        LteMacPdu* macPkt = pit->second;
+        auto macPkt = pit->second;
 
         /* BSR related operations
 
@@ -344,19 +361,21 @@ void LteMacUeD2D::macPduMake(MacCid cid)
         //
         //        } */
 
+        auto header = macPkt->removeAtFront<LteMacPdu>();
         // Attach BSR to PDU if RAC is won and wasn't already made
         if ((bsrTriggered_ || bsrD2DMulticastTriggered_) && !bsrAlreadyMade )
         {
             MacBsr* bsr = new MacBsr();
             bsr->setTimestamp(simTime().dbl());
             bsr->setSize(size);
-            macPkt->pushCe(bsr);
+            header->pushCe(bsr);
             bsrTriggered_ = false;
             bsrD2DMulticastTriggered_ = false;
             EV << "LteMacUeD2D::macPduMake - BSR created with size " << size << endl;
         }
+        macPkt->insertAtFront(header);
 
-        EV << "LteMacUeD2D: pduMaker created PDU: " << macPkt->info() << endl;
+        EV << "LteMacUeD2D: pduMaker created PDU: " << macPkt->str() << endl;
 
         // TODO: harq test
         // pdu transmission here (if any)
@@ -383,12 +402,13 @@ void LteMacUeD2D::handleMessage(cMessage* msg)
         return;
     }
 
-    cPacket* pkt = check_and_cast<cPacket *>(msg);
+    auto pkt = check_and_cast<inet::Packet *>(msg);
     cGate* incoming = pkt->getArrivalGate();
 
-    if (incoming == down_[IN])
+    if (incoming == down_[IN_GATE])
     {
-        UserControlInfo *userInfo = check_and_cast<UserControlInfo *>(pkt->getControlInfo());
+        auto userInfo = pkt->getTag<UserControlInfo>();
+        
         if (userInfo->getFrameType() == D2DMODESWITCHPKT)
         {
             EV << "LteMacUeD2D::handleMessage - Received packet " << pkt->getName() <<
@@ -408,19 +428,19 @@ void LteMacUeD2D::handleMessage(cMessage* msg)
 }
 
 void
-LteMacUeD2D::macHandleGrant(cPacket* pkt)
+LteMacUeD2D::macHandleGrant(cPacket* pktAux)
 {
     EV << NOW << " LteMacUeD2D::macHandleGrant - UE [" << nodeId_ << "] - Grant received " << endl;
 
-    // delete old grant
-    LteSchedulingGrant* grant = check_and_cast<LteSchedulingGrant*>(pkt);
-
-    //Codeword cw = grant->getCodeword();
+    // extract grant
+    auto pkt = check_and_cast<inet::Packet*> (pktAux);
+    auto grant = pkt->popAtFront<LteSchedulingGrant>();
+    delete pkt;
 
     if (schedulingGrant_!=NULL)
     {
-        delete schedulingGrant_;
-        schedulingGrant_ = NULL;
+        // delete schedulingGrant_;
+        schedulingGrant_ = nullptr;
     }
 
     // store received grant
@@ -496,15 +516,16 @@ void LteMacUeD2D::checkRAC()
 
     if ((racRequested_=trigger) || (racD2DMulticastRequested_=triggerD2DMulticast))
     {
-        LteRac* racReq = new LteRac("RacRequest");
-        UserControlInfo* uinfo = new UserControlInfo();
-        uinfo->setSourceId(getMacNodeId());
-        uinfo->setDestId(getMacCellId());
-        uinfo->setDirection(UL);
-        uinfo->setFrameType(RACPKT);
-        racReq->setControlInfo(uinfo);
+        auto pkt = new Packet("RacRequest");
+        pkt->addTagIfAbsent<UserControlInfo>()->setSourceId(getMacNodeId());
+        pkt->addTagIfAbsent<UserControlInfo>()->setDestId(getMacCellId());
+        pkt->addTagIfAbsent<UserControlInfo>()->setDirection(UL);
+        pkt->addTagIfAbsent<UserControlInfo>()->setFrameType(RACPKT);
+ 
+        auto racReq = makeShared<LteRac>();
 
-        sendLowerPackets(racReq);
+        pkt->insertAtFront(racReq);
+        sendLowerPackets(pkt);
 
         EV << NOW << " Ue  " << nodeId_ << " cell " << cellId_ << " ,RAC request sent to PHY " << endl;
 
@@ -513,9 +534,10 @@ void LteMacUeD2D::checkRAC()
     }
 }
 
-void LteMacUeD2D::macHandleRac(cPacket* pkt)
+void LteMacUeD2D::macHandleRac(cPacket* pktAux)
 {
-    LteRac* racPkt = check_and_cast<LteRac*>(pkt);
+    auto pkt = check_and_cast<inet::Packet*> (pktAux);
+    auto racPkt = pkt->peekAtFront<LteRac>();
 
     if (racPkt->getSuccess())
     {
@@ -551,7 +573,7 @@ void LteMacUeD2D::macHandleRac(cPacket* pkt)
             EV << NOW << " Ue " << nodeId_ << " RAC attempt failed, backoff extracted : " << racBackoffTimer_ << endl;
         }
     }
-    delete racPkt;
+    delete pkt;
 }
 
 
@@ -562,15 +584,14 @@ void LteMacUeD2D::handleSelfMessage()
     // extract pdus from all harqrxbuffers and pass them to unmaker
     HarqRxBuffers::iterator hit = harqRxBuffers_.begin();
     HarqRxBuffers::iterator het = harqRxBuffers_.end();
-    LteMacPdu *pdu = NULL;
-    std::list<LteMacPdu*> pduList;
-
+    
+    std::list<Packet*> pduList;
     for (; hit != het; ++hit)
     {
         pduList=hit->second->extractCorrectPdus();
         while (! pduList.empty())
         {
-            pdu=pduList.front();
+            auto pdu=pduList.front();
             pduList.pop_front();
             macPduUnmake(pdu);
         }
@@ -595,8 +616,8 @@ void LteMacUeD2D::handleSelfMessage()
         if(--expirationCounter_ < 0)
         {
             // Periodic grant is expired
-            delete schedulingGrant_;
-            schedulingGrant_ = NULL;
+            // delete schedulingGrant_;
+            schedulingGrant_ = nullptr;
             // if necessary, a RAC request will be sent to obtain a grant
             checkRAC();
         }
@@ -669,7 +690,7 @@ void LteMacUeD2D::handleSelfMessage()
             for (; cit != cwListRetx.end(); ++cit)
             {
                 Codeword cw = *cit;
-                UserControlInfo* info = check_and_cast<UserControlInfo*>(currHarq->getProcess(currentHarq_)->getPdu(cw)->getControlInfo());
+                auto info = currHarq->getProcess(currentHarq_)->getPdu(cw)->getTag<UserControlInfo>();
                 if (info->getDirection() == schedulingGrant_->getDirection())
                 {
                     checkDir = true;
@@ -782,18 +803,20 @@ UserTxParams* LteMacUeD2D::getPreconfiguredTxParams()
     return txParams;
 }
 
-void LteMacUeD2D::macHandleD2DModeSwitch(cPacket* pkt)
+void LteMacUeD2D::macHandleD2DModeSwitch(cPacket* pktAux)
 {
     EV << NOW << " LteMacUeD2D::macHandleD2DModeSwitch - Start" << endl;
 
     // all data in the MAC buffers of the connection to be switched are deleted
 
-    D2DModeSwitchNotification* switchPkt = check_and_cast<D2DModeSwitchNotification*>(pkt);
+    auto pkt = check_and_cast<inet::Packet *>(pktAux);
+    auto switchPkt = pkt->peekAtFront<D2DModeSwitchNotification>();
+
     bool txSide = switchPkt->getTxSide();
     MacNodeId peerId = switchPkt->getPeerId();
     LteD2DMode newMode = switchPkt->getNewMode();
     LteD2DMode oldMode = switchPkt->getOldMode();
-    UserControlInfo* uInfo = check_and_cast<UserControlInfo*>(pkt->removeControlInfo());
+
     if (txSide)
     {
         emit(rcvdD2DModeSwitchNotification_,(long)1);
@@ -874,10 +897,12 @@ void LteMacUeD2D::macHandleD2DModeSwitch(cPacket* pkt)
                 // abort BSR requests
                 bsrTriggered_ = false;
 
-                D2DModeSwitchNotification* switchPkt_dup = switchPkt->dup();
-                switchPkt_dup->setControlInfo(lteInfo->dup());
+                auto pktDup = pkt->dup();
+                auto switchPkt_dup = pktDup->removeAtFront<D2DModeSwitchNotification>();
                 switchPkt_dup->setOldConnection(true);
-                sendUpperPackets(switchPkt_dup);
+                pktDup->insertAtFront(switchPkt_dup);
+                *(pktDup->addTagIfAbsent<FlowControlInfo>()) = *lteInfo;
+                sendUpperPackets(pktDup);
 
                 if (oldDirection != newDirection && switchPkt->getClearRlcBuffer())
                 {
@@ -904,11 +929,14 @@ void LteMacUeD2D::macHandleD2DModeSwitch(cPacket* pkt)
                 EV << NOW << " LteMacUeD2D::macHandleD2DModeSwitch - send switch signal to the RLC TX entity corresponding to the new mode, cid " << cid << endl;
                 if (oldDirection != newDirection)
                 {
-                    D2DModeSwitchNotification* switchPkt_dup = switchPkt->dup();
+
+                    auto pktDup = pkt->dup();
+                    auto switchPkt_dup = pktDup->removeAtFront<D2DModeSwitchNotification>();
                     switchPkt_dup->setOldConnection(false);
-                    switchPkt_dup->setControlInfo(lteInfo->dup());
-                    switchPkt_dup->setSchedulingPriority(1);        // always after the old mode
-                    sendUpperPackets(switchPkt_dup);
+                    // switchPkt_dup->setSchedulingPriority(1);        // always after the old mode
+                    pktDup->insertAtFront(switchPkt_dup);
+                    *(pktDup->addTagIfAbsent<FlowControlInfo>()) = *lteInfo;
+                    sendUpperPackets(pktDup);
                 }
             }
         }
@@ -956,10 +984,12 @@ void LteMacUeD2D::macHandleD2DModeSwitch(cPacket* pkt)
                         resetHarq_[peerId] = NOW;
                     }
 
-                    D2DModeSwitchNotification* switchPkt_dup = switchPkt->dup();
-                    switchPkt_dup->setControlInfo(lteInfo->dup());
+                    auto pktDup = pkt->dup();
+                    auto switchPkt_dup = pktDup->removeAtFront<D2DModeSwitchNotification>();
                     switchPkt_dup->setOldConnection(true);
-                    sendUpperPackets(switchPkt_dup);
+                    pktDup->insertAtFront(switchPkt_dup);
+                    *(pktDup->addTagIfAbsent<FlowControlInfo>()) = *lteInfo;
+                    sendUpperPackets(pktDup);
                 }
             }
             else if (lteInfo->getD2dTxPeerId() == peerId && (Direction)lteInfo->getDirection() == newDirection)
@@ -967,15 +997,18 @@ void LteMacUeD2D::macHandleD2DModeSwitch(cPacket* pkt)
                 EV << NOW << " LteMacUeD2D::macHandleD2DModeSwitch - found new connection with cid " << cid << ", send signal to the RLC RX entity" << endl;
                 if (oldDirection != newDirection)
                 {
-                    D2DModeSwitchNotification* switchPkt_dup = switchPkt->dup();
+
+                    auto pktDup = pkt->dup();
+                    auto switchPkt_dup = pktDup->removeAtFront<D2DModeSwitchNotification>();
                     switchPkt_dup->setOldConnection(false);
-                    switchPkt_dup->setControlInfo(lteInfo->dup());
-                    sendUpperPackets(switchPkt_dup);
+                    pktDup->insertAtFront(switchPkt_dup);
+                    *(pktDup->addTagIfAbsent<FlowControlInfo>()) = *lteInfo;
+                    sendUpperPackets(pktDup);
                 }
             }
         }
     }
-    delete uInfo;
+
     delete pkt;
 }
 

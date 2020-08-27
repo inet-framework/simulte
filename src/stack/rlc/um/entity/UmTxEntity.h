@@ -41,11 +41,21 @@ class LteRlcUm;
  */
 class UmTxEntity : public omnetpp::cSimpleModule
 {
+    struct FragmentInfo {
+        inet::Packet * pkt= nullptr;
+        int size = 0;
+    };
+
+    FragmentInfo *fragmentInfo = nullptr;
+
+  protected:
+    std::deque<inet::Packet *> *fragments = nullptr;
+
   public:
     UmTxEntity()
     {
-        flowControlInfo_ = NULL;
-        lteRlc_ = NULL;
+        flowControlInfo_ = nullptr;
+        lteRlc_ = nullptr;
     }
     virtual ~UmTxEntity()
     {
@@ -94,6 +104,9 @@ class UmTxEntity : public omnetpp::cSimpleModule
 
     // return the value of notifyEmptyBuffer_
     bool isEmptyingBuffer() { return notifyEmptyBuffer_; }
+
+    // returns true if this entity is for a D2D_MULTI connection
+    bool isD2DMultiConnection() { return (flowControlInfo_->getDirection() == D2D_MULTI); }
 
     // called when a D2D mode switch is triggered
     void rlcHandleD2DModeSwitch(bool oldConnection, bool clearBuffer=true);

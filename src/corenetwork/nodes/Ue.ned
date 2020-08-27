@@ -11,7 +11,9 @@
 package lte.corenetwork.nodes;
 
 import inet.applications.contract.IApp;
+import inet.common.packet.recorder.PcapRecorder;
 import inet.mobility.contract.IMobility;
+import inet.linklayer.contract.IExternalInterface;
 import inet.networklayer.common.InterfaceTable;
 import inet.networklayer.contract.IRoutingTable;
 import inet.networklayer.contract.INetworkLayer;
@@ -66,6 +68,12 @@ module Ue
         bool hasIpv6 = default(false);
         *.interfaceTableModule = default(absPath(".interfaceTable"));
         *.routingTableModule = default("^.ipv4.routingTable");
+ 
+        //# Ext Interface
+        bool enableExtInterface = default(false);
+        string extHostAddress = default("");
+        
+        int numPcapRecorders = default(0); // no of PcapRecorders
 
     gates:
         input radioIn @directIn;     // connection to master
@@ -121,6 +129,15 @@ module Ue
             parameters:
                 @display("p=550,446;b=600,5,,,,1");
         }
+                
+        ext: <default("ExtInterface")> like IExternalInterface if enableExtInterface {
+            parameters:
+                @display("p=110.664,406.116,row,10;q=txQueue;i=block/ifcard");
+        }
+
+        pcapRecorder[numPcapRecorders]: PcapRecorder {
+            @display("p=53,350,r,10");
+        }
     connections allowunconnected:
         //# LTE Nic 
         lteNic.radioIn <-- radioIn;
@@ -174,6 +191,9 @@ module Ue
         tn.out++ --> nl.in++;
         tn.in++ <-- nl.out++;
 
-        at.out++ --> tn.in++;
-        at.in++ <-- tn.out++;
+        //#
+        //# Connections between Ext interface and IP layer 
+        //#
+        nl.out++ --> ext.upperLayerIn if enableExtInterface;
+        nl.in++ <-- ext.upperLayerOut if enableExtInterface;
 }

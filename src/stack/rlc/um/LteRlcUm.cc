@@ -7,6 +7,8 @@
 // and cannot be removed from it.
 //
 
+#include <inet/common/ProtocolTag_m.h>
+
 #include "stack/rlc/um/LteRlcUm.h"
 #include "stack/mac/packet/LteMacSduRequest.h"
 
@@ -113,19 +115,21 @@ void LteRlcUm::sendDefragmented(cPacket *pkt)
     take(pkt);                                                    // Take ownership
 
     EV << "LteRlcUm : Sending packet " << pkt->getName() << " to port UM_Sap_up$o\n";
-    send(pkt, up_[OUT]);
+    send(pkt, up_[OUT_GATE]);
 
     emit(sentPacketToUpperLayer, pkt);
 }
 
-void LteRlcUm::sendToLowerLayer(cPacket *pkt)
+void LteRlcUm::sendToLowerLayer(cPacket *pktAux)
 {
     Enter_Method_Silent("sendToLowerLayer()");                    // Direct Method Call
-    take(pkt);                                                    // Take ownership
-    EV << "LteRlcUm : Sending packet " << pkt->getName() << " to port UM_Sap_down$o\n";
-    send(pkt, down_[OUT]);
+    take(pktAux);                                                    // Take ownership
+    auto pkt = check_and_cast<inet::Packet *> (pktAux);
+    pkt->addTagIfAbsent<inet::PacketProtocolTag>()->setProtocol(&LteProtocol::rlc);
+    EV << "LteRlcUm : Sending packet " << pktAux->getName() << " to port UM_Sap_down$o\n";
+    send(pktAux, down_[OUT_GATE]);
 
-    FlowControlInfo* lteInfo = check_and_cast<FlowControlInfo*>(pkt->getControlInfo());
+    auto  lteInfo = pkt->getTag<FlowControlInfo>();
 
     if (lteInfo->getDirection()==DL)
         emit(rlcPacketLossDl, 0.0);
@@ -135,83 +139,84 @@ void LteRlcUm::sendToLowerLayer(cPacket *pkt)
     emit(sentPacketToLowerLayer, pkt);
 }
 
-void LteRlcUm::dropBufferOverflow(cPacket *pkt)
+void LteRlcUm::dropBufferOverflow(cPacket *pktAux)
 {
     Enter_Method_Silent("dropBufferOverflow()");                  // Direct Method Call
-    take(pkt);                                                    // Take ownership
+    take(pktAux);                                                    // Take ownership
 
-    EV << "LteRlcUm : Dropping packet " << pkt->getName() << " (queue full) \n";
+    EV << "LteRlcUm : Dropping packet " << pktAux->getName() << " (queue full) \n";
 
-    FlowControlInfo* lteInfo = check_and_cast<FlowControlInfo*>(pkt->removeControlInfo());
+    auto pkt = check_and_cast<inet::Packet *> (pktAux);
+    auto lteInfo = pkt->getTag<FlowControlInfo>();
 
    if (lteInfo->getDirection()==DL)
        emit(rlcPacketLossDl, 1.0);
    else
        emit(rlcPacketLossUl, 1.0);
 
-    delete lteInfo;
-    delete pkt;
+   delete pkt;
 }
 
-void LteRlcUm::handleUpperMessage(cPacket *pkt)
+void LteRlcUm::handleUpperMessage(cPacket *pktAux)
 {
-    EV << "LteRlcUm::handleUpperMessage - Received packet " << pkt->getName() << " from upper layer, size " << pkt->getByteLength() << "\n";
+    emit(receivedPacketFromUpperLayer, pktAux);
 
-    emit(receivedPacketFromUpperLayer, pkt);
+    auto pkt = check_and_cast<inet::Packet *> (pktAux);
+    auto lteInfo = pkt->getTag<FlowControlInfo>();
 
-    FlowControlInfo* lteInfo = check_and_cast<FlowControlInfo*>(pkt->removeControlInfo());
+    auto chunk = pkt->peekAtFront<inet::Chunk>();
+    EV << "LteRlcUm::handleUpperMessage - Received packet " << chunk->getClassName() << " from upper layer, size " << pktAux->getByteLength() << "\n";
 
     UmTxEntity* txbuf = getTxBuffer(lteInfo);
 
     // Create a new RLC packet
-    LteRlcSdu* rlcPkt = new LteRlcSdu("rlcUmPkt");
+    auto rlcPkt = inet::makeShared<LteRlcSdu>();
     rlcPkt->setSnoMainPacket(lteInfo->getSequenceNumber());
     rlcPkt->setLengthMainPacket(pkt->getByteLength());
-    rlcPkt->encapsulate(pkt);
-    rlcPkt->setControlInfo(lteInfo);
+    pkt->insertAtFront(rlcPkt);
 
-    drop(rlcPkt);
+    drop(pkt);
 
     if (txbuf->isHoldingDownstreamInPackets())
     {
         // do not store in the TX buffer and do not signal the MAC layer
-        EV << "LteRlcUm::handleUpperMessage - Enque packet " << rlcPkt->getName() << " into the Holding Buffer\n";
-        txbuf->enqueHoldingPackets(rlcPkt);
+        EV << "LteRlcUm::handleUpperMessage - Enque packet " << rlcPkt->getClassName() << " into the Holding Buffer\n";
+        txbuf->enqueHoldingPackets(pkt);
     }
     else
     {
-        if(txbuf->enque(rlcPkt)){
-            EV << "LteRlcUm::handleUpperMessage - Enque packet " << rlcPkt->getName() << " into the Tx Buffer\n";
+        if(txbuf->enque(pkt)){
+            EV << "LteRlcUm::handleUpperMessage - Enque packet " << rlcPkt->getClassName() << " into the Tx Buffer\n";
 
             // create a message so as to notify the MAC layer that the queue contains new data
-            LteRlcPdu* newDataPkt = new LteRlcPdu("newDataPkt");
+            auto newDataPkt = inet::makeShared<LteRlcPduNewData>();
             // make a copy of the RLC SDU
-            LteRlcSdu* rlcPktDup = rlcPkt->dup();
+            auto pktDup = pkt->dup();
+            pktDup->insertAtFront(newDataPkt);
             // the MAC will only be interested in the size of this packet
-            newDataPkt->encapsulate(rlcPktDup);
-            newDataPkt->setControlInfo(lteInfo->dup());
 
-            EV << "LteRlcUm::handleUpperMessage - Sending message " << newDataPkt->getName() << " to port UM_Sap_down$o\n";
-            send(newDataPkt, down_[OUT]);
+            EV << "LteRlcUm::handleUpperMessage - Sending message " << newDataPkt->getClassName() << " to port UM_Sap_down$o\n";
+            send(pktDup, down_[OUT_GATE]);
         } else {
             // Queue is full - drop SDU
-            dropBufferOverflow(rlcPkt);
+            dropBufferOverflow(pkt);
         }
     }
 }
 
-void LteRlcUm::handleLowerMessage(cPacket *pkt)
+void LteRlcUm::handleLowerMessage(cPacket *pktAux)
 {
+    auto pkt = check_and_cast<inet::Packet *>(pktAux);
     EV << "LteRlcUm::handleLowerMessage - Received packet " << pkt->getName() << " from lower layer\n";
+    auto lteInfo = pkt->getTag<FlowControlInfo>();
+    auto chunk = pkt->peekAtFront<inet::Chunk>();
 
-    FlowControlInfo* lteInfo = check_and_cast<FlowControlInfo*>(pkt->getControlInfo());
-
-    if (strcmp(pkt->getName(), "LteMacSduRequest") == 0)
+    if (inet::dynamicPtrCast<const LteMacSduRequest>(chunk) != nullptr)
     {
         // get the corresponding Tx buffer
         UmTxEntity* txbuf = getTxBuffer(lteInfo);
 
-        LteMacSduRequest* macSduRequest = check_and_cast<LteMacSduRequest*>(pkt);
+        auto macSduRequest = pkt->peekAtFront<LteMacSduRequest>();
         unsigned int size = macSduRequest->getSduSize();
 
         drop(pkt);
@@ -219,7 +224,7 @@ void LteRlcUm::handleLowerMessage(cPacket *pkt)
         // do segmentation/concatenation and send a pdu to the lower layer
         txbuf->rlcPduMake(size);
 
-        delete macSduRequest;
+        delete pkt;
     }
     else
     {
@@ -283,10 +288,10 @@ void LteRlcUm::initialize(int stage)
 {
     if (stage == inet::INITSTAGE_LOCAL)
     {
-        up_[IN] = gate("UM_Sap_up$i");
-        up_[OUT] = gate("UM_Sap_up$o");
-        down_[IN] = gate("UM_Sap_down$i");
-        down_[OUT] = gate("UM_Sap_down$o");
+        up_[IN_GATE] = gate("UM_Sap_up$i");
+        up_[OUT_GATE] = gate("UM_Sap_up$o");
+        down_[IN_GATE] = gate("UM_Sap_down$i");
+        down_[OUT_GATE] = gate("UM_Sap_down$o");
 
         // parameters
         mapAllLcidsToSingleBearer_ = par("mapAllLcidsToSingleBearer");
@@ -310,11 +315,11 @@ void LteRlcUm::handleMessage(cMessage* msg)
     EV << "LteRlcUm : Received packet " << pkt->getName() << " from port " << pkt->getArrivalGate()->getName() << endl;
 
     cGate* incoming = pkt->getArrivalGate();
-    if (incoming == up_[IN])
+    if (incoming == up_[IN_GATE])
     {
         handleUpperMessage(pkt);
     }
-    else if (incoming == down_[IN])
+    else if (incoming == down_[IN_GATE])
     {
         handleLowerMessage(pkt);
     }

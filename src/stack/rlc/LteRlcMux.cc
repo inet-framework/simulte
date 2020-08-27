@@ -23,48 +23,50 @@ void LteRlcMux::rlc2mac(cPacket *pkt)
     EV << "LteRlcMux : Sending packet " << pkt->getName() << " to port RLC_to_MAC\n";
 
     // Send message
-    send(pkt,macSap_[OUT]);
+    send(pkt,macSap_[OUT_GATE]);
 }
 
     /*
      * Lower layer handler
      */
 
-void LteRlcMux::mac2rlc(cPacket *pkt)
+void LteRlcMux::mac2rlc(cPacket *pktAux)
 {
-    FlowControlInfo* lteInfo = check_and_cast<FlowControlInfo*>(pkt->getControlInfo());
+    auto pkt = check_and_cast<inet::Packet *>(pktAux);
+    auto lteInfo = pkt->getTag<FlowControlInfo>();
     switch (lteInfo->getRlcType())
     {
         case TM:
         EV << "LteRlcMux : Sending packet " << pkt->getName() << " to port TM_Sap$o\n";
-        send(pkt,tmSap_[OUT]);
+        send(pkt,tmSap_[OUT_GATE]);
         break;
         case UM:
         EV << "LteRlcMux : Sending packet " << pkt->getName() << " to port UM_Sap$o\n";
-        send(pkt,umSap_[OUT]);
+        send(pkt,umSap_[OUT_GATE]);
         break;
         case AM:
         EV << "LteRlcMux : Sending packet " << pkt->getName() << " to port AM_Sap$o\n";
-        send(pkt,amSap_[OUT]);
+        send(pkt,amSap_[OUT_GATE]);
         break;
         default:
         throw cRuntimeError("LteRlcMux: wrong traffic type %d", lteInfo->getRlcType());
     }
 }
-            /*
-             * Main functions
-             */
+
+/*
+ * Main functions
+ */
 
 void LteRlcMux::initialize()
 {
-    macSap_[IN] = gate("MAC_to_RLC");
-    macSap_[OUT] = gate("RLC_to_MAC");
-    tmSap_[IN] = gate("TM_Sap$i");
-    tmSap_[OUT] = gate("TM_Sap$o");
-    umSap_[IN] = gate("UM_Sap$i");
-    umSap_[OUT] = gate("UM_Sap$o");
-    amSap_[IN] = gate("AM_Sap$i");
-    amSap_[OUT] = gate("AM_Sap$o");
+    macSap_[IN_GATE] = gate("MAC_to_RLC");
+    macSap_[OUT_GATE] = gate("RLC_to_MAC");
+    tmSap_[IN_GATE] = gate("TM_Sap$i");
+    tmSap_[OUT_GATE] = gate("TM_Sap$o");
+    umSap_[IN_GATE] = gate("UM_Sap$i");
+    umSap_[OUT_GATE] = gate("UM_Sap$o");
+    amSap_[IN_GATE] = gate("AM_Sap$i");
+    amSap_[OUT_GATE] = gate("AM_Sap$o");
 }
 
 void LteRlcMux::handleMessage(cMessage* msg)
@@ -74,7 +76,7 @@ void LteRlcMux::handleMessage(cMessage* msg)
     " from port " << pkt->getArrivalGate()->getName() << endl;
 
     cGate* incoming = pkt->getArrivalGate();
-    if (incoming == macSap_[IN])
+    if (incoming == macSap_[IN_GATE])
     {
         mac2rlc(pkt);
     }

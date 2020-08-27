@@ -18,8 +18,8 @@ void LteCompManagerBase::initialize()
     nodeId_ = getAncestorPar("macCellId");
 
     // get reference to the gates
-    x2Manager_[IN] = gate("x2ManagerIn");
-    x2Manager_[OUT] = gate("x2ManagerOut");
+    x2Manager_[IN_GATE] = gate("x2ManagerIn");
+    x2Manager_[OUT_GATE] = gate("x2ManagerOut");
 
     // get reference to mac layer
     mac_ = check_and_cast<LteMacEnb*>(getParentModule()->getSubmodule("mac"));
@@ -44,7 +44,7 @@ void LteCompManagerBase::initialize()
     auto ctrlInfo = pkt->addTagIfAbsent<X2ControlInfoTag>();
     ctrlInfo->setInit(true);
 
-    send(pkt, x2Manager_[OUT]);
+    send(pkt, x2Manager_[OUT_GATE]);
 
     if (nodeType_ != COMP_CLIENT)
     {
@@ -100,7 +100,7 @@ void LteCompManagerBase::handleMessage(cMessage *msg)
     {
         Packet* pkt = check_and_cast<Packet*>(msg);
         cGate* incoming = pkt->getArrivalGate();
-        if (incoming == x2Manager_[IN])
+        if (incoming == x2Manager_[IN_GATE])
         {
             // incoming data from X2 Manager
             EV << "LteCompManagerBase::handleMessage - Received message from X2 manager" << endl;
@@ -193,7 +193,7 @@ void LteCompManagerBase::sendClientRequest(X2CompRequestIE* requestIe)
         pkt->insertAtFront(compMsg);
 
         // send to X2 Manager
-        send(pkt,x2Manager_[OUT]);
+        send(pkt,x2Manager_[OUT_GATE]);
     }
 }
 
@@ -225,7 +225,7 @@ void LteCompManagerBase::sendCoordinatorReply(X2NodeId clientId, X2CompReplyIE* 
 
         // send packet to X2 Manager
         pkt->insertAtFront(compMsg);
-        send(pkt,x2Manager_[OUT]);
+        send(pkt,x2Manager_[OUT_GATE]);
     }
 }
 

@@ -36,7 +36,8 @@ class LteHarqProcessRx
 {
   protected:
     /// contained pdus
-    std::vector<LteMacPdu *> pdu_;
+    //std::vector<LteMacPdu *> pdu_;
+    std::vector<inet::Packet *> pdu_;
 
     /// current status for each codeword
     std::vector<RxHarqPduStatus> status_;
@@ -73,7 +74,7 @@ class LteHarqProcessRx
      *
      * @param pdu pdu to be inserted
      */
-    virtual void insertPdu(Codeword cw, LteMacPdu *pdu);
+    virtual void insertPdu(Codeword cw, inet::Packet *);
 
     /**
      * Tells if contained pdus have been evaluated and feedback responses can be
@@ -90,7 +91,8 @@ class LteHarqProcessRx
      *
      * @return feedback message to be sent.
      */
-    virtual LteHarqFeedback *createFeedback(Codeword cw);
+    //virtual LteHarqFeedback *createFeedback(Codeword cw);
+    virtual inet::Packet *createFeedback(Codeword cw);
 
     /**
      * Tells if a pdu is in correct state (not corrupted, exctractable).
@@ -124,7 +126,7 @@ class LteHarqProcessRx
      *
      * @return pdu ready for upper layer
      */
-    virtual LteMacPdu *extractPdu(Codeword cw);
+    virtual inet::Packet *extractPdu(Codeword cw);
 
     /**
      * Purges a corrupted PDU that has been received on codeword <cw>

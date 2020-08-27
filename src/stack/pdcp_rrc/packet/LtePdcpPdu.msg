@@ -11,6 +11,10 @@
 //
 // This is the PDCP message flowing through LTE stack.
 //
-packet LtePdcpPdu
+
+import inet.common.packet.chunk.Chunk;
+
+class LtePdcpPdu extends inet::FieldsChunk
 {
+    chunkLength = inet::B(1); // TODO: size 0
 }

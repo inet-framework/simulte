@@ -9,12 +9,7 @@
 
 import stack.rlc.packet.LteRlcSdu;
 
-cplusplus {{
-  #include "stack/rlc/packet/LteRlcSdu.h"
-}}
 
-// packet LteRlcSdu { @existingClass; }
-
-packet LteRlcAmSdu extends LteRlcSdu
+class LteRlcAmSdu extends LteRlcSdu
 {
 }

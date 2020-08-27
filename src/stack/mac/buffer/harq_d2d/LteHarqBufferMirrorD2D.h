@@ -49,7 +49,7 @@ class LteHarqBufferMirrorD2D
      *
      * @param fbpkt received feedback packet
      */
-    void receiveHarqFeedback(LteHarqFeedbackMirror *fbpkt);
+    void receiveHarqFeedback(inet::Packet *pkt);
 
     LteHarqProcessMirrorD2D* getProcess(int proc) { return processes_[proc]; }
     unsigned int getProcesses() { return numProc_; }

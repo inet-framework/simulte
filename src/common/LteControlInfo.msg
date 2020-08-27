@@ -7,10 +7,10 @@
 // and cannot be removed from it.
 //
 
+import inet.common.INETDefs;
+import common.LteCommon;
+import inet.common.TagBase;
 
-cplusplus {{
-    #include "common/LteCommon.h"
-}}
 
 enum LtePhyFrameType;
 enum LteRlcType;
@@ -46,7 +46,7 @@ enum LteTrafficClass;
 // - Source MAC Node ID
 // - Destination MAC Node ID
 //
-class LteControlInfo extends cObject {
+class LteControlInfo extends inet::TagBase {
     //# Information shared between FlowControlInfo and UserControlInfo
 
     uint16 sourceId;                                     // Source MacNodeId
@@ -68,8 +68,7 @@ class LteControlInfo extends cObject {
 
     uint16 lcid;                                        // Logical Connection Identifier
     int32 multicastGroupId = -1;                        // Identifier for a multicast group (it is in range [0:[2^28)-1] ) 
-                                                        // For unicast communications, this field is -1
-    
+                                                        // For unicast communications, this field is -1    
 }
 
 //

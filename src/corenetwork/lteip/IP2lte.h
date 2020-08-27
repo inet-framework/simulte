@@ -93,7 +93,7 @@ class IP2lte : public omnetpp::cSimpleModule
      *
      * @param ci LteStackControlInfo object
      */
-    void printControlInfo(FlowControlInfo* ci);
+    void printControlInfo(inet::Packet* pkt);
     void registerInterface();
     void registerMulticastGroups();
   protected:

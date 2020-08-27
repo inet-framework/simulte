@@ -24,32 +24,35 @@ LteHarqProcessRxD2D::~LteHarqProcessRxD2D()
 {
 }
 
-LteHarqFeedback *LteHarqProcessRxD2D::createFeedback(Codeword cw)
+Packet *LteHarqProcessRxD2D::createFeedback(Codeword cw)
 {
     if (!isEvaluated(cw))
         throw cRuntimeError("Cannot send feedback for a pdu not in EVALUATING state");
 
-    UserControlInfo *pduInfo = check_and_cast<UserControlInfo *>(pdu_.at(cw)->getControlInfo());
-    LteHarqFeedback *fb;
 
-    if (pduInfo->getDirection() == D2D_MULTI)
+
+    Packet *pkt = nullptr;
+    
+    auto pduInfo = (pdu_.at(cw)->getTag<UserControlInfo>());
+    auto pdu = pdu_.at(cw)->peekAtFront<LteMacPdu>();
+
+    // if the PDU belongs to a multicast connection, then do not create feedback
+    // (i.e., in all other cases, feedback is created)
+    if (pduInfo->getDirection() != D2D_MULTI)
     {
-        // if the PDU belongs to a multicast connection, then do not create feedback
-        fb = NULL;
-    }
-    else
-    {
-        fb = new LteHarqFeedback();
+        // TODO: Change LteHarqFeedback from chunk to tag,
+        pkt = new Packet();
+        auto fb = makeShared<LteHarqFeedback>();
         fb->setAcid(acid_);
         fb->setCw(cw);
         fb->setResult(result_.at(cw));
-        fb->setFbMacPduId(pdu_.at(cw)->getId());
-        fb->setByteLength(0);
-        UserControlInfo *fbInfo = new UserControlInfo();
-        fbInfo->setSourceId(pduInfo->getDestId());
-        fbInfo->setDestId(pduInfo->getSourceId());
-        fbInfo->setFrameType(HARQPKT);
-        fb->setControlInfo(fbInfo);
+        fb->setFbMacPduId(pdu->getMacPduId());
+        //fb->setByteLength(0);
+        fb->setChunkLength(b(1));
+        pkt->addTagIfAbsent<UserControlInfo>()->setSourceId(pduInfo->getDestId());
+        pkt->addTagIfAbsent<UserControlInfo>()->setDestId(pduInfo->getSourceId());
+        pkt->addTagIfAbsent<UserControlInfo>()->setFrameType(HARQPKT);
+        pkt->insertAtFront(fb);
     }
 
     if (!result_.at(cw))
@@ -83,38 +86,38 @@ LteHarqFeedback *LteHarqProcessRxD2D::createFeedback(Codeword cw)
         status_.at(cw) = RXHARQ_PDU_CORRECT;
     }
 
-    return fb;
+    return pkt;
 }
 
-LteHarqFeedbackMirror* LteHarqProcessRxD2D::createFeedbackMirror(Codeword cw)
+Packet* LteHarqProcessRxD2D::createFeedbackMirror(Codeword cw)
 {
     if (!isEvaluated(cw))
         throw cRuntimeError("Cannot send feedback for a pdu not in EVALUATING state");
 
-    UserControlInfo *pduInfo = check_and_cast<UserControlInfo *>(pdu_.at(cw)->getControlInfo());
-    LteHarqFeedbackMirror *fb;
+    auto pduInfo = pdu_.at(cw)->getTag<UserControlInfo>();
+    auto pdu = pdu_.at(cw)->peekAtFront<LteMacPdu>();
 
-    if (pduInfo->getDirection() == D2D_MULTI)
+    Packet *pkt = nullptr;
+
+    // if the PDU belongs to a multicast connection, then do not create feedback
+    // (i.e., in all other cases, feedback is created)
+    if (pduInfo->getDirection() != D2D_MULTI)
     {
-        // if the PDU belongs to a multicast connection, then do not create feedback
-        fb = NULL;
-    }
-    else
-    {
-        fb = new LteHarqFeedbackMirror();
+        // TODO: Change LteHarqFeedbackMirror from chunk to tag,
+        pkt = new Packet();
+        auto fb = makeShared<LteHarqFeedbackMirror>();
         fb->setAcid(acid_);
         fb->setCw(cw);
         fb->setResult(result_.at(cw));
-        fb->setFbMacPduId(pdu_.at(cw)->getId());
-        fb->setByteLength(0);
-        fb->setPduLength(pdu_.at(cw)->getByteLength());
+        fb->setFbMacPduId(pdu->getMacPduId());
+        fb->setChunkLength(b(1)); // TODO: should be 0
+        fb->setPduLength(pdu->getByteLength());
         fb->setD2dSenderId(pduInfo->getSourceId());
         fb->setD2dReceiverId(pduInfo->getDestId());
-        UserControlInfo *fbInfo = new UserControlInfo();
-        fbInfo->setSourceId(pduInfo->getDestId());
-        fbInfo->setDestId(macOwner_->getMacCellId());
-        fbInfo->setFrameType(HARQPKT);
-        fb->setControlInfo(fbInfo);
+        pkt->insertAtFront(fb);
+        pkt->addTagIfAbsent<UserControlInfo>()->setSourceId(pduInfo->getDestId());
+        pkt->addTagIfAbsent<UserControlInfo>()->setDestId(macOwner_->getMacCellId());
+        pkt->addTagIfAbsent<UserControlInfo>()->setFrameType(HARQPKT);
     }
-    return fb;
+    return pkt;
 }

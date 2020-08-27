@@ -9,6 +9,7 @@
 
 #include "stack/handoverManager/LteHandoverManager.h"
 #include "stack/handoverManager/X2HandoverCommandIE.h"
+#include "inet/common/ProtocolTag_m.h"
 
 Define_Module(LteHandoverManager);
 
@@ -21,8 +22,8 @@ void LteHandoverManager::initialize()
     nodeId_ = getAncestorPar("macCellId");
 
     // get reference to the gates
-    x2Manager_[IN] = gate("x2ManagerIn");
-    x2Manager_[OUT] = gate("x2ManagerOut");
+    x2Manager_[IN_GATE] = gate("x2ManagerIn");
+    x2Manager_[OUT_GATE] = gate("x2ManagerOut");
 
     // get reference to the IP2lte layer
     ip2lte_ = check_and_cast<IP2lte*>(getParentModule()->getSubmodule("ip2lte"));
@@ -36,14 +37,14 @@ void LteHandoverManager::initialize()
     ctrlInfo->setInit(true);
     x2Packet->insertAtFront(initMsg);
 
-    send(x2Packet, x2Manager_[OUT]);
+    send(x2Packet, x2Manager_[OUT_GATE]);
 }
 
 void LteHandoverManager::handleMessage(cMessage *msg)
 {
     cPacket* pkt = check_and_cast<cPacket*>(msg);
     cGate* incoming = pkt->getArrivalGate();
-    if (incoming == x2Manager_[IN])
+    if (incoming == x2Manager_[IN_GATE])
     {
         // incoming data from X2 Manager
         EV << "LteHandoverManager::handleMessage - Received message from X2 manager" << endl;
@@ -57,7 +58,7 @@ void LteHandoverManager::handleX2Message(cPacket* pkt)
 {
     inet::Packet* datagram = check_and_cast<inet::Packet*>(pkt);
 
-    auto x2msg = datagram->removeAtFront<LteX2Message>();
+    auto x2msg = datagram->popAtFront<LteX2Message>();
     datagram->removeTagIfPresent<X2ControlInfoTag>();
 
     X2NodeId sourceId = x2msg->getSourceId();
@@ -74,8 +75,8 @@ void LteHandoverManager::handleX2Message(cPacket* pkt)
 
         delete hoCommandIe;
         // delete hoCommandMsg;
+        delete pkt;
     }
-
 }
 
 void LteHandoverManager::sendHandoverCommand(MacNodeId ueId, MacNodeId enb, bool startHo)
@@ -102,9 +103,10 @@ void LteHandoverManager::sendHandoverCommand(MacNodeId ueId, MacNodeId enb, bool
     auto hoMsg = makeShared<X2HandoverControlMsg>();
     hoMsg->pushIe(hoCommandIe);
     pkt->insertAtFront(hoMsg);
+    pkt->addTagIfAbsent<PacketProtocolTag>()->setProtocol(&LteProtocol::x2ap);
 
     // send to X2 Manager
-    send(pkt,x2Manager_[OUT]);
+    send(pkt,x2Manager_[OUT_GATE]);
 }
 
 void LteHandoverManager::receiveHandoverCommand(MacNodeId ueId, MacNodeId enb, bool startHo)
@@ -134,11 +136,12 @@ void LteHandoverManager::forwardDataToTargetEnb(Packet* datagram, MacNodeId targ
     // build X2 Handover Msg
     auto hoMsg = makeShared<X2HandoverDataMsg>();
     datagram->insertAtFront(hoMsg);
+    datagram->addTagIfAbsent<PacketProtocolTag>()->setProtocol(&LteProtocol::x2ap);
 
     EV<<NOW<<" LteHandoverManager::forwardDataToTargetEnb - Send IP datagram to eNB " << targetEnb << endl;
 
     // send to X2 Manager
-    send(datagram,x2Manager_[OUT]);
+    send(datagram,x2Manager_[OUT_GATE]);
 }
 
 void LteHandoverManager::receiveDataFromSourceEnb(Packet* datagram, MacNodeId sourceEnb)

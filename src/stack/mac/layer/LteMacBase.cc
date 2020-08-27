@@ -16,7 +16,9 @@
 #include "stack/mac/buffer/LteMacQueue.h"
 #include "common/LteControlInfo.h"
 #include "corenetwork/binder/LteBinder.h"
+#include "corenetwork/lteCellInfo/LteCellInfo.h"
 #include "stack/mac/packet/LteHarqFeedback_m.h"
+#include "stack/mac/packet/LteMacPdu.h"
 #include "stack/mac/buffer/LteMacBuffer.h"
 #include "assert.h"
 
@@ -53,7 +55,7 @@ void LteMacBase::sendUpperPackets(cPacket* pkt)
 {
     EV << NOW << " LteMacBase::sendUpperPackets, Sending packet " << pkt->getName() << " on port MAC_to_RLC\n";
     // Send message
-    send(pkt,up_[OUT]);
+    send(pkt,up_[OUT_GATE]);
     nrToUpper_++;
     emit(sentPacketToUpperLayer, pkt);
 }
@@ -63,7 +65,7 @@ void LteMacBase::sendLowerPackets(cPacket* pkt)
     EV << NOW << "LteMacBase::sendLowerPackets, Sending packet " << pkt->getName() << " on port MAC_to_PHY\n";
     // Send message
     updateUserTxParam(pkt);
-    send(pkt,down_[OUT]);
+    send(pkt,down_[OUT_GATE]);
     nrToLower_++;
     emit(sentPacketToLowerLayer, pkt);
 }
@@ -90,12 +92,14 @@ void LteMacBase::fromRlc(cPacket *pkt)
 /*
  * Lower layer handler
  */
-void LteMacBase::fromPhy(cPacket *pkt)
+void LteMacBase::fromPhy(cPacket *pktAux)
 {
     // TODO: harq test (comment fromPhy: it has only to pass pdus to proper rx buffer and
     // to manage H-ARQ feedback)
 
-    UserControlInfo *userInfo = check_and_cast<UserControlInfo *>(pkt->getControlInfo());
+    auto pkt = check_and_cast<inet::Packet*> (pktAux);
+    auto userInfo = pkt->getTag<UserControlInfo>();
+
     MacNodeId src = userInfo->getSourceId();
 
     if (userInfo->getFrameType() == HARQPKT)
@@ -114,8 +118,11 @@ void LteMacBase::fromPhy(cPacket *pkt)
 
             throw cRuntimeError("Mac::fromPhy(): Received feedback for an unexisting H-ARQ tx buffer");
         }
-        LteHarqFeedback *hfbpkt = check_and_cast<LteHarqFeedback *>(pkt);
-        htit->second->receiveHarqFeedback(hfbpkt);
+
+        auto hfbpkt = pkt->peekAtFront<LteHarqFeedback>();
+        htit->second->receiveHarqFeedback(pkt);
+        //auto hfbpkt = pkt->removeAtFront<LteHarqFeedback>();
+        // pkt->insertAtFront<ht>();
     }
     else if (userInfo->getFrameType() == FEEDBACKPKT)
     {
@@ -134,7 +141,8 @@ void LteMacBase::fromPhy(cPacket *pkt)
         // data packet: insert in proper rx buffer
         EV << NOW << "Mac::fromPhy: node " << nodeId_ << " Received DATA packet" << endl;
 
-        LteMacPdu *pdu = check_and_cast<LteMacPdu *>(pkt);
+        auto pduAux = pkt->peekAtFront<LteMacPdu>();
+        auto pdu = pkt;
         Codeword cw = userInfo->getCw();
         HarqRxBuffers::iterator hrit = harqRxBuffers_.find(src);
         if (hrit != harqRxBuffers_.end())
@@ -315,10 +323,10 @@ void LteMacBase::initialize(int stage)
     if (stage == inet::INITSTAGE_LOCAL)
     {
         /* Gates initialization */
-        up_[IN] = gate("RLC_to_MAC");
-        up_[OUT] = gate("MAC_to_RLC");
-        down_[IN] = gate("PHY_to_MAC");
-        down_[OUT] = gate("MAC_to_PHY");
+        up_[IN_GATE] = gate("RLC_to_MAC");
+        up_[OUT_GATE] = gate("MAC_to_RLC");
+        down_[IN_GATE] = gate("PHY_to_MAC");
+        down_[OUT_GATE] = gate("MAC_to_PHY");
 
         /* Create buffers */
         queueSize_ = par("queueSize");
@@ -378,7 +386,7 @@ void LteMacBase::handleMessage(cMessage* msg)
 
     cGate* incoming = pkt->getArrivalGate();
 
-    if (incoming == down_[IN])
+    if (incoming == down_[IN_GATE])
     {
         // message from PHY_to_MAC gate (from lower layer)
         emit(receivedPacketFromLowerLayer, pkt);

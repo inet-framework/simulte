@@ -10,27 +10,7 @@
 #ifndef _LTE_TFTCONTROLINFO_H_
 #define _LTE_TFTCONTROLINFO_H_
 
-#include <omnetpp.h>
-
-class TftControlInfo : public omnetpp::cObject
-{
-    unsigned int tft_;
-
-  public:
-    TftControlInfo();
-    TftControlInfo(TftControlInfo* source);
-    virtual ~TftControlInfo();
-
-    void setTft(unsigned int tft)
-    {
-        tft_ = tft;
-    }
-    unsigned int getTft()
-    {
-        return tft_;
-    }
-    virtual TftControlInfo *dup() const override {return new TftControlInfo(*this);}
-};
+#include "epc/gtp/TftControlInfo_m.h"
 
 #endif
 

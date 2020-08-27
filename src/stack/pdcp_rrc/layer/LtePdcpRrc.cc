@@ -37,6 +37,9 @@ LtePdcpRrcBase::~LtePdcpRrcBase()
 
 void LtePdcpRrcBase::headerCompress(cPacket* pkt, int headerSize)
 {
+    // TODO: still needs to be implemented / reviewed
+    return;
+
     if (headerCompressedSize_ != -1)
     {
         pkt->setByteLength(
@@ -47,6 +50,8 @@ void LtePdcpRrcBase::headerCompress(cPacket* pkt, int headerSize)
 
 void LtePdcpRrcBase::headerDecompress(cPacket* pkt, int headerSize)
 {
+    // TODO: still needs to be implemented / reviewed
+    return;
     if (headerCompressedSize_ != -1)
     {
         pkt->setByteLength(
@@ -99,12 +104,13 @@ void LtePdcpRrcBase::setTrafficInformation(cPacket* pkt,
  * Upper Layer handlers
  */
 
-void LtePdcpRrcBase::fromDataPort(cPacket *pkt)
+void LtePdcpRrcBase::fromDataPort(cPacket *pktAux)
 {
-    emit(receivedPacketFromUpperLayer, pkt);
+    emit(receivedPacketFromUpperLayer, pktAux);
 
     // Control Informations
-    FlowControlInfo* lteInfo = check_and_cast<FlowControlInfo*>(pkt->removeControlInfo());
+    auto pkt = check_and_cast<inet::Packet *> (pktAux);
+    auto lteInfo = pkt->getTag<FlowControlInfo>();
 
     setTrafficInformation(pkt, lteInfo);
     lteInfo->setDestId(getDestId(lteInfo));
@@ -148,7 +154,7 @@ void LtePdcpRrcBase::fromDataPort(cPacket *pkt)
     lteInfo->setDestId(getDestId(lteInfo));
 
     // PDCP Packet creation
-    LtePdcpPdu* pdcpPkt = new LtePdcpPdu("LtePdcpPdu");
+    auto pdcpPkt = makeShared<LtePdcpPdu>();
 
     unsigned int headerLength;
     std::string portName;
@@ -158,42 +164,44 @@ void LtePdcpRrcBase::fromDataPort(cPacket *pkt)
     case UM:
         headerLength = PDCP_HEADER_UM;
         portName = "UM_Sap$o";
-        gate = umSap_[OUT];
+        gate = umSap_[OUT_GATE];
         break;
     case AM:
         headerLength = PDCP_HEADER_AM;
         portName = "AM_Sap$o";
-        gate = amSap_[OUT];
+        gate = amSap_[OUT_GATE];
         break;
     case TM:
         portName = "TM_Sap$o";
-        gate = tmSap_[OUT];
-        headerLength = 0;
+        gate = tmSap_[OUT_GATE];
+        headerLength = 1;
         break;
     default:
         throw cRuntimeError("LtePdcpRrcBase::fromDataport(): invalid RlcType %d", lteInfo->getRlcType());
         portName = "undefined";
         gate = nullptr;
-        headerLength = 0;
+        headerLength = 1;
     }
-    pdcpPkt->setByteLength(headerLength);
-    pdcpPkt->encapsulate(pkt);
+    pdcpPkt->setChunkLength(B(headerLength));
+    pkt->trim();
+    pkt->insertAtFront(pdcpPkt);
 
     EV << "LtePdcp : Preparing to send "
        << lteTrafficClassToA((LteTrafficClass) lteInfo->getTraffic())
        << " traffic\n";
-    EV << "LtePdcp : Packet size " << pdcpPkt->getByteLength() << " Bytes\n";
+    EV << "LtePdcp : Packet size " << pkt->getByteLength() << " Bytes\n";
 
     lteInfo->setSourceId(nodeId_);
     lteInfo->setLcid(mylcid);
-    pdcpPkt->setControlInfo(lteInfo);
 
-    EV << "LtePdcp : Sending packet " << pdcpPkt->getName() << " on port "
+    EV << "LtePdcp : Sending packet " << pkt->getName() << " on port "
        << portName.c_str() << "\n";
 
+    pkt->addTagIfAbsent<PacketProtocolTag>()->setProtocol(&LteProtocol::pdcp);
+
     // Send message
-    send(pdcpPkt, gate);
-    emit(sentPacketToLowerLayer, pdcpPkt);
+    send(pkt, gate);
+    emit(sentPacketToLowerLayer, pkt);
 }
 
 void LtePdcpRrcBase::fromEutranRrcSap(cPacket *pkt)
@@ -205,34 +213,34 @@ void LtePdcpRrcBase::fromEutranRrcSap(cPacket *pkt)
     lteInfo->setRlcType(TM);
     pkt->setControlInfo(lteInfo);
     EV << "LteRrc : Sending packet " << pkt->getName() << " on port TM_Sap$o\n";
-    send(pkt, tmSap_[OUT]);
+    send(pkt, tmSap_[OUT_GATE]);
 }
 
 /*
  * Lower layer handlers
  */
 
-void LtePdcpRrcBase::toDataPort(cPacket *pkt)
+void LtePdcpRrcBase::toDataPort(cPacket *pktAux)
 {
+    auto pkt = check_and_cast<Packet *>(pktAux);
     emit(receivedPacketFromLowerLayer, pkt);
-    LtePdcpPdu* pdcpPkt = check_and_cast<LtePdcpPdu*>(pkt);
-    FlowControlInfo* lteInfo = check_and_cast<FlowControlInfo*>(
-        pdcpPkt->removeControlInfo());
+
+    auto pdcpPkt = pkt->popAtFront<LtePdcpPdu>();
+    auto lteInfo = pkt->removeTag<FlowControlInfo>();
 
     EV << "LtePdcp : Received packet with CID " << lteInfo->getLcid() << "\n";
-    EV << "LtePdcp : Packet size " << pdcpPkt->getByteLength() << " Bytes\n";
+    EV << "LtePdcp : Packet size " << pkt->getByteLength() << " Bytes\n";
 
-    cPacket* upPkt = pdcpPkt->decapsulate(); // Decapsulate packet
-    delete pdcpPkt;
+    headerDecompress(pkt, lteInfo->getHeaderSize()); // Decompress packet header
+    handleControlInfo(pkt, lteInfo);
 
-    headerDecompress(upPkt, lteInfo->getHeaderSize()); // Decompress packet header
-    handleControlInfo(upPkt, lteInfo);
+    pkt->addTagIfAbsent<PacketProtocolTag>()->setProtocol(&Protocol::ipv4);
 
-    EV << "LtePdcp : Sending packet " << upPkt->getName()
+    EV << "LtePdcp : Sending packet " << pkt->getName()
        << " on port DataPort$o\n";
     // Send message
-    send(upPkt, dataPort_[OUT]);
-    emit(sentPacketToUpperLayer, upPkt);
+    send(pkt, dataPort_[OUT_GATE]);
+    emit(sentPacketToUpperLayer, pkt);
 }
 
 void LtePdcpRrcBase::toEutranRrcSap(cPacket *pkt)
@@ -242,7 +250,7 @@ void LtePdcpRrcBase::toEutranRrcSap(cPacket *pkt)
 
     EV << "LteRrc : Sending packet " << upPkt->getName()
        << " on port EUTRAN_RRC_Sap$o\n";
-    send(upPkt, eutranRrcSap_[OUT]);
+    send(upPkt, eutranRrcSap_[OUT_GATE]);
 }
 
 /*
@@ -253,16 +261,16 @@ void LtePdcpRrcBase::initialize(int stage)
 {
     if (stage == inet::INITSTAGE_LOCAL)
     {
-        dataPort_[IN] = gate("DataPort$i");
-        dataPort_[OUT] = gate("DataPort$o");
-        eutranRrcSap_[IN] = gate("EUTRAN_RRC_Sap$i");
-        eutranRrcSap_[OUT] = gate("EUTRAN_RRC_Sap$o");
-        tmSap_[IN] = gate("TM_Sap$i");
-        tmSap_[OUT] = gate("TM_Sap$o");
-        umSap_[IN] = gate("UM_Sap$i");
-        umSap_[OUT] = gate("UM_Sap$o");
-        amSap_[IN] = gate("AM_Sap$i");
-        amSap_[OUT] = gate("AM_Sap$o");
+        dataPort_[IN_GATE] = gate("DataPort$i");
+        dataPort_[OUT_GATE] = gate("DataPort$o");
+        eutranRrcSap_[IN_GATE] = gate("EUTRAN_RRC_Sap$i");
+        eutranRrcSap_[OUT_GATE] = gate("EUTRAN_RRC_Sap$o");
+        tmSap_[IN_GATE] = gate("TM_Sap$i");
+        tmSap_[OUT_GATE] = gate("TM_Sap$o");
+        umSap_[IN_GATE] = gate("UM_Sap$i");
+        umSap_[OUT_GATE] = gate("UM_Sap$o");
+        amSap_[IN_GATE] = gate("AM_Sap$i");
+        amSap_[OUT_GATE] = gate("AM_Sap$o");
 
         binder_ = getBinder();
         headerCompressedSize_ = par("headerCompressedSize"); // Compressed size
@@ -288,15 +296,15 @@ void LtePdcpRrcBase::handleMessage(cMessage* msg)
        << pkt->getArrivalGate()->getName() << endl;
 
     cGate* incoming = pkt->getArrivalGate();
-    if (incoming == dataPort_[IN])
+    if (incoming == dataPort_[IN_GATE])
     {
         fromDataPort(pkt);
     }
-    else if (incoming == eutranRrcSap_[IN])
+    else if (incoming == eutranRrcSap_[IN_GATE])
     {
         fromEutranRrcSap(pkt);
     }
-    else if (incoming == tmSap_[IN])
+    else if (incoming == tmSap_[IN_GATE])
     {
         toEutranRrcSap(pkt);
     }

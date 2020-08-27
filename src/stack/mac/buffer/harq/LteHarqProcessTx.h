@@ -78,11 +78,11 @@ class LteHarqProcessTx
      * @param pdu pdu to be inserted
      * @param unitId id of destination unit
      */
-    void insertPdu(LteMacPdu *pdu, Codeword cw);
+    void insertPdu(inet::Packet *pdu, Codeword cw);
 
     void markSelected(Codeword cw);
 
-    virtual LteMacPdu *extractPdu(Codeword cw);
+    virtual inet::Packet *extractPdu(Codeword cw);
 
     bool pduFeedback(HarqAcknowledgment fb, Codeword cw);
 
@@ -140,7 +140,7 @@ class LteHarqProcessTx
      */
     bool isEmpty();
 
-    LteMacPdu *getPdu(Codeword cw);
+    inet::Packet *getPdu(Codeword cw);
 
     /**
      * This is necessary because when a pdu is in CORRECT state at the

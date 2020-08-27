@@ -27,7 +27,8 @@ class LteMacUe : public LteMacBase
     LteSchedulerUeUl* lcgScheduler_;
 
     // configured grant - one each codeword
-    LteSchedulingGrant* schedulingGrant_;
+    // LteSchedulingGrant* schedulingGrant_;
+    inet::IntrusivePtr<const LteSchedulingGrant> schedulingGrant_;
 
     /// List of scheduled connection for this UE
     LteMacScheduleList* scheduleList_;
@@ -168,7 +169,7 @@ class LteMacUe : public LteMacBase
      */
     inline const LteSchedulingGrant* getSchedulingGrant() const
     {
-        return schedulingGrant_;
+        return schedulingGrant_.get();
     }
     /*
      * Access current H-ARQ pointer

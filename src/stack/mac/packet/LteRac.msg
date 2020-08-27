@@ -6,9 +6,12 @@
 // The above file and the present reference are part of the software itself,
 // and cannot be removed from it.
 //
+import inet.common.INETDefs;
+import inet.common.packet.chunk.Chunk;
 
-packet LteRac
+class LteRac extends inet::FieldsChunk
 {
    // meaningful only for DL (response) RAC packets : if true RAC request has been admitted.
     bool success;
+    chunkLength = inet::B(1); // TODO: size 0
 }

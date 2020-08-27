@@ -7,14 +7,11 @@
 // and cannot be removed from it.
 //
 
-#include <iostream>
-#include <inet/networklayer/ipv4/Ipv4Header_m.h>
-#include <inet/common/packet/printer/PacketPrinter.h>
-#include <inet/common/ModuleAccess.h>
-#include <inet/linklayer/common/InterfaceTag_m.h>
 #include "epc/gtp/GtpUser.h"
-#include "epc/gtp/GtpUserMsg_m.h"
-#include "epc/gtp/conversion.h"
+#include <inet/common/ModuleAccess.h>
+#include "inet/applications/common/SocketTag_m.h"
+#include <inet/linklayer/common/InterfaceTag_m.h>
+#include <iostream>
 
 Define_Module(GtpUser);
 using namespace inet;
@@ -27,16 +24,14 @@ void GtpUser::initialize(int stage) {
         return;
     localPort_ = par("localPort");
 
-    // transport layer access
     socket_.setOutputGate(gate("socketOut"));
     socket_.bind(localPort_);
-
-    // network layer access
-//    ipSocket_.setOutputGate(gate("ipSocketOut"));
 
     tunnelPeerPort_ = par("tunnelPeerPort");
 
     ownerType_ = selectOwnerType(getAncestorPar("nodeType"));
+
+    ie_ = detectInterface();
 
     //============= Reading XML files =============
     const char *filename = par("teidFileName");
@@ -56,48 +51,121 @@ void GtpUser::initialize(int stage) {
             error("GtpUser::initialize - Wrong xml file format");
     }
     //=============================================
-    ie_ = detectInterface();
 }
 
-void GtpUser::handleFromTrafficFlowFilter(Packet * datagram) {
+InterfaceEntry *GtpUser::detectInterface()
+{
+    IInterfaceTable *ift = getModuleFromPar<IInterfaceTable>(par("interfaceTableModule"), this);
+    const char *interfaceName = par("ipOutInterface");
+    InterfaceEntry *ie = nullptr;
+
+    if (strlen(interfaceName) > 0) {
+        ie = ift->findInterfaceByName(interfaceName);
+        if (ie == nullptr)
+            throw cRuntimeError("Interface \"%s\" does not exist", interfaceName);
+    }
+
+    return ie;
+}
+
+
+EpcNodeType GtpUser::selectOwnerType(const char * type)
+{
+    EV << "GtpUser::selectOwnerType - setting owner type to " << type << endl;
+    if(strcmp(type,"ENODEB") == 0)
+        return ENB;
+    else if(strcmp(type,"PGW") == 0)
+        return PGW;
+    else if(strcmp(type,"SGW") == 0)
+        return SGW;
+    else
+        error("GtpUser::selectOwnerType - unknown owner type [%s]. Aborting...",type);
+
+    // should never be reached - return default value in order to avoid compile warnings
+    return ENB;
+}
+
+void GtpUser::handleMessage(cMessage *msg) {
+    if (strcmp(msg->getArrivalGate()->getFullName(), "trafficFlowFilterGate")
+            == 0) {
+        EV << "GtpUser::handleMessage - message from trafficFlowFilter" << endl;
+        // obtain the encapsulated IPv4 datagram
+        auto pkt = check_and_cast<Packet*>(msg);
+        pkt->trim();
+        auto ipDatagram = pkt->peekAtFront<Ipv4Header>();
+        pkt->addTagIfAbsent<NetworkProtocolInd>()->setProtocol(&Protocol::ipv4);
+        pkt->addTagIfAbsent<NetworkProtocolInd>()->setNetworkProtocolHeader(
+                ipDatagram);
+        handleFromTrafficFlowFilter(pkt);
+    } else if (strcmp(msg->getArrivalGate()->getFullName(), "socketIn") == 0) {
+        EV << "GtpUser::handleMessage - message from udp layer" << endl;
+        auto pkt = check_and_cast<Packet*>(msg);
+        pkt->trim();
+        auto ipDatagram = pkt->peekAtFront<GtpUserMsg>();
+        handleFromUdp(pkt);
+    }
+}
+
+void GtpUser::handleFromTrafficFlowFilter(Packet *pkt) {
     // extract control info from the datagram
-    TrafficFlowTemplateId flowId = gtp::modification::removeTftControlInfo(
-            datagram);
-    EV
-              << "GtpUser::handleFromTrafficFlowFilter - Received a tftMessage with flowId["
-              << flowId << "]" << endl;
+    auto tftInfo = pkt->removeTag<TftControlInfo>();
+    TrafficFlowTemplateId flowId = tftInfo->getTft();
+    delete tftInfo;
+    removeAllSimuLteTags(pkt);
+
+    EV << "GtpUser::handleFromTrafficFlowFilter - Received a tftMessage with flowId["
+       << flowId << "]" << endl;
+
+    TunnelEndpointIdentifier nextTeid;
+    L3Address tunnelPeerAddress;
 
     // search a correspondence between the flow id and the pair <teid,nextHop>
-    LabelTable::iterator tftIt = tftTable_.find(flowId);
+    LabelTable::iterator tftIt;
+    tftIt = tftTable_.find(flowId);
     if (tftIt == tftTable_.end()) {
         EV
                   << "GtpUser::handleFromTrafficFlowFilter - Cannot find entry for TFT "
                   << flowId << ". Discarding packet;" << endl;
         return;
     }
-    L3Address tunnelPeerAddress = tftIt->second.nextHop;
-    TunnelEndpointIdentifier nextTeid = tftIt->second.teid;
+    tunnelPeerAddress = tftIt->second.nextHop;
+    nextTeid = tftIt->second.teid;
 
     // create a new gtpUserMessage
-    auto gtpPacket = gtp::conversion::packetToGtpUserMsg(nextTeid, datagram);
-    socket_.sendTo(gtpPacket, tunnelPeerAddress, tunnelPeerPort_);
+    auto gtpMsg = makeShared<GtpUserMsg>();
+
+    // assign the nextTeid
+    gtpMsg->setTeid(nextTeid);
+
+    // add GTP header
+    pkt->insertAtFront(gtpMsg);
+    pkt->addTagIfAbsent<PacketProtocolTag>()->setProtocol(&LteProtocol::gtp);
+
+
+    socket_.sendTo(pkt, tunnelPeerAddress, tunnelPeerPort_);
 }
 
-void GtpUser::handleFromUdp(Packet * pkt) {
-
-    // TunnelEndpointIdentifier nextTeid;
+void GtpUser::handleFromUdp(Packet *pkt) {
+    TunnelEndpointIdentifier oldTeid;
     L3Address nextHopAddr;
 
-    // re-create the original IP datagram
-    auto tuple = gtp::conversion::copyAndPopGtpHeader(pkt);
-    TunnelEndpointIdentifier oldTeid = std::get<gtp::conversion::TEID>(tuple);
-    auto originalPacket = std::get<gtp::conversion::ORIGINAL_DATAGRAM>(tuple);
+    // remove GTP header
+    auto gtpMsg = pkt->removeAtFront<GtpUserMsg>();
+
+    // remove any pending socket indications
+    auto sockInd = pkt->removeTagIfPresent<SocketInd>();
+    if (sockInd)
+        delete sockInd;
+
+    // obtain the incoming TEID from message
+    oldTeid = gtpMsg->getTeid();
 
     // obtain "ConnectionInfo" from the teidTable
     LabelTable::iterator teidIt = teidTable_.find(oldTeid);
     if (teidIt == teidTable_.end()) {
         EV << "GtpUser::handleFromUdp - Cannot find entry for TEID " << oldTeid
                   << ". Discarding packet;" << endl;
+        delete pkt;
         return;
     }
     ConnectionInfo teidInfo = teidIt->second;
@@ -109,38 +177,42 @@ void GtpUser::handleFromUdp(Packet * pkt) {
                   << "GtpUser::handleFromUdp - IP packet pointing to this network. Decapsulating and sending to local connection."
                   << endl;
 
-        // send the original IP datagram to the local network
+        // send original IP datagram to the local network
+        pkt->addTagIfAbsent<PacketProtocolTag>()->setProtocol(&Protocol::ipv4);
+        pkt->addTagIfAbsent<DispatchProtocolReq>()->setProtocol(&Protocol::ipv4);
+
         if (ownerType_ == ENB && ie_ != nullptr) {
             // on the ENB we need an InterfaceReq to send the packet via WLAN
-            originalPacket->addTagIfAbsent<InterfaceReq>()->setInterfaceId(
-                    ie_->getInterfaceId());
+            pkt->addTagIfAbsent<InterfaceReq>()->setInterfaceId(ie_->getInterfaceId());
         }
 
-        send(originalPacket, "pppGate");
+        send(pkt, "pppGate");
     } else // label switching
     {
         EV << "GtpUser::handleFromUdp - performing label switching: ["
                   << oldTeid << "]->[" << teidInfo.teid << "] - nextHop["
                   << teidInfo.nextHop << "]." << endl;
-        auto gtpPacket = gtp::conversion::packetToGtpUserMsg(teidInfo.teid,
-                originalPacket);
-        socket_.sendTo(gtpPacket, teidInfo.nextHop, tunnelPeerPort_);
+        // in case of label switching, send the packet to the next tunnel
+        gtpMsg->setTeid(teidInfo.teid);
+        pkt->insertAtFront(gtpMsg);
+        removeAllSimuLteTags(pkt);
+        socket_.sendTo(pkt, teidInfo.nextHop, tunnelPeerPort_);
     }
 }
 
 //==========================================================================
 //============================== XML MANAGEMENT ============================
 //==========================================================================
-bool GtpUser::loadTeidTable(const char * teidTableFile) {
+bool GtpUser::loadTeidTable(const char *teidTableFile) {
     // open and check xml file
     EV << "GtpUser::loadTeidTable - reading file " << teidTableFile << endl;
-    cXMLElement* config = getEnvir()->getXMLDocument(teidTableFile);
+    cXMLElement *config = getEnvir()->getXMLDocument(teidTableFile);
     if (config == NULL)
         error("GtpUser::loadTeidTable: Cannot read configuration from file: %s",
                 teidTableFile);
 
     // obtain reference to teidTable
-    cXMLElement* teidNode = config->getElementByPath("teidTable");
+    cXMLElement *teidNode = config->getElementByPath("teidTable");
     if (teidNode == NULL)
         error("GtpUser::loadTeidTable: No configuration for teidTable");
 
@@ -151,10 +223,10 @@ bool GtpUser::loadTeidTable(const char * teidTableFile) {
 
     // teid attributes management
     const unsigned int numAttributes = 3;
-    char const * attributes[numAttributes] = { "teidIn", "teidOut", "nextHop" };
+    char const *attributes[numAttributes] = { "teidIn", "teidOut", "nextHop" };
     unsigned int attrId = 0;
 
-    char const * temp[numAttributes];
+    char const *temp[numAttributes];
 
     // foreach teid element in the list, read the parameters and fill the teid table
     for (cXMLElementList::iterator teidsIt = teidList.begin();
@@ -198,16 +270,16 @@ bool GtpUser::loadTeidTable(const char * teidTableFile) {
 }
 
 // TODO avoid replicating the xmlLoad code. Use an array of attributes as input and a array of strings as return
-bool GtpUser::loadTftTable(const char * tftTableFile) {
+bool GtpUser::loadTftTable(const char *tftTableFile) {
     // open and check xml file
     EV << "GtpUser::loadTftTable - reading file " << tftTableFile << endl;
-    cXMLElement* config = getEnvir()->getXMLDocument(tftTableFile);
+    cXMLElement *config = getEnvir()->getXMLDocument(tftTableFile);
     if (config == NULL)
         error("GtpUser::loadTftTable: Cannot read configuration from file: %s",
                 tftTableFile);
 
     // obtain reference to teidTable
-    cXMLElement* tftNode = config->getElementByPath("tftTable");
+    cXMLElement *tftNode = config->getElementByPath("tftTable");
     if (tftNode == NULL)
         error("GtpUser::loadTftTable: No configuration for tftTable");
 
@@ -220,10 +292,10 @@ bool GtpUser::loadTftTable(const char * tftTableFile) {
 
     // TFT attributes management
     const unsigned int numAttributes = 3;
-    char const * attributes[numAttributes] = { "tftId", "teidOut", "nextHop" };
+    char const *attributes[numAttributes] = { "tftId", "teidOut", "nextHop" };
     unsigned int attrId = 0;
 
-    char const * temp[numAttributes];
+    char const *temp[numAttributes];
 
     // foreach TFT element in the list, read the parameters and fill the teid table
     for (cXMLElementList::iterator tftIt = tftList.begin();

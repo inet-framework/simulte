@@ -43,11 +43,12 @@ LteHarqProcessTx::getProcessStatus()
     return ret;
 }
 
-void LteHarqProcessTx::insertPdu(LteMacPdu *pdu, Codeword cw)
+void LteHarqProcessTx::insertPdu(Packet *pkt, Codeword cw)
 {
+    auto pdu = pkt->peekAtFront<LteMacPdu>();
     numEmptyUnits_--;
     numSelected_++;
-    (*units_)[cw]->insertPdu(pdu);
+    (*units_)[cw]->insertPdu(pkt);
     dropped_ = false;
 }
 
@@ -60,13 +61,14 @@ void LteHarqProcessTx::markSelected(Codeword cw)
     (*units_)[cw]->markSelected();
 }
 
-LteMacPdu *LteHarqProcessTx::extractPdu(Codeword cw)
+Packet *LteHarqProcessTx::extractPdu(Codeword cw)
 {
     if (numSelected_ == 0)
         throw cRuntimeError("H-ARQ TX process: cannot extract pdu: numSelected = 0 ");
 
     numSelected_--;
-    LteMacPdu *pdu = (*units_)[cw]->extractPdu();
+    auto  pdu = (*units_)[cw]->extractPdu();
+    auto tmp = pdu->peekAtFront<LteMacPdu>();
     return pdu;
 }
 
@@ -180,8 +182,9 @@ bool LteHarqProcessTx::isEmpty()
     return (numEmptyUnits_ == numHarqUnits_);
 }
 
-LteMacPdu *LteHarqProcessTx::getPdu(Codeword cw)
+Packet *LteHarqProcessTx::getPdu(Codeword cw)
 {
+    auto temp = (*units_)[cw]->getPdu()->peekAtFront<LteMacPdu>();
     return (*units_)[cw]->getPdu();
 }
 

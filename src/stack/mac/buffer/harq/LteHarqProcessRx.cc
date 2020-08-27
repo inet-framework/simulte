@@ -27,9 +27,12 @@ LteHarqProcessRx::LteHarqProcessRx(unsigned char acid, LteMacBase *owner)
     maxHarqRtx_ = owner->par("maxHarqRtx");
 }
 
-void LteHarqProcessRx::insertPdu(Codeword cw, LteMacPdu *pdu)
+void LteHarqProcessRx::insertPdu(Codeword cw, Packet *pkt)
 {
-    UserControlInfo *lteInfo = check_and_cast<UserControlInfo *>(pdu->getControlInfo());
+
+    auto pdu = pkt->peekAtFront<LteMacPdu>();
+    auto lteInfo = pkt->getTag<UserControlInfo>();
+
     bool ndi = lteInfo->getNdi();
 
     EV << "LteHarqProcessRx::insertPdu - ndi is " << ndi << endl;
@@ -48,7 +51,7 @@ void LteHarqProcessRx::insertPdu(Codeword cw, LteMacPdu *pdu)
     }
 
     // store new received pdu
-    pdu_.at(cw) = pdu;
+    pdu_.at(cw) = pkt;
     result_.at(cw) = lteInfo->getDeciderResult();
     status_.at(cw) = RXHARQ_PDU_EVALUATING;
     rxTime_.at(cw) = NOW;
@@ -64,23 +67,29 @@ bool LteHarqProcessRx::isEvaluated(Codeword cw)
         return false;
 }
 
-LteHarqFeedback *LteHarqProcessRx::createFeedback(Codeword cw)
+//LteHarqFeedback *LteHarqProcessRx::createFeedback(Codeword cw)
+Packet *LteHarqProcessRx::createFeedback(Codeword cw)
 {
     if (!isEvaluated(cw))
         throw cRuntimeError("Cannot send feedback for a pdu not in EVALUATING state");
 
-    UserControlInfo *pduInfo = check_and_cast<UserControlInfo *>(pdu_.at(cw)->getControlInfo());
-    LteHarqFeedback *fb = new LteHarqFeedback();
+    auto pduInfo = pdu_.at(cw)->getTag<UserControlInfo>();
+    auto pdu = pdu_.at(cw)->peekAtFront<LteMacPdu>();
+
+    // TODO : Change to Tag (allows length 0)
+    auto fb = makeShared<LteHarqFeedback>();
     fb->setAcid(acid_);
     fb->setCw(cw);
     fb->setResult(result_.at(cw));
-    fb->setFbMacPduId(pdu_.at(cw)->getMacPduId());
-    fb->setByteLength(0);
-    UserControlInfo *fbInfo = new UserControlInfo();
-    fbInfo->setSourceId(pduInfo->getDestId());
-    fbInfo->setDestId(pduInfo->getSourceId());
-    fbInfo->setFrameType(HARQPKT);
-    fb->setControlInfo(fbInfo);
+    fb->setFbMacPduId(pdu->getMacPduId());
+    fb->setChunkLength(b(1)); // TODO: should be 0
+    // fb->setByteLength(0);
+    auto pkt = new Packet("harqFeedback");
+    pkt->insertAtFront(fb);
+
+    pkt->addTagIfAbsent<UserControlInfo>()->setSourceId(pduInfo->getDestId());
+    pkt->addTagIfAbsent<UserControlInfo>()->setDestId(pduInfo->getSourceId());
+    pkt->addTagIfAbsent<UserControlInfo>()->setFrameType(HARQPKT);
 
     if (!result_.at(cw))
     {
@@ -102,7 +111,7 @@ LteHarqFeedback *LteHarqProcessRx::createFeedback(Codeword cw)
         status_.at(cw) = RXHARQ_PDU_CORRECT;
     }
 
-    return fb;
+    return pkt;
 }
 
 bool LteHarqProcessRx::isCorrect(Codeword cw)
@@ -110,16 +119,18 @@ bool LteHarqProcessRx::isCorrect(Codeword cw)
     return (status_.at(cw) == RXHARQ_PDU_CORRECT);
 }
 
-LteMacPdu* LteHarqProcessRx::extractPdu(Codeword cw)
+Packet* LteHarqProcessRx::extractPdu(Codeword cw)
 {
     if (!isCorrect(cw))
         throw cRuntimeError("Cannot extract pdu if the state is not CORRECT");
 
     // temporary copy of pdu pointer because reset NULLs it, and I need to return it
-    LteMacPdu *pdu = pdu_.at(cw);
+    auto pkt = pdu_.at(cw);
+    auto pdu = pkt->peekAtFront<LteMacPdu>();
     pdu_.at(cw) = NULL;
     resetCodeword(cw);
-    return pdu;
+    
+    return pkt;
 }
 
 int64_t LteHarqProcessRx::getByteLength(Codeword cw)

@@ -7,12 +7,8 @@
 // and cannot be removed from it.
 //
 
+import common.LteCommon;
 cplusplus {{
-    #include "common/LteCommon.h"
-
-    /**
-     * Timer type
-     */
     enum TTimerType
     {
        TTSIMPLE, TTMULTI

@@ -45,36 +45,26 @@ LteRlcAmPdu::getBitmapVec()
     return this->bitmap_;
 }
 
-void LteRlcAmPdu::insertBitmap(size_t k, bool bitmap){
-    bitmap_.insert(bitmap_.begin()+k, bitmap);
-}
-void LteRlcAmPdu::insertBitmap(bool bitmap){
-    bitmap_.insert(bitmap_.end(), bitmap);
-}
-void LteRlcAmPdu::eraseBitmap(size_t k){
-    bitmap_.erase(bitmap_.begin()+k);
-}
-
 bool
-LteRlcAmPdu::isWhole()
+LteRlcAmPdu::isWhole() const
 {
     return (firstSn == lastSn);
 }
 
 bool
-LteRlcAmPdu::isFirst()
+LteRlcAmPdu::isFirst() const
 {
     return (firstSn == snoFragment);
 }
 
 bool
-LteRlcAmPdu::isMiddle()
+LteRlcAmPdu::isMiddle() const
 {
     return ((!isFirst()) && (!isLast()));
 }
 
 bool
-LteRlcAmPdu::isLast()
+LteRlcAmPdu::isLast() const
 {
     return (lastSn == snoFragment);
 }

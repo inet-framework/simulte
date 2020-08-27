@@ -27,17 +27,17 @@ class LteMacBase;
  * Contained PDU may be in one of four status:
  *
  *                            IDLE    PDU                    READY
- * TXHARQ_PDU_BUFFERED:        no        present locally        ready for rtx
- * TXHARQ_PDU_WAITING:        no        copy present        not ready for tx
- * TXHARQ_PDU_EMPTY:        yes        not present            not ready for tx
- * TXHARQ_PDU_SELECTED:        no        present                will be tx
+ * TXHARQ_PDU_BUFFERED:       no      present locally        ready for rtx
+ * TXHARQ_PDU_WAITING:        no      copy present           not ready for tx
+ * TXHARQ_PDU_EMPTY:          yes     not present            not ready for tx
+ * TXHARQ_PDU_SELECTED:       no      present                will be tx
  */
 class LteHarqUnitTx
 {
   protected:
 
     /// Carried sub-burst
-    LteMacPdu *pdu_;
+    Packet *pdu_;
 
     /// Omnet ID of the pdu
     long pduId_;
@@ -103,7 +103,7 @@ class LteHarqUnitTx
      *
      * @param pdu MacPdu to be inserted
      */
-    virtual void insertPdu(LteMacPdu *pdu);
+    virtual void insertPdu(Packet *pdu);
 
     /**
      * Transition from BUFFERED to SELECTED status: the pdu will be extracted when the
@@ -118,7 +118,7 @@ class LteHarqUnitTx
      * to extract the pdu the Mac layer will send.
      * Before extraction, control info is updated with transmission counter and ndi.
      */
-    virtual LteMacPdu *extractPdu();
+    virtual Packet *extractPdu();
 
     /**
      * Manages ACK/NACK.
@@ -158,7 +158,7 @@ class LteHarqUnitTx
 
     virtual void forceDropUnit();
 
-    virtual LteMacPdu *getPdu();
+    virtual Packet *getPdu();
 
     virtual unsigned char getAcid()
     {

@@ -9,15 +9,15 @@
 
 #include "stack/phy/packet/LteFeedbackPkt.h"
 
-LteFeedbackDoubleVector LteFeedbackPkt::getLteFeedbackDoubleVectorDl()
+LteFeedbackDoubleVector LteFeedbackPkt::getLteFeedbackDoubleVectorDl() const
 {
     return lteFeedbackDoubleVectorDl_;
 }
-LteFeedbackDoubleVector LteFeedbackPkt::getLteFeedbackDoubleVectorUl()
+LteFeedbackDoubleVector LteFeedbackPkt::getLteFeedbackDoubleVectorUl() const
 {
     return lteFeedbackDoubleVectorUl_;
 }
-std::map<MacNodeId, LteFeedbackDoubleVector> LteFeedbackPkt::getLteFeedbackDoubleVectorD2D()
+std::map<MacNodeId, LteFeedbackDoubleVector> LteFeedbackPkt::getLteFeedbackDoubleVectorD2D() const
 {
     return lteFeedbackMapDoubleVectorD2D_;
 }
@@ -37,7 +37,7 @@ void LteFeedbackPkt::setSourceNodeId(MacNodeId id)
 {
     sourceNodeId_ = id;
 }
-MacNodeId LteFeedbackPkt::getSourceNodeId()
+MacNodeId LteFeedbackPkt::getSourceNodeId() const
 {
     return sourceNodeId_;
 }

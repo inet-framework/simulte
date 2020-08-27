@@ -63,7 +63,7 @@ class LteHarqUnitTxD2D : public LteHarqUnitTx
      * to extract the pdu the Mac layer will send.
      * Before extraction, control info is updated with transmission counter and ndi.
      */
-    virtual LteMacPdu *extractPdu();
+    virtual inet::Packet *extractPdu();
 
     virtual ~LteHarqUnitTxD2D();
 };

@@ -7,14 +7,22 @@
 // and cannot be removed from it.
 //
 
+import inet.common.INETDefs;
+import inet.common.packet.Packet;
+import inet.common.packet.chunk.Chunk;
+
 //
 // This is the MAC message flowing through LTE stack.
 //
+cplusplus {{
+   using namespace inet;
+}};
 
-packet LteMacPdu extends cPacket
+ 
+class LteMacPdu extends inet::FieldsChunk
 {
     @customize(true);
-    abstract omnetpp::cPacket sdu[];
+    abstract inet::Packet sdu[];
     unsigned int headerLength = 0;
     // need separate macPduId (e.g. for feedback packets) since OMNET PDU id is automatically updated
     // whenever a new packet is created, e.g. when this PDU is duplicated
