@@ -72,7 +72,7 @@ class LteRlcUmD2D : public LteRlcUm
      *
      * @param nodeId Id of the node whose queues are deleted
      */
-    virtual void deleteQueues(MacNodeId nodeId);
+    virtual void deleteQueues(MacNodeId nodeId) override;
 
   private:
 

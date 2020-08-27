@@ -161,7 +161,7 @@ void LteRlcUmD2D::deleteQueues(MacNodeId nodeId)
 
         if (nodeType == UE || (nodeType == ENODEB && MacCidToNodeId(tit->first) == nodeId))
         {
-            delete tit->second;        // Delete Entity
+            tit->second->deleteModule(); // Delete Entity
             txEntities_.erase(tit++);    // Delete Elem
         }
         else
@@ -180,7 +180,7 @@ void LteRlcUmD2D::deleteQueues(MacNodeId nodeId)
 
         if (nodeType == UE || (nodeType == ENODEB && MacCidToNodeId(rit->first) == nodeId))
         {
-            delete rit->second;        // Delete Entity
+            rit->second->deleteModule(); // Delete Entity
             rxEntities_.erase(rit++);    // Delete Elem
         }
         else
