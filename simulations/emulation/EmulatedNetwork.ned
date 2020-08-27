@@ -8,7 +8,7 @@
 // 
 package lte.simulations.emulation;
 
-import inet.networklayer.configurator.ipv4.IPv4NetworkConfigurator;
+import inet.networklayer.configurator.ipv4.Ipv4NetworkConfigurator;
 import inet.networklayer.ipv4.RoutingTableRecorder;
 import inet.node.ethernet.Eth10G;
 import inet.node.inet.Router;
@@ -33,7 +33,7 @@ network EmulatedNetwork
         routingRecorder: RoutingTableRecorder {
             @display("p=73.38125,130.59375;is=s");
         }
-        configurator: IPv4NetworkConfigurator {
+        configurator: Ipv4NetworkConfigurator {
             @display("p=73.38125,72.1375");
             config = xmldoc("demo.xml");
         }
