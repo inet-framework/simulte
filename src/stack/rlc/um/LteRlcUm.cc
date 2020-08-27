@@ -154,8 +154,7 @@ void LteRlcUm::dropBufferOverflow(cPacket *pktAux)
    else
        emit(rlcPacketLossUl, 1.0);
 
-    delete lteInfo;
-    delete pkt;
+   delete pkt;
 }
 
 void LteRlcUm::handleUpperMessage(cPacket *pktAux)
