@@ -73,7 +73,6 @@ void UmTxEntity::rlcPduMake(int pduLength)
         auto rlcSdu = pkt->peekAtFront<LteRlcSdu>();
         unsigned int sduSequenceNumber = rlcSdu->getSnoMainPacket();
         int sduLength = rlcSdu->getLengthMainPacket(); // length without the SDU header
-        // pkt->insertAtFront(rlcSdu);
 
         if (fragmentInfo != nullptr) {
             if (fragmentInfo->pkt != pkt)
@@ -97,8 +96,7 @@ void UmTxEntity::rlcPduMake(int pduLength)
             len += sduLength;
 
             pkt = check_and_cast<inet::Packet *>(sduQueue_.pop());
-
-            queueLength_ -= sduLength;
+            queueLength_ -= pkt->getByteLength();
 
             rlcPdu->pushSdu(pkt, sduLength);
             pkt = nullptr;
@@ -135,7 +133,7 @@ void UmTxEntity::rlcPduMake(int pduLength)
 
             // update SDU in the buffer
             int newLength = sduLength - pduLength;
-            queueLength_ -= pduLength;
+            // queueLength_ will be adapted when the whole SDU is removed from the queue
 
             EV << NOW << " UmTxEntity::rlcPduMake - Data chunk in the queue is now " << newLength << " bytes, sduSno[" << sduSequenceNumber << "]" << endl;
 
@@ -204,6 +202,8 @@ void UmTxEntity::removeDataFromQueue()
 
     // ...and remove it
     cPacket* retPkt = sduQueue_.remove(pkt);
+    queueLength_ -= retPkt->getByteLength();
+    ASSERT(queueLength_ >= 0);
     delete retPkt;
 }
 
