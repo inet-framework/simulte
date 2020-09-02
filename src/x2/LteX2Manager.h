@@ -42,9 +42,6 @@ protected:
     virtual void fromStack(inet::Packet* pkt);
     virtual void fromX2(inet::Packet* pkt);
 
-public:
-    LteX2Manager();
-    virtual ~LteX2Manager();
 };
 
 #endif /* LTE_LTEX2MANAGER_H_ */

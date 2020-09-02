@@ -22,9 +22,6 @@
 class LteRlcUmD2D : public LteRlcUm
 {
   public:
-    LteRlcUmD2D()
-    {
-    }
     virtual ~LteRlcUmD2D()
     {
     }

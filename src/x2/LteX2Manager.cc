@@ -22,13 +22,6 @@ Define_Module(LteX2Manager);
 using namespace omnetpp;
 using namespace inet;
 
-
-LteX2Manager::LteX2Manager() {
-}
-
-LteX2Manager::~LteX2Manager() {
-}
-
 void LteX2Manager::initialize(int stage)
 {
     if (stage == inet::INITSTAGE_LOCAL)
@@ -49,7 +42,7 @@ void LteX2Manager::initialize(int stage)
 
             const char* ifName = interfaceEntry->getInterfaceName();
 
-            if (strstr(ifName,"x2ppp") != NULL)
+            if (strstr(ifName,"x2ppp") != nullptr)
             {
                 const Ipv4Address addr = interfaceEntry->getProtocolData<Ipv4InterfaceData>()->getIPAddress();
                 getBinder()->setX2NodeId(addr, nodeId_);

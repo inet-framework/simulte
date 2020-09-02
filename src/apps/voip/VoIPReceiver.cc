@@ -92,8 +92,6 @@ void VoIPReceiver::handleMessage(cMessage *msg)
         mCurrentTalkspurt_ = voipHeader->getIDtalk();
     }
 
-    //emit(mFrameLossSignal,1.0);
-
     EV << "VoIPReceiver::handleMessage - Packet received: TALK[" << voipHeader->getIDtalk() << "] - FRAME[" << voipHeader->getIDframe() << " size: " << voipHeader->getChunkLength() << " bytes]\n";
 
     // emit throughput sample
@@ -153,7 +151,7 @@ void VoIPReceiver::playout(bool finish)
     simtime_t last_jitter = 0.0;
     simtime_t max_jitter = -1000.0;
 
-    while (!mPacketsList_.empty() /*&& pPacket->getIDtalk() == mCurrentTalkspurt*/)
+    while (!mPacketsList_.empty())
     {
         pPacket = mPacketsList_.front();
 
@@ -163,7 +161,6 @@ void VoIPReceiver::playout(bool finish)
         unsigned int IDframe = pPacket->getIDframe();
 
         pPacket->setPlayoutTime(firstPlayoutTime + IDframe * mSamplingDelta_);
-        //pPacket->setPlayoutTime(firstPlayoutTime + (pPacket->getIDframe() - firstFrameId) * mSamplingDelta_);
 
         last_jitter = pPacket->getArrivalTime() - pPacket->getPlayoutTime();
         max_jitter = std::max(max_jitter, last_jitter);
@@ -238,8 +235,6 @@ void VoIPReceiver::playout(bool finish)
     }
 
     double mos = eModel(mPlayoutDelay_, proportionalLoss);
-
-//    sample = SIMmPlayoutDelay_;
     emit(voIPPlayoutDelaySignal_, mPlayoutDelay_);
 
     sample = ((double) playoutLoss / (double) n_frames);

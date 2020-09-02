@@ -41,7 +41,6 @@ class LteCellInfo;
 class LteMacEnb;
 class LteMacBase;
 class LtePhyBase;
-//class cXMLElement;
 class LteRealisticChannelModel;
 class LteControlInfo;
 class ExtCell;

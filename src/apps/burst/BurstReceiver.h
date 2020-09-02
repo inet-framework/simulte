@@ -16,8 +16,6 @@ class BurstReceiver : public cSimpleModule
 {
     UdpSocket socket;
 
-    ~BurstReceiver();
-
     int numReceived_;
     int recvBytes_;
 

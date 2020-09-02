@@ -26,15 +26,10 @@ class InternetMux : public omnetpp::cSimpleModule
     virtual void handleMessage(omnetpp::cMessage *msg) override;
 
   public:
-
-    InternetMux();
-
     void setRoutingEntry(const MacNodeId id, omnetpp::cGate* gate)
     {
         routingTable_[id] = gate;
     }
-
-    virtual ~InternetMux();
 };
 
 #endif

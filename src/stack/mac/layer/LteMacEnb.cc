@@ -36,17 +36,17 @@ using namespace omnetpp;
 LteMacEnb::LteMacEnb() :
     LteMacBase()
 {
-    cellInfo_ = NULL;
-    amc_ = NULL;
-    enbSchedulerDl_ = NULL;
-    enbSchedulerUl_ = NULL;
+    cellInfo_ = nullptr;
+    amc_ = nullptr;
+    enbSchedulerDl_ = nullptr;
+    enbSchedulerUl_ = nullptr;
     numAntennas_ = 0;
     bsrbuf_.clear();
     currentSubFrameType_ = NORMAL_FRAME_TYPE;
     nodeType_ = ENODEB;
     frameIndex_ = 0;
     lastTtiAllocatedRb_ = 0;
-    scheduleListDl_ = NULL;
+    scheduleListDl_ = nullptr;
 }
 
 LteMacEnb::~LteMacEnb()
@@ -68,7 +68,7 @@ LteMacEnb::~LteMacEnb()
 LteCellInfo* LteMacEnb::getCellInfo()
 {
     // Get local cellInfo
-    if (cellInfo_ != NULL)
+    if (cellInfo_ != nullptr)
         return cellInfo_;
 
     return check_and_cast<LteCellInfo*>(getParentModule()-> // Stack
@@ -241,14 +241,14 @@ void LteMacEnb::initialize(int stage)
         numAntennas_ = getNumAntennas();
 
         /* Create and initialize MAC Downlink scheduler */
-        if (enbSchedulerDl_ == NULL)
+        if (enbSchedulerDl_ == nullptr)
         {
             enbSchedulerDl_ = new LteSchedulerEnbDl();
             enbSchedulerDl_->initialize(DL, this);
         }
 
         /* Create and initialize MAC Uplink scheduler */
-        if (enbSchedulerUl_ == NULL)
+        if (enbSchedulerUl_ == nullptr)
         {
             enbSchedulerUl_ = new LteSchedulerEnbUl();
             enbSchedulerUl_->initialize(UL, this);
@@ -409,7 +409,6 @@ void LteMacEnb::sendGrants(LteMacScheduleList* scheduleList)
         Codeword otherCw = MAX_CODEWORDS - cw;
 
         MacCid cid = it->first.first;
-        // LogicalCid lcid = MacCidToLcid(cid);
         MacNodeId nodeId = MacCidToNodeId(cid);
 
         unsigned int granted = it->second;
@@ -615,7 +614,7 @@ void LteMacEnb::macPduMake(MacCid cid)
             }
             auto pkt = check_and_cast<Packet *>(mbuf_[destCid]->popFront());
 
-            ASSERT(pkt != NULL);
+            ASSERT(pkt != nullptr);
 
             drop(pkt);
             auto macPkt =  macPacket->removeAtFront<LteMacPdu>();
@@ -851,10 +850,6 @@ void LteMacEnb::handleSelfMessage()
     // extract pdus from all harqrxbuffers and pass them to unmaker
     HarqRxBuffers::iterator hit = harqRxBuffers_.begin();
     HarqRxBuffers::iterator het = harqRxBuffers_.end();
-    //LteMacPdu *pdu = NULL;
-    //std::list<LteMacPdu*> pduList;
-
-    //LteMacPdu *pdu = NULL;
 
     for (; hit != het; hit++)
     {
@@ -895,7 +890,7 @@ void LteMacEnb::handleSelfMessage()
     if (activation)
     {
         // clear previous schedule list
-        if (scheduleListDl_ != NULL)
+        if (scheduleListDl_ != nullptr)
             scheduleListDl_->clear();
 
         // perform Downlink scheduling
@@ -1019,5 +1014,5 @@ unsigned int LteMacEnb::getDlPrevBandStatus(Band b)
 
 ConflictGraph* LteMacEnb::getConflictGraph()
 {
-    return NULL;
+    return nullptr;
 }

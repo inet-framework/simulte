@@ -14,7 +14,6 @@
 using namespace omnetpp;
 using namespace inet;
 
-//Register_Class(X2HandoverControlMsg);
 Register_Serializer(X2HandoverControlMsg, LteX2MsgSerializer);
 
 X2HandoverControlMsg::X2HandoverControlMsg() :

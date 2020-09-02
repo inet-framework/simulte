@@ -41,7 +41,7 @@ ChannelAccess::~ChannelAccess()
         IChannelControl *cc = dynamic_cast<IChannelControl *>(getSimulation()->getModuleByPath("channelControl"));
         if (cc)
              cc->unregisterRadio(myRadioRef);
-        myRadioRef = NULL;
+        myRadioRef = nullptr;
     }
 }
 /**
@@ -56,7 +56,7 @@ void ChannelAccess::initialize(int stage)
     {
         cc = getChannelControl();
         hostModule = inet::findContainingNode(this);
-        myRadioRef = NULL;
+        myRadioRef = nullptr;
 
         positionUpdateArrived = false;
 

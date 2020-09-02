@@ -87,9 +87,6 @@ protected:
     void setUsableBands(UsableBands& usableBands);
 
 public:
-    LteCompManagerBase() {}
-    virtual ~LteCompManagerBase() {}
-
     virtual void initialize() override;
     virtual void handleMessage(omnetpp::cMessage *msg) override;
 };

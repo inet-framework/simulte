@@ -17,8 +17,8 @@ using namespace inet;
 
 LtePhyUeD2D::LtePhyUeD2D()
 {
-    handoverStarter_ = NULL;
-    handoverTrigger_ = NULL;
+    handoverStarter_ = nullptr;
+    handoverTrigger_ = nullptr;
 }
 
 LtePhyUeD2D::~LtePhyUeD2D()
@@ -33,7 +33,7 @@ void LtePhyUeD2D::initialize(int stage)
         averageCqiD2D_ = registerSignal("averageCqiD2D");
         d2dTxPower_ = par("d2dTxPower");
         d2dMulticastEnableCaptureEffect_ = par("d2dMulticastCaptureEffect");
-        d2dDecodingTimer_ = NULL;
+        d2dDecodingTimer_ = nullptr;
     }
 }
 
@@ -57,7 +57,7 @@ void LtePhyUeD2D::handleSelfMessage(cMessage *msg)
         }
 
         delete msg;
-        d2dDecodingTimer_ = NULL;
+        d2dDecodingTimer_ = nullptr;
     }
     else if (msg->isName("doModeSwitchAtHandover"))
     {
@@ -97,7 +97,7 @@ void LtePhyUeD2D::handleAirFrame(cMessage* msg)
     if (lteInfo->getFrameType() == HANDOVERPKT)
     {
         // check if handover is already in process
-        if (handoverTrigger_ != NULL && handoverTrigger_->isScheduled())
+        if (handoverTrigger_ != nullptr && handoverTrigger_->isScheduled())
         {
             delete lteInfo;
             delete frame;
@@ -139,7 +139,7 @@ void LtePhyUeD2D::handleAirFrame(cMessage* msg)
     if (d2dMulticastEnableCaptureEffect_ && binder_->isInMulticastGroup(nodeId_,lteInfo->getMulticastGroupId()))
     {
         // if not already started, auto-send a message to signal the presence of data to be decoded
-        if (d2dDecodingTimer_ == NULL)
+        if (d2dDecodingTimer_ == nullptr)
         {
             d2dDecodingTimer_ = new cMessage("d2dDecodingTimer");
             d2dDecodingTimer_->setSchedulingPriority(10);          // last thing to be performed in this TTI
@@ -153,7 +153,7 @@ void LtePhyUeD2D::handleAirFrame(cMessage* msg)
         return;                          // exit the function, decoding will be done later
     }
 
-    if ((lteInfo->getUserTxParams()) != NULL)
+    if ((lteInfo->getUserTxParams()) != nullptr)
     {
         int cw = lteInfo->getCw();
         if (lteInfo->getUserTxParams()->readCqiVector().size() == 1)
@@ -239,7 +239,7 @@ void LtePhyUeD2D::doHandover()
     // amc calls
     LteAmc *oldAmc = getAmcModule(masterId_);
     LteAmc *newAmc = getAmcModule(candidateMasterId_);
-    assert(newAmc != NULL);
+    assert(newAmc != nullptr);
     oldAmc->detachUser(nodeId_, D2D);
     newAmc->attachUser(nodeId_, D2D);
 
@@ -269,7 +269,7 @@ void LtePhyUeD2D::handleUpperMessage(cMessage* msg)
         binder_->storeUlTransmissionMap(antenna, rbMap, nodeId_, mac_->getMacCellId(), this, dir);
     }
 
-    if (lteInfo->getFrameType() == DATAPKT && lteInfo->getUserTxParams() != NULL)
+    if (lteInfo->getFrameType() == DATAPKT && lteInfo->getUserTxParams() != nullptr)
     {
         double cqi = lteInfo->getUserTxParams()->readCqiVector()[lteInfo->getCw()];
         if (lteInfo->getDirection() == UL)
@@ -279,7 +279,7 @@ void LtePhyUeD2D::handleUpperMessage(cMessage* msg)
     }
 
     EV << NOW << " LtePhyUeD2D::handleUpperMessage - message from stack" << endl;
-    LteAirFrame* frame = NULL;
+    LteAirFrame* frame = nullptr;
 
     if (lteInfo->getFrameType() == HARQPKT || lteInfo->getFrameType() == GRANTPKT || lteInfo->getFrameType() == RACPKT)
     {
@@ -541,7 +541,7 @@ void LtePhyUeD2D::finish()
 
         // amc calls
         LteAmc *amc = getAmcModule(masterId_);
-        if (amc != NULL)
+        if (amc != nullptr)
             amc->detachUser(nodeId_, D2D);
 
         LtePhyUe::finish();

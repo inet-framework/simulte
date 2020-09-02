@@ -232,10 +232,6 @@ void LteCompManagerBase::sendCoordinatorReply(X2NodeId clientId, X2CompReplyIE* 
 
 void LteCompManagerBase::setUsableBands(UsableBands& usableBands)
 {
-//    // update usableBands only if there is the new vector contains at least one element
-//    if (usableBands.size() > 0)
-//        usableBands_ = usableBands;
-
     usableBands_ = usableBands;
     mac_->getAmc()->setPilotUsableBands(nodeId_, usableBands_);
 }

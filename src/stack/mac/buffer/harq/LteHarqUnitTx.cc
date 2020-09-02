@@ -16,7 +16,7 @@ using namespace omnetpp;
 LteHarqUnitTx::LteHarqUnitTx(unsigned char acid, Codeword cw,
     LteMacBase *macOwner, LteMacBase *dstMac)
 {
-    pdu_ = NULL;
+    pdu_ = nullptr;
     pduId_ = -1;
     acid_ = acid;
     cw_ = cw;
@@ -239,7 +239,7 @@ void LteHarqUnitTx::forceDropUnit()
     if (status_ == TXHARQ_PDU_BUFFERED || status_ == TXHARQ_PDU_SELECTED || status_ == TXHARQ_PDU_WAITING)
     {
         delete pdu_;
-        pdu_ = NULL;
+        pdu_ = nullptr;
     }
     resetUnit();
 }
@@ -259,9 +259,9 @@ void LteHarqUnitTx::resetUnit()
 {
     transmissions_ = 0;
     pduId_ = -1;
-    if(pdu_ != NULL){
+    if(pdu_ != nullptr){
         delete pdu_;
-        pdu_ = NULL;
+        pdu_ = nullptr;
     }
 
     status_ = TXHARQ_PDU_EMPTY;

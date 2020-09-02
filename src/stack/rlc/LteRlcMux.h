@@ -29,9 +29,6 @@
 class LteRlcMux : public omnetpp::cSimpleModule
 {
   public:
-    LteRlcMux()
-    {
-    }
     virtual ~LteRlcMux()
     {
     }

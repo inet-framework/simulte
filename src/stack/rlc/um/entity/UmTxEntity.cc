@@ -247,7 +247,7 @@ void UmTxEntity::resumeDownstreamInPackets()
     {
         auto pktRlc = check_and_cast<inet::Packet *> (sduHoldingQueue_.front());
         auto rlcHeader = pktRlc->peekAtFront<LteRlcSdu>();
-        //LteRlcSdu* rlcPkt = check_and_cast<LteRlcSdu*>(sduHoldingQueue_.front());
+
         sduHoldingQueue_.pop();
 
         // store the SDU in the TX buffer

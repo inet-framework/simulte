@@ -15,12 +15,11 @@ using namespace inet;
 
 LteMacRelayEnb::LteMacRelayEnb()
 {
-    // TODO Auto-generated constructor stub
     nodeType_ = RELAY;
 }
 LteMacRelayEnb::~LteMacRelayEnb()
 {
-    // TODO Auto-generated destructor stub
+
 }
 
 LteCellInfo* LteMacRelayEnb::getCellInfo()

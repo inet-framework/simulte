@@ -61,12 +61,12 @@ bool LteMacQueue::pushFront(cPacket *pkt)
 
 cPacket* LteMacQueue::popFront()
 {
-    return getQueueLength() > 0 ? cPacketQueue::pop() : NULL;
+    return getQueueLength() > 0 ? cPacketQueue::pop() : nullptr;
 }
 
 cPacket* LteMacQueue::popBack()
 {
-    return getQueueLength() > 0 ? cPacketQueue::remove(cPacketQueue::back()) : NULL;
+    return getQueueLength() > 0 ? cPacketQueue::remove(cPacketQueue::back()) : nullptr;
 }
 
 simtime_t LteMacQueue::getHolTimestamp() const
@@ -101,7 +101,7 @@ bool LteMacQueue::isEnqueueablePacket(Packet* pkt){
      *         accepted as long as the MAC queue size is not exceeded.
      * For TM: No fragments are to be checked, anyways.
      */
-    if(pdu != NULL){ // for AM we need to check if all fragments will fit
+    if(pdu != nullptr){ // for AM we need to check if all fragments will fit
         if(pdu->getTotalFragments() > 1) {
             int remainingFrags = (pdu->getLastSn() - pdu->getSnoFragment() + 1);
             bool allFragsWillFit = (remainingFrags*pkt->getByteLength()) + getByteLength() < queueSize_;

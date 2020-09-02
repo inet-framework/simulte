@@ -151,9 +151,7 @@ void AmRxQueue::discard(const int sn)
         if (pduBuffer_.get(i) != nullptr)
         {
             auto pkt = check_and_cast<inet::Packet*>(pduBuffer_.remove(i));
-            //LteRlcAmPdu* pdu = check_and_cast<LteRlcAmPdu*>(pduBuffer_.remove(i));
             auto pdu = pkt->peekAtFront<LteRlcAmPdu>();
-            //FlowControlInfo* ci = check_and_cast<FlowControlInfo*>(pdu->getControlInfo());
             auto ci = pdu->getTag<FlowControlInfo>();
             dir = (Direction) ci->getDirection();
             dstId = ci->getDestId();

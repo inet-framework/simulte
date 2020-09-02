@@ -21,7 +21,7 @@ LteCellInfo::LteCellInfo()
     nodeX_ = 0;
     nodeY_ = 0;
     nodeZ_ = 0;
-    binder_ = NULL;
+    binder_ = nullptr;
     mcsScaleDl_ = 0;
     mcsScaleUl_ = 0;
     numRus_ = 0;
@@ -31,7 +31,7 @@ LteCellInfo::LteCellInfo()
 
 LteCellInfo::~LteCellInfo()
 {
-    binder_ = NULL;
+    binder_ = nullptr;
     delete ruSet_;
 }
 

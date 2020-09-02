@@ -30,8 +30,6 @@ LteRlcAm::getTxBuffer(MacNodeId nodeId, LogicalCid lcid)
     {
         // Not found: create
         std::stringstream buf;
-        // FIXME HERE
-
         buf << "AmTxQueue Lcid: " << lcid;
         cModuleType* moduleType = cModuleType::get("lte.stack.rlc.AmTxQueue");
         AmTxQueue* txbuf = check_and_cast<AmTxQueue *>(

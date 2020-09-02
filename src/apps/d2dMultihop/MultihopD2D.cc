@@ -28,7 +28,7 @@ uint16_t MultihopD2D::numMultihopD2DApps = 0;
 MultihopD2D::MultihopD2D()
 {
     senderAppId_ = numMultihopD2DApps++;
-    selfSender_ = NULL;
+    selfSender_ = nullptr;
     localMsgId_ = 0;
 }
 
@@ -40,7 +40,7 @@ MultihopD2D::~MultihopD2D()
     {
         std::map<unsigned int, inet::Packet*>::iterator it = last_.begin();
         for (; it != last_.end(); ++it)
-            if (it->second != NULL)
+            if (it->second != nullptr)
                 delete it->second;
         last_.clear();
     }
@@ -238,10 +238,10 @@ void MultihopD2D::handleRcvdPacket(cMessage* msg)
             counter_[msgId] = 1;
 
             // store a copy of the packet
-            if (last_.find(msgId) != last_.end() && last_[msgId] != NULL)
+            if (last_.find(msgId) != last_.end() && last_[msgId] != nullptr)
             {
                 delete last_[msgId];
-                last_[msgId] = NULL;
+                last_[msgId] = nullptr;
             }
             last_[msgId] = pPacket->dup();
         }

@@ -15,7 +15,7 @@
 #include "inet/networklayer/common/L3AddressResolver.h"
 #include "inet/networklayer/ipv4/Ipv4Header_m.h"
 #include "inet/common/packet/Packet.h"
-#include "epc/gtp/TftControlInfo.h"
+#include "epc/gtp/TftControlInfo_m.h"
 #include "epc/gtp/GtpUserMsg_m.h"
 
 #include <map>

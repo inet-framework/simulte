@@ -103,14 +103,6 @@ class LtePhyUe : public LtePhyBase
     virtual void handleUpperMessage(omnetpp::cMessage* msg) override;
 
     /**
-     * Catches host failure due to battery depletion.
-     *
-     * If the battery gets depleted, simpleBattery module publishes an HostState::FAILED
-     * event to the blackboard. The event is caught by baseModule's receiveBBItem
-     * which in turn calls handleHostState method, here inherited and redefined.
-     */
-    //virtual void handleHostState(const HostState& state);
-    /**
      * Utility function to update the hysteresis threshold using hysteresisFactor_.
      */
     double updateHysteresisTh(double v);

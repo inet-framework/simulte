@@ -51,7 +51,7 @@ void IP2lte::initialize(int stage)
 
         seqNum_ = 0;
 
-        hoManager_ = NULL;
+        hoManager_ = nullptr;
 
         ueHold_ = false;
 
@@ -354,9 +354,6 @@ void IP2lte::toStackEnb(Packet* pkt)
 
     int headerSize = 0;
 
-    // iphdr->setCrcMode(inet::CrcMode::CRC_COMPUTED);
-    // iphdr->getCrc();
-
     switch(transportProtocol)
     {
         case IP_PROT_TCP: {
@@ -461,7 +458,7 @@ void IP2lte::triggerHandoverSource(MacNodeId ueId, MacNodeId targetEnb)
 
     hoForwarding_[ueId] = targetEnb;
 
-    if (hoManager_ == NULL)
+    if (hoManager_ == nullptr)
         hoManager_ = check_and_cast<LteHandoverManager*>(getParentModule()->getSubmodule("handoverManager"));
     hoManager_->sendHandoverCommand(ueId, targetEnb, true);
 }
@@ -478,7 +475,7 @@ void IP2lte::triggerHandoverTarget(MacNodeId ueId, MacNodeId sourceEnb)
 void IP2lte::sendTunneledPacketOnHandover(Packet* datagram, MacNodeId targetEnb)
 {
     EV << "IP2lte::sendTunneledPacketOnHandover - destination is handing over to eNB " << targetEnb << ". Forward packet via X2." << endl;
-    if (hoManager_ == NULL)
+    if (hoManager_ == nullptr)
         hoManager_ = check_and_cast<LteHandoverManager*>(getParentModule()->getSubmodule("handoverManager"));
     hoManager_->forwardDataToTargetEnb(datagram, targetEnb);
 }
@@ -509,7 +506,7 @@ void IP2lte::signalHandoverCompleteTarget(MacNodeId ueId, MacNodeId sourceEnb)
     Enter_Method("signalHandoverCompleteTarget");
 
     // signal the event to the source eNB
-    if (hoManager_ == NULL)
+    if (hoManager_ == nullptr)
         hoManager_ = check_and_cast<LteHandoverManager*>(getParentModule()->getSubmodule("handoverManager"));
     hoManager_->sendHandoverCommand(ueId, sourceEnb, false);
 
@@ -517,8 +514,6 @@ void IP2lte::signalHandoverCompleteTarget(MacNodeId ueId, MacNodeId sourceEnb)
     // send down buffered packets in the following order:
     // 1) packets received from X2
     // 2) packets received from IP
-//    cMessage* handoverFinish = new cMessage("handoverFinish");
-//    scheduleAt(NOW + 0.005, handoverFinish);   // TODO check delay
 
     std::map<MacNodeId, IpDatagramQueue>::iterator it;
     for (it = hoFromX2_.begin(); it != hoFromX2_.end(); ++it)

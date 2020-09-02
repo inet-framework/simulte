@@ -125,8 +125,6 @@ void LteMacUeD2D::macPduMake(MacCid cid)
         {
             // Call the appropriate function for make a BSR for a D2D communication
             auto macPktBsr = makeBsr(sizeBsr);
-            //auto LteMacPdu* macPktBsr = makeBsr(sizeBsr);
-            //auto info = check_and_cast<UserControlInfo*>(macPktBsr->getControlInfo());
             auto info = macPktBsr->getTag<UserControlInfo>();
             if (bsrD2DMulticastTriggered_)
             {
@@ -137,7 +135,7 @@ void LteMacUeD2D::macPduMake(MacCid cid)
                 info->setLcid(D2D_SHORT_BSR);
 
             // Add the created BSR to the PDU List
-            if( macPktBsr != NULL )
+            if( macPktBsr != nullptr )
             {
                macPduList_[ std::pair<MacNodeId, Codeword>( getMacCellId(), 0) ] = macPktBsr;
                bsrAlreadyMade = true;
@@ -187,7 +185,6 @@ void LteMacUeD2D::macPduMake(MacCid cid)
                 // Create a PDU
                 macPkt = new Packet("LteMacPdu");
                 auto header = makeShared<LteMacPdu>();
-                //macPkt = new LteMacPdu("LteMacPdu");
                 header->setHeaderLength(MAC_HEADER);
                 macPkt->insertAtFront(header);
                 macPkt->addTagIfAbsent<UserControlInfo>()->setSourceId(getMacNodeId());
@@ -437,7 +434,7 @@ LteMacUeD2D::macHandleGrant(cPacket* pktAux)
     auto grant = pkt->popAtFront<LteSchedulingGrant>();
     delete pkt;
 
-    if (schedulingGrant_!=NULL)
+    if (schedulingGrant_!=nullptr)
     {
         // delete schedulingGrant_;
         schedulingGrant_ = nullptr;
@@ -602,7 +599,7 @@ void LteMacUeD2D::handleSelfMessage()
     // no grant available - if user has backlogged data, it will trigger scheduling request
     // no harq counter is updated since no transmission is sent.
 
-    if (schedulingGrant_==NULL)
+    if (schedulingGrant_==nullptr)
     {
         EV << NOW << " LteMacUeD2D::handleSelfMessage " << nodeId_ << " NO configured grant" << endl;
 
@@ -634,14 +631,13 @@ void LteMacUeD2D::handleSelfMessage()
     }
 
     requestedSdus_ = 0;
-    if (schedulingGrant_!=NULL) // if a grant is configured
+    if (schedulingGrant_!=nullptr) // if a grant is configured
     {
         if(!firstTx)
         {
             EV << "\t currentHarq_ counter initialized " << endl;
             firstTx=true;
             // the eNb will receive the first pdu in 2 TTI, thus initializing acid to 0
-//            currentHarq_ = harqRxBuffers_.begin()->second->getProcesses() - 2;
             currentHarq_ = UE_TX_HARQ_PROCESSES - 2;
         }
         EV << "\t " << schedulingGrant_ << endl;
@@ -664,7 +660,6 @@ void LteMacUeD2D::handleSelfMessage()
         //        // triggering retransmission --- nothing to do here, really!
 //        } else {
         // buffer drop should occour here.
-//        scheduleList = ueScheduler_->buildSchedList();
 
         EV << NOW << " LteMacUeD2D::handleSelfMessage " << nodeId_ << " entered scheduling" << endl;
 
@@ -826,7 +821,7 @@ void LteMacUeD2D::macHandleD2DModeSwitch(cPacket* pktAux)
 
         // find the correct connection involved in the mode switch
         MacCid cid;
-        FlowControlInfo* lteInfo = NULL;
+        FlowControlInfo* lteInfo = nullptr;
         std::map<MacCid, FlowControlInfo>::iterator it = connDesc_.begin();
         for (; it != connDesc_.end(); ++it)
         {
@@ -948,7 +943,7 @@ void LteMacUeD2D::macHandleD2DModeSwitch(cPacket* pktAux)
 
         // find the correct connection involved in the mode switch
         MacCid cid;
-        FlowControlInfo* lteInfo = NULL;
+        FlowControlInfo* lteInfo = nullptr;
         std::map<MacCid, FlowControlInfo>::iterator it = connDescIn_.begin();
         for (; it != connDescIn_.end(); ++it)
         {

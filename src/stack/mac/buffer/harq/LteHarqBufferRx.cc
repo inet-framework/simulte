@@ -193,5 +193,5 @@ LteHarqBufferRx::~LteHarqBufferRx()
     for (; it != processes_.end(); ++it)
         delete *it;
     processes_.clear();
-    macOwner_ = NULL;
+    macOwner_ = nullptr;
 }

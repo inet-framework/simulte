@@ -35,7 +35,7 @@ void GtpUser::initialize(int stage) {
 
     //============= Reading XML files =============
     const char *filename = par("teidFileName");
-    if (filename == NULL || (!strcmp(filename, "")))
+    if (filename == nullptr || (!strcmp(filename, "")))
         error("GtpUser::initialize - Error reading configuration from file %s",
                 filename);
     if (!loadTeidTable(filename))
@@ -43,7 +43,7 @@ void GtpUser::initialize(int stage) {
 
     if (par("filter")) {
         filename = par("tftFileName");
-        if (filename == NULL || (!strcmp(filename, "")))
+        if (filename == nullptr || (!strcmp(filename, "")))
             error(
                     "GtpUser::initialize - Error reading configuration from file %s",
                     filename);
@@ -207,13 +207,13 @@ bool GtpUser::loadTeidTable(const char *teidTableFile) {
     // open and check xml file
     EV << "GtpUser::loadTeidTable - reading file " << teidTableFile << endl;
     cXMLElement *config = getEnvir()->getXMLDocument(teidTableFile);
-    if (config == NULL)
+    if (config == nullptr)
         error("GtpUser::loadTeidTable: Cannot read configuration from file: %s",
                 teidTableFile);
 
     // obtain reference to teidTable
     cXMLElement *teidNode = config->getElementByPath("teidTable");
-    if (teidNode == NULL)
+    if (teidNode == nullptr)
         error("GtpUser::loadTeidTable: No configuration for teidTable");
 
     cXMLElementList teidList = teidNode->getChildren();
@@ -236,11 +236,11 @@ bool GtpUser::loadTeidTable(const char *teidTableFile) {
         if ((elementName == "teid")) {
             // clean attributes
             for (attrId = 0; attrId < numAttributes; ++attrId)
-                temp[attrId] = NULL;
+                temp[attrId] = nullptr;
 
             for (attrId = 0; attrId < numAttributes; ++attrId) {
                 temp[attrId] = (*teidsIt)->getAttribute(attributes[attrId]);
-                if (temp[attrId] == NULL) {
+                if (temp[attrId] == nullptr) {
                     EV << "GtpUser::loadTeidTable - unable to find attribute "
                               << attributes[attrId] << endl;
                     return false;
@@ -274,13 +274,13 @@ bool GtpUser::loadTftTable(const char *tftTableFile) {
     // open and check xml file
     EV << "GtpUser::loadTftTable - reading file " << tftTableFile << endl;
     cXMLElement *config = getEnvir()->getXMLDocument(tftTableFile);
-    if (config == NULL)
+    if (config == nullptr)
         error("GtpUser::loadTftTable: Cannot read configuration from file: %s",
                 tftTableFile);
 
     // obtain reference to teidTable
     cXMLElement *tftNode = config->getElementByPath("tftTable");
-    if (tftNode == NULL)
+    if (tftNode == nullptr)
         error("GtpUser::loadTftTable: No configuration for tftTable");
 
     // obtain list of TFTs
@@ -305,12 +305,12 @@ bool GtpUser::loadTftTable(const char *tftTableFile) {
         if ((elementName == "tft")) {
             // clean attributes
             for (attrId = 0; attrId < numAttributes; ++attrId)
-                temp[attrId] = NULL;
+                temp[attrId] = nullptr;
 
             // read the values of each attributes of the table
             for (attrId = 0; attrId < numAttributes; ++attrId) {
                 temp[attrId] = (*tftIt)->getAttribute(attributes[attrId]);
-                if (temp[attrId] == NULL) {
+                if (temp[attrId] == nullptr) {
                     EV << "GtpUser::loadTftTable - unable to find attribute "
                               << attributes[attrId] << endl;
                     return false;

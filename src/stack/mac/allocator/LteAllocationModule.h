@@ -296,7 +296,7 @@ class LteAllocationModule
      */
 
     // Store the Allocation based on passed parameters
-    virtual void storeAllocation( std::vector<std::vector<AllocatedRbsPerBandMapA> > allocatedRbsPerBand,std::set<Band>* untouchableBands = NULL)
+    virtual void storeAllocation( std::vector<std::vector<AllocatedRbsPerBandMapA> > allocatedRbsPerBand,std::set<Band>* untouchableBands = nullptr)
     {
         return;
     }

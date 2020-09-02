@@ -14,8 +14,6 @@
 #include "inet/common/packet/Packet.h"
 #include "stack/rlc/packet/LteRlcPdu_m.h"
 
-//using namespace omnetpp;
-
 /**
  * @class LteMacQueue
  * @brief Queue for MAC SDU packets

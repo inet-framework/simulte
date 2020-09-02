@@ -20,7 +20,7 @@ using namespace inet;
 
 AlertSender::AlertSender()
 {
-    selfSender_ = NULL;
+    selfSender_ = nullptr;
     nextSno_ = 0;
 }
 

@@ -14,8 +14,7 @@
 
 #include <inet/common/packet/Packet.h>
 
-//#include "trafficFlowTemplateMsg_m.h"
-#include "epc/gtp/TftControlInfo.h"
+#include "epc/gtp/TftControlInfo_m.h"
 #include "epc/gtp_common.h"
 
 /**

@@ -15,7 +15,6 @@
 
 using namespace omnetpp;
 
-// TODO
 bool
 LteSchedulerEnbUl::checkEligibility(MacNodeId id, Codeword& cw)
 {
@@ -289,7 +288,7 @@ LteSchedulerEnbUl::schedulePerAcidRtx(MacNodeId nodeId, Codeword cw, unsigned ch
     try
     {
         std::string bands_msg = "BAND_LIMIT_SPECIFIED";
-        if (bandLim == NULL)
+        if (bandLim == nullptr)
         {
             bands_msg = "NO_BAND_SPECIFIED";
             // Create a vector of band limit using all bands
@@ -316,8 +315,6 @@ LteSchedulerEnbUl::schedulePerAcidRtx(MacNodeId nodeId, Codeword cw, unsigned ch
         EV << NOW << "LteSchedulerEnbUl::rtxAcid - Node[" << mac_->getMacNodeId() << ", User[" << nodeId << ", Codeword[ " << cw << "], ACID[" << (unsigned int)acid << "] " << endl;
 
         // Get the current active HARQ process
-//        unsigned char currentAcid = harqStatus_.at(nodeId) ;
-
         unsigned char currentAcid = (harqStatus_.at(nodeId) + 2) % (harqRxBuffers_->at(nodeId)->getProcesses());
         EV << "\t the acid that should be considered is " << currentAcid << endl;
 
@@ -339,7 +336,6 @@ LteSchedulerEnbUl::schedulePerAcidRtx(MacNodeId nodeId, Codeword cw, unsigned ch
         }
 
         Codeword allocatedCw = 0;
-//        Codeword allocatedCw = MAX_CODEWORDS;
         // search for already allocated codeword
         // create "mirror" scList ID for other codeword than current
         std::pair<unsigned int, Codeword> scListMirrorId = std::pair<unsigned int, Codeword>(idToMacCid(nodeId,SHORT_BSR), MAX_CODEWORDS - cw - 1);
@@ -470,7 +466,7 @@ LteSchedulerEnbUl::schedulePerAcidRtxD2D(MacNodeId destId,MacNodeId senderId, Co
     try
     {
         std::string bands_msg = "BAND_LIMIT_SPECIFIED";
-        if (bandLim == NULL)
+        if (bandLim == nullptr)
         {
             bands_msg = "NO_BAND_SPECIFIED";
             // Create a vector of band limit using all bands
@@ -514,7 +510,6 @@ LteSchedulerEnbUl::schedulePerAcidRtxD2D(MacNodeId destId,MacNodeId senderId, Co
         }
 
         Codeword allocatedCw = 0;
-        //Codeword allocatedCw = MAX_CODEWORDS;
         //search for already allocated codeword
         //create "mirror" scList ID for other codeword than current
         std::pair<unsigned int, Codeword> scListMirrorId = std::pair<unsigned int, Codeword>(idToMacCid(senderId, D2D_SHORT_BSR), MAX_CODEWORDS - cw - 1);

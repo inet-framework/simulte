@@ -46,9 +46,6 @@ class UmRxEntity;
 class LteRlcUm : public omnetpp::cSimpleModule
 {
   public:
-    LteRlcUm()
-    {
-    }
     virtual ~LteRlcUm()
     {
     }

@@ -42,7 +42,6 @@ private:
     LteFeedbackPkt(const LteFeedbackPkt& other) :
         LteFeedbackPkt_Base(other)
     {
-        //operator=(other);
         copy(other);
     }
     LteFeedbackPkt& operator=(const LteFeedbackPkt& other)
@@ -56,7 +55,6 @@ private:
     {
         return new LteFeedbackPkt(*this);
     }
-    // ADD CODE HERE to redefine and implement pure virtual functions from LteFeedbackPkt_Base
     LteFeedbackDoubleVector getLteFeedbackDoubleVectorDl() const;
     void setLteFeedbackDoubleVectorDl(LteFeedbackDoubleVector lteFeedbackDoubleVector_);
     LteFeedbackDoubleVector getLteFeedbackDoubleVectorUl() const;

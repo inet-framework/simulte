@@ -27,7 +27,6 @@ class LteMacUe : public LteMacBase
     LteSchedulerUeUl* lcgScheduler_;
 
     // configured grant - one each codeword
-    // LteSchedulingGrant* schedulingGrant_;
     inet::IntrusivePtr<const LteSchedulingGrant> schedulingGrant_;
 
     /// List of scheduled connection for this UE

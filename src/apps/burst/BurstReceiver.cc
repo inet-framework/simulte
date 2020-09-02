@@ -11,11 +11,6 @@
 
 Define_Module(BurstReceiver);
 
-BurstReceiver::~BurstReceiver()
-{
-
-}
-
 void BurstReceiver::initialize(int stage)
 {
     cSimpleModule::initialize(stage);

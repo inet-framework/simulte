@@ -17,7 +17,7 @@ using namespace omnetpp;
 
 EventGenerator::EventGenerator()
 {
-    selfMessage_ = NULL;
+    selfMessage_ = nullptr;
     eventId_ = 0;
 }
 

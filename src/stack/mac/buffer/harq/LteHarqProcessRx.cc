@@ -17,7 +17,7 @@ using namespace omnetpp;
 
 LteHarqProcessRx::LteHarqProcessRx(unsigned char acid, LteMacBase *owner)
 {
-    pdu_.resize(MAX_CODEWORDS, NULL);
+    pdu_.resize(MAX_CODEWORDS, nullptr);
     status_.resize(MAX_CODEWORDS, RXHARQ_PDU_EMPTY);
     rxTime_.resize(MAX_CODEWORDS, 0);
     result_.resize(MAX_CODEWORDS, false);
@@ -45,7 +45,7 @@ void LteHarqProcessRx::insertPdu(Codeword cw, Packet *pkt)
             macOwner_->getMacNodeId(), acid_, cw, ndi, status_.at(cw));
 
     // deallocate corrupted pdu received in previous transmissions
-    if (pdu_.at(cw) != NULL){
+    if (pdu_.at(cw) != nullptr){
             macOwner_->dropObj(pdu_.at(cw));
             delete pdu_.at(cw);
     }
@@ -127,7 +127,7 @@ Packet* LteHarqProcessRx::extractPdu(Codeword cw)
     // temporary copy of pdu pointer because reset NULLs it, and I need to return it
     auto pkt = pdu_.at(cw);
     auto pdu = pkt->peekAtFront<LteMacPdu>();
-    pdu_.at(cw) = NULL;
+    pdu_.at(cw) = nullptr;
     resetCodeword(cw);
     
     return pkt;
@@ -135,7 +135,7 @@ Packet* LteHarqProcessRx::extractPdu(Codeword cw)
 
 int64_t LteHarqProcessRx::getByteLength(Codeword cw)
 {
-    if (pdu_.at(cw) != NULL)
+    if (pdu_.at(cw) != nullptr)
     {
         return pdu_.at(cw)->getByteLength();
     }
@@ -146,22 +146,22 @@ int64_t LteHarqProcessRx::getByteLength(Codeword cw)
 void LteHarqProcessRx::purgeCorruptedPdu(Codeword cw)
 {
     // drop ownership
-    if (pdu_.at(cw) != NULL)
+    if (pdu_.at(cw) != nullptr)
         macOwner_->dropObj(pdu_.at(cw));
 
     delete pdu_.at(cw);
-    pdu_.at(cw) = NULL;
+    pdu_.at(cw) = nullptr;
 }
 
 void LteHarqProcessRx::resetCodeword(Codeword cw)
 {
     // drop ownership
-    if (pdu_.at(cw) != NULL){
+    if (pdu_.at(cw) != nullptr){
         macOwner_->dropObj(pdu_.at(cw));
         delete pdu_.at(cw);
     }
 
-    pdu_.at(cw) = NULL;
+    pdu_.at(cw) = nullptr;
     status_.at(cw) = RXHARQ_PDU_EMPTY;
     rxTime_.at(cw) = 0;
     result_.at(cw) = false;
@@ -173,14 +173,14 @@ LteHarqProcessRx::~LteHarqProcessRx()
 {
     for (unsigned char i = 0; i < MAX_CODEWORDS; ++i)
     {
-        if (pdu_.at(i) != NULL)
+        if (pdu_.at(i) != nullptr)
         {
             cObject *mac = macOwner_;
             if (pdu_.at(i)->getOwner() == mac)
             {
                 delete pdu_.at(i);
             }
-            pdu_.at(i) = NULL;
+            pdu_.at(i) = nullptr;
         }
     }
 }

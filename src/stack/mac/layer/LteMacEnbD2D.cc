@@ -153,7 +153,6 @@ void LteMacEnbD2D::macPduUnmake(cPacket* pktAux)
         auto upPkt = check_and_cast<Packet *>(macPkt->popSdu());
         take(upPkt);
 
-        // TODO: upPkt->info()
         EV << "LteMacEnbD2D: pduUnmaker extracted SDU" << endl;
 
         // store descriptor for the incoming connection, if not already stored
@@ -200,7 +199,6 @@ void LteMacEnbD2D::sendGrants(LteMacScheduleList* scheduleList)
         Codeword cw = it->first.second;
         Codeword otherCw = MAX_CODEWORDS - cw;
 
-//        MacNodeId nodeId = it->first.first;
         MacCid cid = it->first.first;
         LogicalCid lcid = MacCidToLcid(cid);
         MacNodeId nodeId = MacCidToNodeId(cid);
@@ -462,7 +460,6 @@ void LteMacEnbD2D::macHandleD2DModeSwitch(cPacket* pktAux)
                     switchPktTx->setOldConnection(false);
                 pktTx->insertAtFront(switchPktTx);
                 *(pktTx->addTag<FlowControlInfo>()) = *lteInfo;
-                //switchPktTx->setControlInfo(lteInfo->dup());
                 sendUpperPackets(pktTx);
                 break;
             }

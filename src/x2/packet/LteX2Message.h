@@ -135,7 +135,6 @@ class LteX2Message : public LteX2Message_Base
         msgLength_ -= ie->getLength();
         // chunk is immutable during serialization! 
         // (chunk length can therefore not be adapted - we only adapt the separate msg_Length_)
-        // setChunkLength(getChunkLength()-inet::b(8*ie->getLength()));
         return ie;
     }
 

@@ -25,7 +25,6 @@ class LtePhyEnbD2D : public LtePhyEnb
     virtual void handleAirFrame(omnetpp::cMessage* msg) override;
 
   public:
-    LtePhyEnbD2D();
     virtual ~LtePhyEnbD2D();
 
 };

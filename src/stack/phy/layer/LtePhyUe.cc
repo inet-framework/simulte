@@ -19,8 +19,8 @@ using namespace inet;
 
 LtePhyUe::LtePhyUe()
 {
-    handoverStarter_ = NULL;
-    handoverTrigger_ = NULL;
+    handoverStarter_ = nullptr;
+    handoverTrigger_ = nullptr;
 }
 
 LtePhyUe::~LtePhyUe()
@@ -47,7 +47,7 @@ void LtePhyUe::initialize(int stage)
         handoverDelta_ = 0.00001;
 
         dasRssiThreshold_ = 1.0e-5;
-        das_ = new DasFilter(this, binder_, NULL, dasRssiThreshold_);
+        das_ = new DasFilter(this, binder_, nullptr, dasRssiThreshold_);
 
         servingCell_ = registerSignal("servingCell");
         averageCqiDl_ = registerSignal("averageCqiDl");
@@ -177,7 +177,7 @@ void LtePhyUe::handleSelfMessage(cMessage *msg)
     {
         doHandover();
         delete msg;
-        handoverTrigger_ = NULL;
+        handoverTrigger_ = nullptr;
     }
 }
 
@@ -262,8 +262,7 @@ void LtePhyUe::handoverHandler(LteAirFrame* frame, UserControlInfo* lteInfo)
 
 void LtePhyUe::triggerHandover()
 {
-    // TODO: remove asserts after testing
-    assert(masterId_ != candidateMasterId_);
+    ASSERT(masterId_ != candidateMasterId_);
 
     EV << "####Handover starting:####" << endl;
     EV << "current master: " << masterId_ << endl;
@@ -298,7 +297,7 @@ void LtePhyUe::doHandover()
     LteAmc *newAmc = getAmcModule(candidateMasterId_);
 
     // TODO verify the amc is the relay one and remove after tests
-    assert(newAmc != NULL);
+    assert(newAmc != nullptr);
 
     oldAmc->detachUser(nodeId_, UL);
     oldAmc->detachUser(nodeId_, DL);
@@ -370,7 +369,7 @@ void LtePhyUe::handleAirFrame(cMessage* msg)
     if (lteInfo->getFrameType() == HANDOVERPKT)
     {
         // check if handover is already in process
-        if (handoverTrigger_ != NULL && handoverTrigger_->isScheduled())
+        if (handoverTrigger_ != nullptr && handoverTrigger_->isScheduled())
         {
             delete lteInfo;
             delete frame;
@@ -415,7 +414,7 @@ void LtePhyUe::handleAirFrame(cMessage* msg)
         handleControlMsg(frame, lteInfo);
         return;
     }
-    if ((lteInfo->getUserTxParams()) != NULL)
+    if ((lteInfo->getUserTxParams()) != nullptr)
     {
         int cw = lteInfo->getCw();
         if (lteInfo->getUserTxParams()->readCqiVector().size() == 1)
@@ -506,7 +505,7 @@ void LtePhyUe::handleUpperMessage(cMessage* msg)
         binder_->storeUlTransmissionMap(antenna, rbMap, nodeId_, mac_->getMacCellId(), this, UL);
     }
 
-    if (lteInfo->getFrameType() == DATAPKT && lteInfo->getUserTxParams() != NULL)
+    if (lteInfo->getFrameType() == DATAPKT && lteInfo->getUserTxParams() != nullptr)
     {
         double cqi = lteInfo->getUserTxParams()->readCqiVector()[lteInfo->getCw()];
         if (lteInfo->getDirection() == UL)
@@ -517,28 +516,6 @@ void LtePhyUe::handleUpperMessage(cMessage* msg)
 
     LtePhyBase::handleUpperMessage(msg);
 }
-
-//void LtePhyUe::handleHostState(const HostState& state)  {
-//    /*
-//     * If a module is not using the battery, but it has a battery module,
-//     * battery capacity never decreases, neither at timeouts,
-//     * because a draw is never called and a draw amount for the device
-//     * is never set (devices[i].currentActivity stuck at -1). See simpleBattery.cc @ line 244.
-//     */
-//    if (state.get() == HostState::ACTIVE)
-//        return;
-//
-//    if (!useBattery_ && state.get() == HostState::FAILED) {
-//        EV << "Warning: host state failed at node " << getName() << " while not using a battery!";
-//        return;
-//    }
-//
-//    if (state.get() == HostState::FAILED) {
-//        //depleted battery
-//        EV << "Battery depleted at node" << getName() << " with id " << getId();
-//        //TODO: stop sending and receiving messages or just collect statistics?
-//    }
-//}
 
 double LtePhyUe::updateHysteresisTh(double v)
 {
@@ -635,7 +612,7 @@ void LtePhyUe::finish()
 
         // amc calls
         LteAmc *amc = getAmcModule(masterId_);
-        if (amc != NULL)
+        if (amc != nullptr)
         {
             amc->detachUser(nodeId_, UL);
             amc->detachUser(nodeId_, DL);

@@ -18,10 +18,10 @@ Define_Module(BurstSender);
 BurstSender::BurstSender()
 {
     initialized_ = false;
-    initTraffic_ = NULL;
-    selfSender_ = NULL;
-    selfBurst_ = NULL;
-    selfPacket_ = NULL;
+    initTraffic_ = nullptr;
+    selfSender_ = nullptr;
+    selfBurst_ = nullptr;
+    selfPacket_ = nullptr;
 }
 
 BurstSender::~BurstSender()
@@ -76,7 +76,7 @@ void BurstSender::initTraffic()
 {
     std::string destAddress = par("destAddress").stringValue();
     cModule* destModule = getModuleByPath(par("destAddress").stringValue());
-    if (destModule == NULL)
+    if (destModule == nullptr)
     {
         // this might happen when users are created dynamically
         EV << simTime() << "BurstSender::initTraffic - destination " << destAddress << " not found" << endl;
@@ -97,10 +97,6 @@ void BurstSender::initTraffic()
 
         // calculating traffic starting time
         simtime_t startTime = par("startTime");
-
-        // TODO maybe un-necesessary
-        // this conversion is made in order to obtain ms-aligned start time, even in case of random generated ones
-        // simtime_t offset = (round(SIMTIME_DBL(startTime)*1000)/1000);
 
         scheduleAt(simTime()+startTime, selfBurst_);
         EV << "\t starting traffic in " << startTime << " seconds " << endl;

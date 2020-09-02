@@ -33,14 +33,6 @@ LteSchedulerEnb::LteSchedulerEnb()
     harqTxBuffers_ = 0;
     harqRxBuffers_ = 0;
     resourceBlocks_ = 0;
-
-    // ********************************
-    //    sleepSize_ = 0;
-    //    sleepShift_ = 0;
-    //    zeroLevel_ = .0;
-    //    idleLevel_ = .0;
-    //    powerUnit_ = .0;
-    //    maxPower_ = .0;
 }
 
 LteSchedulerEnb::~LteSchedulerEnb()
@@ -144,7 +136,7 @@ unsigned int LteSchedulerEnb::scheduleGrant(MacCid cid, unsigned int bytes, bool
 
     std::string bands_msg = "BAND_LIMIT_SPECIFIED";
     std::vector<BandLimit> tempBandLim;
-    if (bandLim == NULL )
+    if (bandLim == nullptr )
     {
         bands_msg = "NO_BAND_SPECIFIED";
 
@@ -586,7 +578,7 @@ LteScheduler* LteSchedulerEnb::getScheduler(SchedDiscipline discipline)
 
         default:
         throw cRuntimeError("LteScheduler not recognized");
-        return NULL;
+        return nullptr;
     }
 }
 
@@ -606,8 +598,6 @@ void LteSchedulerEnb::resourceBlockStatistics(bool sleep)
     // to the per-Band (first key) per-Ue (second-key) map
     std::vector<std::vector<unsigned int> >::const_iterator planeIt =
         allocator_->getAllocatedBlocksBegin();
-    /* std::vector<std::vector<unsigned int> >::const_iterator planeItEnd =
-        allocator_->getAllocatedBlocksEnd(); */
 
     double utilization = 0.0;
     double allocatedBlocks = 0;
@@ -632,7 +622,7 @@ void LteSchedulerEnb::resourceBlockStatistics(bool sleep)
         antenna++;
     }
     plane++;
-    //    }
+
     // antenna here is the number of antennas used; the same applies for plane;
     // Compute average OFDMA utilization between layers and antennas
     utilization /= (((double) (antenna)) * ((double) resourceBlocks_));

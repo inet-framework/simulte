@@ -21,22 +21,24 @@ class LteAirFrame : public LteAirFrame_Base
   protected:
     RemoteUnitPhyDataVector remoteUnitPhyDataVector;
     public:
-    LteAirFrame(const char *name = NULL, int kind = 0) :
+    LteAirFrame(const char *name = nullptr, int kind = 0) :
         LteAirFrame_Base(name, kind)
     {
     }
+
     LteAirFrame(const LteAirFrame& other) :
         LteAirFrame_Base(other)
     {
         operator=(other);
     }
+
     LteAirFrame& operator=(const LteAirFrame& other)
     {
         LteAirFrame_Base::operator=(other);
         this->remoteUnitPhyDataVector = other.remoteUnitPhyDataVector;
 
         // copy the attached control info, if any
-        if (other.getControlInfo() != NULL)
+        if (other.getControlInfo() != nullptr)
         {
             UserControlInfo* info = omnetpp::check_and_cast<UserControlInfo*>(other.getControlInfo());
             UserControlInfo* info_dup = info->dup();
@@ -44,16 +46,16 @@ class LteAirFrame : public LteAirFrame_Base
         }
         return *this;
     }
+
     virtual LteAirFrame *dup() const
     {
         return new LteAirFrame(*this);
     }
-    // ADD CODE HERE to redefine and implement pure virtual functions from LteAirFrame_Base
+
     void addRemoteUnitPhyDataVector(RemoteUnitPhyData data);
     RemoteUnitPhyDataVector getRemoteUnitPhyDataVector();
 };
 
 Register_Class(LteAirFrame);
-//TODO: this should go into a .cc file
 
 #endif
