@@ -24,8 +24,8 @@ simsignal_t CbrSender::cbrSentPktSignal_ = registerSignal("cbrSentPktSignal");
 CbrSender::CbrSender()
 {
     initialized_ = false;
-    selfSource_ = NULL;
-    selfSender_ = NULL;
+    selfSource_ = nullptr;
+    selfSender_ = nullptr;
 }
 
 CbrSender::~CbrSender()
@@ -87,7 +87,7 @@ void CbrSender::initTraffic()
 {
     std::string destAddress = par("destAddress").stringValue();
     cModule* destModule = getModuleByPath(par("destAddress").stringValue());
-    if (destModule == NULL)
+    if (destModule == nullptr)
     {
         // this might happen when users are created dynamically
         EV << simTime() << "CbrSender::initTraffic - destination " << destAddress << " not found" << endl;

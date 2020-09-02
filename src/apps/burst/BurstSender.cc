@@ -18,10 +18,10 @@ Define_Module(BurstSender);
 BurstSender::BurstSender()
 {
     initialized_ = false;
-    initTraffic_ = NULL;
-    selfSender_ = NULL;
-    selfBurst_ = NULL;
-    selfPacket_ = NULL;
+    initTraffic_ = nullptr;
+    selfSender_ = nullptr;
+    selfBurst_ = nullptr;
+    selfPacket_ = nullptr;
 }
 
 BurstSender::~BurstSender()
@@ -76,7 +76,7 @@ void BurstSender::initTraffic()
 {
     std::string destAddress = par("destAddress").stringValue();
     cModule* destModule = getModuleByPath(par("destAddress").stringValue());
-    if (destModule == NULL)
+    if (destModule == nullptr)
     {
         // this might happen when users are created dynamically
         EV << simTime() << "BurstSender::initTraffic - destination " << destAddress << " not found" << endl;

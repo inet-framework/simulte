@@ -22,7 +22,7 @@ DasFilter::DasFilter(LtePhyBase* ltePhy, LteBinder* binder,
 
 DasFilter::~DasFilter()
 {
-    ruSet_ = NULL;
+    ruSet_ = nullptr;
 }
 
 void DasFilter::setMasterRuSet(MacNodeId masterId)
@@ -36,7 +36,7 @@ void DasFilter::setMasterRuSet(MacNodeId masterId)
     }
     else
     {
-        ruSet_ = NULL;
+        ruSet_ = nullptr;
     }
 
     // Clear structures used with old master on handover

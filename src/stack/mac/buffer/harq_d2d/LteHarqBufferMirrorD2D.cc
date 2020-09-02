@@ -15,7 +15,7 @@ LteHarqBufferMirrorD2D::LteHarqBufferMirrorD2D(unsigned int numProc, unsigned ch
 {
     numProc_ = numProc;
     maxHarqRtx_ = maxHarqRtx;
-    processes_.resize(numProc_, NULL);
+    processes_.resize(numProc_, nullptr);
     for (unsigned int i = 0; i < numProc_; i++)
         processes_[i] = new LteHarqProcessMirrorD2D(MAX_CODEWORDS, maxHarqRtx_);
 }

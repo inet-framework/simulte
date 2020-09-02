@@ -100,7 +100,7 @@ class LteScheduler
     {
         //    WATCH(activeSet_);
         activeConnectionSet_.clear();
-        binder_ = NULL;
+        binder_ = nullptr;
     }
     /**
      * Destructor.
@@ -140,7 +140,7 @@ class LteScheduler
     // *****************************************************************************************
 
     /// performs request of grant to the eNbScheduler
-    virtual unsigned int requestGrant(MacCid cid, unsigned int bytes, bool& terminate, bool& active, bool& eligible , std::vector<BandLimit>* bandLim = NULL);
+    virtual unsigned int requestGrant(MacCid cid, unsigned int bytes, bool& terminate, bool& active, bool& eligible , std::vector<BandLimit>* bandLim = nullptr);
 
     /// calls eNbScheduler rtxschedule()
     virtual bool scheduleRetransmissions();

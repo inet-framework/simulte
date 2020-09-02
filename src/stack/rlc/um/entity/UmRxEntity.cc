@@ -27,7 +27,7 @@ UmRxEntity::UmRxEntity() :
     buffered_.size = 0;
     lastSnoDelivered_ = 0;
     lastPduReassembled_ = 0;
-    nodeB_ = NULL;
+    nodeB_ = nullptr;
     init_ = false;
 }
 
@@ -223,7 +223,7 @@ void UmRxEntity::moveRxWindow(const int pos)
 
     for (unsigned int i = pos; i < rxWindowDesc_.windowSize_; ++i)
     {
-        if (pduBuffer_.get(i) != NULL)
+        if (pduBuffer_.get(i) != nullptr)
         {
             pduBuffer_.addAt(i-pos, pduBuffer_.remove(i));
         }

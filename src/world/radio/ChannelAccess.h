@@ -60,7 +60,7 @@ class ChannelAccess : public omnetpp::cSimpleModule, public omnetpp::cListener
     bool positionUpdateArrived;
 
   public:
-    ChannelAccess() : cc(NULL), myRadioRef(NULL), hostModule(NULL) {}
+    ChannelAccess() : cc(nullptr), myRadioRef(nullptr), hostModule(nullptr) {}
     virtual ~ChannelAccess();
 
     /**

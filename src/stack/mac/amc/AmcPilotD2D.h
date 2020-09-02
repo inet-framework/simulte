@@ -33,7 +33,7 @@ class AmcPilotD2D : public AmcPilot
         name_ = "D2D";
         mode_ = MIN_CQI;
         usePreconfiguredTxParams_ = false;
-        preconfiguredTxParams_ = NULL;
+        preconfiguredTxParams_ = nullptr;
     }
     /**
      * Assign logical bands for given nodeId and direction

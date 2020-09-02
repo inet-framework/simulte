@@ -162,7 +162,7 @@ MacNodeId LteBinder::getMacNodeIdFromOmnetId(OmnetId id){
 LteMacBase* LteBinder::getMacFromMacNodeId(MacNodeId id)
 {
     if (id == 0)
-        return NULL;
+        return nullptr;
 
     LteMacBase* mac;
     if (macNodeIdToModule_.find(id) == macNodeIdToModule_.end())

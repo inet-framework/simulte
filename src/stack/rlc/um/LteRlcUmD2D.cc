@@ -32,7 +32,7 @@ UmTxEntity* LteRlcUmD2D::getTxBuffer(FlowControlInfo* lteInfo)
         UmTxEntity* txEnt = check_and_cast<UmTxEntity *>(moduleType->createScheduleInit(buf.str().c_str(), getParentModule()));
         txEntities_[cid] = txEnt;    // Add to tx_entities map
 
-        if (lteInfo != NULL)
+        if (lteInfo != nullptr)
         {
             // store control info for this flow
             txEnt->setFlowControlInfo(lteInfo->dup());

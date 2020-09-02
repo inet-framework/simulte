@@ -35,15 +35,15 @@ LteMacUe::LteMacUe() :
     LteMacBase()
 {
     firstTx = false;
-    lcgScheduler_ = NULL;
-    schedulingGrant_ = NULL;
+    lcgScheduler_ = nullptr;
+    schedulingGrant_ = nullptr;
     currentHarq_ = 0;
     periodCounter_ = 0;
     expirationCounter_ = 0;
     racRequested_ = false;
     bsrTriggered_ = false;
     requestedSdus_ = 0;
-    scheduleList_ = NULL;
+    scheduleList_ = nullptr;
     debugHarq_ = false;
 
     // TODO setup from NED
@@ -64,7 +64,7 @@ LteMacUe::~LteMacUe()
 {
     delete lcgScheduler_;
 
-    if (schedulingGrant_!=NULL)
+    if (schedulingGrant_!=nullptr)
     {
         // delete schedulingGrant_;
         schedulingGrant_ = nullptr;
@@ -615,7 +615,7 @@ void LteMacUe::handleSelfMessage()
     // no grant available - if user has backlogged data, it will trigger scheduling request
     // no harq counter is updated since no transmission is sent.
 
-    if (schedulingGrant_==NULL)
+    if (schedulingGrant_==nullptr)
     {
         EV << NOW << " LteMacUe::handleSelfMessage " << nodeId_ << " NO configured grant" << endl;
 
@@ -651,7 +651,7 @@ void LteMacUe::handleSelfMessage()
     }
 
     requestedSdus_ = 0;
-    if (schedulingGrant_!=NULL) // if a grant is configured
+    if (schedulingGrant_!=nullptr) // if a grant is configured
     {
         if(!firstTx)
         {
@@ -794,7 +794,7 @@ LteMacUe::macHandleGrant(cPacket* pktAux)
     EV << NOW << " LteMacUe::macHandleGrant - Direction: " << dirToA(grant->getDirection()) << endl;
 
     // delete old grant
-    if (schedulingGrant_!=NULL)
+    if (schedulingGrant_!=nullptr)
     {
         // delete schedulingGrant_;
         schedulingGrant_ = nullptr;
@@ -951,7 +951,7 @@ void LteMacUe::flushHarqBuffers()
         it2->second->sendSelectedDown();
 
     // deleting non-periodic grant
-    if (schedulingGrant_ != NULL && !schedulingGrant_->getPeriodic())
+    if (schedulingGrant_ != nullptr && !schedulingGrant_->getPeriodic())
     {
         // delete schedulingGrant_;
         schedulingGrant_=nullptr;

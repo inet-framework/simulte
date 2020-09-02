@@ -209,7 +209,7 @@ class LteSchedulerEnb
      * @return The allocated bytes. 0 if retransmission was not possible
      */
     virtual unsigned int schedulePerAcidRtx(MacNodeId nodeId, Codeword cw, unsigned char acid,
-        std::vector<BandLimit>* bandLim = NULL, Remote antenna = MACRO, bool limibBl = false) = 0;
+        std::vector<BandLimit>* bandLim = nullptr, Remote antenna = MACRO, bool limibBl = false) = 0;
 
     /**
      * Schedules capacity for a given connection without effectively perform the operation on the
@@ -230,7 +230,7 @@ class LteSchedulerEnb
      * @return The number of bytes that have been actually granted.
      */
     virtual unsigned int scheduleGrant(MacCid cid, unsigned int bytes, bool& terminate, bool& active, bool& eligible,
-        std::vector<BandLimit>* bandLim = NULL, Remote antenna = MACRO, bool limitBl = false);
+        std::vector<BandLimit>* bandLim = nullptr, Remote antenna = MACRO, bool limitBl = false);
 
     /*
      * Getter for active connection set
@@ -297,7 +297,7 @@ class LteSchedulerEnb
     // Get the bands already allocated
     std::set<Band> getOccupiedBands();
 
-    void storeAllocationEnb(std::vector<std::vector<AllocatedRbsPerBandMapA> > allocatedRbsPerBand, std::set<Band>* untouchableBands = NULL);
+    void storeAllocationEnb(std::vector<std::vector<AllocatedRbsPerBandMapA> > allocatedRbsPerBand, std::set<Band>* untouchableBands = nullptr);
 
     // store an element in the schedule list
     void storeScListId(std::pair<unsigned int, Codeword> scList,unsigned int num_blocks);

@@ -1020,7 +1020,7 @@ LteAmc::blockGain(Cqi cqi, unsigned int layers, unsigned int blocks, Direction d
         return 0;
     const unsigned int* tbsVect = readTbsVect(cqi, layers, dir);
 
-    if (tbsVect == NULL)
+    if (tbsVect == nullptr)
         return 0;
     return (tbsVect[blocks - 1] / 8);
 }
@@ -1050,7 +1050,7 @@ LteAmc::readTbsVect(Cqi cqi, unsigned int layers, Direction dir)
     unsigned int itbs = getItbsPerCqi(cqi, dir);
     LteMod mod = cqiTable[cqi].mod_;
 
-    const unsigned int* tbsVect = NULL;
+    const unsigned int* tbsVect = nullptr;
     switch (mod)
     {
         case _QPSK:

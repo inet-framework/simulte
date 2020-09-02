@@ -26,7 +26,7 @@ void TrafficFlowFilter::initialize(int stage) {
 
         //============= Reading XML files =============
         const char *filename = par("filterFileName");
-        if (filename == NULL || (!strcmp(filename, "")))
+        if (filename == nullptr || (!strcmp(filename, "")))
             error("TrafficFlowFilter::initialize - Error reading configuration from file %s",
                     filename);
         loadFilterTable(filename);
@@ -201,12 +201,12 @@ void TrafficFlowFilter::loadFilterTable(const char * filterTableFile)
     // open and check xml file
     EV << "TrafficFlowFilter::loadFilterTable - reading file " << filterTableFile << endl;
     cXMLElement* config = getEnvir()->getXMLDocument(filterTableFile);
-    if (config == NULL)
+    if (config == nullptr)
         error("TrafficFlowFilter::loadFilterTable: Cannot read configuration from file: %s", filterTableFile);
 
     // obtain reference to teidTable
     cXMLElement* filterNode = config->getElementByPath("filterTable");
-    if (filterNode == NULL)
+    if (filterNode == nullptr)
         error("TrafficFlowFilter::loadFilterTable: No configuration for teidTable");
 
     // obtain a list of nodes contained in the filterTable Tag
@@ -220,13 +220,13 @@ void TrafficFlowFilter::loadFilterTable(const char * filterTableFile)
         {
             // clean attributes
             for (attrId = 0; attrId < numAttributes; ++attrId)
-                temp[attrId] = NULL;
+                temp[attrId] = nullptr;
 
             // read each attribute into the temp vector
             for (attrId = 0; attrId < numAttributes; ++attrId)
             {
                 temp[attrId] = (*tftIt)->getAttribute(attributes[attrId]);
-                if (temp[attrId] == NULL && attributes[attrId])
+                if (temp[attrId] == nullptr && attributes[attrId])
                 {
                     EV << "TrafficFlowFilter::loadFilterTable - attribute " << attributes[attrId] << " unspecified." << endl;
                 }
@@ -234,7 +234,7 @@ void TrafficFlowFilter::loadFilterTable(const char * filterTableFile)
 
                     // process each attribute
                     // check and save tftID. This field is mandatory
-            if (temp[TFT_ID] == NULL)
+            if (temp[TFT_ID] == nullptr)
             {
                 error(
                     "TrafficFlowFilter::loadFilterTable - attribute tftId MUST be specified for every traffic filter.");
@@ -243,9 +243,9 @@ void TrafficFlowFilter::loadFilterTable(const char * filterTableFile)
                 tftId = atoi(temp[TFT_ID]);
 
             // read src and dest port values. These two fields are optional
-            if (temp[DEST_PORT] != NULL)
+            if (temp[DEST_PORT] != nullptr)
                 destPort = atoi(temp[DEST_PORT]);
-            if (temp[SRC_PORT] != NULL)
+            if (temp[SRC_PORT] != nullptr)
                 srcPort = atoi(temp[SRC_PORT]);
 
             //===================== Source and Destination addresses management =====================
@@ -255,11 +255,11 @@ void TrafficFlowFilter::loadFilterTable(const char * filterTableFile)
 
             // at least one between destAddr and destName MUST be specified in case of PGW
             // try to read the destination address for first
-            if (temp[DEST_ADDR] != NULL)
+            if (temp[DEST_ADDR] != nullptr)
                 destAddr.set(Ipv4Address(temp[DEST_ADDR]));
             else // if no dest address has been specified, try to resolve node name
             {
-                if (temp[DEST_NAME] != NULL)
+                if (temp[DEST_NAME] != nullptr)
                 {
                     EV << "TrafficFlowFilter::loadFilterTable - resolving IP address for host name " << temp[DEST_NAME] << endl;
                     destAddr = L3AddressResolver().resolve(temp[DEST_NAME]);
@@ -270,11 +270,11 @@ void TrafficFlowFilter::loadFilterTable(const char * filterTableFile)
 
                     // at least one between srcAddr and srcName MUST be specified in case of ENB
                     // try to read the source address for first
-            if (temp[SRC_ADDR] != NULL)
+            if (temp[SRC_ADDR] != nullptr)
                 srcAddr.set(Ipv4Address(temp[SRC_ADDR]));
             else // if no src address has been specified, try to resolve node name
             {
-                if (temp[SRC_NAME] != NULL)
+                if (temp[SRC_NAME] != nullptr)
                 {
                     EV << "TrafficFlowFilter::loadFilterTable - resolving IP address for host name " << temp[SRC_NAME] << endl;
                     srcAddr = L3AddressResolver().resolve(temp[SRC_NAME]);

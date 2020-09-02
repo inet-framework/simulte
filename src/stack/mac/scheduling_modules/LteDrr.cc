@@ -17,7 +17,7 @@ void LteDrr::prepareSchedule()
     activeTempList_ = activeList_;
     drrTempMap_ = drrMap_;
 
-    if (binder_ == NULL)
+    if (binder_ == nullptr)
         binder_ = getBinder();
 
     bool terminateFlag = false, activeFlag = true, eligibleFlag = true;

@@ -39,7 +39,7 @@ unsigned int RemoteAntennaSet::getAntennaSetSize()
 
 std::ostream &operator << (std::ostream &stream, const RemoteAntennaSet* ruSet)
 {
-    if (ruSet == NULL)
+    if (ruSet == nullptr)
         return (stream << "Empty set");
     for (unsigned int i = 0; i < ruSet->remoteAntennaSet_.size(); i++)
     {

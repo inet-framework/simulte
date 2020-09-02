@@ -339,7 +339,7 @@ ScheduleList& LcgScheduler::schedule(unsigned int availableBytes, Direction gran
             lastExecutionTime_ = NOW;
 
             // signal service for current connection
-            unsigned int* servicedSdu = NULL;
+            unsigned int* servicedSdu = nullptr;
 
             if (scheduleList_.find(cid) == scheduleList_.end())
             {

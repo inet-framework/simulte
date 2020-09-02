@@ -17,7 +17,7 @@ class LteSchedulingGrant : public LteSchedulingGrant_Base
 {
 private:
     void copy(const LteSchedulingGrant& other) {
-        if (other.userTxParams != NULL)
+        if (other.userTxParams != nullptr)
         {
             const UserTxParams* txParams = check_and_cast<const UserTxParams*>(other.userTxParams);
             userTxParams = txParams->dup();
@@ -42,16 +42,16 @@ private:
     LteSchedulingGrant() :
         LteSchedulingGrant_Base()
     {
-        userTxParams = NULL;
+        userTxParams = nullptr;
         grantedCwBytes.resize(MAX_CODEWORDS);
     }
 
     ~LteSchedulingGrant()
     {
-        if (userTxParams != NULL)
+        if (userTxParams != nullptr)
         {
             delete userTxParams;
-            userTxParams = NULL;
+            userTxParams = nullptr;
         }
     }
 

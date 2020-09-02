@@ -17,7 +17,7 @@ void LtePf::prepareSchedule()
     EV << NOW << "LtePf::execSchedule ############### eNodeB " << eNbScheduler_->mac_->getMacNodeId() << " ###############" << endl;
     EV << NOW << "LtePf::execSchedule Direction: " << ( ( direction_ == DL ) ? " DL ": " UL ") << endl;
 
-    if (binder_ == NULL)
+    if (binder_ == nullptr)
         binder_ = getBinder();
 
     // Clear structures

@@ -24,7 +24,7 @@ void LteAllocationModuleFrequencyReuse::storeAllocation( std::vector<std::vector
     std::map<std::pair<MacNodeId,Band>,std::pair<unsigned int,unsigned int> > NodeIdRbsBytesMap;
     NodeIdRbsBytesMap.clear();
     // Create an empty vector
-    if(untouchableBands==NULL)
+    if(untouchableBands==nullptr)
     {
         std::set<Band> tempBand;
         untouchableBands = &tempBand;

@@ -91,7 +91,7 @@ void LteHarqBufferRxD2D::sendFeedback()
             {
                 // create a copy of the feedback to be sent to the eNB
                 auto pkt = check_and_cast<LteHarqProcessRxD2D*>(processes_[i])->createFeedbackMirror(cw);
-                if (pkt == NULL)
+                if (pkt == nullptr)
                 {
                     EV<<NOW<<"LteHarqBufferRxD2D::sendFeedback - cw "<< cw << " of process " << i
                             << " contains a pdu belonging to a multicast/broadcast connection. Don't send feedback mirror." << endl;

@@ -18,8 +18,8 @@ using namespace inet;
 
 VoIPSender::VoIPSender()
 {
-    selfSource_ = NULL;
-    selfSender_ = NULL;
+    selfSource_ = nullptr;
+    selfSender_ = nullptr;
 }
 
 VoIPSender::~VoIPSender()
@@ -83,7 +83,7 @@ void VoIPSender::initTraffic()
 {
     std::string destAddress = par("destAddress").stringValue();
     cModule* destModule = getModuleByPath(par("destAddress").stringValue());
-    if (destModule == NULL)
+    if (destModule == nullptr)
     {
         // this might happen when users are created dynamically
         EV << simTime() << "VoIPSender::initTraffic - destination " << destAddress << " not found" << endl;

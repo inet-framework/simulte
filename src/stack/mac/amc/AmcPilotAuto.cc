@@ -43,7 +43,7 @@ const UserTxParams& AmcPilotAuto::computeTxParams(MacNodeId id, const Direction 
     std::vector<Cqi> summaryCqi = sfb.getCqi(0);
 
     // get the usable bands for this user
-    UsableBands* usableB = NULL;
+    UsableBands* usableB = nullptr;
     getUsableBands(id, usableB);
 
     Band chosenBand = 0;
@@ -57,7 +57,7 @@ const UserTxParams& AmcPilotAuto::computeTxParams(MacNodeId id, const Direction 
     if(mode_ == MAX_CQI)
     {
         // if there are no usable bands, compute the final CQI through all the bands
-        if (usableB == NULL || usableB->empty())
+        if (usableB == nullptr || usableB->empty())
         {
             chosenBand = 0;
             chosenCqi = summaryCqi.at(chosenBand);
@@ -99,7 +99,7 @@ const UserTxParams& AmcPilotAuto::computeTxParams(MacNodeId id, const Direction 
     else if(mode_ == MIN_CQI)
     {
         // if there are no usable bands, compute the final CQI through all the bands
-        if (usableB == NULL || usableB->empty())
+        if (usableB == nullptr || usableB->empty())
         {
             chosenBand = 0;
             chosenCqi = summaryCqi.at(chosenBand);
@@ -232,6 +232,6 @@ bool AmcPilotAuto::getUsableBands(MacNodeId id, UsableBands*& uBands)
     }
 
     EV << " [All bands are usable]" << endl ;
-    uBands = NULL;
+    uBands = nullptr;
     return false;
 }

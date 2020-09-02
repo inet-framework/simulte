@@ -55,7 +55,7 @@ LteSchedulerEnbDl::schedulePerAcidRtx(MacNodeId nodeId, Codeword cw, unsigned ch
 
     Codeword remappedCw = (codewords == 1) ? 0 : cw;
 
-    if (bandLim == NULL)
+    if (bandLim == nullptr)
     {
         bands_msg = "NO_BAND_SPECIFIED";
         // Create a vector of band limit using all bands
@@ -334,7 +334,7 @@ LteSchedulerEnbDl::rtxschedule()
                 std::vector<BandLimit>* bandLim;
                 bool ret = getBandLimit(&usableBands, nodeId);
                 if (!ret)
-                    bandLim = NULL;
+                    bandLim = nullptr;
                 else
                     bandLim = &usableBands;
 
@@ -365,7 +365,7 @@ bool LteSchedulerEnbDl::getBandLimit(std::vector<BandLimit>* bandLimit, MacNodeI
     bandLimit->clear();
 
     // get usable bands for this user
-    UsableBands* usableBands = NULL;
+    UsableBands* usableBands = nullptr;
     bool ret = mac_->getAmc()->getPilotUsableBands(ueId, usableBands);
     if (!ret)
     {

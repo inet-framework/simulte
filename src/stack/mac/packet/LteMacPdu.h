@@ -48,7 +48,7 @@ class LteMacPdu : public LteMacPdu_Base
       for(cPacketQueue::Iterator iter(*sduList_); !iter.end(); iter++){
           cPacket *p1 = (cPacket *) *iter;
           cPacket *p2 = (cPacket *) *iterOther;
-          if(p1->getControlInfo() == NULL && p2->getControlInfo() != NULL){
+          if(p1->getControlInfo() == nullptr && p2->getControlInfo() != nullptr){
               FlowControlInfo * fci = dynamic_cast<FlowControlInfo *> (p2->getControlInfo());
               if(fci){
                   p1->setControlInfo(new FlowControlInfo(*fci));

@@ -16,7 +16,7 @@ void LteMaxCi::prepareSchedule()
 {
     EV << NOW << " LteMaxCI::schedule " << eNbScheduler_->mac_->getMacNodeId() << endl;
 
-    if (binder_ == NULL)
+    if (binder_ == nullptr)
         binder_ = getBinder();
 
     activeConnectionTempSet_ = activeConnectionSet_;

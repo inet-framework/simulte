@@ -289,7 +289,7 @@ LteSchedulerEnbUl::schedulePerAcidRtx(MacNodeId nodeId, Codeword cw, unsigned ch
     try
     {
         std::string bands_msg = "BAND_LIMIT_SPECIFIED";
-        if (bandLim == NULL)
+        if (bandLim == nullptr)
         {
             bands_msg = "NO_BAND_SPECIFIED";
             // Create a vector of band limit using all bands
@@ -470,7 +470,7 @@ LteSchedulerEnbUl::schedulePerAcidRtxD2D(MacNodeId destId,MacNodeId senderId, Co
     try
     {
         std::string bands_msg = "BAND_LIMIT_SPECIFIED";
-        if (bandLim == NULL)
+        if (bandLim == nullptr)
         {
             bands_msg = "NO_BAND_SPECIFIED";
             // Create a vector of band limit using all bands

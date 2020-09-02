@@ -144,7 +144,7 @@ unsigned int LteSchedulerEnb::scheduleGrant(MacCid cid, unsigned int bytes, bool
 
     std::string bands_msg = "BAND_LIMIT_SPECIFIED";
     std::vector<BandLimit> tempBandLim;
-    if (bandLim == NULL )
+    if (bandLim == nullptr )
     {
         bands_msg = "NO_BAND_SPECIFIED";
 
@@ -586,7 +586,7 @@ LteScheduler* LteSchedulerEnb::getScheduler(SchedDiscipline discipline)
 
         default:
         throw cRuntimeError("LteScheduler not recognized");
-        return NULL;
+        return nullptr;
     }
 }
 

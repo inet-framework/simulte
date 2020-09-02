@@ -43,7 +43,7 @@ class IChannelControl
     virtual ~IChannelControl() {}
 
     /** Registers the given radio. If radioInGate==NULL, the "radioIn" gate is assumed */
-    virtual RadioRef registerRadio(omnetpp::cModule *radioModule, omnetpp::cGate *radioInGate = NULL) = 0;
+    virtual RadioRef registerRadio(omnetpp::cModule *radioModule, omnetpp::cGate *radioInGate = nullptr) = 0;
 
     /** Unregisters the given radio */
     virtual void unregisterRadio(RadioRef r) = 0;

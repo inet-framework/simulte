@@ -19,8 +19,8 @@ using namespace inet;
 
 LtePhyUe::LtePhyUe()
 {
-    handoverStarter_ = NULL;
-    handoverTrigger_ = NULL;
+    handoverStarter_ = nullptr;
+    handoverTrigger_ = nullptr;
 }
 
 LtePhyUe::~LtePhyUe()
@@ -47,7 +47,7 @@ void LtePhyUe::initialize(int stage)
         handoverDelta_ = 0.00001;
 
         dasRssiThreshold_ = 1.0e-5;
-        das_ = new DasFilter(this, binder_, NULL, dasRssiThreshold_);
+        das_ = new DasFilter(this, binder_, nullptr, dasRssiThreshold_);
 
         servingCell_ = registerSignal("servingCell");
         averageCqiDl_ = registerSignal("averageCqiDl");
@@ -177,7 +177,7 @@ void LtePhyUe::handleSelfMessage(cMessage *msg)
     {
         doHandover();
         delete msg;
-        handoverTrigger_ = NULL;
+        handoverTrigger_ = nullptr;
     }
 }
 
@@ -298,7 +298,7 @@ void LtePhyUe::doHandover()
     LteAmc *newAmc = getAmcModule(candidateMasterId_);
 
     // TODO verify the amc is the relay one and remove after tests
-    assert(newAmc != NULL);
+    assert(newAmc != nullptr);
 
     oldAmc->detachUser(nodeId_, UL);
     oldAmc->detachUser(nodeId_, DL);
@@ -370,7 +370,7 @@ void LtePhyUe::handleAirFrame(cMessage* msg)
     if (lteInfo->getFrameType() == HANDOVERPKT)
     {
         // check if handover is already in process
-        if (handoverTrigger_ != NULL && handoverTrigger_->isScheduled())
+        if (handoverTrigger_ != nullptr && handoverTrigger_->isScheduled())
         {
             delete lteInfo;
             delete frame;
@@ -415,7 +415,7 @@ void LtePhyUe::handleAirFrame(cMessage* msg)
         handleControlMsg(frame, lteInfo);
         return;
     }
-    if ((lteInfo->getUserTxParams()) != NULL)
+    if ((lteInfo->getUserTxParams()) != nullptr)
     {
         int cw = lteInfo->getCw();
         if (lteInfo->getUserTxParams()->readCqiVector().size() == 1)
@@ -506,7 +506,7 @@ void LtePhyUe::handleUpperMessage(cMessage* msg)
         binder_->storeUlTransmissionMap(antenna, rbMap, nodeId_, mac_->getMacCellId(), this, UL);
     }
 
-    if (lteInfo->getFrameType() == DATAPKT && lteInfo->getUserTxParams() != NULL)
+    if (lteInfo->getFrameType() == DATAPKT && lteInfo->getUserTxParams() != nullptr)
     {
         double cqi = lteInfo->getUserTxParams()->readCqiVector()[lteInfo->getCw()];
         if (lteInfo->getDirection() == UL)
@@ -635,7 +635,7 @@ void LtePhyUe::finish()
 
         // amc calls
         LteAmc *amc = getAmcModule(masterId_);
-        if (amc != NULL)
+        if (amc != nullptr)
         {
             amc->detachUser(nodeId_, UL);
             amc->detachUser(nodeId_, DL);

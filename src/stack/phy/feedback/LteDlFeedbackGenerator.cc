@@ -176,9 +176,9 @@ void LteDlFeedbackGenerator::sensing(FbPeriodicity per)
 
 LteDlFeedbackGenerator::LteDlFeedbackGenerator()
 {
-    tPeriodicSensing_ = NULL;
-    tPeriodicTx_ = NULL;
-    tAperiodicTx_ = NULL;
+    tPeriodicSensing_ = nullptr;
+    tPeriodicTx_ = nullptr;
+    tAperiodicTx_ = nullptr;
 }
 
 LteDlFeedbackGenerator::~LteDlFeedbackGenerator()

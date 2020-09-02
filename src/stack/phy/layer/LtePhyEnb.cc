@@ -19,8 +19,8 @@ using namespace inet;
 
 LtePhyEnb::LtePhyEnb()
 {
-    das_ = NULL;
-    bdcStarter_ = NULL;
+    das_ = nullptr;
+    bdcStarter_ = nullptr;
 }
 
 LtePhyEnb::~LtePhyEnb()
@@ -28,11 +28,11 @@ LtePhyEnb::~LtePhyEnb()
     cancelAndDelete(bdcStarter_);
     if(lteFeedbackComputation_){
         delete lteFeedbackComputation_;
-        lteFeedbackComputation_ = NULL;
+        lteFeedbackComputation_ = nullptr;
     }
     if(das_){
         delete das_;
-        das_ = NULL;
+        das_ = nullptr;
     }
 }
 

@@ -16,7 +16,7 @@ short LtePhyBase::airFramePriority_ = 10;
 
 LtePhyBase::LtePhyBase()
 {
-    channelModel_ = NULL;
+    channelModel_ = nullptr;
 }
 
 LtePhyBase::~LtePhyBase()
@@ -30,7 +30,7 @@ void LtePhyBase::initialize(int stage)
     if (stage == inet::INITSTAGE_LOCAL)
     {
         binder_ = getBinder();
-        cellInfo_ = NULL;
+        cellInfo_ = nullptr;
         // get gate ids
         upperGateIn_ = findGate("upperGateIn");
         upperGateOut_ = findGate("upperGateOut");
@@ -120,7 +120,7 @@ void LtePhyBase::handleUpperMessage(cMessage* msg)
     auto pkt = check_and_cast<inet::Packet *>(msg);
     auto lteInfo = pkt->removeTag<UserControlInfo>();
 
-    LteAirFrame* frame = NULL;
+    LteAirFrame* frame = nullptr;
 
     if (lteInfo->getFrameType() == HARQPKT
         || lteInfo->getFrameType() == GRANTPKT
@@ -219,10 +219,10 @@ void LtePhyBase::sendBroadcast(LteAirFrame *airFrame)
 
 LteAmc *LtePhyBase::getAmcModule(MacNodeId id)
 {
-    LteAmc *amc = NULL;
+    LteAmc *amc = nullptr;
     OmnetId omid = binder_->getOmnetId(id);
     if (omid == 0)
-        return NULL;
+        return nullptr;
 
     amc = check_and_cast<LteMacEnb *>(
         getSimulation()->getModule(omid)->getSubmodule("lteNic")->getSubmodule(

@@ -90,7 +90,7 @@ void VoDUDPServer::initialize(int stage)
 
             trace_ = new tracerec[nrec_];
 
-            if ((fp = fopen(inputFileName.c_str(), "rb")) == NULL)
+            if ((fp = fopen(inputFileName.c_str(), "rb")) == nullptr)
                 throw cRuntimeError("can't open file %s", inputFileName.c_str());
 
             for (unsigned int i = 0; i < nrec_; i++)
@@ -138,7 +138,7 @@ void VoDUDPServer::handleMessage(cMessage *msg)
             const char *destAddrs = par("destAddresses");
             cStringTokenizer tokenizer(destAddrs);
             const char *token;
-            while ((token = tokenizer.nextToken()) != NULL)
+            while ((token = tokenizer.nextToken()) != nullptr)
             {
                 clientAddr.push_back(L3AddressResolver().resolve(token));
                 size++;

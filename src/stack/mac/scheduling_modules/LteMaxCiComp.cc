@@ -17,7 +17,7 @@ bool LteMaxCiComp::getBandLimit(std::vector<BandLimit>* bandLimit, MacNodeId ueI
     bandLimit->clear();
 
     // get usable bands for this user
-    UsableBands* usableBands = NULL;
+    UsableBands* usableBands = nullptr;
     bool ret = eNbScheduler_->mac_->getAmc()->getPilotUsableBands(ueId, usableBands);
     if (!ret)
     {
@@ -62,7 +62,7 @@ void LteMaxCiComp::prepareSchedule()
 {
     EV << NOW << " LteMaxCiComp::schedule " << eNbScheduler_->mac_->getMacNodeId() << endl;
 
-    if (binder_ == NULL)
+    if (binder_ == nullptr)
         binder_ = getBinder();
 
     activeConnectionTempSet_ = activeConnectionSet_;
@@ -145,7 +145,7 @@ void LteMaxCiComp::prepareSchedule()
         std::vector<BandLimit>* bandLim;
         bool ret = getBandLimit(&usableBands, MacCidToNodeId(current.x_));
         if (!ret)
-            bandLim = NULL;
+            bandLim = nullptr;
         else
             bandLim = &usableBands;
 
