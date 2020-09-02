@@ -15,11 +15,6 @@ Define_Module(D2DModeSelectionBase);
 using namespace inet;
 using namespace omnetpp;
 
-/**
- * @author wolfgang kallies
- * TODO: adapt this to use the new packet API
- */
-
 void D2DModeSelectionBase::initialize(int stage)
 {
     if (stage == inet::INITSTAGE_LOCAL)
@@ -133,7 +128,6 @@ void D2DModeSelectionBase::sendModeSwitchNotifications()
         LteD2DMode oldMode = it->oldMode;
         LteD2DMode newMode = it->newMode;
 
-        // TODO make check_and_cast in initialize
         check_and_cast<LteMacEnbD2D*>(mac_)->sendModeSwitchNotification(srcId, dstId, oldMode, newMode);
     }
 }

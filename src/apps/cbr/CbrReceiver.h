@@ -23,13 +23,9 @@ class CbrReceiver : public omnetpp::cSimpleModule
 {
     inet::UdpSocket socket;
 
-    ~CbrReceiver();
-
     int numReceived_;
     int totFrames_;
-
     int recvBytes_;
-
 
     bool mInit_;
 

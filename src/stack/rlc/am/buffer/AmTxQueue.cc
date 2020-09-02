@@ -286,13 +286,9 @@ void AmTxQueue::discard(const int seqNum)
     auto pkt = check_and_cast<Packet *> (pduRtxQueue_.get(txWindowIndex));
     auto pdu = pkt->peekAtFront<LteRlcAmPdu>();
 
-    // LteRlcAmPdu* pdu = check_and_cast<LteRlcAmPdu*>(
-        // pduRtxQueue_.get(txWindowIndex));
-
     if (pduTimer_.busy(seqNum))
         pduTimer_.remove(seqNum);
 
-    // LteRlcAmPdu* nextPdu = nullptr;
     // Check forward in the buffer if there are other PDUs related to the same SDU
     for (int i = (txWindowIndex + 1);
         i < (txWindowDesc_.seqNum_ - txWindowDesc_.firstSeqNum_); ++i)
@@ -402,9 +398,9 @@ void AmTxQueue::moveTxWindow(const int seqNum)
                << i + txWindowDesc_.firstSeqNum_
                << "] corresponding index " << i << endl;
 
-            // pdu = check_and_cast<LteRlcAmPdu*>(pduRtxQueue_.remove(i));
             auto pdu = check_and_cast<Packet *>(pduRtxQueue_.remove(i));
             delete pdu;
+
             // Stop the rtx timer event
             if (pduTimer_.busy(i + txWindowDesc_.firstSeqNum_))
             {
@@ -457,7 +453,7 @@ void AmTxQueue::moveTxWindow(const int seqNum)
            << "] , discarded [" << (discarded_.at(i)) << "]" << endl;
     }
 
-            // cleanup
+    // cleanup
     for (int i = (txWindowDesc_.seqNum_ - txWindowDesc_.firstSeqNum_);
         i < txWindowDesc_.windowSize_; ++i)
     {
@@ -761,7 +757,6 @@ void AmTxQueue::pduTimerHandle(const int sn)
     auto pduPkt = check_and_cast<Packet *> (pduRtxQueue_.get(index));
     auto pdu = pduPkt->peekAtFront<LteRlcAmPdu>();
 
-
     int nextTxNumber = pdu->getTxNumber() + 1;
 
     if (nextTxNumber > maxRtx_)
@@ -776,7 +771,6 @@ void AmTxQueue::pduTimerHandle(const int sn)
     {
         EV << NOW << " AmTxQueue::pduTimerHandle starting new transmission" << endl;
         // extract PDU from buffer
-        //pdu = check_and_cast<LteRlcAmPdu*>(pduRtxQueue_.remove(index));
         auto pduPkt = check_and_cast<Packet *> (pduRtxQueue_.remove(index));
         auto pduUpd = pduPkt->removeAtFront<LteRlcAmPdu>();
         pduUpd->markMutableIfExclusivelyOwned();

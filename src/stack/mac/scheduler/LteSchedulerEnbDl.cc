@@ -369,7 +369,6 @@ bool LteSchedulerEnbDl::getBandLimit(std::vector<BandLimit>* bandLimit, MacNodeI
     bool ret = mac_->getAmc()->getPilotUsableBands(ueId, usableBands);
     if (!ret)
     {
-//        bandLimit = NULL; // all bands available
         // leave the bandLimit empty
         return false;
     }

@@ -47,8 +47,7 @@ class LteCellInfo : public omnetpp::cSimpleModule
     double pgnMaxX_;
     /// y playground upper bound
     double pgnMaxY_;
-    /// z playground size
-//    double pgnZ_;
+
     /// x eNB position
     double nodeX_;
     /// y eNB position

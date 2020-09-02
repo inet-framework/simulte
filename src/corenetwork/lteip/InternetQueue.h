@@ -12,8 +12,6 @@
 
 #include <omnetpp.h>
 
-//using namespace omnetpp;
-
 /**
  * @class InternetQueue
  * @brief Transmission queue for finite bandwidth channels

@@ -14,14 +14,6 @@ Define_Module(MultihopD2DStatistics);
 
 using namespace omnetpp;
 
-MultihopD2DStatistics::MultihopD2DStatistics()
-{
-}
-
-MultihopD2DStatistics::~MultihopD2DStatistics()
-{
-}
-
 void MultihopD2DStatistics::initialize()
 {
     lteBinder_ = getBinder();

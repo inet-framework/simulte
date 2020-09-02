@@ -21,7 +21,6 @@ class CbrSender : public omnetpp::cSimpleModule
 
     omnetpp::cMessage* selfSource_;
     //sender
-    // int iDtalk_;
     int nframes_;
     int iDframe_;
     int nframesTmp_;
@@ -29,8 +28,6 @@ class CbrSender : public omnetpp::cSimpleModule
     omnetpp::simtime_t sampling_time;
     omnetpp::simtime_t startTime_;
     omnetpp::simtime_t finishTime_;
-
-    // bool silences_;
 
     static omnetpp::simsignal_t cbrGeneratedThroughtputSignal_;
     static omnetpp::simsignal_t cbrGeneratedBytesSignal_;

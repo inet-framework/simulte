@@ -421,9 +421,6 @@ void LteMacUe::macPduMake(MacCid cid)
             harqTxBuffers_[destId] = hb;
             txBuf = hb;
         }
-        //
-//        UnitList txList = (txBuf->firstAvailable());
-//        LteHarqProcessTx * currProc = txBuf->getProcess(currentHarq_);
 
         // search for an empty unit within current harq process
         UnitList txList = txBuf->getEmptyUnits(currentHarq_);
@@ -542,7 +539,6 @@ void LteMacUe::macPduUnmake(cPacket* pktAux)
         auto upPkt = macPkt->popSdu();
         take(upPkt);
 
-        /* TODO: upPkt->info() */
         EV << "LteMacBase: pduUnmaker extracted SDU" << endl;
 
         // store descriptor for the incoming connection, if not already stored
@@ -610,8 +606,6 @@ void LteMacUe::handleSelfMessage()
     EV << NOW << "LteMacUe::handleSelfMessage " << nodeId_ << " - HARQ process " << (unsigned int)currentHarq_ << endl;
     // updating current HARQ process for next TTI
 
-    //unsigned char currentHarq = currentHarq_;
-
     // no grant available - if user has backlogged data, it will trigger scheduling request
     // no harq counter is updated since no transmission is sent.
 
@@ -636,7 +630,6 @@ void LteMacUe::handleSelfMessage()
             schedulingGrant_ = nullptr;
             // if necessary, a RAC request will be sent to obtain a grant
             checkRAC();
-            //return;
         }
         else if (--periodCounter_>0)
         {
@@ -658,7 +651,6 @@ void LteMacUe::handleSelfMessage()
             EV << "\t currentHarq_ counter initialized " << endl;
             firstTx=true;
             // the eNb will receive the first pdu in 2 TTI, thus initializing acid to 0
-//            currentHarq_ = harqRxBuffers_.begin()->second->getProcesses() - 2;
             currentHarq_ = UE_TX_HARQ_PROCESSES - 2;
         }
         EV << "\t " << schedulingGrant_ << endl;
@@ -681,7 +673,6 @@ void LteMacUe::handleSelfMessage()
         //        // triggering retransmission --- nothing to do here, really!
 //        } else {
         // buffer drop should occour here.
-//        scheduleList = ueScheduler_->buildSchedList();
 
         EV << NOW << " LteMacUe::handleSelfMessage " << nodeId_ << " entered scheduling" << endl;
 
@@ -728,15 +719,6 @@ void LteMacUe::handleSelfMessage()
         cMessage* flushHarqMsg = new cMessage("flushHarqMsg");
         flushHarqMsg->setSchedulingPriority(1);        // after other messages
         scheduleAt(NOW, flushHarqMsg);
-
-//        // deleting non-periodic grant
-//        if (!schedulingGrant_->getPeriodic())
-//        {
-//            delete schedulingGrant_;
-//            schedulingGrant_=NULL;
-//        }
-
-
     }
 
     //============================ DEBUG ==========================
@@ -811,9 +793,6 @@ LteMacUe::macHandleGrant(cPacket* pktAux)
 
     EV << NOW << "Node " << nodeId_ << " received grant of blocks " << grant->getTotalGrantedBlocks()
        << ", bytes " << grant->getGrantedCwBytes(0) << endl;
-//        TODO if (!grant_->isNewTx())
-//            {
-//            }
 
     // clearing pending RAC requests
     racRequested_=false;

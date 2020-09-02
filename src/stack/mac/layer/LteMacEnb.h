@@ -44,8 +44,6 @@ class LteMacEnb : public LteMacBase
 
     // Current subframe type
     LteSubFrameType currentSubFrameType_;
-    // MBSFN pattern
-//        std::vector<LteSubFrameType> mbsfnPattern_;
     //frame index in the mbsfn pattern
     int frameIndex_;
     //number of resource block allcated in last tti

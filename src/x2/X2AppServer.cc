@@ -40,16 +40,6 @@ void X2AppServer::initialize(int stage)
 // generate SCTP header and send packet
 void X2AppServer::generateAndSend(Packet* pkt)
 {
-    /*auto dataMsg = makeShared<BytesChunk>();
-    std::vector<uint8_t> dataVec;
-    const int numBytes = pkt->getByteLength();
-    dataVec.resize(numBytes);
-    for (uint32 i=0; i<numBytes; i++)
-        dataVec[i] = 's';
-    dataMsg->setBytes(dataVec);
-    dataMsg->addTag<CreationTimeTag>()->setCreationTime(simTime());
-    pkt->insertAtBack(dataMsg);
-    */
     pkt->addTag<DispatchProtocolReq>()->setProtocol(&Protocol::sctp);
     auto cmd = pkt->addTagIfAbsent<SctpSendReq>();
     cmd->setSocketId(assocId);

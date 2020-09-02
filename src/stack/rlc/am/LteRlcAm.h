@@ -48,9 +48,6 @@ class LteRlcAm : public omnetpp::cSimpleModule
     omnetpp::cGate* down_[2];
 
   public:
-    LteRlcAm()
-    {
-    }
     virtual ~LteRlcAm()
     {
     }

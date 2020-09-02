@@ -18,11 +18,6 @@ simsignal_t CbrReceiver::cbrJitterSignal_ = registerSignal("cbrJitterSignal");
 simsignal_t CbrReceiver::cbrReceivedThroughtput_ = registerSignal("cbrReceivedThroughtputSignal");
 simsignal_t CbrReceiver::cbrReceivedBytesSignal_ = registerSignal("cbrReceivedBytesSignal");
 
-CbrReceiver::~CbrReceiver()
-{
-
-}
-
 void CbrReceiver::initialize(int stage)
 {
     cSimpleModule::initialize(stage);
@@ -30,11 +25,8 @@ void CbrReceiver::initialize(int stage)
     if (stage == INITSTAGE_LOCAL)
     {
         mInit_ = true;
-
         numReceived_ = 0;
-
         recvBytes_ = 0;
-
         cbrRcvdPkt_ = registerSignal("cbrRcvdPkt");
     }
     else if (stage == INITSTAGE_APPLICATION_LAYER)

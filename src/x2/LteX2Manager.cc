@@ -22,13 +22,6 @@ Define_Module(LteX2Manager);
 using namespace omnetpp;
 using namespace inet;
 
-
-LteX2Manager::LteX2Manager() {
-}
-
-LteX2Manager::~LteX2Manager() {
-}
-
 void LteX2Manager::initialize(int stage)
 {
     if (stage == inet::INITSTAGE_LOCAL)

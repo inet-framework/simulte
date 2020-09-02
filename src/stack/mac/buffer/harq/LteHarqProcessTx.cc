@@ -74,7 +74,6 @@ Packet *LteHarqProcessTx::extractPdu(Codeword cw)
 
 bool LteHarqProcessTx::pduFeedback(HarqAcknowledgment fb, Codeword cw)
 {
-    // controllare se numempty == numunits e restituire true/false
     bool reset = (*units_)[cw]->pduFeedback(fb);
 
     if (reset)

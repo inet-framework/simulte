@@ -15,16 +15,6 @@ Define_Module(InternetMux);
 
 using namespace inet;
 
-InternetMux::InternetMux()
-{
-    // TODO Auto-generated constructor stub
-}
-
-InternetMux::~InternetMux()
-{
-    // TODO Auto-generated destructor stub
-}
-
 void
 InternetMux::initialize()
 {

@@ -45,7 +45,5 @@ class X2HandoverDataMsg : public LteX2Message
     virtual ~X2HandoverDataMsg() { }
 };
 
-//Register_Class(X2HandoverDataMsg);
-
 #endif
 

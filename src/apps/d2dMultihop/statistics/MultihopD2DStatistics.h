@@ -72,9 +72,6 @@ protected:
     virtual void finish();
 
 public:
-    MultihopD2DStatistics();
-    virtual ~MultihopD2DStatistics();
-
     void recordNewBroadcast(unsigned int msgId, UeSet& destinations);
     void recordReception(MacNodeId nodeId, unsigned int msgId, omnetpp::simtime_t delay, int hops);
     void recordSentMessage(unsigned int msgId);

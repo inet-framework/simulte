@@ -13,8 +13,6 @@
 #include <omnetpp.h>
 #include <stdlib.h>
 
-
-//#include "inet/common/queue/QueueBase.h"
 #include "inet/queueing/base/PacketQueueBase.h"
 #include "common/LteControlInfo.h"
 #include "inet/networklayer/common/IpProtocolId_m.h"
@@ -25,6 +23,7 @@
 #include "inet/common/IProtocolRegistrationListener.h"
 
 using namespace inet;
+
 /**
  * @class LteIp
  * @brief Implements a simplified version of the IP protocol.

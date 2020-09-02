@@ -25,7 +25,6 @@ UmTxEntity* LteRlcUmD2D::getTxBuffer(FlowControlInfo* lteInfo)
     {
         // Not found: create
         std::stringstream buf;
-        // FIXME HERE
 
         buf << "UmTxEntity Lcid: " << lcid;
         cModuleType* moduleType = cModuleType::get("lte.stack.rlc.UmTxEntity");
@@ -76,8 +75,6 @@ void LteRlcUmD2D::handleLowerMessage(cPacket *pktAux)
         auto lteInfo = pkt->getTag<FlowControlInfo>();
 
         // add here specific behavior for handling mode switch at the RLC layer
-        //D2DModeSwitchNotification* switchPkt = check_and_cast<D2DModeSwitchNotification*>(pkt);
-        //FlowControlInfo* lteInfo = check_and_cast<FlowControlInfo*>(switchPkt->getControlInfo());
 
         if (switchPkt->getTxSide())
         {

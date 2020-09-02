@@ -249,19 +249,11 @@ void UmRxEntity::toPdcp(Packet* pktAux)
     LteRlcUm* lteRlc = check_and_cast<LteRlcUm*>(getParentModule()->getSubmodule("um"));
 
     auto lteInfo = pktAux->getTag<FlowControlInfo>();
-    //FlowControlInfo* lteInfo = check_and_cast<FlowControlInfo*>(rlcSdu->getControlInfo());
     unsigned int sno = rlcSdu->getSnoMainPacket();
     unsigned int length = pktAux->getByteLength();
-    //unsigned int length = rlcSdu->getByteLength();
-    //simtime_t ts = rlcSdu->getCreationTime();
     simtime_t ts = pktAux->getCreationTime();
 
     // create a PDCP PDU and send it to the upper layer
-
-    //pktAux->popAtFront<LteRlcSdu>();
-    //LtePdcpPdu* pdcpPdu = check_and_cast<LtePdcpPdu*>(rlcSdu->decapsulate());
-    //pdcpPdu->setControlInfo(lteInfo->dup());
-    // emit statistics
     MacNodeId ueId;
     if (lteInfo->getDirection() == DL || lteInfo->getDirection() == D2D || lteInfo->getDirection() == D2D_MULTI)   // This module is at a UE
         ueId = ownerNodeId_;
@@ -339,7 +331,6 @@ void UmRxEntity::reassemble(unsigned int index)
     auto pdu = pktPdu->removeAtFront<LteRlcUmDataPdu>();
     auto lteInfo = pktPdu->getTag<FlowControlInfo>();
 
-
     // get PDU seq number
     unsigned int pduSno = pdu->getPduSequenceNumber();
 
@@ -365,7 +356,6 @@ void UmRxEntity::reassemble(unsigned int index)
         auto rlcSdu = pktSdu->peekAtFront<LteRlcSdu>();
         unsigned int sduSno = rlcSdu->getSnoMainPacket();
         unsigned int sduWholeLength = rlcSdu->getLengthMainPacket(); // the length of the whole sdu
-        // pktSdu->insertAtFront(rlcSdu);
 
         if (i==0) // first SDU
         {
@@ -412,7 +402,6 @@ void UmRxEntity::reassemble(unsigned int index)
                         }
 
                         // buffer the SDU and wait for the missing portion
-                        //buffered_ = rlcSdu->dup();
                         buffered_.pkt = pktSdu;
                         pktSdu = nullptr;
                         buffered_.size = sduLengthPktLeng;
@@ -465,9 +454,6 @@ void UmRxEntity::reassemble(unsigned int index)
                         {
                             throw cRuntimeError("UmRxEntity::reassemble(): failed reassembly, the reassembled SDU has size %d B, while the original SDU had size %d B",reassembledLength,sduWholeLength);
                         }
-
-                        //rlcSdu->setByteLength(reassembledLength);
-//                        rlcSdu->setByteLength(buffered_->getByteLength() + rlcSdu->getByteLength());
 
                         toPdcp(pktSdu);
                         pktSdu = nullptr;
@@ -589,8 +575,6 @@ void UmRxEntity::reassemble(unsigned int index)
                         {
                             throw cRuntimeError("UmRxEntity::reassemble(): failed reassembly, the reassembled SDU has size %d B, while the original SDU had size %d B",reassembledLength,sduWholeLength);
                         }
-                        //rlcSdu->setByteLength(reassembledLength);
-//                        rlcSdu->setByteLength(buffered_->getByteLength() + rlcSdu->getByteLength());
 
                         toPdcp(pktSdu);
                         pktSdu = nullptr;
@@ -875,9 +859,5 @@ void UmRxEntity::rlcHandleD2DModeSwitch(bool oldConnection, bool oldMode, bool c
         rxWindowDesc_.clear();
 
         resetFlag_ = true;
-
-//        // reset counters
-//        lastPduReassembled_ = 0;
-//        lastSnoDelivered_ = 0;
     }
 }

@@ -108,47 +108,6 @@ class LteMacPdu : public LteMacPdu_Base
 
         LteMacPdu_Base::operator=(other);
         copy(other);
-#if 0
-        macPduLength_ = other.macPduLength_;
-        macPduId_ = other.macPduId_;
-
-        sduList_ = other.sduList_->dup();
-        take(sduList_);
-
-        // duplicate MacControlElementsList (includes BSRs)
-        ceList_ = std::list<MacControlElement*> ();
-        MacControlElementsList otherCeList = other.ceList_;
-        MacControlElementsList::iterator cit;
-        for (cit = otherCeList.begin(); cit != otherCeList.end(); cit++){
-            MacBsr* bsr = dynamic_cast<MacBsr *> (*cit);
-            if(bsr)
-            {
-                ceList_.push_back(new MacBsr(*bsr));
-            }
-            else
-            {
-                ceList_.push_back(new MacControlElement(**cit));
-            }
-        }
-
-        // duplication of the SDU queue duplicates all packets but not
-        // the ControlInfo - iterate over all packets and restore ControlInfo if necessary
-        cPacketQueue::Iterator iterOther(*other.sduList_);
-        for(cPacketQueue::Iterator iter(*sduList_); !iter.end(); iter++){
-            cPacket *p1 = (cPacket *) *iter;
-            cPacket *p2 = (cPacket *) *iterOther;
-            if(p1->getControlInfo() == NULL && p2->getControlInfo() != NULL){
-                FlowControlInfo * fci = dynamic_cast<FlowControlInfo *> (p2->getControlInfo());
-                if(fci){
-                    p1->setControlInfo(new FlowControlInfo(*fci));
-                } else {
-                    throw cRuntimeError("LteMacPdu.h::Unknown type of control info in SDU list!");
-                }
-            }
-
-            iterOther++;
-        }
-#endif
 
         return *this;
     }
@@ -180,7 +139,6 @@ class LteMacPdu : public LteMacPdu_Base
         // delete the SDU queue
         // (since it is derived of cPacketQueue, it will automatically delete all contained SDUs)
 
-        // ASSERT(sduList_->getOwner() == this); // should not throw an exception in a destructor
         drop(sduList_);
         delete sduList_;
 
@@ -188,8 +146,6 @@ class LteMacPdu : public LteMacPdu_Base
         for (cit = ceList_.begin(); cit != ceList_.end(); cit++){
             delete *cit;
         }
-
-        // remove and delete control UserControlInfo - if it exists
     }
 
     inet::int64 getByteLength() const
@@ -318,10 +274,6 @@ class LteMacPdu : public LteMacPdu_Base
     {
         return (!ceList_.empty());
     }
-
-    /**
-     *
-     */
 
     long getId() const
     {

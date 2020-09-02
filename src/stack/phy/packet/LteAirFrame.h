@@ -25,11 +25,13 @@ class LteAirFrame : public LteAirFrame_Base
         LteAirFrame_Base(name, kind)
     {
     }
+
     LteAirFrame(const LteAirFrame& other) :
         LteAirFrame_Base(other)
     {
         operator=(other);
     }
+
     LteAirFrame& operator=(const LteAirFrame& other)
     {
         LteAirFrame_Base::operator=(other);
@@ -44,16 +46,16 @@ class LteAirFrame : public LteAirFrame_Base
         }
         return *this;
     }
+
     virtual LteAirFrame *dup() const
     {
         return new LteAirFrame(*this);
     }
-    // ADD CODE HERE to redefine and implement pure virtual functions from LteAirFrame_Base
+
     void addRemoteUnitPhyDataVector(RemoteUnitPhyData data);
     RemoteUnitPhyDataVector getRemoteUnitPhyDataVector();
 };
 
 Register_Class(LteAirFrame);
-//TODO: this should go into a .cc file
 
 #endif

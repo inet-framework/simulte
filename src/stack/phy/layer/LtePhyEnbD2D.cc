@@ -17,10 +17,6 @@ Define_Module(LtePhyEnbD2D);
 using namespace omnetpp;
 using namespace inet;
 
-LtePhyEnbD2D::LtePhyEnbD2D()
-{
-}
-
 LtePhyEnbD2D::~LtePhyEnbD2D()
 {
 }

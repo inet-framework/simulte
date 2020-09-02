@@ -409,7 +409,6 @@ void LteMacEnb::sendGrants(LteMacScheduleList* scheduleList)
         Codeword otherCw = MAX_CODEWORDS - cw;
 
         MacCid cid = it->first.first;
-        // LogicalCid lcid = MacCidToLcid(cid);
         MacNodeId nodeId = MacCidToNodeId(cid);
 
         unsigned int granted = it->second;
@@ -851,10 +850,6 @@ void LteMacEnb::handleSelfMessage()
     // extract pdus from all harqrxbuffers and pass them to unmaker
     HarqRxBuffers::iterator hit = harqRxBuffers_.begin();
     HarqRxBuffers::iterator het = harqRxBuffers_.end();
-    //LteMacPdu *pdu = NULL;
-    //std::list<LteMacPdu*> pduList;
-
-    //LteMacPdu *pdu = NULL;
 
     for (; hit != het; hit++)
     {

@@ -24,7 +24,7 @@ typedef std::vector<std::vector<UnitStatus> > BufferStatus;
  * An H-ARQ process is atomic for transmission, while H-ARQ units are atomic for
  * H-ARQ feedback.
  */
-//TODO Aggiungere output di debug ripreso da old commenti
+
 class LteHarqProcessTx
 {
   protected:
@@ -165,7 +165,6 @@ class LteHarqProcessTx
 
     TxHarqPduStatus getUnitStatus(Codeword cw);
 
-    // 1:1 getters
     void dropPdu(Codeword cw);
     bool isUnitEmpty(Codeword cw);
     bool isUnitReady(Codeword cw);

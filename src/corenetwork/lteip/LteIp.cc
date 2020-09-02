@@ -188,10 +188,7 @@ void LteIp::handleMessage(cMessage *msg)
 
             auto trasnportHeader = getTransportProtocolHeader(pkt);
             int transportProtocol = ipDatagram->getProtocolId();
-            //IPv4Datagram *ipDatagram = check_and_cast<IPv4Datagram *>(msg);
-            //cPacket *transportPacket = ipDatagram->getEncapsulatedPacket();
 
-            // TODO: KLUDGE: copied over from function fromTransport
             unsigned short srcPort = 0;
             unsigned short dstPort = 0;
             int headerSize = inet::IPv4_MIN_HEADER_LENGTH.get();
@@ -216,7 +213,7 @@ void LteIp::handleMessage(cMessage *msg)
             pkt->addTagIfAbsent<FlowControlInfo>()->setHeaderSize(headerSize);
             MacNodeId destId = getBinder()->getMacNodeId(ipDatagram->getDestAddress());
             // master of this ue (myself or a relay)
-            // TODO: KLUDGE:
+
             MacNodeId master = getBinder()->getNextHop(destId);
 //            if (master != nodeId_) { // ue is relayed, dest must be the relay
             destId = master;
@@ -271,13 +268,9 @@ void LteIp::handleMessage(cMessage *msg)
 
 void LteIp::fromTransport(Packet * transportPacket, cGate *outputgate)
 {
-    // Remove control info from transport packet
- //   IPv4ControlInfo *ipControlInfo = check_and_cast<IPv4ControlInfo*>(transportPacket->removeControlInfo());
-
     auto hopLimitReq = transportPacket->removeTagIfPresent<inet::HopLimitReq>();
     auto l3AddressReq = transportPacket->removeTag<inet::L3AddressReq>();
     Ipv4Address src = l3AddressReq->getSrcAddress().toIpv4();
-    //bool nonLocalSrcAddress = l3AddressReq->getNonLocalSrcAddress();
     Ipv4Address dest = l3AddressReq->getDestAddress().toIpv4();
     short ttl = (hopLimitReq != nullptr) ? hopLimitReq->getHopLimit() : -1;
 
@@ -291,15 +284,7 @@ void LteIp::fromTransport(Packet * transportPacket, cGate *outputgate)
 
     //** Create IP datagram and fill its fields **
     auto ipHeader = makeShared<Ipv4Header>();
-    //IPv4Datagram *datagram = new IPv4Datagram(transportPacket->getName());
-    //datagram->encapsulate(transportPacket);
-
-    // set destination address
-
     ipHeader->setDestAddress(dest);
-
-    // set source address
-    // Ipv4Address src = ipControlInfo->getSrcAddr();
 
     // when source address was given, use it; otherwise use local Addr
     if (src.isUnspecified())
@@ -346,9 +331,6 @@ void LteIp::fromTransport(Packet * transportPacket, cGate *outputgate)
     ipHeader->setMoreFragments(false);
     ipHeader->setDontFragment(dontFragment);
     ipHeader->setFragmentOffset(0);
-
-
-   // ttl
     ipHeader->setTimeToLive(ttl);
 
     //** Add control info for stack **
@@ -370,10 +352,8 @@ void LteIp::fromTransport(Packet * transportPacket, cGate *outputgate)
         headerSize += inet::UDP_HEADER_LENGTH.get();
     }
 
-
     insertNetworkProtocolHeader(transportPacket, Protocol::ipv4, ipHeader);
 
-    //FlowControlInfo *controlInfo = new FlowControlInfo();
     transportPacket->addTagIfAbsent<FlowControlInfo>()->setSrcAddr(src.getInt());
     transportPacket->addTagIfAbsent<FlowControlInfo>()->setDstAddr(dest.getInt());
     transportPacket->addTagIfAbsent<FlowControlInfo>()->setSrcPort(srcPort);
@@ -398,7 +378,6 @@ void LteIp::decapsulate(Packet *packet)
     packet->addTagIfAbsent<TosInd>()->setTos(ipv4Header->getTypeOfService());
 
     // original Ipv4 datagram might be needed in upper layers to send back ICMP error message
-
     auto transportProtocol = ProtocolGroup::ipprotocol.getProtocol(ipv4Header->getProtocolId());
     packet->addTagIfAbsent<PacketProtocolTag>()->setProtocol(transportProtocol);
     packet->addTagIfAbsent<DispatchProtocolReq>()->setProtocol(transportProtocol);
@@ -453,23 +432,6 @@ void LteIp::toTransport(Packet * pkt)
         const InterfaceEntry* fromIE = getSourceInterface(pkt);
         sendIcmpError(pkt, fromIE ? fromIE->getInterfaceId() : -1, ICMP_DESTINATION_UNREACHABLE, ICMP_DU_PROTOCOL_UNREACHABLE);*/
     }
-/*
-    int gateindex = 0;
-    try
-    {
-        gateindex = mapping_.getOutputGateForProtocol(protocol);
-    }
-    catch (cRuntimeError)
-    {
-        EV << "Protocol mapping failed with protocol number : " << protocol << endl;
-        EV << "Packet dropped" << endl;
-        delete msg;
-        numForwarded_--;
-        numDropped_++;
-        return;
-    }
-    send(transportPacket, "transportOut", gateindex);
-    */
 }
 
 void LteIp::setNodeType(std::string s)

@@ -60,14 +60,6 @@ void LtePdcpRrcBase::headerDecompress(cPacket* pkt, int headerSize)
     }
 }
 
-        /*
-         * TODO
-         * Osservando le porte tira fuori:
-         * lteInfo->setApplication();
-         * lteInfo->setDirection();
-         * lteInfo->setTraffic();
-         * lteInfo->setRlcType();
-         */
 void LtePdcpRrcBase::setTrafficInformation(cPacket* pkt,
     FlowControlInfo* lteInfo)
 {

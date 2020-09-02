@@ -277,8 +277,6 @@ std::vector<unsigned int> LteCompManagerProportional::roundVector(std::vector<do
         }
 
         // TODO -  check numerical errors
-    //    if (integerTot < sum)
-    //        vec[len-1]++;
 
         // set the integer vector with the elements in their original positions
         for (unsigned int i = 0; i < integerVec.size(); i++)

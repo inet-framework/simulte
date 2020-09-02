@@ -39,7 +39,6 @@ UmTxEntity* LteRlcUm::getTxBuffer(FlowControlInfo* lteInfo)
     {
         // Not found: create
         std::stringstream buf;
-        // FIXME HERE
 
         buf << "UmTxEntity Lcid: " << lcid;
         cModuleType* moduleType = cModuleType::get("lte.stack.rlc.UmTxEntity");

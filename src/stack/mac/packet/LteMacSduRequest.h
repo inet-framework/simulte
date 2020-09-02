@@ -54,7 +54,6 @@ class LteMacSduRequest : public LteMacSduRequest_Base
     LteMacSduRequest(const LteMacSduRequest& other) :
         LteMacSduRequest_Base(other)
     {
-        //operator=(other);
         copy(other);
     }
 

@@ -21,10 +21,6 @@ using namespace omnetpp;
 
 #define coreEV EV << "LteChannelControl: "
 
-LteChannelControl::LteChannelControl()
-{
-}
-
 LteChannelControl::~LteChannelControl()
 {
 }

@@ -24,8 +24,6 @@
 #include "stack/mac/amc/LteAmc.h"
 #include "stack/phy/ChannelModel/LteChannelModel.h"
 #include "stack/phy/feedback/LteFeedbackComputationRealistic.h"
-//#include "stack/phy/ChannelModel/LteRealisticChannelModel.h"
-//#include "stack/phy/ChannelModel/LteDummyChannelModel.h"
 
 /**
  * @class LtePhy

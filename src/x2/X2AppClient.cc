@@ -16,11 +16,6 @@
 #include "corenetwork/binder/LteBinder.h"
 #include "stack/mac/layer/LteMacEnb.h"
 
-/*
-namespace inet {
-    static omnetpp::simsignal_t packetReceivedSignal = omnetpp::cComponent::registerSignal("packetReceived");
-}
-*/
 
 Define_Module(X2AppClient);
 

@@ -262,8 +262,7 @@ void LtePhyUe::handoverHandler(LteAirFrame* frame, UserControlInfo* lteInfo)
 
 void LtePhyUe::triggerHandover()
 {
-    // TODO: remove asserts after testing
-    assert(masterId_ != candidateMasterId_);
+    ASSERT(masterId_ != candidateMasterId_);
 
     EV << "####Handover starting:####" << endl;
     EV << "current master: " << masterId_ << endl;
@@ -517,28 +516,6 @@ void LtePhyUe::handleUpperMessage(cMessage* msg)
 
     LtePhyBase::handleUpperMessage(msg);
 }
-
-//void LtePhyUe::handleHostState(const HostState& state)  {
-//    /*
-//     * If a module is not using the battery, but it has a battery module,
-//     * battery capacity never decreases, neither at timeouts,
-//     * because a draw is never called and a draw amount for the device
-//     * is never set (devices[i].currentActivity stuck at -1). See simpleBattery.cc @ line 244.
-//     */
-//    if (state.get() == HostState::ACTIVE)
-//        return;
-//
-//    if (!useBattery_ && state.get() == HostState::FAILED) {
-//        EV << "Warning: host state failed at node " << getName() << " while not using a battery!";
-//        return;
-//    }
-//
-//    if (state.get() == HostState::FAILED) {
-//        //depleted battery
-//        EV << "Battery depleted at node" << getName() << " with id " << getId();
-//        //TODO: stop sending and receiving messages or just collect statistics?
-//    }
-//}
 
 double LtePhyUe::updateHysteresisTh(double v)
 {

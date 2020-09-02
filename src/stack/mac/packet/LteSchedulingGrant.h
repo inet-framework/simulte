@@ -62,21 +62,6 @@ private:
 
     LteSchedulingGrant& operator=(const LteSchedulingGrant& other)
     {
-
-#if 0
-        if (other.userTxParams != NULL)
-        {
-            const UserTxParams* txParams = check_and_cast<const UserTxParams*>(other.userTxParams);
-            userTxParams = txParams->dup();
-        }
-        else
-        {
-            userTxParams = 0;
-        }
-        grantedBlocks = other.grantedBlocks;
-        grantedCwBytes = other.grantedCwBytes;
-        direction_ = other.direction_;
-#endif
         if (this == &other) return *this;
         LteSchedulingGrant_Base::operator=(other);
         copy(other);

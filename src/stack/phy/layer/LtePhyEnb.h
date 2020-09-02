@@ -54,7 +54,6 @@ class LtePhyEnb : public LtePhyBase
     LtePhyEnb();
     virtual ~LtePhyEnb();
 
-//        void setMicroTxPower();
 };
 
 #endif  /* _LTE_AIRPHYENB_H_ */

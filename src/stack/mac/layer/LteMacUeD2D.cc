@@ -125,8 +125,6 @@ void LteMacUeD2D::macPduMake(MacCid cid)
         {
             // Call the appropriate function for make a BSR for a D2D communication
             auto macPktBsr = makeBsr(sizeBsr);
-            //auto LteMacPdu* macPktBsr = makeBsr(sizeBsr);
-            //auto info = check_and_cast<UserControlInfo*>(macPktBsr->getControlInfo());
             auto info = macPktBsr->getTag<UserControlInfo>();
             if (bsrD2DMulticastTriggered_)
             {
@@ -187,7 +185,6 @@ void LteMacUeD2D::macPduMake(MacCid cid)
                 // Create a PDU
                 macPkt = new Packet("LteMacPdu");
                 auto header = makeShared<LteMacPdu>();
-                //macPkt = new LteMacPdu("LteMacPdu");
                 header->setHeaderLength(MAC_HEADER);
                 macPkt->insertAtFront(header);
                 macPkt->addTagIfAbsent<UserControlInfo>()->setSourceId(getMacNodeId());
@@ -641,7 +638,6 @@ void LteMacUeD2D::handleSelfMessage()
             EV << "\t currentHarq_ counter initialized " << endl;
             firstTx=true;
             // the eNb will receive the first pdu in 2 TTI, thus initializing acid to 0
-//            currentHarq_ = harqRxBuffers_.begin()->second->getProcesses() - 2;
             currentHarq_ = UE_TX_HARQ_PROCESSES - 2;
         }
         EV << "\t " << schedulingGrant_ << endl;
@@ -664,7 +660,6 @@ void LteMacUeD2D::handleSelfMessage()
         //        // triggering retransmission --- nothing to do here, really!
 //        } else {
         // buffer drop should occour here.
-//        scheduleList = ueScheduler_->buildSchedList();
 
         EV << NOW << " LteMacUeD2D::handleSelfMessage " << nodeId_ << " entered scheduling" << endl;
 

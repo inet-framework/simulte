@@ -121,8 +121,6 @@ void LteMacBase::fromPhy(cPacket *pktAux)
 
         auto hfbpkt = pkt->peekAtFront<LteHarqFeedback>();
         htit->second->receiveHarqFeedback(pkt);
-        //auto hfbpkt = pkt->removeAtFront<LteHarqFeedback>();
-        // pkt->insertAtFront<ht>();
     }
     else if (userInfo->getFrameType() == FEEDBACKPKT)
     {

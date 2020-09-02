@@ -354,9 +354,6 @@ void IP2lte::toStackEnb(Packet* pkt)
 
     int headerSize = 0;
 
-    // iphdr->setCrcMode(inet::CrcMode::CRC_COMPUTED);
-    // iphdr->getCrc();
-
     switch(transportProtocol)
     {
         case IP_PROT_TCP: {
@@ -517,8 +514,6 @@ void IP2lte::signalHandoverCompleteTarget(MacNodeId ueId, MacNodeId sourceEnb)
     // send down buffered packets in the following order:
     // 1) packets received from X2
     // 2) packets received from IP
-//    cMessage* handoverFinish = new cMessage("handoverFinish");
-//    scheduleAt(NOW + 0.005, handoverFinish);   // TODO check delay
 
     std::map<MacNodeId, IpDatagramQueue>::iterator it;
     for (it = hoFromX2_.begin(); it != hoFromX2_.end(); ++it)

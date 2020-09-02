@@ -38,16 +38,6 @@ class LteSchedulerEnbDl : public LteSchedulerEnb
      */
     bool checkEligibility(MacNodeId id, Codeword& cw);
 
-  public:
-
-    /**
-     * Default Constructor.
-     */
-    LteSchedulerEnbDl()
-    {
-    }
-
-  protected:
     /**
      * Updates current schedule list with HARQ retransmissions.
      * @return TRUE if OFDM space is exhausted.
