@@ -22,6 +22,7 @@ import lte.x2.LteX2Manager;
 import lte.stack.compManager.LteCompManager;
 import lte.stack.d2dModeSelection.D2DModeSelection;
 import lte.stack.handoverManager.LteHandoverManager;
+import lte.corenetwork.lteip.INetworkLayer2lte;
 
 import lte.stack.phy.ChannelModel.LteChannelModelInterface;
 
@@ -72,7 +73,7 @@ module LteNicBase extends InterfaceEntry like ILteNic
 
     submodules:
         // bridge between lte stack and network layer
-        ip2lte: IP2lte {
+        ip2lte: <default("IP2lte")> like INetworkLayer2lte {
             nodeType = nodeType;
             interfaceTableModule = interfaceTableModule;
             routingTableModule = routingTableModule;

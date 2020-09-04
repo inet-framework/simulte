@@ -27,8 +27,10 @@ typedef std::pair<inet::Ipv4Address, inet::Ipv4Address> AddressPair;
  */
 class IP2lte : public omnetpp::cSimpleModule
 {
+protected:
     omnetpp::cGate *stackGateOut_;       // gate connecting IP2lte module to LTE stack
     omnetpp::cGate *ipGateOut_;          // gate connecting IP2lte module to network layer
+
     LteNodeType nodeType_;      // node type: can be ENODEB, UE
 
     // datagram sequence numbers (one for each flow)
@@ -64,7 +66,7 @@ class IP2lte : public omnetpp::cSimpleModule
 
     bool ueHold_;
     IpDatagramQueue ueHoldFromIp_;
-
+  protected:
     /**
      * Handle packets from transport layer and forward them to the stack
      */
@@ -74,12 +76,12 @@ class IP2lte : public omnetpp::cSimpleModule
      * Manage packets received from Lte Stack
      * and forward them to transport layer.
      */
-    void prepareForIpv4(inet::Packet *datagram, const inet::Protocol *protocol = &inet::Protocol::ipv4);
-    void toIpUe(inet::Packet *datagram);
-    void fromIpEnb(inet::Packet * datagram);
-    void toIpEnb(inet::Packet * datagram);
-    void toStackEnb(inet::Packet* datagram);
-    void toStackUe(inet::Packet* datagram);
+    virtual void prepareForIpv4(inet::Packet *datagram, const inet::Protocol *protocol = &inet::Protocol::ipv4);
+    virtual void toIpUe(inet::Packet *datagram);
+    virtual void fromIpEnb(inet::Packet * datagram);
+    virtual void toIpEnb(inet::Packet * datagram);
+    virtual void toStackEnb(inet::Packet* datagram);
+    virtual void toStackUe(inet::Packet* datagram);
 
     /**
      * utility: set nodeType_ field
@@ -96,7 +98,7 @@ class IP2lte : public omnetpp::cSimpleModule
     void printControlInfo(inet::Packet* pkt);
     void registerInterface();
     void registerMulticastGroups();
-  protected:
+
     virtual void initialize(int stage) override;
     virtual int numInitStages() const override { return inet::INITSTAGE_LAST; }
     virtual void handleMessage(omnetpp::cMessage *msg) override;
