@@ -119,12 +119,6 @@ void IP2lte::handleMessage(cMessage *msg)
     		if (sockInd)
         		delete sockInd;
     		removeAllSimuLteTags(pkt);
-    		auto ipDatagram = pkt->peekAtFront<Ipv4Header>();
-    		auto networkProtocolInd = pkt->addTagIfAbsent<NetworkProtocolInd>();
-    		networkProtocolInd->setProtocol(&Protocol::ipv4);
-    		networkProtocolInd->setNetworkProtocolHeader(ipDatagram);
-    		pkt->addTagIfAbsent<PacketProtocolTag>()->setProtocol(&Protocol::ipv4);
-    		pkt->addTagIfAbsent<DispatchProtocolReq>()->setProtocol(&Protocol::ipv4);
             
             toIpEnb(pkt);
         }
@@ -155,14 +149,8 @@ void IP2lte::handleMessage(cMessage *msg)
     		if (sockInd)
         		delete sockInd;
     		removeAllSimuLteTags(pkt);
-    		auto ipDatagram = pkt->peekAtFront<Ipv4Header>();
-    		auto networkProtocolInd = pkt->addTagIfAbsent<NetworkProtocolInd>();
-    		networkProtocolInd->setProtocol(&Protocol::ipv4);
-    		networkProtocolInd->setNetworkProtocolHeader(ipDatagram);
-    		pkt->addTagIfAbsent<PacketProtocolTag>()->setProtocol(&Protocol::ipv4);
-    		pkt->addTagIfAbsent<DispatchProtocolReq>()->setProtocol(&Protocol::ipv4);
-            
-            toIpUe(pkt);
+
+    		toIpUe(pkt);
         }
         else
         {
@@ -275,11 +263,19 @@ void IP2lte::prepareForIpv4(Packet *datagram, const Protocol *protocol){
     datagram->addTagIfAbsent<InterfaceInd>()->setInterfaceId(interfaceEntry->getInterfaceId());
 }
 
-void IP2lte::toIpUe(Packet *datagram)
+void IP2lte::toIpUe(Packet *pkt)
 {
+    auto ipDatagram = pkt->peekAtFront<Ipv4Header>();
+    auto networkProtocolInd = pkt->addTagIfAbsent<NetworkProtocolInd>();
+    networkProtocolInd->setProtocol(&Protocol::ipv4);
+    networkProtocolInd->setNetworkProtocolHeader(ipDatagram);
+    pkt->addTagIfAbsent<PacketProtocolTag>()->setProtocol(&Protocol::ipv4);
+    pkt->addTagIfAbsent<DispatchProtocolReq>()->setProtocol(&Protocol::ipv4);
+
+
     EV << "IP2lte::toIpUe - message from stack: send to IP layer" << endl;
-    prepareForIpv4(datagram);
-    send(datagram,ipGateOut_);
+    prepareForIpv4(pkt);
+    send(pkt,ipGateOut_);
 }
 
 void IP2lte::fromIpEnb(Packet * pkt)
@@ -325,11 +321,19 @@ void IP2lte::fromIpEnb(Packet * pkt)
     toStackEnb(pkt);
 }
 
-void IP2lte::toIpEnb(Packet* datagram)
+void IP2lte::toIpEnb(Packet* pkt)
 {
+    auto ipDatagram = pkt->peekAtFront<Ipv4Header>();
+    auto networkProtocolInd = pkt->addTagIfAbsent<NetworkProtocolInd>();
+    networkProtocolInd->setProtocol(&Protocol::ipv4);
+    networkProtocolInd->setNetworkProtocolHeader(ipDatagram);
+    pkt->addTagIfAbsent<PacketProtocolTag>()->setProtocol(&Protocol::ipv4);
+    pkt->addTagIfAbsent<DispatchProtocolReq>()->setProtocol(&Protocol::ipv4);
+
+
     EV << "IP2lte::toIpEnb - message from stack: send to IP layer" << endl;
-    prepareForIpv4(datagram, &LteProtocol::ipv4uu);
-    send(datagram,ipGateOut_);
+    prepareForIpv4(pkt, &LteProtocol::ipv4uu);
+    send(pkt,ipGateOut_);
 }
 
 void IP2lte::toStackEnb(Packet* pkt)

@@ -8,6 +8,8 @@
 //
 package lte.corenetwork.lteip;
 
+import lte.corenetwork.lteip.INetworkLayer2lte;
+
 //
 // IP2lte module performs as a bridge between the network layer and the LTE protocol stack
 // It has a slightly different behavior in the UE rather than in the eNB
@@ -16,7 +18,7 @@ package lte.corenetwork.lteip;
 // - In the downstream direction adds control information to IP packets (5-tuple). Moreover in the ENb 
 //   module it adds the destination id to the control information, in order to send packets to the correct UE  
 //
-simple IP2lte
+simple IP2lte like INetworkLayer2lte
 {
     parameters:
         string nodeType;    
