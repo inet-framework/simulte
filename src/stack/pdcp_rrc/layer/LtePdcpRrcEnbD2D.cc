@@ -30,7 +30,7 @@ void LtePdcpRrcEnbD2D::fromDataPort(cPacket *pktAux)
     auto lteInfo = pkt->getTag<FlowControlInfo>();
     
     setTrafficInformation(pkt, lteInfo);
-    headerCompress(pkt, lteInfo->getHeaderSize()); // header compression
+    headerCompress(pkt);
 
     // get source info
     Ipv4Address srcAddr = Ipv4Address(lteInfo->getSrcAddr());

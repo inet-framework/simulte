@@ -8,6 +8,13 @@
 //
 
 #include "stack/pdcp_rrc/layer/LtePdcpRrc.h"
+#include "stack/pdcp_rrc/packet/LteRohcPdu_m.h"
+
+#include "inet/networklayer/common/L3Tools.h"
+#include "inet/transportlayer/common/L4Tools.h"
+#include "inet/networklayer/ipv4/Ipv4Header_m.h"
+#include "inet/transportlayer/udp/UdpHeader_m.h"
+#include "inet/transportlayer/tcp_common/TcpHeader.h"
 
 Define_Module(LtePdcpRrcUe);
 Define_Module(LtePdcpRrcEnb);
@@ -16,6 +23,10 @@ Define_Module(LtePdcpRrcRelayEnb);
 
 using namespace omnetpp;
 using namespace inet;
+
+// We require a minimum length of 1 Byte for each header even in compressed state
+// (transport, network and ROHC header, i.e. minimum is 3 Bytes)
+#define MIN_COMPRESSED_HEADER_SIZE B(3)
 
 LtePdcpRrcBase::LtePdcpRrcBase()
 {
@@ -35,27 +46,76 @@ LtePdcpRrcBase::~LtePdcpRrcBase()
     entities_.clear();
 }
 
-void LtePdcpRrcBase::headerCompress(cPacket* pkt, int headerSize)
+bool LtePdcpRrcBase::isCompressionEnabled()
 {
-    // TODO: still needs to be implemented / reviewed
-    return;
+    return (headerCompressedSize_ != LTE_PDCP_HEADER_COMPRESSION_DISABLED);
+}
 
-    if (headerCompressedSize_ != -1)
+void LtePdcpRrcBase::headerCompress(Packet* pkt)
+{
+    if (isCompressionEnabled())
     {
-        pkt->setByteLength(
-            pkt->getByteLength() - headerSize + headerCompressedSize_);
+        auto ipHeader = pkt->removeAtFront<Ipv4Header>();
+
+        int transportProtocol = ipHeader->getProtocolId();
+        B transportHeaderCompressedSize = B(0);
+
+        auto rohcHeader = makeShared<LteRohcPdu>();
+        rohcHeader->setOrigSizeIpHeader(ipHeader->getHeaderLength());
+
+        if (IP_PROT_TCP == transportProtocol) {
+            auto tcpHeader = pkt->removeAtFront<tcp::TcpHeader>();
+            rohcHeader->setOrigSizeTransportHeader(tcpHeader->getHeaderLength());
+            tcpHeader->setChunkLength(B(1));
+            transportHeaderCompressedSize = B(1);
+            pkt->insertAtFront(tcpHeader);
+        }
+        else if (IP_PROT_UDP == transportProtocol) {
+            auto udpHeader = pkt->removeAtFront<UdpHeader>();
+            rohcHeader->setOrigSizeTransportHeader(inet::UDP_HEADER_LENGTH);
+            udpHeader->setChunkLength(B(1));
+            transportHeaderCompressedSize = B(1);
+            pkt->insertAtFront(udpHeader);
+        } else {
+            EV_WARN << "LtePdcp : unknown transport header - cannot perform transport header compression";
+            rohcHeader->setOrigSizeTransportHeader(B(0));
+        }
+
+        ipHeader->setChunkLength(B(1));
+        pkt->insertAtFront(ipHeader);
+
+        rohcHeader->setChunkLength(headerCompressedSize_-transportHeaderCompressedSize-B(1));
+        pkt->insertAtFront(rohcHeader);
+
         EV << "LtePdcp : Header compression performed\n";
     }
 }
 
-void LtePdcpRrcBase::headerDecompress(cPacket* pkt, int headerSize)
+void LtePdcpRrcBase::headerDecompress(Packet* pkt)
 {
-    // TODO: still needs to be implemented / reviewed
-    return;
-    if (headerCompressedSize_ != -1)
+    if (isCompressionEnabled())
     {
-        pkt->setByteLength(
-            pkt->getByteLength() + headerSize - headerCompressedSize_);
+        pkt->trim();
+        auto rohcHeader = pkt->removeAtFront<LteRohcPdu>();
+        auto ipHeader = pkt->removeAtFront<Ipv4Header>();
+        int transportProtocol = ipHeader->getProtocolId();
+
+        if (IP_PROT_TCP == transportProtocol) {
+            auto tcpHeader = pkt->removeAtFront<tcp::TcpHeader>();
+            tcpHeader->setChunkLength(rohcHeader->getOrigSizeTransportHeader());
+            pkt->insertAtFront(tcpHeader);
+        }
+        else if (IP_PROT_UDP == transportProtocol) {
+            auto udpHeader = pkt->removeAtFront<UdpHeader>();
+            udpHeader->setChunkLength(rohcHeader->getOrigSizeTransportHeader());
+            pkt->insertAtFront(udpHeader);
+        } else {
+            EV_WARN << "LtePdcp : unknown transport header - cannot perform transport header decompression";
+        }
+
+        ipHeader->setChunkLength(rohcHeader->getOrigSizeIpHeader());
+        pkt->insertAtFront(ipHeader);
+
         EV << "LtePdcp : Header decompression performed\n";
     }
 }
@@ -106,7 +166,7 @@ void LtePdcpRrcBase::fromDataPort(cPacket *pktAux)
 
     setTrafficInformation(pkt, lteInfo);
     lteInfo->setDestId(getDestId(lteInfo));
-    headerCompress(pkt, lteInfo->getHeaderSize()); // header compression
+    headerCompress(pkt);
 
     // Cid Request
     EV << "LteRrc : Received CID request for Traffic [ " << "Source: "
@@ -223,7 +283,7 @@ void LtePdcpRrcBase::toDataPort(cPacket *pktAux)
     EV << "LtePdcp : Received packet with CID " << lteInfo->getLcid() << "\n";
     EV << "LtePdcp : Packet size " << pkt->getByteLength() << " Bytes\n";
 
-    headerDecompress(pkt, lteInfo->getHeaderSize()); // Decompress packet header
+    headerDecompress(pkt);
     handleControlInfo(pkt, lteInfo);
 
     pkt->addTagIfAbsent<PacketProtocolTag>()->setProtocol(&Protocol::ipv4);
@@ -265,7 +325,13 @@ void LtePdcpRrcBase::initialize(int stage)
         amSap_[OUT_GATE] = gate("AM_Sap$o");
 
         binder_ = getBinder();
-        headerCompressedSize_ = par("headerCompressedSize"); // Compressed size
+        headerCompressedSize_ = B(par("headerCompressedSize"));
+        if(headerCompressedSize_ != LTE_PDCP_HEADER_COMPRESSION_DISABLED &&
+                headerCompressedSize_ < MIN_COMPRESSED_HEADER_SIZE)
+        {
+            throw cRuntimeError("Size of compressed header must not be less than %i", MIN_COMPRESSED_HEADER_SIZE.get());
+        }
+
         nodeId_ = getAncestorPar("macNodeId");
 
         // statistics

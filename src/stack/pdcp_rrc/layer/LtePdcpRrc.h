@@ -20,6 +20,9 @@
 #include "stack/pdcp_rrc/packet/LtePdcpPdu_m.h"
 #include "stack/pdcp_rrc/layer/entity/LtePdcpEntity.h"
 
+
+#define LTE_PDCP_HEADER_COMPRESSION_DISABLED B(-1)
+
 /**
  * @class LtePdcp
  * @brief PDCP Layer
@@ -90,18 +93,18 @@ class LtePdcpRrcBase : public omnetpp::cSimpleModule
      * simply decrements the HEADER size by the configured
      * number of bytes
      *
-     * @param cPacket packet to compress
+     * @param Packet packet to compress
      */
-    void headerCompress(omnetpp::cPacket* pkt, int headerSize);
+    void headerCompress(inet::Packet* pkt);
 
     /**
      * headerDecompress(): Performs header decompression.
      * At the moment, if header compression is enabled,
      * simply restores original packet size
      *
-     * @param cPacket packet to decompress
+     * @param Packet packet to decompress
      */
-    void headerDecompress(omnetpp::cPacket* pkt, int headerSize);
+    void headerDecompress(inet::Packet* pkt);
 
     /*
      * Functions to be implemented from derived classes
@@ -140,6 +143,8 @@ class LtePdcpRrcBase : public omnetpp::cSimpleModule
      */
     virtual Direction getDirection() = 0;
     void setTrafficInformation(omnetpp::cPacket* pkt, FlowControlInfo* lteInfo);
+
+    bool isCompressionEnabled();
 
     /*
      * Upper Layer Handlers
@@ -203,7 +208,7 @@ class LtePdcpRrcBase : public omnetpp::cSimpleModule
      */
 
     /// Header size after ROHC (RObust Header Compression)
-    int headerCompressedSize_;
+    inet::B headerCompressedSize_;
 
     /// Binder reference
     LteBinder *binder_;

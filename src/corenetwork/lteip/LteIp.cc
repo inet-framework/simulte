@@ -186,31 +186,31 @@ void LteIp::handleMessage(cMessage *msg)
             pkt->addTagIfAbsent<NetworkProtocolInd>()->setProtocol(&Protocol::ipv4);
             pkt->addTagIfAbsent<NetworkProtocolInd>()->setNetworkProtocolHeader(ipDatagram);
 
-            auto trasnportHeader = getTransportProtocolHeader(pkt);
+            auto transportHeader = getTransportProtocolHeader(pkt);
             int transportProtocol = ipDatagram->getProtocolId();
 
             unsigned short srcPort = 0;
             unsigned short dstPort = 0;
-            int headerSize = inet::IPv4_MIN_HEADER_LENGTH.get();
+            inet::B headerSize = inet::IPv4_MIN_HEADER_LENGTH;
 
             if (IP_PROT_TCP == transportProtocol) {
-                auto tcpseg = dynamicPtrCast<const tcp::TcpHeader>(trasnportHeader);
+                auto tcpseg = dynamicPtrCast<const tcp::TcpHeader>(transportHeader);
                 srcPort = tcpseg->getSrcPort();
                 dstPort = tcpseg->getDestPort();
-                headerSize += tcpseg->getHeaderLength().get();
+                headerSize += tcpseg->getHeaderLength();
             }
             else if (IP_PROT_UDP == transportProtocol) {
-                auto udppacket = dynamicPtrCast<const UdpHeader>(trasnportHeader);
+                auto udppacket = dynamicPtrCast<const UdpHeader>(transportHeader);
                 srcPort = udppacket->getSrcPort();
                 dstPort = udppacket->getDestPort();
-                headerSize += inet::UDP_HEADER_LENGTH.get();
+                headerSize += inet::UDP_HEADER_LENGTH;
             }
             pkt->addTagIfAbsent<FlowControlInfo>()->setSrcAddr(ipDatagram->getSrcAddress().getInt());
             pkt->addTagIfAbsent<FlowControlInfo>()->setDstAddr(ipDatagram->getDestAddress().getInt());
             pkt->addTagIfAbsent<FlowControlInfo>()->setSrcPort(srcPort);
             pkt->addTagIfAbsent<FlowControlInfo>()->setDstPort(dstPort);
             pkt->addTagIfAbsent<FlowControlInfo>()->setSequenceNumber(seqNum_++);
-            pkt->addTagIfAbsent<FlowControlInfo>()->setHeaderSize(headerSize);
+            pkt->addTagIfAbsent<FlowControlInfo>()->setHeaderSize(headerSize.get());
             MacNodeId destId = getBinder()->getMacNodeId(ipDatagram->getDestAddress());
             // master of this ue (myself or a relay)
 
@@ -336,20 +336,20 @@ void LteIp::fromTransport(Packet * transportPacket, cGate *outputgate)
     //** Add control info for stack **
     unsigned short srcPort = 0;
     unsigned short dstPort = 0;
-    int headerSize = IPv4_MIN_HEADER_LENGTH.get();
+    inet::B headerSize = IPv4_MIN_HEADER_LENGTH;
 
     auto trasnportHeader = getTransportProtocolHeader(transportPacket);
     if (IP_PROT_TCP == ipHeader->getProtocolId()) {
         auto tcpseg = dynamicPtrCast<const tcp::TcpHeader>(trasnportHeader);
         srcPort = tcpseg->getSrcPort();
         dstPort = tcpseg->getDestPort();
-        headerSize += tcpseg->getHeaderLength().get();
+        headerSize += tcpseg->getHeaderLength();
     }
     else if (IP_PROT_UDP == ipHeader->getProtocolId()) {
         auto udppacket = dynamicPtrCast<const UdpHeader>(trasnportHeader);
         srcPort = udppacket->getSrcPort();
         dstPort = udppacket->getDestPort();
-        headerSize += inet::UDP_HEADER_LENGTH.get();
+        headerSize += inet::UDP_HEADER_LENGTH;
     }
 
     insertNetworkProtocolHeader(transportPacket, Protocol::ipv4, ipHeader);
@@ -359,7 +359,7 @@ void LteIp::fromTransport(Packet * transportPacket, cGate *outputgate)
     transportPacket->addTagIfAbsent<FlowControlInfo>()->setSrcPort(srcPort);
     transportPacket->addTagIfAbsent<FlowControlInfo>()->setDstPort(dstPort);
     transportPacket->addTagIfAbsent<FlowControlInfo>()->setSequenceNumber(seqNum_++);
-    transportPacket->addTagIfAbsent<FlowControlInfo>()->setHeaderSize(headerSize);
+    transportPacket->addTagIfAbsent<FlowControlInfo>()->setHeaderSize(headerSize.get());
     printControlInfo(transportPacket);
 
     //** Send datagram to lte stack or LteIp peer **
