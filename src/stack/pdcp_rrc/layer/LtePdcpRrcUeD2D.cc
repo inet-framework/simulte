@@ -42,7 +42,7 @@ void LtePdcpRrcUeD2D::fromDataPort(cPacket *pktAux)
     auto pkt = check_and_cast<Packet *>(pktAux);
     auto lteInfo = pkt->getTag<FlowControlInfo>();
     setTrafficInformation(pkt, lteInfo);
-    headerCompress(pkt, lteInfo->getHeaderSize()); // header compression
+    headerCompress(pkt);
 
     // get destination info
     Ipv4Address destAddr = Ipv4Address(lteInfo->getDstAddr());
