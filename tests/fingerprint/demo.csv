@@ -1,5 +1,5 @@
 # workingdir,                        args,                                     simtimelimit,    fingerprint
-/simulations/demo/,                  -f omnetpp.ini -c VideoStreaming -r 0,    5s,              769e-0695/tplx, PASS,
+/simulations/demo/,                  -f omnetpp.ini -c VideoStreaming -r 0,    5s,              c225-5b71/tplx, PASS,
 /simulations/demo/,                  -f omnetpp.ini -c VoIP -r 0,              5s,              2b31-32ba/tplx, PASS,
 /simulations/demo/,                  -f omnetpp.ini -c VoIP_PF -r 0,           5s,              2e26-f350/tplx, PASS,
 /simulations/demo/,                  -f omnetpp.ini -c Large-VoIP_PF -r 0,     5s,              e250-ee35/tplx, PASS,
@@ -7,8 +7,8 @@
 /simulations/demo/,                  -f omnetpp.ini -c VoIP_DL-UL -r 0,        5s,              e0e8-a19d/tplx, PASS,
 /simulations/demo/,                  -f omnetpp.ini -c VoIP-DL -r 0,           5s,              cb99-aad2/tplx, PASS,
 /simulations/demo/,                  -f omnetpp.ini -c VoIP-UL -r 0,           5s,              1fdd-6780/tplx, PASS,
-/simulations/demo/,                  -f omnetpp.ini -c CBR-UL -r 0,            5s,              15b8-b777/tplx, PASS,
-/simulations/demo/,                  -f omnetpp.ini -c CBR-UL -r 5,            5s,              77ac-0d05/tplx, PASS,
+/simulations/demo/,                  -f omnetpp.ini -c CBR-UL -r 0,            5s,              69f7-0094/tplx, PASS,
+/simulations/demo/,                  -f omnetpp.ini -c CBR-UL -r 5,            5s,              8365-9944/tplx, PASS,
 /simulations/demo/,                  -f omnetpp.ini -c CBR-DL -r 0,            5s,              eef3-e8c1/tplx, PASS,
 /simulations/demo/,                  -f omnetpp.ini -c CBR-DL -r 5,            5s,              9f12-f5a1/tplx, PASS,
 /simulations/demo/,                  -f omnetpp.ini -c MixedTraffic -r 0,      5s,              3b7c-a231/tplx, PASS,

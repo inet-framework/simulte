@@ -151,6 +151,7 @@ void UmTxEntity::rlcPduMake(int pduLength)
     {
         // send an empty (1-bit) message to notify the MAC that there is not enough space to send RLC PDU
         // (TODO: ugly, should be indicated in a better way)
+        EV << NOW << " UmTxEntity::rlcPduMake - cannot send PDU with data, pdulength requested by MAC (" << pduLength << "B) is too small." << std::endl;
         pkt->setName("lteRlcFragment (empty)");
         rlcPdu->setChunkLength(inet::b(1)); // send only a bit, minimum size
     }

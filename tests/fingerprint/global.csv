@@ -6,7 +6,7 @@
 /simulations/advanced/,             -f omnetpp.ini -c SchedulersTest -r 12,                 5s,             60e5-6c75/tplx, PASS,
 
 # DEMO  
-/simulations/demo/,                 -f omnetpp.ini -c VideoStreaming -r 0,                  5s,             769e-0695/tplx, PASS,
+/simulations/demo/,                 -f omnetpp.ini -c VideoStreaming -r 0,                  5s,             c225-5b71/tplx, PASS,
 /simulations/demo/,                 -f omnetpp.ini -c VoIP -r 0,                            5s,             2b31-32ba/tplx, PASS,
 /simulations/demo/,                 -f omnetpp.ini -c VoIP_PF -r 0,                         5s,             2e26-f350/tplx, PASS,
 #/simulations/demo/,                -f omnetpp.ini -c Large-VoIP_PF -r 0,                   5s,             20d0-b35d/tplx, PASS,
@@ -16,7 +16,7 @@
 /simulations/demo/,                 -f omnetpp.ini -c VoIP-UL -r 0,                         5s,             1fdd-6780/tplx, PASS,
 
 # DEMO W/ results
-/simulations/demo/,                  -f omnetpp.ini -c VideoStreaming -r 0,    5s,              aee2-ea47/tls, PASS,
+/simulations/demo/,                  -f omnetpp.ini -c VideoStreaming -r 0,    5s,              cd55-3175/tls, PASS,
 /simulations/demo/,                  -f omnetpp.ini -c VoIP -r 0,              5s,              ccb1-1cc9/tls, PASS,
 /simulations/demo/,                  -f omnetpp.ini -c VoIP_PF -r 0,           5s,              4a4a-afcb/tls, PASS,
 #/simulations/demo/,                  -f omnetpp.ini -c Large-VoIP_PF -r 0,     5s,             ada5-c3af/tls, PASS,

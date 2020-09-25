@@ -563,22 +563,18 @@ void LteMacUe::macPduUnmake(cPacket* pktAux)
 void LteMacUe::handleUpperMessage(cPacket* pktAux)
 {
     auto pkt = check_and_cast<Packet *>(pktAux);
-    bool isLteRlcPduNewData = checkIfHeaderType<LteRlcPduNewData>(pkt);
 
     // bufferize packet
-    bool packetIsBuffered = bufferizePacket(pkt);
+    bufferizePacket(pkt);
 
-    if (!isLteRlcPduNewData && packetIsBuffered)
+    // build a MAC PDU only after all MAC SDUs have been received from RLC
+    requestedSdus_--;
+    if (requestedSdus_ == 0)
     {
-        // build a MAC PDU only after all MAC SDUs have been received from RLC
-        requestedSdus_--;
-        if (requestedSdus_ == 0)
-        {
-            macPduMake();
-            // update current harq process id
-            EV << NOW << " LteMacUe::handleMessage - incrementing counter for HARQ processes " << (unsigned int)currentHarq_ << " --> " << (currentHarq_+1)%harqProcesses_ << endl;
-            currentHarq_ = (currentHarq_+1) % harqProcesses_;
-        }
+        macPduMake();
+        // update current harq process id
+        EV << NOW << " LteMacUe::handleMessage - incrementing counter for HARQ processes " << (unsigned int)currentHarq_ << " --> " << (currentHarq_+1)%harqProcesses_ << endl;
+        currentHarq_ = (currentHarq_+1) % harqProcesses_;
     }
 }
 
