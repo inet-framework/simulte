@@ -77,6 +77,7 @@ void LteMacUe::initialize(int stage)
     if (stage == INITSTAGE_LOCAL)
     {
         lcgScheduler_ = new LteSchedulerUeUl(this);
+        scheduleList_ = lcgScheduler_->getScheduledBytesList();
 
         cqiDlMuMimo0_ = registerSignal("cqiDlMuMimo0");
         cqiDlMuMimo1_ = registerSignal("cqiDlMuMimo1");
@@ -563,18 +564,23 @@ void LteMacUe::macPduUnmake(cPacket* pktAux)
 void LteMacUe::handleUpperMessage(cPacket* pktAux)
 {
     auto pkt = check_and_cast<Packet *>(pktAux);
+    bool isLteRlcPduNewDataInd = checkIfHeaderType<LteRlcPduNewData>(pkt);
 
     // bufferize packet
     bufferizePacket(pkt);
 
-    // build a MAC PDU only after all MAC SDUs have been received from RLC
-    requestedSdus_--;
-    if (requestedSdus_ == 0)
-    {
-        macPduMake();
-        // update current harq process id
-        EV << NOW << " LteMacUe::handleMessage - incrementing counter for HARQ processes " << (unsigned int)currentHarq_ << " --> " << (currentHarq_+1)%harqProcesses_ << endl;
-        currentHarq_ = (currentHarq_+1) % harqProcesses_;
+    if(!isLteRlcPduNewDataInd){
+        requestedSdus_--;
+        ASSERT(requestedSdus_ >= 0);
+        // build a MAC PDU only after all MAC SDUs have been received from RLC
+        if (requestedSdus_ == 0)
+        {
+            // make PDU and BSR (if necessary)
+            macPduMake();
+            // update current harq process id
+            EV << NOW << " LteMacUe::handleMessage - incrementing counter for HARQ processes " << (unsigned int)currentHarq_ << " --> " << (currentHarq_+1)%harqProcesses_ << endl;
+            currentHarq_ = (currentHarq_+1) % harqProcesses_;
+        }
     }
 }
 
