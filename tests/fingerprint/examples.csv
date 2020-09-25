@@ -2,7 +2,7 @@
 /simulations/advanced/,              -f omnetpp.ini -c VoIP -r 0,              5s,              2b31-32ba/tplx, PASS,
 /simulations/advanced/,              -f omnetpp.ini -c SchedulersTest -r 0,    5s,              5967-6a15/tplx, PASS,
 /simulations/advanced/,              -f omnetpp.ini -c SchedulersTest -r 12,    5s,             60e5-6c75/tplx, PASS,
-/simulations/demo/,                  -f omnetpp.ini -c VideoStreaming -r 0,    5s,              769e-0695/tplx, PASS,
+/simulations/demo/,                  -f omnetpp.ini -c VideoStreaming -r 0,    5s,              c225-5b71/tplx, PASS,
 /simulations/demo/,                  -f omnetpp.ini -c VoIP -r 0,              5s,              2b31-32ba/tplx, PASS,
 /simulations/demo/,                  -f omnetpp.ini -c VoIP_PF -r 0,           5s,              2e26-f350/tplx, PASS,
 /simulations/demo/,                  -f omnetpp.ini -c Large-VoIP_PF -r 0,     5s,              e250-ee35/tplx, PASS,

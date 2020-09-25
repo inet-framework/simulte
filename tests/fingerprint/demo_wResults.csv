@@ -1,5 +1,5 @@
 # workingdir,                        args,                                     simtimelimit,    fingerprint
-/simulations/demo/,                  -f omnetpp.ini -c VideoStreaming -r 0,    5s,              3d7a-580f/s, PASS,
+/simulations/demo/,                  -f omnetpp.ini -c VideoStreaming -r 0,    5s,              afa2-bd58/s, PASS,
 /simulations/demo/,                  -f omnetpp.ini -c VoIP -r 0,              5s,              4ec8-8e42/s, PASS,
 /simulations/demo/,                  -f omnetpp.ini -c VoIP_PF -r 0,           5s,              914a-4966/s, PASS,
 #/simulations/demo/,                  -f omnetpp.ini -c Large-VoIP_PF -r 0,     5s,             ada5-c3af/s, PASS,
