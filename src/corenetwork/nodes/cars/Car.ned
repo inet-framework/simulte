@@ -35,9 +35,12 @@ module Car extends Ue
 
         //# Network Layer specs
         *.routingTableModule = default(absPath(".ipv4.routingTable"));
-
+        
+        ipv4.configurator.typename = "HostAutoConfigurator";
+        ipv4.configurator.interfaces = "wlan";
+        
     submodules:
-        configurator: HostAutoConfigurator {
+	    configurator: HostAutoConfigurator {
             @display("p=126.4,413.96");
         }
 }
