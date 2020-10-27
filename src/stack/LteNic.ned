@@ -59,6 +59,7 @@ module LteNicBase extends InterfaceEntry like ILteNic
         string LteChannelModelType = default("LteRealisticChannelModel");
 
         bool d2dCapable;            // inherit the value from the parent module
+        string address = default("auto");
 
     gates:
         //#
