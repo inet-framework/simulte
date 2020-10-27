@@ -176,11 +176,9 @@ void IP2lte::fromIpUe(Packet * datagram)
     auto sockInd = datagram->removeTagIfPresent<SocketInd>();
     if (sockInd)
         delete sockInd;
+    
     removeAllSimuLteTags(datagram);
 
-    auto tag = datagram->removeTagIfPresent<FlowControlInfo>();
-    if (tag)
-        delete tag;
     // Remove InterfaceReq Tag (we already are on an interface now)
     datagram->removeTagIfPresent<InterfaceReq>();
 
@@ -419,8 +417,8 @@ void IP2lte::registerInterface()
     interfaceEntry->setInterfaceName("wlan");           // FIXME: user different name for lte interfaces
     // TODO configure MTE size from NED
     interfaceEntry->setMtu(1500);
-    // enable broadcast/multicast
-    interfaceEntry->setBroadcast(true);
+    //disable broadcast (not supported in LteNic), enable multicast
+    interfaceEntry->setBroadcast(false);
     interfaceEntry->setMulticast(true);
     interfaceEntry->setLoopback(false);
     
