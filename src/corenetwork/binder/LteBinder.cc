@@ -44,6 +44,11 @@ void LteBinder::unregisterNode(MacNodeId id)
         mac->unregisterHarqBufferRx(id);
     }
 
+    // remove 'id' from ModuleName cache
+    if(macNodeIdToModuleName_.erase(id) != 1){
+        EV_ERROR << "Cannot unregister node - node id \"" << id << "\" - not found";
+    }
+
     // remove 'id' from LteMacBase* cache but do not delte pointer.
     if(macNodeIdToModule_.erase(id) != 1){
         EV_ERROR << "Cannot unregister node - node id \"" << id << "\" - not found";
@@ -52,6 +57,19 @@ void LteBinder::unregisterNode(MacNodeId id)
     // remove 'id' from MacNodeId mapping
     if(nodeIds_.erase(id) != 1){
         EV_ERROR << "Cannot unregister node - node id \"" << id << "\" - not found";
+    }
+    // remove 'id' from ulTransmissionMap_
+    for(auto &bands : ulTransmissionMap_){ //all RB's for current and last TTI
+        for(auto &ues : bands){ // all Ue's in each block
+            auto itr = ues.begin();
+            while(itr != ues.end()){
+                if (itr->nodeId == id){
+                    itr = ues.erase(itr);
+                } else {
+                    itr++;
+                }
+            }
+        }
     }
 }
 
@@ -212,7 +230,7 @@ simtime_t LteBinder::getLastUpdateUlTransmissionInfo()
 
 void LteBinder::initAndResetUlTransmissionInfo()
 {
-    ulTransmissionMap_[PREV_TTI] = ulTransmissionMap_[1];
+    ulTransmissionMap_[PREV_TTI] = ulTransmissionMap_[CURR_TTI];
     ulTransmissionMap_[CURR_TTI].clear();
     ulTransmissionMap_[CURR_TTI].resize(numBands_);
 
