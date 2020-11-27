@@ -247,7 +247,7 @@ void LtePdcpRrcBase::fromDataPort(cPacket *pktAux)
     lteInfo->setLcid(mylcid);
 
     EV << "LtePdcp : Sending packet " << pkt->getName() << " on port "
-       << portName.c_str() << "\n";
+       << portName.c_str() << std::endl;
 
     pkt->addTagIfAbsent<PacketProtocolTag>()->setProtocol(&LteProtocol::pdcp);
 
@@ -264,7 +264,7 @@ void LtePdcpRrcBase::fromEutranRrcSap(cPacket *pkt)
     lteInfo->setLcid(1000);
     lteInfo->setRlcType(TM);
     pkt->setControlInfo(lteInfo);
-    EV << "LteRrc : Sending packet " << pkt->getName() << " on port TM_Sap$o\n";
+    EV << "LteRrc : Sending packet " << pkt->getName() << " on port TM_Sap$o" << std::endl;
     send(pkt, tmSap_[OUT_GATE]);
 }
 
@@ -289,7 +289,7 @@ void LtePdcpRrcBase::toDataPort(cPacket *pktAux)
     pkt->addTagIfAbsent<PacketProtocolTag>()->setProtocol(&Protocol::ipv4);
 
     EV << "LtePdcp : Sending packet " << pkt->getName()
-       << " on port DataPort$o\n";
+       << " on port DataPort$o" << std::endl;
     // Send message
     send(pkt, dataPort_[OUT_GATE]);
     emit(sentPacketToUpperLayer, pkt);
@@ -301,7 +301,7 @@ void LtePdcpRrcBase::toEutranRrcSap(cPacket *pkt)
     delete pkt;
 
     EV << "LteRrc : Sending packet " << upPkt->getName()
-       << " on port EUTRAN_RRC_Sap$o\n";
+       << " on port EUTRAN_RRC_Sap$o" << std::endl;
     send(upPkt, eutranRrcSap_[OUT_GATE]);
 }
 

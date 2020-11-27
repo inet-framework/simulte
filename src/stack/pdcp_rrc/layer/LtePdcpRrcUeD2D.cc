@@ -178,7 +178,7 @@ void LtePdcpRrcUeD2D::fromDataPort(cPacket *pktAux)
        << " traffic\n";
     EV << "LtePdcp : Packet size " << pkt->getByteLength() << " Bytes\n";
     EV << "LtePdcp : Sending packet " << pkt->getName() << " on port "
-       << portName;
+       << portName << std::endl;
 
     pkt->addTagIfAbsent<PacketProtocolTag>()->setProtocol(&LteProtocol::pdcp);
 

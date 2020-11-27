@@ -170,7 +170,7 @@ void LtePhyUeD2D::handleAirFrame(cMessage* msg)
         // DAS
         for (RemoteSet::iterator it = r.begin(); it != r.end(); it++)
         {
-            EV << "LtePhyUeD2D: Receiving Packet from antenna " << (*it) << "\n";
+            EV << "LtePhyUeD2D: Receiving Packet from antenna " << (*it) << endl;
 
             /*
              * On UE set the sender position
@@ -353,13 +353,13 @@ void LtePhyUeD2D::storeAirFrame(LteAirFrame* newFrame)
             }
         }
         rsrpMean = sum / allocatedRbs;
-        EV << NOW << " LtePhyUeD2D::storeAirFrame - Average RSRP from node " << newInfo->getSourceId() << ": " << rsrpMean ;
+        EV << "LtePhyUeD2D::storeAirFrame - Average RSRP from node " << newInfo->getSourceId() << ": " << rsrpMean << endl;
     }
     else  // distance
     {
         Coord newSenderCoord = newInfo->getCoord();
         distance = myCoord.distance(newSenderCoord);
-        EV << NOW << " LtePhyUeD2D::storeAirFrame - Distance from node " << newInfo->getSourceId() << ": " << distance ;
+        EV << NOW << " LtePhyUeD2D::storeAirFrame - Distance from node " << newInfo->getSourceId() << ": " << distance << endl;
     }
 
     if (!d2dReceivedFrames_.empty())
@@ -431,7 +431,7 @@ void LtePhyUeD2D::decodeAirFrame(LteAirFrame* frame, UserControlInfo* lteInfo)
         // DAS
         for (RemoteSet::iterator it = r.begin(); it != r.end(); it++)
         {
-            EV << "LtePhyUeD2D::decodeAirFrame: Receiving Packet from antenna " << (*it) << "\n";
+            EV << "LtePhyUeD2D::decodeAirFrame: Receiving Packet from antenna " << (*it) << endl;
 
             /*
              * On UE set the sender position
