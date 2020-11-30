@@ -40,7 +40,7 @@ network MultiCell_D2DMultihop
         }
         configurator: Ipv4NetworkConfigurator {
             @display("p=90.79375,121.8875");
-            config = xmldoc("demo.xml");
+            //config = xmldoc("./demo.xml");
         }
         binder: LteBinder {
             @display("p=90.79375,171.6375;is=s");

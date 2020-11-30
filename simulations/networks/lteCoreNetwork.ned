@@ -34,7 +34,7 @@ network lteCoreNetwork
         }
         configurator: Ipv4NetworkConfigurator {
             @display("p=95,42");
-            config = xmldoc("lteCoreConfigFiles/lteIpAddresses.xml");
+            //config = xmldoc("lteCoreConfigFiles/lteIpAddresses.xml");
         }
         pgwStandard: PgwStandard {
             nodeType = "PGW";

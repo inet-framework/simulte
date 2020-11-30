@@ -38,7 +38,7 @@ network MultiCell_X2Mesh
         }
         configurator: Ipv4NetworkConfigurator {
             @display("p=50,125");
-            config = xmldoc("demo.xml");
+            //config = xmldoc("./demo.xml");
         }
         binder: LteBinder {
             @display("p=50,175;is=s");

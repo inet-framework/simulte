@@ -42,7 +42,7 @@ network GtpNetwork
         }
         configurator: Ipv4NetworkConfigurator {
             @display("p=95,42");
-            config = xmldoc("ipAddresses.xml");
+            config = xmldoc("./ipAddresses.xml");
         }
         Host1: StandardHost {
             @display("p=89,121");

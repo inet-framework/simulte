@@ -45,7 +45,7 @@ moduleinterface ILteNic extends IWirelessInterface
 module LteNicBase extends NetworkInterface like ILteNic
 {
     parameters:
-        @class(::inet::InterfaceEntry);
+        @class(::inet::NetworkInterface);
         @display("i=block/ifcard;bgb=250,444;bgl=3");
         string interfaceTableModule;
         string routingTableModule;
