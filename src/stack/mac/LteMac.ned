@@ -271,14 +271,14 @@ simple LteMacEnb extends LteMacBase {
         double lteAslackTermINTERACTIVEDL @unit(s) = default(10ms);
         double lteAslackTermBACKGROUNDDL @unit(s) = default(0ms);
         
-        int lteAmaxUrgentBurstCONVERSATIONALDL @unit(byte) = default(0);
-        int lteAmaxUrgentBurstSTREAMINGDL @unit(byte)     = default(0);
-        int lteAmaxUrgentBurstINTERACTIVEDL @unit(byte)    = default(0);
+        int lteAmaxUrgentBurstCONVERSATIONALDL @unit(byte) = default(0B);
+        int lteAmaxUrgentBurstSTREAMINGDL @unit(byte)     = default(0B);
+        int lteAmaxUrgentBurstINTERACTIVEDL @unit(byte)    = default(0B);
         int lteAmaxUrgentBurstBACKGROUNDDL   @unit(byte)  = default(200B);
         
-        int lteAmaxFairnessBurstCONVERSATIONALDL @unit(byte) = default(0);
-        int lteAmaxFairnessBurstSTREAMINGDL @unit(byte)     = default(0);
-        int lteAmaxFairnessBurstINTERACTIVEDL @unit(byte)    = default(0);
+        int lteAmaxFairnessBurstCONVERSATIONALDL @unit(byte) = default(0B);
+        int lteAmaxFairnessBurstSTREAMINGDL @unit(byte)     = default(0B);
+        int lteAmaxFairnessBurstINTERACTIVEDL @unit(byte)    = default(0B);
         int lteAmaxFairnessBurstBACKGROUNDDL   @unit(byte)  = default(200B);
         
         // LTE Advanced Scheduler QOS Parameters - UL
@@ -292,10 +292,10 @@ simple LteMacEnb extends LteMacBase {
         double lteAslackTermINTERACTIVEUL @unit(s) = default(500ms);
         double lteAslackTermBACKGROUNDUL @unit(s) = default(0ms);
         
-        int lteAmaxBurstCONVERSATIONALUL @unit(byte) = default(0);
-        int lteAmaxBurstSTREAMINGUL     @unit(byte) = default(0);
-        int lteAmaxBurstINTERACTIVEUL   @unit(byte) = default(0);
-        int lteAmaxBurstBACKGROUNDUL    @unit(byte) = default(0);
+        int lteAmaxBurstCONVERSATIONALUL @unit(byte) = default(0B);
+        int lteAmaxBurstSTREAMINGUL     @unit(byte) = default(0B);
+        int lteAmaxBurstINTERACTIVEUL   @unit(byte) = default(0B);
+        int lteAmaxBurstBACKGROUNDUL    @unit(byte) = default(0B);
         
         // LTE Advanced Scheduler PF Version - DL
         bool pfTmsAwareDL = default(false);

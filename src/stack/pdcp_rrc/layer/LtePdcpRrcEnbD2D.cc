@@ -27,7 +27,7 @@ void LtePdcpRrcEnbD2D::fromDataPort(cPacket *pktAux)
     // Control Informations
 
     auto pkt = check_and_cast<Packet *>(pktAux);
-    auto lteInfo = pkt->getTag<FlowControlInfo>();
+    auto lteInfo = pkt->getTagForUpdate<FlowControlInfo>();
 
     setTrafficInformation(pkt, lteInfo);
     headerCompress(pkt);

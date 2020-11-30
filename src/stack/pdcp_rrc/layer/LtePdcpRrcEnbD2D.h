@@ -28,9 +28,9 @@ class LtePdcpRrcEnbD2D : public LtePdcpRrcEnb
     virtual void initialize(int stage) override;
     virtual void handleMessage(omnetpp::cMessage* msg) override;
 
-    void handleControlInfo(omnetpp::cPacket* upPkt, FlowControlInfo* lteInfo) override
+    void handleControlInfo(omnetpp::cPacket* upPkt, Ptr<FlowControlInfo> lteInfo) override
     {
-        delete lteInfo;
+        //delete lteInfo;
     }
 
     /**

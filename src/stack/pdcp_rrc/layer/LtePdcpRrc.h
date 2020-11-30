@@ -117,7 +117,7 @@ class LtePdcpRrcBase : public omnetpp::cSimpleModule
      * @param pkt packet
      * @param lteInfo Control Info
      */
-    virtual void handleControlInfo(omnetpp::cPacket* pkt, FlowControlInfo* lteInfo) = 0;
+    virtual void handleControlInfo(omnetpp::cPacket* pkt, Ptr<FlowControlInfo> lteInfo) = 0;
 
     /**
      * getDestId() retrieves the id of destination node according
@@ -132,7 +132,7 @@ class LtePdcpRrcBase : public omnetpp::cSimpleModule
      *
      * @param lteInfo Control Info
      */
-    virtual MacNodeId getDestId(FlowControlInfo* lteInfo) = 0;
+    virtual MacNodeId getDestId(inet::Ptr<FlowControlInfo> lteInfo) = 0;
 
     /**
      * getDirection() is used only on UEs and ENODEBs:
@@ -142,7 +142,7 @@ class LtePdcpRrcBase : public omnetpp::cSimpleModule
      * @return Direction of traffic
      */
     virtual Direction getDirection() = 0;
-    void setTrafficInformation(omnetpp::cPacket* pkt, FlowControlInfo* lteInfo);
+    void setTrafficInformation(omnetpp::cPacket* pkt, inet::Ptr<FlowControlInfo> lteInfo);
 
     bool isCompressionEnabled();
 
@@ -256,12 +256,12 @@ class LtePdcpRrcBase : public omnetpp::cSimpleModule
 class LtePdcpRrcUe : public LtePdcpRrcBase
 {
   protected:
-    void handleControlInfo(omnetpp::cPacket* upPkt, FlowControlInfo* lteInfo)
+    void handleControlInfo(omnetpp::cPacket* upPkt, Ptr<FlowControlInfo> lteInfo)
     {
-        delete lteInfo;
+        //delete lteInfo;
     }
 
-    MacNodeId getDestId(FlowControlInfo* lteInfo)
+    MacNodeId getDestId(inet::Ptr<FlowControlInfo> lteInfo)
     {
         // UE is subject to handovers: master may change
         return binder_->getNextHop(nodeId_);
@@ -280,12 +280,12 @@ class LtePdcpRrcUe : public LtePdcpRrcBase
 class LtePdcpRrcEnb : public LtePdcpRrcBase
 {
   protected:
-    void handleControlInfo(omnetpp::cPacket* upPkt, FlowControlInfo* lteInfo)
+    void handleControlInfo(omnetpp::cPacket* upPkt, Ptr<FlowControlInfo> lteInfo)
     {
-        delete lteInfo;
+        //delete lteInfo;
     }
 
-    MacNodeId getDestId(FlowControlInfo* lteInfo)
+    MacNodeId getDestId(inet::Ptr<FlowControlInfo> lteInfo)
     {
         // dest id
         MacNodeId destId = binder_->getMacNodeId(inet::Ipv4Address(lteInfo->getDstAddr()));
@@ -310,12 +310,12 @@ class LtePdcpRrcEnb : public LtePdcpRrcBase
 class LtePdcpRrcRelayEnb : public LtePdcpRrcBase
 {
   protected:
-    void handleControlInfo(omnetpp::cPacket* upPkt, FlowControlInfo* lteInfo)
+    void handleControlInfo(omnetpp::cPacket* upPkt, Ptr<FlowControlInfo> lteInfo)
     {
-        upPkt->setControlInfo(lteInfo);
+        upPkt->setControlInfo(lteInfo.get()->dup());
     }
 
-    MacNodeId getDestId(FlowControlInfo* lteInfo)
+    MacNodeId getDestId(inet::Ptr<FlowControlInfo> lteInfo)
     {
         // packet arriving from eNB, send to UE given the IP address
         return getBinder()->getMacNodeId(inet::Ipv4Address(lteInfo->getDstAddr()));
@@ -346,12 +346,12 @@ class LtePdcpRrcRelayUe : public LtePdcpRrcBase
         WATCH(destId_);
     }
 
-    void handleControlInfo(omnetpp::cPacket* upPkt, FlowControlInfo* lteInfo)
+    void handleControlInfo(omnetpp::cPacket* upPkt, Ptr<FlowControlInfo> lteInfo)
     {
-        upPkt->setControlInfo(lteInfo);
+        upPkt->setControlInfo(lteInfo.get()->dup());
     }
 
-    MacNodeId getDestId(FlowControlInfo* lteInfo)
+    MacNodeId getDestId(inet::Ptr<FlowControlInfo> lteInfo)
     {
         // packet arriving from UE, send to master
         return destId_;

@@ -11,7 +11,7 @@
 package lte.stack;
 
 import inet.linklayer.contract.IWirelessInterface;
-import inet.networklayer.common.InterfaceEntry;
+import inet.networklayer.common.NetworkInterface;
 import lte.stack.phy.LtePhy;
 import lte.stack.mac.LteMac;
 import lte.stack.pdcp_rrc.LtePdcpRrc;
@@ -42,7 +42,7 @@ moduleinterface ILteNic extends IWirelessInterface
 // Base module for the LTE Stack.
 //
 // TODO: implement IWirelessNic
-module LteNicBase extends InterfaceEntry like ILteNic
+module LteNicBase extends NetworkInterface like ILteNic
 {
     parameters:
         @class(::inet::InterfaceEntry);

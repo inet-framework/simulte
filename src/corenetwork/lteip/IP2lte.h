@@ -11,7 +11,7 @@
 #define __SIMULTE_IP2LTE_H_
 
 #include <omnetpp.h>
-#include <inet/networklayer/common/InterfaceEntry.h>
+#include <inet/networklayer/common/NetworkInterface.h>
 
 #include "common/LteControlInfo.h"
 #include "stack/handoverManager/LteHandoverManager.h"
@@ -47,7 +47,7 @@ protected:
     MacNodeId nodeId_;
 
     // corresponding entry for our interface
-    inet::InterfaceEntry* interfaceEntry;
+    inet::NetworkInterface* interfaceEntry;
 
     /*
      * Handover support

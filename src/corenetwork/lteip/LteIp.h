@@ -93,7 +93,13 @@ public:
   protected:
 
     virtual void handleRegisterService(const inet::Protocol& protocol, cGate *out, ServicePrimitive servicePrimitive) override;
+    virtual void handleRegisterAnyService(cGate *gate, ServicePrimitive servicePrimitive) override;
     virtual void handleRegisterProtocol(const inet::Protocol& protocol, cGate *in, ServicePrimitive servicePrimitive) override;
+    virtual void handleRegisterAnyProtocol(cGate *gate, ServicePrimitive servicePrimitive) override;
+
+    virtual void handleRegisterServiceGroup(const ProtocolGroup& protocolGroup, cGate *gate, ServicePrimitive servicePrimitive) override {throw cRuntimeError("handleRegisterServiceGroup not implemented");}
+    virtual void handleRegisterProtocolGroup(const ProtocolGroup& protocolGroup, cGate *gate, ServicePrimitive servicePrimitive) override {throw cRuntimeError("handleRegisterProtocolGroup not implemented");}
+
 
     void decapsulate(inet::Packet *packet);
 

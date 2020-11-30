@@ -640,7 +640,7 @@ LteRlcType aToRlcType(std::string s);
 const std::string planeToA(Plane p);
 MacNodeId ctrlInfoToUeId(LteControlInfo * info);
 MacCid idToMacCid(MacNodeId nodeId, LogicalCid lcid);
-MacCid ctrlInfoToMacCid(LteControlInfo * info);        // get the CID from the packet control info
+MacCid ctrlInfoToMacCid(LteControlInfo* info);        // get the CID from the packet control info
 MacNodeId MacCidToNodeId(MacCid cid);
 LogicalCid MacCidToLcid(MacCid cid);
 GrantType aToGrantType(std::string a);
@@ -726,9 +726,10 @@ std::vector<T> getTagsWithInherit(inet::Packet *pkt)
     // check if exist tag of that is derived from this.
     //
     for (unsigned int i = 0; i < tags.getNumTags(); i++) {
-        T * temp = dynamic_cast<T *> (tags.getTag(i));
+        auto tag = tags.getTagForUpdate(i);
+        auto temp = inet::dynamicPtrCast<T> (tag);
         if (temp != nullptr) {
-            t.push_back(*temp);
+            t.push_back(*temp.get());
         }
     }
     return t;
