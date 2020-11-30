@@ -38,7 +38,7 @@ module eNodeBBase
 {
     parameters:
         @networkNode;
-        @labels(node, ethernet-node, wireless-node);
+        @labels(node,ethernet-node,wireless-node);
         @display("i=device/antennatower;bgb=1260,600");
         @figure[applicationLayer](type=rectangle; pos=250,6; size=1000,130; lineColor=#808080; cornerRadius=5; fillColor=#ffff00; fillOpacity=0.1);
         @figure[applicationLayer.title](type=text; pos=1245,11; anchor=ne; text="application layer");
@@ -82,15 +82,15 @@ module eNodeBBase
     submodules:
         interfaceTable: InterfaceTable {
             parameters:
-            	@display("p=110.43,158.4875;is=s");
+                @display("p=110.43,158.4875;is=s");
         }
         mobility: StationaryMobility {
             parameters:
-            	@display("p=110.43,343.56;is=s");
+                @display("p=110.43,343.56;is=s");
         }
         cellInfo: LteCellInfo {
             parameters:
-            	@display("p=110.43,244.3775;is=s");
+                @display("p=110.43,244.3775;is=s");
         }
 
         //#
@@ -99,17 +99,17 @@ module eNodeBBase
         lteNic: <nicType> like ILteNic {
             parameters:
                 @display("p=433.54,520.4525");
-            	nodeType = nodeType;       
+                nodeType = nodeType;
         }
 
         pppIf: PppInterface {
             parameters:
-            	@display("p=963.195,520.4525");
+                @display("p=963.195,520.4525");
         }
 
         x2ppp[sizeof(x2)]: PppInterface {
             parameters:
-            	@display("p=1063.4,520.4525");
+                @display("p=1063.4,520.4525");
         }
 
         //#
@@ -130,25 +130,25 @@ module eNodeBBase
 		// =============== Udp ============== //
         app[numApps]: <> like IApp {
             parameters:
-            	@display("p=375,76,row,140");
+                @display("p=812.12,45.82,row,140");
         }
         udp: Udp {
             parameters:
-            	@display("p=682.0075,212.68001");
+                @display("p=682.0075,212.68001");
         }
         tcp: Tcp if hasTcp {
             parameters:
-            	@display("p=963.195,212.68001");
+                @display("p=963.195,212.68001");
         }
 
 	    // =============== X2AP ============== //
         x2App[numX2Apps]: LteX2App {
             parameters:
-            	@display("p=539.88,47.035,row");
+                @display("p=481.9,45.82,row");
         }
         sctp: Sctp {
             parameters:
-            	@display("p=421.27002,212.68001");
+                @display("p=421.27002,212.68001");
         }
 
 	    // message dispatcher for SAP between application and transport layer
@@ -254,18 +254,18 @@ module eNodeB extends eNodeBBase
         //# 
         trafficFlowFilter: TrafficFlowFilterSimplified {
             parameters:
-                @display("p=330,48");
-            	ownerType = nodeType;
+                @display("p=371.30002,28.44");
+                ownerType = nodeType;
         }
         gtpUser: GtpUserSimplified {
             parameters:
-            	@display("p=434,48");
-            	ipOutInterface = "wlan";       // FIXME: we should use a different name, eg. "cellular" for the LteNic
+                @display("p=199.08,45.82");
+                ipOutInterface = "wlan";       // FIXME: we should use a different name, eg. "cellular" for the LteNic
         }
 
         gtpUserX2: GtpUserX2 {
             parameters:
-            	@display("p=963.195,375.2575");
+                @display("p=963.195,375.2575");
         }
     connections:
         nl.in++ <-- gtpUser.pppGate;
