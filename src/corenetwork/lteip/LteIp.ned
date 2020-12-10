@@ -66,6 +66,7 @@ simple LteIp
         int timeToLive = default(32);              // default time to live
         string protocolMapping = default("");      // mapping between transportIn[]/Out[] indexes and protocol numbers
         string nodeType;                           // can be "internet", "enodeb", "ue"
+        string interfaceName = default("cellular"); 
         
     gates:
  

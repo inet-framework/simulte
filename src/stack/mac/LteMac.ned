@@ -17,6 +17,7 @@ moduleinterface LteMac {
     parameters:
         @display("i=block/mac");
         string interfaceTableModule;
+        string interfaceName;
    
     gates:
         input RLC_to_MAC;    // RLC to MAC
@@ -32,6 +33,7 @@ simple LteMacBase like LteMac {
     parameters:
         @display("i=block/mac");
         string interfaceTableModule;
+        string interfaceName = default("cellular");
 
         //# Mac Queues
         int queueSize @unit(B) = default(2MiB);              // MAC Buffers queue size

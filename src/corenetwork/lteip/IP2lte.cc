@@ -414,7 +414,7 @@ void IP2lte::registerInterface()
     if (!ift)
         return;
     interfaceEntry = getContainingNicModule(this);
-    interfaceEntry->setInterfaceName("wlan");           // FIXME: user different name for lte interfaces
+    interfaceEntry->setInterfaceName(par("interfaceName").stdstringValue().c_str());           // FIXME: user different name for lte interfaces
     // TODO configure MTE size from NED
     interfaceEntry->setMtu(1500);
     //disable broadcast (not supported in LteNic), enable multicast
@@ -440,7 +440,7 @@ void IP2lte::registerMulticastGroups()
     IInterfaceTable *ift = getModuleFromPar<IInterfaceTable>(par("interfaceTableModule"), this);
     if (!ift)
         return;
-    interfaceEntry = ift->findInterfaceByName("wlan");
+    interfaceEntry = ift->findInterfaceByName(par("interfaceName").stdstringValue().c_str());
     unsigned int numOfAddresses = interfaceEntry->getProtocolData<Ipv4InterfaceData>()->getNumOfJoinedMulticastGroups();
 
     for (unsigned int i=0; i<numOfAddresses; ++i)
