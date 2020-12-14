@@ -56,7 +56,7 @@ simple MultihopD2D like IApp
         
         //# Network Layer specs
         string interfaceTableModule = default(absPath(".interfaceTable"));
-        string interfaceName = default("cellular"); 
+        string interfaceName = default("wlan"); 
         
         //# Statistics
         @signal[d2dMultihopGeneratedMsg];

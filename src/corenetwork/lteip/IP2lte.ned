@@ -24,7 +24,7 @@ simple IP2lte like INetworkLayer2lte
         string nodeType;    
         string interfaceTableModule;
         string routingTableModule;
-        string interfaceName = default("cellular"); 
+        string interfaceName = default("wlan"); 
         @display("i=block/layer");
     gates:
         // connection to network layer.

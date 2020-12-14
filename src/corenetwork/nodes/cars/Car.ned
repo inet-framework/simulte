@@ -37,7 +37,7 @@ module Car extends Ue
         *.routingTableModule = default(absPath(".ipv4.routingTable"));
         
         ipv4.configurator.typename = "HostAutoConfigurator";
-        ipv4.configurator.interfaces = "cellular";
+        ipv4.configurator.interfaces = "wlan";
         
     submodules:
 	    configurator: HostAutoConfigurator {
