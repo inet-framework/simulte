@@ -8,7 +8,6 @@
 //
 package lte.simulations.cars;
 
-import inet.networklayer.configurator.ipv4.Ipv4NetworkConfigurator;
 import inet.networklayer.ipv4.RoutingTableRecorder;
 import inet.node.inet.AdhocHost;
 import inet.node.inet.Router;
@@ -21,6 +20,7 @@ import lte.corenetwork.binder.LteBinder;
 import lte.corenetwork.nodes.eNodeB;
 import lte.corenetwork.nodes.Ue;
 import lte.corenetwork.nodes.cars.Car;
+import lte.common.LteNetworkConfigurator;
 
 import org.car2x.veins.subprojects.veins_inet.VeinsInetManager;
 
@@ -37,7 +37,7 @@ network Highway
         routingRecorder: RoutingTableRecorder {
             @display("p=50,75;is=s");
         }
-        configurator: Ipv4NetworkConfigurator {
+        configurator: LteNetworkConfigurator {
             @display("p=50,125");
             config = xmldoc("demo.xml");
         }

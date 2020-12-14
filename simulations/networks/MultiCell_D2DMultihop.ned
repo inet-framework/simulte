@@ -8,7 +8,6 @@
 // 
 package lte.simulations.networks;
 
-import inet.networklayer.configurator.ipv4.Ipv4NetworkConfigurator;
 import inet.networklayer.ipv4.RoutingTableRecorder;
 import inet.node.ethernet.Eth10G;
 import inet.node.inet.Router;
@@ -21,6 +20,7 @@ import lte.world.radio.LteChannelControl;
 import lte.epc.PgwStandardSimplified;
 import lte.apps.d2dMultihop.eventGenerator.EventGenerator;
 import lte.apps.d2dMultihop.statistics.MultihopD2DStatistics;
+import lte.common.LteNetworkConfigurator;
 
 network MultiCell_D2DMultihop
 {
@@ -38,7 +38,7 @@ network MultiCell_D2DMultihop
         routingRecorder: RoutingTableRecorder {
             @display("p=90.79375,70.89375;is=s");
         }
-        configurator: Ipv4NetworkConfigurator {
+        configurator: LteNetworkConfigurator {
             @display("p=90.79375,121.8875");
             config = xmldoc("demo.xml");
         }
