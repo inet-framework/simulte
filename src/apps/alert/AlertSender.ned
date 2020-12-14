@@ -22,7 +22,7 @@ simple AlertSender like IApp
         double startTime @unit("s") = default(0s);
         double stopTime @unit("s") = default(0s); // 0 means "never stops" 
         string interfaceTableModule;
-        string multicastInterface = default("wlan");  // if not empty, set the multicast output interface option on the socket (interface name expected)
+        string multicastInterface = default("cellular");  // if not empty, set the multicast output interface option on the socket (interface name expected)
                
         @signal[alertSentMsg];
         @statistic[alertSentMsg](title="Alert messages sent"; unit=""; source="alertSentMsg"; record=sum,vector);

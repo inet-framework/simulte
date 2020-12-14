@@ -33,7 +33,7 @@ simple LteMacBase like LteMac {
     parameters:
         @display("i=block/mac");
         string interfaceTableModule;
-        string interfaceName = default("wlan");
+        string interfaceName = default("cellular");
 
         //# Mac Queues
         int queueSize @unit(B) = default(2MiB);              // MAC Buffers queue size
