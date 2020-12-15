@@ -9,7 +9,6 @@
 
 package lte.simulations.networks;
 
-import inet.networklayer.configurator.ipv4.Ipv4NetworkConfigurator;
 import inet.networklayer.ipv4.RoutingTableRecorder;
 import inet.node.inet.Router;
 import inet.node.inet.StandardHost;
@@ -20,6 +19,7 @@ import lte.corenetwork.nodes.eNBpp;
 import lte.epc.PgwStandard;
 import lte.epc.SgwStandard;
 import lte.world.radio.LteChannelControl;
+import lte.common.LteNetworkConfigurator;
 
 
 network eutran_epcNetwork
@@ -41,7 +41,7 @@ network eutran_epcNetwork
         channelControl: LteChannelControl {
             @display("p=50,25;is=s");
         }
-        configurator: Ipv4NetworkConfigurator {
+        configurator: LteNetworkConfigurator {
             @display("p=183,25");
             config = xmldoc("lteCoreConfigFiles/lteIpAddresses.xml");
         }

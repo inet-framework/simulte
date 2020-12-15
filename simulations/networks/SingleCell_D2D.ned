@@ -8,7 +8,6 @@
 // 
 package lte.simulations.networks;
 
-import inet.networklayer.configurator.ipv4.Ipv4NetworkConfigurator;
 import inet.networklayer.ipv4.RoutingTableRecorder;
 import inet.node.ethernet.Eth10G;
 import inet.node.ethernet.Eth10M;
@@ -20,7 +19,7 @@ import lte.corenetwork.nodes.Ue;
 import lte.corenetwork.nodes.eNodeB;
 import lte.world.radio.LteChannelControl;
 import lte.epc.PgwStandardSimplified;
-
+import lte.common.LteNetworkConfigurator;
 
 network SingleCell_D2D
 {
@@ -36,7 +35,7 @@ network SingleCell_D2D
         routingRecorder: RoutingTableRecorder {
             @display("p=50,75;is=s");
         }
-        configurator: Ipv4NetworkConfigurator {
+        configurator: LteNetworkConfigurator {
             @display("p=50,125");
             config = xmldoc("demo.xml");
         }

@@ -56,7 +56,7 @@ module eNodeBBase
         int macCellId = default(0);  // TODO: this is not a real parameter
         double txPower @unit(mw) = default(100mw);
         string nicType = default("LteNicEnb");
-        string interfaceName = default("wlan");
+        string interfaceName = default("cellular");
 
         //# Network Layer specs
         bool hasIpv4 = default(true);

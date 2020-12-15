@@ -34,7 +34,7 @@ module eNBpp extends eNodeBBase
         gtp_user: GtpUser {
             parameters:
             	@display("p=381,72");
-            	ipOutInterface = default("wlan");   // FIXME: we should use a different name, eg. "cellular" for the LteNic
+            	ipOutInterface = default("cellular");   // FIXME: we should use a different name, eg. "cellular" for the LteNic
         }
         trafficFlowFilter: TrafficFlowFilter {
             parameters:
