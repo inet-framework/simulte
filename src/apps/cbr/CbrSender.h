@@ -11,7 +11,7 @@
 #include <inet/transportlayer/contract/udp/UdpSocket.h>
 #include <inet/networklayer/common/L3AddressResolver.h>
 
-#include "CbrPacket_m.h"
+#include "apps/cbr/CbrPacket_m.h"
 
 class CbrSender : public omnetpp::cSimpleModule
 {
