@@ -24,7 +24,7 @@ simple VoDUDPServer like IApp
         int destPort;
         volatile double clientsStartStreamTime = default(0);
         string clientsReqTime = default("");
-        double startTime @unit("s") = default(0);
+        double startTime @unit("s") = default(0s);
 
         @display("i=block/app");
     gates:
