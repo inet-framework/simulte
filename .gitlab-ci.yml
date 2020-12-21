@@ -16,7 +16,7 @@ Build:
     - "git clone https://gitlab-ci-token:${CI_JOB_TOKEN}@sam-dev.cs.hm.edu/rover/rover-main.git"
     # - "$RV/pull_images.sh"
     - "mv .tmp simulte"
-    - "git clone --branch v4.2.0 https://gitlab-ci-token:${CI_JOB_TOKEN}@sam-dev.cs.hm.edu/rover/inet.git inet4"
+    - "git clone --branch v4.2.1 https://gitlab-ci-token:${CI_JOB_TOKEN}@sam-dev.cs.hm.edu/rover/inet.git inet4"
     - "cd inet4"
     - "../$RV/omnetpp exec make makefiles"
     - "../$RV/omnetpp exec make -j16; TEST_STATUS=${PIPESTATUS[0]}"
