@@ -14,6 +14,8 @@ Build:
     #OPPCONTTAG: 'latest'
     INETBRANCH: 'master'     # needs to be switched to v4.3.0 or similar as soon as available
     #INETBRANCH: 'v4.2.1'
+  before_script:
+    - echo "$DOCKER_REGISTRY_PASS" | docker login $DOCKER_REGISTRY --username $DOCKER_REGISTRY_USER --password-stdin
   script:
     - "mkdir .tmp"
     - "mv * .tmp"
