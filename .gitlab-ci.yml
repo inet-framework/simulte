@@ -10,13 +10,15 @@ Build:
   stage: build
   variables:
     RV: 'rover-main/scripts'
+    INETBRANCH: 'master'     # needs to be switched to v4.3.0 or similar as soon as available
+    #INETBRANCH: 'v4.2.1'
   script:
     - "mkdir .tmp"
     - "mv * .tmp"
     - "git clone https://gitlab-ci-token:${CI_JOB_TOKEN}@sam-dev.cs.hm.edu/rover/rover-main.git"
     # - "$RV/pull_images.sh"
     - "mv .tmp simulte"
-    - "git clone --branch v4.2.1 https://gitlab-ci-token:${CI_JOB_TOKEN}@sam-dev.cs.hm.edu/rover/inet.git inet4"
+    - "git clone --branch ${INETBRANCH} https://gitlab-ci-token:${CI_JOB_TOKEN}@sam-dev.cs.hm.edu/rover/inet.git inet4"
     - "cd inet4"
     - "../$RV/omnetpp exec make makefiles"
     - "../$RV/omnetpp exec make -j16; TEST_STATUS=${PIPESTATUS[0]}"
