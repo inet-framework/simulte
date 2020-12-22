@@ -16,7 +16,7 @@
 #pragma once
 
 #include "inet/networklayer/configurator/ipv4/Ipv4NetworkConfigurator.h"
-#include "inet/networklayer/common/InterfaceEntry.h"
+#include "inet/networklayer/common/NetworkInterface.h"
 
 
 using namespace omnetpp;
@@ -30,7 +30,7 @@ public:
 
 protected:
     virtual void initialize(int stage) override;
-    virtual bool isWirelessInterface(InterfaceEntry *interfaceEntry) override;
+    virtual bool isWirelessInterface(NetworkInterface *interfaceEntry) override;
 
     std::vector<std::pair<std::string, int>> interfaceComparator;
 };

@@ -9,7 +9,7 @@
 
 #include "epc/gtp/GtpUser.h"
 #include <inet/common/ModuleAccess.h>
-#include "inet/applications/common/SocketTag_m.h"
+#include "inet/common/socket/SocketTag_m.h"
 #include <inet/linklayer/common/InterfaceTag_m.h>
 #include <iostream>
 
@@ -53,11 +53,11 @@ void GtpUser::initialize(int stage) {
     //=============================================
 }
 
-InterfaceEntry *GtpUser::detectInterface()
+NetworkInterface *GtpUser::detectInterface()
 {
     IInterfaceTable *ift = getModuleFromPar<IInterfaceTable>(par("interfaceTableModule"), this);
     const char *interfaceName = par("ipOutInterface");
-    InterfaceEntry *ie = nullptr;
+    NetworkInterface *ie = nullptr;
 
     if (strlen(interfaceName) > 0) {
         ie = ift->findInterfaceByName(interfaceName);
@@ -110,7 +110,7 @@ void GtpUser::handleFromTrafficFlowFilter(Packet *pkt) {
     // extract control info from the datagram
     auto tftInfo = pkt->removeTag<TftControlInfo>();
     TrafficFlowTemplateId flowId = tftInfo->getTft();
-    delete tftInfo;
+    //delete tftInfo;
     removeAllSimuLteTags(pkt);
 
     EV << "GtpUser::handleFromTrafficFlowFilter - Received a tftMessage with flowId["
@@ -154,8 +154,8 @@ void GtpUser::handleFromUdp(Packet *pkt) {
 
     // remove any pending socket indications
     auto sockInd = pkt->removeTagIfPresent<SocketInd>();
-    if (sockInd)
-        delete sockInd;
+    //if (sockInd)
+    //    delete sockInd;
 
     // obtain the incoming TEID from message
     oldTeid = gtpMsg->getTeid();

@@ -43,7 +43,6 @@ network eutran_epcNetwork
         }
         configurator: LteNetworkConfigurator {
             @display("p=183,25");
-            config = xmldoc("lteCoreConfigFiles/lteIpAddresses.xml");
         }
         binder: LteBinder {
             @display("p=310,25;is=s");

@@ -42,8 +42,8 @@
 /simulations/eutran_epc/,           -f omnetpp.ini -c Voip-UL -r 0,                         5s,             4fbc-e420/tplx, PASS,
 
 # GTP Network
-/simulations/gtpNetwork/,           -f lteCoreExample.ini -c Internet-LTE -r 0,             5s,             18c5-06fb/tplx, PASS,
-/simulations/gtpNetwork/,           -f lteCoreExample.ini -c LTE-LTE -r 0,                  5s,             8fe1-dc45/tplx, PASS,
+/simulations/gtpNetwork/,           -f lteCoreExample.ini -c Internet-LTE -r 0,             5s,             c0e6-1ab4/tplx, PASS,
+/simulations/gtpNetwork/,           -f lteCoreExample.ini -c LTE-LTE -r 0,                  5s,             0ed5-3dd2/tplx, PASS,
 
 # Multicell
 /simulations/multicell/,            -f omnetpp.ini -c VoIP -r 0,                            5s,             cfea-5c72/tplx, PASS,

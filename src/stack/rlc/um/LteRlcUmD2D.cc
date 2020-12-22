@@ -72,14 +72,14 @@ void LteRlcUmD2D::handleLowerMessage(cPacket *pktAux)
         EV << NOW << " LteRlcUmD2D::handleLowerMessage - Received packet " << pkt->getName() << " from lower layer\n";
 
         auto switchPkt = pkt->peekAtFront<D2DModeSwitchNotification>();
-        auto lteInfo = pkt->getTag<FlowControlInfo>();
+        auto lteInfo = pkt->getTagForUpdate<FlowControlInfo>();
 
         // add here specific behavior for handling mode switch at the RLC layer
 
         if (switchPkt->getTxSide())
         {
             // get the corresponding Rx buffer & call handler
-            UmTxEntity* txbuf = getTxBuffer(lteInfo);
+            UmTxEntity* txbuf = getTxBuffer(lteInfo.get());
             txbuf->rlcHandleD2DModeSwitch(switchPkt->getOldConnection(), switchPkt->getClearRlcBuffer());
 
             // forward packet to PDCP
@@ -89,7 +89,7 @@ void LteRlcUmD2D::handleLowerMessage(cPacket *pktAux)
         else  // rx side
         {
             // get the corresponding Rx buffer & call handler
-            UmRxEntity* rxbuf = getRxBuffer(lteInfo);
+            UmRxEntity* rxbuf = getRxBuffer(lteInfo.get());
             rxbuf->rlcHandleD2DModeSwitch(switchPkt->getOldConnection(), switchPkt->getOldMode(), switchPkt->getClearRlcBuffer());
 
             delete pkt;

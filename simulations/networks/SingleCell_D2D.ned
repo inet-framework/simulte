@@ -37,7 +37,6 @@ network SingleCell_D2D
         }
         configurator: LteNetworkConfigurator {
             @display("p=50,125");
-            config = xmldoc("demo.xml");
         }
         binder: LteBinder {
             @display("p=50,175;is=s");

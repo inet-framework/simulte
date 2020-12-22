@@ -391,7 +391,7 @@ bool LteBinder::isFrequencyReuseEnabled(MacNodeId nodeId)
 }
 
 
-void LteBinder::registerMulticastGroup(MacNodeId nodeId, int32 groupId)
+void LteBinder::registerMulticastGroup(MacNodeId nodeId, int32_t groupId)
 {
     if (multicastGroupMap_.find(nodeId) == multicastGroupMap_.end())
     {
@@ -405,7 +405,7 @@ void LteBinder::registerMulticastGroup(MacNodeId nodeId, int32 groupId)
     }
 }
 
-bool LteBinder::isInMulticastGroup(MacNodeId nodeId, int32 groupId)
+bool LteBinder::isInMulticastGroup(MacNodeId nodeId, int32_t groupId)
 {
     if (multicastGroupMap_.find(nodeId) == multicastGroupMap_.end())
         return false;   // the node is not enrolled in any group

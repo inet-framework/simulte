@@ -10,7 +10,7 @@
 #define DATAPORT_OUT "dataPort$o"
 #define DATAPORT_IN "dataPort$i"
 
-#include <inet/networklayer/common/InterfaceEntry.h>
+#include <inet/networklayer/common/NetworkInterface.h>
 #include <inet/networklayer/configurator/ipv4/Ipv4NetworkConfigurator.h>
 #include <inet/networklayer/ipv4/Ipv4InterfaceData.h>
 
@@ -38,7 +38,7 @@ void LteX2Manager::initialize(int stage)
         for (int i=0; i<interfaceTable->getNumInterfaces(); i++)
         {
             // look for x2ppp interfaces in the interface table
-            InterfaceEntry * interfaceEntry = interfaceTable->getInterface(i);
+            NetworkInterface * interfaceEntry = interfaceTable->getInterface(i);
 
             const char* ifName = interfaceEntry->getInterfaceName();
 
@@ -109,7 +109,7 @@ void LteX2Manager::fromStack(Packet* pkt)
         int gateIndex = pkt->getArrivalGate()->getIndex();
         dataInterfaceTable_[msgType] = gateIndex;
 
-        delete x2Info;
+        //delete x2Info;
         delete pkt;
         return;
     }
@@ -143,7 +143,7 @@ void LteX2Manager::fromStack(Packet* pkt)
         }
         send(pktDuplicate, outputGate);
     }
-    delete x2Info;
+    //delete x2Info;
     delete pkt;
 }
 
