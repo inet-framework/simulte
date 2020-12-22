@@ -71,6 +71,14 @@ class LteRlcUmD2D : public LteRlcUm
      */
     virtual void deleteQueues(MacNodeId nodeId) override;
 
+    /**
+     * deleteQueues() must be called on handover
+     * to delete queues for a given user
+     *
+     * @param nodeId Id of the node whose queues are deleted
+     */
+    virtual void deleteQueues(MacNodeId nodeId);
+
   private:
 
     std::map<MacNodeId, std::set<UmTxEntity*> > perPeerTxEntities_;
