@@ -11,6 +11,7 @@
 #include "apps/vod/VoDUDPClient.h"
 
 using namespace std;
+using namespace inet;
 
 Define_Module(VoDUDPClient);
 
@@ -122,25 +123,25 @@ void VoDUDPClient::handleMessage(cMessage* msg)
     if (msg->isSelfMessage())
     {
         int localPort = par("localPort");
-        socket.setOutputGate(gate("udpOut"));
+        socket.setOutputGate(gate("socketOut"));
         socket.bind(localPort);
         delete msg;
     }
     else if (!strcmp(msg->getName(), "VoDPacket"))
-        receiveStream((VoDPacket*) (msg));
+        receiveStream((VoDPacket*) (msg));   //FIXME: must decapsulate - see https://inet.omnetpp.org/docs/developers-guide/ch-packets.html
     else
         delete msg;
 }
 
 void VoDUDPClient::receiveStream(VoDPacket *msg)
 {
-    int seqNum = msg->getFrameSeqNum();
-    simtime_t sendingTime = msg->getTimestamp();
-    int frameLength = msg->getFrameLength();
+    // int seqNum = msg->getFrameSeqNum();
+    simtime_t sendingTime = msg->getPayloadTimestamp();
+    // int frameLength = msg->getFrameLength();
     simtime_t delay = simTime() - sendingTime;
     int layer = msg->getQid();
 
-    totalRcvdBytes_ += msg->getByteLength();
+    totalRcvdBytes_ += msg->getFrameLength();
     double tputSample = (double)totalRcvdBytes_ / (simTime() - getSimulation()->getWarmupPeriod());
     if (layer == 0)
     {

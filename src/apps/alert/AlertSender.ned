@@ -9,25 +9,26 @@
 
 package lte.apps.alert;
 
-import inet.applications.contract.IUDPApp;
+import inet.applications.contract.IApp;
 
-simple AlertSender like IUDPApp
+simple AlertSender like IApp
 {
     parameters:
         int localPort = default(-1);
         int destPort = default(3000);
         string destAddress;
         int packetSize = default(10);
-        double period @unit("s") = default(0.02s);
+        volatile double period @unit("s") = default(0.02s);
         double startTime @unit("s") = default(0s);
         double stopTime @unit("s") = default(0s); // 0 means "never stops" 
         string interfaceTableModule;
+        string multicastInterface = default("cellular");  // if not empty, set the multicast output interface option on the socket (interface name expected)
                
         @signal[alertSentMsg];
         @statistic[alertSentMsg](title="Alert messages sent"; unit=""; source="alertSentMsg"; record=sum,vector);
 
         @display("i=block/source");
     gates:
-        output udpOut;
-        input udpIn;
+        output socketOut;
+        input socketIn;
 }

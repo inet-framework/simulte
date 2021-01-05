@@ -15,10 +15,12 @@
 
 Define_Module(LtePhyUe);
 
+using namespace inet;
+
 LtePhyUe::LtePhyUe()
 {
-    handoverStarter_ = NULL;
-    handoverTrigger_ = NULL;
+    handoverStarter_ = nullptr;
+    handoverTrigger_ = nullptr;
 }
 
 LtePhyUe::~LtePhyUe()
@@ -45,7 +47,7 @@ void LtePhyUe::initialize(int stage)
         handoverDelta_ = 0.00001;
 
         dasRssiThreshold_ = 1.0e-5;
-        das_ = new DasFilter(this, binder_, NULL, dasRssiThreshold_);
+        das_ = new DasFilter(this, binder_, nullptr, dasRssiThreshold_);
 
         servingCell_ = registerSignal("servingCell");
         averageCqiDl_ = registerSignal("averageCqiDl");
@@ -153,7 +155,7 @@ void LtePhyUe::initialize(int stage)
         das_->setMasterRuSet(masterId_);
         emit(servingCell_, (long)masterId_);
     }
-    else if (stage == inet::INITSTAGE_NETWORK_LAYER_2)
+    else if (stage == inet::INITSTAGE_NETWORK_CONFIGURATION)
     {
         // get local id
         nodeId_ = getAncestorPar("macNodeId");
@@ -175,7 +177,7 @@ void LtePhyUe::handleSelfMessage(cMessage *msg)
     {
         doHandover();
         delete msg;
-        handoverTrigger_ = NULL;
+        handoverTrigger_ = nullptr;
     }
 }
 
@@ -260,8 +262,7 @@ void LtePhyUe::handoverHandler(LteAirFrame* frame, UserControlInfo* lteInfo)
 
 void LtePhyUe::triggerHandover()
 {
-    // TODO: remove asserts after testing
-    assert(masterId_ != candidateMasterId_);
+    ASSERT(masterId_ != candidateMasterId_);
 
     EV << "####Handover starting:####" << endl;
     EV << "current master: " << masterId_ << endl;
@@ -296,7 +297,7 @@ void LtePhyUe::doHandover()
     LteAmc *newAmc = getAmcModule(candidateMasterId_);
 
     // TODO verify the amc is the relay one and remove after tests
-    assert(newAmc != NULL);
+    assert(newAmc != nullptr);
 
     oldAmc->detachUser(nodeId_, UL);
     oldAmc->detachUser(nodeId_, DL);
@@ -368,7 +369,7 @@ void LtePhyUe::handleAirFrame(cMessage* msg)
     if (lteInfo->getFrameType() == HANDOVERPKT)
     {
         // check if handover is already in process
-        if (handoverTrigger_ != NULL && handoverTrigger_->isScheduled())
+        if (handoverTrigger_ != nullptr && handoverTrigger_->isScheduled())
         {
             delete lteInfo;
             delete frame;
@@ -413,7 +414,7 @@ void LtePhyUe::handleAirFrame(cMessage* msg)
         handleControlMsg(frame, lteInfo);
         return;
     }
-    if ((lteInfo->getUserTxParams()) != NULL)
+    if ((lteInfo->getUserTxParams()) != nullptr)
     {
         int cw = lteInfo->getCw();
         if (lteInfo->getUserTxParams()->readCqiVector().size() == 1)
@@ -463,14 +464,15 @@ void LtePhyUe::handleAirFrame(cMessage* msg)
     EV << "Handled LteAirframe with ID " << frame->getId() << " with result "
        << ( result ? "RECEIVED" : "NOT RECEIVED" ) << endl;
 
-    cPacket* pkt = frame->decapsulate();
+    auto pkt = check_and_cast<inet::Packet *>(frame->decapsulate());
 
     // here frame has to be destroyed since it is no more useful
     delete frame;
 
     // attach the decider result to the packet as control info
     lteInfo->setDeciderResult(result);
-    pkt->setControlInfo(lteInfo);
+    *(pkt->addTagIfAbsent<UserControlInfo>()) = *lteInfo;
+    delete lteInfo;
 
     // send decapsulated message along with result control info to upperGateOut_
     send(pkt, upperGateOut_);
@@ -485,14 +487,14 @@ void LtePhyUe::handleUpperMessage(cMessage* msg)
 //    TODO     BatteryAccess::drawCurrent(txAmount_, 1);
 //    }
 
-    UserControlInfo* lteInfo = check_and_cast<UserControlInfo*>(msg->getControlInfo());
+    auto pkt = check_and_cast<inet::Packet *>(msg);
+    auto lteInfo = pkt->getTag<UserControlInfo>();
+
     MacNodeId dest = lteInfo->getDestId();
     if (dest != masterId_)
     {
         // UE is not sending to its master!!
-        EV << "ERROR: Ue preparing to send message to " << dest << "instead "
-        "of its master (" << masterId_ << ")" << endl;
-        endSimulation();
+        throw cRuntimeError("LtePhyUe::handleUpperMessage  Ue preparing to send message to %d instead of its master (%d)", dest, masterId_);
     }
 
     if (lteInfo->getFrameType() == DATAPKT && (channelModel_->isUplinkInterferenceEnabled() || channelModel_->isD2DInterferenceEnabled()))
@@ -503,7 +505,7 @@ void LtePhyUe::handleUpperMessage(cMessage* msg)
         binder_->storeUlTransmissionMap(antenna, rbMap, nodeId_, mac_->getMacCellId(), this, UL);
     }
 
-    if (lteInfo->getFrameType() == DATAPKT && lteInfo->getUserTxParams() != NULL)
+    if (lteInfo->getFrameType() == DATAPKT && lteInfo->getUserTxParams() != nullptr)
     {
         double cqi = lteInfo->getUserTxParams()->readCqiVector()[lteInfo->getCw()];
         if (lteInfo->getDirection() == UL)
@@ -514,28 +516,6 @@ void LtePhyUe::handleUpperMessage(cMessage* msg)
 
     LtePhyBase::handleUpperMessage(msg);
 }
-
-//void LtePhyUe::handleHostState(const HostState& state)  {
-//    /*
-//     * If a module is not using the battery, but it has a battery module,
-//     * battery capacity never decreases, neither at timeouts,
-//     * because a draw is never called and a draw amount for the device
-//     * is never set (devices[i].currentActivity stuck at -1). See simpleBattery.cc @ line 244.
-//     */
-//    if (state.get() == HostState::ACTIVE)
-//        return;
-//
-//    if (!useBattery_ && state.get() == HostState::FAILED) {
-//        EV << "Warning: host state failed at node " << getName() << " while not using a battery!";
-//        return;
-//    }
-//
-//    if (state.get() == HostState::FAILED) {
-//        //depleted battery
-//        EV << "Battery depleted at node" << getName() << " with id " << getId();
-//        //TODO: stop sending and receiving messages or just collect statistics?
-//    }
-//}
 
 double LtePhyUe::updateHysteresisTh(double v)
 {
@@ -581,11 +561,15 @@ void LtePhyUe::sendFeedback(LteFeedbackDoubleVector fbDl, LteFeedbackDoubleVecto
     EV << "LtePhyUe: feedback from Feedback Generator" << endl;
 
     //Create a feedback packet
-    LteFeedbackPkt* fbPkt = new LteFeedbackPkt();
+    auto fbPkt = makeShared<LteFeedbackPkt>();
     //Set the feedback
     fbPkt->setLteFeedbackDoubleVectorDl(fbDl);
     fbPkt->setLteFeedbackDoubleVectorDl(fbUl);
     fbPkt->setSourceNodeId(nodeId_);
+
+    auto pkt = new Packet("feedback_pkt");
+    pkt->insertAtFront(fbPkt);
+
     UserControlInfo* uinfo = new UserControlInfo();
     uinfo->setSourceId(nodeId_);
     uinfo->setDestId(masterId_);
@@ -593,7 +577,7 @@ void LtePhyUe::sendFeedback(LteFeedbackDoubleVector fbDl, LteFeedbackDoubleVecto
     uinfo->setIsCorruptible(false);
     // create LteAirFrame and encapsulate a feedback packet
     LteAirFrame* frame = new LteAirFrame("feedback_pkt");
-    frame->encapsulate(check_and_cast<cPacket*>(fbPkt));
+    frame->encapsulate(check_and_cast<cPacket*>(pkt));
     uinfo->feedbackReq = req;
     uinfo->setDirection(UL);
     simtime_t signalLength = TTI;
@@ -628,7 +612,7 @@ void LtePhyUe::finish()
 
         // amc calls
         LteAmc *amc = getAmcModule(masterId_);
-        if (amc != NULL)
+        if (amc != nullptr)
         {
             amc->detachUser(nodeId_, UL);
             amc->detachUser(nodeId_, DL);

@@ -10,6 +10,8 @@
 #include "stack/mac/allocator/LteAllocationModuleFrequencyReuse.h"
 #include "stack/mac/layer/LteMacEnb.h"
 
+using namespace inet;
+
 LteAllocationModuleFrequencyReuse::LteAllocationModuleFrequencyReuse(LteMacEnb* mac,Direction direction)
         : LteAllocationModule(mac,direction)
 {
@@ -22,7 +24,7 @@ void LteAllocationModuleFrequencyReuse::storeAllocation( std::vector<std::vector
     std::map<std::pair<MacNodeId,Band>,std::pair<unsigned int,unsigned int> > NodeIdRbsBytesMap;
     NodeIdRbsBytesMap.clear();
     // Create an empty vector
-    if(untouchableBands==NULL)
+    if(untouchableBands==nullptr)
     {
         std::set<Band> tempBand;
         untouchableBands = &tempBand;

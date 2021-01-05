@@ -10,7 +10,7 @@
 #ifndef _LTE_VODUDPSTRUCT_H_
 #define _LTE_VODUDPSTRUCT_H_
 
-#include "inet/networklayer/common/L3Address.h"
+#include <inet/networklayer/common/L3Address.h>
 
 /**
  * Stores information on a video stream
@@ -18,7 +18,7 @@
 struct Media1
 {
     inet::L3Address clientAddr;   // client address
-    int clientPort;           // client UDP port
+    int clientPort;           // client Udp port
     long numPkSent;           // number of packets sent
 };
 

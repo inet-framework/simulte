@@ -9,6 +9,10 @@
 
 #include <climits>
 #include "stack/mac/buffer/LteMacQueue.h"
+#include "stack/rlc/am/packet/LteRlcAmPdu.h"
+
+using namespace omnetpp;
+using namespace inet;
 
 LteMacQueue::LteMacQueue(int queueSize) :
     cPacketQueue("LteMacQueue")
@@ -37,7 +41,8 @@ LteMacQueue* LteMacQueue::dup() const
 // ENQUEUE
 bool LteMacQueue::pushBack(cPacket *pkt)
 {
-    if (!isEnqueueablePacket(pkt))
+    Packet * pktAux = check_and_cast<Packet*>(pkt);
+    if (!isEnqueueablePacket(pktAux))
          return false; // packet queue full or we have discarded fragments for this main packet
 
     cPacketQueue::insert(pkt);
@@ -46,7 +51,8 @@ bool LteMacQueue::pushBack(cPacket *pkt)
 
 bool LteMacQueue::pushFront(cPacket *pkt)
 {
-    if (!isEnqueueablePacket(pkt))
+    Packet * pktAux = check_and_cast<Packet*>(pkt);
+    if (!isEnqueueablePacket(pktAux))
         return false; // packet queue full or we have discarded fragments for this main packet
 
     cPacketQueue::insertBefore(cPacketQueue::front(), pkt);
@@ -55,12 +61,12 @@ bool LteMacQueue::pushFront(cPacket *pkt)
 
 cPacket* LteMacQueue::popFront()
 {
-    return getQueueLength() > 0 ? cPacketQueue::pop() : NULL;
+    return getQueueLength() > 0 ? cPacketQueue::pop() : nullptr;
 }
 
 cPacket* LteMacQueue::popBack()
 {
-    return getQueueLength() > 0 ? cPacketQueue::remove(cPacketQueue::back()) : NULL;
+    return getQueueLength() > 0 ? cPacketQueue::remove(cPacketQueue::back()) : nullptr;
 }
 
 simtime_t LteMacQueue::getHolTimestamp() const
@@ -78,15 +84,27 @@ int64_t LteMacQueue::getQueueSize() const
     return queueSize_;
 }
 
-bool LteMacQueue::isEnqueueablePacket(cPacket* pkt){
-    LteRlcPdu_Base* pdu = dynamic_cast<LteRlcPdu_Base *>(pkt);
+bool LteMacQueue::isEnqueueablePacket(Packet* pkt){
+
+    auto chunk = pkt->peekAtFront<Chunk>();
+    auto pdu = dynamicPtrCast<const LteRlcAmPdu>(chunk);
+
     if(queueSize_ == 0){
         // unlimited queue size -- nothing to check for
         return true;
     }
-    if(pdu != NULL){
+    /* Check:
+     *
+     * For AM: We need to check if all fragments will fit in the queue
+     * For UM: The new UM implementation introduced in commit 9ab9b71c5358a70278e2fbd51bf33a9d1d81cb86
+     *         by G. Nardini only sends SDUs upon MAC SDU request. All SDUs are
+     *         accepted as long as the MAC queue size is not exceeded.
+     * For TM: No fragments are to be checked, anyways.
+     */
+    if(pdu != nullptr){ // for AM we need to check if all fragments will fit
         if(pdu->getTotalFragments() > 1) {
-            bool allFragsWillFit = ((pdu->getTotalFragments()-pdu->getSnoFragment())*pdu->getByteLength() + getByteLength() < queueSize_);
+            int remainingFrags = (pdu->getLastSn() - pdu->getSnoFragment() + 1);
+            bool allFragsWillFit = (remainingFrags*pkt->getByteLength()) + getByteLength() < queueSize_;
             bool enqueable = (pdu->getSnoMainPacket() != lastUnenqueueableMainSno) && allFragsWillFit;
             if(allFragsWillFit && !enqueable){
                 EV_DEBUG << "PDU would fit but discarded frags before - rejecting fragment: " << pdu->getSnoMainPacket() << ":" << pdu->getSnoFragment() << std::endl;
@@ -96,9 +114,8 @@ bool LteMacQueue::isEnqueueablePacket(cPacket* pkt){
             }
             return enqueable;
         }
-    } else {
-        EV_WARN << "LteMacQueue: cannot estimate remaining fragments - unknown packet type " << pkt->getFullName() << std::endl;
     }
+
     // no fragments or unknown type -- can always be enqueued if there is enough space in the queue
     return (pkt->getByteLength() + getByteLength() < queueSize_);
 }

@@ -13,11 +13,12 @@
 #include "stack/d2dModeSelection/D2DModeSelectionBase.h"
 
 Define_Module(LtePhyUeD2D);
+using namespace inet;
 
 LtePhyUeD2D::LtePhyUeD2D()
 {
-    handoverStarter_ = NULL;
-    handoverTrigger_ = NULL;
+    handoverStarter_ = nullptr;
+    handoverTrigger_ = nullptr;
 }
 
 LtePhyUeD2D::~LtePhyUeD2D()
@@ -27,12 +28,12 @@ LtePhyUeD2D::~LtePhyUeD2D()
 void LtePhyUeD2D::initialize(int stage)
 {
     LtePhyUe::initialize(stage);
-    if (stage == 0)
+    if (stage == INITSTAGE_LOCAL)
     {
         averageCqiD2D_ = registerSignal("averageCqiD2D");
         d2dTxPower_ = par("d2dTxPower");
         d2dMulticastEnableCaptureEffect_ = par("d2dMulticastCaptureEffect");
-        d2dDecodingTimer_ = NULL;
+        d2dDecodingTimer_ = nullptr;
     }
 }
 
@@ -56,7 +57,7 @@ void LtePhyUeD2D::handleSelfMessage(cMessage *msg)
         }
 
         delete msg;
-        d2dDecodingTimer_ = NULL;
+        d2dDecodingTimer_ = nullptr;
     }
     else if (msg->isName("doModeSwitchAtHandover"))
     {
@@ -96,7 +97,7 @@ void LtePhyUeD2D::handleAirFrame(cMessage* msg)
     if (lteInfo->getFrameType() == HANDOVERPKT)
     {
         // check if handover is already in process
-        if (handoverTrigger_ != NULL && handoverTrigger_->isScheduled())
+        if (handoverTrigger_ != nullptr && handoverTrigger_->isScheduled())
         {
             delete lteInfo;
             delete frame;
@@ -138,7 +139,7 @@ void LtePhyUeD2D::handleAirFrame(cMessage* msg)
     if (d2dMulticastEnableCaptureEffect_ && binder_->isInMulticastGroup(nodeId_,lteInfo->getMulticastGroupId()))
     {
         // if not already started, auto-send a message to signal the presence of data to be decoded
-        if (d2dDecodingTimer_ == NULL)
+        if (d2dDecodingTimer_ == nullptr)
         {
             d2dDecodingTimer_ = new cMessage("d2dDecodingTimer");
             d2dDecodingTimer_->setSchedulingPriority(10);          // last thing to be performed in this TTI
@@ -152,7 +153,7 @@ void LtePhyUeD2D::handleAirFrame(cMessage* msg)
         return;                          // exit the function, decoding will be done later
     }
 
-    if ((lteInfo->getUserTxParams()) != NULL)
+    if ((lteInfo->getUserTxParams()) != nullptr)
     {
         int cw = lteInfo->getCw();
         if (lteInfo->getUserTxParams()->readCqiVector().size() == 1)
@@ -169,7 +170,7 @@ void LtePhyUeD2D::handleAirFrame(cMessage* msg)
         // DAS
         for (RemoteSet::iterator it = r.begin(); it != r.end(); it++)
         {
-            EV << "LtePhyUeD2D: Receiving Packet from antenna " << (*it) << "\n";
+            EV << "LtePhyUeD2D: Receiving Packet from antenna " << (*it) << endl;
 
             /*
              * On UE set the sender position
@@ -203,14 +204,15 @@ void LtePhyUeD2D::handleAirFrame(cMessage* msg)
     EV << "Handled LteAirframe with ID " << frame->getId() << " with result "
        << ( result ? "RECEIVED" : "NOT RECEIVED" ) << endl;
 
-    cPacket* pkt = frame->decapsulate();
+    auto pkt = check_and_cast<inet::Packet *>(frame->decapsulate());
 
     // here frame has to be destroyed since it is no more useful
     delete frame;
 
     // attach the decider result to the packet as control info
     lteInfo->setDeciderResult(result);
-    pkt->setControlInfo(lteInfo);
+    *(pkt->addTagIfAbsent<UserControlInfo>()) = *lteInfo;
+    delete lteInfo;
 
     // send decapsulated message along with result control info to upperGateOut_
     send(pkt, upperGateOut_);
@@ -237,7 +239,7 @@ void LtePhyUeD2D::doHandover()
     // amc calls
     LteAmc *oldAmc = getAmcModule(masterId_);
     LteAmc *newAmc = getAmcModule(candidateMasterId_);
-    assert(newAmc != NULL);
+    assert(newAmc != nullptr);
     oldAmc->detachUser(nodeId_, D2D);
     newAmc->attachUser(nodeId_, D2D);
 
@@ -255,7 +257,8 @@ void LtePhyUeD2D::handleUpperMessage(cMessage* msg)
 //    TODO     BatteryAccess::drawCurrent(txAmount_, 1);
 //    }
 
-    UserControlInfo* lteInfo = check_and_cast<UserControlInfo*>(msg->removeControlInfo());
+    auto pkt = check_and_cast<inet::Packet *>(msg);
+    auto lteInfo = pkt->removeTag<UserControlInfo>();
 
     if (lteInfo->getFrameType() == DATAPKT && (channelModel_->isUplinkInterferenceEnabled() || channelModel_->isD2DInterferenceEnabled()))
     {
@@ -266,7 +269,7 @@ void LtePhyUeD2D::handleUpperMessage(cMessage* msg)
         binder_->storeUlTransmissionMap(antenna, rbMap, nodeId_, mac_->getMacCellId(), this, dir);
     }
 
-    if (lteInfo->getFrameType() == DATAPKT && lteInfo->getUserTxParams() != NULL)
+    if (lteInfo->getFrameType() == DATAPKT && lteInfo->getUserTxParams() != nullptr)
     {
         double cqi = lteInfo->getUserTxParams()->readCqiVector()[lteInfo->getCw()];
         if (lteInfo->getDirection() == UL)
@@ -276,7 +279,7 @@ void LtePhyUeD2D::handleUpperMessage(cMessage* msg)
     }
 
     EV << NOW << " LtePhyUeD2D::handleUpperMessage - message from stack" << endl;
-    LteAirFrame* frame = NULL;
+    LteAirFrame* frame = nullptr;
 
     if (lteInfo->getFrameType() == HARQPKT || lteInfo->getFrameType() == GRANTPKT || lteInfo->getFrameType() == RACPKT)
     {
@@ -350,13 +353,13 @@ void LtePhyUeD2D::storeAirFrame(LteAirFrame* newFrame)
             }
         }
         rsrpMean = sum / allocatedRbs;
-        EV << NOW << " LtePhyUeD2D::storeAirFrame - Average RSRP from node " << newInfo->getSourceId() << ": " << rsrpMean ;
+        EV << "LtePhyUeD2D::storeAirFrame - Average RSRP from node " << newInfo->getSourceId() << ": " << rsrpMean << endl;
     }
     else  // distance
     {
         Coord newSenderCoord = newInfo->getCoord();
         distance = myCoord.distance(newSenderCoord);
-        EV << NOW << " LtePhyUeD2D::storeAirFrame - Distance from node " << newInfo->getSourceId() << ": " << distance ;
+        EV << NOW << " LtePhyUeD2D::storeAirFrame - Distance from node " << newInfo->getSourceId() << ": " << distance << endl;
     }
 
     if (!d2dReceivedFrames_.empty())
@@ -428,7 +431,7 @@ void LtePhyUeD2D::decodeAirFrame(LteAirFrame* frame, UserControlInfo* lteInfo)
         // DAS
         for (RemoteSet::iterator it = r.begin(); it != r.end(); it++)
         {
-            EV << "LtePhyUeD2D::decodeAirFrame: Receiving Packet from antenna " << (*it) << "\n";
+            EV << "LtePhyUeD2D::decodeAirFrame: Receiving Packet from antenna " << (*it) << endl;
 
             /*
              * On UE set the sender position
@@ -451,7 +454,7 @@ void LtePhyUeD2D::decodeAirFrame(LteAirFrame* frame, UserControlInfo* lteInfo)
     {
         //RELAY and NORMAL
         if (lteInfo->getDirection() == D2D_MULTI)
-            result = channelModel_->error_D2D(frame,lteInfo,bestRsrpVector_);
+            result = channelModel_->isCorrupted_D2D(frame,lteInfo,bestRsrpVector_);
         else
             result = channelModel_->isCorrupted(frame,lteInfo);
     }
@@ -465,11 +468,15 @@ void LtePhyUeD2D::decodeAirFrame(LteAirFrame* frame, UserControlInfo* lteInfo)
     EV << "Handled LteAirframe with ID " << frame->getId() << " with result "
        << ( result ? "RECEIVED" : "NOT RECEIVED" ) << endl;
 
-    cPacket* pkt = frame->decapsulate();
+    auto pkt = check_and_cast<inet::Packet *>(frame->decapsulate());
+
+    // Note: no need to delete the frame itself - will be deleted later when the buffer of
+    // received frames is cleared
 
     // attach the decider result to the packet as control info
     lteInfo->setDeciderResult(result);
-    pkt->setControlInfo(lteInfo);
+    *(pkt->addTagIfAbsent<UserControlInfo>()) = *lteInfo;
+    delete lteInfo;
 
     // send decapsulated message along with result control info to upperGateOut_
     send(pkt, upperGateOut_);
@@ -485,11 +492,15 @@ void LtePhyUeD2D::sendFeedback(LteFeedbackDoubleVector fbDl, LteFeedbackDoubleVe
     EV << "LtePhyUeD2D: feedback from Feedback Generator" << endl;
 
     //Create a feedback packet
-    LteFeedbackPkt* fbPkt = new LteFeedbackPkt();
+    auto fbPkt = makeShared<LteFeedbackPkt>();
     //Set the feedback
     fbPkt->setLteFeedbackDoubleVectorDl(fbDl);
     fbPkt->setLteFeedbackDoubleVectorDl(fbUl);
     fbPkt->setSourceNodeId(nodeId_);
+
+    auto pkt = new Packet("feedback_pkt");
+    pkt->insertAtFront(fbPkt);
+
     UserControlInfo* uinfo = new UserControlInfo();
     uinfo->setSourceId(nodeId_);
     uinfo->setDestId(masterId_);
@@ -497,7 +508,7 @@ void LtePhyUeD2D::sendFeedback(LteFeedbackDoubleVector fbDl, LteFeedbackDoubleVe
     uinfo->setIsCorruptible(false);
     // create LteAirFrame and encapsulate a feedback packet
     LteAirFrame* frame = new LteAirFrame("feedback_pkt");
-    frame->encapsulate(check_and_cast<cPacket*>(fbPkt));
+    frame->encapsulate(check_and_cast<cPacket*>(pkt));
     uinfo->feedbackReq = req;
     uinfo->setDirection(UL);
     simtime_t signalLength = TTI;
@@ -530,7 +541,7 @@ void LtePhyUeD2D::finish()
 
         // amc calls
         LteAmc *amc = getAmcModule(masterId_);
-        if (amc != NULL)
+        if (amc != nullptr)
             amc->detachUser(nodeId_, D2D);
 
         LtePhyUe::finish();

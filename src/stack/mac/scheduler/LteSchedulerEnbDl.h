@@ -38,16 +38,6 @@ class LteSchedulerEnbDl : public LteSchedulerEnb
      */
     bool checkEligibility(MacNodeId id, Codeword& cw);
 
-  public:
-
-    /**
-     * Default Constructor.
-     */
-    LteSchedulerEnbDl()
-    {
-    }
-
-  protected:
     /**
      * Updates current schedule list with HARQ retransmissions.
      * @return TRUE if OFDM space is exhausted.
@@ -66,7 +56,7 @@ class LteSchedulerEnbDl : public LteSchedulerEnb
      * @return The allocated bytes. 0 if retransmission was not possible
      */
     virtual unsigned int schedulePerAcidRtx(MacNodeId nodeId, Codeword cw, unsigned char acid,
-        std::vector<BandLimit>* bandLim = NULL, Remote antenna = MACRO, bool limitBl = false);
+        std::vector<BandLimit>* bandLim = nullptr, Remote antenna = MACRO, bool limitBl = false);
 
     bool getBandLimit(std::vector<BandLimit>* bandLimit, MacNodeId ueId);
 

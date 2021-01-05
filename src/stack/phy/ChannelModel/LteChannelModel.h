@@ -21,7 +21,7 @@
 class LteAirFrame;
 class LtePhyBase;
 
-class LteChannelModel : public cSimpleModule
+class LteChannelModel : public omnetpp::cSimpleModule
 {
   protected:
     unsigned int band_;
@@ -78,7 +78,7 @@ class LteChannelModel : public cSimpleModule
      * @param lteinfo pointer to the user control info
      * @param rsrpVector the received signal for each RB, if it has already been computed
      */
-    virtual bool error_D2D(LteAirFrame *frame, UserControlInfo* lteInfo, const std::vector<double>& rsrpVector) = 0;
+    virtual bool isCorrupted_D2D(LteAirFrame *frame, UserControlInfo* lteInfo, const std::vector<double>& rsrpVector) = 0;
     /*
      * Compute Received useful signal for D2D transmissions
      */

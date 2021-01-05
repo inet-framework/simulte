@@ -15,6 +15,7 @@
 #include "corenetwork/nodes/InternetMux.h"
 
 using namespace std;
+using namespace inet;
 
 Define_Module(LteBinder);
 
@@ -22,10 +23,8 @@ void LteBinder::unregisterNode(MacNodeId id)
 {
     EV << NOW << " LteBinder::unregisterNode - unregistering node " << id << endl;
 
-    if(nodeIds_.erase(id) != 1){
-        EV_ERROR << "Cannot unregister node - node id \"" << id << "\" - not found";
-    }
-    std::map<IPv4Address, MacNodeId>::iterator it;
+
+    std::map<Ipv4Address, MacNodeId>::iterator it;
     for(it = macNodeIdToIPAddress_.begin(); it != macNodeIdToIPAddress_.end(); )
     {
         if(it->second == id)
@@ -35,6 +34,41 @@ void LteBinder::unregisterNode(MacNodeId id)
         else
         {
             it++;
+        }
+    }
+
+    // iterate all nodeIds and find HarqRx buffers dependent on 'id'
+    std::map<int, OmnetId>::iterator idIter;
+    for (idIter = nodeIds_.begin(); idIter != nodeIds_.end(); idIter++){
+        LteMacBase* mac = getMacFromMacNodeId(idIter->first);
+        mac->unregisterHarqBufferRx(id);
+    }
+
+    // remove 'id' from ModuleName cache
+    if(macNodeIdToModuleName_.erase(id) != 1){
+        EV_ERROR << "Cannot unregister node - node id \"" << id << "\" - not found";
+    }
+
+    // remove 'id' from LteMacBase* cache but do not delte pointer.
+    if(macNodeIdToModule_.erase(id) != 1){
+        EV_ERROR << "Cannot unregister node - node id \"" << id << "\" - not found";
+    }
+
+    // remove 'id' from MacNodeId mapping
+    if(nodeIds_.erase(id) != 1){
+        EV_ERROR << "Cannot unregister node - node id \"" << id << "\" - not found";
+    }
+    // remove 'id' from ulTransmissionMap_
+    for(auto &bands : ulTransmissionMap_){ //all RB's for current and last TTI
+        for(auto &ues : bands){ // all Ue's in each block
+            auto itr = ues.begin();
+            while(itr != ues.end()){
+                if (itr->nodeId == id){
+                    itr = ues.erase(itr);
+                } else {
+                    itr++;
+                }
+            }
         }
     }
 }
@@ -146,7 +180,7 @@ MacNodeId LteBinder::getMacNodeIdFromOmnetId(OmnetId id){
 LteMacBase* LteBinder::getMacFromMacNodeId(MacNodeId id)
 {
     if (id == 0)
-        return NULL;
+        return nullptr;
 
     LteMacBase* mac;
     if (macNodeIdToModule_.find(id) == macNodeIdToModule_.end())
@@ -196,7 +230,7 @@ simtime_t LteBinder::getLastUpdateUlTransmissionInfo()
 
 void LteBinder::initAndResetUlTransmissionInfo()
 {
-    ulTransmissionMap_[PREV_TTI] = ulTransmissionMap_[1];
+    ulTransmissionMap_[PREV_TTI] = ulTransmissionMap_[CURR_TTI];
     ulTransmissionMap_[CURR_TTI].clear();
     ulTransmissionMap_[CURR_TTI].resize(numBands_);
 
@@ -313,7 +347,8 @@ bool LteBinder::checkD2DCapability(MacNodeId src, MacNodeId dst)
 bool LteBinder::getD2DCapability(MacNodeId src, MacNodeId dst)
 {
     if (src < UE_MIN_ID || src >= macNodeIdCounter_[2] || dst < UE_MIN_ID || dst >= macNodeIdCounter_[2])
-        throw cRuntimeError("LteBinder::addD2DCapability - Node Id not valid. Src %d Dst %d", src, dst);
+        return false;
+        //throw cRuntimeError("LteBinder::addD2DCapability - Node Id not valid. Src %d Dst %d", src, dst);
 
     // if the entry is missing, returns false
     if (d2dPeeringMap_.find(src) == d2dPeeringMap_.end() || d2dPeeringMap_[src].find(dst) == d2dPeeringMap_[src].end())

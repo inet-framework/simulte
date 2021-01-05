@@ -8,28 +8,33 @@
 //
 
 #include "epc/TrafficFlowFilter.h"
-#include "inet/networklayer/contract/ipv4/IPv4ControlInfo.h"
-#include "inet/networklayer/ipv4/IPv4Datagram.h"
-#include "inet/networklayer/common/L3AddressResolver.h"
+#include <inet/networklayer/common/L3AddressResolver.h>
+#include <inet/networklayer/ipv4/Ipv4Header_m.h>
+#include <inet/common/IProtocolRegistrationListener.h>
+
+#include "common/LteControlInfo.h"
 
 using namespace inet;
 
 Define_Module(TrafficFlowFilter);
 
-void TrafficFlowFilter::initialize(int stage)
-{
+void TrafficFlowFilter::initialize(int stage) {
     // wait until all the IP addresses are configured
-    if (stage == inet::INITSTAGE_TRANSPORT_LAYER)
-    {
+    if (stage == inet::INITSTAGE_TRANSPORT_LAYER) {
         // reading and setting owner type
         ownerType_ = selectOwnerType(par("ownerType"));
 
         //============= Reading XML files =============
         const char *filename = par("filterFileName");
-        if (filename == NULL || (!strcmp(filename, "")))
-            error("TrafficFlowFilter::initialize - Error reading configuration from file %s", filename);
+        if (filename == nullptr || (!strcmp(filename, "")))
+            error("TrafficFlowFilter::initialize - Error reading configuration from file %s",
+                    filename);
         loadFilterTable(filename);
         //=============================================
+
+        // register service processing IP-packets on the LTE Uu Link
+        registerService(LteProtocol::ipv4uu, gate("internetFilterGateIn"),
+                gate("internetFilterGateIn"));
     }
 }
 
@@ -49,16 +54,21 @@ void TrafficFlowFilter::handleMessage(cMessage *msg)
     EV << "TrafficFlowFilter::handleMessage - Received Packet:" << endl;
     EV << "name: " << msg->getFullName() << endl;
 
+    Packet* pkt = check_and_cast<Packet *>(msg);
+
     // receive and read IP datagram
-    IPv4Datagram * datagram = check_and_cast<IPv4Datagram *>(msg);
-    IPv4Address &destAddr = datagram->getDestAddress();
-    IPv4Address &srcAddr = datagram->getSrcAddress();
+    // TODO: needs to be adapted for IPv6
+    const auto& ipv4Header = pkt->peekAtFront<Ipv4Header>();
+    const Ipv4Address &destAddr = ipv4Header->getDestAddress();
+    const Ipv4Address &srcAddr = ipv4Header->getSrcAddress();
+    pkt->addTagIfAbsent<DispatchProtocolReq>()->setProtocol(&Protocol::ipv4);
+    pkt->addTagIfAbsent<PacketProtocolTag>()->setProtocol(&Protocol::ipv4);
 
     // TODO check for source and dest port number
 
-    IPv4Address primaryKey , secondaryKeyAddr;
+    Ipv4Address primaryKey , secondaryKeyAddr;
 
-    EV << "TrafficFlowFilter::handleMessage - Received datagram : " << datagram->getName() << " - src[" << destAddr << "] - dest[" << srcAddr << "]\n";
+    EV << "TrafficFlowFilter::handleMessage - Received datagram : " << pkt->getName() << " - src[" << destAddr << "] - dest[" << srcAddr << "]\n";
 
     // run packet filter and associate a flowId to the connection (default bearer?)
     // search within tftTable the proper entry for this destination
@@ -81,17 +91,17 @@ void TrafficFlowFilter::handleMessage(cMessage *msg)
     // search for the tftId in the table
     unsigned int tftId = findTrafficFlow( primaryKey , secondaryKey );
     if(tftId == UNSPECIFIED_TFT)
-    error("TrafficFlowFilter::handleMessage - Cannot find corresponding tftId. Aborting...");
+        error("TrafficFlowFilter::handleMessage - Cannot find corresponding tftId. Aborting...");
 
     // add control info to the normal ip datagram. This info will be read by the GTP-U application
-    TftControlInfo * tftInfo = new TftControlInfo();
-    tftInfo->setTft(tftId);
-    datagram->setControlInfo(tftInfo);
+
+    auto trafficFlowInfo = pkt->addTag<TftControlInfo>();
+    trafficFlowInfo->setTft(tftId);
 
     EV << "TrafficFlowFilter::handleMessage - setting tft=" << tftId << endl;
 
     // send the datagram to the GTP-U module
-    send(datagram,"gtpUserGateOut");
+    send(pkt,"gtpUserGateOut");
 }
 
 TrafficFlowTemplateId TrafficFlowFilter::findTrafficFlow(L3Address firstKey, TrafficFlowTemplate secondKey)
@@ -132,7 +142,7 @@ TrafficFlowTemplateId TrafficFlowFilter::findTrafficFlow(L3Address firstKey, Tra
     EV << "TrafficFlowFilter::findTrafficFlow - Cannot find entry for src and dest addresses. Now trying with first key only" << endl;
 
     // if no result is found again, search only for the first key
-    secondKey.addr.set(IPv4Address("0.0.0.0"));
+    secondKey.addr.set(Ipv4Address("0.0.0.0"));
     for (templIt = templFirst; templIt != templEt; templIt++)
     {
         if ((*templIt) == secondKey)
@@ -168,7 +178,7 @@ bool TrafficFlowFilter::addTrafficFlow(L3Address firstKey, TrafficFlowTemplate t
 void TrafficFlowFilter::loadFilterTable(const char * filterTableFile)
 {
     // create default entries
-    L3Address destAddr(IPv4Address("0.0.0.0")), srcAddr(IPv4Address("0.0.0.0"));
+    L3Address destAddr(Ipv4Address("0.0.0.0")), srcAddr(Ipv4Address("0.0.0.0"));
     unsigned int destPort = UNSPECIFIED_PORT;
     unsigned int srcPort = UNSPECIFIED_PORT;
 
@@ -191,12 +201,12 @@ void TrafficFlowFilter::loadFilterTable(const char * filterTableFile)
     // open and check xml file
     EV << "TrafficFlowFilter::loadFilterTable - reading file " << filterTableFile << endl;
     cXMLElement* config = getEnvir()->getXMLDocument(filterTableFile);
-    if (config == NULL)
+    if (config == nullptr)
         error("TrafficFlowFilter::loadFilterTable: Cannot read configuration from file: %s", filterTableFile);
 
     // obtain reference to teidTable
     cXMLElement* filterNode = config->getElementByPath("filterTable");
-    if (filterNode == NULL)
+    if (filterNode == nullptr)
         error("TrafficFlowFilter::loadFilterTable: No configuration for teidTable");
 
     // obtain a list of nodes contained in the filterTable Tag
@@ -210,13 +220,13 @@ void TrafficFlowFilter::loadFilterTable(const char * filterTableFile)
         {
             // clean attributes
             for (attrId = 0; attrId < numAttributes; ++attrId)
-                temp[attrId] = NULL;
+                temp[attrId] = nullptr;
 
             // read each attribute into the temp vector
             for (attrId = 0; attrId < numAttributes; ++attrId)
             {
                 temp[attrId] = (*tftIt)->getAttribute(attributes[attrId]);
-                if (temp[attrId] == NULL && attributes[attrId])
+                if (temp[attrId] == nullptr && attributes[attrId])
                 {
                     EV << "TrafficFlowFilter::loadFilterTable - attribute " << attributes[attrId] << " unspecified." << endl;
                 }
@@ -224,7 +234,7 @@ void TrafficFlowFilter::loadFilterTable(const char * filterTableFile)
 
                     // process each attribute
                     // check and save tftID. This field is mandatory
-            if (temp[TFT_ID] == NULL)
+            if (temp[TFT_ID] == nullptr)
             {
                 error(
                     "TrafficFlowFilter::loadFilterTable - attribute tftId MUST be specified for every traffic filter.");
@@ -233,9 +243,9 @@ void TrafficFlowFilter::loadFilterTable(const char * filterTableFile)
                 tftId = atoi(temp[TFT_ID]);
 
             // read src and dest port values. These two fields are optional
-            if (temp[DEST_PORT] != NULL)
+            if (temp[DEST_PORT] != nullptr)
                 destPort = atoi(temp[DEST_PORT]);
-            if (temp[SRC_PORT] != NULL)
+            if (temp[SRC_PORT] != nullptr)
                 srcPort = atoi(temp[SRC_PORT]);
 
             //===================== Source and Destination addresses management =====================
@@ -245,11 +255,11 @@ void TrafficFlowFilter::loadFilterTable(const char * filterTableFile)
 
             // at least one between destAddr and destName MUST be specified in case of PGW
             // try to read the destination address for first
-            if (temp[DEST_ADDR] != NULL)
-                destAddr.set(IPv4Address(temp[DEST_ADDR]));
+            if (temp[DEST_ADDR] != nullptr)
+                destAddr.set(Ipv4Address(temp[DEST_ADDR]));
             else // if no dest address has been specified, try to resolve node name
             {
-                if (temp[DEST_NAME] != NULL)
+                if (temp[DEST_NAME] != nullptr)
                 {
                     EV << "TrafficFlowFilter::loadFilterTable - resolving IP address for host name " << temp[DEST_NAME] << endl;
                     destAddr = L3AddressResolver().resolve(temp[DEST_NAME]);
@@ -260,11 +270,11 @@ void TrafficFlowFilter::loadFilterTable(const char * filterTableFile)
 
                     // at least one between srcAddr and srcName MUST be specified in case of ENB
                     // try to read the source address for first
-            if (temp[SRC_ADDR] != NULL)
-                srcAddr.set(IPv4Address(temp[SRC_ADDR]));
+            if (temp[SRC_ADDR] != nullptr)
+                srcAddr.set(Ipv4Address(temp[SRC_ADDR]));
             else // if no src address has been specified, try to resolve node name
             {
-                if (temp[SRC_NAME] != NULL)
+                if (temp[SRC_NAME] != nullptr)
                 {
                     EV << "TrafficFlowFilter::loadFilterTable - resolving IP address for host name " << temp[SRC_NAME] << endl;
                     srcAddr = L3AddressResolver().resolve(temp[SRC_NAME]);

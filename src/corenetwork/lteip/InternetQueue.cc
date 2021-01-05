@@ -10,12 +10,13 @@
 #include "corenetwork/lteip/InternetQueue.h"
 
 Define_Module(InternetQueue);
+using namespace omnetpp;
 
 InternetQueue::InternetQueue()
 {
-    endTransmissionEvent_ = NULL;
-    datarateChannel_ = NULL;
-    queueOutGate_ = NULL;
+    endTransmissionEvent_ = nullptr;
+    datarateChannel_ = nullptr;
+    queueOutGate_ = nullptr;
 }
 
 InternetQueue::~InternetQueue()
@@ -43,7 +44,7 @@ void InternetQueue::initialize()
 void InternetQueue::handleMessage(cMessage *msg)
 {
     // queue not connected
-    if (datarateChannel_ == NULL)
+    if (datarateChannel_ == nullptr)
     {
         // remember the output gate now, to speed up send()
         queueOutGate_ = gate("internetChannelOut");
@@ -54,7 +55,7 @@ void InternetQueue::handleMessage(cMessage *msg)
 
         // if we're connected, get the channel
         datarateChannel_ =
-            connected ? queueOutGate_->getTransmissionChannel() : NULL;
+            connected ? queueOutGate_->getTransmissionChannel() : nullptr;
 
         if (!connected)
         {

@@ -88,7 +88,23 @@ module LteRlc {
 simple LteRlcTm {
     parameters:
         @display("i=block/wheelbarrow");
-
+        int queueSize @unit(B) = default(2MiB);              // RLC SDU queue size (0: unlimited)
+        
+        //# SDU-level statistics
+        @signal[rlcPacketLossUl];
+        @statistic[rlcPacketLossUl](title="rlc Packet Loss"; unit=""; source="rlcPacketLossUl"; record=mean,sum);
+        @signal[rlcPacketLossDl];
+        @statistic[rlcPacketLossDl](title="rlc Packet Loss"; unit=""; source="rlcPacketLossDl"; record=mean,sum);
+        
+        //# PDU-level statistics
+        @signal[receivedPacketFromUpperLayer];
+        @statistic[receivedPacketFromUpperLayer](source="receivedPacketFromUpperLayer"; record=count,"sum(packetBytes)","vector(packetBytes)"; interpolationmode=none);
+        @signal[receivedPacketFromLowerLayer];
+        @statistic[receivedPacketFromLowerLayer](source="receivedPacketFromLowerLayer"; record=count,"sum(packetBytes)","vector(packetBytes)"; interpolationmode=none);
+        @signal[sentPacketToUpperLayer];
+        @statistic[sentPacketToUpperLayer](source="sentPacketToUpperLayer"; record=count,"sum(packetBytes)","vector(packetBytes)"; interpolationmode=none);
+        @signal[sentPacketToLowerLayer];
+        @statistic[sentPacketToLowerLayer](source="sentPacketToLowerLayer"; record=count,"sum(packetBytes)","vector(packetBytes)"; interpolationmode=none);     
     gates:
         //# 
         //# Gates connecting RLC and TM
@@ -101,6 +117,9 @@ simple LteRlcTm {
 // UM Module for the RLC layer of LTE Stack.
 //
 moduleinterface ILteRlcUm {
+    parameters:
+        int queueSize @unit(B);
+        bool mapAllLcidsToSingleBearer;
     gates:
         inout UM_Sap_up;    // Gate to PDCP
         inout UM_Sap_down;    // Gate to RLC Mux
@@ -112,6 +131,10 @@ simple LteRlcUm like ILteRlcUm {
         
         @display("i=block/wheelbarrow");
         
+        //# Rlc Queue
+        int queueSize @unit(B) = default(2MiB);              // RLC TX entity SDU queue size (0: unlimited)
+        bool mapAllLcidsToSingleBearer = default(false);     // if true, all LCIDs are mapped to a single bearer
+        
         //# SDU-level statistics
         @signal[rlcDelayDl];
         @statistic[rlcDelayDl](title="Delay at the rlc layer UL"; unit="s"; source="rlcDelayDl"; record=mean);
@@ -122,9 +145,9 @@ simple LteRlcUm like ILteRlcUm {
         @signal[rlcThroughputUl];
         @statistic[rlcThroughputUl](title="Throughput at the rlc layer UL"; unit="Bps"; source="rlcThroughputUl"; record=mean);
         @signal[rlcPacketLossUl];
-        @statistic[rlcPacketLossUl](title="rlc Packet Loss"; unit=""; source="rlcPacketLossUl"; record=mean);
+        @statistic[rlcPacketLossUl](title="rlc Packet Loss"; unit=""; source="rlcPacketLossUl"; record=mean,sum);
         @signal[rlcPacketLossDl];
-        @statistic[rlcPacketLossDl](title="rlc Packet Loss"; unit=""; source="rlcPacketLossDl"; record=mean);
+        @statistic[rlcPacketLossDl](title="rlc Packet Loss"; unit=""; source="rlcPacketLossDl"; record=mean,sum);
         @signal[rlcPacketLossTotal];
         @statistic[rlcPacketLossTotal](title="rlc Packet Loss"; unit=""; source="rlcPacketLossTotal"; record=mean);
 
@@ -294,7 +317,7 @@ simple AmRxQueue {
     parameters:
         @dynamic(true);
         @display("i=block/segm");
-        int rxWindowSize = default(20);
+        int rxWindowSize = default(200);
         double ackReportInterval @unit(s) = 0.10s;
         double statusReportInterval @unit(s) = 0.20s;
         double timeout @unit(s) = default(1s);            // Timeout for RX Buffer

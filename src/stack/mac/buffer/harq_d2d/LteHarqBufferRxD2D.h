@@ -10,8 +10,10 @@
 #ifndef _LTE_LTEHARQBUFFERRXD2D_H_
 #define _LTE_LTEHARQBUFFERRXD2D_H_
 
+#include "inet/common/packet/Packet.h"
 #include "stack/mac/buffer/harq/LteHarqBufferRx.h"
 #include "stack/mac/buffer/harq_d2d/LteHarqProcessRxD2D.h"
+
 
 class LteHarqProcessRxD2D;
 
@@ -30,10 +32,10 @@ class LteHarqBufferRxD2D : public LteHarqBufferRx
 {
   protected:
 
-    // D2D Statistics
-    simsignal_t macDelayD2D_;
-    simsignal_t macCellThroughputD2D_;
-    simsignal_t macThroughputD2D_;
+        // D2D Statistics
+        inet::simsignal_t macDelayD2D_;
+        inet::simsignal_t macCellThroughputD2D_;
+        inet::simsignal_t macThroughputD2D_;
 
     /**
      * Checks for all processes if the pdu has been evaluated and sends
@@ -50,7 +52,7 @@ class LteHarqBufferRxD2D : public LteHarqBufferRx
      *
      * @param pdu to be inserted
      */
-    virtual void insertPdu(Codeword cw, LteMacPdu *pdu);
+    virtual void insertPdu(Codeword cw, inet::Packet *pdu);
 
     /**
      * Sends feedback for all processes which are older than
@@ -58,7 +60,7 @@ class LteHarqBufferRxD2D : public LteHarqBufferRx
      *
      * @return uncorrupted pdus or empty list if none
      */
-    virtual std::list<LteMacPdu*> extractCorrectPdus();
+    virtual std::list<inet::Packet*> extractCorrectPdus();
 
     virtual ~LteHarqBufferRxD2D();
 };

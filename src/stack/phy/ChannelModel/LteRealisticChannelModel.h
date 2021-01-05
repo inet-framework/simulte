@@ -16,6 +16,7 @@
 #ifndef STACK_PHY_CHANNELMODEL_LTEREALISTICCHANNELMODEL_H_
 #define STACK_PHY_CHANNELMODEL_LTEREALISTICCHANNELMODEL_H_
 
+#include <omnetpp.h>
 #include "stack/phy/ChannelModel/LteChannelModel.h"
 
 class LteBinder;
@@ -51,10 +52,14 @@ private:
   bool enableUplinkInterference_;
   bool enableD2DInterference_;
 
-  typedef std::pair<simtime_t, inet::Coord> Position;
+  typedef std::pair<inet::simtime_t, inet::Coord> Position;
 
   // last position of current user
   std::map<MacNodeId, std::queue<Position> > positionHistory_;
+
+  // last position of current user at which probability of LOS
+  // was computed.
+  std::map<MacNodeId, Position> lastCorrelationPoint_;
 
   // scenario
   DeploymentScenario scenario_;
@@ -63,7 +68,7 @@ private:
   std::map<MacNodeId, bool> losMap_;
 
   // Store the last computed shadowing for each user
-  std::map<MacNodeId, std::pair<simtime_t, double> > lastComputedSF_;
+  std::map<MacNodeId, std::pair<inet::simtime_t, double> > lastComputedSF_;
 
   //correlation distance used in shadowing computation and
   //also used to recompute the probability of LOS
@@ -117,7 +122,7 @@ private:
   struct JakesFadingData
   {
       std::vector<double> angleOfArrival;
-      std::vector<simtime_t> delaySpread;
+      std::vector<omnetpp::simtime_t> delaySpread;
   };
 
   // for each node and for each band we store information about jakes fading
@@ -141,7 +146,7 @@ private:
   bool fixedLos_;
 
   // statistics
-  simsignal_t rcvdSinr_;
+  omnetpp::simsignal_t rcvdSinr_;
 
 
 public:
@@ -200,7 +205,7 @@ public:
    * @param lteinfo pointer to the user control info
    * @param rsrpVector the received signal for each RB, if it has already been computed
    */
-  virtual bool error_D2D(LteAirFrame *frame, UserControlInfo* lteI, const std::vector<double>& rsrpVector);
+  virtual bool isCorrupted_D2D(LteAirFrame *frame, UserControlInfo* lteI, const std::vector<double>& rsrpVector);
   /*
    * Compute the error probability of the transmitted packet according to cqi used, txmode, and the received power
    * after that it throws a random number in order to check if this packet will be corrupted or not
@@ -217,7 +222,7 @@ public:
    */
   virtual bool isCorruptedDas(LteAirFrame *frame, UserControlInfo* lteI)
   {
-      throw cRuntimeError("DAS PHY LAYER TO BE IMPLEMENTED");
+      throw omnetpp::cRuntimeError("DAS PHY LAYER TO BE IMPLEMENTED");
       return -1;
   }
   /*
@@ -307,6 +312,18 @@ protected:
    * @return the speed in m/s
    */
   double computeSpeed(const MacNodeId nodeId, const inet::Coord coord);
+
+  /*
+   * compute the euclidean distance between the current position and the
+   * last position used to calculate the LOS probability
+   */
+  double computeCorrelationDistance(const MacNodeId nodeId, const inet::Coord coord);
+
+  /*
+   * update base point if distance to previous value is greater than the
+   * correlationDistance_
+   */
+  void updateCorrelationDistance(const MacNodeId nodeId, const inet::Coord coord);
 
   /*
    * Updates position for a given node

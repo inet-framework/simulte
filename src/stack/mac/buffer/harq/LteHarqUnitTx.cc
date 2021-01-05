@@ -11,10 +11,12 @@
 #include "stack/mac/layer/LteMacEnb.h"
 #include <omnetpp.h>
 
+using namespace omnetpp;
+
 LteHarqUnitTx::LteHarqUnitTx(unsigned char acid, Codeword cw,
     LteMacBase *macOwner, LteMacBase *dstMac)
 {
-    pdu_ = NULL;
+    pdu_ = nullptr;
     pduId_ = -1;
     acid_ = acid;
     cw_ = cw;
@@ -52,24 +54,26 @@ LteHarqUnitTx::LteHarqUnitTx(unsigned char acid, Codeword cw,
     }
 }
 
-void LteHarqUnitTx::insertPdu(LteMacPdu *pdu)
+void LteHarqUnitTx::insertPdu(Packet *pkt)
 {
-    if (!pdu)
+    if (!pkt)
         throw cRuntimeError("Trying to insert NULL macPdu pointer in harq unit");
 
     // cannot insert if the unit is not idle
     if (!this->isEmpty())
         throw cRuntimeError("Trying to insert macPdu in already busy harq unit");
 
-    pdu_ = pdu;
+    auto pdu = pkt->removeAtFront<LteMacPdu>();
+    pdu_ = pkt;
     pduId_ = pdu->getId();
     // as unique MacPDUId the OMNET id is used (need separate member since it must not be changed by dup())
     pdu->setMacPduId(pdu->getId());
+    pkt->insertAtFront(pdu);
     transmissions_ = 0;
     status_ = TXHARQ_PDU_SELECTED;
     pduLength_ = pdu_->getByteLength();
-    UserControlInfo *lteInfo = check_and_cast<UserControlInfo *>(
-        pdu_->getControlInfo());
+    auto lteInfo = pdu_->getTag<UserControlInfo>();
+
     lteInfo->setAcid(acid_);
     Codeword cw_old = lteInfo->getCw();
     if (cw_ != cw_old)
@@ -89,7 +93,7 @@ void LteHarqUnitTx::markSelected()
     status_ = TXHARQ_PDU_SELECTED;
 }
 
-LteMacPdu *LteHarqUnitTx::extractPdu()
+Packet *LteHarqUnitTx::extractPdu()
 {
     if (!(status_ == TXHARQ_PDU_SELECTED))
         throw cRuntimeError("Trying to extract macPdu from not selected H-ARQ unit");
@@ -97,13 +101,13 @@ LteMacPdu *LteHarqUnitTx::extractPdu()
     txTime_ = NOW;
     transmissions_++;
     status_ = TXHARQ_PDU_WAITING; // waiting for feedback
-    UserControlInfo *lteInfo = check_and_cast<UserControlInfo *>(
-        pdu_->getControlInfo());
+
+    auto lteInfo = pdu_->getTag<UserControlInfo>();
     lteInfo->setTxNumber(transmissions_);
     lteInfo->setNdi((transmissions_ == 1) ? true : false);
     EV << "LteHarqUnitTx::extractPdu - ndi set to " << ((transmissions_ == 1) ? "true" : "false") << endl;
 
-    LteMacPdu* extractedPdu = pdu_->dup();
+    auto extractedPdu = pdu_->dup();
     macOwner_->takeObj(extractedPdu);
     return extractedPdu;
 }
@@ -113,8 +117,7 @@ bool LteHarqUnitTx::pduFeedback(HarqAcknowledgment a)
     EV << "LteHarqUnitTx::pduFeedback - Welcome!" << endl;
     double sample;
     bool reset = false;
-    UserControlInfo *lteInfo;
-    lteInfo = check_and_cast<UserControlInfo *>(pdu_->getControlInfo());
+    auto lteInfo = pdu_->getTag<UserControlInfo>();
     short unsigned int dir = lteInfo->getDirection();
     unsigned int ntx = transmissions_;
     if (!(status_ == TXHARQ_PDU_WAITING))
@@ -236,13 +239,14 @@ void LteHarqUnitTx::forceDropUnit()
     if (status_ == TXHARQ_PDU_BUFFERED || status_ == TXHARQ_PDU_SELECTED || status_ == TXHARQ_PDU_WAITING)
     {
         delete pdu_;
-        pdu_ = NULL;
+        pdu_ = nullptr;
     }
     resetUnit();
 }
 
-LteMacPdu *LteHarqUnitTx::getPdu()
+Packet *LteHarqUnitTx::getPdu()
 {
+    auto temp = pdu_->peekAtFront<LteMacPdu>();
     return pdu_;
 }
 
@@ -255,9 +259,9 @@ void LteHarqUnitTx::resetUnit()
 {
     transmissions_ = 0;
     pduId_ = -1;
-    if(pdu_ != NULL){
+    if(pdu_ != nullptr){
         delete pdu_;
-        pdu_ = NULL;
+        pdu_ = nullptr;
     }
 
     status_ = TXHARQ_PDU_EMPTY;

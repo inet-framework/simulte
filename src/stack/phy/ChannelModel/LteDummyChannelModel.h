@@ -1,4 +1,5 @@
 //
+#include "common/LteControlInfo.h"
 //                           SimuLTE
 //
 // This file is part of a software released under the license included in file
@@ -66,7 +67,7 @@ class LteDummyChannelModel : public LteChannelModel
     * @param lteinfo pointer to the user control info
     * @param rsrpVector the received signal for each RB, if it has already been computed
     */
-   virtual bool error_D2D(LteAirFrame *frame, UserControlInfo* lteInfo, const std::vector<double>& rsrpVector);
+   virtual bool isCorrupted_D2D(LteAirFrame *frame, UserControlInfo* lteInfo, const std::vector<double>& rsrpVector);
    /*
     * Compute Received useful signal for D2D transmissions
     */
@@ -82,7 +83,7 @@ class LteDummyChannelModel : public LteChannelModel
    //TODO
    virtual bool isCorruptedDas(LteAirFrame *frame, UserControlInfo* lteI)
    {
-       throw cRuntimeError("DAS PHY LAYER TO BE IMPLEMENTED");
+       throw omnetpp::cRuntimeError("DAS PHY LAYER TO BE IMPLEMENTED");
        return false;
    }
 

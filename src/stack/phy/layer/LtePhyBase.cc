@@ -10,11 +10,13 @@
 #include "stack/phy/layer/LtePhyBase.h"
 #include "common/LteCommon.h"
 
+using namespace omnetpp;
+
 short LtePhyBase::airFramePriority_ = 10;
 
 LtePhyBase::LtePhyBase()
 {
-    channelModel_ = NULL;
+    channelModel_ = nullptr;
 }
 
 LtePhyBase::~LtePhyBase()
@@ -28,7 +30,7 @@ void LtePhyBase::initialize(int stage)
     if (stage == inet::INITSTAGE_LOCAL)
     {
         binder_ = getBinder();
-        cellInfo_ = NULL;
+        cellInfo_ = nullptr;
         // get gate ids
         upperGateIn_ = findGate("upperGateIn");
         upperGateOut_ = findGate("upperGateOut");
@@ -48,7 +50,7 @@ void LtePhyBase::initialize(int stage)
         multicastD2DRange_ = par("multicastD2DRange");
         enableMulticastD2DRangeCheck_ = par("enableMulticastD2DRangeCheck");
     }
-    else if (stage == inet::INITSTAGE_PHYSICAL_ENVIRONMENT_2)
+    else if (stage == inet::INITSTAGE_PHYSICAL_ENVIRONMENT)
     {
         initializeChannelModel();
     }
@@ -84,9 +86,10 @@ void LtePhyBase::handleMessage(cMessage* msg)
 void LtePhyBase::handleControlMsg(LteAirFrame *frame,
     UserControlInfo *userInfo)
 {
-    cPacket *pkt = frame->decapsulate();
+    auto pkt = check_and_cast<inet::Packet *>(frame->decapsulate());
     delete frame;
-    pkt->setControlInfo(userInfo);
+    *(pkt->addTagIfAbsent<UserControlInfo>()) = *userInfo;
+    delete userInfo;
     send(pkt, upperGateOut_);
     return;
 }
@@ -114,10 +117,10 @@ void LtePhyBase::handleUpperMessage(cMessage* msg)
 {
     EV << "LtePhy: message from stack" << endl;
 
-    UserControlInfo* lteInfo = check_and_cast<UserControlInfo*>(
-        msg->removeControlInfo());
+    auto pkt = check_and_cast<inet::Packet *>(msg);
+    auto lteInfo = pkt->removeTag<UserControlInfo>();
 
-    LteAirFrame* frame = NULL;
+    LteAirFrame* frame = nullptr;
 
     if (lteInfo->getFrameType() == HARQPKT
         || lteInfo->getFrameType() == GRANTPKT
@@ -135,12 +138,12 @@ void LtePhyBase::handleUpperMessage(cMessage* msg)
     frame->encapsulate(check_and_cast<cPacket*>(msg));
 
     // initialize frame fields
-
     if (lteInfo->getFrameType() == D2DMODESWITCHPKT)
         frame->setSchedulingPriority(-1);
     else
         frame->setSchedulingPriority(airFramePriority_);
     frame->setDuration(TTI);
+
     // set current position
     lteInfo->setCoord(getRadioPosition());
 
@@ -174,52 +177,14 @@ void LtePhyBase::sendBroadcast(LteAirFrame *airFrame)
 {
     // delegate the ChannelControl to send the airframe
     sendToChannel(airFrame);
-
-//    const ChannelControl::RadioRefVector& gateList = cc->getNeighbors(myRadioRef);
-//    ChannelControl::radioRefVector::const_iterator i = gateList.begin();
-//    UserControlInfo *ci = check_and_cast<UserControlInfo *>(
-//            airFrame->getControlInfo());
-//
-//    if (i != gateList.end()) {
-//        EV << "Sending broadcast message to " << gateList.size() << " NICs"
-//                << endl;
-// all gates
-//        for(; i != gateList.end(); ++i){
-//            // gate ID of the NIC
-//            int radioStart = (*i)->host->gate("radioIn",0);  //       ->second->getId();
-//            int radioEnd = radioStart + (*i)->host->gateSize("radioIn");
-//            // all gates' indexes (if it is a gate array)
-//            for (int g = radioStart; g != radioEnd; ++g) {
-//                LteAirFrame *af = airFrame->dup();
-//                af->setControlInfo(ci->dup());
-//                sendDirect(af, i->second->getOwnerModule(), g);
-//            }
-//        }
-
-//        // last receiving nic
-//        int radioStart = (*i)->host->gate("radioIn",0);  //       ->second->getId();
-//        int radioEnd = radioStart + (*i)->host->gateSize("radioIn");
-//        // send until last - 1 gate, or doesn't enter if it is not a gate array
-//        for (int g = radioStart; g != --radioEnd; ++g){
-//            LteAirFrame *af = airFrame->dup();
-//            af->setControlInfo(ci->dup());
-//            sendDirect(af, i->second->getOwnerModule(), g);
-//        }
-//
-//        // send the original message to the last gate of the last NIC
-//        sendDirect(airFrame, i->second->getOwnerModule(), radioEnd);
-//    } else {
-//        EV << "NIC is not connected to any gates!" << endl;
-//        delete airFrame;
-//    }
 }
 
 LteAmc *LtePhyBase::getAmcModule(MacNodeId id)
 {
-    LteAmc *amc = NULL;
+    LteAmc *amc = nullptr;
     OmnetId omid = binder_->getOmnetId(id);
     if (omid == 0)
-        return NULL;
+        return nullptr;
 
     amc = check_and_cast<LteMacEnb *>(
         getSimulation()->getModule(omid)->getSubmodule("lteNic")->getSubmodule(
@@ -232,7 +197,7 @@ void LtePhyBase::sendMulticast(LteAirFrame *frame)
     UserControlInfo *ci = check_and_cast<UserControlInfo *>(frame->getControlInfo());
 
     // get the group Id
-    int32 groupId = ci->getMulticastGroupId();
+    inet::int32 groupId = ci->getMulticastGroupId();
     if (groupId < 0)
         throw cRuntimeError("LtePhyBase::sendMulticast - Error. Group ID %d is not valid.", groupId);
 

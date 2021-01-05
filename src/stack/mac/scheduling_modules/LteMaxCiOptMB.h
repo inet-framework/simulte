@@ -12,20 +12,18 @@
 #include <string>
 #include "stack/mac/amc/AmcPilot.h"
 
-using namespace std;
-
 typedef std::map< MacNodeId,std::vector<BandLimit> > SchedulingDecision;
-typedef map<MacNodeId,UsableBands> UsableBandList;
+typedef std::map<MacNodeId,UsableBands> UsableBandList;
 
 class LteMaxCiOptMB : public virtual LteScheduler
 {
 
-    string problemFile_;
-    string solutionFile_;
+    std::string problemFile_;
+    std::string solutionFile_;
 
 
-    vector<MacNodeId> ueList_;
-    vector<MacCid> cidList_;
+    std::vector<MacNodeId> ueList_;
+    std::vector<MacCid> cidList_;
     SchedulingDecision schedulingDecision_;
 
     UsableBandList usableBands_;

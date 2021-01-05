@@ -8,16 +8,19 @@
 //
 
 #include <cmath>
+#include <inet/common/ModuleAccess.h>
+#include <inet/common/TimeTag_m.h>
+
 #include "apps/alert/AlertSender.h"
-#include "inet/common/ModuleAccess.h"  // for multicast support
 
 #define round(x) floor((x) + 0.5)
 
 Define_Module(AlertSender);
+using namespace inet;
 
 AlertSender::AlertSender()
 {
-    selfSender_ = NULL;
+    selfSender_ = nullptr;
     nextSno_ = 0;
 }
 
@@ -39,22 +42,27 @@ void AlertSender::initialize(int stage)
     selfSender_ = new cMessage("selfSender");
 
     size_ = par("packetSize");
-    period_ = par("period");
     localPort_ = par("localPort");
     destPort_ = par("destPort");
     destAddress_ = inet::L3AddressResolver().resolve(par("destAddress").stringValue());
 
-    socket.setOutputGate(gate("udpOut"));
+    socket.setOutputGate(gate("socketOut"));
     socket.bind(localPort_);
 
     // for multicast support
     inet::IInterfaceTable *ift = inet::getModuleFromPar< inet::IInterfaceTable >(par("interfaceTableModule"), this);
     inet::MulticastGroupList mgl = ift->collectMulticastGroups();
     socket.joinLocalMulticastGroups(mgl);
-    inet::InterfaceEntry *ie = ift->getInterfaceByName("wlan");
-    if (!ie)
-        throw cRuntimeError("Wrong multicastInterface setting: no interface named wlan");
-    socket.setMulticastOutputInterface(ie->getInterfaceId());
+
+    // if the multicastInterface parameter is not empty, set the interface explicitly
+    const char *multicastInterface = par("multicastInterface");
+    if (multicastInterface[0]) {
+        InterfaceEntry *ie = ift->findInterfaceByName(multicastInterface);
+        if (!ie)
+            throw cRuntimeError("Wrong multicastInterface setting: no interface named \"%s\"", multicastInterface);
+        socket.setMulticastOutputInterface(ie->getInterfaceId());
+    }
+
     // -------------------- //
 
     alertSentMsg_ = registerSignal("alertSentMsg");
@@ -86,10 +94,16 @@ void AlertSender::handleMessage(cMessage *msg)
 
 void AlertSender::sendAlertPacket()
 {
-    AlertPacket* packet = new AlertPacket("Alert");
-    packet->setSno(nextSno_);
-    packet->setTimestamp(simTime());
-    packet->setByteLength(size_);
+    Packet* packet = new inet::Packet("Alert");
+
+    auto alert = makeShared<AlertPacket>();
+    alert->setSno(nextSno_);
+    alert->setPayloadTimestamp(simTime());
+    alert->setChunkLength(B(size_));
+    alert->addTag<CreationTimeTag>()->setCreationTime(simTime());
+
+    packet->insertAtBack(alert);
+
     EV << "AlertSender::sendAlertPacket - Sending message [" << nextSno_ << "]\n";
 
     socket.sendTo(packet, destAddress_, destPort_);
@@ -97,8 +111,17 @@ void AlertSender::sendAlertPacket()
 
     emit(alertSentMsg_, (long)1);
 
-    if( simTime()< stopTime_ || stopTime_ == 0 )
-        scheduleAt(simTime() + period_, selfSender_);
+    simtime_t d = simTime() + par("period");
+    if (stopTime_ <= SIMTIME_ZERO || d < stopTime_) {
+        scheduleAt(d, selfSender_);
+    }
     else
         EV << "AlertSender::sendAlertPacket - Stop time reached, stopping transmissions" << endl;
+}
+
+void AlertSender::refreshDisplay() const
+{
+    char buf[80];
+    sprintf(buf, "sent: %d pks", nextSno_);
+    getDisplayString().setTagArg("t", 0, buf);
 }

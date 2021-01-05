@@ -7,47 +7,42 @@
 #include <string.h>
 #include <omnetpp.h>
 
-#include "inet/common/INETDefs.h"
-#include "inet/transportlayer/contract/udp/UDPSocket.h"
-#include "inet/networklayer/common/L3AddressResolver.h"
+#include <inet/common/INETDefs.h>
+#include <inet/transportlayer/contract/udp/UdpSocket.h>
+#include <inet/networklayer/common/L3AddressResolver.h>
 
-#include "CbrPacket_m.h"
+#include "apps/cbr/CbrPacket_m.h"
 
-using namespace inet;
-
-class CbrSender : public cSimpleModule
+class CbrSender : public omnetpp::cSimpleModule
 {
-    UDPSocket socket;
+    inet::UdpSocket socket;
     //has the sender been initialized?
     bool initialized_;
 
-    cMessage* selfSource_;
+    omnetpp::cMessage* selfSource_;
     //sender
-    int iDtalk_;
     int nframes_;
     int iDframe_;
     int nframesTmp_;
     int size_;
-    simtime_t sampling_time;
-    simtime_t startTime_;
-    simtime_t finishTime_;
+    omnetpp::simtime_t sampling_time;
+    omnetpp::simtime_t startTime_;
+    omnetpp::simtime_t finishTime_;
 
-    bool silences_;
-
-    static simsignal_t cbrGeneratedThroughtputSignal_;
-    static simsignal_t cbrGeneratedBytesSignal_;
-    static simsignal_t cbrSentPktSignal_;
+    static omnetpp::simsignal_t cbrGeneratedThroughtputSignal_;
+    static omnetpp::simsignal_t cbrGeneratedBytesSignal_;
+    static omnetpp::simsignal_t cbrSentPktSignal_;
 
     int txBytes_;
     // ----------------------------
 
-    cMessage *selfSender_;
-    cMessage *initTraffic_;
+    omnetpp::cMessage *selfSender_;
+    omnetpp::cMessage *initTraffic_;
 
-    simtime_t timestamp_;
+    omnetpp::simtime_t timestamp_;
     int localPort_;
     int destPort_;
-    L3Address destAddress_;
+    inet::L3Address destAddress_;
 
     void initTraffic();
     void sendCbrPacket();
@@ -58,10 +53,10 @@ class CbrSender : public cSimpleModule
 
   protected:
 
-    virtual int numInitStages() const override { return NUM_INIT_STAGES; }
+    virtual int numInitStages() const override { return inet::NUM_INIT_STAGES; }
     void initialize(int stage) override;
     void finish() override;
-    void handleMessage(cMessage *msg) override;
+    void handleMessage(omnetpp::cMessage *msg) override;
 };
 
 #endif

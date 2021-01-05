@@ -10,63 +10,66 @@
 
 package lte.corenetwork.nodes;
 
-import inet.linklayer.ppp.PPP;
+import inet.linklayer.ppp.Ppp;
 import inet.networklayer.common.InterfaceTable;
 import lte.corenetwork.lteip.LteIp;
 import lte.corenetwork.lteip.InternetQueue;
-import inet.transportlayer.udp.UDP;
-import inet.transportlayer.tcp.TCP;
+import inet.transportlayer.udp.Udp;
+import inet.transportlayer.tcp.Tcp;
 
 //
 
 // Node representing the Internet in the Lte network model.
-// It has TCP/UDP transport layer and related applications.
+// It has Tcp/Udp transport layer and related applications.
 // It contains an LteIp module to connect the INTERNET 
 // node to the ENODEB LteIp peer.
 //
 module LteInternet
 {
     parameters:
-
         @display("i=misc/globe;bgb=316,250");
+        
     gates:
-        //#inout peerLteIp; 
-
         inout peerLteIp[];  // gate connecting the node with an LteIp peer
 
     submodules:
 
         // Lte IP module , and gates for connecting to transport stack
         lteIp: LteIp {
-            @display("p=116,121");
-            nodeType = "INTERNET";
-            protocolMapping = "6:0,17:1";
+            parameters:
+                @display("p=116,121");
+                nodeType = "INTERNET";
+                protocolMapping = "6:0,17:1";
             gates:
                 transportIn[2];
                 transportOut[2];
         }
-        tcp: TCP {
-            @display("p=34,40");
+        tcp: Tcp {
+            parameters:
+            	@display("p=34,40");
         }
-        udp: UDP {
-            @display("p=190,40");
+        udp: Udp {
+            parameters:
+            	@display("p=190,40");
         }
 
         mux: InternetMux {
-            @display("p=270,121");
+            parameters:
+            	@display("p=270,121");
         }
 
         internetQueue: InternetQueue {
-            @dynamic(true);
-            @display("p=270,197");
+            parameters:
+                @dynamic(true);
+                @display("p=270,197");
         }
         interfaceTable: InterfaceTable {
-            @display("p=45,121");
+            parameters:
+                    @display("p=45,121");
         }
 
+
     connections allowunconnected:
-
-
         //#
         //# Internal LTE stack to PHY and
         //# Lte IP connections
@@ -97,7 +100,6 @@ simple InternetMux
         output outMux;         // to lteIP
 
         //# externals
-
         input inExt[];                // from external (ltePeerIp)
         output outExt[];            // to internet Queues
 }

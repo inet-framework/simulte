@@ -15,40 +15,9 @@ class UserTxParams;
 
 class LteSchedulingGrant : public LteSchedulingGrant_Base
 {
-  protected:
-
-    const UserTxParams* userTxParams;
-    RbMap grantedBlocks;
-    std::vector<unsigned int> grantedCwBytes;
-    Direction direction_;
-
-  public:
-
-    LteSchedulingGrant(const char *name = NULL, int kind = 0) :
-        LteSchedulingGrant_Base(name, kind)
-    {
-        userTxParams = NULL;
-        grantedCwBytes.resize(MAX_CODEWORDS);
-    }
-
-    ~LteSchedulingGrant()
-    {
-        if (userTxParams != NULL)
-        {
-            delete userTxParams;
-            userTxParams = NULL;
-        }
-    }
-
-    LteSchedulingGrant(const LteSchedulingGrant& other) :
-        LteSchedulingGrant_Base(other.getName())
-    {
-        operator=(other);
-    }
-
-    LteSchedulingGrant& operator=(const LteSchedulingGrant& other)
-    {
-        if (other.userTxParams != NULL)
+private:
+    void copy(const LteSchedulingGrant& other) {
+        if (other.userTxParams != nullptr)
         {
             const UserTxParams* txParams = check_and_cast<const UserTxParams*>(other.userTxParams);
             userTxParams = txParams->dup();
@@ -60,11 +29,46 @@ class LteSchedulingGrant : public LteSchedulingGrant_Base
         grantedBlocks = other.grantedBlocks;
         grantedCwBytes = other.grantedCwBytes;
         direction_ = other.direction_;
+    }
+  protected:
+
+    const UserTxParams* userTxParams;
+    RbMap grantedBlocks;
+    std::vector<unsigned int> grantedCwBytes;
+    Direction direction_;
+
+  public:
+
+    LteSchedulingGrant() :
+        LteSchedulingGrant_Base()
+    {
+        userTxParams = nullptr;
+        grantedCwBytes.resize(MAX_CODEWORDS);
+    }
+
+    ~LteSchedulingGrant()
+    {
+        if (userTxParams != nullptr)
+        {
+            delete userTxParams;
+            userTxParams = nullptr;
+        }
+    }
+
+    LteSchedulingGrant(const LteSchedulingGrant& other) : LteSchedulingGrant_Base(other)
+    {
+        copy(other);
+    }
+
+    LteSchedulingGrant& operator=(const LteSchedulingGrant& other)
+    {
+        if (this == &other) return *this;
         LteSchedulingGrant_Base::operator=(other);
+        copy(other);
         return *this;
     }
 
-    virtual LteSchedulingGrant *dup() const
+    virtual LteSchedulingGrant *dup() const override
     {
         return new LteSchedulingGrant(*this);
     }
@@ -102,22 +106,33 @@ class LteSchedulingGrant : public LteSchedulingGrant_Base
         grantedBlocks = rbMap;
     }
 
-    virtual void setGrantedCwBytesArraySize(unsigned int size)
+    virtual void setGrantedCwBytesArraySize(size_t size) override
     {
         grantedCwBytes.resize(size);
     }
-    virtual unsigned int getGrantedCwBytesArraySize() const
+    virtual size_t getGrantedCwBytesArraySize() const override
     {
         return grantedCwBytes.size();
     }
-    virtual unsigned int getGrantedCwBytes(unsigned int k) const
+    virtual unsigned int getGrantedCwBytes(size_t k) const override
     {
         return grantedCwBytes.at(k);
     }
-    virtual void setGrantedCwBytes(unsigned int k, unsigned int grantedCwBytes_var)
+    virtual void setGrantedCwBytes(size_t k, unsigned int grantedCwBytes_var) override
     {
         grantedCwBytes[k] = grantedCwBytes_var;
     }
+
+    virtual void insertGrantedCwBytes(unsigned int grantedCwBytes) override {
+        throw cRuntimeError("insertGrantedCwBytes not implemented");
+    }
+    virtual void insertGrantedCwBytes(size_t k, unsigned int grantedCwBytes) override {
+        throw cRuntimeError("insertGrantedCwBytes not implemented");
+    }
+    virtual void eraseGrantedCwBytes(size_t k) override {
+        throw cRuntimeError("eraseGrantedCwBytes not implemented");
+    }
+
     void setDirection(Direction dir)
     {
         direction_ = dir;

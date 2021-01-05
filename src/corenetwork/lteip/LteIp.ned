@@ -24,7 +24,7 @@ package lte.corenetwork.lteip;
 // an IPControlInfo to the packet, with the source and destination IP address,
 // etc. of the IP datagram in which the packet arrived.
 //
-// When the higher layer is TCP, the processing delay should be kept 
+// When the higher layer is Tcp, the processing delay should be kept 
 // low ( i.e. < 1s ), otherwise it is possible to get a runtime error.
 //
 // LteIp can serve several higher-layer protocols. When delivering packets
@@ -36,8 +36,8 @@ package lte.corenetwork.lteip;
 // </pre>
 //
 // The recommended setting for LteIp is:
-// - \TCP (6) : 0
-// - \UDP (17) : 1
+// - \Tcp (6) : 0
+// - \Udp (17) : 1
 //
 // That is, <tt>protocolMapping="6:0,17:1"</tt>
 //
@@ -66,12 +66,13 @@ simple LteIp
         int timeToLive = default(32);              // default time to live
         string protocolMapping = default("");      // mapping between transportIn[]/Out[] indexes and protocol numbers
         string nodeType;                           // can be "internet", "enodeb", "ue"
+        string interfaceName = default("cellular"); 
         
     gates:
  
         // Gates to transport layers (unconnected in eNodeB)
-        input transportIn[] @labels(IPControlInfo/down,TCPSegment,UDPPacket);
-        output transportOut[] @labels(IPControlInfo/up,TCPSegment,UDPPacket);
+        input transportIn[] @labels(IPControlInfo/down,TcpHeader,UDPPacket);
+        output transportOut[] @labels(IPControlInfo/up,TcpHeader,UDPPacket);
  
         // Gate to Lte stack (unconnected in Internet node)
         inout stackLte @labels(IPDatagram);

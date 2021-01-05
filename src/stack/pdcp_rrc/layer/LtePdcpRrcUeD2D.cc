@@ -8,14 +8,17 @@
 //
 
 #include "stack/pdcp_rrc/layer/LtePdcpRrcUeD2D.h"
-#include "inet/networklayer/common/L3AddressResolver.h"
+#include <inet/networklayer/common/L3AddressResolver.h>
 #include "stack/d2dModeSelection/D2DModeSwitchNotification_m.h"
 
 Define_Module(LtePdcpRrcUeD2D);
 
+using namespace inet;
+using namespace omnetpp;
+
 MacNodeId LtePdcpRrcUeD2D::getDestId(FlowControlInfo* lteInfo)
 {
-    IPv4Address destAddr = IPv4Address(lteInfo->getDstAddr());
+    Ipv4Address destAddr = Ipv4Address(lteInfo->getDstAddr());
     MacNodeId destId = binder_->getMacNodeId(destAddr);
 
     // check if the destination is inside the LTE network
@@ -31,17 +34,18 @@ MacNodeId LtePdcpRrcUeD2D::getDestId(FlowControlInfo* lteInfo)
 /*
  * Upper Layer handlers
  */
-void LtePdcpRrcUeD2D::fromDataPort(cPacket *pkt)
+void LtePdcpRrcUeD2D::fromDataPort(cPacket *pktAux)
 {
-    emit(receivedPacketFromUpperLayer, pkt);
+    emit(receivedPacketFromUpperLayer, pktAux);
 
     // Control Informations
-    FlowControlInfo* lteInfo = check_and_cast<FlowControlInfo*>(pkt->removeControlInfo());
+    auto pkt = check_and_cast<Packet *>(pktAux);
+    auto lteInfo = pkt->getTag<FlowControlInfo>();
     setTrafficInformation(pkt, lteInfo);
-    headerCompress(pkt, lteInfo->getHeaderSize()); // header compression
+    headerCompress(pkt);
 
     // get destination info
-    IPv4Address destAddr = IPv4Address(lteInfo->getDstAddr());
+    Ipv4Address destAddr = Ipv4Address(lteInfo->getDstAddr());
     MacNodeId destId;
 
     // the direction of the incoming connection is a D2D_MULTI one if the application is of the same type,
@@ -56,7 +60,7 @@ void LtePdcpRrcUeD2D::fromDataPort(cPacket *pkt)
         // multicast IP addresses are 224.0.0.0/4.
         // We consider the host part of the IP address (the remaining 28 bits) as identifier of the group,
         // so as it is univocally determined for the whole network
-        uint32 address = IPv4Address(lteInfo->getDstAddr()).getInt();
+        uint32 address = Ipv4Address(lteInfo->getDstAddr()).getInt();
         uint32 mask = ~((uint32)255 << 28);      // 0000 1111 1111 1111
         uint32 groupId = address & mask;
         lteInfo->setMulticastGroupId((int32)groupId);
@@ -96,7 +100,7 @@ void LtePdcpRrcUeD2D::fromDataPort(cPacket *pkt)
 
     // Cid Request
     EV << NOW << " LtePdcpRrcUeD2D : Received CID request for Traffic [ " << "Source: "
-       << IPv4Address(lteInfo->getSrcAddr()) << "@" << lteInfo->getSrcPort()
+       << Ipv4Address(lteInfo->getSrcAddr()) << "@" << lteInfo->getSrcPort()
        << " Destination: " << destAddr << "@" << lteInfo->getDstPort()
        << " , Direction: " << dirToA((Direction)lteInfo->getDirection()) << " ]\n";
 
@@ -135,39 +139,70 @@ void LtePdcpRrcUeD2D::fromDataPort(cPacket *pkt)
     // set some flow-related info
     lteInfo->setLcid(mylcid);
     lteInfo->setSourceId(nodeId_);
+
+    unsigned int headerLength;
+    std::string portName;
+    omnetpp::cGate* gate;
+
+    switch(lteInfo->getRlcType()){
+    case UM:
+        headerLength = PDCP_HEADER_UM;
+        portName = "UM_Sap$o";
+        gate = umSap_[OUT_GATE];
+        break;
+    case AM:
+        headerLength = PDCP_HEADER_AM;
+        portName = "AM_Sap$o";
+        gate = amSap_[OUT_GATE];
+        break;
+    case TM:
+        portName = "TM_Sap$o";
+        gate = tmSap_[OUT_GATE];
+        headerLength = 1;
+        break;
+    default:
+        throw cRuntimeError("LtePdcpRrcUeD2D::fromDataport(): invalid RlcType %d", lteInfo->getRlcType());
+        portName = "undefined";
+        gate = nullptr;
+        headerLength = 1;
+    }
+
     // PDCP Packet creation
-    LtePdcpPdu* pdcpPkt = new LtePdcpPdu("LtePdcpPdu");
-    pdcpPkt->setByteLength(lteInfo->getRlcType() == UM ? PDCP_HEADER_UM : PDCP_HEADER_AM);
-    pdcpPkt->encapsulate(pkt);
-    pdcpPkt->setControlInfo(lteInfo);
+    auto pdcpPkt = makeShared<LtePdcpPdu>();
+    pdcpPkt->setChunkLength(B(headerLength));
+    pkt->trim();
+    pkt->insertAtFront(pdcpPkt);
 
     EV << "LtePdcp : Preparing to send "
        << lteTrafficClassToA((LteTrafficClass) lteInfo->getTraffic())
        << " traffic\n";
-    EV << "LtePdcp : Packet size " << pdcpPkt->getByteLength() << " Bytes\n";
-    EV << "LtePdcp : Sending packet " << pdcpPkt->getName() << " on port "
-       << (lteInfo->getRlcType() == UM ? "UM_Sap$o\n" : "AM_Sap$o\n");
+    EV << "LtePdcp : Packet size " << pkt->getByteLength() << " Bytes\n";
+    EV << "LtePdcp : Sending packet " << pkt->getName() << " on port "
+       << portName << std::endl;
+
+    pkt->addTagIfAbsent<PacketProtocolTag>()->setProtocol(&LteProtocol::pdcp);
 
     // Send message
-    send(pdcpPkt, (lteInfo->getRlcType() == UM ? umSap_[OUT] : amSap_[OUT]));
-    emit(sentPacketToLowerLayer, pdcpPkt);
+    send(pkt, gate);
+    emit(sentPacketToLowerLayer, pkt);
 }
 
 void LtePdcpRrcUeD2D::handleMessage(cMessage* msg)
 {
-    cPacket* pkt = check_and_cast<cPacket *>(msg);
+    cPacket* pktAux = check_and_cast<cPacket *>(msg);
 
     // check whether the message is a notification for mode switch
-    if (strcmp(pkt->getName(),"D2DModeSwitchNotification") == 0)
+    if (strcmp(pktAux->getName(),"D2DModeSwitchNotification") == 0)
     {
-        EV << "LtePdcpRrcUeD2D::handleMessage - Received packet " << pkt->getName() << " from port " << pkt->getArrivalGate()->getName() << endl;
+        EV << "LtePdcpRrcUeD2D::handleMessage - Received packet " << pktAux->getName() << " from port " << pktAux->getArrivalGate()->getName() << endl;
 
-        D2DModeSwitchNotification* switchPkt = check_and_cast<D2DModeSwitchNotification*>(pkt);
+        auto pkt = check_and_cast<inet::Packet *>(pktAux);
+        auto switchPkt = pkt->peekAtFront<D2DModeSwitchNotification>();
 
         // call handler
         pdcpHandleD2DModeSwitch(switchPkt->getPeerId(), switchPkt->getNewMode());
 
-        delete pkt;
+        delete pktAux;
     }
     else
     {

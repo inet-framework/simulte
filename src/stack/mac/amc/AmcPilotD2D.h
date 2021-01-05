@@ -33,7 +33,7 @@ class AmcPilotD2D : public AmcPilot
         name_ = "D2D";
         mode_ = MIN_CQI;
         usePreconfiguredTxParams_ = false;
-        preconfiguredTxParams_ = NULL;
+        preconfiguredTxParams_ = nullptr;
     }
     /**
      * Assign logical bands for given nodeId and direction
@@ -51,9 +51,9 @@ class AmcPilotD2D : public AmcPilot
     void setPreconfiguredTxParams(Cqi cqi);
 
     // TODO reimplement these functions
-    virtual std::vector<Cqi>  getMultiBandCqi(MacNodeId id, const Direction dir) {};
-    virtual void setUsableBands(MacNodeId id , UsableBands usableBands) {}
-    virtual bool getUsableBands(MacNodeId id, UsableBands*& uBands) { return false; }
+    virtual std::vector<Cqi>  getMultiBandCqi(MacNodeId id, const Direction dir){ std::vector<Cqi> result; return result; }
+    virtual void setUsableBands(MacNodeId id , UsableBands usableBands){}
+    virtual bool getUsableBands(MacNodeId id, UsableBands*& uBands){ return false; }
 };
 
 #endif

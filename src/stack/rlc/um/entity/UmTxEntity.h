@@ -39,13 +39,23 @@ class LteRlcUm;
  *
  * The size of PDUs is signalled by the lower layer
  */
-class UmTxEntity : public cSimpleModule
+class UmTxEntity : public omnetpp::cSimpleModule
 {
+    struct FragmentInfo {
+        inet::Packet * pkt= nullptr;
+        int size = 0;
+    };
+
+    FragmentInfo *fragmentInfo = nullptr;
+
+  protected:
+    std::deque<inet::Packet *> *fragments = nullptr;
+
   public:
     UmTxEntity()
     {
-        flowControlInfo_ = NULL;
-        lteRlc_ = NULL;
+        flowControlInfo_ = nullptr;
+        lteRlc_ = nullptr;
     }
     virtual ~UmTxEntity()
     {
@@ -55,8 +65,10 @@ class UmTxEntity : public cSimpleModule
     /*
      * Enqueues an upper layer packet into the SDU buffer
      * @param pkt the packet to be enqueued
+     *
+     * @return TRUE if packet was enqueued in SDU buffer
      */
-    void enque(cPacket* pkt);
+    bool enque(omnetpp::cPacket* pkt);
 
     /**
      * rlcPduMake() creates a PDU having the specified size
@@ -85,13 +97,16 @@ class UmTxEntity : public cSimpleModule
     bool isHoldingDownstreamInPackets();
 
     // store the packet in the holding buffer
-    void enqueHoldingPackets(cPacket* pkt);
+    void enqueHoldingPackets(inet::cPacket* pkt);
 
     // resume sending packets in the downstream
     void resumeDownstreamInPackets();
 
     // return the value of notifyEmptyBuffer_
     bool isEmptyingBuffer() { return notifyEmptyBuffer_; }
+
+    // returns true if this entity is for a D2D_MULTI connection
+    bool isD2DMultiConnection() { return (flowControlInfo_->getDirection() == D2D_MULTI); }
 
     // called when a D2D mode switch is triggered
     void rlcHandleD2DModeSwitch(bool oldConnection, bool clearBuffer=true);
@@ -110,7 +125,7 @@ class UmTxEntity : public cSimpleModule
     /*
      * The SDU enqueue buffer.
      */
-    cPacketQueue sduQueue_;
+    inet::cPacketQueue sduQueue_;
 
     /*
      * Determine whether the first item in the queue is a fragment or a whole SDU
@@ -130,13 +145,24 @@ class UmTxEntity : public cSimpleModule
     /*
      * The SDU holding buffer.
      */
-    cPacketQueue sduHoldingQueue_;
+    inet::cPacketQueue sduHoldingQueue_;
+
+    /*
+     * The maximum available queue size (in bytes)
+     * (amount of data in sduQueue_ must not exceed this value)
+     */
+    unsigned int queueSize_;
+
+    /*
+     * The currently stored amount of data in the SDU queue (in bytes)
+     */
+    unsigned int queueLength_;
 
     /**
      * Initialize fragmentSize and
      * watches
      */
-    virtual void initialize();
+    virtual void initialize() override;
 
   private:
 

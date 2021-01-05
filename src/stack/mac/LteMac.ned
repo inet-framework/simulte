@@ -17,6 +17,7 @@ moduleinterface LteMac {
     parameters:
         @display("i=block/mac");
         string interfaceTableModule;
+        string interfaceName;
    
     gates:
         input RLC_to_MAC;    // RLC to MAC
@@ -32,6 +33,7 @@ simple LteMacBase like LteMac {
     parameters:
         @display("i=block/mac");
         string interfaceTableModule;
+        string interfaceName = default("cellular");
 
         //# Mac Queues
         int queueSize @unit(B) = default(2MiB);              // MAC Buffers queue size
@@ -42,6 +44,9 @@ simple LteMacBase like LteMac {
         //# H-ARQ
         int harqProcesses = default(8);
         int maxHarqRtx = default(3);
+        
+        //# Statistics display (in GUI)
+        bool statDisplay = default(false);
          
         //#
         //# Statistics recording
@@ -169,7 +174,7 @@ simple LteMacEnb extends LteMacBase {
         
         @class("LteMacEnb");    
         
-        volatile xml optSolution = default(xmldoc("solution.sol"));
+        //# volatile xml optSolution = default(xmldoc("solution.sol"));
         
         //#
         //# AMC Parameters
@@ -268,14 +273,14 @@ simple LteMacEnb extends LteMacBase {
         double lteAslackTermINTERACTIVEDL @unit(s) = default(10ms);
         double lteAslackTermBACKGROUNDDL @unit(s) = default(0ms);
         
-        int lteAmaxUrgentBurstCONVERSATIONALDL @unit(byte) = default(0);
-        int lteAmaxUrgentBurstSTREAMINGDL @unit(byte)     = default(0);
-        int lteAmaxUrgentBurstINTERACTIVEDL @unit(byte)    = default(0);
+        int lteAmaxUrgentBurstCONVERSATIONALDL @unit(byte) = default(0B);
+        int lteAmaxUrgentBurstSTREAMINGDL @unit(byte)     = default(0B);
+        int lteAmaxUrgentBurstINTERACTIVEDL @unit(byte)    = default(0B);
         int lteAmaxUrgentBurstBACKGROUNDDL   @unit(byte)  = default(200B);
         
-        int lteAmaxFairnessBurstCONVERSATIONALDL @unit(byte) = default(0);
-        int lteAmaxFairnessBurstSTREAMINGDL @unit(byte)     = default(0);
-        int lteAmaxFairnessBurstINTERACTIVEDL @unit(byte)    = default(0);
+        int lteAmaxFairnessBurstCONVERSATIONALDL @unit(byte) = default(0B);
+        int lteAmaxFairnessBurstSTREAMINGDL @unit(byte)     = default(0B);
+        int lteAmaxFairnessBurstINTERACTIVEDL @unit(byte)    = default(0B);
         int lteAmaxFairnessBurstBACKGROUNDDL   @unit(byte)  = default(200B);
         
         // LTE Advanced Scheduler QOS Parameters - UL
@@ -289,10 +294,10 @@ simple LteMacEnb extends LteMacBase {
         double lteAslackTermINTERACTIVEUL @unit(s) = default(500ms);
         double lteAslackTermBACKGROUNDUL @unit(s) = default(0ms);
         
-        int lteAmaxBurstCONVERSATIONALUL @unit(byte) = default(0);
-        int lteAmaxBurstSTREAMINGUL     @unit(byte) = default(0);
-        int lteAmaxBurstINTERACTIVEUL   @unit(byte) = default(0);
-        int lteAmaxBurstBACKGROUNDUL    @unit(byte) = default(0);
+        int lteAmaxBurstCONVERSATIONALUL @unit(byte) = default(0B);
+        int lteAmaxBurstSTREAMINGUL     @unit(byte) = default(0B);
+        int lteAmaxBurstINTERACTIVEUL   @unit(byte) = default(0B);
+        int lteAmaxBurstBACKGROUNDUL    @unit(byte) = default(0B);
         
         // LTE Advanced Scheduler PF Version - DL
         bool pfTmsAwareDL = default(false);

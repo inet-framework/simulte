@@ -9,6 +9,8 @@
 
 #include "LteDummyChannelModel.h"
 
+using namespace omnetpp;
+
 Define_Module(LteDummyChannelModel);
 
 void LteDummyChannelModel::initialize()
@@ -88,7 +90,7 @@ bool LteDummyChannelModel::isCorrupted(LteAirFrame *frame, UserControlInfo* lteI
    return true;
 }
 
-bool LteDummyChannelModel::error_D2D(LteAirFrame *frame, UserControlInfo* lteInfo,const std::vector<double>& rsrpVector)
+bool LteDummyChannelModel::isCorrupted_D2D(LteAirFrame *frame, UserControlInfo* lteInfo,const std::vector<double>& rsrpVector)
 {
    // Number of RTX
    unsigned char nTx = lteInfo->getTxNumber();

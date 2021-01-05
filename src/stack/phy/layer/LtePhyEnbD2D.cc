@@ -14,9 +14,8 @@
 
 Define_Module(LtePhyEnbD2D);
 
-LtePhyEnbD2D::LtePhyEnbD2D()
-{
-}
+using namespace omnetpp;
+using namespace inet;
 
 LtePhyEnbD2D::~LtePhyEnbD2D()
 {
@@ -25,13 +24,16 @@ LtePhyEnbD2D::~LtePhyEnbD2D()
 void LtePhyEnbD2D::initialize(int stage)
 {
     LtePhyEnb::initialize(stage);
-    if (stage == 0)
+    if (stage == INITSTAGE_LOCAL)
         enableD2DCqiReporting_ = par("enableD2DCqiReporting");
 }
 
-void LtePhyEnbD2D::requestFeedback(UserControlInfo* lteinfo, LteAirFrame* frame, LteFeedbackPkt* pkt)
+void LtePhyEnbD2D::requestFeedback(UserControlInfo* lteinfo, LteAirFrame* frame, Packet* pktAux)
 {
     EV << NOW << " LtePhyEnbD2D::requestFeedback " << endl;
+
+    auto header = pktAux->removeAtFront<LteFeedbackPkt>();
+
     //get UE Position
     Coord sendersPos = lteinfo->getCoord();
     cellInfo_->setUePosition(lteinfo->getSourceId(), sendersPos);
@@ -88,7 +90,7 @@ void LtePhyEnbD2D::requestFeedback(UserControlInfo* lteinfo, LteAirFrame* frame,
         }
         if (dir == UL)
         {
-            pkt->setLteFeedbackDoubleVectorUl(fb_);
+            header->setLteFeedbackDoubleVectorUl(fb_);
             //Prepare  parameters for next loop iteration - in order to compute SNR in DL
             lteinfo->setTxPower(txPower_);
             lteinfo->setDirection(DL);
@@ -100,7 +102,7 @@ void LtePhyEnbD2D::requestFeedback(UserControlInfo* lteinfo, LteAirFrame* frame,
         }
         else if (dir == DL)
         {
-            pkt->setLteFeedbackDoubleVectorDl(fb_);
+            header->setLteFeedbackDoubleVectorDl(fb_);
 
             if (enableD2DCqiReporting_)
             {
@@ -125,7 +127,7 @@ void LtePhyEnbD2D::requestFeedback(UserControlInfo* lteinfo, LteAirFrame* frame,
                                  antennaCws, numPreferredBand, IDEAL, nRus, snr,
                                  lteinfo->getSourceId());
 
-                         pkt->setLteFeedbackDoubleVectorD2D(peerId, fb_);
+                         header->setLteFeedbackDoubleVectorD2D(peerId, fb_);
                     }
                 }
             }
@@ -135,6 +137,8 @@ void LtePhyEnbD2D::requestFeedback(UserControlInfo* lteinfo, LteAirFrame* frame,
     EV << "LtePhyEnbD2D::requestFeedback : Pisa Feedback Generated for nodeId: "
        << nodeId_ << " with generator type "
        << fbGeneratorTypeToA(req.genType) << " Fb size: " << fb_.size() << endl;
+
+    pktAux->insertAtFront(header);
 }
 
 void LtePhyEnbD2D::handleAirFrame(cMessage* msg)
@@ -245,14 +249,16 @@ void LtePhyEnbD2D::handleAirFrame(cMessage* msg)
     EV << "Handled LteAirframe with ID " << frame->getId() << " with result "
        << (result ? "RECEIVED" : "NOT RECEIVED") << endl;
 
-    cPacket* pkt = frame->decapsulate();
+    auto pkt = check_and_cast<inet::Packet *>(frame->decapsulate());
 
     // here frame has to be destroyed since it is no more useful
     delete frame;
 
     // attach the decider result to the packet as control info
     lteInfo->setDeciderResult(result);
-    pkt->setControlInfo(lteInfo);
+    auto lteInfoTag = pkt->addTagIfAbsent<UserControlInfo>();
+    *lteInfoTag = *lteInfo;
+    delete lteInfo;
 
     // send decapsulated message along with result control info to upperGateOut_
     send(pkt, upperGateOut_);

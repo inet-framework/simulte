@@ -10,18 +10,17 @@
 
 package lte.corenetwork.nodes;
 
-import inet.linklayer.ppp.PPPInterface;
+import inet.linklayer.ppp.PppInterface;
 import inet.mobility.static.StationaryMobility;
 import inet.networklayer.common.InterfaceTable;
-import inet.networklayer.ipv4.IPv4RoutingTable;
+import inet.networklayer.ipv4.Ipv4RoutingTable;
 import inet.networklayer.contract.IRoutingTable;
 import inet.networklayer.contract.INetworkLayer;
-import inet.applications.contract.IUDPApp;
-import inet.applications.contract.ITCPApp;
-import inet.applications.contract.ISCTPApp;
-import inet.transportlayer.udp.UDP;
-import inet.transportlayer.tcp.TCP;
-import inet.transportlayer.sctp.SCTP;
+import inet.applications.contract.IApp;
+import inet.transportlayer.udp.Udp;
+import inet.transportlayer.tcp.Tcp;
+import inet.transportlayer.sctp.Sctp;
+import inet.common.MessageDispatcher;
 import lte.x2.LteX2App;
 import lte.stack.ILteNic;
 import lte.corenetwork.lteCellInfo.LteCellInfo;
@@ -30,31 +29,51 @@ import lte.epc.TrafficFlowFilterSimplified;
 import lte.epc.gtp.GtpUserX2;
 
 // 
-// eNodeB Module
+// eNodeB Base Module
+// 
+// Base module for eNodeB functionality - except for gtpuser and trafficflow,
+// which are defined in the derived submodules.
 //
-module eNodeB
+module eNodeBBase
 {
     parameters:
-        @networkNode();
-        @display("i=device/antennatower;bgb=814,437");
+        @networkNode;
+        @labels(node, ethernet-node, wireless-node);
+        @display("i=device/antennatower;bgb=1260,600");
+        @figure[applicationLayer](type=rectangle; pos=250,6; size=1000,130; lineColor=#808080; cornerRadius=5; fillColor=#ffff00; fillOpacity=0.1);
+        @figure[applicationLayer.title](type=text; pos=1245,11; anchor=ne; text="application layer");
+        @figure[transportLayer](type=rectangle; pos=250,156; size=1000,130; fillColor=#ff0000; lineColor=#808080; cornerRadius=5; fillOpacity=0.1);
+        @figure[transportLayer.title](type=text; pos=1245,161; anchor=ne; text="transport layer");
+        @figure[networkLayer](type=rectangle; pos=250,306; size=1000,130; fillColor=#00ff00; lineColor=#808080; cornerRadius=5; fillOpacity=0.1);
+        @figure[networkLayer.title](type=text; pos=1245,311; anchor=ne; text="network layer");
+        @figure[linkLayer](type=rectangle; pos=250,456; size=1000,130; fillColor=#0000ff; lineColor=#808080; cornerRadius=5; fillOpacity=0.1);
+        @figure[linkLayer.title](type=text; pos=1245,461; anchor=ne; text="link layer");
+        @figure[submodules];
 
         //# Node specs
-        string nodeType = "ENODEB";        // DO NOT CHANGE
-        int macNodeId = default(0); // TODO: this is not a real parameter
+        string nodeType = "ENODEB";  // DO NOT CHANGE
+        int macNodeId = default(0);  // TODO: this is not a real parameter
         int macCellId = default(0);  // TODO: this is not a real parameter
         double txPower @unit(mw) = default(100mw);
         string nicType = default("LteNicEnb");
+        string interfaceName = default("cellular");
 
         //# Network Layer specs
-        string networkLayerType = default("IPv4NetworkLayer");
-        string routingTableType = default("IPv4RoutingTable");
+        bool hasIpv4 = default(true);
+        bool hasIpv6 = default(false);
         *.interfaceTableModule = default(absPath(".interfaceTable"));
-        *.routingTableModule = default(routingTableType != "" ? absPath(".routingTable") : "");
+        *.routingTableModule = default("^.ipv4.routingTable");
+        *.forwarding = true;
+        *.multicastForwarding = false;
 
-        //# Num apps
-        int numTcpApps = default(0);  // no of TCP apps. Specify the app types in INI file with tcpApp[0..1].typename="TCPEchoApp" syntax
-        int numUdpApps = default(0);  // no of UDP apps. Specify the app types in INI file with udpApp[0..1].typename="UDPVideoStreamCli" syntax
+        //# Apps
+        int numApps = default(0);     // no of apps. 
         int numX2Apps = default(0);   // no of X2 apps. Specify the app types in INI file with x2App[0..1].typename="X2AppClient" syntax
+
+        //# Transport layer
+        bool hasUdp = true;
+        bool hasTcp = default(firstAvailableOrEmpty("Tcp", "TcpLwip", "TcpNsc") != "");
+        bool hasSctp = true;
 
     gates:
         inout ppp;                // connection to the Core Network
@@ -62,88 +81,91 @@ module eNodeB
         inout x2[];               // connection to the X2 interface
 
     submodules:
-
         interfaceTable: InterfaceTable {
-            @display("p=50,75;is=s");
-        }
-        // TODO: should not include a routing table
-        // routing table
-        routingTable: <routingTableType> like IRoutingTable if routingTableType != "" {
             parameters:
-                @display("p=50,125;is=s");
+            	@display("p=110.43,158.4875;is=s");
         }
         mobility: StationaryMobility {
-            @display("p=50,175;is=s");
+            parameters:
+            	@display("p=110.43,343.56;is=s");
         }
         cellInfo: LteCellInfo {
-            @display("p=50,225;is=s");
+            parameters:
+            	@display("p=110.43,244.3775;is=s");
         }
 
         //#
         //# lteNic modules
         //#
         lteNic: <nicType> like ILteNic {
-            nodeType = nodeType;
-            //d2dCapable = d2dCapable;
-            @display("p=250,407");
+            parameters:
+                @display("p=433.54,520.4525");
+            	nodeType = nodeType;       
         }
-        
-        pppIf: PPPInterface {
-            @display("p=501,363");
+
+        pppIf: PppInterface {
+            parameters:
+            	@display("p=963.195,520.4525");
         }
-        
-        x2ppp[sizeof(x2)]: PPPInterface {
-            @display("p=683,363");
+
+        x2ppp[sizeof(x2)]: PppInterface {
+            parameters:
+            	@display("p=1063.4,520.4525");
         }
 
         //#
         //# Network layer module
         //#
-        networkLayer: <networkLayerType> like INetworkLayer {
+        ipv4: <default("Ipv4NetworkLayer")> like INetworkLayer if hasIpv4 {
             parameters:
-                @display("p=501,269;q=queue");
+                @display("p=375,376;q=queue");
+        }
+        ipv6: <default("Ipv6NetworkLayer")> like INetworkLayer if hasIpv6 {
+            parameters:
+                @display("p=525,376;q=queue");
         }
 
         //#
         //# Transport layer modules and corresponding application modules
         //#
-		// =============== UDP ============== //
-        udpApp[numUdpApps]: <> like IUDPApp {
-            @display("p=555,48,row");
+		// =============== Udp ============== //
+        app[numApps]: <> like IApp {
+            parameters:
+            	@display("p=375,76,row,140");
         }
-        udp: UDP {
-            @display("p=501,148");
+        udp: Udp {
+            parameters:
+            	@display("p=682.0075,212.68001");
         }
-
-        // =============== TCP ============== //
-        tcpApp[numTcpApps]: <> like ITCPApp {
-            @display("p=683,48,row");
-        }
-        tcp: TCP if numTcpApps>0 {
-            @display("p=683,148");
+        tcp: Tcp if hasTcp {
+            parameters:
+            	@display("p=963.195,212.68001");
         }
 
 	    // =============== X2AP ============== //
         x2App[numX2Apps]: LteX2App {
-            @display("p=155,48,row");
+            parameters:
+            	@display("p=539.88,47.035,row");
         }
-        sctp: SCTP {
-            @display("p=275,148");
-        }
-
-        //# 
-        //# Simplified EPC
-        //# 
-        trafficFlowFilter: TrafficFlowFilterSimplified {
-            ownerType = nodeType;
-            @display("p=330,48");
-        }
-        gtpUser: GtpUserSimplified {
-            @display("p=434,48");
+        sctp: Sctp {
+            parameters:
+            	@display("p=421.27002,212.68001");
         }
 
-        gtpUserX2: GtpUserX2 {
-            @display("p=410,363");
+	    // message dispatcher for SAP between application and transport layer
+        at: MessageDispatcher {
+            parameters:
+                @display("p=750,146;b=1000,5,,,,1");
+        }
+        // message dispatcher for SAP between transport and network layer
+        tn: MessageDispatcher {
+            parameters:
+                @display("p=750,296;b=1000,5,,,,1");
+        }
+        // message dispatcher for SAP to link layer
+        nl: MessageDispatcher {
+            parameters:
+                @display("p=750,446;b=1000,5,,,,1");
         }
 
     connections allowunconnected:
@@ -152,63 +174,121 @@ module eNodeB
         //# LTE stack to PHY and network layer
         //#        
         lteNic.radioIn <-- radioIn;
-        lteNic.upperLayerOut --> trafficFlowFilter.internetFilterGateIn;
-        lteNic.upperLayerIn <-- gtpUser.pppGate;
-        trafficFlowFilter.gtpUserGateOut --> gtpUser.trafficFlowFilterGate;
-        gtpUser.udpOut --> udp.appIn++;
-        gtpUser.udpIn <-- udp.appOut++;
-
 
         //#
-        //# PPP interface to network layer connections
+        //# Ppp interface to network layer connections
         //#    
         pppIf.phys <--> ppp;
-        pppIf.upperLayerOut --> networkLayer.ifIn++;
-        pppIf.upperLayerIn <-- networkLayer.ifOut++;
-
-
-        gtpUserX2.lteStackOut --> lteNic.x2$i++;
-        gtpUserX2.lteStackIn <-- lteNic.x2$o++;
-        gtpUserX2.udpOut --> udp.appIn++;
-        gtpUserX2.udpIn <-- udp.appOut++;
+        pppIf.upperLayerOut --> nl.in++;
+        pppIf.upperLayerIn <-- nl.out++;
 
         //#
         //# X2 interface to network layer connections
         //#    
         for i=0..sizeof(x2)-1 {
             x2ppp[i].phys <--> x2[i];
-            x2ppp[i].upperLayerOut --> networkLayer.ifIn++;
-            x2ppp[i].upperLayerIn <-- networkLayer.ifOut++;
+            x2ppp[i].upperLayerOut --> tn.in++;
+            x2ppp[i].upperLayerIn <-- tn.out++;
         }
 
 		//# 
 		//# Apps to transport layer connections
 		//#
-        for i=0..numTcpApps-1 {
-            tcpApp[i].tcpOut --> tcp.appIn++;
-            tcpApp[i].tcpIn <-- tcp.appOut++;
+        for i=0..numApps-1 {
+            app[i].socketOut --> at.in++;
+            app[i].socketIn <-- at.out++;
         }
-        for i=0..numUdpApps-1 {
-            udpApp[i].udpOut --> udp.appIn++;
-            udpApp[i].udpIn <-- udp.appOut++;
-        }
-        for i=0..numX2Apps-1 {
-            x2App[i].sctpOut[0] --> sctp.from_appl++;
-            x2App[i].sctpIn[0] <-- sctp.to_appl++;
 
-            x2App[i].sctpOut[1] --> sctp.from_appl++;
-            x2App[i].sctpIn[1] <-- sctp.to_appl++;
-            x2App[i].x2ManagerIn <-- lteNic.x2$o++;
-            x2App[i].x2ManagerOut --> lteNic.x2$i++;
-        }
+        at.out++ --> udp.appIn if hasUdp;
+        at.in++ <-- udp.appOut if hasUdp;
+
+        at.out++ --> tcp.appIn if hasTcp;
+        at.in++ <-- tcp.appOut if hasTcp;
+
+        at.out++ --> sctp.appIn if hasSctp;
+        at.in++ <-- sctp.appOut if hasSctp;
 
         //# 
         //# Transport layer to network layer connections
         //#
-        udp.ipOut --> networkLayer.transportIn++;
-        udp.ipIn <-- networkLayer.transportOut++;
-        tcp.ipOut --> networkLayer.transportIn++ if numTcpApps>0;
-        tcp.ipIn <-- networkLayer.transportOut++ if numTcpApps>0;
-        sctp.to_ip --> networkLayer.transportIn++ if numX2Apps>0;
-        sctp.from_ip <-- networkLayer.transportOut++ if numX2Apps>0;
+        udp.ipOut --> tn.in++ if hasUdp;
+        udp.ipIn <-- tn.out++ if hasUdp;
+
+        tcp.ipOut --> tn.in++ if hasTcp;
+        tcp.ipIn <-- tn.out++ if hasTcp;
+
+        sctp.ipOut --> tn.in++ if hasSctp;
+        tn.out++ --> sctp.ipIn if hasSctp;
+
+        ipv4.ifIn <-- nl.out++ if hasIpv4;
+        ipv4.ifOut --> nl.in++ if hasIpv4;
+
+        ipv4.transportIn <-- tn.out++ if hasIpv4;
+        ipv4.transportOut --> tn.in++ if hasIpv4;
+
+        ipv6.ifIn <-- nl.out++ if hasIpv6;
+        ipv6.ifOut --> nl.in++ if hasIpv6;
+
+        ipv6.transportIn <-- tn.out++ if hasIpv6;
+        ipv6.transportOut --> tn.in++ if hasIpv6;
+
+        tn.out++ --> nl.in++;
+        tn.in++ <-- nl.out++;
+
+        at.out++ --> tn.in++;
+        at.in++ <-- tn.out++;
+
+        lteNic.upperLayerIn <-- nl.out++;
+        lteNic.upperLayerOut --> nl.in++;
+}
+
+
+// eNodeB with simplified gtpuser and trafficflow
+//
+module eNodeB extends eNodeBBase
+{
+    parameters:
+        @figure[submodules];
+    submodules:
+        //# 
+        //# Simplified EPC
+        //# 
+        trafficFlowFilter: TrafficFlowFilterSimplified {
+            parameters:
+                @display("p=330,48");
+            	ownerType = nodeType;
+        }
+        gtpUser: GtpUserSimplified {
+            parameters:
+            	@display("p=434,48");
+            	ipOutInterface = interfaceName; //"wlan";       // FIXME: we should use a different name, eg. "cellular" for the LteNic
+        }
+
+        gtpUserX2: GtpUserX2 {
+            parameters:
+            	@display("p=963.195,375.2575");
+        }
+    connections:
+        nl.in++ <-- gtpUser.pppGate;
+        trafficFlowFilter.gtpUserGateOut --> gtpUser.trafficFlowFilterGate;
+        trafficFlowFilter.internetFilterGateIn <-- nl.out++;
+        gtpUser.socketOut --> at.in++;
+        gtpUser.socketIn <-- at.out++;
+
+	    // connections for the X2 interface
+        gtpUserX2.lteStackOut --> lteNic.x2$i++;
+        gtpUserX2.lteStackIn <-- lteNic.x2$o++;
+        gtpUserX2.socketOut --> at.in++;
+        gtpUserX2.socketIn <-- at.out++;
+
+        // set remaining X2 apps connections        
+        for i=0..numX2Apps-1 {
+            x2App[i].sctpOut[0] --> at.in++;
+            x2App[i].sctpIn[0] <-- at.out++;
+            x2App[i].sctpOut[1] --> at.in++;
+            x2App[i].sctpIn[1] <-- at.out++;
+            x2App[i].x2ManagerIn <-- lteNic.x2$o++;
+            x2App[i].x2ManagerOut --> lteNic.x2$i++;
+        }
+
 }

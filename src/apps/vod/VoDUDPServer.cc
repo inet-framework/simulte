@@ -10,9 +10,12 @@
 #include <sys/types.h>
 #include <sys/stat.h>
 #include <stdio.h>
+#include <inet/common/TimeTag_m.h>
 #include "apps/vod/VoDUDPServer.h"
 
 Define_Module(VoDUDPServer);
+using namespace std;
+using namespace inet;
 
 VoDUDPServer::VoDUDPServer()
 {
@@ -36,8 +39,8 @@ void VoDUDPServer::initialize(int stage)
     TIME_SLOT = one / fps;
     numStreams = 0;
 
-    // set up UDP socket
-    socket.setOutputGate(gate("udpOut"));
+    // set up Udp socket
+    socket.setOutputGate(gate("socketOut"));
     socket.bind(serverPort);
 
     if (!inputFileName.empty())
@@ -87,7 +90,7 @@ void VoDUDPServer::initialize(int stage)
 
             trace_ = new tracerec[nrec_];
 
-            if ((fp = fopen(inputFileName.c_str(), "rb")) == NULL)
+            if ((fp = fopen(inputFileName.c_str(), "rb")) == nullptr)
                 throw cRuntimeError("can't open file %s", inputFileName.c_str());
 
             for (unsigned int i = 0; i < nrec_; i++)
@@ -135,7 +138,7 @@ void VoDUDPServer::handleMessage(cMessage *msg)
             const char *destAddrs = par("destAddresses");
             cStringTokenizer tokenizer(destAddrs);
             const char *token;
-            while ((token = tokenizer.nextToken()) != NULL)
+            while ((token = tokenizer.nextToken()) != nullptr)
             {
                 clientAddr.push_back(L3AddressResolver().resolve(token));
                 size++;
@@ -182,14 +185,17 @@ void VoDUDPServer::handleNS2Message(cMessage *msg)
     //interTime = trace_[numPkSentApp % nrec_].trec_time;
     length = trace_[numPkSentApp % nrec_].trec_size;
 
-    VoDPacket* frame = new VoDPacket("VoDPacket");
+    Packet* packet = new Packet("VoDPacket");
+    auto frame = makeShared<VoDPacket>();
     frame->setFrameSeqNum(seq_num);
-    frame->setTimestamp(simTime());
-    frame->setByteLength(length);
+    frame->setChunkLength(B(length));
+    frame->setPayloadTimestamp(simTime());
     frame->setFrameLength(length); /* Seq_num plus frame length plus payload */
     frame->setTid(0);
     frame->setQid(0);
-    socket.sendTo(frame, msgNew->getClientAddr(), msgNew->getClientPort());
+    frame->addTag<CreationTimeTag>()->setCreationTime(simTime());
+    packet->insertAtBack(frame);
+    socket.sendTo(packet, msgNew->getClientAddr(), msgNew->getClientPort());
 
     numPkSentApp++;
     msgNew->setNumPkSent(numPkSentApp);
@@ -205,7 +211,7 @@ void VoDUDPServer::handleSVCMessage(cMessage *msg)
     if (svcTrace_[numPkSentApp].index == LONG_MAX)
     {
         /* End of file, send finish packet */
-        cPacket* fm = new cPacket("VoDFinishPacket");
+        Packet* fm = new Packet("VoDFinishPacket");
         socket.sendTo(fm, msgNew->getClientAddr(), msgNew->getClientPort());
         return;
     }
@@ -214,14 +220,18 @@ void VoDUDPServer::handleSVCMessage(cMessage *msg)
         int seq_num = numPkSentApp;
         int currentFrame = svcTrace_[numPkSentApp].frameNumber;
 
-        VoDPacket* frame = new VoDPacket("VoDPacket");
+        Packet* packet = new Packet("VoDPacket");
+        auto frame = makeShared<VoDPacket>();
         frame->setFrameSeqNum(seq_num);
-        frame->setTimestamp(simTime());
-        frame->setByteLength(svcTrace_[numPkSentApp].length);
+        frame->setPayloadTimestamp(simTime());
+        frame->setChunkLength(B(svcTrace_[numPkSentApp].length));
+        frame->setFrameLength(svcTrace_[numPkSentApp].length + 2 * sizeof(int)); /* Seq_num plus frame length plus payload */
         frame->setTid(svcTrace_[numPkSentApp].tid);
         frame->setQid(svcTrace_[numPkSentApp].qid);
-        frame->setFrameLength(svcTrace_[numPkSentApp].length + 2 * sizeof(int)); /* Seq_num plus frame length plus payload */
-        socket.sendTo(frame, msgNew->getClientAddr(), msgNew->getClientPort());
+        frame->addTag<CreationTimeTag>()->setCreationTime(simTime());
+        packet->insertAtBack(frame);
+
+        socket.sendTo(packet, msgNew->getClientAddr(), msgNew->getClientPort());
         numPkSentApp++;
         while (1)
         {
@@ -234,14 +244,17 @@ void VoDUDPServer::handleSVCMessage(cMessage *msg)
             if (svcTrace_[numPkSentApp].frameNumber != currentFrame)
                 break; // Finish sending packets belonging to the current frame
 
-            VoDPacket* frame = new VoDPacket("VoDPacket");
+            Packet* packet = new Packet("VoDPacket");
+            auto frame = makeShared<VoDPacket>();
             frame->setTid(svcTrace_[numPkSentApp].tid);
             frame->setQid(svcTrace_[numPkSentApp].qid);
             frame->setFrameSeqNum(seq_num);
-            frame->setTimestamp(simTime());
-            frame->setByteLength(svcTrace_[numPkSentApp].length);
+            frame->setPayloadTimestamp(simTime());
+            frame->setChunkLength(B(svcTrace_[numPkSentApp].length));
             frame->setFrameLength(svcTrace_[numPkSentApp].length + 2 * sizeof(int)); /* Seq_num plus frame length plus payload */
-            socket.sendTo(frame, msgNew->getClientAddr(), msgNew->getClientPort());
+            frame->addTag<CreationTimeTag>()->setCreationTime(simTime());
+            packet->insertAtBack(frame);
+            socket.sendTo(packet, msgNew->getClientAddr(), msgNew->getClientPort());
             EV << " VoDUDPServer::handleSVCMessage sending frame " << seq_num << std::endl;
             numPkSentApp++;
         }

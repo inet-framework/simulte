@@ -14,6 +14,7 @@
 #include "stack/mac/packet/LteMacPdu.h"
 #include "stack/mac/scheduler/LcgScheduler.h"
 
+using namespace omnetpp;
 LteSchedulerUeUl::LteSchedulerUeUl(LteMacUe * mac)
 {
     mac_ = mac;
@@ -42,15 +43,10 @@ LteSchedulerUeUl::schedule()
 
     EV << NOW << " LteSchedulerUeUl::schedule - Scheduling node " << nodeId << endl;
 
-    // retrieve Transmission parameters
-//        const UserTxParams* txPar = grant->getUserTxParams();
-
-//! MCW support in UL
+    //! MCW support in UL
     unsigned int codewords = grant->getCodewords();
 
     // TODO get the amount of granted data per codeword
-    //unsigned int availableBytes = grant->getGrantedBytes();
-
     unsigned int availableBlocks = grant->getTotalGrantedBlocks();
 
     // TODO check if HARQ ACK messages should be subtracted from available bytes

@@ -7,11 +7,13 @@
 // and cannot be removed from it.
 //
 
-cplusplus {{
-#include "inet/common/geometry/common/Coord.h"
-}}
+import inet.common.INETDefs;
+import inet.common.packet.chunk.Chunk;
+import inet.common.geometry.Geometry;
 
-class noncobject inet::Coord;
+cplusplus {{
+const inet::B D2D_MULTIHOP_HEADER_LENGTH = inet::B(8);
+}}
 
 
 //
@@ -19,11 +21,10 @@ class noncobject inet::Coord;
 //
 // Extend this packet for creating your own multihop message
 //
-packet MultihopD2DPacket
+class MultihopD2DPacket extends inet::FieldsChunk
 {
     unsigned int srcId;
     uint32_t msgid;          // unique id of the message  < sender id  | local msg id >
-    unsigned int size;
     
     inet::Coord srcCoord;
     double maxRadius;
@@ -32,5 +33,9 @@ packet MultihopD2DPacket
     unsigned int hops;       // number of hops
 
     unsigned int lastHopSenderId;
-    simtime_t timestamp;
+    
+    simtime_t payloadTimestamp;
+    unsigned int payloadSize;
+    
+    chunkLength = D2D_MULTIHOP_HEADER_LENGTH;
 }

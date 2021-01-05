@@ -11,10 +11,11 @@
 #define _LTE_GTP_USER_H_
 
 #include <omnetpp.h>
-#include "inet/transportlayer/contract/udp/UDPSocket.h"
+#include "inet/transportlayer/contract/udp/UdpSocket.h"
 #include "inet/networklayer/common/L3AddressResolver.h"
-#include "inet/networklayer/ipv4/IPv4Datagram.h"
-#include "epc/gtp/TftControlInfo.h"
+#include "inet/networklayer/ipv4/Ipv4Header_m.h"
+#include "inet/common/packet/Packet.h"
+#include "epc/gtp/TftControlInfo_m.h"
 #include "epc/gtp/GtpUserMsg_m.h"
 
 #include <map>
@@ -66,9 +67,9 @@
  </config>
  *
  */
-class GtpUser : public cSimpleModule
+class GtpUser : public omnetpp::cSimpleModule
 {
-    UDPSocket socket_;
+    inet::UdpSocket socket_;
     int localPort_;
 
     /*
@@ -91,17 +92,28 @@ class GtpUser : public cSimpleModule
     bool loadTeidTable(const char * teidTableFile);
     bool loadTftTable(const char * tftTableFile);
 
+    // specifies the type of the node that contains this filter (it can be ENB or PGW)
+    EpcNodeType ownerType_;
+
+    // determine gtpuser runs on PGW oder eNB
+    EpcNodeType selectOwnerType(const char * type);
+
+    // detect LTE interface
+    inet::InterfaceEntry* detectInterface();
+    inet::InterfaceEntry* ie_;
+
   protected:
 
     virtual int numInitStages() const { return inet::NUM_INIT_STAGES; }
     virtual void initialize(int stage);
-    virtual void handleMessage(cMessage *msg);
+    virtual void handleMessage(inet::cMessage *msg);
 
     // receive and IP Datagram from the traffic filter, encapsulates it in a GTP-U packet than forwards it to the proper next hop
-    void handleFromTrafficFlowFilter(IPv4Datagram * datagram);
+    void handleFromTrafficFlowFilter(inet::Packet * datagram);
 
     // receive a GTP-U packet from UDP, reads the TEID and decides whether performing label switching or removal
-    void handleFromUdp(GtpUserMsg * gtpMsg);
+    //void handleFromUdp(GtpUserMsg * gtpMsg);
+    void handleFromUdp(inet::Packet * gtpMsg);
 };
 
 #endif

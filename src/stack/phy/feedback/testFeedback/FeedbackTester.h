@@ -16,15 +16,15 @@
 /**
  * TODO
  */
-class FeedbackTester : public cSimpleModule
+class FeedbackTester : public omnetpp::cSimpleModule
 {
-    simtime_t interval_;
-    cMessage *aperiodic_;
+    omnetpp::simtime_t interval_;
+    omnetpp::cMessage *aperiodic_;
     LteDlFeedbackGenerator *generator_;
 
   protected:
-    virtual void initialize();
-    virtual void handleMessage(cMessage *msg);
+    virtual void initialize() override;
+    virtual void handleMessage(omnetpp::cMessage *msg) override;
 };
 
 #endif

@@ -9,10 +9,28 @@
 
 #include "common/LteCommon.h"
 
-#include "../corenetwork/lteCellInfo/LteCellInfo.h"
+#include "inet/common/packet/dissector/ProtocolDissectorRegistry.h"
+#include "inet/networklayer/ipv4/Ipv4ProtocolDissector.h"
+#include "inet/common/IProtocolRegistrationListener.h"
+#include "inet/common/ProtocolTag_m.h"
+
+#include "corenetwork/lteCellInfo/LteCellInfo.h"
 #include "corenetwork/binder/LteBinder.h"
 #include "stack/mac/layer/LteMacEnb.h"
 #include "common/LteControlInfo.h"
+#include "x2/packet/X2ControlInfo_m.h"
+#include "epc/gtp/TftControlInfo_m.h"
+
+using namespace inet;
+
+const inet::Protocol LteProtocol::ipv4uu("ipv4uu", "IPv4 (LTE Uu link)");
+Register_Protocol_Dissector(&LteProtocol::ipv4uu, Ipv4ProtocolDissector);
+
+const inet::Protocol LteProtocol::pdcp("pdcp", "PDCP");         // Packet Data Convergence Protocol
+const inet::Protocol LteProtocol::rlc("rlc", "RLC");            // Radio Link Control
+const inet::Protocol LteProtocol::ltemac("ltemac", "LTE-MAC");  // Medium Access Control
+const inet::Protocol LteProtocol::gtp("gtp", "GTP");            // GPRS Tunneling Protocol
+const inet::Protocol LteProtocol::x2ap("x2ap", "X2AP");         // X2AP Protocol
 
 const std::string lteTrafficClassToA(LteTrafficClass type)
 {
@@ -538,7 +556,7 @@ cModule* getMacByMacNodeId(MacNodeId nodeId)
     // since we do not have a MAC-Module anymore
 	int id = getBinder()->getOmnetId(nodeId);
 	if (id == 0){
-		return NULL;
+		return nullptr;
 	}
 	// TODO fix for relays
 	return (getSimulation()->getModule(getBinder()->getOmnetId(nodeId))->getSubmodule("lteNic")->getSubmodule("mac"));
@@ -547,8 +565,8 @@ cModule* getMacByMacNodeId(MacNodeId nodeId)
 cModule* getRlcByMacNodeId(MacNodeId nodeId, LteRlcType rlcType)
 {
 	cModule* module = getMacByMacNodeId(nodeId);
-	if(module == NULL){
-		return NULL;
+	if(module == nullptr){
+		return nullptr;
 	}
     return getMacByMacNodeId(nodeId)->getParentModule()->getSubmodule("rlc")->getSubmodule(rlcTypeToA(rlcType).c_str());
 }
@@ -667,7 +685,7 @@ void initializeAllChannels(cModule *mod)
     for (cModule::GateIterator i(mod); !i.end(); i++)
     {
         cGate* gate = *i;
-        if (gate->getChannel() != NULL)
+        if (gate->getChannel() != nullptr)
         {
                 if(!gate->getChannel()->initialized()){
                         gate->getChannel()->callInitialize();
@@ -681,3 +699,22 @@ void initializeAllChannels(cModule *mod)
         initializeAllChannels(submodule);
     }
 }
+
+void removeAllSimuLteTags(inet::Packet *pkt) {
+    auto c2 = pkt->removeTagIfPresent<TftControlInfo>();
+    if (c2)
+        delete c2;
+    auto c3 = pkt->removeTagIfPresent<X2ControlInfoTag>();
+    if (c3)
+        delete c3;
+    auto c4 = pkt->removeTagIfPresent<FlowControlInfo>();
+    if (c4)
+        delete c4;
+    auto c5 = pkt->removeTagIfPresent<UserControlInfo>();
+    if (c5)
+        delete c5;
+    auto c1 = pkt->removeTagIfPresent<LteControlInfo>();
+    if (c1)
+        delete c1;
+}
+

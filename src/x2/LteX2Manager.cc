@@ -10,18 +10,17 @@
 #define DATAPORT_OUT "dataPort$o"
 #define DATAPORT_IN "dataPort$i"
 
+#include <inet/networklayer/common/InterfaceEntry.h>
+#include <inet/networklayer/configurator/ipv4/Ipv4NetworkConfigurator.h>
+#include <inet/networklayer/ipv4/Ipv4InterfaceData.h>
+
 #include "x2/LteX2Manager.h"
-#include "inet/networklayer/common/InterfaceEntry.h"
-#include "inet/networklayer/ipv4/IPv4InterfaceData.h"
-#include "inet/networklayer/configurator/ipv4/IPv4NetworkConfigurator.h"
 
 Define_Module(LteX2Manager);
 
-LteX2Manager::LteX2Manager() {
-}
 
-LteX2Manager::~LteX2Manager() {
-}
+using namespace omnetpp;
+using namespace inet;
 
 void LteX2Manager::initialize(int stage)
 {
@@ -30,25 +29,27 @@ void LteX2Manager::initialize(int stage)
         // get the node id
         nodeId_ = getAncestorPar("macCellId");
     }
-    else if (stage == inet::INITSTAGE_NETWORK_LAYER_3)
+    else if (stage == inet::INITSTAGE_NETWORK_LAYER)
     {
         // find x2ppp interface entries and register their IP addresses to the binder
         // IP addresses will be used in the next init stage to get the X2 id of the peer
-        IPv4NetworkConfigurator* configurator = check_and_cast<IPv4NetworkConfigurator*>(getModuleByPath("configurator"));
+        Ipv4NetworkConfigurator* configurator = check_and_cast<Ipv4NetworkConfigurator*>(getModuleByPath("configurator"));
         IInterfaceTable *interfaceTable =  configurator->findInterfaceTableOf(getParentModule()->getParentModule());
         for (int i=0; i<interfaceTable->getNumInterfaces(); i++)
         {
             // look for x2ppp interfaces in the interface table
             InterfaceEntry * interfaceEntry = interfaceTable->getInterface(i);
-            const char* ifName = interfaceEntry->getName();
-            if (strstr(ifName,"x2ppp") != NULL)
+
+            const char* ifName = interfaceEntry->getInterfaceName();
+
+            if (strstr(ifName,"x2ppp") != nullptr)
             {
-                IPv4Address addr = interfaceEntry->ipv4Data()->getIPAddress();
-                getBinder()->setX2NodeId(interfaceEntry->ipv4Data()->getIPAddress(), nodeId_);
+                const Ipv4Address addr = interfaceEntry->getProtocolData<Ipv4InterfaceData>()->getIPAddress();
+                getBinder()->setX2NodeId(addr, nodeId_);
             }
         }
     }
-    else if (stage == inet::INITSTAGE_NETWORK_LAYER_3+1)
+    else if (stage == inet::INITSTAGE_TRANSPORT_LAYER)
     {
         // for each X2App, get the client submodule and set connection parameters (connectPort)
         for (int i=0; i<gateSize("x2$i"); i++)
@@ -62,7 +63,7 @@ void LteX2Manager::initialize(int stage)
 
             // get the connectAddress for the X2App client and the corresponding X2 id
             L3Address addr = L3AddressResolver().resolve(client->par("connectAddress").stringValue());
-            X2NodeId peerId = getBinder()->getX2NodeId(addr.toIPv4());
+            X2NodeId peerId = getBinder()->getX2NodeId(addr.toIpv4());
 
             // bind the peerId to the output gate
             x2InterfaceTable_[peerId] = i;
@@ -72,7 +73,7 @@ void LteX2Manager::initialize(int stage)
 
 void LteX2Manager::handleMessage(cMessage *msg)
 {
-    cPacket* pkt = check_and_cast<cPacket*>(msg);
+    Packet* pkt = check_and_cast<Packet*>(msg);
     cGate* incoming = pkt->getArrivalGate();
 
     // the incoming gate is part of a gate vector, so get the base name
@@ -96,66 +97,59 @@ void LteX2Manager::handleMessage(cMessage *msg)
     }
 }
 
-void LteX2Manager::fromStack(cPacket* pkt)
+void LteX2Manager::fromStack(Packet* pkt)
 {
-    LteX2Message* x2msg = check_and_cast<LteX2Message*>(pkt);
-    X2ControlInfo* x2Info = check_and_cast<X2ControlInfo*>(x2msg->removeControlInfo());
+    auto x2msg = pkt->peekAtFront<LteX2Message>();
+    auto x2Info = pkt->removeTagIfPresent<X2ControlInfoTag>();
 
     if (x2Info->getInit())
     {
         // gate initialization
         LteX2MessageType msgType = x2msg->getType();
-        int gateIndex = x2msg->getArrivalGate()->getIndex();
+        int gateIndex = pkt->getArrivalGate()->getIndex();
         dataInterfaceTable_[msgType] = gateIndex;
 
         delete x2Info;
-        delete x2msg;
+        delete pkt;
         return;
     }
 
+
     // If the message is a HandoverDataMsg, send to the GTPUserX2 module
-    if (x2msg->getType() == X2_HANDOVER_DATA_MSG)
-    {
-        // GTPUserX2 module will tunnel this datagram towards the target eNB
-        DestinationIdList destList = x2Info->getDestIdList();
-        DestinationIdList::iterator it = destList.begin();
-        for (; it != destList.end(); ++it)
-        {
-            X2NodeId targetEnb = *it;
-            x2msg->setSourceId(nodeId_);
-            x2msg->setDestinationId(targetEnb);
+    // (GTPUserX2 module will tunnel this datagram towards the target eNB)
+    // otherwise it is a X2 control message and sent to the x2 peer
 
+    DestinationIdList destList = x2Info->getDestIdList();
+    DestinationIdList::iterator it = destList.begin();
+
+    for (; it != destList.end(); ++it)
+    {
+        X2NodeId targetEnb = *it;
+        auto pktDuplicate = pkt->dup();
+        auto updatedX2Msg = pktDuplicate->removeAtFront<LteX2Message>();
+        updatedX2Msg->markMutableIfExclusivelyOwned();
+        updatedX2Msg->setSourceId(nodeId_);
+        updatedX2Msg->setDestinationId(targetEnb);
+        pktDuplicate->insertAtFront(updatedX2Msg);
+
+        cGate* outputGate;
+        if(x2msg->getType() == X2_HANDOVER_DATA_MSG){
             // send to the gate connected to the GTPUser module
-            cGate* outputGate = gate("x2Gtp$o");
-            send(x2msg, outputGate);
-        }
-        delete x2Info;
-    }
-    else  // X2 control messages
-    {
-        DestinationIdList destList = x2Info->getDestIdList();
-        DestinationIdList::iterator it = destList.begin();
-        for (; it != destList.end(); ++it)
-        {
-            // send a X2 message to each destination eNodeB
-            LteX2Message* x2msg_dup = x2msg->dup();
-            x2msg_dup->setSourceId(nodeId_);
-            x2msg_dup->setDestinationId(*it);
-
+            outputGate = gate("x2Gtp$o");
+        } else {
             // select the index for the output gate (it belongs to a vector)
             int gateIndex = x2InterfaceTable_[*it];
-            cGate* outputGate = gate("x2$o",gateIndex);
-            send(x2msg_dup, outputGate);
+            outputGate = gate("x2$o",gateIndex);
         }
-        delete x2Info;
-        delete x2msg;
+        send(pktDuplicate, outputGate);
     }
-
+    delete x2Info;
+    delete pkt;
 }
 
-void LteX2Manager::fromX2(cPacket* pkt)
+void LteX2Manager::fromX2(Packet* pkt)
 {
-    LteX2Message* x2msg = check_and_cast<LteX2Message*>(pkt);
+    auto x2msg = pkt->peekAtFront<LteX2Message>();
     LteX2MessageType msgType = x2msg->getType();
 
     if (msgType == X2_UNKNOWN_MSG)
@@ -170,5 +164,5 @@ void LteX2Manager::fromX2(cPacket* pkt)
 
     // send X2 msg to stack
     EV << "LteX2Manager::fromX2 - send X2MSG to LTE stack" << endl;
-    send(PK(x2msg), outGate);
+    send(pkt, outGate);
 }

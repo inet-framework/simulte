@@ -24,7 +24,8 @@
 #include <list>
 #include <limits>
 
-#include "inet/common/INETDefs.h"
+#include <omnetpp.h>
+#include <inet/common/INETDefs.h>
 
 #include "world/radio/IChannelControl.h"
 #include "common/features.h"
@@ -49,7 +50,7 @@ class AirFrame;
  * @ingroup channelControl
  * @ingroup phyLayer
  */
-class ChannelAccess : public cSimpleModule, public cListener
+class ChannelAccess : public omnetpp::cSimpleModule, public omnetpp::cListener
 {
   protected:
     IChannelControl* cc;  // Pointer to the ChannelControl module
@@ -59,7 +60,7 @@ class ChannelAccess : public cSimpleModule, public cListener
     bool positionUpdateArrived;
 
   public:
-    ChannelAccess() : cc(NULL), myRadioRef(NULL), hostModule(NULL) {}
+    ChannelAccess() : cc(nullptr), myRadioRef(nullptr), hostModule(nullptr) {}
     virtual ~ChannelAccess();
 
     /**
@@ -67,7 +68,7 @@ class ChannelAccess : public cSimpleModule, public cListener
      *
      * ChannelAccess is subscribed to position changes.
      */
-    virtual void receiveSignal(cComponent *source, simsignal_t signalID, cObject *obj, cObject *);
+    virtual void receiveSignal(omnetpp::cComponent *source, omnetpp::simsignal_t signalID, omnetpp::cObject *obj, omnetpp::cObject *) override;
 
     /** Finds the channelControl module in the network */
     IChannelControl *getChannelControl();
@@ -76,13 +77,13 @@ class ChannelAccess : public cSimpleModule, public cListener
     /** Sends a message to all radios in range */
     virtual void sendToChannel(AirFrame *msg);
 
-    virtual cPar& getChannelControlPar(const char *parName) { return dynamic_cast<cModule *>(cc)->par(parName); }
+    virtual omnetpp::cPar& getChannelControlPar(const char *parName) { return dynamic_cast<omnetpp::cModule *>(cc)->par(parName); }
     const inet::Coord& getRadioPosition() const { return radioPos; }
-    cModule *getHostModule() const { return hostModule; }
+    omnetpp::cModule *getHostModule() const { return hostModule; }
 
     /** Register with ChannelControl and subscribe to hostPos*/
-    virtual void initialize(int stage);
-    virtual int numInitStages() const { return inet::INITSTAGE_PHYSICAL_LAYER + 1; }
+    virtual void initialize(int stage) override;
+    virtual int numInitStages() const override { return inet::INITSTAGE_PHYSICAL_LAYER + 1; }
 };
 
 #endif

@@ -32,13 +32,13 @@ class LteHarqUnitTxD2D : public LteHarqUnitTx
   protected:
 
     // D2D Statistics
-    simsignal_t macCellPacketLossD2D_;
-    simsignal_t macPacketLossD2D_;
-    simsignal_t harqErrorRateD2D_;
-    simsignal_t harqErrorRateD2D_1_;
-    simsignal_t harqErrorRateD2D_2_;
-    simsignal_t harqErrorRateD2D_3_;
-    simsignal_t harqErrorRateD2D_4_;
+      omnetpp::simsignal_t macCellPacketLossD2D_;
+      omnetpp::simsignal_t macPacketLossD2D_;
+      omnetpp::simsignal_t harqErrorRateD2D_;
+      omnetpp::simsignal_t harqErrorRateD2D_1_;
+      omnetpp::simsignal_t harqErrorRateD2D_2_;
+      omnetpp::simsignal_t harqErrorRateD2D_3_;
+      omnetpp::simsignal_t harqErrorRateD2D_4_;
 
   public:
     /**
@@ -63,7 +63,7 @@ class LteHarqUnitTxD2D : public LteHarqUnitTx
      * to extract the pdu the Mac layer will send.
      * Before extraction, control info is updated with transmission counter and ndi.
      */
-    virtual LteMacPdu *extractPdu();
+    virtual inet::Packet *extractPdu();
 
     virtual ~LteHarqUnitTxD2D();
 };

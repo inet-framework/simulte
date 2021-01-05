@@ -13,28 +13,23 @@
 #include <omnetpp.h>
 #include "common/LteCommon.h"
 
-class InternetMux : public cSimpleModule
+class InternetMux : public omnetpp::cSimpleModule
 {
   protected:
 
     //* maps destination id to output gate.
-    std::map<MacNodeId, cGate*> routingTable_;
+    std::map<MacNodeId, omnetpp::cGate*> routingTable_;
 
-    cGate* muxGate_[2];
+    omnetpp::cGate* muxGate_[2];
 
-    virtual void initialize();
-    virtual void handleMessage(cMessage *msg);
+    virtual void initialize() override;
+    virtual void handleMessage(omnetpp::cMessage *msg) override;
 
   public:
-
-    InternetMux();
-
-    void setRoutingEntry(const MacNodeId id, cGate* gate)
+    void setRoutingEntry(const MacNodeId id, omnetpp::cGate* gate)
     {
         routingTable_[id] = gate;
     }
-
-    virtual ~InternetMux();
 };
 
 #endif

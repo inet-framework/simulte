@@ -30,21 +30,34 @@
 #include <list>
 #include <algorithm>
 #include "inet/common/geometry/common/Coord.h"
+#include "inet/common/packet/Packet.h"
+#include "inet/common/Protocol.h"
 #include "common/features.h"
+#include "common/LteCommonEnum_m.h"
 
-using namespace omnetpp;
 
 class LteBinder;
 class LteCellInfo;
 class LteMacEnb;
 class LteMacBase;
 class LtePhyBase;
-//class cXMLElement;
 class LteRealisticChannelModel;
 class LteControlInfo;
 class ExtCell;
 
 
+/**
+ * Lte specific protocols
+ */
+class LteProtocol {
+public:
+    static const inet::Protocol ipv4uu;  // IP protocol on the uU interface
+    static const inet::Protocol pdcp;    // Packet Data Convergence Protocol
+    static const inet::Protocol rlc;     // Radio Link Control
+    static const inet::Protocol ltemac;  // LTE Medium Access Control
+    static const inet::Protocol gtp;     // GPRS Tunneling Protocol
+    static const inet::Protocol x2ap;    // X2AP Protocol
+};
 
 /**
  * TODO
@@ -55,7 +68,7 @@ class ExtCell;
 #define TTI 0.001
 
 /// Current simulation time
-#define NOW simTime()
+#define NOW omnetpp::simTime()
 
 /// Node Id bounds
 #define ENB_MIN_ID 1
@@ -107,57 +120,8 @@ typedef unsigned short Band;
 /// Codeword
 typedef unsigned short Codeword;
 
-/// Link Directions
-enum Direction
-{
-    DL, UL, D2D, D2D_MULTI, UNKNOWN_DIRECTION
-};
 
-/// Modulations
-enum LteMod
-{
-    _QPSK = 0, _16QAM, _64QAM
-};
 
-/// Feedback reporting type
-enum FeedbackType
-{
-    ALLBANDS = 0, PREFERRED, WIDEBAND
-};
-
-/// Feedback periodicity
-enum FbPeriodicity
-{
-    PERIODIC, APERIODIC
-};
-
-/// Resource allocation type
-enum RbAllocationType
-{
-    TYPE2_DISTRIBUTED, TYPE2_LOCALIZED
-};
-
-/* workaround: <windows.h> defines IN and OUT */
-#undef IN
-#undef OUT
-
-/// Gate Direction
-enum GateDirection
-{
-    IN = 0, OUT = 1
-};
-
-/// Lte Traffic Classes
-enum LteTrafficClass
-{
-    CONVERSATIONAL, STREAMING, INTERACTIVE, BACKGROUND, UNKNOWN_TRAFFIC_TYPE
-};
-
-/// Scheduler grant type
-enum GrantType
-{
-    FITALL = 0, FIXED_, URGENT, UNKNOWN_GRANT_TYPE /* Note: FIXED would clash with <windows.h> */
-};
 
 // QCI traffic descriptor
 struct QCIParameters
@@ -167,44 +131,12 @@ struct QCIParameters
     double packetErrorLossRate;
 };
 
-/// Lte RLC Types
-enum LteRlcType
-{
-    TM, UM, AM, UNKNOWN_RLC_TYPE
-};
 
 // Attenuation vector for analogue models
 typedef std::vector<double> AttenuationVector;
 
-/// Index for UL transmission map
-enum UlTransmissionMapTTI
-{
-    PREV_TTI, CURR_TTI
-};
 
-/// D2D Modes
-// IM = Infastructure Mode
-// DM = Direct (D2D) Mode
-enum LteD2DMode
-{
-    IM, DM
-};
 
-/*************************
- *     Applications      *
- *************************/
-
-enum ApplicationType
-{
-    VOIP = 0,
-    VOD,
-    WEB,
-    CBR,
-    FTP,
-    GAMING,
-    FULLBUFFER,
-    UNKNOWN_APP
-};
 
 struct ApplicationTable
 {
@@ -226,11 +158,6 @@ const ApplicationTable applications[] = {
  * Scheduling discipline  *
  **************************/
 
-enum SchedDiscipline
-{
-    DRR, PF, MAXCI, MAXCI_MB, MAXCI_OPT_MB, MAXCI_COMP, ALLOCATOR_BESTFIT, UNKNOWN_DISCIPLINE
-};
-
 struct SchedDisciplineTable
 {
     SchedDiscipline discipline;
@@ -248,28 +175,9 @@ const SchedDisciplineTable disciplines[] = {
     ELEM(UNKNOWN_DISCIPLINE)
 };
 
-// specifies how the final CQI will be computed from the multiband ones
-enum PilotComputationModes
-{
-    MIN_CQI, MAX_CQI, AVG_CQI
-};
-
 /*************************
  *   Transmission Modes  *
  *************************/
-
-enum TxMode
-{
-    // Note: If you add more tx modes, update DL_NUM_TXMODE and UL_NUM_TXMODE
-    SINGLE_ANTENNA_PORT0 = 0,
-    SINGLE_ANTENNA_PORT5,
-    TRANSMIT_DIVERSITY,
-    OL_SPATIAL_MULTIPLEXING,
-    CL_SPATIAL_MULTIPLEXING,
-    MULTI_USER,
-    UNKNOWN_TX_MODE
-};
-
 struct TxTable
 {
     TxMode tx;
@@ -286,11 +194,6 @@ const TxTable txmodes[] = {
     ELEM(UNKNOWN_TX_MODE)
 };
 
-enum TxDirectionType
-{
-    ANISOTROPIC,
-    OMNI
-};
 
 struct TxDirectionTable
 {
@@ -303,14 +206,6 @@ const TxDirectionTable txDirections[] = {
     ELEM(OMNI)
 };
 
-// Lte feedback type
-enum FeedbackGeneratorType
-{
-    IDEAL = 0,
-    REAL,
-    DAS_AWARE,
-    UNKNOW_FB_GEN_TYPE
-};
 
 struct FeedbackRequest
 {
@@ -342,21 +237,7 @@ const unsigned char DL_NUM_TXMODE = MULTI_USER + 1;
 /// Number of transmission modes in UL direction.
 const unsigned char UL_NUM_TXMODE = MULTI_USER + 1;
 
-/// OFDMA layers (see FIXME lteAllocationModuble.h for "layers" meaning)
-enum Plane
-{
-    MAIN_PLANE = 0, MU_MIMO_PLANE
-};
 
-enum DeploymentScenario
-{
-    INDOOR_HOTSPOT = 0,
-    URBAN_MICROCELL,
-    URBAN_MACROCELL,
-    RURAL_MACROCELL,
-    SUBURBAN_MACROCELL,
-    UNKNOW_SCENARIO
-};
 
 struct DeploymentScenarioMapping
 {
@@ -404,19 +285,6 @@ double linearToDb(double lin);
  *      DAS Support      *
  *************************/
 
-/// OFDMA Remotes (see FIXME LteAllocationModule.h for "antenna" meaning)
-enum Remote
-{
-    MACRO = 0,
-    RU1,
-    RU2,
-    RU3,
-    RU4,
-    RU5,
-    RU6,
-    UNKNOWN_RU
-};
-
 struct RemoteTable
 {
     Remote remote;
@@ -453,22 +321,6 @@ const unsigned char NUM_ANTENNAS = NUM_RUS + 1;
  */
 typedef std::map<Remote, std::map<Band, unsigned int> > RbMap;
 
-/**
- * Lte PHY Frame Types
- */
-enum LtePhyFrameType
-{
-    DATAPKT,
-    BROADCASTPKT,
-    FEEDBACKPKT,
-    HANDOVERPKT,
-    HARQPKT,
-    GRANTPKT,
-    RACPKT,
-    D2DMODESWITCHPKT,
-    UNKNOWN_TYPE
-};
-
 struct LtePhyFrameTable
 {
     LtePhyFrameType phyType;
@@ -485,18 +337,6 @@ const LtePhyFrameTable phytypes[] = {
     ELEM(UNKNOWN_TYPE)
 };
 
-/**
- * Lte Node Types
- */
-enum LteNodeType
-{
-    INTERNET, /// Internet side of the Lte network
-    ENODEB, /// eNodeB
-    RELAY, /// Relay
-    UE, /// UE
-    UNKNOWN_NODE_TYPE /// unknown
-};
-
 struct LteNodeTable
 {
     LteNodeType node;
@@ -511,19 +351,6 @@ const LteNodeTable nodetypes[] = {
     ELEM(UNKNOWN_NODE_TYPE)
 };
 
-/**
- * Subframe type
- */
-enum LteSubFrameType
-{
-    NORMAL_FRAME_TYPE,
-    MBSFN,
-    PAGING,
-    BROADCAST,
-    SYNCRO,
-    ABS,
-    UNKNOWN_FRAME_TYPE
-};
 
 struct LteSubFrameTypeTable
 {
@@ -554,11 +381,6 @@ typedef std::bitset<ABS_WIN> AbsBitset;
  *
  * these are the names from standard, so it's not my fault if they are stupid.
  */
-enum X2MsgType
-{
-    ABS_INFO,
-    ABS_STATUS_INFO
-};
 
 // Abs Status Information structure
 struct AbsStatusInfoMsg
@@ -581,14 +403,7 @@ class X2InformationElement;
  */
 typedef std::list<X2InformationElement*> X2InformationElementsList;
 
-/*
- * Types of BSR
- * TODO add LONG/TRUNCATED BSR
- */
-enum BsrType
-{
-    SHORT_BSR, D2D_SHORT_BSR, D2D_MULTI_SHORT_BSR
-};
+
 
 /**
  * The following structure specifies a band and a byte amount which limits the schedulable data
@@ -670,7 +485,7 @@ typedef std::map<std::pair<MacCid, Codeword>, unsigned int> LteMacScheduleList;
  * This is the Pdu list, a list of scheduled Pdus for
  * each user on each codeword.
  */
-typedef std::map<std::pair<MacNodeId, Codeword>, LteMacPdu*> MacPduList;
+typedef std::map<std::pair<MacNodeId, Codeword>, inet::Packet*> MacPduList;
 
 /*
  * Codeword list : for each node, it keeps track of allocated codewords (number)
@@ -681,13 +496,14 @@ typedef std::map<MacNodeId, unsigned int> LteMacAllocatedCws;
  * The Rlc Sdu List, a list of RLC SDUs
  * contained inside a RLC PDU
  */
-typedef std::list<cPacket*> RlcSduList;
+typedef std::list<inet::Packet*> RlcSduList;
+typedef std::list<size_t> RlcSduListSizes;
 
 /**
  * The Mac Sdu List, a list of MAC SDUs
  * contained inside a MAC PDU
  */
-typedef cPacketQueue MacSduList;
+typedef omnetpp::cPacketQueue MacSduList;
 
 /**
  * The Mac Control Elements List, a list
@@ -714,38 +530,6 @@ typedef std::list<MacControlElement*> MacControlElementsList;
 /// time it takes to generate feedback for a pdu
 #define HARQ_FB_EVALUATION_INTERVAL 3*TTI
 
-/// H-ARQ feedback (ACK, NACK)
-enum HarqAcknowledgment
-{
-    HARQNACK = 0, HARQACK = 1
-};
-
-/// TX H-ARQ pdu status
-enum TxHarqPduStatus
-{
-    /// pdu is ready for retransmission (nack received)
-    TXHARQ_PDU_BUFFERED = 0,
-    /// pdu is waiting for feedback
-    TXHARQ_PDU_WAITING,
-    /// no pdu inside this process (empty process)
-    TXHARQ_PDU_EMPTY,
-    /// pdu selected for transmission
-    TXHARQ_PDU_SELECTED
-};
-
-/// RX H-ARQ pdu status
-enum RxHarqPduStatus
-{
-    /// no pdu, process is empty
-    RXHARQ_PDU_EMPTY = 0,
-    /// pdu is in evaluating state
-    RXHARQ_PDU_EVALUATING,
-    /// pdu has been evaluated and it is correct
-    RXHARQ_PDU_CORRECT,
-    /// pdu has been evaluated and it is not correct
-    RXHARQ_PDU_CORRUPTED
-};
-
 struct RemoteUnitPhyData
 {
     int txPower;
@@ -761,14 +545,6 @@ typedef std::pair<unsigned char, CwList> UnitList;
 /*********************
  * Incell Interference Support
  *********************/
-enum EnbType
-{
-    // macro eNb
-    MACRO_ENB,
-    // micro eNb
-    MICRO_ENB
-};
-
 struct EnbInfo
 {
     bool init;         // initialization flag
@@ -779,7 +555,7 @@ struct EnbInfo
     MacNodeId id;
     LteMacEnb * mac;
     LteRealisticChannelModel * realChan;
-    cModule * eNodeB;
+    omnetpp::cModule * eNodeB;
     int x2;
 };
 
@@ -790,7 +566,7 @@ struct UeInfo
     MacNodeId id;
     MacNodeId cellId;
     LteRealisticChannelModel * realChan;
-    cModule * ue;
+    omnetpp::cModule * ue;
     LtePhyBase* phy;
 };
 
@@ -819,7 +595,7 @@ typedef std::vector<Pmi> PmiVector;
 typedef std::set<Band> BandSet;
 typedef std::set<Remote> RemoteSet;
 typedef std::map<MacNodeId, bool> ConnectedUesMap;
-typedef std::pair<int, simtime_t> PacketInfo;
+typedef std::pair<int, omnetpp::simtime_t> PacketInfo;
 typedef std::vector<RemoteUnitPhyData> RemoteUnitPhyDataVector;
 typedef std::set<MacNodeId> ActiveUser;
 typedef std::set<MacCid> ActiveSet;
@@ -830,7 +606,7 @@ typedef std::set<MacCid> ActiveSet;
  *
  * Parameters read from xml file are stored in this map.
  */
-typedef std::map<std::string, cMsgPar> ParameterMap;
+typedef std::map<std::string, omnetpp::cMsgPar> ParameterMap;
 
 /*********************
  * Utility functions
@@ -871,8 +647,8 @@ GrantType aToGrantType(std::string a);
 const std::string grantTypeToA(GrantType gType);
 LteBinder* getBinder();
 LteCellInfo* getCellInfo(MacNodeId nodeId);
-cModule* getMacByMacNodeId(MacNodeId nodeId);
-cModule* getRlcByMacNodeId(MacNodeId nodeId, LteRlcType rlcType);
+omnetpp::cModule* getMacByMacNodeId(MacNodeId nodeId);
+omnetpp::cModule* getRlcByMacNodeId(MacNodeId nodeId, LteRlcType rlcType);
 LteMacBase* getMacUe(MacNodeId nodeId);
 FeedbackGeneratorType getFeedbackGeneratorType(std::string s);
 const std::string fbGeneratorTypeToA(FeedbackGeneratorType type);
@@ -889,7 +665,7 @@ bool isMulticastConnection(LteControlInfo* lteInfo);
  * @param xmlData XML parameters config element related to a specific section
  * @param[output] outputMap map to store read parameters
  */
-void getParametersFromXML(cXMLElement* xmlData, ParameterMap& outputMap);
+void getParametersFromXML(omnetpp::cXMLElement* xmlData, ParameterMap& outputMap);
 
 /**
  * Parses a CSV string parameter into an int array.
@@ -914,7 +690,50 @@ void parseStringToIntArray(std::string str, int* values, int dim, int pad);
  *
  * @param mod module whose channels needs initialization
  */
-void initializeAllChannels(cModule *mod);
+void initializeAllChannels(omnetpp::cModule *mod);
+
+void removeAllSimuLteTags(inet::Packet *pkt);
+
+
+template <typename T>
+  bool checkIfHeaderType(const inet::Packet *pkt, bool checkFirst = false) {
+
+    auto pktAux = pkt->dup();
+
+    int index = 0;
+    while(pktAux->getBitLength() > 0 && pktAux->peekAtFront<inet::Chunk>()) {
+        auto chunk = pktAux->popAtFront<inet::Chunk>();
+        if (inet::dynamicPtrCast<const T>(chunk)) {
+            delete pktAux;
+            if (index != 0 && checkFirst)
+                throw omnetpp::cRuntimeError("The header is not the top");
+            return true;
+        }
+        index++;
+    }
+    delete pktAux;
+    return false;
+}
+
+template <typename T>
+std::vector<T> getTagsWithInherit(inet::Packet *pkt)
+{
+    std::vector<T> t;
+    auto tags = pkt->getTags();
+    if (tags.getNumTags() == 0)
+        return t;
+
+    // check if exist tag of that is derived from this.
+    //
+    for (unsigned int i = 0; i < tags.getNumTags(); i++) {
+        T * temp = dynamic_cast<T *> (tags.getTag(i));
+        if (temp != nullptr) {
+            t.push_back(*temp);
+        }
+    }
+    return t;
+}
+
 
 #endif
 

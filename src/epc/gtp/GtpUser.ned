@@ -15,6 +15,8 @@ package lte.epc.gtp;
 simple GtpUser
 {
     parameters:
+        string interfaceTableModule; // path to the InterfaceTable module
+        string ipOutInterface = default("");    // optional: manual specification of outgoing interface for received IP
         int localPort = default(31);
 
         int tunnelPeerPort = default(31);
@@ -26,8 +28,8 @@ simple GtpUser
         @display("i=block/tunnel");
 
     gates:
-        output udpOut;
-        input udpIn;
+        output socketOut;
+        input socketIn;
 
         input trafficFlowFilterGate;
         output pppGate;
@@ -39,6 +41,8 @@ simple GtpUser
 simple GtpUserSimplified
 {
     parameters:
+        string interfaceTableModule;            // path to the InterfaceTable module
+        string ipOutInterface = default("");    // optional: manual specification of outgoing interface for received IP 
         int localPort = default(31);
         int tunnelPeerPort = default(31);
         bool filter = default(true);
@@ -46,8 +50,8 @@ simple GtpUserSimplified
         @display("i=block/tunnel");
 
     gates:
-        output udpOut;
-        input udpIn;
+        output socketOut;
+        input socketIn;
 
         input trafficFlowFilterGate;
         output pppGate;
@@ -65,8 +69,8 @@ simple GtpUserX2
         @display("i=block/tunnel");
 
     gates:
-        output udpOut;
-        input udpIn;
+        output socketOut;
+        input socketIn;
 
         output lteStackOut;
         input lteStackIn;

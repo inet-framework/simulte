@@ -9,6 +9,8 @@
 
 #include "stack/mac/buffer/LteMacBuffer.h"
 
+using namespace omnetpp;
+
 LteMacBuffer::LteMacBuffer()
 {
     queueOccupancy_ = 0;

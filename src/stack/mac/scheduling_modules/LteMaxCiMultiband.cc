@@ -11,12 +11,13 @@
 #include "stack/mac/scheduler/LteSchedulerEnb.h"
 
 using namespace std;
+using namespace omnetpp;
 
 bool debug = false;
 
 void LteMaxCiMultiband::prepareSchedule()
 {
-    if (binder_ == NULL)
+    if (binder_ == nullptr)
         binder_ = getBinder();
     activeConnectionTempSet_ = activeConnectionSet_;
     MacCid cid;

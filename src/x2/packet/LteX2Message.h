@@ -14,8 +14,6 @@
 #include "common/LteCommon.h"
 #include "x2/packet/X2InformationElement.h"
 
-using namespace omnetpp;
-
 // add here new X2 message types
 enum LteX2MessageType
 {
@@ -49,8 +47,7 @@ class LteX2Message : public LteX2Message_Base
     /**
      * Constructor
      */
-    LteX2Message(const char* name = NULL, int kind = 0) :
-        LteX2Message_Base(name, kind)
+    LteX2Message() : LteX2Message_Base()
     {
         type_ = X2_UNKNOWN_MSG;
         ieList_.clear();
@@ -62,11 +59,7 @@ class LteX2Message : public LteX2Message_Base
      * FIXME Copy constructors do not preserve ownership
      * Here I should iterate on the list and set all ownerships
      */
-    LteX2Message(const LteX2Message& other) :
-        LteX2Message_Base()
-    {
-        operator=(other);
-    }
+
 
     LteX2Message& operator=(const LteX2Message& other)
     {
@@ -74,10 +67,21 @@ class LteX2Message : public LteX2Message_Base
             return *this;
         LteX2Message_Base::operator=(other);
         type_ = other.type_;
-        ieList_ = other.ieList_;
+
+        // perform deep-copy of element list
         msgLength_ = other.msgLength_;
+        ieList_.clear();
+        for (auto it = other.ieList_.begin(); it != other.ieList_.end(); ++it){
+            ieList_.push_back((*it)->dup());
+        }
+
         return *this;
     }
+
+    LteX2Message(const LteX2Message& other) : LteX2Message_Base() {
+        operator=(other);
+    }
+
 
     virtual LteX2Message *dup() const
     {
@@ -86,15 +90,22 @@ class LteX2Message : public LteX2Message_Base
 
     virtual ~LteX2Message()
     {
-        while(!ieList_.empty())
-        {
+        while (!ieList_.empty()){
+            delete ieList_.front();
             ieList_.pop_front();
         }
     }
 
     // getter/setter methods for the type field
     void setType(LteX2MessageType type) { type_ = type; }
-    LteX2MessageType getType() { return type_; }
+    LteX2MessageType getType() const { return type_; }
+
+    /**
+     * Getter to access the InformationElement list (e.g. for serialization)
+     */
+    virtual X2InformationElementsList getIeList() const {
+        return ieList_;
+    }
 
     /**
      * pushIe() stores a IE inside the
@@ -106,6 +117,9 @@ class LteX2Message : public LteX2Message_Base
     {
         ieList_.push_back(ie);
         msgLength_ += ie->getLength();
+        // increase the chunk length by length of IE + 1 Byte (required to store the IE type)
+        setChunkLength(getChunkLength()+inet::b(8*(ie->getLength()+sizeof(uint8_t))));
+        // EV << "pushIe: pushed an element of length: " << ie->getLength() << " new chunk length: " << getChunkLength() << std::endl;
     }
 
     /**
@@ -119,6 +133,8 @@ class LteX2Message : public LteX2Message_Base
         X2InformationElement* ie = ieList_.front();
         ieList_.pop_front();
         msgLength_ -= ie->getLength();
+        // chunk is immutable during serialization! 
+        // (chunk length can therefore not be adapted - we only adapt the separate msg_Length_)
         return ie;
     }
 

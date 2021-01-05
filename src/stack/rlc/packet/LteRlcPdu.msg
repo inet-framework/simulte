@@ -14,10 +14,20 @@
 // that receiver needs in order to
 // correctly decode the original packet
 //
-packet LteRlcPdu
+
+import inet.common.INETDefs;
+import inet.common.packet.chunk.Chunk;
+
+class LteRlcPdu extends inet::FieldsChunk
 {
-    @customize(true);
+    // TODO: size 0
+    chunkLength = inet::B(1); // TODO: should be a tag;
     unsigned int totalFragments;    // Total number of fragments
     unsigned int snoFragment;        // Sequence number of this fragment
     unsigned int snoMainPacket;        // ID of packet (sequence number)
+}
+
+// new data indication for MAC
+class LteRlcPduNewData extends LteRlcPdu
+{
 }

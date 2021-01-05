@@ -1,0 +1,172 @@
+//
+// This program is free software: you can redistribute it and/or modify
+// it under the terms of the GNU Lesser General Public License as published by
+// the Free Software Foundation, either version 3 of the License, or
+// (at your option) any later version.
+//
+// This program is distributed in the hope that it will be useful,
+// but WITHOUT ANY WARRANTY; without even the implied warranty of
+// MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+// GNU Lesser General Public License for more details.
+//
+// You should have received a copy of the GNU Lesser General Public License
+// along with this program.  If not, see http://www.gnu.org/licenses/.
+//
+
+#include "x2/packet/LteX2Message.h"
+#include "x2/packet/LteX2MsgSerializer.h"
+#include "stack/handoverManager/X2HandoverControlMsg.h"
+#include "stack/handoverManager/X2HandoverDataMsg.h"
+#include "stack/compManager/X2CompMsg.h"
+#include "stack/compManager/compManagerProportional/X2CompProportionalRequestIE.h"
+#include "stack/compManager/compManagerProportional/X2CompProportionalReplyIE.h"
+#include "stack/handoverManager/X2HandoverCommandIE.h"
+#include "inet/common/packet/serializer/ChunkSerializerRegistry.h"
+
+using namespace inet;
+
+Register_Serializer(LteX2Message, LteX2MsgSerializer);
+
+/**
+ * This serializer performs serialization and deserialization for the X2 messages.
+ * Supported types:
+ *
+ * X2_COMP_MSG  (class X2CompMsg)
+ * X2_HANDOVER_CONTROL_MSG  (class X2HandoverControlMsg)
+ * X2_HANDOVER_DATA_MSG  (class X2HandoverDataMsg)
+ */
+
+void LteX2MsgSerializer::serialize(MemoryOutputStream& stream, const Ptr<const Chunk>& chunk) const
+{
+    auto startPosition = stream.getLength();
+    const auto& msg = staticPtrCast<const LteX2Message>(chunk);
+    LteX2MessageType type = msg->getType();
+    if(type != X2_COMP_MSG && type != X2_HANDOVER_CONTROL_MSG && type != X2_HANDOVER_DATA_MSG)
+        throw cRuntimeError("LteX2MsgSerializer::serialize of X2 message type is not implemented!");
+
+    stream.writeByte(type);
+    stream.writeUint32Be(msg->getSourceId());
+    stream.writeUint32Be(msg->getDestinationId());
+    // note: length does not need to be serialized - is calculated during deserialization
+
+    // serialization of list containing the information elements
+    X2InformationElementsList ieList = msg->getIeList();
+    stream.writeUint16Be(ieList.size());
+    for(X2InformationElementsList::iterator it = ieList.begin(); it !=ieList.end(); it++){
+        X2InformationElement* ie = *it;
+        stream.writeByte(ie->getType());
+
+        switch (ie->getType()) {
+        case COMP_REQUEST_IE:
+        case COMP_REPLY_IE:
+            // no extra fields need to be serialized
+            break;
+
+        case COMP_PROP_REQUEST_IE: {
+            X2CompProportionalRequestIE* propRequest = check_and_cast<X2CompProportionalRequestIE*>(ie);
+            stream.writeUint32Be(propRequest->getNumBlocks());
+            break;
+        }
+        case COMP_PROP_REPLY_IE: {
+            X2CompProportionalReplyIE* propReply = check_and_cast<X2CompProportionalReplyIE*>(ie);
+            serializeStatusMap(stream, propReply->getAllowedBlocksMap());
+            break;
+        }
+        case X2_HANDOVER_CMD_IE: {
+            X2HandoverCommandIE* handoverCmd = check_and_cast<X2HandoverCommandIE*>(ie);
+            stream.writeByte(handoverCmd->isStartHandover());
+            stream.writeUint16Be(handoverCmd->getUeId());
+            break;
+        }
+        default:
+            throw cRuntimeError("LteX2MsgSerializer::serialize of this X2InformationElement not implemented!");
+        }
+    }
+
+    int64_t remainders = B(msg->getChunkLength() - (stream.getLength() - startPosition)).get();
+    if (remainders < 0)
+        throw cRuntimeError("LteX2Msg length = %d smaller than required %d bytes", (int)B(msg->getChunkLength()).get(), (int)B(stream.getLength() - startPosition).get());
+    else if(remainders > 0) {
+        throw cRuntimeError("LteX2Msg length = %d larger than serialized %d bytes", (int)B(msg->getChunkLength()).get(), (int)B(stream.getLength() - startPosition).get());
+    }
+}
+
+void LteX2MsgSerializer::serializeStatusMap(inet::MemoryOutputStream& stream, std::vector<CompRbStatus> map) const {
+    stream.writeUint32Be(map.size());
+
+    for(std::vector<CompRbStatus>::iterator it = map.begin(); it !=map.end(); it++){
+        CompRbStatus status = *it;
+        stream.writeByte(status);
+    }
+}
+
+const Ptr<Chunk> LteX2MsgSerializer::deserialize(MemoryInputStream& stream) const
+{
+    LteX2MessageType type = (LteX2MessageType) stream.readByte();
+    Ptr<LteX2Message> msg;
+    switch (type){
+    case X2_COMP_MSG:
+        msg = makeShared<X2CompMsg>();
+        break;
+    case X2_HANDOVER_CONTROL_MSG:
+        msg = makeShared<X2HandoverControlMsg>();
+        break;
+    case X2_HANDOVER_DATA_MSG:
+        msg = makeShared<X2HandoverDataMsg>();
+        break;
+    default:
+        throw cRuntimeError("LteX2MsgSerializer::deserialize of X2 message type ist not implemented!");
+    }
+
+    msg->setSourceId(stream.readUint32Be());
+    msg->setDestinationId(stream.readUint32Be());
+    int32_t nrElements = stream.readUint16Be();
+    for(int32_t i=0; i<nrElements; i++){
+        X2InformationElement* ie;
+        X2InformationElementType ieType = (X2InformationElementType) stream.readByte();
+
+        switch (ieType) {
+        case COMP_REQUEST_IE:
+        case COMP_REPLY_IE:
+            ie = new X2InformationElement(ieType);
+            // no extra fields need to be deserialized
+            break;
+        case COMP_PROP_REQUEST_IE: {
+            auto propRequest = new X2CompProportionalRequestIE();
+            propRequest->setNumBlocks(stream.readUint32Be());
+            ie = propRequest;
+            break;
+        }
+        case COMP_PROP_REPLY_IE: {
+            auto propReply = new X2CompProportionalReplyIE();
+            std::vector<CompRbStatus> map = deserializeStatusMap(stream);
+            propReply->setAllowedBlocksMap(map);
+            ie = propReply;
+            break;
+        }
+        case X2_HANDOVER_CMD_IE: {
+            auto handoverCmd = new X2HandoverCommandIE();
+            if(stream.readByte() != 0)
+                handoverCmd->setStartHandover();
+            handoverCmd->setUeId(stream.readUint16Be());
+            ie = handoverCmd;
+            break;
+        }
+        default:
+            throw cRuntimeError("LteX2MsgSerializer::serialize for X2InformationElement type not implemented!");
+        }
+        msg->pushIe(ie);
+    }
+
+    return msg;
+}
+
+
+std::vector<CompRbStatus> LteX2MsgSerializer::deserializeStatusMap(inet::MemoryInputStream& stream) const {
+    uint32_t size = stream.readUint32Be();
+    std::vector<CompRbStatus> map(size);
+    for(int i=0; i < size; i++)
+        map[i] = (CompRbStatus) stream.readByte();
+    return map;
+}
+

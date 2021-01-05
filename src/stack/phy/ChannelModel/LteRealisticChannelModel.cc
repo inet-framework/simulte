@@ -22,6 +22,8 @@
 // and tolerating the maximum distance violation is enabled
 #define ATT_MAXDISTVIOLATED 1000
 
+using namespace inet;
+using namespace omnetpp;
 Define_Module(LteRealisticChannelModel);
 
 void LteRealisticChannelModel::initialize()
@@ -84,20 +86,24 @@ void LteRealisticChannelModel::initialize()
 double LteRealisticChannelModel::getAttenuation(MacNodeId nodeId, Direction dir,
        Coord coord)
 {
-   double movement = .0;
    double speed = .0;
+   double correlationDist = .0;
 
    //COMPUTE DISTANCE between ue and eNodeB
    double sqrDistance = phy_->getCoord().distance(coord);
 
-   if (dir == DL) // sender is UE
+   if (dir == DL){ // sender is UE
        speed = computeSpeed(nodeId, phy_->getCoord());
-   else
+       correlationDist = computeCorrelationDistance(nodeId, phy_->getCoord());
+   } else {
        speed = computeSpeed(nodeId, coord);
+       correlationDist = computeCorrelationDistance(nodeId, coord);
+   }
 
-   //If traveled distance is greater than correlation distance UE could have changed its state and
+   // If euclidean distance since last Los probabilty computation is greater than
+   // correlation distance UE could have changed its state and
    // its visibility from eNodeb, hence it is correct to recompute the los probability
-   if (movement > correlationDistance_
+   if (correlationDist > correlationDistance_
            || losMap_.find(nodeId) == losMap_.end())
    {
        computeLosProbability(sqrDistance, nodeId);
@@ -174,12 +180,15 @@ double LteRealisticChannelModel::getAttenuation(MacNodeId nodeId, Direction dir,
    // update current user position
 
    //if sender is a eNodeB
-   if (dir == DL)
+   if (dir == DL){
        //store the position of user
        updatePositionHistory(nodeId, phy_->getCoord());
-   else
+       updateCorrelationDistance(nodeId, phy_->getCoord());
+   } else {
        //sender is an UE
        updatePositionHistory(nodeId, coord);
+       updateCorrelationDistance(nodeId, coord);
+   }
 
    EV << "LteRealisticChannelModel::getAttenuation - computed attenuation at distance " << sqrDistance << " for eNb is " << attenuation << endl;
 
@@ -188,17 +197,19 @@ double LteRealisticChannelModel::getAttenuation(MacNodeId nodeId, Direction dir,
 
 double LteRealisticChannelModel::getAttenuation_D2D(MacNodeId nodeId, Direction dir, Coord coord,MacNodeId node2_Id, Coord coord_2)
 {
-   double movement = .0;
    double speed = .0;
+   double correlationDist = .0;
 
    //COMPUTE DISTANCE between ue1 and ue2
    //double sqrDistance = phy_->getCoord().distance(coord);
    double sqrDistance = coord.distance(coord_2);
    speed = computeSpeed(nodeId, coord);
+   correlationDist = computeCorrelationDistance(nodeId, coord);
 
-   //If traveled distance is greater than correlation distance UE could have changed its state and
-   // its visibility from eNodeb, hence it is correct to recompute the los probability
-   if (movement > correlationDistance_
+   // If euclidean distance since last LOS probabilty computation is greater than
+   // correlation distance UE could have changed its state and
+   // its visibility from eNodeb, hence it is correct to recompute the LOS probability
+   if (correlationDist > correlationDistance_
        || losMap_.find(nodeId) == losMap_.end())
    {
        computeLosProbability(sqrDistance, nodeId);
@@ -274,6 +285,7 @@ double LteRealisticChannelModel::getAttenuation_D2D(MacNodeId nodeId, Direction 
 
    // update current user position
    updatePositionHistory(nodeId, coord);
+   updateCorrelationDistance(nodeId, coord);
 
    EV << "LteRealisticChannelModel::getAttenuation - computed attenuation at distance " << sqrDistance << " for UE2 is " << attenuation << endl;
 
@@ -296,6 +308,30 @@ void LteRealisticChannelModel::updatePositionHistory(const MacNodeId nodeId,
    if (positionHistory_[nodeId].size() > 2) // if we have more than a past and a current element
        // drop the oldest one
        positionHistory_[nodeId].pop();
+}
+
+void LteRealisticChannelModel::updateCorrelationDistance(const MacNodeId nodeId, const inet::Coord coord){
+
+    if (lastCorrelationPoint_.find(nodeId) == lastCorrelationPoint_.end()){
+        // no lastCorrelationPoint set current point.
+        lastCorrelationPoint_[nodeId] = Position(NOW, coord);
+    } else if ((lastCorrelationPoint_[nodeId].first != NOW) &&
+                lastCorrelationPoint_[nodeId].second.distance(coord) > correlationDistance_) {
+        // check simtime_t first
+        lastCorrelationPoint_[nodeId] = Position(NOW, coord);
+    }
+}
+
+double LteRealisticChannelModel::computeCorrelationDistance(const MacNodeId nodeId, const inet::Coord coord){
+    double dist = 0.0;
+
+    if (lastCorrelationPoint_.find(nodeId) == lastCorrelationPoint_.end()){
+        // no lastCorrelationPoint found. Add current position and return dist = 0.0
+        lastCorrelationPoint_[nodeId] = Position(NOW, coord);
+    } else {
+        dist = lastCorrelationPoint_[nodeId].second.distance(coord);
+    }
+    return dist;
 }
 
 double LteRealisticChannelModel::computeSpeed(const MacNodeId nodeId,
@@ -667,7 +703,7 @@ std::vector<double> LteRealisticChannelModel::getSINR(LteAirFrame *frame, UserCo
 
 std::vector<double> LteRealisticChannelModel::getRSRP_D2D(LteAirFrame *frame, UserControlInfo* lteInfo_1, MacNodeId destId, Coord destCoord)
 {
-   AttenuationVector::iterator it;
+   // AttenuationVector::iterator it;
    // Get Tx power
    double recvPower = lteInfo_1->getD2dTxPower(); // dBm
 
@@ -686,7 +722,7 @@ std::vector<double> LteRealisticChannelModel::getRSRP_D2D(LteAirFrame *frame, Us
    bool cqiDl = false;
    // Get the direction
    Direction dir = (Direction) lteInfo_1->getDirection();
-   dir = D2D;
+   dir = D2D; //todo[stsc]: dir is overriten? why?
 
    EV << "------------ GET RSRP D2D----------------" << endl;
 
@@ -790,7 +826,7 @@ std::vector<double> LteRealisticChannelModel::getRSRP_D2D(LteAirFrame *frame, Us
 
 std::vector<double> LteRealisticChannelModel::getSINR_D2D(LteAirFrame *frame, UserControlInfo* lteInfo, MacNodeId destId, Coord destCoord, MacNodeId enbId)
 {
-   AttenuationVector::iterator it;
+   // AttenuationVector::iterator it;
    // Get Tx power
    double recvPower = lteInfo->getD2dTxPower(); // dBm
 
@@ -1093,7 +1129,7 @@ std::vector<double> LteRealisticChannelModel::getSINR_D2D(LteAirFrame *frame, Us
 std::vector<double> LteRealisticChannelModel::getSIR(LteAirFrame *frame,
        UserControlInfo* lteInfo)
 {
-   AttenuationVector::iterator it;
+   // AttenuationVector::iterator it;
    //get tx power
    double recvPower = lteInfo->getTxPower();
 
@@ -1281,7 +1317,7 @@ bool LteRealisticChannelModel::isCorrupted(LteAirFrame *frame,
    int size = lteInfo->getUserTxParams()->readCqiVector().size();
 
    //get position associated to the packet
-   Coord coord = lteInfo->getCoord();
+   // Coord coord = lteInfo->getCoord();
 
    //if total number of codeword is equal to 1 the cw index should be only 0
    if (size == 1)
@@ -1426,9 +1462,9 @@ bool LteRealisticChannelModel::isCorrupted(LteAirFrame *frame,
    return true;
 }
 
-bool LteRealisticChannelModel::error_D2D(LteAirFrame *frame, UserControlInfo* lteInfo, const std::vector<double>& rsrpVector)
+bool LteRealisticChannelModel::isCorrupted_D2D(LteAirFrame *frame, UserControlInfo* lteInfo, const std::vector<double>& rsrpVector)
 {
-   EV << "LteRealisticChannelModel::error_D2D" << endl;
+   EV << "LteRealisticChannelModel::isCorrupted_D2D" << endl;
 
    //get codeword
    unsigned char cw = lteInfo->getCw();
@@ -1436,7 +1472,7 @@ bool LteRealisticChannelModel::error_D2D(LteAirFrame *frame, UserControlInfo* lt
    int size = lteInfo->getUserTxParams()->readCqiVector().size();
 
    //get position associated to the packet
-   Coord coord = lteInfo->getCoord();
+   // Coord coord = lteInfo->getCoord();
 
    //if total number of codeword is equal to 1 the cw index should be only 0
    if (size == 1)
@@ -1507,6 +1543,11 @@ bool LteRealisticChannelModel::error_D2D(LteAirFrame *frame, UserControlInfo* lt
    RbMap::iterator it;
    std::map<Band, unsigned int>::iterator jt;
 
+
+   // for statistic purposes
+   double sumSnr = 0.0;
+   int usedRBs = 0;
+
    //for each Remote unit used to transmit the packet
    for (it = rbmap.begin(); it != rbmap.end(); ++it)
    {
@@ -1526,6 +1567,11 @@ bool LteRealisticChannelModel::error_D2D(LteAirFrame *frame, UserControlInfo* lt
            //Get the Bler
            if (cqi == 0 || cqi > 15)
                throw cRuntimeError("A packet has been transmitted with a cqi equal to 0 or greater than 15 cqi:%d txmode:%d dir:%d rb:%d cw:%d rtx:%d", cqi,lteInfo->getTxMode(),dir,jt->second,cw,nTx);
+
+           // for statistic purposes
+           sumSnr += snrV[jt->first];
+           usedRBs++;
+
            int snr = snrV[jt->first];//XXX because jt->first is a Band (=unsigned short)
            if (snr < 1)   // XXX it was < 0
                return false;
@@ -1562,6 +1608,10 @@ bool LteRealisticChannelModel::error_D2D(LteAirFrame *frame, UserControlInfo* lt
       << " node " << id << " total ERROR probability  " << per
       << " per with H-ARQ error reduction " << totalPer
       << " - CQI[" << cqi << "]- random error extracted[" << er << "]" << endl;
+
+   // emit SINR statistic
+   emit(rcvdSinr_, sumSnr / usedRBs);
+
    if (er <= totalPer)
    {
        EV << "This is NOT your lucky day (" << er << " < " << totalPer << ") -> do not receive." << endl;
@@ -1953,7 +2003,7 @@ bool LteRealisticChannelModel::computeExtCellInterference(MacNodeId eNbId, MacNo
 
 double LteRealisticChannelModel::computeExtCellPathLoss(double dist, MacNodeId nodeId)
 {
-   double movement = .0;
+   // double movement = .0;
    double speed = .0;
 
    speed = computeSpeed(nodeId, phy_->getCoord());
@@ -1971,13 +2021,13 @@ double LteRealisticChannelModel::computeExtCellPathLoss(double dist, MacNodeId n
    //    log-normal shadowing
    if (shadowing_)
    {
-       double mean = 0;
+       // double mean = 0;
 
        //        Get std deviation according to los/nlos and selected scenario
 
        //        double stdDev = getStdDev(dist < dbp, nodeId);
-       double time = 0;
-       double space = 0;
+       // double time = 0;
+       // double space = 0;
        double att;
        //
        //

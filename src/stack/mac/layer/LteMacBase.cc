@@ -16,11 +16,13 @@
 #include "stack/mac/buffer/LteMacQueue.h"
 #include "common/LteControlInfo.h"
 #include "corenetwork/binder/LteBinder.h"
+#include "corenetwork/lteCellInfo/LteCellInfo.h"
 #include "stack/mac/packet/LteHarqFeedback_m.h"
+#include "stack/mac/packet/LteMacPdu.h"
 #include "stack/mac/buffer/LteMacBuffer.h"
 #include "assert.h"
 
-#include "../../../corenetwork/lteCellInfo/LteCellInfo.h"
+using namespace omnetpp;
 
 LteMacBase::LteMacBase()
 {
@@ -51,19 +53,32 @@ LteMacBase::~LteMacBase()
 
 void LteMacBase::sendUpperPackets(cPacket* pkt)
 {
-    EV << "LteMacBase : Sending packet " << pkt->getName() << " on port MAC_to_RLC\n";
+    EV << NOW << " LteMacBase::sendUpperPackets, Sending packet " << pkt->getName() << " on port MAC_to_RLC\n";
     // Send message
-    send(pkt,up_[OUT]);
+    send(pkt,up_[OUT_GATE]);
+    nrToUpper_++;
     emit(sentPacketToUpperLayer, pkt);
 }
 
 void LteMacBase::sendLowerPackets(cPacket* pkt)
 {
-    EV << "LteMacBase : Sending packet " << pkt->getName() << " on port MAC_to_PHY\n";
+    EV << NOW << "LteMacBase::sendLowerPackets, Sending packet " << pkt->getName() << " on port MAC_to_PHY\n";
     // Send message
     updateUserTxParam(pkt);
-    send(pkt,down_[OUT]);
+    send(pkt,down_[OUT_GATE]);
+    nrToLower_++;
     emit(sentPacketToLowerLayer, pkt);
+}
+
+/*
+ * Ue with nodeId left the simulation. Ensure that no
+ * signales will be emitted via the deleted node.
+ */
+void LteMacBase::unregisterHarqBufferRx(MacNodeId nodeId){
+    HarqRxBuffers::iterator it = harqRxBuffers_.find(nodeId);
+    if (it != harqRxBuffers_.end()){
+        it->second->unregister_macUe();
+    }
 }
 
 /*
@@ -77,12 +92,14 @@ void LteMacBase::fromRlc(cPacket *pkt)
 /*
  * Lower layer handler
  */
-void LteMacBase::fromPhy(cPacket *pkt)
+void LteMacBase::fromPhy(cPacket *pktAux)
 {
     // TODO: harq test (comment fromPhy: it has only to pass pdus to proper rx buffer and
     // to manage H-ARQ feedback)
 
-    UserControlInfo *userInfo = check_and_cast<UserControlInfo *>(pkt->getControlInfo());
+    auto pkt = check_and_cast<inet::Packet*> (pktAux);
+    auto userInfo = pkt->getTag<UserControlInfo>();
+
     MacNodeId src = userInfo->getSourceId();
 
     if (userInfo->getFrameType() == HARQPKT)
@@ -101,8 +118,9 @@ void LteMacBase::fromPhy(cPacket *pkt)
 
             throw cRuntimeError("Mac::fromPhy(): Received feedback for an unexisting H-ARQ tx buffer");
         }
-        LteHarqFeedback *hfbpkt = check_and_cast<LteHarqFeedback *>(pkt);
-        htit->second->receiveHarqFeedback(hfbpkt);
+
+        auto hfbpkt = pkt->peekAtFront<LteHarqFeedback>();
+        htit->second->receiveHarqFeedback(pkt);
     }
     else if (userInfo->getFrameType() == FEEDBACKPKT)
     {
@@ -121,7 +139,8 @@ void LteMacBase::fromPhy(cPacket *pkt)
         // data packet: insert in proper rx buffer
         EV << NOW << "Mac::fromPhy: node " << nodeId_ << " Received DATA packet" << endl;
 
-        LteMacPdu *pdu = check_and_cast<LteMacPdu *>(pkt);
+        auto pduAux = pkt->peekAtFront<LteMacPdu>();
+        auto pdu = pkt;
         Codeword cw = userInfo->getCw();
         HarqRxBuffers::iterator hrit = harqRxBuffers_.find(src);
         if (hrit != harqRxBuffers_.end())
@@ -302,10 +321,10 @@ void LteMacBase::initialize(int stage)
     if (stage == inet::INITSTAGE_LOCAL)
     {
         /* Gates initialization */
-        up_[IN] = gate("RLC_to_MAC");
-        up_[OUT] = gate("MAC_to_RLC");
-        down_[IN] = gate("PHY_to_MAC");
-        down_[OUT] = gate("MAC_to_PHY");
+        up_[IN_GATE] = gate("RLC_to_MAC");
+        up_[OUT_GATE] = gate("MAC_to_RLC");
+        down_[IN_GATE] = gate("PHY_to_MAC");
+        down_[OUT_GATE] = gate("MAC_to_PHY");
 
         /* Create buffers */
         queueSize_ = par("queueSize");
@@ -323,7 +342,16 @@ void LteMacBase::initialize(int stage)
         ttiTick_ = new cMessage("ttiTick_");
         ttiTick_->setSchedulingPriority(1);        // TTI TICK after other messages
         scheduleAt(NOW + TTI, ttiTick_);
+
+        /* statistics */
+        statDisplay_ = par("statDisplay");
         totalOverflowedBytes_ = 0;
+        nrFromUpper_ = 0;
+        nrFromLower_ = 0;
+        nrToUpper_ = 0;
+        nrToLower_ = 0;
+
+        /* register signals */
         macBufferOverflowDl_ = registerSignal("macBufferOverFlowDl");
         macBufferOverflowUl_ = registerSignal("macBufferOverFlowUl");
         if (isD2DCapable())
@@ -356,16 +384,18 @@ void LteMacBase::handleMessage(cMessage* msg)
 
     cGate* incoming = pkt->getArrivalGate();
 
-    if (incoming == down_[IN])
+    if (incoming == down_[IN_GATE])
     {
         // message from PHY_to_MAC gate (from lower layer)
         emit(receivedPacketFromLowerLayer, pkt);
+        nrFromLower_++;
         fromPhy(pkt);
     }
     else
     {
         // message from RLC_to_MAC gate (from upper layer)
         emit(receivedPacketFromUpperLayer, pkt);
+        nrFromUpper_++;
         fromRlc(pkt);
     }
     return;
@@ -380,3 +410,14 @@ void LteMacBase::deleteModule(){
     cSimpleModule::deleteModule();
 }
 
+void LteMacBase::refreshDisplay() const
+{
+    if(statDisplay_){
+        char buf[80];
+
+        sprintf(buf, "hl: %ld in, %ld out\nll: %ld in, %ld out", nrFromUpper_, nrToUpper_, nrFromLower_, nrToLower_);
+
+        getDisplayString().setTagArg("t", 0, buf);
+        getDisplayString().setTagArg("bgtt", 0, "Number of packets in and ouf the higher layer (hl) and the lower layer (ll).");
+    }
+}

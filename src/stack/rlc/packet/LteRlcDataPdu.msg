@@ -14,7 +14,11 @@
 // that receiver needs in order to
 // correctly decode the original packets
 //
-packet LteRlcDataPdu
+
+import inet.common.INETDefs;
+import inet.common.packet.chunk.Chunk;
+
+class LteRlcDataPdu extends inet::FieldsChunk
 {
     @customize(true);
 }

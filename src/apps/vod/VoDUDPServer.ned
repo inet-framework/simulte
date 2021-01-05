@@ -8,10 +8,10 @@
 //
 
 package lte.apps.vod;
-import inet.applications.contract.IUDPApp;
+import inet.applications.contract.IApp;
 
 
-simple VoDUDPServer like IUDPApp
+simple VoDUDPServer like IApp
 {
     parameters:
         int localPort; // port to listen on
@@ -24,10 +24,10 @@ simple VoDUDPServer like IUDPApp
         int destPort;
         volatile double clientsStartStreamTime = default(0);
         string clientsReqTime = default("");
-        double startTime @unit("s") = default(0);
+        double startTime @unit("s") = default(0s);
 
         @display("i=block/app");
     gates:
-        input udpIn @labels(UDPControlInfo/up);
-        output udpOut @labels(UDPControlInfo/down);
+        input socketIn @labels(UdpControlInfo/up);
+        output socketOut @labels(UdpControlInfo/down);
 }

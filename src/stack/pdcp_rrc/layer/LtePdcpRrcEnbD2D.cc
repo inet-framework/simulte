@@ -10,25 +10,32 @@
 #include "stack/pdcp_rrc/layer/LtePdcpRrcEnbD2D.h"
 #include "inet/networklayer/common/L3AddressResolver.h"
 #include "stack/d2dModeSelection/D2DModeSwitchNotification_m.h"
+#include "inet/common/packet/Packet.h"
 
 Define_Module(LtePdcpRrcEnbD2D);
+
+using namespace omnetpp;
+using namespace inet;
 
 /*
  * Upper Layer handlers
  */
-void LtePdcpRrcEnbD2D::fromDataPort(cPacket *pkt)
+void LtePdcpRrcEnbD2D::fromDataPort(cPacket *pktAux)
 {
-    emit(receivedPacketFromUpperLayer, pkt);
+    emit(receivedPacketFromUpperLayer, pktAux);
 
     // Control Informations
-    FlowControlInfo* lteInfo = check_and_cast<FlowControlInfo*>(pkt->removeControlInfo());
+
+    auto pkt = check_and_cast<Packet *>(pktAux);
+    auto lteInfo = pkt->getTag<FlowControlInfo>();
+
     setTrafficInformation(pkt, lteInfo);
-    headerCompress(pkt, lteInfo->getHeaderSize()); // header compression
+    headerCompress(pkt);
 
     // get source info
-    IPv4Address srcAddr = IPv4Address(lteInfo->getSrcAddr());
+    Ipv4Address srcAddr = Ipv4Address(lteInfo->getSrcAddr());
     // get destination info
-    IPv4Address destAddr = IPv4Address(lteInfo->getDstAddr());
+    Ipv4Address destAddr = Ipv4Address(lteInfo->getDstAddr());
     MacNodeId srcId, destId;
 
 
@@ -39,7 +46,7 @@ void LtePdcpRrcEnbD2D::fromDataPort(cPacket *pkt)
     lteInfo->setDirection(getDirection());
 
     // check if src and dest of the flow are D2D-capable (currently in IM)
-    if (binder_->getD2DCapability(srcId, destId))
+    if (getNodeTypeById(srcId) == UE && getNodeTypeById(destId) == UE && binder_->getD2DCapability(srcId, destId))
     {
         // this way, we record the ID of the endpoint even if the connection is in IM
         // this is useful for mode switching
@@ -54,7 +61,7 @@ void LtePdcpRrcEnbD2D::fromDataPort(cPacket *pkt)
 
     // Cid Request
     EV << NOW << " LtePdcpRrcEnbD2D : Received CID request for Traffic [ " << "Source: "
-       << IPv4Address(lteInfo->getSrcAddr()) << "@" << lteInfo->getSrcPort()
+       << Ipv4Address(lteInfo->getSrcAddr()) << "@" << lteInfo->getSrcPort()
        << " Destination: " << destAddr << "@" << lteInfo->getDstPort()
        << " , Direction: " << dirToA((Direction)lteInfo->getDirection()) << " ]\n";
 
@@ -95,22 +102,51 @@ void LtePdcpRrcEnbD2D::fromDataPort(cPacket *pkt)
     lteInfo->setSourceId(nodeId_);
     lteInfo->setDestId(getDestId(lteInfo));
 
+    unsigned int headerLength;
+    std::string portName;
+    omnetpp::cGate* gate;
+
+    switch(lteInfo->getRlcType()){
+    case UM:
+        headerLength = PDCP_HEADER_UM;
+        portName = "UM_Sap$o";
+        gate = umSap_[OUT_GATE];
+        break;
+    case AM:
+        headerLength = PDCP_HEADER_AM;
+        portName = "AM_Sap$o";
+        gate = amSap_[OUT_GATE];
+        break;
+    case TM:
+        portName = "TM_Sap$o";
+        gate = tmSap_[OUT_GATE];
+        headerLength = 1;
+        break;
+    default:
+        throw cRuntimeError("LtePdcpRrcEnbD2D::fromDataport(): invalid RlcType %d", lteInfo->getRlcType());
+        portName = "undefined";
+        gate = nullptr;
+        headerLength = 1;
+    }
+
     // PDCP Packet creation
-    LtePdcpPdu* pdcpPkt = new LtePdcpPdu("LtePdcpPdu");
-    pdcpPkt->setByteLength(lteInfo->getRlcType() == UM ? PDCP_HEADER_UM : PDCP_HEADER_AM);
-    pdcpPkt->encapsulate(pkt);
-    pdcpPkt->setControlInfo(lteInfo);
+    auto pdcpPkt = makeShared<LtePdcpPdu>();
+    pdcpPkt->setChunkLength(B(headerLength));
+    pkt->trim();
+    pkt->insertAtFront(pdcpPkt);
 
     EV << "LtePdcp : Preparing to send "
        << lteTrafficClassToA((LteTrafficClass) lteInfo->getTraffic())
        << " traffic\n";
-    EV << "LtePdcp : Packet size " << pdcpPkt->getByteLength() << " Bytes\n";
-    EV << "LtePdcp : Sending packet " << pdcpPkt->getName() << " on port "
-       << (lteInfo->getRlcType() == UM ? "UM_Sap$o\n" : "AM_Sap$o\n");
+    EV << "LtePdcp : Packet size " << pkt->getByteLength() << " Bytes\n";
+    EV << "LtePdcp : Sending packet " << pkt->getName() << " on port "
+       << portName << std::endl;
+
+    pkt->addTagIfAbsent<PacketProtocolTag>()->setProtocol(&LteProtocol::pdcp);
 
     // Send message
-    send(pdcpPkt, (lteInfo->getRlcType() == UM ? umSap_[OUT] : amSap_[OUT]));
-    emit(sentPacketToLowerLayer, pdcpPkt);
+    send(pkt, gate);
+    emit(sentPacketToLowerLayer, pkt);
 }
 
 void LtePdcpRrcEnbD2D::initialize(int stage)
@@ -120,18 +156,17 @@ void LtePdcpRrcEnbD2D::initialize(int stage)
 
 void LtePdcpRrcEnbD2D::handleMessage(cMessage* msg)
 {
-    cPacket* pkt = check_and_cast<cPacket *>(msg);
+    auto pkt = check_and_cast<inet::Packet *>(msg);
+    auto chunk = pkt->peekAtFront<Chunk>();
 
     // check whether the message is a notification for mode switch
-    if (strcmp(pkt->getName(),"D2DModeSwitchNotification") == 0)
+    if (inet::dynamicPtrCast<const D2DModeSwitchNotification>(chunk) != nullptr)
     {
         EV << "LtePdcpRrcEnbD2D::handleMessage - Received packet " << pkt->getName() << " from port " << pkt->getArrivalGate()->getName() << endl;
 
-        D2DModeSwitchNotification* switchPkt = check_and_cast<D2DModeSwitchNotification*>(pkt);
-
+        auto switchPkt = pkt->peekAtFront<D2DModeSwitchNotification>();
         // call handler
         pdcpHandleD2DModeSwitch(switchPkt->getPeerId(), switchPkt->getNewMode());
-
         delete pkt;
     }
     else

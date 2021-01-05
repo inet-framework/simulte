@@ -18,23 +18,23 @@
  * @brief Muxer for relay
  *
  */
-class UnUuMux : public cSimpleModule
+class UnUuMux : public omnetpp::cSimpleModule
 {
   protected:
     virtual void initialize();
-    virtual void handleMessage(cMessage *msg);
+    virtual void handleMessage(omnetpp::cMessage *msg);
 
   private:
-    void handleUpperMessage(cMessage *msg);
-    void handleLowerMessage(cMessage *msg);
+    void handleUpperMessage(omnetpp::cMessage *msg);
+    void handleLowerMessage(omnetpp::cMessage *msg);
 
     /**
      * Data structures
      */
 
-    cGate* upUn_[2];
-    cGate* upUu_[2];
-    cGate* down_[2];
+    omnetpp::cGate* upUn_[2];
+    omnetpp::cGate* upUu_[2];
+    omnetpp::cGate* down_[2];
 };
 
 #endif

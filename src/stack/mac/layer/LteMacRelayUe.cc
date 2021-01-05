@@ -13,11 +13,10 @@ Define_Module(LteMacRelayUe);
 
 LteMacRelayUe::LteMacRelayUe()
 {
-    // TODO Auto-generated constructor stub
     nodeType_ = RELAY;
 }
 
 LteMacRelayUe::~LteMacRelayUe()
 {
-    // TODO Auto-generated destructor stub
+
 }

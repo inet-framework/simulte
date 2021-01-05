@@ -7,19 +7,25 @@
 // and cannot be removed from it.
 //
 
-
+#include <omnetpp.h>
+#include <inet/networklayer/common/L3AddressResolver.h>
+#include <inet/transportlayer/sctp/SctpAssociation.h>
 #include "x2/X2AppClient.h"
+
+#include <inet/transportlayer/contract/sctp/SctpCommand_m.h>
 #include "corenetwork/binder/LteBinder.h"
 #include "stack/mac/layer/LteMacEnb.h"
-#include "inet/networklayer/common/L3AddressResolver.h"
-#include "inet/transportlayer/sctp/SCTPAssociation.h"
-#include "inet/transportlayer/contract/sctp/SCTPCommand_m.h"
+
 
 Define_Module(X2AppClient);
 
+using namespace omnetpp;
+using namespace inet;
+
+
 void X2AppClient::initialize(int stage)
 {
-    SCTPClient::initialize(stage);
+    SctpClient::initialize(stage);
     if (stage==inet::INITSTAGE_LOCAL)
     {
         x2ManagerOut_ = gate("x2ManagerOut");
@@ -31,7 +37,7 @@ void X2AppClient::initialize(int stage)
 
         // get the connectAddress and the corresponding X2 id
         L3Address addr = L3AddressResolver().resolve(par("connectAddress").stringValue());
-        X2NodeId peerId = getBinder()->getX2NodeId(addr.toIPv4());
+        X2NodeId peerId = getBinder()->getX2NodeId(addr.toIpv4());
 
         X2NodeId nodeId = check_and_cast<LteMacEnb*>(getParentModule()->getParentModule()->getSubmodule("lteNic")->getSubmodule("mac"))->getMacCellId();
         getBinder()->setX2PeerAddress(nodeId, peerId, addr);
@@ -42,37 +48,33 @@ void X2AppClient::initialize(int stage)
     }
 }
 
-void X2AppClient::socketEstablished(int32_t, void *, unsigned long int buffer )
+void X2AppClient::socketEstablished(inet::SctpSocket *socket, unsigned long int buffer)
 {
     EV << "X2AppClient: connected\n";
 }
 
-void X2AppClient::socketDataArrived(int32_t, void *, cPacket *msg, bool)
+void X2AppClient::socketDataArrived(SctpSocket *, Packet *msg, bool)
 {
     packetsRcvd++;
 
-    EV << "X2AppClient::socketDataArrived - Client received packet Nr " << packetsRcvd << " from SCTP\n";
-    emit(rcvdPkSignal, msg);
+    EV << "X2AppClient::socketDataArrived - Client received packet Nr " << packetsRcvd << " from Sctp\n";
+    emit(packetReceivedSignal, msg);
     bytesRcvd += msg->getByteLength();
 
-    SCTPSimpleMessage *smsg = check_and_cast<SCTPSimpleMessage*>(msg);
-    if (smsg->getEncaps())
+    msg->removeTagIfPresent<SctpSendReq>();
+
+    if (msg->getDataLength() > B(0))
     {
         EV << "X2AppClient::socketDataArrived - Forwarding packet to the X2 manager" << endl;
 
-        // extract encapsulated packet
-        cMessage* encapMsg = smsg->decapsulate();
-
         // forward to x2manager
-        send(encapMsg, x2ManagerOut_);
-
-        delete smsg;
+        send(msg, x2ManagerOut_);
     }
     else
     {
         EV << "X2AppClient::socketDataArrived - No encapsulated message. Discard." << endl;
 
-        // TODO: throw exception?
+        throw cRuntimeError("X2AppClient::socketDataArrived: No encapsulated message.");
 
         delete msg;
     }

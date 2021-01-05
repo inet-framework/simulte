@@ -12,17 +12,17 @@ package lte.x2;
 // LteX2App
 //
 // This module represents the X2 application, which works on top of the 
-// SCTP transport protocol (see 3GPP TS 36.423)
+// Sctp transport protocol (see 3GPP TS 36.423)
 // It contains two submodules:
 // - a server that sends data to the peering X2App
 // - a client that receive data from the peering X2App
 // 
 // An eNodeB has one X2App module for each peering eNodeB (see eNodeB.ned).
-// Since SCTP is connection-oriented, the client submodule starts the association
+// Since Sctp is connection-oriented, the client submodule starts the association
 // by sending INIT message at given time instant (configurable from .ini) to the 
 // peer's server module.
 // Once the connection has been established, the server submodule receives messages
-// from the X2 Manager and send them to the peer (via SCTP). The client submodule receives the 
+// from the X2 Manager and send them to the peer (via Sctp). The client submodule receives the 
 // message and forward it to the X2 Manager for processing.
 //
 module LteX2App
@@ -31,8 +31,8 @@ module LteX2App
         @display("i=block/app;bgb=258,148");
 
     gates:
-        input sctpIn[2] @labels(SCTPCommand/up);
-        output sctpOut[2] @labels(SCTPCommand/down);
+        input sctpIn[2] @labels(SctpCommand/up);
+        output sctpOut[2] @labels(SctpCommand/down);
 
         input x2ManagerIn @labels(X2Msg);
         output x2ManagerOut @labels(X2Msg);
@@ -48,12 +48,12 @@ module LteX2App
     connections:
 
         //# client connections
-        sctpIn[0] --> client.sctpIn;
-        sctpOut[0] <-- client.sctpOut;
+        sctpIn[0] --> client.socketIn;
+        sctpOut[0] <-- client.socketOut;
 
 		//# server connections
-        sctpIn[1] --> server.sctpIn;
-        sctpOut[1] <-- server.sctpOut;
+        sctpIn[1] --> server.socketIn;
+        sctpOut[1] <-- server.socketOut;
 
         //# X2 manager connections
         x2ManagerIn --> server.x2ManagerIn;

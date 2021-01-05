@@ -1,11 +1,21 @@
-
+//
+//                           SimuLTE
+//
+// This file is part of a software released under the license included in file
+// "license.pdf". This license can be also found at http://www.ltesimulator.com/
+// The above file and the present reference are part of the software itself,
+// and cannot be removed from it.
+//
 
 #include <cmath>
+#include <inet/common/TimeTag_m.h>
 #include "CbrSender.h"
 
 #define round(x) floor((x) + 0.5)
 
 Define_Module(CbrSender);
+using namespace inet;
+using namespace std;
 
 simsignal_t CbrSender::cbrGeneratedThroughtputSignal_ = registerSignal("cbrGeneratedThroughtputSignal");
 simsignal_t CbrSender::cbrGeneratedBytesSignal_ = registerSignal("cbrGeneratedBytesSignal");
@@ -14,8 +24,8 @@ simsignal_t CbrSender::cbrSentPktSignal_ = registerSignal("cbrSentPktSignal");
 CbrSender::CbrSender()
 {
     initialized_ = false;
-    selfSource_ = NULL;
-    selfSender_ = NULL;
+    selfSource_ = nullptr;
+    selfSender_ = nullptr;
 }
 
 CbrSender::~CbrSender()
@@ -77,7 +87,7 @@ void CbrSender::initTraffic()
 {
     std::string destAddress = par("destAddress").stringValue();
     cModule* destModule = getModuleByPath(par("destAddress").stringValue());
-    if (destModule == NULL)
+    if (destModule == nullptr)
     {
         // this might happen when users are created dynamically
         EV << simTime() << "CbrSender::initTraffic - destination " << destAddress << " not found" << endl;
@@ -91,17 +101,13 @@ void CbrSender::initTraffic()
         delete initTraffic_;
 
         destAddress_ = inet::L3AddressResolver().resolve(par("destAddress").stringValue());
-        socket.setOutputGate(gate("udpOut"));
+        socket.setOutputGate(gate("socketOut"));
         socket.bind(localPort_);
 
         EV << simTime() << "CbrSender::initialize - binding to port: local:" << localPort_ << " , dest: " << destAddress_.str() << ":" << destPort_ << endl;
 
         // calculating traffic starting time
         simtime_t startTime = par("startTime");
-
-        // TODO maybe un-necesessary
-        // this conversion is made in order to obtain ms-aligned start time, even in case of random generated ones
-        simtime_t offset = (round(SIMTIME_DBL(startTime)*1000)/1000);
 
         scheduleAt(simTime()+startTime, selfSource_);
         EV << "\t starting traffic in " << startTime << " seconds " << endl;
@@ -110,15 +116,15 @@ void CbrSender::initTraffic()
 
 void CbrSender::sendCbrPacket()
 {
-    EV << "CbrSender::sendCbrPacket - Sending frame[" << iDframe_ << "/" << nframes_ << "], next packet at "<< simTime() + sampling_time << endl;
-
-    emit(cbrSentPktSignal_, (long)iDframe_);
-
-    CbrPacket* packet = new CbrPacket("Cbr");
-    packet->setNframes(nframes_);
-    packet->setIDframe(iDframe_++);
-    packet->setTimestamp(simTime());
-    packet->setByteLength(size_);
+    Packet* packet = new Packet("CBR");
+    auto cbr = makeShared<CbrPacket>();
+    cbr->setNframes(nframes_);
+    cbr->setIDframe(iDframe_++);
+    cbr->setPayloadTimestamp(simTime());
+    cbr->setPayloadSize(size_);
+    cbr->setChunkLength(B(size_));
+    cbr->addTag<CreationTimeTag>()->setCreationTime(simTime());
+    packet->insertAtBack(cbr);
 
     emit(cbrGeneratedBytesSignal_,size_);
 

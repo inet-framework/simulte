@@ -12,13 +12,16 @@
 //
 // Packet used by the ~VoPSender and ~VoIPReceiver modules.
 //
-packet VoipPacket
-{
+
+import inet.common.INETDefs;
+import inet.common.packet.chunk.Chunk;
+
+class VoipPacket extends inet::FieldsChunk {
     unsigned int IDtalk;
     unsigned int nframes;
     unsigned int IDframe;
-    simtime_t timestamp;
     simtime_t arrivalTime;
     simtime_t playoutTime;
-    unsigned int size;
+    simtime_t payloadTimestamp;
+    unsigned int payloadSize;
 }

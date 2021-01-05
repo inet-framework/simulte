@@ -13,15 +13,7 @@
 
 Define_Module(InternetMux);
 
-InternetMux::InternetMux()
-{
-    // TODO Auto-generated constructor stub
-}
-
-InternetMux::~InternetMux()
-{
-    // TODO Auto-generated destructor stub
-}
+using namespace inet;
 
 void
 InternetMux::initialize()
@@ -38,7 +30,7 @@ InternetMux::handleMessage(cMessage *msg)
         // finding next hop for destination node
         FlowControlInfo* controlInfo = check_and_cast<FlowControlInfo*>(msg->getControlInfo());
 
-        MacNodeId dest = getBinder()->getMacNodeId(IPv4Address(controlInfo->getDstAddr()));
+        MacNodeId dest = getBinder()->getMacNodeId(Ipv4Address(controlInfo->getDstAddr()));
 
         MacNodeId nextHop = getBinder()->getNextHop(dest);
 

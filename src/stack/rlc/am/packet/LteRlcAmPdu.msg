@@ -7,15 +7,8 @@
 // and cannot be removed from it.
 //
 
-
-cplusplus {{
-#include "stack/rlc/packet/LteRlcPdu.h"
-#include "stack/rlc/LteRlcDefs.h"
-}}
-
-packet LteRlcPdu;
-enum LteAmType;
-
+import  stack.rlc.LteRlcDefs;
+import  stack.rlc.packet.LteRlcPdu;
 
 // Rlc Am Control fields for AM control PDUs
 //class LteRlcAmControlInfo
@@ -26,12 +19,12 @@ enum LteAmType;
 //     abstract bool bitmap[];
 //}
 
-packet LteRlcAmPdu extends LteRlcPdu
+class LteRlcAmPdu extends LteRlcPdu
 {
     @customize(true);
     unsigned short amType enum(LteAmType);
     unsigned short txNumber;
     int firstSn;
-     int lastSn;
-     abstract bool bitmap[];
+    int lastSn;
+    abstract bool bitmap[];
 }

@@ -10,14 +10,15 @@
 #ifndef LTE_LTEX2MANAGER_H_
 #define LTE_LTEX2MANAGER_H_
 
+#include <inet/networklayer/common/L3AddressResolver.h>
+
 #include "common/LteCommon.h"
 #include "x2/packet/LteX2Message.h"
 #include "x2/packet/X2ControlInfo_m.h"
-#include "inet/networklayer/common/L3AddressResolver.h"
 #include "x2/X2AppClient.h"
 #include "corenetwork/binder/LteBinder.h"
 
-class LteX2Manager : public cSimpleModule {
+class LteX2Manager : public omnetpp::cSimpleModule {
 
     // X2 identifier
     X2NodeId nodeId_;
@@ -34,16 +35,13 @@ class LteX2Manager : public cSimpleModule {
 
 protected:
 
-    void initialize(int stage);
-    virtual int numInitStages() const { return inet::NUM_INIT_STAGES; }
-    void handleMessage(cMessage *msg);
+    void initialize(int stage) override;
+    virtual int numInitStages() const override { return inet::NUM_INIT_STAGES; }
+    void handleMessage(omnetpp::cMessage *msg) override;
 
-    virtual void fromStack(cPacket* pkt);
-    virtual void fromX2(cPacket* pkt);
+    virtual void fromStack(inet::Packet* pkt);
+    virtual void fromX2(inet::Packet* pkt);
 
-public:
-    LteX2Manager();
-    virtual ~LteX2Manager();
 };
 
 #endif /* LTE_LTEX2MANAGER_H_ */

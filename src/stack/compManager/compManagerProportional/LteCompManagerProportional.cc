@@ -10,6 +10,7 @@
 #include "stack/compManager/compManagerProportional/LteCompManagerProportional.h"
 
 Define_Module(LteCompManagerProportional);
+using namespace inet;
 
 void LteCompManagerProportional::initialize()
 {
@@ -134,6 +135,8 @@ X2CompProportionalReplyIE* LteCompManagerProportional::buildCoordinatorReply(X2N
     {
         numBlocks = partitioning_[index];
         band = offset_[index];
+    } else {
+        EV << "LteCompManagerProportional::buildCoordinatorReply: no information for " << clientId << " available (number of requested blocks unknown)" << std::endl;
     }
 
     // build map for each node
@@ -157,17 +160,19 @@ X2CompProportionalReplyIE* LteCompManagerProportional::buildCoordinatorReply(X2N
     return replyIe;
 }
 
-void LteCompManagerProportional::handleClientRequest(X2CompMsg* compMsg)
+void LteCompManagerProportional::handleClientRequest(inet::Ptr<X2CompMsg> compMsg)
 {
     X2NodeId sourceId = compMsg->getSourceId();
     while (compMsg->hasIe())
     {
         X2InformationElement* ie = compMsg->popIe();
-        if (ie->getType() != COMP_REQUEST_IE)
-            throw cRuntimeError("LteCompManagerProportional::handleClientRequest - Expected COMP_REQUEST_IE");
+        if (ie->getType() != COMP_PROP_REQUEST_IE)
+            throw cRuntimeError("LteCompManagerProportional::handleClientRequest - Expected COMP_PROP_REQUEST_IE");
 
         X2CompProportionalRequestIE* requestIe = check_and_cast<X2CompProportionalRequestIE*>(ie);
         unsigned int reqBlocks = requestIe->getNumBlocks();
+
+        EV << "LteCompManagerProportional::handleClientRequest: " << this->getFullPath() << "received request from " << sourceId << " for " << reqBlocks << " blocks." << std::endl;
 
         // update map entry for this node
         if (reqBlocksMap_.find(sourceId) == reqBlocksMap_.end())
@@ -179,20 +184,22 @@ void LteCompManagerProportional::handleClientRequest(X2CompMsg* compMsg)
     }
 }
 
-void LteCompManagerProportional::handleCoordinatorReply(X2CompMsg* compMsg)
+void LteCompManagerProportional::handleCoordinatorReply(inet::Ptr<X2CompMsg> compMsg)
 {
     while (compMsg->hasIe())
     {
         X2InformationElement* ie = compMsg->popIe();
-        if (ie->getType() != COMP_REPLY_IE)
+        if (ie->getType() != COMP_PROP_REPLY_IE)
             throw cRuntimeError(
-                    "LteCompManagerProportional::handleCoordinatorReply - Expected COMP_REPLY_IE");
+                    "LteCompManagerProportional::handleCoordinatorReply - Expected COMP_PROP_REPLY_IE");
 
         // parse reply message
-
         X2CompProportionalReplyIE* replyIe = check_and_cast<X2CompProportionalReplyIE*>(ie);
         std::vector<CompRbStatus> allowedBlocksMap = replyIe->getAllowedBlocksMap();
         UsableBands usableBands = parseAllowedBlocksMap(allowedBlocksMap);
+
+        EV << "at" << this->getFullPath() << " LteCompManagerProportional::handleCoordinatorReply: " << usableBands.size() << " bands usable." << std::endl;
+
         setUsableBands(usableBands);
 
         delete replyIe;
@@ -270,8 +277,6 @@ std::vector<unsigned int> LteCompManagerProportional::roundVector(std::vector<do
         }
 
         // TODO -  check numerical errors
-    //    if (integerTot < sum)
-    //        vec[len-1]++;
 
         // set the integer vector with the elements in their original positions
         for (unsigned int i = 0; i < integerVec.size(); i++)

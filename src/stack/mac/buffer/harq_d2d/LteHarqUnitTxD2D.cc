@@ -10,6 +10,8 @@
 #include "stack/mac/buffer/harq_d2d/LteHarqUnitTxD2D.h"
 #include "stack/mac/layer/LteMacEnb.h"
 
+using namespace omnetpp;
+
 LteHarqUnitTxD2D::LteHarqUnitTxD2D(unsigned char acid, Codeword cw, LteMacBase *macOwner, LteMacBase *dstMac)
     : LteHarqUnitTx(acid, cw, macOwner, dstMac)
 {
@@ -38,8 +40,7 @@ bool LteHarqUnitTxD2D::pduFeedback(HarqAcknowledgment a)
     EV << "LteHarqUnitTxD2D::pduFeedback - Welcome!" << endl;
     double sample;
     bool reset = false;
-    UserControlInfo *lteInfo;
-    lteInfo = check_and_cast<UserControlInfo *>(pdu_->getControlInfo());
+    auto lteInfo = (pdu_->getTag<UserControlInfo>());
     short unsigned int dir = lteInfo->getDirection();
     unsigned int ntx = transmissions_;
     if (!(status_ == TXHARQ_PDU_WAITING))
@@ -49,7 +50,7 @@ bool LteHarqUnitTxD2D::pduFeedback(HarqAcknowledgment a)
     {
         // pdu_ has been sent and received correctly
         EV << "\t pdu_ has been sent and received correctly " << endl;
-        pdu_->removeControlInfo();
+        removeAllSimuLteTags(pdu_);
         resetUnit();
         reset = true;
         sample = 0;
@@ -63,7 +64,7 @@ bool LteHarqUnitTxD2D::pduFeedback(HarqAcknowledgment a)
             EV << NOW << " LteHarqUnitTxD2D::pduFeedback H-ARQ process  " << (unsigned int)acid_ << " Codeword " << cw_ << " PDU "
                << pdu_->getId() << " discarded "
             "(max retransmissions reached) : " << maxHarqRtx_ << endl;
-            pdu_->removeControlInfo();
+            removeAllSimuLteTags(pdu_);
             resetUnit();
             reset = true;
         }
@@ -82,7 +83,7 @@ bool LteHarqUnitTxD2D::pduFeedback(HarqAcknowledgment a)
     }
 
     LteMacBase* ue;
-    if (dir == DL || dir == D2D)
+    if (dir == DL || dir == D2D || dir == D2D_MULTI)
     {
         ue = dstMac_;
     }
@@ -96,7 +97,7 @@ bool LteHarqUnitTxD2D::pduFeedback(HarqAcknowledgment a)
     }
 
     // emit H-ARQ statistics
-    if (dir == D2D)
+    if (dir == D2D || dir == D2D_MULTI)
     {
         switch (ntx)
         {
@@ -118,7 +119,7 @@ bool LteHarqUnitTxD2D::pduFeedback(HarqAcknowledgment a)
 
         check_and_cast<LteMacUeD2D*>(ue)->emit(harqErrorRateD2D_, sample);
 
-        if (reset)
+        if (reset || dir == D2D_MULTI)
         {
             check_and_cast<LteMacUeD2D*>(ue)->emit(macPacketLossD2D_, sample);
             check_and_cast<LteMacEnbD2D*>(nodeB_)->emit(macCellPacketLossD2D_, sample);
@@ -156,7 +157,7 @@ bool LteHarqUnitTxD2D::pduFeedback(HarqAcknowledgment a)
     return reset;
 }
 
-LteMacPdu *LteHarqUnitTxD2D::extractPdu()
+Packet *LteHarqUnitTxD2D::extractPdu()
 {
     if (!(status_ == TXHARQ_PDU_SELECTED))
         throw cRuntimeError("Trying to extract macPdu from not selected H-ARQ unit");
@@ -164,13 +165,12 @@ LteMacPdu *LteHarqUnitTxD2D::extractPdu()
     txTime_ = NOW;
     transmissions_++;
     status_ = TXHARQ_PDU_WAITING; // waiting for feedback
-    UserControlInfo *lteInfo = check_and_cast<UserControlInfo *>(
-        pdu_->getControlInfo());
+    auto lteInfo = pdu_->getTag<UserControlInfo>();
     lteInfo->setTxNumber(transmissions_);
     lteInfo->setNdi((transmissions_ == 1) ? true : false);
     EV << "LteHarqUnitTxD2D::extractPdu - ndi set to " << ((transmissions_ == 1) ? "true" : "false") << endl;
 
-    LteMacPdu* extractedPdu = pdu_->dup();
+    auto extractedPdu = pdu_->dup();
     if (lteInfo->getDirection() == D2D_MULTI)
     {
         // for multicast, there is no feedback to wait, so reset the unit.

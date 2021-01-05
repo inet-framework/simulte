@@ -9,10 +9,10 @@
 
 package lte.apps.voip;
 
-import inet.applications.contract.IUDPApp;
+import inet.applications.contract.IApp;
 
 
-simple VoIPReceiver like IUDPApp
+simple VoIPReceiver like IApp
 {
     parameters:
         int localPort = default(3000);
@@ -42,7 +42,7 @@ simple VoIPReceiver like IUDPApp
         @statistic[voIPReceivedThroughput](title="Throughput received at the application level"; unit="Bps"; source="voIPReceivedThroughput"; record=mean,vector);
         @display("i=block/source");
     gates:
-        output udpOut;
-        input udpIn;
+        output socketOut;
+        input socketIn;
 }
 

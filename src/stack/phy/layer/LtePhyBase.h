@@ -24,8 +24,6 @@
 #include "stack/mac/amc/LteAmc.h"
 #include "stack/phy/ChannelModel/LteChannelModel.h"
 #include "stack/phy/feedback/LteFeedbackComputationRealistic.h"
-//#include "stack/phy/ChannelModel/LteRealisticChannelModel.h"
-//#include "stack/phy/ChannelModel/LteDummyChannelModel.h"
 
 /**
  * @class LtePhy
@@ -126,16 +124,16 @@ class LtePhyBase : public ChannelAccess
 
     double carrierFrequency_;
     //Statistics
-    simsignal_t averageCqiDl_;
-    simsignal_t averageCqiUl_;
-    simsignal_t averageCqiD2D_;
+    omnetpp::simsignal_t averageCqiDl_;
+    omnetpp::simsignal_t averageCqiUl_;
+    omnetpp::simsignal_t averageCqiD2D_;
 
     // User that are trasmitting (uplink)
     //receiveng(downlink) current packet
     MacNodeId connectedNodeId_;
 
     // last time that the node has transmitted (currently, used only by UEs)
-    simtime_t lastActive_;
+    omnetpp::simtime_t lastActive_;
 
     public:
 
@@ -189,10 +187,10 @@ class LtePhyBase : public ChannelAccess
      *
      * @param stage initialization stage
      */
-    virtual void initialize(int stage);
+    virtual void initialize(int stage) override;
 
-    virtual int numInitStages() const {
-        return std::max(INITSTAGE_LAST+1, ChannelAccess::numInitStages());
+    virtual int numInitStages() const override {
+        return std::max(inet::INITSTAGE_LAST+1, ChannelAccess::numInitStages());
     }
 
     /**
@@ -200,7 +198,7 @@ class LtePhyBase : public ChannelAccess
      *
      * @param msg message received from stack or from air channel
      */
-    virtual void handleMessage(cMessage *msg);
+    virtual void handleMessage(omnetpp::cMessage *msg) override;
 
     /**
      * Sends a frame to all NICs in range.
@@ -238,7 +236,7 @@ class LtePhyBase : public ChannelAccess
      *
      * @param msg packet received from LteStack
      */
-    virtual void handleUpperMessage(cMessage* msg);
+    virtual void handleUpperMessage(omnetpp::cMessage* msg);
 
     /**
      * Processes messages received from the wireless channel.
@@ -273,9 +271,9 @@ class LtePhyBase : public ChannelAccess
      *
      * @param msg LteAirFrame received from the air channel
      */
-    virtual void handleAirFrame(cMessage* msg) = 0;
+    virtual void handleAirFrame(omnetpp::cMessage* msg) = 0;
 
-    virtual void handleSelfMessage(cMessage *msg) = 0;
+    virtual void handleSelfMessage(omnetpp::cMessage *msg) = 0;
 
     virtual void handleControlMsg(LteAirFrame *frame, UserControlInfo *userInfo);
 
@@ -311,7 +309,7 @@ class LtePhyBase : public ChannelAccess
     /*
      * Returns the time of the last transmission performed
      */
-    simtime_t getLastActive() { return lastActive_; }
+    omnetpp::simtime_t getLastActive() { return lastActive_; }
 };
 
 #endif  /* _LTE_AIRPHYBASE_H_ */

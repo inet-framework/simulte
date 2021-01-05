@@ -10,25 +10,25 @@
 #include "stack/rlc/am/packet/LteRlcAmPdu.h"
 
 void
-LteRlcAmPdu::setBitmapArraySize(unsigned int size)
+LteRlcAmPdu::setBitmapArraySize(size_t size)
 {
     this->bitmap_.resize(size);
 }
 
-unsigned int
+size_t
 LteRlcAmPdu::getBitmapArraySize() const
 {
     return this->bitmap_.size();
 }
 
 bool
-LteRlcAmPdu::getBitmap(unsigned int k) const
+LteRlcAmPdu::getBitmap(size_t k) const
     {
     return this->bitmap_.at(k);
 }
 
 void
-LteRlcAmPdu::setBitmap(unsigned int k, bool bitmap_)
+LteRlcAmPdu::setBitmap(size_t k, bool bitmap_)
 {
     this->bitmap_[k] = bitmap_;
 }
@@ -46,25 +46,25 @@ LteRlcAmPdu::getBitmapVec()
 }
 
 bool
-LteRlcAmPdu::isWhole()
+LteRlcAmPdu::isWhole() const
 {
     return (firstSn == lastSn);
 }
 
 bool
-LteRlcAmPdu::isFirst()
+LteRlcAmPdu::isFirst() const
 {
     return (firstSn == snoFragment);
 }
 
 bool
-LteRlcAmPdu::isMiddle()
+LteRlcAmPdu::isMiddle() const
 {
     return ((!isFirst()) && (!isLast()));
 }
 
 bool
-LteRlcAmPdu::isLast()
+LteRlcAmPdu::isLast() const
 {
     return (lastSn == snoFragment);
 }

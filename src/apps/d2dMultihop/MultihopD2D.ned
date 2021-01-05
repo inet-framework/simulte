@@ -9,7 +9,7 @@
 
 package lte.apps.d2dMultihop;
 
-import inet.applications.contract.IUDPApp;
+import inet.applications.contract.IApp;
 
 // MultihopD2D
 //
@@ -37,7 +37,7 @@ import inet.applications.contract.IUDPApp;
 //      for LTE-Advanced exploiting multihop device-to-device transmissions", 
 //      Future Internet, 2017, 9(4), 89
 //
-simple MultihopD2D like IUDPApp
+simple MultihopD2D like IApp
 {
     parameters:
         int localPort = default(3000);
@@ -56,6 +56,7 @@ simple MultihopD2D like IUDPApp
         
         //# Network Layer specs
         string interfaceTableModule = default(absPath(".interfaceTable"));
+        string interfaceName = default("cellular"); 
         
         //# Statistics
         @signal[d2dMultihopGeneratedMsg];
@@ -72,6 +73,6 @@ simple MultihopD2D like IUDPApp
         
         @display("i=block/source");
     gates:
-        output udpOut;
-        input udpIn;
+        output socketOut;
+        input socketIn;
 }

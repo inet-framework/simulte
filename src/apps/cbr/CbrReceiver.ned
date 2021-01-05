@@ -2,10 +2,10 @@
 
 package lte.apps.cbr;
 
-import inet.applications.contract.IUDPApp;
+import inet.applications.contract.IApp;
 
 
-simple CbrReceiver like IUDPApp
+simple CbrReceiver like IApp
 {
     parameters:
         int localPort = default(3000);
@@ -28,7 +28,7 @@ simple CbrReceiver like IUDPApp
         
         @display("i=block/source");
     gates:
-        output udpOut;
-        input udpIn;
+        output socketOut;
+        input socketIn;
 }
 

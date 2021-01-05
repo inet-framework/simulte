@@ -43,15 +43,21 @@ class UmRxEntity;
  *   of this header is fixed to 2 bytes.
  *
  */
-class LteRlcUm : public cSimpleModule
+class LteRlcUm : public omnetpp::cSimpleModule
 {
   public:
-    LteRlcUm()
-    {
-    }
     virtual ~LteRlcUm()
     {
     }
+
+    /**
+     * sendFragmented() is invoked by the TXBuffer as a direct method
+     * call and used to forward fragments to lower layers. This is needed
+     * since the TXBuffer himself has no output gates
+     *
+     * @param pkt packet to forward
+     */
+    void sendFragmented(omnetpp::cPacket *pkt);
 
     /**
      * sendDefragmented() is invoked by the RXBuffer as a direct method
@@ -60,7 +66,7 @@ class LteRlcUm : public cSimpleModule
      *
      * @param pkt packet to forward
      */
-    void sendDefragmented(cPacket *pkt);
+    void sendDefragmented(omnetpp::cPacket *pkt);
 
     /**
      * deleteQueues() must be called on handover
@@ -77,7 +83,15 @@ class LteRlcUm : public cSimpleModule
      *
      * @param pkt packet to forward
      */
-    virtual void sendToLowerLayer(cPacket *pkt);
+    virtual void sendToLowerLayer(omnetpp::cPacket *pkt);
+
+    /**
+     * dropBufferOverflow() is invoked by the TXEntity as a direct method
+     * call and used to drop fragments if the queue is full.
+     *
+     * @param pkt packet to be dropped
+     */
+    virtual void dropBufferOverflow(omnetpp::cPacket *pkt);
 
     virtual void resumeDownstreamInPackets(MacNodeId peerId) {}
 
@@ -87,9 +101,9 @@ class LteRlcUm : public cSimpleModule
     /**
      * Initialize watches
      */
-    virtual void initialize();
+    virtual void initialize(int stage) override;
 
-    virtual void finish()
+    virtual void finish() override
     {
     }
 
@@ -97,18 +111,23 @@ class LteRlcUm : public cSimpleModule
      * Analyze gate of incoming packet
      * and call proper handler
      */
-    virtual void handleMessage(cMessage *msg);
+    virtual void handleMessage(omnetpp::cMessage *msg) override;
 
   protected:
 
-    cGate* up_[2];
-    cGate* down_[2];
+    inet::cGate* up_[2];
+    inet::cGate* down_[2];
 
     // statistics
-    simsignal_t receivedPacketFromUpperLayer;
-    simsignal_t receivedPacketFromLowerLayer;
-    simsignal_t sentPacketToUpperLayer;
-    simsignal_t sentPacketToLowerLayer;
+    inet::simsignal_t receivedPacketFromUpperLayer;
+    inet::simsignal_t receivedPacketFromLowerLayer;
+    inet::simsignal_t sentPacketToUpperLayer;
+    inet::simsignal_t sentPacketToLowerLayer;
+    inet::simsignal_t rlcPacketLossDl;
+    inet::simsignal_t rlcPacketLossUl;
+
+    // parameters
+    bool mapAllLcidsToSingleBearer_;
 
     /**
      * getTxBuffer() is used by the sender to gather the TXBuffer
@@ -149,7 +168,7 @@ class LteRlcUm : public cSimpleModule
      *
      * @param pkt packet to process
      */
-    virtual void handleUpperMessage(cPacket *pkt);
+    virtual void handleUpperMessage(omnetpp::cPacket *pkt);
 
     /**
      * UM Mode
@@ -166,7 +185,7 @@ class LteRlcUm : public cSimpleModule
      *
      * @param pkt packet to process
      */
-    virtual void handleLowerMessage(cPacket *pkt);
+    virtual void handleLowerMessage(omnetpp::cPacket *pkt);
 
     /*
      * Data structures

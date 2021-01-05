@@ -7,7 +7,10 @@
 // and cannot be removed from it.
 //
 
-packet GtpUserMsg
-{
+import inet.common.INETDefs;
+import inet.common.packet.chunk.Chunk;
+
+class GtpUserMsg extends inet::FieldsChunk {
     unsigned int teid;
+    chunkLength = inet::B(1); // TODO: size 0
 }

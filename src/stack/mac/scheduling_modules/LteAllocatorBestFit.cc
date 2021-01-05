@@ -12,9 +12,11 @@
 #include "stack/mac/buffer/LteMacBuffer.h"
 #include "stack/mac/conflict_graph/ConflictGraph.h"
 
+using namespace omnetpp;
+
 LteAllocatorBestFit::LteAllocatorBestFit()
 {
-    conflictGraph_ = NULL;
+    conflictGraph_ = nullptr;
 }
 
 void LteAllocatorBestFit::checkHole(Candidate& candidate, Band holeIndex, unsigned int holeLen, unsigned int req)
@@ -97,10 +99,10 @@ void LteAllocatorBestFit::prepareSchedule()
 {
     EV << NOW << " LteAllocatorBestFit::schedule " << eNbScheduler_->mac_->getMacNodeId() << endl;
 
-    if (binder_ == NULL)
+    if (binder_ == nullptr)
         binder_ = getBinder();
 
-    if (conflictGraph_ == NULL)
+    if (conflictGraph_ == nullptr)
         conflictGraph_ = mac_->getConflictGraph();
 
     // Initialize SchedulerAllocation structures
@@ -109,10 +111,10 @@ void LteAllocatorBestFit::prepareSchedule()
     bool reuseD2D = mac_->isReuseD2DEnabled();
     bool reuseD2DMulti = mac_->isReuseD2DMultiEnabled();
 
-    const CGMatrix* cgMatrix = NULL;
+    const CGMatrix* cgMatrix = nullptr;
     if (reuseD2D || reuseD2DMulti)
     {
-        if (conflictGraph_ == NULL)
+        if (conflictGraph_ == nullptr)
             throw cRuntimeError("LteAllocatorBestFit::prepareSchedule - conflictGraph is a NULL pointer");
         cgMatrix = conflictGraph_->getConflictGraph();
     }

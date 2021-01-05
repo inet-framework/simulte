@@ -8,11 +8,18 @@
 //
 
 #include "epc/gtp/GtpUserSimplified.h"
-#include "inet/networklayer/contract/ipv4/IPv4ControlInfo.h"
 #include "inet/networklayer/common/L3AddressResolver.h"
+#include "inet/applications/common/SocketTag_m.h"
+#include "inet/networklayer/contract/IInterfaceTable.h"
+#include "inet/common/ModuleAccess.h"
+#include "inet/linklayer/common/InterfaceTag_m.h"
+
 #include <iostream>
 
 Define_Module(GtpUserSimplified);
+
+using namespace omnetpp;
+using namespace inet;
 
 void GtpUserSimplified::initialize(int stage)
 {
@@ -26,7 +33,7 @@ void GtpUserSimplified::initialize(int stage)
     // get reference to the binder
     binder_ = getBinder();
 
-    socket_.setOutputGate(gate("udpOut"));
+    socket_.setOutputGate(gate("socketOut"));
     socket_.bind(localPort_);
 
     tunnelPeerPort_ = par("tunnelPeerPort");
@@ -35,16 +42,40 @@ void GtpUserSimplified::initialize(int stage)
     pgwAddress_ = L3AddressResolver().resolve("pgw");
 
     ownerType_ = selectOwnerType(getAncestorPar("nodeType"));
+    
+    ie_ = detectInterface();
 }
+
+InterfaceEntry *GtpUserSimplified::detectInterface()
+{
+    IInterfaceTable *ift = getModuleFromPar<IInterfaceTable>(par("interfaceTableModule"), this);
+    const char *interfaceName = par("ipOutInterface");
+    InterfaceEntry *ie = nullptr;
+
+    if (strlen(interfaceName) > 0) {
+        ie = ift->findInterfaceByName(interfaceName);
+        if (ie == nullptr)
+            throw cRuntimeError("Interface \"%s\" does not exist", interfaceName);
+    }
+
+    return ie;
+}
+
 
 EpcNodeType GtpUserSimplified::selectOwnerType(const char * type)
 {
     EV << "GtpUserSimplified::selectOwnerType - setting owner type to " << type << endl;
     if(strcmp(type,"ENODEB") == 0)
         return ENB;
-    if(strcmp(type,"PGW") != 0)
-        error("GtpUserSimplified::selectOwnerType - unknown owner type [%s]. Aborting...",type);
-    return PGW;
+    else if(strcmp(type,"PGW") == 0)
+        return PGW;
+    else if(strcmp(type,"SGW") == 0)
+        return SGW;
+    else
+        error("GtpUser::selectOwnerType - unknown owner type [%s]. Aborting...",type);
+
+    // should never be reached - return default value in order to avoid compile warnings
+    return ENB;
 }
 
 void GtpUserSimplified::handleMessage(cMessage *msg)
@@ -53,24 +84,25 @@ void GtpUserSimplified::handleMessage(cMessage *msg)
     {
         EV << "GtpUserSimplified::handleMessage - message from trafficFlowFilter" << endl;
         // obtain the encapsulated IPv4 datagram
-        IPv4Datagram * datagram = check_and_cast<IPv4Datagram*>(msg);
-        handleFromTrafficFlowFilter(datagram);
+        auto pkt = check_and_cast<Packet*>(msg);
+        handleFromTrafficFlowFilter(pkt);
     }
-    else if(strcmp(msg->getArrivalGate()->getFullName(),"udpIn")==0)
+    else if(strcmp(msg->getArrivalGate()->getFullName(),"socketIn")==0)
     {
         EV << "GtpUserSimplified::handleMessage - message from udp layer" << endl;
-
-        GtpUserMsg * gtpMsg = check_and_cast<GtpUserMsg *>(msg);
-        handleFromUdp(gtpMsg);
+        auto pkt = check_and_cast<Packet*>(msg);
+        pkt->trim();
+        handleFromUdp(pkt);
     }
 }
 
-void GtpUserSimplified::handleFromTrafficFlowFilter(IPv4Datagram * datagram)
+void GtpUserSimplified::handleFromTrafficFlowFilter(Packet * pkt)
 {
     // extract control info from the datagram
-    TftControlInfo * tftInfo = check_and_cast<TftControlInfo *>(datagram->removeControlInfo());
+    auto tftInfo = pkt->removeTag<TftControlInfo>();
     TrafficFlowTemplateId flowId = tftInfo->getTft();
-    delete (tftInfo);
+    delete tftInfo;
+    removeAllSimuLteTags(pkt);
 
     EV << "GtpUserSimplified::handleFromTrafficFlowFilter - Received a tftMessage with flowId[" << flowId << "]" << endl;
 
@@ -78,16 +110,17 @@ void GtpUserSimplified::handleFromTrafficFlowFilter(IPv4Datagram * datagram)
     if (flowId == 0)
     {
         // local delivery
-        send(datagram,"pppGate");
+        send(pkt,"pppGate");
     }
     else
     {
         // create a new GtpUserSimplifiedMessage
-        GtpUserMsg * gtpMsg = new GtpUserMsg();
-        gtpMsg->setName("GtpUserMessage");
+        auto gtpMsg = makeShared<GtpUserMsg>();
 
         // encapsulate the datagram within the GtpUserSimplifiedMessage
-        gtpMsg->encapsulate(datagram);
+        pkt->trim();
+        pkt->insertAtFront(gtpMsg);
+        pkt->addTagIfAbsent<PacketProtocolTag>()->setProtocol(&LteProtocol::gtp);
 
         L3Address tunnelPeerAddress;
         if (flowId == -1) // send to the PGW
@@ -101,47 +134,54 @@ void GtpUserSimplified::handleFromTrafficFlowFilter(IPv4Datagram * datagram)
             const char* symbolicName = binder_->getModuleNameByMacNodeId(flowId);
             tunnelPeerAddress = L3AddressResolver().resolve(symbolicName);
         }
-        socket_.sendTo(gtpMsg, tunnelPeerAddress, tunnelPeerPort_);
+        socket_.sendTo(pkt, tunnelPeerAddress, tunnelPeerPort_);
     }
 }
 
-void GtpUserSimplified::handleFromUdp(GtpUserMsg * gtpMsg)
+void GtpUserSimplified::handleFromUdp(Packet *pkt)
 {
     EV << "GtpUserSimplified::handleFromUdp - Decapsulating datagram from GTP tunnel" << endl;
 
     // obtain the original IP datagram and send it to the local network
-    IPv4Datagram * datagram = check_and_cast<IPv4Datagram*>(gtpMsg->decapsulate());
-    delete(gtpMsg);
+    pkt->removeAtFront<GtpUserMsg>();
+    auto ipHeader = pkt->peekAtFront<Ipv4Header>();
 
+    // remove any pending socket indications
+    auto sockInd = pkt->removeTagIfPresent<SocketInd>();
+    if (sockInd)
+        delete sockInd;
+    
+    // handle decapsulated packet according to owner type
     if (ownerType_ == PGW)
     {
-        IPv4Address& destAddr = datagram->getDestAddress();
+        Ipv4Address destAddr = ipHeader->getDestAddress();
         MacNodeId destId = binder_->getMacNodeId(destAddr);
         if (destId != 0)
         {
              // create a new GtpUserSimplifiedMessage
-             GtpUserMsg * gtpMsg = new GtpUserMsg();
-             gtpMsg->setName("GtpUserMessage");
+             auto gtpMsg = makeShared<GtpUserMsg>();
 
              // encapsulate the datagram within the GtpUserSimplifiedMessage
-             gtpMsg->encapsulate(datagram);
+             pkt->insertAtFront(gtpMsg);
+             pkt->addTagIfAbsent<PacketProtocolTag>()->setProtocol(&LteProtocol::gtp);
 
              MacNodeId destMaster = binder_->getNextHop(destId);
              const char* symbolicName = binder_->getModuleNameByMacNodeId(destMaster);
              L3Address tunnelPeerAddress = L3AddressResolver().resolve(symbolicName);
-             socket_.sendTo(gtpMsg, tunnelPeerAddress, tunnelPeerPort_);
+             socket_.sendTo(pkt, tunnelPeerAddress, tunnelPeerPort_);
              EV << "GtpUserSimplified::handleFromUdp - Destination is a MEC server. Sending GTP packet to " << symbolicName << endl;
         }
         else
         {
             // destination is outside the LTE network
             EV << "GtpUserSimplified::handleFromUdp - Deliver datagram to the internet " << endl;
-            send(datagram,"pppGate");
+            pkt->addTagIfAbsent<PacketProtocolTag>()->setProtocol(&Protocol::ipv4);
+            send(pkt,"pppGate");
         }
     }
     else if (ownerType_ == ENB)
     {
-        IPv4Address& destAddr = datagram->getDestAddress();
+        Ipv4Address destAddr = ipHeader->getDestAddress();
         MacNodeId destId = binder_->getMacNodeId(destAddr);
         if (destId != 0)
         {
@@ -150,19 +190,23 @@ void GtpUserSimplified::handleFromUdp(GtpUserMsg * gtpMsg)
             if (destMaster == enbId)
             {
                 EV << "GtpUserSimplified::handleFromUdp - Deliver datagram to the LTE NIC " << endl;
-                send(datagram,"pppGate");
+
+                // add Interface-Request for LteNic
+                if (ie_ != nullptr)
+                    pkt->addTagIfAbsent<inet::InterfaceReq>()->setInterfaceId(ie_->getInterfaceId());
+
+                pkt->addTagIfAbsent<PacketProtocolTag>()->setProtocol(&Protocol::ipv4);
+                send(pkt,"pppGate");
                 return;
             }
         }
-        // send the message to the correct eNB or to the internet, through the PGW
+        // send the message to the correct eNB or to the Internet, through the PGW
         // create a new GtpUserSimplifiedMessage
-        GtpUserMsg * gtpMsg = new GtpUserMsg();
-        gtpMsg->setName("GtpUserMessage");
+        auto gtpMsg = makeShared<GtpUserMsg>();
+        pkt->insertAtFront(gtpMsg);
+        pkt->addTagIfAbsent<PacketProtocolTag>()->setProtocol(&LteProtocol::gtp);
 
-        // encapsulate the datagram within the GtpUserSimplifiedMessage
-        gtpMsg->encapsulate(datagram);
-
-        socket_.sendTo(gtpMsg, pgwAddress_, tunnelPeerPort_);
+        socket_.sendTo(pkt, pgwAddress_, tunnelPeerPort_);
 
         EV << "GtpUserSimplified::handleFromUdp - Destination is not served by this eNodeB. Sending GTP packet to the PGW"<< endl;
     }

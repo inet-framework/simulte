@@ -6,14 +6,14 @@
 // The above file and the present reference are part of the software itself,
 // and cannot be removed from it.
 //
-
+import inet.common.TagBase;
 
 cplusplus {{
     #include "common/LteCommon.h"
     typedef std::list<X2NodeId> DestinationIdList;
 }}
 
-class noncobject DestinationIdList;
+class DestinationIdList { @existingClass; }
 
 //
 // X2 Control Info usage:
@@ -35,7 +35,7 @@ class noncobject DestinationIdList;
 // - List of destionation IDs
 // - init flag
 //
-class X2ControlInfo {
+class X2ControlInfoTag extends inet::TagBase {
 	uint16 sourceId;                          // Source X2NodeId
     DestinationIdList destIdList;             // List of destination X2NodeId
     

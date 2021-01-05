@@ -9,14 +9,13 @@
 
 package lte.simulations.networks;
 
-import inet.networklayer.configurator.ipv4.IPv4NetworkConfigurator;
 import inet.node.inet.Router;
 import inet.node.inet.StandardHost;
 import inet.common.misc.ThruputMeteringChannel;
 import lte.epc.PgwStandard;
 import lte.epc.SgwStandard;
 import lte.world.radio.LteChannelControl;
-
+import lte.common.LteNetworkConfigurator;
 
 network lteCoreNetwork
 {
@@ -32,7 +31,7 @@ network lteCoreNetwork
         channelControl: LteChannelControl {
             @display("p=50,25;is=s");
         }
-        configurator: IPv4NetworkConfigurator {
+        configurator: LteNetworkConfigurator {
             @display("p=95,42");
             config = xmldoc("lteCoreConfigFiles/lteIpAddresses.xml");
         }

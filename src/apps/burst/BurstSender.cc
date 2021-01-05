@@ -1,5 +1,14 @@
+//
+//                           SimuLTE
+//
+// This file is part of a software released under the license included in file
+// "license.pdf". This license can be also found at http://www.ltesimulator.com/
+// The above file and the present reference are part of the software itself,
+// and cannot be removed from it.
+//
 
 #include <cmath>
+#include <inet/common/TimeTag_m.h>
 #include "apps/burst/BurstSender.h"
 
 #define round(x) floor((x) + 0.5)
@@ -9,10 +18,10 @@ Define_Module(BurstSender);
 BurstSender::BurstSender()
 {
     initialized_ = false;
-    initTraffic_ = NULL;
-    selfSender_ = NULL;
-    selfBurst_ = NULL;
-    selfPacket_ = NULL;
+    initTraffic_ = nullptr;
+    selfSender_ = nullptr;
+    selfBurst_ = nullptr;
+    selfPacket_ = nullptr;
 }
 
 BurstSender::~BurstSender()
@@ -67,7 +76,7 @@ void BurstSender::initTraffic()
 {
     std::string destAddress = par("destAddress").stringValue();
     cModule* destModule = getModuleByPath(par("destAddress").stringValue());
-    if (destModule == NULL)
+    if (destModule == nullptr)
     {
         // this might happen when users are created dynamically
         EV << simTime() << "BurstSender::initTraffic - destination " << destAddress << " not found" << endl;
@@ -81,17 +90,13 @@ void BurstSender::initTraffic()
         delete initTraffic_;
 
         destAddress_ = inet::L3AddressResolver().resolve(par("destAddress").stringValue());
-        socket.setOutputGate(gate("udpOut"));
+        socket.setOutputGate(gate("socketOut"));
         socket.bind(localPort_);
 
         EV << simTime() << "BurstSender::initialize - binding to port: local:" << localPort_ << " , dest: " << destAddress_.str() << ":" << destPort_ << endl;
 
         // calculating traffic starting time
         simtime_t startTime = par("startTime");
-
-        // TODO maybe un-necesessary
-        // this conversion is made in order to obtain ms-aligned start time, even in case of random generated ones
-        simtime_t offset = (round(SIMTIME_DBL(startTime)*1000)/1000);
 
         scheduleAt(simTime()+startTime, selfBurst_);
         EV << "\t starting traffic in " << startTime << " seconds " << endl;
@@ -119,10 +124,16 @@ void BurstSender::sendPacket()
     //unsigned int msgId = (idBurst_ << 16) | idFrame_;
     unsigned int msgId = (idBurst_ * burstSize_) + idFrame_;
 
-    BurstPacket* packet = new BurstPacket("Burst");
-    packet->setMsgId(msgId);
-    packet->setTimestamp(simTime());
-    packet->setByteLength(size_);
+    Packet* packet = new inet::Packet("Burst");
+    auto burst = makeShared<BurstPacket>();
+
+    burst->setMsgId(msgId);
+    burst->setPayloadTimestamp(simTime());
+    burst->setPayloadSize(size_);
+    burst->setChunkLength(B(size_));
+    burst->addTag<CreationTimeTag>()->setCreationTime(simTime());
+
+    packet->insertAtBack(burst);
 
     socket.sendTo(packet, destAddress_, destPort_);
 

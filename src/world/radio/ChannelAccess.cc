@@ -17,8 +17,10 @@
 
 
 #include "world/radio/ChannelAccess.h"
-#include "inet/mobility/contract/IMobility.h"
-#include "inet/common/ModuleAccess.h"
+#include <inet/mobility/contract/IMobility.h>
+#include <inet/common/ModuleAccess.h>
+
+using namespace omnetpp;
 
 static int parseInt(const char *s, int defaultValue)
 {
@@ -39,7 +41,7 @@ ChannelAccess::~ChannelAccess()
         IChannelControl *cc = dynamic_cast<IChannelControl *>(getSimulation()->getModuleByPath("channelControl"));
         if (cc)
              cc->unregisterRadio(myRadioRef);
-        myRadioRef = NULL;
+        myRadioRef = nullptr;
     }
 }
 /**
@@ -54,7 +56,7 @@ void ChannelAccess::initialize(int stage)
     {
         cc = getChannelControl();
         hostModule = inet::findContainingNode(this);
-        myRadioRef = NULL;
+        myRadioRef = nullptr;
 
         positionUpdateArrived = false;
 
@@ -66,7 +68,7 @@ void ChannelAccess::initialize(int stage)
             hostModule->subscribe(inet::IMobility::mobilityStateChangedSignal, this);
         }
     }
-    else if (stage == inet::INITSTAGE_PHYSICAL_ENVIRONMENT_2)
+    else if (stage == inet::INITSTAGE_PHYSICAL_LAYER)
     {
         if (!positionUpdateArrived && hostModule->isSubscribed(inet::IMobility::mobilityStateChangedSignal, this))
         {

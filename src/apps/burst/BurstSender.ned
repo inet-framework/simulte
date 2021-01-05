@@ -1,10 +1,10 @@
 
 package lte.apps.burst;
 
-import inet.applications.contract.IUDPApp;
+import inet.applications.contract.IApp;
 
 
-simple BurstSender like IUDPApp
+simple BurstSender like IApp
 {
     parameters:
         int localPort = default(-1);
@@ -23,6 +23,6 @@ simple BurstSender like IUDPApp
         
         @display("i=block/source");
     gates:
-        output udpOut;
-        input udpIn;
+		output socketOut;
+        input socketIn;
 }

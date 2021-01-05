@@ -40,10 +40,10 @@ protected:
     virtual void doCoordination();       // run the coordination algorithm (coordinator side)
 
     virtual X2CompProportionalRequestIE* buildClientRequest();
-    virtual void handleClientRequest(X2CompMsg* compMsg);
+    virtual void handleClientRequest(inet::Ptr<X2CompMsg> compMsg);
 
     virtual X2CompProportionalReplyIE* buildCoordinatorReply(X2NodeId clientId);
-    virtual void handleCoordinatorReply(X2CompMsg* compMsg);
+    virtual void handleCoordinatorReply(inet::Ptr<X2CompMsg> compMsg);
 
     UsableBands parseAllowedBlocksMap(std::vector<CompRbStatus>& allowedBlocksMap);
 

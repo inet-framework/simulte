@@ -12,16 +12,17 @@
 
 #include <omnetpp.h>
 #include <stdlib.h>
-#include "inet/common/queue/QueueBase.h"
-#include "inet/networklayer/contract/ipv4/IPv4ControlInfo.h"
-#include "inet/networklayer/ipv4/IPv4Datagram.h"
-#include "inet/common/ProtocolMap.h"
+
+#include "inet/queueing/base/PacketQueueBase.h"
 #include "common/LteControlInfo.h"
-#include "inet/networklayer/common/IPProtocolId_m.h"
-#include "inet/transportlayer/tcp_common/TCPSegment.h"
-#include "inet/transportlayer/udp/UDPPacket.h"
-#include "inet/transportlayer/udp/UDP.h"
+#include "inet/networklayer/common/IpProtocolId_m.h"
+#include "inet/transportlayer/udp/Udp.h"
 #include "common/LteControlInfo.h"
+#include "inet/common/packet/Packet.h"
+#include "inet/common/packet/Message.h"
+#include "inet/common/IProtocolRegistrationListener.h"
+
+using namespace inet;
 
 /**
  * @class LteIp
@@ -43,8 +44,20 @@
  * the four tuple, a sequence number and the header size (IP+Transport).
  *
  */
-class LteIp : public inet::QueueBase
+
+class LteIp : public cSimpleModule, public IProtocolRegistrationListener
 {
+public:
+    struct SocketDescriptor
+    {
+        int socketId = -1;
+        int protocolId = -1;
+        inet::Ipv4Address localAddress;
+        inet::Ipv4Address remoteAddress;
+
+        SocketDescriptor(int socketId, int protocolId, Ipv4Address localAddress)
+                : socketId(socketId), protocolId(protocolId), localAddress(localAddress) { }
+    };
   protected:
     cGate *stackGateOut_;           /// gate connecting LteIp module to LTE stack
     cGate *peerGateOut_;            /// gate connecting LteIp module to another LteIp
@@ -54,7 +67,9 @@ class LteIp : public inet::QueueBase
     // working vars
     long curFragmentId_;      /// counter, used to assign unique fragmentIds to datagrams (actually unused)
     unsigned int seqNum_;     /// datagram sequence number (RLC fragmentation needs it)
-    inet::ProtocolMapping mapping_; /// where to send transport packets after decapsulation
+    // inet::ProtocolMapping mapping_; /// where to send transport packets after decapsulation
+    std::set<const inet::Protocol *> upperProtocols;    // where to send packets after decapsulation
+    std::map<int, SocketDescriptor *> socketIdToSocketDescriptor;
 
     // statistics
     int numForwarded_;  /// number of forwarded packets
@@ -69,7 +84,20 @@ class LteIp : public inet::QueueBase
     {
     }
 
+    virtual ~LteIp()
+    {
+        for (auto it : socketIdToSocketDescriptor)
+            delete it.second;
+    }
+
   protected:
+
+    virtual void handleRegisterService(const inet::Protocol& protocol, cGate *out, ServicePrimitive servicePrimitive) override;
+    virtual void handleRegisterProtocol(const inet::Protocol& protocol, cGate *in, ServicePrimitive servicePrimitive) override;
+
+    void decapsulate(inet::Packet *packet);
+
+    void handleRequest(inet::Request *request);
 
     /**
      * utility: show current statistics above the icon
@@ -79,7 +107,7 @@ class LteIp : public inet::QueueBase
     /**
      * Initialization
      */
-    virtual void initialize();
+    virtual void initialize(int stage) override;
 
     /**
      * Processing of IP datagrams.
@@ -87,7 +115,7 @@ class LteIp : public inet::QueueBase
      *
      * @param msg packet received
      */
-    virtual void endService(cPacket *msg);
+    virtual void handleMessage(cMessage *msg) override;
 
   private:
 
@@ -100,7 +128,7 @@ class LteIp : public inet::QueueBase
      * @param transportPacket transport packet received from transport layer
      * @param outputgate output gate where the datagram will be sent
      */
-    void fromTransport(cPacket * transportPacket, cGate *outputgate);
+    void fromTransport(inet::Packet * transportPacket, omnetpp::cGate *outputgate);
 
     /**
      * Manage packets received from Lte Stack or LteIp peer
@@ -108,7 +136,7 @@ class LteIp : public inet::QueueBase
      *
      * @param msg  IP Datagram received from Lte Stack or LteIp peer
      */
-    void toTransport(cPacket * msg);
+    void toTransport(inet::Packet * msg);
 
     /**
      * utility: set nodeType_ field
@@ -122,7 +150,7 @@ class LteIp : public inet::QueueBase
      *
      * @param ci LteStackControlInfo object
      */
-    void printControlInfo(FlowControlInfo* ci);
+    void printControlInfo(inet::Packet* ci);
 };
 
 #endif

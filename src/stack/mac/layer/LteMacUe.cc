@@ -6,6 +6,9 @@
 // The above file and the present reference are part of the software itself,
 // and cannot be removed from it.
 //
+#include <inet/networklayer/common/InterfaceEntry.h>
+#include <inet/common/ModuleAccess.h>
+#include <inet/networklayer/ipv4/Ipv4InterfaceData.h>
 
 #include "stack/mac/layer/LteMacUe.h"
 #include "stack/mac/buffer/harq/LteHarqBufferRx.h"
@@ -15,28 +18,32 @@
 #include "stack/mac/packet/LteRac_m.h"
 #include "stack/mac/buffer/LteMacBuffer.h"
 #include "stack/mac/amc/UserTxParams.h"
-#include "inet/networklayer/common/InterfaceEntry.h"
-#include "inet/common/ModuleAccess.h"
-#include "inet/networklayer/ipv4/IPv4InterfaceData.h"
 #include "corenetwork/binder/LteBinder.h"
 #include "stack/phy/layer/LtePhyBase.h"
 #include "stack/mac/packet/LteMacSduRequest.h"
+#include "stack/rlc/um/LteRlcUm.h"
+#include "common/LteCommon.h"
+#include "stack/rlc/packet/LteRlcDataPdu.h"
+#include "stack/rlc/am/packet/LteRlcAmPdu_m.h"
 
 Define_Module(LteMacUe);
+
+using namespace inet;
+using namespace omnetpp;
 
 LteMacUe::LteMacUe() :
     LteMacBase()
 {
     firstTx = false;
-    lcgScheduler_ = NULL;
-    schedulingGrant_ = NULL;
+    lcgScheduler_ = nullptr;
+    schedulingGrant_ = nullptr;
     currentHarq_ = 0;
     periodCounter_ = 0;
     expirationCounter_ = 0;
     racRequested_ = false;
     bsrTriggered_ = false;
     requestedSdus_ = 0;
-    scheduleList_ = NULL;
+    scheduleList_ = nullptr;
     debugHarq_ = false;
 
     // TODO setup from NED
@@ -57,10 +64,10 @@ LteMacUe::~LteMacUe()
 {
     delete lcgScheduler_;
 
-    if (schedulingGrant_!=NULL)
+    if (schedulingGrant_!=nullptr)
     {
-        delete schedulingGrant_;
-        schedulingGrant_ = NULL;
+        // delete schedulingGrant_;
+        schedulingGrant_ = nullptr;
     }
 }
 
@@ -70,6 +77,7 @@ void LteMacUe::initialize(int stage)
     if (stage == INITSTAGE_LOCAL)
     {
         lcgScheduler_ = new LteSchedulerUeUl(this);
+        scheduleList_ = lcgScheduler_->getScheduledBytesList();
 
         cqiDlMuMimo0_ = registerSignal("cqiDlMuMimo0");
         cqiDlMuMimo1_ = registerSignal("cqiDlMuMimo1");
@@ -99,7 +107,7 @@ void LteMacUe::initialize(int stage)
     {
         cellId_ = getAncestorPar("masterId");
     }
-    else if (stage == INITSTAGE_NETWORK_LAYER_3)
+    else if (stage == INITSTAGE_NETWORK_LAYER)
     {
         nodeId_ = getAncestorPar("macNodeId");
 
@@ -122,13 +130,23 @@ void LteMacUe::initialize(int stage)
 
         // find interface entry and use its address
         IInterfaceTable *interfaceTable = getModuleFromPar<IInterfaceTable>(par("interfaceTableModule"), this);
-        // TODO: how do we find the LTE interface?
-        InterfaceEntry * interfaceEntry = interfaceTable->getInterfaceByName("wlan");
+        InterfaceEntry * interfaceEntry = interfaceTable->findInterfaceByName(par("interfaceName").stringValue());
+        if(interfaceEntry == nullptr)
+            throw new cRuntimeError("no interface entry for lte interface - cannot bind node %i", nodeId_);
 
-        IPv4InterfaceData* ipv4if = interfaceEntry->ipv4Data();
-        if(ipv4if == NULL)
-            throw new cRuntimeError("no IPv4 interface data - cannot bind node %i", nodeId_);
+
+        Ipv4InterfaceData* ipv4if = interfaceEntry->getProtocolData<Ipv4InterfaceData>();
+        if(ipv4if == nullptr)
+            throw new cRuntimeError("no Ipv4 interface data - cannot bind node %i", nodeId_);
         binder_->setMacNodeId(ipv4if->getIPAddress(), nodeId_);
+
+        // Register the "ext" interface, if present
+        if (getAncestorPar("enableExtInterface").boolValue())
+        {
+            // get address of the localhost to enable forwarding
+            Ipv4Address extHostAddress = Ipv4Address(getAncestorPar("extHostAddress").stringValue());
+            binder_->setMacNodeId(extHostAddress, nodeId_);
+        }
     }
 }
 
@@ -183,12 +201,16 @@ int LteMacUe::macSduRequest()
         EV << NOW <<" LteMacUe::macSduRequest - cid[" << destCid << "] - sdu size[" << sduSize<< "B] - " << allocatedBytes[cw] << " bytes left on codeword " << cw << endl;
 
         // send the request message to the upper layer
-        LteMacSduRequest* macSduRequest = new LteMacSduRequest("LteMacSduRequest");
+        // TODO: Replace by tag
+        auto pkt = new Packet("LteMacSduRequest");
+        auto macSduRequest = makeShared<LteMacSduRequest>();
+        macSduRequest->setChunkLength(b(1)); // TODO: should be 0
         macSduRequest->setUeId(destId);
         macSduRequest->setLcid(MacCidToLcid(destCid));
         macSduRequest->setSduSize(sduSize);
-        macSduRequest->setControlInfo((&connDesc_[destCid])->dup());
-        sendUpperPackets(macSduRequest);
+        pkt->insertAtFront(macSduRequest);
+        *(pkt->addTag<FlowControlInfo>()) = connDesc_[destCid];
+        sendUpperPackets(pkt);
 
         numRequestedSdus++;
     }
@@ -197,25 +219,31 @@ int LteMacUe::macSduRequest()
     return numRequestedSdus;
 }
 
-bool LteMacUe::bufferizePacket(cPacket* pkt)
+bool LteMacUe::bufferizePacket(cPacket* pktAux)
 {
-    if (pkt->getByteLength() == 0)
+    auto pkt = check_and_cast<Packet *>(pktAux);
+
+    if (pkt->getBitLength() <= 1) { // no data in this packet - should not be buffered
+        delete pkt;
         return false;
+    }
 
-    pkt->setTimestamp();        // Add timestamp with current time to packet
+    pkt->setTimestamp();           // add time-stamp with current time to packet
 
-    FlowControlInfo* lteInfo = check_and_cast<FlowControlInfo*>(pkt->getControlInfo());
+    auto lteInfo = pkt->getTag<FlowControlInfo>();
 
     // obtain the cid from the packet informations
     MacCid cid = ctrlInfoToMacCid(lteInfo);
 
     // this packet is used to signal the arrival of new data in the RLC buffers
-    if (strcmp(pkt->getName(), "newDataPkt") == 0)
+    if (checkIfHeaderType<LteRlcPduNewData>(pkt))
     {
         // update the virtual buffer for this connection
 
         // build the virtual packet corresponding to this incoming packet
-        PacketInfo vpkt(pkt->getByteLength(), pkt->getTimestamp());
+        pkt->popAtFront<LteRlcPduNewData>();
+        auto rlcSdu = pkt->peekAtFront<LteRlcSdu>();
+        PacketInfo vpkt(rlcSdu->getLengthMainPacket(), pkt->getTimestamp());
 
         LteMacBufferMap::iterator it = macBuffers_.find(cid);
         if (it == macBuffers_.end())
@@ -246,6 +274,7 @@ bool LteMacUe::bufferizePacket(cPacket* pkt)
             vqueue->getQueueOccupancy() << "\n";
         }
 
+        delete pkt;
         return true;    // notify the activation of the connection
     }
 
@@ -292,7 +321,7 @@ bool LteMacUe::bufferizePacket(cPacket* pkt)
         queue->getQueueSize() - queue->getByteLength() << "\n";
     }
 
-    return false; // do not need to notify the activation of the connection (already done when received newDataPkt)
+    return true;
 }
 
 void LteMacUe::macPduMake(MacCid cid)
@@ -305,8 +334,7 @@ void LteMacUe::macPduMake(MacCid cid)
     LteMacScheduleList::const_iterator it;
     for (it = scheduleList_->begin(); it != scheduleList_->end(); it++)
     {
-        LteMacPdu* macPkt;
-        cPacket* pkt;
+        Packet *macPkt = nullptr;
 
         MacCid destCid = it->first.first;
         Codeword cw = it->first.second;
@@ -327,14 +355,17 @@ void LteMacUe::macPduMake(MacCid cid)
         // No packets for this user on this codeword
         if (pit == macPduList_.end())
         {
-            UserControlInfo* uinfo = new UserControlInfo();
-            uinfo->setSourceId(getMacNodeId());
-            uinfo->setDestId(destId);
-            uinfo->setDirection(UL);
-            uinfo->setUserTxParams(schedulingGrant_->getUserTxParams()->dup());
-            macPkt = new LteMacPdu("LteMacPdu");
-            macPkt->setHeaderLength(MAC_HEADER);
-            macPkt->setControlInfo(uinfo);
+            macPkt = new Packet("LteMacPdu");
+            auto header = makeShared<LteMacPdu>();
+            header->setHeaderLength(MAC_HEADER);
+            macPkt->insertAtFront(header);
+
+            macPkt->addTagIfAbsent<UserControlInfo>()->setSourceId(getMacNodeId());
+            macPkt->addTagIfAbsent<UserControlInfo>()->setDestId(destId);
+            macPkt->addTagIfAbsent<UserControlInfo>()->setDirection(UL);
+            macPkt->addTagIfAbsent<UserControlInfo>()->setUserTxParams(schedulingGrant_->getUserTxParams()->dup());
+
+            //macPkt->setControlInfo(uinfo);
             macPkt->setTimestamp(NOW);
             macPduList_[pktId] = macPkt;
         }
@@ -354,9 +385,12 @@ void LteMacUe::macPduMake(MacCid cid)
             if (mbuf_[destCid]->isEmpty())
                 throw cRuntimeError("Empty buffer for cid %d, while expected SDUs were %d", destCid, sduPerCid);
 
-            pkt = mbuf_[destCid]->popFront();
+            auto pkt = check_and_cast<Packet *>(mbuf_[destCid]->popFront());
             drop(pkt);
-            macPkt->pushSdu(pkt);
+
+            auto header = macPkt->removeAtFront<LteMacPdu>();
+            header->pushSdu(pkt);
+            macPkt->insertAtFront(header);
             sduPerCid--;
         }
         // consider virtual buffers to compute BSR size
@@ -387,15 +421,12 @@ void LteMacUe::macPduMake(MacCid cid)
             harqTxBuffers_[destId] = hb;
             txBuf = hb;
         }
-        //
-//        UnitList txList = (txBuf->firstAvailable());
-//        LteHarqProcessTx * currProc = txBuf->getProcess(currentHarq_);
 
         // search for an empty unit within current harq process
         UnitList txList = txBuf->getEmptyUnits(currentHarq_);
-//        EV << "LteMacUe::macPduMake - [Used Acid=" << (unsigned int)txList.first << "] , [curr=" << (unsigned int)currentHarq_ << "]" << endl;
+        EV << "LteMacUe::macPduMake - [Used Acid=" << (unsigned int)txList.first << "] , [curr=" << (unsigned int)currentHarq_ << "]" << endl;
 
-        LteMacPdu* macPkt = pit->second;
+        auto macPkt = pit->second;
 
         // BSR related operations
 
@@ -465,17 +496,23 @@ void LteMacUe::macPduMake(MacCid cid)
         //
         //        }
 
+        auto header = macPkt->removeAtFront<LteMacPdu>();
         if (bsrTriggered_)
         {
             MacBsr* bsr = new MacBsr();
+
             bsr->setTimestamp(simTime().dbl());
             bsr->setSize(size);
-            macPkt->pushCe(bsr);
+            header->pushCe(bsr);
+
             bsrTriggered_ = false;
             EV << "LteMacUe::macPduMake - BSR with size " << size << "created" << endl;
         }
 
-        EV << "LteMacUe: pduMaker created PDU: " << macPkt->info() << endl;
+        // insert updated MacPdu
+        macPkt->insertAtFront(header);
+
+        EV << "LteMacUe: pduMaker created PDU: " << macPkt->str() << endl;
 
         // TODO: harq test
         // pdu transmission here (if any)
@@ -492,20 +529,20 @@ void LteMacUe::macPduMake(MacCid cid)
     }
 }
 
-void LteMacUe::macPduUnmake(cPacket* pkt)
+void LteMacUe::macPduUnmake(cPacket* pktAux)
 {
-    LteMacPdu* macPkt = check_and_cast<LteMacPdu*>(pkt);
+    auto pkt = check_and_cast<Packet *>(pktAux);
+    auto macPkt = pkt->removeAtFront<LteMacPdu>();
     while (macPkt->hasSdu())
     {
         // Extract and send SDU
-        cPacket* upPkt = macPkt->popSdu();
+        auto upPkt = macPkt->popSdu();
         take(upPkt);
 
-        /* TODO: upPkt->info() */
         EV << "LteMacBase: pduUnmaker extracted SDU" << endl;
 
         // store descriptor for the incoming connection, if not already stored
-        FlowControlInfo* lteInfo = check_and_cast<FlowControlInfo*>(upPkt->getControlInfo());
+        auto lteInfo = upPkt->getTag<FlowControlInfo>();
         MacNodeId senderId = lteInfo->getSourceId();
         LogicalCid lcid = lteInfo->getLcid();
         MacCid cid = idToMacCid(senderId, lcid);
@@ -517,34 +554,32 @@ void LteMacUe::macPduUnmake(cPacket* pkt)
         sendUpperPackets(upPkt);
     }
 
-    ASSERT(macPkt->getOwner() == this);
-    delete macPkt;
+    pkt->insertAtFront(macPkt);
+
+    ASSERT(pkt->getOwner() == this);
+    delete pkt;
 }
 
-void LteMacUe::handleUpperMessage(cPacket* pkt)
+void LteMacUe::handleUpperMessage(cPacket* pktAux)
 {
+    auto pkt = check_and_cast<Packet *>(pktAux);
+    bool isLteRlcPduNewDataInd = checkIfHeaderType<LteRlcPduNewData>(pkt);
+
     // bufferize packet
     bufferizePacket(pkt);
 
-    if (strcmp(pkt->getName(), "lteRlcFragment") == 0)
-    {
-        // new MAC SDU has been received
-        if (pkt->getByteLength() == 0)
-            delete pkt;
-
-        // build a MAC PDU only after all MAC SDUs have been received from RLC
+    if(!isLteRlcPduNewDataInd){
         requestedSdus_--;
+        ASSERT(requestedSdus_ >= 0);
+        // build a MAC PDU only after all MAC SDUs have been received from RLC
         if (requestedSdus_ == 0)
         {
+            // make PDU and BSR (if necessary)
             macPduMake();
             // update current harq process id
             EV << NOW << " LteMacUe::handleMessage - incrementing counter for HARQ processes " << (unsigned int)currentHarq_ << " --> " << (currentHarq_+1)%harqProcesses_ << endl;
             currentHarq_ = (currentHarq_+1) % harqProcesses_;
         }
-    }
-    else
-    {
-        delete pkt;
     }
 }
 
@@ -555,15 +590,15 @@ void LteMacUe::handleSelfMessage()
     // extract pdus from all harqrxbuffers and pass them to unmaker
     HarqRxBuffers::iterator hit = harqRxBuffers_.begin();
     HarqRxBuffers::iterator het = harqRxBuffers_.end();
-    LteMacPdu *pdu = NULL;
-    std::list<LteMacPdu*> pduList;
+
+    std::list<Packet*> pduList;
 
     for (; hit != het; ++hit)
     {
         pduList=hit->second->extractCorrectPdus();
         while (! pduList.empty())
         {
-            pdu=pduList.front();
+            auto pdu=pduList.front();
             pduList.pop_front();
             macPduUnmake(pdu);
         }
@@ -572,12 +607,10 @@ void LteMacUe::handleSelfMessage()
     EV << NOW << "LteMacUe::handleSelfMessage " << nodeId_ << " - HARQ process " << (unsigned int)currentHarq_ << endl;
     // updating current HARQ process for next TTI
 
-    //unsigned char currentHarq = currentHarq_;
-
     // no grant available - if user has backlogged data, it will trigger scheduling request
     // no harq counter is updated since no transmission is sent.
 
-    if (schedulingGrant_==NULL)
+    if (schedulingGrant_==nullptr)
     {
         EV << NOW << " LteMacUe::handleSelfMessage " << nodeId_ << " NO configured grant" << endl;
 
@@ -594,11 +627,10 @@ void LteMacUe::handleSelfMessage()
         if(--expirationCounter_ < 0)
         {
             // Periodic grant is expired
-            delete schedulingGrant_;
-            schedulingGrant_ = NULL;
+            // delete schedulingGrant_;
+            schedulingGrant_ = nullptr;
             // if necessary, a RAC request will be sent to obtain a grant
             checkRAC();
-            //return;
         }
         else if (--periodCounter_>0)
         {
@@ -613,14 +645,13 @@ void LteMacUe::handleSelfMessage()
     }
 
     requestedSdus_ = 0;
-    if (schedulingGrant_!=NULL) // if a grant is configured
+    if (schedulingGrant_!=nullptr) // if a grant is configured
     {
         if(!firstTx)
         {
             EV << "\t currentHarq_ counter initialized " << endl;
             firstTx=true;
             // the eNb will receive the first pdu in 2 TTI, thus initializing acid to 0
-//            currentHarq_ = harqRxBuffers_.begin()->second->getProcesses() - 2;
             currentHarq_ = UE_TX_HARQ_PROCESSES - 2;
         }
         EV << "\t " << schedulingGrant_ << endl;
@@ -643,7 +674,6 @@ void LteMacUe::handleSelfMessage()
         //        // triggering retransmission --- nothing to do here, really!
 //        } else {
         // buffer drop should occour here.
-//        scheduleList = ueScheduler_->buildSchedList();
 
         EV << NOW << " LteMacUe::handleSelfMessage " << nodeId_ << " entered scheduling" << endl;
 
@@ -690,15 +720,6 @@ void LteMacUe::handleSelfMessage()
         cMessage* flushHarqMsg = new cMessage("flushHarqMsg");
         flushHarqMsg->setSchedulingPriority(1);        // after other messages
         scheduleAt(NOW, flushHarqMsg);
-
-//        // deleting non-periodic grant
-//        if (!schedulingGrant_->getPeriodic())
-//        {
-//            delete schedulingGrant_;
-//            schedulingGrant_=NULL;
-//        }
-
-
     }
 
     //============================ DEBUG ==========================
@@ -745,19 +766,21 @@ void LteMacUe::handleSelfMessage()
 }
 
 void
-LteMacUe::macHandleGrant(cPacket* pkt)
+LteMacUe::macHandleGrant(cPacket* pktAux)
 {
     EV << NOW << " LteMacUe::macHandleGrant - UE [" << nodeId_ << "] - Grant received" << endl;
-    // delete old grant
-    LteSchedulingGrant* grant = check_and_cast<LteSchedulingGrant*>(pkt);
+
+    auto pkt = check_and_cast<inet::Packet*> (pktAux);
+    auto grant = pkt->popAtFront<LteSchedulingGrant>();
+    delete pkt;
+
     EV << NOW << " LteMacUe::macHandleGrant - Direction: " << dirToA(grant->getDirection()) << endl;
 
-    //Codeword cw = grant->getCodeword();
-
-    if (schedulingGrant_!=NULL)
+    // delete old grant
+    if (schedulingGrant_!=nullptr)
     {
-        delete schedulingGrant_;
-        schedulingGrant_ = NULL;
+        // delete schedulingGrant_;
+        schedulingGrant_ = nullptr;
     }
 
     // store received grant
@@ -771,18 +794,16 @@ LteMacUe::macHandleGrant(cPacket* pkt)
 
     EV << NOW << "Node " << nodeId_ << " received grant of blocks " << grant->getTotalGrantedBlocks()
        << ", bytes " << grant->getGrantedCwBytes(0) << endl;
-//        TODO if (!grant_->isNewTx())
-//            {
-//            }
 
     // clearing pending RAC requests
     racRequested_=false;
 }
 
 void
-LteMacUe::macHandleRac(cPacket* pkt)
+LteMacUe::macHandleRac(cPacket* pktAux)
 {
-    LteRac* racPkt = check_and_cast<LteRac*>(pkt);
+    auto pkt = check_and_cast<inet::Packet*> (pktAux);
+    auto racPkt = pkt->peekAtFront<LteRac>();
 
     if (racPkt->getSuccess())
     {
@@ -814,7 +835,7 @@ LteMacUe::macHandleRac(cPacket* pkt)
             EV << NOW << " Ue " << nodeId_ << " RAC attempt failed, backoff extracted : " << racBackoffTimer_ << endl;
         }
     }
-    delete racPkt;
+    delete pkt;
 }
 
 void
@@ -863,15 +884,17 @@ LteMacUe::checkRAC()
 
     if ((racRequested_=trigger))
     {
-        LteRac* racReq = new LteRac("RacRequest");
-        UserControlInfo* uinfo = new UserControlInfo();
-        uinfo->setSourceId(getMacNodeId());
-        uinfo->setDestId(getMacCellId());
-        uinfo->setDirection(UL);
-        uinfo->setFrameType(RACPKT);
-        racReq->setControlInfo(uinfo);
+        auto pkt = new Packet("RacRequest");
 
-        sendLowerPackets(racReq);
+        auto racReq = makeShared<LteRac>();
+        pkt->insertAtFront(racReq);
+
+        pkt->addTagIfAbsent<UserControlInfo>()->setSourceId(getMacNodeId());
+        pkt->addTagIfAbsent<UserControlInfo>()->setDestId(getMacCellId());
+        pkt->addTagIfAbsent<UserControlInfo>()->setDirection(UL);
+        pkt->addTagIfAbsent<UserControlInfo>()->setFrameType(RACPKT);
+
+        sendLowerPackets(pkt);
 
         EV << NOW << " Ue  " << nodeId_ << " cell " << cellId_ << " ,RAC request sent to PHY " << endl;
 
@@ -881,10 +904,11 @@ LteMacUe::checkRAC()
 }
 
 void
-LteMacUe::updateUserTxParam(cPacket* pkt)
+LteMacUe::updateUserTxParam(cPacket* pktAux)
 {
-    UserControlInfo *lteInfo = check_and_cast<UserControlInfo *>
-        (pkt->getControlInfo());
+    auto pkt = check_and_cast<inet::Packet *>(pktAux);
+
+    auto lteInfo = pkt->getTag<UserControlInfo> ();
 
     if (lteInfo->getFrameType() != DATAPKT)
         return;
@@ -907,10 +931,10 @@ void LteMacUe::flushHarqBuffers()
         it2->second->sendSelectedDown();
 
     // deleting non-periodic grant
-    if (schedulingGrant_ != NULL && !schedulingGrant_->getPeriodic())
+    if (schedulingGrant_ != nullptr && !schedulingGrant_->getPeriodic())
     {
-        delete schedulingGrant_;
-        schedulingGrant_=NULL;
+        // delete schedulingGrant_;
+        schedulingGrant_=nullptr;
     }
 }
 

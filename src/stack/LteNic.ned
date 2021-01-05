@@ -10,7 +10,8 @@
 
 package lte.stack;
 
-import inet.linklayer.contract.IWirelessNic;
+import inet.linklayer.contract.IWirelessInterface;
+import inet.networklayer.common.InterfaceEntry;
 import lte.stack.phy.LtePhy;
 import lte.stack.mac.LteMac;
 import lte.stack.pdcp_rrc.LtePdcpRrc;
@@ -21,13 +22,14 @@ import lte.x2.LteX2Manager;
 import lte.stack.compManager.LteCompManager;
 import lte.stack.d2dModeSelection.D2DModeSelection;
 import lte.stack.handoverManager.LteHandoverManager;
+import lte.corenetwork.lteip.INetworkLayer2lte;
 
 import lte.stack.phy.ChannelModel.LteChannelModelInterface;
 
 // 
 // Interface for the LTE Stack.
 //
-moduleinterface ILteNic extends IWirelessNic
+moduleinterface ILteNic extends IWirelessInterface
 {
     string nodeType;
         //bool d2dCapable;            // inherit the value from the parent module
@@ -40,9 +42,10 @@ moduleinterface ILteNic extends IWirelessNic
 // Base module for the LTE Stack.
 //
 // TODO: implement IWirelessNic
-module LteNicBase like ILteNic
+module LteNicBase extends InterfaceEntry like ILteNic
 {
     parameters:
+        @class(::inet::InterfaceEntry);
         @display("i=block/ifcard;bgb=250,444;bgl=3");
         string interfaceTableModule;
         string routingTableModule;
@@ -50,10 +53,13 @@ module LteNicBase like ILteNic
         string LteMacType;          // One of: "LteMacUe", "LteMacEnb", "LteMacRelayUe", "LteMacRelayEnb"
         string LtePhyType;
         string nodeType;
+        double processingDelayIn @unit(s) = default(0s);   // additional processing delay for incoming ip packets
+        double processingDelayOut @unit(s) = default(0s);   // additional processing delay for outgoing ip packets
 
         string LteChannelModelType = default("LteRealisticChannelModel");
 
         bool d2dCapable;            // inherit the value from the parent module
+        string address = default("auto");
 
     gates:
         //#
@@ -68,7 +74,7 @@ module LteNicBase like ILteNic
 
     submodules:
         // bridge between lte stack and network layer
-        ip2lte: IP2lte {
+        ip2lte: <default("IP2lte")> like INetworkLayer2lte {
             nodeType = nodeType;
             interfaceTableModule = interfaceTableModule;
             routingTableModule = routingTableModule;
@@ -124,8 +130,8 @@ module LteNicBase like ILteNic
 
         //# external: lower connection
         radioIn --> phy.radioIn;
-        ip2lte.upperLayerOut --> upperLayerOut;
-        upperLayerIn --> ip2lte.upperLayerIn;
+        ip2lte.upperLayerOut --> {  delay = processingDelayOut; } --> upperLayerOut;
+        upperLayerIn --> {  delay = processingDelayIn; } --> ip2lte.upperLayerIn;
 }
 
 //

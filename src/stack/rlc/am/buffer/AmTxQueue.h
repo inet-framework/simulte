@@ -11,12 +11,14 @@
 #define _LTE_AMTXBUFFER_H_
 
 #include "common/LteCommon.h"
-#include "stack/rlc/LteRlcDefs.h"
+#include "common/LteControlInfo.h"
 #include "common/timer/TTimer.h"
+#include "stack/rlc/LteRlcDefs.h"
 #include "stack/rlc/am/packet/LteRlcAmPdu.h"
 #include "stack/rlc/am/packet/LteRlcAmSdu_m.h"
+#include "stack/rlc/am/LteRlcAm.h"
 #include "stack/pdcp_rrc/packet/LtePdcpPdu_m.h"
-#include "common/LteControlInfo.h"
+#include "inet/common/packet/Packet.h"
 
 /*
  * RLC AM Mode Transmission Entity
@@ -29,14 +31,22 @@
  * moving transmission window enabled with ARQ and drop-timer mechanisms.
  */
 
+using namespace inet;
 class AmTxQueue : public cSimpleModule
 {
   protected:
 
     /*
+     * reference to corresponding RLC AM module
+     */
+    LteRlcAm* lteRlc_;
+
+    /*
      * SDU (upper layer PDU) currently being processed
      */
-    LteRlcAmSdu * currentSdu_;
+    Packet * currentSdu_ = nullptr;
+    std::deque<Packet *> *fragmentList_ = nullptr;
+    std::deque<int> txWindowIndexList_;
 
     /*
      * SDU Fragmentation descriptor
@@ -47,7 +57,7 @@ class AmTxQueue : public cSimpleModule
      * copy of LTE control info - used for sending down PDUs and control packets.
      */
 
-    FlowControlInfo* lteInfo_;
+    FlowControlInfo* lteInfo_ = nullptr;
 
     //--------------------------------------------------------------------------------------
     //        Buffers
@@ -67,6 +77,11 @@ class AmTxQueue : public cSimpleModule
      * The MRW PDU retransmission buffer.
      */
     cArray mrwRtxQueue_;
+
+    /*
+     * The buffer for PDUs waiting to be requested from MAC
+     */
+    inet::cPacketQueue pduBuffer_;
 
     //----------------------------------------------------------------------------------------
 
@@ -98,13 +113,13 @@ class AmTxQueue : public cSimpleModule
     int maxRtx_;
 
     // PDU retransmission timeout
-    int pduRtxTimeout_;
+    omnetpp::simtime_t pduRtxTimeout_;
 
     // control PDU retransmission timeout
-    int ctrlPduRtxTimeout_;
+    omnetpp::simtime_t ctrlPduRtxTimeout_;
 
     // Buffer analyze timeout
-    int bufferStatusTimeout_;
+    omnetpp::simtime_t bufferStatusTimeout_;
 
     //-------------------------------------------------------------------------
 
@@ -119,18 +134,31 @@ class AmTxQueue : public cSimpleModule
      * Enqueues an upper layer packet into the transmission buffer
      * @param sdu the packet to be enqueued
      */
-    void enque(LteRlcAmSdu* sdu);
+    void enque(Packet* sdu);
 
     /*
      *     Fragments current SDU (or next one, if current is completed) and adds PDUs (fragments) to the transmission buffer
      */
     void addPdus();
+
+    /*
+     * Send buffered PDUs until the specified size has been reached
+     * or the buffer is empty
+     *
+     * @param size   maximum amount of data to be sent down
+     */
+    void sendPdus(int size);
+
+    /*
+     * Buffers a control pdu within the corresponding TxQueue
+     */
+    void bufferControlPdu(cPacket* pkt);
+
     /*
      * Receives a control message from the AM receiver buffer
      * @param pkt
      */
-
-    virtual void handleControlPacket(cPacket*pkt);
+    virtual void handleControlPacket(cPacket* pkt);
 
   protected:
 
@@ -150,6 +178,12 @@ class AmTxQueue : public cSimpleModule
      */
     void discard(int seqNum);
 
+    /* buffers a PDU to be sent down to MAC when a new SDU is requested
+     *
+     * @param pdu PDU to be sent
+     */
+    void bufferPdu(cPacket *pdu);
+
     /* Move the transmitter window based upon reception of ACK control message
      *
      * @param seqNum
@@ -165,12 +199,6 @@ class AmTxQueue : public cSimpleModule
     /* Checks if receiver window has to be shifted
      */
     void checkForMrw();
-
-    /* sends down a PDU
-     *
-     * @param pdu
-     */
-    void sendPdu(LteRlcAmPdu* pdu);
 
     /* Receive a cumulative ACK from the transmitter ACK entity
      *
@@ -193,6 +221,8 @@ class AmTxQueue : public cSimpleModule
     /* timer events handlers*/
     void pduTimerHandle(const int sn);
     void mrwTimerHandle(const int sn);
+
+    std::deque<Packet *> * fragmentFrame(Packet *frame, std::deque<int>& windowsIndex, RlcFragDesc rlcFragDesc);
 };
 
 #endif

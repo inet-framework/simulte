@@ -18,8 +18,8 @@ class LteRlcAmPdu : public LteRlcAmPdu_Base
 
   public:
 
-    LteRlcAmPdu(const char *name = NULL) :
-        LteRlcAmPdu_Base(name)
+    LteRlcAmPdu() :
+        LteRlcAmPdu_Base()
     {
     }
     LteRlcAmPdu(const LteRlcAmPdu& other) :
@@ -31,26 +31,31 @@ class LteRlcAmPdu : public LteRlcAmPdu_Base
     LteRlcAmPdu& operator=(const LteRlcAmPdu& other)
     {
         LteRlcAmPdu_Base::operator=(other);
-	bitmap_ = other.bitmap_;
+        bitmap_ = other.bitmap_;
         return *this;
     }
 
-    virtual LteRlcAmPdu* dup() const
+    virtual LteRlcAmPdu* dup() const override
     {
         return new LteRlcAmPdu(*this);
     }
 
-    virtual void setBitmapArraySize(unsigned int size);
-    virtual unsigned int getBitmapArraySize() const;
-    virtual bool getBitmap(unsigned int k) const;
-    virtual void setBitmap(unsigned int k, bool bitmap_var);
+    virtual void setBitmapArraySize(size_t size) override;
+    virtual size_t getBitmapArraySize() const override;
+    virtual bool getBitmap(size_t k) const override;
+    virtual void setBitmap(size_t k, bool bitmap_var) override;
     virtual void setBitmapVec(std::vector<bool> bitmap_vec);
+
+    virtual void insertBitmap(bool bitmap) override { throw omnetpp::cRuntimeError("Method not implemented");}
+    virtual void insertBitmap(size_t k, bool bitmap) override { throw omnetpp::cRuntimeError("Method not implemented");}
+    virtual void eraseBitmap(size_t k)  override { throw omnetpp::cRuntimeError("Method not implemented");}
+
     virtual std::vector<bool> getBitmapVec();
     //sequence check functions
-    virtual bool isWhole();
-    virtual bool isFirst();
-    virtual bool isMiddle();
-    virtual bool isLast();
+    virtual bool isWhole() const;
+    virtual bool isFirst() const;
+    virtual bool isMiddle() const;
+    virtual bool isLast() const;
 };
 
 Register_Class(LteRlcAmPdu);

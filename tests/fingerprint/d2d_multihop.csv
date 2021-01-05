@@ -1,0 +1,6 @@
+# workingdir, args, simtimelimit, fingerprint
+/simulations/d2d_multihop/, -f omnetpp.ini -c MultihopD2D -r 0, 3s, b495-ff68/tplx, PASS,
+/simulations/d2d_multihop/, -f omnetpp.ini -c MultihopD2D-Trickle -r 0, 3s, 27be-e2dd/tplx, PASS,
+/simulations/d2d_multihop/, -f omnetpp.ini -c MultihopD2D-rangeCheck -r 0, 3s, 2370-99b5/tplx, PASS,
+/simulations/d2d_multihop/, -f omnetpp.ini -c MultihopD2D-rangeCheckTrickle -r 0, 3s, 4bdf-0a5b/tplx, PASS,
+

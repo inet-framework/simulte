@@ -24,8 +24,8 @@ class X2HandoverDataMsg : public LteX2Message
 
   public:
 
-    X2HandoverDataMsg(const char* name = NULL, int kind = 0) :
-        LteX2Message(name, kind)
+    X2HandoverDataMsg() :
+        LteX2Message()
     {
         type_ = X2_HANDOVER_DATA_MSG;
     }
@@ -44,8 +44,6 @@ class X2HandoverDataMsg : public LteX2Message
 
     virtual ~X2HandoverDataMsg() { }
 };
-
-//Register_Class(X2HandoverDataMsg);
 
 #endif
 

@@ -13,9 +13,11 @@
 
 Define_Module(EventGenerator);
 
+using namespace omnetpp;
+
 EventGenerator::EventGenerator()
 {
-    selfMessage_ = NULL;
+    selfMessage_ = nullptr;
     eventId_ = 0;
 }
 
@@ -29,7 +31,6 @@ void EventGenerator::initialize()
     EV << "EventGenerator initialize "<< endl;
 
     selfMessage_ = new cMessage("selfMessage");
-    eventPeriod_ = par("eventPeriod");
     binder_ = getBinder();
     singleEventSource_ = par("singleEventSource").boolValue();
 
@@ -98,7 +99,7 @@ void EventGenerator::notifyEvent()
 
     // TODO use a realistic model for generating events
 
-    simtime_t offset = eventPeriod_ + simTime();
+    simtime_t offset = par("eventPeriod") + simTime();
     scheduleAt(offset, selfMessage_);
 
     eventId_++;
@@ -117,7 +118,7 @@ void EventGenerator::computeTargetNodeSet(std::set<MacNodeId>& targetSet, MacNod
 
         // get references to all UEs in the cell
         // they are useful later to retrieve UE positions
-        std::map<MacNodeId, Coord> uePos;
+        std::map<MacNodeId, inet::Coord> uePos;
         std::set<MacNodeId>::iterator it = lteNodeIdSet_.begin();
         for (; it != lteNodeIdSet_.end(); ++it)
         {
@@ -127,10 +128,10 @@ void EventGenerator::computeTargetNodeSet(std::set<MacNodeId>& targetSet, MacNod
         }
 
         // get the coordinates of the source node
-        Coord srcCoord = uePos[sourceId];
+        inet::Coord srcCoord = uePos[sourceId];
 
         // compute the distance for each UE
-        std::map<MacNodeId, Coord>::iterator mit = uePos.begin();
+        std::map<MacNodeId, inet::Coord>::iterator mit = uePos.begin();
         for (; mit != uePos.end(); ++mit)
         {
             if (mit->second.distance(srcCoord) < maxBroadcastRadius)

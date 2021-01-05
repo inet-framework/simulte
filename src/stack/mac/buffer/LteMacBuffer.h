@@ -10,8 +10,8 @@
 #ifndef _LTE_LTEMACBUFFER_H_
 #define _LTE_LTEMACBUFFER_H_
 
-#include "common/LteCommon.h"
 #include <omnetpp.h>
+#include "common/LteCommon.h"
 
 class LteMacQueue;
 
@@ -127,7 +127,7 @@ class LteMacBuffer
      *
      * @return Hol Timestamp (0 if queue empty)
      */
-    simtime_t getHolTimestamp() const;
+    omnetpp::simtime_t getHolTimestamp() const;
 
     /**
      * getProcessed() returns the number of sdus

@@ -6,12 +6,12 @@
 // The above file and the present reference are part of the software itself,
 // and cannot be removed from it.
 //
+#include <inet/mobility/static/StationaryMobility.h>
 
 #include "LteCellInfo.h"
 
 #include "world/radio/ChannelControl.h"
 #include "world/radio/ChannelAccess.h"
-#include "inet/mobility/static/StationaryMobility.h"
 
 Define_Module(LteCellInfo);
 
@@ -21,7 +21,7 @@ LteCellInfo::LteCellInfo()
     nodeX_ = 0;
     nodeY_ = 0;
     nodeZ_ = 0;
-    binder_ = NULL;
+    binder_ = nullptr;
     mcsScaleDl_ = 0;
     mcsScaleUl_ = 0;
     numRus_ = 0;
@@ -31,7 +31,7 @@ LteCellInfo::LteCellInfo()
 
 LteCellInfo::~LteCellInfo()
 {
-    binder_ = NULL;
+    binder_ = nullptr;
     delete ruSet_;
 }
 
@@ -62,7 +62,7 @@ void LteCellInfo::initialize()
     numPreferredBands_ = par("numPreferredBands");
 
     if (numRus_ > NUM_RUS)
-        throw cRuntimeError("The number of Antennas specified exceeds the limit of %d", NUM_RUS);
+        throw omnetpp::cRuntimeError("The number of Antennas specified exceeds the limit of %d", NUM_RUS);
 
     // register the containing eNB  to the binder
     cellId_ = getParentModule()->par("macCellId");
@@ -103,7 +103,7 @@ void LteCellInfo::calculateNodePosition(double centerX, double centerY, int nTh,
     *yPos = (y < pgnMinY_) ? pgnMinY_ : (y > pgnMaxY_) ? pgnMaxY_ : y;
 
     EV << NOW << " LteCellInfo::calculateNodePosition: Computed node position "
-       << *xPos << " , " << *yPos << endl;
+       << *xPos << " , " << *yPos << std::endl;
 
     return;
 }

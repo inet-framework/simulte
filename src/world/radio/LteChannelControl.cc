@@ -6,20 +6,20 @@
 // The above file and the present reference are part of the software itself,
 // and cannot be removed from it.
 //
-
-#include "world/radio/LteChannelControl.h"
-#include "inet/common/INETMath.h"
 #include <cassert>
 
-#include "stack/phy/packet/AirFrame_m.h"
+#include <inet/common/INETMath.h>
 
-#define coreEV EV << "LteChannelControl: "
+#include "stack/phy/packet/AirFrame_m.h"
+#include "world/radio/LteChannelControl.h"
+
+
 
 Define_Module(LteChannelControl);
 
-LteChannelControl::LteChannelControl()
-{
-}
+using namespace omnetpp;
+
+#define coreEV EV << "LteChannelControl: "
 
 LteChannelControl::~LteChannelControl()
 {

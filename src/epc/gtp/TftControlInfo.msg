@@ -7,13 +7,13 @@
 // and cannot be removed from it.
 //
 
-#include "epc/gtp/TftControlInfo.h"
+import inet.common.INETDefs;
+import common.LteCommon;
+import inet.common.TagBase;
 
-TftControlInfo::TftControlInfo()
+class TftControlInfo extends inet::TagBase
 {
-}
+    unsigned int tft;
+};
 
-TftControlInfo::~TftControlInfo()
-{
-}
 

@@ -10,8 +10,12 @@
 //
 // This is the message that asks the RLC layer for a new MAC SDU.
 //
-packet LteMacSduRequest
+import inet.common.INETDefs;
+import inet.common.packet.chunk.Chunk;
+
+class LteMacSduRequest extends inet::FieldsChunk
 {
     @customize(true);
     unsigned int sduSize;       // size of the requested SDU
+    chunkLength = inet::B(1); // TODO: size 0
 }

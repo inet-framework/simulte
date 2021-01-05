@@ -24,13 +24,13 @@ class LtePhyUe : public LtePhyBase
     MacNodeId masterId_;
 
     /** Statistic for serving cell */
-    simsignal_t servingCell_;
+    omnetpp::simsignal_t servingCell_;
 
     /** Self message to trigger handover procedure evaluation */
-    cMessage *handoverStarter_;
+    omnetpp::cMessage *handoverStarter_;
 
     /** Self message to start the handover procedure */
-    cMessage *handoverTrigger_;
+    omnetpp::cMessage *handoverTrigger_;
 
     /** RSSI received from the current serving node */
     double currentMasterRssi_;
@@ -92,23 +92,16 @@ class LtePhyUe : public LtePhyBase
     LteMacUe *mac_;
     LteRlcUm *rlcUm_;
 
-    simtime_t lastFeedback_;
+    omnetpp::simtime_t lastFeedback_;
 
-    virtual void initialize(int stage)override ;
-    virtual void handleSelfMessage(cMessage *msg) override;
-    virtual void handleAirFrame(cMessage* msg) override;
+    virtual void initialize(int stage) override;
+    virtual void handleSelfMessage(omnetpp::cMessage *msg) override;
+    virtual void handleAirFrame(omnetpp::cMessage* msg) override;
     virtual void finish() override;
+    virtual void finish(cComponent *component, omnetpp::simsignal_t signalID) override {cIListener::finish(component, signalID);}
 
-    virtual void handleUpperMessage(cMessage* msg) override;
+    virtual void handleUpperMessage(omnetpp::cMessage* msg) override;
 
-    /**
-     * Catches host failure due to battery depletion.
-     *
-     * If the battery gets depleted, simpleBattery module publishes an HostState::FAILED
-     * event to the blackboard. The event is caught by baseModule's receiveBBItem
-     * which in turn calls handleHostState method, here inherited and redefined.
-     */
-    //virtual void handleHostState(const HostState& state);
     /**
      * Utility function to update the hysteresis threshold using hysteresisFactor_.
      */
@@ -133,7 +126,7 @@ class LtePhyUe : public LtePhyBase
     {
         return masterId_;
     }
-    simtime_t coherenceTime(double speed)
+    omnetpp::simtime_t coherenceTime(double speed)
     {
         double fd = (speed / SPEED_OF_LIGHT) * carrierFrequency_;
         return 0.1 / fd;
