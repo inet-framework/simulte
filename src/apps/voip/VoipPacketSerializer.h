@@ -22,7 +22,7 @@
 /**
  * Converts between VoipPacket and binary (network byte order) packet.
  */
-class INET_API VoipPacketSerializer : public inet::FieldsChunkSerializer
+class VoipPacketSerializer : public inet::FieldsChunkSerializer
 {
   protected:
     virtual void serialize(inet::MemoryOutputStream& stream, const inet::Ptr<const inet::Chunk>& chunk) const override;
