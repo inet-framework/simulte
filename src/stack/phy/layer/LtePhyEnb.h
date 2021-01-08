@@ -15,7 +15,7 @@
 class DasFilter;
 class LteFeedbackPkt;
 
-class LtePhyEnb : public LtePhyBase
+class SIMULTE_API LtePhyEnb : public LtePhyBase
 {
     friend class DasFilter;
 

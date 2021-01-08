@@ -19,7 +19,7 @@
  * This is the UM Module of RLC (with support for D2D)
  *
  */
-class LteRlcUmD2D : public LteRlcUm
+class SIMULTE_API LteRlcUmD2D : public LteRlcUm
 {
   public:
     virtual ~LteRlcUmD2D()

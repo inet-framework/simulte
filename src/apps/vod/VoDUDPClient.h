@@ -15,13 +15,14 @@
 #include <string.h>
 #include <fstream>
 
+#include "common/LteCommon.h"
 #include <apps/vod/VoDPacket_m.h>
 #include <apps/vod/VoDUDPStruct.h>
 #include <inet/transportlayer/contract/udp/UdpControlInfo.h>
 #include <inet/transportlayer/contract/udp/UdpSocket.h>
 #include <inet/networklayer/common/L3AddressResolver.h>
 
-class VoDUDPClient : public omnetpp::cSimpleModule
+class SIMULTE_API VoDUDPClient : public omnetpp::cSimpleModule
 {
     inet::UdpSocket socket;
     std::fstream outfile;

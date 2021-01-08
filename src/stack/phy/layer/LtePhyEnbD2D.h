@@ -12,7 +12,7 @@
 
 #include "stack/phy/layer/LtePhyEnb.h"
 
-class LtePhyEnbD2D : public LtePhyEnb
+class SIMULTE_API LtePhyEnbD2D : public LtePhyEnb
 {
     friend class DasFilter;
 

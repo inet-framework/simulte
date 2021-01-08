@@ -12,7 +12,7 @@
 
 #include "stack/phy/layer/LtePhyBase.h"
 
-class LtePhyRelay : public LtePhyBase
+class SIMULTE_API LtePhyRelay : public LtePhyBase
 {
   private:
     /** Broadcast messages interval (equal to updatePos interval for mobility) */

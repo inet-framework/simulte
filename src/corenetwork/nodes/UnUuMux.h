@@ -11,6 +11,7 @@
 #define _LTE_UNUUMUX_H_
 
 #include <omnetpp.h>
+#include "common/LteCommon.h"
 #include "common/LteControlInfo.h"
 
 /**
@@ -18,7 +19,7 @@
  * @brief Muxer for relay
  *
  */
-class UnUuMux : public omnetpp::cSimpleModule
+class SIMULTE_API UnUuMux : public omnetpp::cSimpleModule
 {
   protected:
     virtual void initialize();

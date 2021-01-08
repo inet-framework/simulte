@@ -30,7 +30,7 @@ class LteRlcUmDataPdu;
  *
  * It implements the procedures described in 3GPP TS 36.322
  */
-class UmRxEntity : public omnetpp::cSimpleModule
+class SIMULTE_API UmRxEntity : public omnetpp::cSimpleModule
 {
   public:
     UmRxEntity();

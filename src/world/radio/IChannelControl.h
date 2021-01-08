@@ -30,7 +30,7 @@ class AirFrame;
 /**
  * Interface to implement for a module that controls radio frequency channel access.
  */
-class IChannelControl
+class SIMULTE_API IChannelControl
 {
   protected:
     struct RadioEntry;

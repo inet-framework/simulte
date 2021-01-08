@@ -14,7 +14,7 @@
 
 class LteAmc;
 
-class LteMacRelayEnb : public LteMacEnb
+class SIMULTE_API LteMacRelayEnb : public LteMacEnb
 {
   protected:
     virtual LteCellInfo* getCellInfo();

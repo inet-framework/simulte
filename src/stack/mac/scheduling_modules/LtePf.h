@@ -12,7 +12,7 @@
 
 #include "stack/mac/scheduler/LteScheduler.h"
 
-class LtePf : public LteScheduler
+class SIMULTE_API LtePf : public LteScheduler
 {
   protected:
 

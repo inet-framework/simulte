@@ -16,7 +16,7 @@
 // X2CompRequestIE
 // Base class for CoMP request messages
 //
-class X2CompRequestIE : public X2InformationElement
+class SIMULTE_API X2CompRequestIE : public X2InformationElement
 {
   protected:
 

@@ -16,13 +16,14 @@
 #ifndef __INET_VOIPPACKETSERIALIZER_H
 #define __INET_VOIPPACKETSERIALIZER_H
 
+#include "common/LteCommon.h"
 #include "inet/common/packet/serializer/FieldsChunkSerializer.h"
 
 
 /**
  * Converts between VoipPacket and binary (network byte order) packet.
  */
-class VoipPacketSerializer : public inet::FieldsChunkSerializer
+class SIMULTE_API VoipPacketSerializer : public inet::FieldsChunkSerializer
 {
   protected:
     virtual void serialize(inet::MemoryOutputStream& stream, const inet::Ptr<const inet::Chunk>& chunk) const override;

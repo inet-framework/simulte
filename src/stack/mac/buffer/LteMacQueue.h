@@ -12,6 +12,7 @@
 
 #include <omnetpp.h>
 #include "inet/common/packet/Packet.h"
+#include "common/LteCommon.h"
 #include "stack/rlc/packet/LteRlcPdu_m.h"
 
 /**
@@ -30,7 +31,7 @@
  * A size equal to 0 means that the size is infinite.
  *
  */
-class LteMacQueue : public omnetpp::cPacketQueue
+class SIMULTE_API LteMacQueue : public omnetpp::cPacketQueue
 {
   public:
 

@@ -14,9 +14,9 @@
 #include <stdlib.h>
 
 #include "inet/queueing/base/PacketQueueBase.h"
-#include "common/LteControlInfo.h"
 #include "inet/networklayer/common/IpProtocolId_m.h"
 #include "inet/transportlayer/udp/Udp.h"
+#include "common/LteCommon.h"
 #include "common/LteControlInfo.h"
 #include "inet/common/packet/Packet.h"
 #include "inet/common/packet/Message.h"
@@ -45,7 +45,7 @@ using namespace inet;
  *
  */
 
-class LteIp : public cSimpleModule, public IProtocolRegistrationListener
+class SIMULTE_API LteIp : public cSimpleModule, public IProtocolRegistrationListener
 {
 public:
     struct SocketDescriptor

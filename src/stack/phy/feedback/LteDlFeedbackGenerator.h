@@ -26,7 +26,7 @@ class DasFilter;
  * @brief Lte Downlink Feedback Generator
  *
  */
-class LteDlFeedbackGenerator : public omnetpp::cSimpleModule
+class SIMULTE_API LteDlFeedbackGenerator : public omnetpp::cSimpleModule
 {
     enum FbTimerType
     {

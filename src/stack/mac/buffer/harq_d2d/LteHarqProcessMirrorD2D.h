@@ -17,7 +17,7 @@
  * LteHarqProcessMirrorD2D stores the status of one H-ARQ "mirror" process
  * It contains a vector that keeps the status of each unit (there is one unit per codeword)
  */
-class LteHarqProcessMirrorD2D
+class SIMULTE_API LteHarqProcessMirrorD2D
 {
     /// current status for each codeword
     std::vector<TxHarqPduStatus> status_;

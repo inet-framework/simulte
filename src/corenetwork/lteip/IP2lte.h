@@ -13,6 +13,7 @@
 #include <omnetpp.h>
 #include <inet/networklayer/common/InterfaceEntry.h>
 
+#include "common/LteCommon.h"
 #include "common/LteControlInfo.h"
 #include "stack/handoverManager/LteHandoverManager.h"
 #include "corenetwork/binder/LteBinder.h"
@@ -25,7 +26,7 @@ typedef std::pair<inet::Ipv4Address, inet::Ipv4Address> AddressPair;
 /**
  *
  */
-class IP2lte : public omnetpp::cSimpleModule
+class SIMULTE_API IP2lte : public omnetpp::cSimpleModule
 {
 protected:
     omnetpp::cGate *stackGateOut_;       // gate connecting IP2lte module to LTE stack

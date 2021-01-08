@@ -16,7 +16,7 @@
  * @class AmcPilotD2D
  * @brief AMC pilot for D2D communication
  */
-class AmcPilotD2D : public AmcPilot
+class SIMULTE_API AmcPilotD2D : public AmcPilot
 {
     bool usePreconfiguredTxParams_;
     UserTxParams* preconfiguredTxParams_;

@@ -22,7 +22,7 @@
  * RXHARQ_PDU_EVALUATING
  * RXHARQ_PDU_CORRECT
  */
-class LteHarqProcessRxD2D : public LteHarqProcessRx
+class SIMULTE_API LteHarqProcessRxD2D : public LteHarqProcessRx
 {
   public:
 

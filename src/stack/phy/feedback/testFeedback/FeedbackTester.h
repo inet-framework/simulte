@@ -16,7 +16,7 @@
 /**
  * TODO
  */
-class FeedbackTester : public omnetpp::cSimpleModule
+class SIMULTE_API FeedbackTester : public omnetpp::cSimpleModule
 {
     omnetpp::simtime_t interval_;
     omnetpp::cMessage *aperiodic_;

@@ -33,7 +33,7 @@ class LteMacEnb;
  *
  * TODO
  */
-class LteAmc
+class SIMULTE_API LteAmc
 {
   private:
     AmcPilot *getAmcPilot(const omnetpp::cPar& amcMode);

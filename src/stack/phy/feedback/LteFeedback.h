@@ -22,7 +22,7 @@ typedef std::vector<LteFeedback> LteFeedbackVector;
 typedef std::vector<LteFeedbackVector> LteFeedbackDoubleVector;
 
 //! LTE feedback message exchanged between PHY and AMC.
-class LteFeedback
+class SIMULTE_API LteFeedback
 {
   protected:
     //! Feedback status type enumerator.
@@ -303,7 +303,7 @@ class LteFeedback
  * MU-MIMO compatibility matrix structure .
  * it holds MU-MIMO pairings computed by the MU-MIMO matching function
  */
-class LteMuMimoMatrix
+class SIMULTE_API LteMuMimoMatrix
 {
     typedef std::vector<MacNodeId> MuMatrix;
     protected:

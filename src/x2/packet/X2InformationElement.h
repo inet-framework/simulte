@@ -28,7 +28,7 @@ enum X2InformationElementType
 //
 // Extend this class to define new Information Elements
 //
-class X2InformationElement : public X2InformationElement_Base
+class SIMULTE_API X2InformationElement : public X2InformationElement_Base
 {
   protected:
     X2InformationElementType type_;

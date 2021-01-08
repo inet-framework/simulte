@@ -12,12 +12,13 @@
 
 #include <string.h>
 #include <omnetpp.h>
+#include "common/LteCommon.h"
 #include <inet/transportlayer/contract/udp/UdpSocket.h>
 #include <inet/networklayer/common/L3Address.h>
 #include <inet/networklayer/common/L3AddressResolver.h>
 #include "apps/alert/AlertPacket_m.h"
 
-class AlertSender : public omnetpp::cSimpleModule
+class SIMULTE_API AlertSender : public omnetpp::cSimpleModule
 {
     inet::UdpSocket socket;
 

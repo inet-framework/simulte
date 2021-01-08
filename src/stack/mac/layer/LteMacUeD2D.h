@@ -18,7 +18,7 @@ class LteSchedulingGrant;
 class LteSchedulerUeUl;
 class LteBinder;
 
-class LteMacUeD2D : public LteMacUe
+class SIMULTE_API LteMacUeD2D : public LteMacUe
 {
     // reference to the eNB
     LteMacEnbD2D* enb_;

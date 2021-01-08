@@ -21,7 +21,7 @@
  * some H-ARQ process needs to be scheduled for retransmissions.
  * It contains a vector of "mirror" H-ARQ processes
  */
-class LteHarqBufferMirrorD2D
+class SIMULTE_API LteHarqBufferMirrorD2D
 {
     /// number of contained H-ARQ processes
     unsigned int numProc_;

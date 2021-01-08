@@ -21,7 +21,7 @@
 
 class LteBinder;
 
-class LteRealisticChannelModel : public LteChannelModel
+class SIMULTE_API LteRealisticChannelModel : public LteChannelModel
 {
 private:
 

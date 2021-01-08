@@ -20,7 +20,7 @@
  * TODO: commenti
  */
 
-class LteHarqBufferTx
+class SIMULTE_API LteHarqBufferTx
 {
   protected:
     LteMacBase *macOwner_;

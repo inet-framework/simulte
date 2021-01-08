@@ -49,7 +49,7 @@
  * that uniquely identifies a connection in the whole network.
  *
  */
-class LtePdcpRrcBase : public omnetpp::cSimpleModule
+class SIMULTE_API LtePdcpRrcBase : public omnetpp::cSimpleModule
 {
   public:
     /**
@@ -253,7 +253,7 @@ class LtePdcpRrcBase : public omnetpp::cSimpleModule
     omnetpp::simsignal_t sentPacketToLowerLayer;
 };
 
-class LtePdcpRrcUe : public LtePdcpRrcBase
+class SIMULTE_API LtePdcpRrcUe : public LtePdcpRrcBase
 {
   protected:
     void handleControlInfo(omnetpp::cPacket* upPkt, FlowControlInfo* lteInfo)
@@ -277,7 +277,7 @@ class LtePdcpRrcUe : public LtePdcpRrcBase
     virtual void initialize(int stage);
 };
 
-class LtePdcpRrcEnb : public LtePdcpRrcBase
+class SIMULTE_API LtePdcpRrcEnb : public LtePdcpRrcBase
 {
   protected:
     void handleControlInfo(omnetpp::cPacket* upPkt, FlowControlInfo* lteInfo)
@@ -307,7 +307,7 @@ class LtePdcpRrcEnb : public LtePdcpRrcBase
     virtual void initialize(int stage);
 };
 
-class LtePdcpRrcRelayEnb : public LtePdcpRrcBase
+class SIMULTE_API LtePdcpRrcRelayEnb : public LtePdcpRrcBase
 {
   protected:
     void handleControlInfo(omnetpp::cPacket* upPkt, FlowControlInfo* lteInfo)
@@ -333,7 +333,7 @@ class LtePdcpRrcRelayEnb : public LtePdcpRrcBase
     }
 };
 
-class LtePdcpRrcRelayUe : public LtePdcpRrcBase
+class SIMULTE_API LtePdcpRrcRelayUe : public LtePdcpRrcBase
 {
   protected:
     /// Node id

@@ -18,7 +18,7 @@
 #include "stack/pdcp_rrc/packet/LtePdcpPdu_m.h"
 #include "inet/common/packet/Packet.h"
 
-class AmRxQueue : public omnetpp::cSimpleModule
+class SIMULTE_API AmRxQueue : public omnetpp::cSimpleModule
 {
   protected:
 

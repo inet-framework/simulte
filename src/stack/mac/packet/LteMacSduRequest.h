@@ -20,7 +20,7 @@
  * Class derived from base class contained
  * in msg declaration: adds UE ID and Logical Connection ID
  */
-class LteMacSduRequest : public LteMacSduRequest_Base
+class SIMULTE_API LteMacSduRequest : public LteMacSduRequest_Base
 {
   private:
     void copy(const LteMacSduRequest& other) {

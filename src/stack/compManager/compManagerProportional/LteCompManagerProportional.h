@@ -14,7 +14,7 @@
 #include "stack/compManager/compManagerProportional/X2CompProportionalRequestIE.h"
 #include "stack/compManager/compManagerProportional/X2CompProportionalReplyIE.h"
 
-class LteCompManagerProportional : public LteCompManagerBase {
+class SIMULTE_API LteCompManagerProportional : public LteCompManagerBase {
 
 protected:
 

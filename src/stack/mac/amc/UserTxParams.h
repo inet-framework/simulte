@@ -28,7 +28,7 @@
  *
  * UserTxParams are set by the AMC Pilot.
  */
-class UserTxParams
+class SIMULTE_API UserTxParams
 {
   protected:
 

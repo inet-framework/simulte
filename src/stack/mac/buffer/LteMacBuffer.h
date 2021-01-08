@@ -19,7 +19,7 @@ class LteMacQueue;
  * @class LteMacBuffer
  * @brief  Buffers for MAC packets
  */
-class LteMacBuffer
+class SIMULTE_API LteMacBuffer
 {
   public:
     /**

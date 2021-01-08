@@ -14,6 +14,7 @@
 
 #include <inet/common/packet/Packet.h>
 
+#include "common/LteCommon.h"
 #include "epc/gtp/TftControlInfo_m.h"
 #include "epc/gtp_common.h"
 
@@ -59,7 +60,7 @@
  * In case of both "destName" and "destAddr" values, the "destAddr" will be used
  *
  */
-class TrafficFlowFilter : public omnetpp::cSimpleModule
+class SIMULTE_API TrafficFlowFilter : public omnetpp::cSimpleModule
 {
     // specifies the type of the node that contains this filter (it can be ENB or PGW
     // the filterTable_ will be indexed differently depending on this parameter

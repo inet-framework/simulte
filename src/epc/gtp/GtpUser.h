@@ -67,7 +67,7 @@
  </config>
  *
  */
-class GtpUser : public omnetpp::cSimpleModule
+class SIMULTE_API GtpUser : public omnetpp::cSimpleModule
 {
     inet::UdpSocket socket_;
     int localPort_;

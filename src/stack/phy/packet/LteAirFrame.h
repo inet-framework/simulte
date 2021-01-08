@@ -16,7 +16,7 @@
 #include "common/LteControlInfo.h"
 #include "stack/phy/packet/LteAirFrame_m.h"
 
-class LteAirFrame : public LteAirFrame_Base
+class SIMULTE_API LteAirFrame : public LteAirFrame_Base
 {
   protected:
     RemoteUnitPhyDataVector remoteUnitPhyDataVector;

@@ -38,7 +38,7 @@
  *
  */
 
-class LteBinder : public omnetpp::cSimpleModule
+class SIMULTE_API LteBinder : public omnetpp::cSimpleModule
 {
   private:
     typedef std::map<MacNodeId, std::map<MacNodeId, bool> > DeployedUesMap;

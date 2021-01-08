@@ -18,7 +18,7 @@ class LteSchedulingGrant;
 class LteSchedulerUeUl;
 class LteBinder;
 
-class LteMacUe : public LteMacBase
+class SIMULTE_API LteMacUe : public LteMacBase
 {
   protected:
     // false if currentHarq_ counter needs to be initialized

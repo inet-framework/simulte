@@ -17,9 +17,10 @@
 #include <inet/transportlayer/contract/udp/UdpSocket.h>
 #include <inet/networklayer/common/L3AddressResolver.h>
 
+#include "common/LteCommon.h"
 #include "apps/cbr/CbrPacket_m.h"
 
-class CbrReceiver : public omnetpp::cSimpleModule
+class SIMULTE_API CbrReceiver : public omnetpp::cSimpleModule
 {
     inet::UdpSocket socket;
 

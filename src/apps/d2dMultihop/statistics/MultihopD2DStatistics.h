@@ -29,7 +29,7 @@ typedef std::set<MacNodeId> UeSet;
 // order to update statistics. For example, when a node receives a message, it
 // calls the recordReception() function.
 //
-class MultihopD2DStatistics : public omnetpp::cSimpleModule
+class SIMULTE_API MultihopD2DStatistics : public omnetpp::cSimpleModule
 {
     // reference to the binder
     LteBinder* lteBinder_;

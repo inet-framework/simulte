@@ -28,7 +28,7 @@ class LteHarqProcessRxD2D;
  * done in the extractCorrectPdu mehtod which must be called at every tti (it must be part
  * of the mac main loop).
  */
-class LteHarqBufferRxD2D : public LteHarqBufferRx
+class SIMULTE_API LteHarqBufferRxD2D : public LteHarqBufferRx
 {
   protected:
 

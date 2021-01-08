@@ -43,7 +43,7 @@ class UmRxEntity;
  *   of this header is fixed to 2 bytes.
  *
  */
-class LteRlcUm : public omnetpp::cSimpleModule
+class SIMULTE_API LteRlcUm : public omnetpp::cSimpleModule
 {
   public:
     virtual ~LteRlcUm()

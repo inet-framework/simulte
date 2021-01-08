@@ -21,7 +21,7 @@
  * An H-ARQ process is atomic for transmission, while H-ARQ units are atomic for
  * H-ARQ feedback.
  */
-class LteHarqProcessTxD2D : public LteHarqProcessTx
+class SIMULTE_API LteHarqProcessTxD2D : public LteHarqProcessTx
 {
   public:
 

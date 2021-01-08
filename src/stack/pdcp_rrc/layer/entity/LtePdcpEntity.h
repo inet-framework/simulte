@@ -23,7 +23,7 @@
  * - mantain numbering of one logical connection
  *
  */
-class LtePdcpEntity
+class SIMULTE_API LtePdcpEntity
 {
     // next sequence number to be assigned
     unsigned int sequenceNumber_;

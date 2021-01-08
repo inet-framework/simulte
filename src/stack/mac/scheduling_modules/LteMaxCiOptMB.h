@@ -15,7 +15,7 @@
 typedef std::map< MacNodeId,std::vector<BandLimit> > SchedulingDecision;
 typedef std::map<MacNodeId,UsableBands> UsableBandList;
 
-class LteMaxCiOptMB : public virtual LteScheduler
+class SIMULTE_API LteMaxCiOptMB : public virtual LteScheduler
 {
 
     std::string problemFile_;

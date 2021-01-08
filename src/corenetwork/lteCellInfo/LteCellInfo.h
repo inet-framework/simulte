@@ -25,7 +25,7 @@ class DasFilter;
  * @class LteCellInfo
  * @brief There is one LteCellInfo module for each eNB (thus one for each cell). Keeps cross-layer information about the cell
  */
-class LteCellInfo : public omnetpp::cSimpleModule
+class SIMULTE_API LteCellInfo : public omnetpp::cSimpleModule
 {
   private:
     /// reference to the global module binder

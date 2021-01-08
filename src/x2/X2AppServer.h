@@ -18,7 +18,7 @@
 /**
  * Implements the X2AppServer simple module. See the NED file for more info.
  */
-class X2AppServer : public inet::SctpServer
+class SIMULTE_API X2AppServer : public inet::SctpServer
 {
         // reference to the gate
     omnetpp::cGate* x2ManagerIn_;

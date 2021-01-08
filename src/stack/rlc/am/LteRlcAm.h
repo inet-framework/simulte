@@ -25,7 +25,7 @@ class AmRxQueue;
  *
  * TODO
  */
-class LteRlcAm : public omnetpp::cSimpleModule
+class SIMULTE_API LteRlcAm : public omnetpp::cSimpleModule
 {
   protected:
 

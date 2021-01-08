@@ -32,7 +32,7 @@ class LteHarqFeedback;
  */
 // TODO: controllare numero di processi UL/DL, UE, ENB
 // TODO: statistiche per i drop (aggiungere membro?)
-class LteHarqProcessRx
+class SIMULTE_API LteHarqProcessRx
 {
   protected:
     /// contained pdus

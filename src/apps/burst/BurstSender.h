@@ -11,11 +11,12 @@
 #include <inet/transportlayer/contract/udp/UdpSocket.h>
 #include <inet/networklayer/common/L3AddressResolver.h>
 
+#include "common/LteCommon.h"
 #include "apps/burst/BurstPacket_m.h"
 
 using namespace inet;
 
-class BurstSender : public cSimpleModule
+class SIMULTE_API BurstSender : public cSimpleModule
 {
     UdpSocket socket;
     //has the sender been initialized?

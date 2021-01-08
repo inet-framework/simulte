@@ -13,7 +13,7 @@
     typedef SortedDesc<MacCid, unsigned int> ScoreDesc;
     typedef std::priority_queue<ScoreDesc> ScoreList;
 
-class LteMaxCiMultiband : public virtual LteScheduler
+class SIMULTE_API LteMaxCiMultiband : public virtual LteScheduler
 {
 
 

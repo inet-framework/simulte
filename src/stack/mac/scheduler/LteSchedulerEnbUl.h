@@ -17,7 +17,7 @@
  *
  * LTE eNB uplink scheduler.
  */
-class LteSchedulerEnbUl : public LteSchedulerEnb
+class SIMULTE_API LteSchedulerEnbUl : public LteSchedulerEnb
 {
   protected:
 
