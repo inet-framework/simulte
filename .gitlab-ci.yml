@@ -38,7 +38,7 @@ Build:
   artifacts:
     paths:
     # we keep the scripts
-    - rover-main/scripts
+    - crownet/scripts
     # we need to keep the ned files and the simulte lib
     - simulte
     # we need to keep the ned files and the inet lib (all stored in the src subfolder)
