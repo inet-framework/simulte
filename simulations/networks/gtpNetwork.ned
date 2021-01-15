@@ -41,7 +41,6 @@ network GtpNetwork
         }
         configurator: LteNetworkConfigurator {
             @display("p=95,42");
-            config = xmldoc("ipAddresses.xml");
         }
         Host1: StandardHost {
             @display("p=89,121");
