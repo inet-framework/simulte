@@ -25,7 +25,7 @@
  * b) GtpUserX2Msg from UDP-IP layers.
  *
  */
-class GtpUserX2 : public omnetpp::cSimpleModule
+class SIMULTE_API GtpUserX2 : public omnetpp::cSimpleModule
 {
     inet::UdpSocket socket_;
     int localPort_;

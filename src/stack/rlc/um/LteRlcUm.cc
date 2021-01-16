@@ -161,12 +161,12 @@ void LteRlcUm::handleUpperMessage(cPacket *pktAux)
     emit(receivedPacketFromUpperLayer, pktAux);
 
     auto pkt = check_and_cast<inet::Packet *> (pktAux);
-    auto lteInfo = pkt->getTag<FlowControlInfo>();
+    auto lteInfo = pkt->getTagForUpdate<FlowControlInfo>();
 
     auto chunk = pkt->peekAtFront<inet::Chunk>();
     EV << "LteRlcUm::handleUpperMessage - Received packet " << chunk->getClassName() << " from upper layer, size " << pktAux->getByteLength() << "\n";
 
-    UmTxEntity* txbuf = getTxBuffer(lteInfo);
+    UmTxEntity* txbuf = getTxBuffer(lteInfo.get());
 
     // Create a new RLC packet
     auto rlcPkt = inet::makeShared<LteRlcSdu>();
@@ -207,13 +207,13 @@ void LteRlcUm::handleLowerMessage(cPacket *pktAux)
 {
     auto pkt = check_and_cast<inet::Packet *>(pktAux);
     EV << "LteRlcUm::handleLowerMessage - Received packet " << pkt->getName() << " from lower layer\n";
-    auto lteInfo = pkt->getTag<FlowControlInfo>();
+    auto lteInfo = pkt->getTagForUpdate<FlowControlInfo>();
     auto chunk = pkt->peekAtFront<inet::Chunk>();
 
     if (inet::dynamicPtrCast<const LteMacSduRequest>(chunk) != nullptr)
     {
         // get the corresponding Tx buffer
-        UmTxEntity* txbuf = getTxBuffer(lteInfo);
+        UmTxEntity* txbuf = getTxBuffer(lteInfo.get());
 
         auto macSduRequest = pkt->peekAtFront<LteMacSduRequest>();
         unsigned int size = macSduRequest->getSduSize();
@@ -230,7 +230,7 @@ void LteRlcUm::handleLowerMessage(cPacket *pktAux)
         emit(receivedPacketFromLowerLayer, pkt);
 
         // Extract informations from fragment
-        UmRxEntity* rxbuf = getRxBuffer(lteInfo);
+        UmRxEntity* rxbuf = getRxBuffer(lteInfo.get());
         drop(pkt);
 
         // Bufferize PDU

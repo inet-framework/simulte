@@ -21,7 +21,7 @@ class IP2lte;
 //
 // LteHandoverManager
 //
-class LteHandoverManager : public omnetpp::cSimpleModule
+class SIMULTE_API LteHandoverManager : public omnetpp::cSimpleModule
 {
 
   protected:

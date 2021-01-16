@@ -13,7 +13,7 @@
 
 #include "stack/phy/ChannelModel/LteChannelModel.h"
 
-class LteDummyChannelModel : public LteChannelModel
+class SIMULTE_API LteDummyChannelModel : public LteChannelModel
 {
      private:
    double per_;

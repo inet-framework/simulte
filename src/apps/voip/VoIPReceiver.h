@@ -18,9 +18,10 @@
 #include <inet/networklayer/common/L3AddressResolver.h>
 #include <inet/transportlayer/contract/udp/UdpSocket.h>
 
+#include "common/LteCommon.h"
 #include "apps/voip/VoipPacket_m.h"
 
-class VoIPReceiver : public omnetpp::cSimpleModule
+class SIMULTE_API VoIPReceiver : public omnetpp::cSimpleModule
 {
     inet::UdpSocket socket;
 

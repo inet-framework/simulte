@@ -12,7 +12,7 @@
 
 #include "stack/mac/conflict_graph/ConflictGraph.h"
 
-class DistanceBasedConflictGraph : public ConflictGraph
+class SIMULTE_API DistanceBasedConflictGraph : public ConflictGraph
 {
     // path loss-based thresholds (used by default)
     double d2dDbmThreshold_;

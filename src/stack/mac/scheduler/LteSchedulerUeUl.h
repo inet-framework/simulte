@@ -18,7 +18,7 @@ class LcgScheduler;
 /**
  * LTE Ue uplink scheduler.
  */
-class LteSchedulerUeUl
+class SIMULTE_API LteSchedulerUeUl
 {
   protected:
 

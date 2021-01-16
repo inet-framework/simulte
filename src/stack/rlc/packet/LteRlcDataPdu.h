@@ -22,7 +22,7 @@
  * A Data PDU contains a list of SDUs: a SDU can be
  * a whole SDU or a fragment
  */
-class LteRlcDataPdu : public LteRlcDataPdu_Base {
+class SIMULTE_API LteRlcDataPdu : public LteRlcDataPdu_Base {
 private:
     void copy(const LteRlcDataPdu& other) {
         // "the copy constructor of a container should dup() the owned objects and take() the copies"
@@ -56,7 +56,7 @@ protected:
     unsigned int pduSequenceNumber_ = 0;
 
     // Length of the PDU
-    inet::int64 rlcPduLength_ = 0;
+    int64_t rlcPduLength_ = 0;
 
 
 public:
@@ -157,7 +157,7 @@ public:
  *
  * Define additional fields for UM PDU
  */
-class LteRlcUmDataPdu : public LteRlcDataPdu {
+class SIMULTE_API LteRlcUmDataPdu : public LteRlcDataPdu {
 private:
     void copy(const LteRlcUmDataPdu &other) {
 
@@ -198,7 +198,7 @@ public:
  *
  * Define additional fields for AM PDU
  */
-class LteRlcAmDataPdu : public LteRlcDataPdu {
+class SIMULTE_API LteRlcAmDataPdu : public LteRlcDataPdu {
 private:
     void copy(const LteRlcAmDataPdu &other) {
         pollStatus_ = other.pollStatus_;

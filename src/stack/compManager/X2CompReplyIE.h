@@ -17,7 +17,7 @@
 // X2CompReplyIE
 // Base class for CoMP reply messages
 //
-class X2CompReplyIE : public X2InformationElement
+class SIMULTE_API X2CompReplyIE : public X2InformationElement
 {
   protected:
 

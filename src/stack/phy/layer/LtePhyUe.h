@@ -17,7 +17,7 @@
 
 class DasFilter;
 
-class LtePhyUe : public LtePhyBase
+class SIMULTE_API LtePhyUe : public LtePhyBase
 {
   protected:
     /** Master MacNodeId */

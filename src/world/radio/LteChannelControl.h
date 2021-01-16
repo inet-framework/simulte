@@ -18,7 +18,7 @@
  * @ingroup LteChannelControl
  * @see ChannelAccess
  */
-class LteChannelControl : public ChannelControl
+class SIMULTE_API LteChannelControl : public ChannelControl
 {
   protected:
 

@@ -26,7 +26,7 @@
  *   and forwarded to TM/UM/AM modules
  *
  */
-class LteRlcMux : public omnetpp::cSimpleModule
+class SIMULTE_API LteRlcMux : public omnetpp::cSimpleModule
 {
   public:
     virtual ~LteRlcMux()

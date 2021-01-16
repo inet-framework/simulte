@@ -16,7 +16,7 @@
 
 class LteSchedulerEnb;
 
-class LteDrr : public LteScheduler
+class SIMULTE_API LteDrr : public LteScheduler
 {
   private:
 

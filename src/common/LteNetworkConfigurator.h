@@ -16,21 +16,22 @@
 #pragma once
 
 #include "inet/networklayer/configurator/ipv4/Ipv4NetworkConfigurator.h"
-#include "inet/networklayer/common/InterfaceEntry.h"
+#include "inet/networklayer/common/NetworkInterface.h"
+#include "common/LteCommon.h"
 
 
 using namespace omnetpp;
 using namespace inet;
 
 
-class LteNetworkConfigurator : public inet::Ipv4NetworkConfigurator {
+class SIMULTE_API LteNetworkConfigurator : public inet::Ipv4NetworkConfigurator {
 public:
     virtual ~LteNetworkConfigurator() = default;
 
 
 protected:
     virtual void initialize(int stage) override;
-    virtual bool isWirelessInterface(InterfaceEntry *interfaceEntry) override;
+    virtual bool isWirelessInterface(NetworkInterface *interfaceEntry) override;
 
     std::vector<std::pair<std::string, int>> interfaceComparator;
 };

@@ -11,6 +11,7 @@
 #define _LTE_INTERNETQUEUE_H_
 
 #include <omnetpp.h>
+#include "common/LteCommon.h"
 
 /**
  * @class InternetQueue
@@ -26,7 +27,7 @@
  * The size of the queue is configurable ( 0 = infinite ).
  *
  */
-class InternetQueue : public omnetpp::cSimpleModule
+class SIMULTE_API InternetQueue : public omnetpp::cSimpleModule
 {
   protected:
 

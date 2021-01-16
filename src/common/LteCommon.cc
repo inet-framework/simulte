@@ -466,7 +466,7 @@ MacCid idToMacCid(MacNodeId nodeId, LogicalCid lcid)
 /*
  * Obtain the CID from the Control Info
  */
-MacCid ctrlInfoToMacCid(LteControlInfo * info)
+MacCid ctrlInfoToMacCid(LteControlInfo* info)
 {
     /*
      * Given the fact that  CID = <UE_MAC_ID,LCID>
@@ -702,19 +702,19 @@ void initializeAllChannels(cModule *mod)
 
 void removeAllSimuLteTags(inet::Packet *pkt) {
     auto c2 = pkt->removeTagIfPresent<TftControlInfo>();
-    if (c2)
-        delete c2;
+    //if (c2)
+    //    delete c2;
     auto c3 = pkt->removeTagIfPresent<X2ControlInfoTag>();
-    if (c3)
-        delete c3;
+    //if (c3)
+    //    delete c3;
     auto c4 = pkt->removeTagIfPresent<FlowControlInfo>();
-    if (c4)
-        delete c4;
+    //if (c4)
+    //    delete c4;
     auto c5 = pkt->removeTagIfPresent<UserControlInfo>();
-    if (c5)
-        delete c5;
+    //if (c5)
+    //    delete c5;
     auto c1 = pkt->removeTagIfPresent<LteControlInfo>();
-    if (c1)
-        delete c1;
+    //if (c1)
+    //    delete c1;
 }
 

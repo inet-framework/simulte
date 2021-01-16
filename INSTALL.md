@@ -8,8 +8,8 @@ Prerequisites
 -------------
 
 You should have a 
-- working OMNeT++ (v5.5.1) installation. (Download from http://omnetpp.org)
-- working INET-Framework installation (v4.1.1). (Download from http://inet.omnetpp.org)
+- working OMNeT++ (v6.0pre10) installation. (Download from https://omnetpp.org)
+- working INET-Framework installation (v4.3.0). (Download from https://inet.omnetpp.org)
 
 Make sure your OMNeT++ installation works OK (e.g. try running the samples)
 and it is in the path (to test, try the command "which nedtool"). On
@@ -27,7 +27,7 @@ Building SimuLTE from the IDE
 1. Extract the downloaded SimuLTE tarball next to the INET directory
    (i.e. into your workspace directory, if you are using the IDE).
 
-2. Start the IDE, and ensure that the 'inet' project is open and correctly built.
+2. Start the IDE, and ensure that the 'inet4' project is open and correctly built.
 
 3. Import the project using: File | Import | General | Existing projects into Workspace.
    Then select the workspace dir as the root directory, and be sure NOT to check the

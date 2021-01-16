@@ -13,7 +13,7 @@
 #include "stack/phy/feedback/LteSummaryBuffer.h"
 #include "stack/phy/feedback/LteFeedback.h"
 
-class LteSummaryBuffer
+class SIMULTE_API LteSummaryBuffer
 {
   protected:
     //! Buffer dimension

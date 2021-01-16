@@ -19,7 +19,7 @@
  * TODO: commenti
  */
 
-class LteHarqBufferTxD2D : public LteHarqBufferTx
+class SIMULTE_API LteHarqBufferTxD2D : public LteHarqBufferTx
 {
 
   public:

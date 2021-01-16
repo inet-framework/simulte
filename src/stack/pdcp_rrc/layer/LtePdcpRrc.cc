@@ -121,7 +121,7 @@ void LtePdcpRrcBase::headerDecompress(Packet* pkt)
 }
 
 void LtePdcpRrcBase::setTrafficInformation(cPacket* pkt,
-    FlowControlInfo* lteInfo)
+    inet::Ptr<FlowControlInfo> lteInfo)
 {
     if ((strcmp(pkt->getName(), "VoIP")) == 0)
     {
@@ -162,7 +162,7 @@ void LtePdcpRrcBase::fromDataPort(cPacket *pktAux)
 
     // Control Informations
     auto pkt = check_and_cast<inet::Packet *> (pktAux);
-    auto lteInfo = pkt->getTag<FlowControlInfo>();
+    auto lteInfo = pkt->getTagForUpdate<FlowControlInfo>();
 
     setTrafficInformation(pkt, lteInfo);
     lteInfo->setDestId(getDestId(lteInfo));

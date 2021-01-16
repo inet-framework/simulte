@@ -6,7 +6,7 @@
 // The above file and the present reference are part of the software itself,
 // and cannot be removed from it.
 //
-#include <inet/networklayer/common/InterfaceEntry.h>
+#include <inet/networklayer/common/NetworkInterface.h>
 #include <inet/common/ModuleAccess.h>
 #include <inet/networklayer/ipv4/Ipv4InterfaceData.h>
 
@@ -130,12 +130,13 @@ void LteMacUe::initialize(int stage)
 
         // find interface entry and use its address
         IInterfaceTable *interfaceTable = getModuleFromPar<IInterfaceTable>(par("interfaceTableModule"), this);
-        InterfaceEntry * interfaceEntry = interfaceTable->findInterfaceByName(par("interfaceName").stringValue());
+        NetworkInterface * interfaceEntry = interfaceTable->findInterfaceByName(par("interfaceName").stringValue());
+
         if(interfaceEntry == nullptr)
             throw new cRuntimeError("no interface entry for lte interface - cannot bind node %i", nodeId_);
 
 
-        Ipv4InterfaceData* ipv4if = interfaceEntry->getProtocolData<Ipv4InterfaceData>();
+        auto ipv4if = interfaceEntry->getProtocolData<Ipv4InterfaceData>();
         if(ipv4if == nullptr)
             throw new cRuntimeError("no Ipv4 interface data - cannot bind node %i", nodeId_);
         binder_->setMacNodeId(ipv4if->getIPAddress(), nodeId_);
@@ -230,10 +231,10 @@ bool LteMacUe::bufferizePacket(cPacket* pktAux)
 
     pkt->setTimestamp();           // add time-stamp with current time to packet
 
-    auto lteInfo = pkt->getTag<FlowControlInfo>();
+    auto lteInfo = pkt->getTagForUpdate<FlowControlInfo>();
 
     // obtain the cid from the packet informations
-    MacCid cid = ctrlInfoToMacCid(lteInfo);
+    MacCid cid = ctrlInfoToMacCid(lteInfo.get());
 
     // this packet is used to signal the arrival of new data in the RLC buffers
     if (checkIfHeaderType<LteRlcPduNewData>(pkt))
@@ -326,7 +327,7 @@ bool LteMacUe::bufferizePacket(cPacket* pktAux)
 
 void LteMacUe::macPduMake(MacCid cid)
 {
-    int64 size = 0;
+    int64_t size = 0;
 
     macPduList_.clear();
 
@@ -908,7 +909,7 @@ LteMacUe::updateUserTxParam(cPacket* pktAux)
 {
     auto pkt = check_and_cast<inet::Packet *>(pktAux);
 
-    auto lteInfo = pkt->getTag<UserControlInfo> ();
+    auto lteInfo = pkt->getTagForUpdate<UserControlInfo> ();
 
     if (lteInfo->getFrameType() != DATAPKT)
         return;

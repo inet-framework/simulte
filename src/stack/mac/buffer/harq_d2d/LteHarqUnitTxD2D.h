@@ -27,7 +27,7 @@
  * TXHARQ_PDU_EMPTY:           yes       not present            not ready for tx
  * TXHARQ_PDU_SELECTED:        no        present                will be tx
  */
-class LteHarqUnitTxD2D : public LteHarqUnitTx
+class SIMULTE_API LteHarqUnitTxD2D : public LteHarqUnitTx
 {
   protected:
 

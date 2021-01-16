@@ -11,9 +11,10 @@
 #include <inet/transportlayer/contract/udp/UdpSocket.h>
 #include <inet/networklayer/common/L3AddressResolver.h>
 
+#include "common/LteCommon.h"
 #include "apps/cbr/CbrPacket_m.h"
 
-class CbrSender : public omnetpp::cSimpleModule
+class SIMULTE_API CbrSender : public omnetpp::cSimpleModule
 {
     inet::UdpSocket socket;
     //has the sender been initialized?

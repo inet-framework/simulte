@@ -12,7 +12,7 @@
 
 #include <omnetpp.h>
 #include "inet/transportlayer/contract/udp/UdpSocket.h"
-#include <inet/networklayer/common/InterfaceEntry.h>
+#include <inet/networklayer/common/NetworkInterface.h>
 #include "inet/networklayer/common/L3AddressResolver.h"
 #include "inet/networklayer/ipv4/Ipv4Header_m.h"
 #include "epc/gtp/TftControlInfo_m.h"
@@ -28,7 +28,7 @@
  * b) GtpUserSimplifiedMsg from UDP-IP layers.
  *
  */
-class GtpUserSimplified : public omnetpp::cSimpleModule
+class SIMULTE_API GtpUserSimplified : public omnetpp::cSimpleModule
 {
     inet::UdpSocket socket_;
     int localPort_;
@@ -54,8 +54,8 @@ class GtpUserSimplified : public omnetpp::cSimpleModule
     EpcNodeType selectOwnerType(const char * type);
 
     // detect LTE interface
-    inet::InterfaceEntry* detectInterface();
-    inet::InterfaceEntry* ie_;
+    inet::NetworkInterface* detectInterface();
+    inet::NetworkInterface* ie_;
 
   protected:
 

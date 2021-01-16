@@ -20,7 +20,7 @@ enum CompRbStatus
 //
 // X2CompProportionalReplyIE
 //
-class X2CompProportionalReplyIE : public X2CompReplyIE
+class SIMULTE_API X2CompProportionalReplyIE : public X2CompReplyIE
 {
   protected:
 

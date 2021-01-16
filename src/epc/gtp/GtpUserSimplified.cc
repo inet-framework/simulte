@@ -9,7 +9,7 @@
 
 #include "epc/gtp/GtpUserSimplified.h"
 #include "inet/networklayer/common/L3AddressResolver.h"
-#include "inet/applications/common/SocketTag_m.h"
+#include "inet/common/socket/SocketTag_m.h"
 #include "inet/networklayer/contract/IInterfaceTable.h"
 #include "inet/common/ModuleAccess.h"
 #include "inet/linklayer/common/InterfaceTag_m.h"
@@ -46,11 +46,11 @@ void GtpUserSimplified::initialize(int stage)
     ie_ = detectInterface();
 }
 
-InterfaceEntry *GtpUserSimplified::detectInterface()
+NetworkInterface *GtpUserSimplified::detectInterface()
 {
     IInterfaceTable *ift = getModuleFromPar<IInterfaceTable>(par("interfaceTableModule"), this);
     const char *interfaceName = par("ipOutInterface");
-    InterfaceEntry *ie = nullptr;
+    NetworkInterface *ie = nullptr;
 
     if (strlen(interfaceName) > 0) {
         ie = ift->findInterfaceByName(interfaceName);
@@ -101,7 +101,7 @@ void GtpUserSimplified::handleFromTrafficFlowFilter(Packet * pkt)
     // extract control info from the datagram
     auto tftInfo = pkt->removeTag<TftControlInfo>();
     TrafficFlowTemplateId flowId = tftInfo->getTft();
-    delete tftInfo;
+    //delete tftInfo;
     removeAllSimuLteTags(pkt);
 
     EV << "GtpUserSimplified::handleFromTrafficFlowFilter - Received a tftMessage with flowId[" << flowId << "]" << endl;
@@ -148,8 +148,8 @@ void GtpUserSimplified::handleFromUdp(Packet *pkt)
 
     // remove any pending socket indications
     auto sockInd = pkt->removeTagIfPresent<SocketInd>();
-    if (sockInd)
-        delete sockInd;
+    //if (sockInd)
+    //    delete sockInd;
     
     // handle decapsulated packet according to owner type
     if (ownerType_ == PGW)

@@ -25,7 +25,7 @@ typedef std::vector<std::vector<UnitStatus> > BufferStatus;
  * H-ARQ feedback.
  */
 
-class LteHarqProcessTx
+class SIMULTE_API LteHarqProcessTx
 {
   protected:
 
@@ -169,7 +169,7 @@ class LteHarqProcessTx
     bool isUnitEmpty(Codeword cw);
     bool isUnitReady(Codeword cw);
     unsigned char getTransmissions(Codeword cw);
-    inet::int64 getPduLength(Codeword cw);
+    int64_t getPduLength(Codeword cw);
     omnetpp::simtime_t getTxTime(Codeword cw);
     bool isUnitMarked(Codeword cw);
     bool isDropped();

@@ -32,7 +32,7 @@
  */
 
 using namespace inet;
-class AmTxQueue : public cSimpleModule
+class SIMULTE_API AmTxQueue : public cSimpleModule
 {
   protected:
 

@@ -50,7 +50,7 @@ class AirFrame;
  * @ingroup channelControl
  * @ingroup phyLayer
  */
-class ChannelAccess : public omnetpp::cSimpleModule, public omnetpp::cListener
+class SIMULTE_API ChannelAccess : public omnetpp::cSimpleModule, public omnetpp::cListener
 {
   protected:
     IChannelControl* cc;  // Pointer to the ChannelControl module

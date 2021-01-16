@@ -83,9 +83,11 @@ void MultihopD2D::initialize(int stage)
 
         // for multicast support
         inet::IInterfaceTable *ift = inet::getModuleFromPar< inet::IInterfaceTable >(par("interfaceTableModule"), this);
-        InterfaceEntry *ie = ift->findInterfaceByName(par("interfaceName").stringValue());
+
+        NetworkInterface *ie = ift->findInterfaceByName(par("interfaceName").stringValue());
+        
         if (!ie)
-            throw cRuntimeError("Wrong multicastInterface setting: no interface named cellular");
+            throw cRuntimeError("Wrong multicastInterface setting: no interface found");
         inet::MulticastGroupList mgl = ift->collectMulticastGroups();
         socket.joinLocalMulticastGroups(mgl);
         socket.setMulticastOutputInterface(ie->getInterfaceId());

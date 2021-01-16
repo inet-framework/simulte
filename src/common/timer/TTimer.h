@@ -10,13 +10,14 @@
 #ifndef _LTE_TTIMER_H_
 #define _LTE_TTIMER_H_
 
+#include "common/LteCommon.h"
 #include "common/timer/TTimerMsg_m.h"
 #include "common/timer/TMultiTimerMsg_m.h"
 
 //using namespace omnetpp;
 
 //! Generic timer interface
-class TTimer : public omnetpp::cObject
+class SIMULTE_API TTimer : public omnetpp::cObject
 {
   public:
     /*! Build an idle timer.
@@ -141,7 +142,7 @@ class TTimer : public omnetpp::cObject
  *  To distinguish between different events, the module handler will receive a message
  *  with an event id specified by user.
  */
-class TMultiTimer : public omnetpp::cObject
+class SIMULTE_API TMultiTimer : public omnetpp::cObject
 {
   public:
     //! Build an idle multi-timer.

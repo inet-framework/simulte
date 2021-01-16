@@ -21,7 +21,7 @@ class LteMacPdu;
  */
 typedef std::map<MacCid, unsigned int> ScheduleList;
 
-class LcgScheduler
+class SIMULTE_API LcgScheduler
 {
 
   protected:

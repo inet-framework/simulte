@@ -67,7 +67,7 @@
  </config>
  *
  */
-class GtpUser : public omnetpp::cSimpleModule
+class SIMULTE_API GtpUser : public omnetpp::cSimpleModule
 {
     inet::UdpSocket socket_;
     int localPort_;
@@ -99,8 +99,8 @@ class GtpUser : public omnetpp::cSimpleModule
     EpcNodeType selectOwnerType(const char * type);
 
     // detect LTE interface
-    inet::InterfaceEntry* detectInterface();
-    inet::InterfaceEntry* ie_;
+    inet::NetworkInterface* detectInterface();
+    inet::NetworkInterface* ie_;
 
   protected:
 

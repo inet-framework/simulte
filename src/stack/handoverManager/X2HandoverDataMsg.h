@@ -19,7 +19,7 @@
  * Class derived from LteX2Message
  * It defines the message that encapsulata datagram to be exchanged between Handover managers
  */
-class X2HandoverDataMsg : public LteX2Message
+class SIMULTE_API X2HandoverDataMsg : public LteX2Message
 {
 
   public:

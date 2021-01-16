@@ -20,7 +20,7 @@
  * TODO: commenti
  */
 
-class LteHarqBufferTx
+class SIMULTE_API LteHarqBufferTx
 {
   protected:
     LteMacBase *macOwner_;
@@ -77,7 +77,7 @@ class LteHarqBufferTx
      * @param unitId
      * @return pdu length in bytes
      */
-    inet::int64 pduLength(unsigned char acid, Codeword cw);
+    int64_t pduLength(unsigned char acid, Codeword cw);
 
     /**
      * Takes a list of ids of the units that must retransmit and the number

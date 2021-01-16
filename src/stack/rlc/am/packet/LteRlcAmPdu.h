@@ -12,7 +12,7 @@
 
 #include "stack/rlc/am/packet/LteRlcAmPdu_m.h"
 
-class LteRlcAmPdu : public LteRlcAmPdu_Base
+class SIMULTE_API LteRlcAmPdu : public LteRlcAmPdu_Base
 {
     std::vector<bool> bitmap_;
 

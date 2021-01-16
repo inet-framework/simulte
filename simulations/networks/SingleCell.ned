@@ -26,15 +26,12 @@ network SingleCell
         int numUe = default(1);
         @display("i=block/network2;bgb=991,558;bgi=background/budapest");
     submodules:
-        channelControl: LteChannelControl {
-            @display("p=50,25;is=s");
-        }
+
         routingRecorder: RoutingTableRecorder {
             @display("p=50,75;is=s");
         }
         configurator: LteNetworkConfigurator {
             @display("p=50,125");
-            config = xmldoc("demo.xml");
         }
         binder: LteBinder {
             @display("p=50,175;is=s");
@@ -54,6 +51,9 @@ network SingleCell
         }
         ue[numUe]: Ue {
             @display("p=783,278");
+        }
+        channelControl: LteChannelControl {
+            @display("p=50,25;is=s");
         }
     connections:
         server.pppg++ <--> Eth10G <--> router.pppg++;

@@ -27,7 +27,7 @@ class LteHarqProcessRx;
  * done in the extractCorrectPdu mehtod which must be called at every tti (it must be part
  * of the mac main loop).
  */
-class LteHarqBufferRx
+class SIMULTE_API LteHarqBufferRx
 {
   protected:
     /// mac module reference

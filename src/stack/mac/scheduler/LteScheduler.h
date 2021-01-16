@@ -52,7 +52,7 @@ struct SortedDesc
 /**
  * @class LteScheduler
  */
-class LteScheduler
+class SIMULTE_API LteScheduler
 {
   protected:
 

@@ -32,7 +32,7 @@ class LteMacBase;
  * TXHARQ_PDU_EMPTY:          yes     not present            not ready for tx
  * TXHARQ_PDU_SELECTED:       no      present                will be tx
  */
-class LteHarqUnitTx
+class SIMULTE_API LteHarqUnitTx
 {
   protected:
 
@@ -43,7 +43,7 @@ class LteHarqUnitTx
     long pduId_;
 
     /// PDU size in bytes
-    inet::int64 pduLength_;
+    int64_t pduLength_;
 
     // H-ARQ process identifier
     unsigned char acid_;
@@ -175,7 +175,7 @@ class LteHarqUnitTx
         return transmissions_;
     }
 
-    virtual inet::int64 getPduLength()
+    virtual int64_t getPduLength()
     {
         return pduLength_;
     }

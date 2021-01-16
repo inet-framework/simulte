@@ -20,7 +20,7 @@
  * This is the PDCP/RRC layer of LTE Stack (with D2D support).
  *
  */
-class LtePdcpRrcUeD2D : public LtePdcpRrcUe
+class SIMULTE_API LtePdcpRrcUeD2D : public LtePdcpRrcUe
 {
     // initialization flag for each D2D peer
     // it is set to true when the first IP datagram for that peer reaches the PDCP layer
@@ -30,12 +30,12 @@ class LtePdcpRrcUeD2D : public LtePdcpRrcUe
 
     virtual void handleMessage(omnetpp::cMessage *msg) override;
 
-    void handleControlInfo(omnetpp::cPacket* upPkt, FlowControlInfo* lteInfo) override
+    void handleControlInfo(omnetpp::cPacket* upPkt, Ptr<FlowControlInfo> lteInfo) override
     {
-        delete lteInfo;
+        //delete lteInfo;
     }
 
-    virtual MacNodeId getDestId(FlowControlInfo* lteInfo) override;
+    virtual MacNodeId getDestId(inet::Ptr<FlowControlInfo> lteInfo) override;
 
     using LtePdcpRrcUe::getDirection;  // base class variant: return direction for comm. with eNB
     // additional getDirection method determining if D2D comm. is available to a specific destination

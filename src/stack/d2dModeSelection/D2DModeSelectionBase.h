@@ -17,7 +17,7 @@
 // Base class for D2D Mode Selection modules
 // To add a new policy for mode selection, extend this class and redefine pure virtual methods
 //
-class D2DModeSelectionBase : public omnetpp::cSimpleModule
+class SIMULTE_API D2DModeSelectionBase : public omnetpp::cSimpleModule
 {
 
 protected:

@@ -25,6 +25,7 @@
 #include <vector>
 #include <ostream>
 #include <stdint.h>
+#include "common/LteCommon.h"
 
 
 enum ModulationClass {
@@ -78,7 +79,7 @@ enum CodeRate {
  * associated transmission mode. It is thus extremely cheap to
  * keep a WifiMode variable around.
  */
-class ModulationType
+class SIMULTE_API ModulationType
 {
 
  public:

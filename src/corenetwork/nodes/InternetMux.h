@@ -13,7 +13,7 @@
 #include <omnetpp.h>
 #include "common/LteCommon.h"
 
-class InternetMux : public omnetpp::cSimpleModule
+class SIMULTE_API InternetMux : public omnetpp::cSimpleModule
 {
   protected:
 

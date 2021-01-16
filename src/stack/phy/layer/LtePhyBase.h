@@ -44,7 +44,7 @@
 
 class LteChannelModel;
 
-class LtePhyBase : public ChannelAccess
+class SIMULTE_API LtePhyBase : public ChannelAccess
 {
     friend class DasFilter;
 
