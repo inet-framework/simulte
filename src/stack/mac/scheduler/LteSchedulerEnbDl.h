@@ -20,7 +20,7 @@
  *
  * LTE eNB downlink scheduler.
  */
-class LteSchedulerEnbDl : public LteSchedulerEnb
+class SIMULTE_API LteSchedulerEnbDl : public LteSchedulerEnb
 {
     // XXX debug: to call grant from mac
     friend class LteMacEnb;

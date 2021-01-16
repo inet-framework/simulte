@@ -13,7 +13,7 @@
 #include "stack/phy/feedback/LteFeedbackComputation.h"
 
 class PhyPisaData;
-class LteFeedbackComputationRealistic : public LteFeedbackComputation
+class SIMULTE_API LteFeedbackComputationRealistic : public LteFeedbackComputation
 {
     // Channel matrix struct
     std::map<MacNodeId, Lambda>* lambda_;

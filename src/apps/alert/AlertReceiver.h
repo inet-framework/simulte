@@ -15,9 +15,10 @@
 
 #include <inet/networklayer/common/L3AddressResolver.h>
 #include <inet/transportlayer/contract/udp/UdpSocket.h>
+#include "common/LteCommon.h"
 #include "apps/alert/AlertPacket_m.h"
 
-class AlertReceiver : public omnetpp::cSimpleModule
+class SIMULTE_API AlertReceiver : public omnetpp::cSimpleModule
 {
     inet::UdpSocket socket;
 

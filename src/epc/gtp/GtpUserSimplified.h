@@ -28,7 +28,7 @@
  * b) GtpUserSimplifiedMsg from UDP-IP layers.
  *
  */
-class GtpUserSimplified : public omnetpp::cSimpleModule
+class SIMULTE_API GtpUserSimplified : public omnetpp::cSimpleModule
 {
     inet::UdpSocket socket_;
     int localPort_;

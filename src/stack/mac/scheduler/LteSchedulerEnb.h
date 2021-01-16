@@ -23,7 +23,7 @@ class LteMacEnb;
  * @class LteSchedulerEnb
  *
  */
-class LteSchedulerEnb
+class SIMULTE_API LteSchedulerEnb
 {
     /******************
      * Friend classes

@@ -18,7 +18,7 @@
 #include "x2/X2AppClient.h"
 #include "corenetwork/binder/LteBinder.h"
 
-class LteX2Manager : public omnetpp::cSimpleModule {
+class SIMULTE_API LteX2Manager : public omnetpp::cSimpleModule {
 
     // X2 identifier
     X2NodeId nodeId_;

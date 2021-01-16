@@ -39,7 +39,6 @@ network Highway
         }
         configurator: LteNetworkConfigurator {
             @display("p=50,125");
-            config = xmldoc("./demo.xml");
         }
 
         //# Veins manager module

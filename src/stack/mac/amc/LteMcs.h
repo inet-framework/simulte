@@ -55,7 +55,7 @@ struct MCSelem
  * <MCS Index> , <Modulation> , <I-TBS> , <threshold>
  * This table contains value taken from (TS 36.213)
  */
-class McsTable
+class SIMULTE_API McsTable
 {
   public:
 

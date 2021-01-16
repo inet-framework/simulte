@@ -14,6 +14,7 @@
 #include <omnetpp.h>
 #include <inet/transportlayer/contract/udp/UdpSocket.h>
 #include <inet/networklayer/common/L3AddressResolver.h>
+#include "common/LteCommon.h"
 #include "apps/d2dMultihop/MultihopD2DPacket_m.h"
 #include "apps/d2dMultihop/statistics/MultihopD2DStatistics.h"
 #include "apps/d2dMultihop/eventGenerator/EventGenerator.h"
@@ -22,7 +23,7 @@
 
 class EventGenerator;
 
-class MultihopD2D : public omnetpp::cSimpleModule
+class SIMULTE_API MultihopD2D : public omnetpp::cSimpleModule
 {
     static uint16_t numMultihopD2DApps;  // counter of apps (used for assigning the ids)
 

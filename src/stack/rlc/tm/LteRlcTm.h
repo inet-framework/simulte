@@ -30,7 +30,7 @@
  *   TM mode does not attach any header to the packet.
  *
  */
-class LteRlcTm : public omnetpp::cSimpleModule
+class SIMULTE_API LteRlcTm : public omnetpp::cSimpleModule
 {
   public:
     LteRlcTm()

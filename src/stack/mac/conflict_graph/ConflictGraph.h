@@ -67,7 +67,7 @@ class LteMacEnbD2D;
  *  This module builds a directed CG where vertices are UEs and there is an edge between UE a and
  *  UE b when the power perceived by b from a is above a certain threshold.
  */
-class ConflictGraph
+class SIMULTE_API ConflictGraph
 {
 
 protected:

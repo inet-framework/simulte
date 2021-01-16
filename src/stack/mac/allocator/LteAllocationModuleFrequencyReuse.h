@@ -13,7 +13,7 @@
 #include "common/LteCommon.h"
 #include "stack/mac/allocator/LteAllocationModule.h"
 
-class LteAllocationModuleFrequencyReuse : public LteAllocationModule
+class SIMULTE_API LteAllocationModuleFrequencyReuse : public LteAllocationModule
 {
     public:
     /// Default constructor.

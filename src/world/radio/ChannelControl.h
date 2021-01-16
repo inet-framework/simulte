@@ -62,7 +62,7 @@ struct IChannelControl::RadioEntry {
  * @ingroup channelControl
  * @see ChannelAccess
  */
-class ChannelControl : public omnetpp::cSimpleModule, public IChannelControl
+class SIMULTE_API ChannelControl : public omnetpp::cSimpleModule, public IChannelControl
 {
   protected:
     typedef std::list<RadioEntry> RadioList;

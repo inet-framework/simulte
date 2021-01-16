@@ -11,7 +11,7 @@
 
 
 #include "stack/phy/feedback/LteSummaryFeedback.h"
-class LteSummaryFeedback
+class SIMULTE_API LteSummaryFeedback
 {
     //! confidence function lower bound
     omnetpp::simtime_t confidenceLowerBound_;

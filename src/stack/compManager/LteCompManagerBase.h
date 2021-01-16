@@ -29,7 +29,7 @@ typedef enum {
 // Base class for CoMP manager modules.
 // To add a new CoMP algorithm, extend this class and redefine pure virtual methods
 //
-class LteCompManagerBase : public omnetpp::cSimpleModule
+class SIMULTE_API LteCompManagerBase : public omnetpp::cSimpleModule
 {
 
 protected:

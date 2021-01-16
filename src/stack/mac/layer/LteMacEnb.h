@@ -20,7 +20,7 @@ class LteSchedulerEnbDl;
 class LteSchedulerEnbUl;
 class ConflictGraph;
 
-class LteMacEnb : public LteMacBase
+class SIMULTE_API LteMacEnb : public LteMacBase
 {
   protected:
     /// Local LteCellInfo

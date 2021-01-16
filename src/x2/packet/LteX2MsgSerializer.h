@@ -19,7 +19,7 @@
 #include "stack/compManager/compManagerProportional/X2CompProportionalReplyIE.h"
 #include "inet/common/packet/serializer/FieldsChunkSerializer.h"
 
-class LteX2MsgSerializer : public inet::FieldsChunkSerializer {
+class SIMULTE_API LteX2MsgSerializer : public inet::FieldsChunkSerializer {
 private:
     void serializeStatusMap(inet::MemoryOutputStream& stream, std::vector<CompRbStatus> map) const;
     std::vector<CompRbStatus> deserializeStatusMap(inet::MemoryInputStream& stream) const;

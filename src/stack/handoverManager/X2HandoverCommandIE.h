@@ -15,7 +15,7 @@
 //
 // X2HandoverCommandIE
 //
-class X2HandoverCommandIE : public X2InformationElement
+class SIMULTE_API X2HandoverCommandIE : public X2InformationElement
 {
 protected:
 

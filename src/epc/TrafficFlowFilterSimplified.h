@@ -11,6 +11,7 @@
 #define _LTE_TRAFFICFLOWFILTERSIMPLIFIED_H_
 
 #include <omnetpp.h>
+#include "common/LteCommon.h"
 #include "epc/gtp/TftControlInfo_m.h"
 #include "epc/gtp_common.h"
 #include "corenetwork/binder/LteBinder.h"
@@ -25,7 +26,7 @@
  * the destination endpoint is always the PGW. However, if the fastForwarding flag is enabled and the destination of the packet
  * is within the same cell, the packet is just relayed to the Radio interface.
  */
-class TrafficFlowFilterSimplified : public omnetpp::cSimpleModule
+class SIMULTE_API TrafficFlowFilterSimplified : public omnetpp::cSimpleModule
 {
     // specifies the type of the node that contains this filter (it can be ENB or PGW
     // the filterTable_ will be indexed differently depending on this parameter

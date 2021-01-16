@@ -13,7 +13,7 @@
 #include "stack/mac/scheduler/LteScheduler.h"
 #include "common/LteCommon.h"
 
-class LteMaxCiComp : public virtual LteScheduler
+class SIMULTE_API LteMaxCiComp : public virtual LteScheduler
 {
   protected:
 

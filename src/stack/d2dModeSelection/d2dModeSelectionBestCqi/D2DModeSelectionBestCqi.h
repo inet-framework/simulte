@@ -17,7 +17,7 @@
 //
 // For each D2D-capable flow, select the mode having the best CQI
 //
-class D2DModeSelectionBestCqi : public D2DModeSelectionBase
+class SIMULTE_API D2DModeSelectionBestCqi : public D2DModeSelectionBase
 {
 
 protected:

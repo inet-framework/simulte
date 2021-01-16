@@ -35,6 +35,13 @@
 #include "common/features.h"
 #include "common/LteCommonEnum_m.h"
 
+#if defined(SIMULTE_EXPORT)
+#  define SIMULTE_API    OPP_DLLEXPORT
+#elif defined(SIMULTE_IMPORT)
+#  define SIMULTE_API    OPP_DLLIMPORT
+#else // if defined(INET_EXPORT)
+#  define SIMULTE_API
+#endif // if defined(INET_EXPORT
 
 class LteBinder;
 class LteCellInfo;
@@ -49,7 +56,7 @@ class ExtCell;
 /**
  * Lte specific protocols
  */
-class LteProtocol {
+class SIMULTE_API LteProtocol {
 public:
     static const inet::Protocol ipv4uu;  // IP protocol on the uU interface
     static const inet::Protocol pdcp;    // Packet Data Convergence Protocol
@@ -124,7 +131,7 @@ typedef unsigned short Codeword;
 
 
 // QCI traffic descriptor
-struct QCIParameters
+struct SIMULTE_API QCIParameters
 {
     int priority;
     double packetDelayBudget;
@@ -138,7 +145,7 @@ typedef std::vector<double> AttenuationVector;
 
 
 
-struct ApplicationTable
+struct SIMULTE_API ApplicationTable
 {
     ApplicationType app;
     std::string appName;
@@ -158,7 +165,7 @@ const ApplicationTable applications[] = {
  * Scheduling discipline  *
  **************************/
 
-struct SchedDisciplineTable
+struct SIMULTE_API SchedDisciplineTable
 {
     SchedDiscipline discipline;
     std::string disciplineName;
@@ -178,7 +185,7 @@ const SchedDisciplineTable disciplines[] = {
 /*************************
  *   Transmission Modes  *
  *************************/
-struct TxTable
+struct SIMULTE_API TxTable
 {
     TxMode tx;
     std::string txName;
@@ -195,7 +202,7 @@ const TxTable txmodes[] = {
 };
 
 
-struct TxDirectionTable
+struct SIMULTE_API TxDirectionTable
 {
     TxDirectionType txDirection;
     std::string txDirectionName;
@@ -207,7 +214,7 @@ const TxDirectionTable txDirections[] = {
 };
 
 
-struct FeedbackRequest
+struct SIMULTE_API FeedbackRequest
 {
     bool request;
     FeedbackGeneratorType genType;
@@ -218,7 +225,7 @@ struct FeedbackRequest
     RbAllocationType rbAllocationType;
 };
 
-struct FeedbackGeneratorTypeTable
+struct SIMULTE_API FeedbackGeneratorTypeTable
 {
     FeedbackGeneratorType ty;
     std::string tyname;
@@ -239,7 +246,7 @@ const unsigned char UL_NUM_TXMODE = MULTI_USER + 1;
 
 
 
-struct DeploymentScenarioMapping
+struct SIMULTE_API DeploymentScenarioMapping
 {
     DeploymentScenario scenario;
     std::string scenarioName;
@@ -266,7 +273,7 @@ typedef std::map<MacNodeId, TxMode> TxModeMap;
 
 const double cqiToByteTms[16] = { 0, 2, 3, 5, 11, 15, 20, 25, 36, 38, 49, 63, 72, 79, 89, 92 };
 
-struct Lambda
+struct SIMULTE_API Lambda
 {
     unsigned int index;
     unsigned int lambdaStart;
@@ -285,7 +292,7 @@ double linearToDb(double lin);
  *      DAS Support      *
  *************************/
 
-struct RemoteTable
+struct SIMULTE_API RemoteTable
 {
     Remote remote;
     std::string remoteName;
@@ -321,7 +328,7 @@ const unsigned char NUM_ANTENNAS = NUM_RUS + 1;
  */
 typedef std::map<Remote, std::map<Band, unsigned int> > RbMap;
 
-struct LtePhyFrameTable
+struct SIMULTE_API LtePhyFrameTable
 {
     LtePhyFrameType phyType;
     std::string phyName;
@@ -337,7 +344,7 @@ const LtePhyFrameTable phytypes[] = {
     ELEM(UNKNOWN_TYPE)
 };
 
-struct LteNodeTable
+struct SIMULTE_API LteNodeTable
 {
     LteNodeType node;
     std::string nodeName;
@@ -352,7 +359,7 @@ const LteNodeTable nodetypes[] = {
 };
 
 
-struct LteSubFrameTypeTable
+struct SIMULTE_API LteSubFrameTypeTable
 {
     LteSubFrameType type;
     std::string typeName;
@@ -383,7 +390,7 @@ typedef std::bitset<ABS_WIN> AbsBitset;
  */
 
 // Abs Status Information structure
-struct AbsStatusInfoMsg
+struct SIMULTE_API AbsStatusInfoMsg
 {
     double absStatus;
     AbsBitset usableAbsInfo;
@@ -412,7 +419,7 @@ typedef std::list<X2InformationElement*> X2InformationElementsList;
  * If this limit is -2, the band cannot be used.
  * Among other modules, the rtxAcid and grant methods of LteSchedulerEnb use this structure.
  */
-struct BandLimit
+struct SIMULTE_API BandLimit
 {
     /// Band which the element refers to
     Band band_;
@@ -530,7 +537,7 @@ typedef std::list<MacControlElement*> MacControlElementsList;
 /// time it takes to generate feedback for a pdu
 #define HARQ_FB_EVALUATION_INTERVAL 3*TTI
 
-struct RemoteUnitPhyData
+struct SIMULTE_API RemoteUnitPhyData
 {
     int txPower;
     inet::Coord m;
@@ -545,7 +552,7 @@ typedef std::pair<unsigned char, CwList> UnitList;
 /*********************
  * Incell Interference Support
  *********************/
-struct EnbInfo
+struct SIMULTE_API EnbInfo
 {
     bool init;         // initialization flag
     EnbType type;     // MICRO_ENB or MACRO_ENB
@@ -559,7 +566,7 @@ struct EnbInfo
     int x2;
 };
 
-struct UeInfo
+struct SIMULTE_API UeInfo
 {
     bool init;         // initialization flag
     double txPwr;
@@ -571,7 +578,7 @@ struct UeInfo
 };
 
 // uplink interference support
-struct UeAllocationInfo{
+struct SIMULTE_API UeAllocationInfo{
     MacNodeId nodeId;
     MacCellId cellId;
     LtePhyBase* phy;
@@ -612,51 +619,51 @@ typedef std::map<std::string, omnetpp::cMsgPar> ParameterMap;
  * Utility functions
  *********************/
 
-const std::string dirToA(Direction dir);
-const std::string d2dModeToA(LteD2DMode mode);
-const std::string allocationTypeToA(RbAllocationType type);
-const std::string modToA(LteMod mod);
-const std::string periodicityToA(FbPeriodicity per);
-const std::string txModeToA(TxMode tx);
-TxMode aToTxMode(std::string s);
-const std::string schedDisciplineToA(SchedDiscipline discipline);
-SchedDiscipline aToSchedDiscipline(std::string s);
-Remote aToDas(std::string s);
-const std::string dasToA(const Remote r);
-const std::string nodeTypeToA(const LteNodeType t);
-LteNodeType aToNodeType(std::string name);
-LteNodeType getNodeTypeById(MacNodeId id);
-FeedbackType getFeedbackType(std::string s);
-RbAllocationType getRbAllocationType(std::string s);
-ApplicationType aToApplicationType(std::string s);
-const std::string applicationTypeToA(std::string s);
-const std::string lteTrafficClassToA(LteTrafficClass type);
-LteTrafficClass aToLteTrafficClass(std::string s);
-const std::string phyFrameTypeToA(const LtePhyFrameType r);
-LtePhyFrameType aToPhyFrameType(std::string s);
-const std::string rlcTypeToA(LteRlcType type);
-char* cStringToLower(char* str);
-LteRlcType aToRlcType(std::string s);
-const std::string planeToA(Plane p);
-MacNodeId ctrlInfoToUeId(LteControlInfo * info);
-MacCid idToMacCid(MacNodeId nodeId, LogicalCid lcid);
-MacCid ctrlInfoToMacCid(LteControlInfo* info);        // get the CID from the packet control info
-MacNodeId MacCidToNodeId(MacCid cid);
-LogicalCid MacCidToLcid(MacCid cid);
-GrantType aToGrantType(std::string a);
-const std::string grantTypeToA(GrantType gType);
-LteBinder* getBinder();
-LteCellInfo* getCellInfo(MacNodeId nodeId);
-omnetpp::cModule* getMacByMacNodeId(MacNodeId nodeId);
-omnetpp::cModule* getRlcByMacNodeId(MacNodeId nodeId, LteRlcType rlcType);
-LteMacBase* getMacUe(MacNodeId nodeId);
-FeedbackGeneratorType getFeedbackGeneratorType(std::string s);
-const std::string fbGeneratorTypeToA(FeedbackGeneratorType type);
-LteSubFrameType aToSubFrameType(std::string s);
-const std::string SubFrameTypeToA(const LteSubFrameType r);
-const std::string DeploymentScenarioToA(DeploymentScenario type);
-DeploymentScenario aToDeploymentScenario(std::string s);
-bool isMulticastConnection(LteControlInfo* lteInfo);
+SIMULTE_API const std::string dirToA(Direction dir);
+SIMULTE_API const std::string d2dModeToA(LteD2DMode mode);
+SIMULTE_API const std::string allocationTypeToA(RbAllocationType type);
+SIMULTE_API const std::string modToA(LteMod mod);
+SIMULTE_API const std::string periodicityToA(FbPeriodicity per);
+SIMULTE_API const std::string txModeToA(TxMode tx);
+SIMULTE_API TxMode aToTxMode(std::string s);
+SIMULTE_API const std::string schedDisciplineToA(SchedDiscipline discipline);
+SIMULTE_API SchedDiscipline aToSchedDiscipline(std::string s);
+SIMULTE_API Remote aToDas(std::string s);
+SIMULTE_API const std::string dasToA(const Remote r);
+SIMULTE_API const std::string nodeTypeToA(const LteNodeType t);
+SIMULTE_API LteNodeType aToNodeType(std::string name);
+SIMULTE_API LteNodeType getNodeTypeById(MacNodeId id);
+SIMULTE_API FeedbackType getFeedbackType(std::string s);
+SIMULTE_API RbAllocationType getRbAllocationType(std::string s);
+SIMULTE_API ApplicationType aToApplicationType(std::string s);
+SIMULTE_API const std::string applicationTypeToA(std::string s);
+SIMULTE_API const std::string lteTrafficClassToA(LteTrafficClass type);
+SIMULTE_API LteTrafficClass aToLteTrafficClass(std::string s);
+SIMULTE_API const std::string phyFrameTypeToA(const LtePhyFrameType r);
+SIMULTE_API LtePhyFrameType aToPhyFrameType(std::string s);
+SIMULTE_API const std::string rlcTypeToA(LteRlcType type);
+SIMULTE_API char* cStringToLower(char* str);
+SIMULTE_API LteRlcType aToRlcType(std::string s);
+SIMULTE_API const std::string planeToA(Plane p);
+SIMULTE_API MacNodeId ctrlInfoToUeId(LteControlInfo * info);
+SIMULTE_API MacCid idToMacCid(MacNodeId nodeId, LogicalCid lcid);
+SIMULTE_API MacCid ctrlInfoToMacCid(LteControlInfo * info);        // get the CID from the packet control info
+SIMULTE_API MacNodeId MacCidToNodeId(MacCid cid);
+SIMULTE_API LogicalCid MacCidToLcid(MacCid cid);
+SIMULTE_API GrantType aToGrantType(std::string a);
+SIMULTE_API const std::string grantTypeToA(GrantType gType);
+SIMULTE_API LteBinder* getBinder();
+SIMULTE_API LteCellInfo* getCellInfo(MacNodeId nodeId);
+SIMULTE_API omnetpp::cModule* getMacByMacNodeId(MacNodeId nodeId);
+SIMULTE_API omnetpp::cModule* getRlcByMacNodeId(MacNodeId nodeId, LteRlcType rlcType);
+SIMULTE_API LteMacBase* getMacUe(MacNodeId nodeId);
+SIMULTE_API FeedbackGeneratorType getFeedbackGeneratorType(std::string s);
+SIMULTE_API const std::string fbGeneratorTypeToA(FeedbackGeneratorType type);
+SIMULTE_API LteSubFrameType aToSubFrameType(std::string s);
+SIMULTE_API const std::string SubFrameTypeToA(const LteSubFrameType r);
+SIMULTE_API const std::string DeploymentScenarioToA(DeploymentScenario type);
+SIMULTE_API DeploymentScenario aToDeploymentScenario(std::string s);
+SIMULTE_API bool isMulticastConnection(LteControlInfo* lteInfo);
 
 /**
  * Utility function that reads the parameters of an XML element
@@ -665,7 +672,7 @@ bool isMulticastConnection(LteControlInfo* lteInfo);
  * @param xmlData XML parameters config element related to a specific section
  * @param[output] outputMap map to store read parameters
  */
-void getParametersFromXML(omnetpp::cXMLElement* xmlData, ParameterMap& outputMap);
+SIMULTE_API void getParametersFromXML(omnetpp::cXMLElement* xmlData, ParameterMap& outputMap);
 
 /**
  * Parses a CSV string parameter into an int array.
@@ -679,7 +686,7 @@ void getParametersFromXML(omnetpp::cXMLElement* xmlData, ParameterMap& outputMap
  * @param dim dimension of the values array
  * @param pad default value to be used when the string has less than dim values
  */
-void parseStringToIntArray(std::string str, int* values, int dim, int pad);
+SIMULTE_API void parseStringToIntArray(std::string str, int* values, int dim, int pad);
 
 /**
  * Initializes module's channels
@@ -690,9 +697,9 @@ void parseStringToIntArray(std::string str, int* values, int dim, int pad);
  *
  * @param mod module whose channels needs initialization
  */
-void initializeAllChannels(omnetpp::cModule *mod);
+SIMULTE_API void initializeAllChannels(omnetpp::cModule *mod);
 
-void removeAllSimuLteTags(inet::Packet *pkt);
+SIMULTE_API void removeAllSimuLteTags(inet::Packet *pkt);
 
 
 template <typename T>

@@ -12,7 +12,7 @@
 
 #include "stack/phy/layer/LtePhyUe.h"
 
-class LtePhyUeD2D : public LtePhyUe
+class SIMULTE_API LtePhyUeD2D : public LtePhyUe
 {
   protected:
 

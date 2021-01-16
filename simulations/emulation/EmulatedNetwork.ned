@@ -35,7 +35,6 @@ network EmulatedNetwork
         }
         configurator: LteNetworkConfigurator {
             @display("p=73.38125,72.1375");
-            config = xmldoc("./demo.xml");
         }
         channelControl: LteChannelControl {
             @display("p=70.89375,189.05;is=s");

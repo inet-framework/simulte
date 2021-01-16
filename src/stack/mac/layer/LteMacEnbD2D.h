@@ -20,7 +20,7 @@ typedef std::pair<MacNodeId, MacNodeId> D2DPair;
 typedef std::map<D2DPair, LteHarqBufferMirrorD2D*> HarqBuffersMirrorD2D;
 class ConflictGraph;
 
-class LteMacEnbD2D : public LteMacEnb
+class SIMULTE_API LteMacEnbD2D : public LteMacEnb
 {
   protected:
 

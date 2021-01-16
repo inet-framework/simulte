@@ -12,7 +12,7 @@
 
 #include "stack/mac/layer/LteMacUe.h"
 
-class LteMacRelayUe : public LteMacUe
+class SIMULTE_API LteMacRelayUe : public LteMacUe
 {
   public:
     LteMacRelayUe();

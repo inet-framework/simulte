@@ -29,7 +29,7 @@ enum LteX2MessageType
  *
  * Create new X2 Messages by deriving this class
  */
-class LteX2Message : public LteX2Message_Base
+class SIMULTE_API LteX2Message : public LteX2Message_Base
 {
   protected:
 

@@ -12,7 +12,7 @@
 
 #include "stack/phy/feedback/LteFeedback.h"
 
-class LteFeedbackComputation
+class SIMULTE_API LteFeedbackComputation
 {
   public:
     LteFeedbackComputation();

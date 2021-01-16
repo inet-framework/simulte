@@ -22,7 +22,7 @@ struct Candidate {
 };
 
 
-class LteAllocatorBestFit : public virtual LteScheduler
+class SIMULTE_API LteAllocatorBestFit : public virtual LteScheduler
 {
   protected:
 

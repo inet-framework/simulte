@@ -12,10 +12,11 @@
 
 #include <string.h>
 #include <vector>
+#include "common/LteCommon.h"
 
 //using namespace omnetpp;
 
-class PhyPisaData
+class SIMULTE_API PhyPisaData
 {
     double lambdaTable_[10000][3];
     double blerCurves_[3][15][49];

@@ -20,7 +20,7 @@
  * This is the PDCP/RRC layer of LTE Stack (with D2D support).
  *
  */
-class LtePdcpRrcEnbD2D : public LtePdcpRrcEnb
+class SIMULTE_API LtePdcpRrcEnbD2D : public LtePdcpRrcEnb
 {
 
   protected:

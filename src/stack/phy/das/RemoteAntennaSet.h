@@ -11,6 +11,7 @@
 #define _LTE_REMOTEANTENNASET_H_
 
 #include <vector>
+#include "common/LteCommon.h"
 #include <inet/common/geometry/common/Coord.h>
 
 
@@ -26,7 +27,7 @@
  * we store the couple <position, transmit power>.
  *
  */
-class RemoteAntennaSet
+class SIMULTE_API RemoteAntennaSet
 {
   private:
     /// Remote Antenna physical informations

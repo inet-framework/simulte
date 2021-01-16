@@ -13,7 +13,7 @@
 
 class UserTxParams;
 
-class LteSchedulingGrant : public LteSchedulingGrant_Base
+class SIMULTE_API LteSchedulingGrant : public LteSchedulingGrant_Base
 {
 private:
     void copy(const LteSchedulingGrant& other) {

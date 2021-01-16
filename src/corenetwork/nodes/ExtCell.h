@@ -25,7 +25,7 @@ typedef enum {
     FULL_ALLOC, RANDOM_ALLOC, CONTIGUOUS_ALLOC
 } BandAllocationType;
 
-class ExtCell : public omnetpp::cSimpleModule
+class SIMULTE_API ExtCell : public omnetpp::cSimpleModule
 {
     // playground coordinates
     inet::Coord position_;

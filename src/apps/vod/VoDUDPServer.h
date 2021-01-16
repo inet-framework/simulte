@@ -19,11 +19,12 @@
 #include <inet/networklayer/common/L3AddressResolver.h>
 
 #include <platdep/sockets.h>
+#include "common/LteCommon.h"
 #include "apps/vod/VoDUDPStruct.h"
 #include "apps/vod/VoDPacket_m.h"
 #include "apps/vod/M1Message_m.h"
 
-class VoDUDPServer : public omnetpp::cSimpleModule
+class SIMULTE_API VoDUDPServer : public omnetpp::cSimpleModule
 {
   protected:
       inet::UdpSocket socket;

@@ -18,7 +18,7 @@ class SctpAssociation;
 /**
  * Implements the X2AppClient simple module. See the NED file for more info.
  */
-class X2AppClient : public inet::SctpClient
+class SIMULTE_API X2AppClient : public inet::SctpClient
 {
     // reference to the gates
     omnetpp::cGate* x2ManagerOut_;

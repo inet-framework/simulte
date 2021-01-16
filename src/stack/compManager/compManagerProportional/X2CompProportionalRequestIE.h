@@ -15,7 +15,7 @@
 //
 // X2CompProportionalRequestIE
 //
-class X2CompProportionalRequestIE : public X2CompRequestIE
+class SIMULTE_API X2CompProportionalRequestIE : public X2CompRequestIE
 {
   protected:
 

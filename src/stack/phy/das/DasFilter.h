@@ -43,7 +43,7 @@ class LtePhyEnb;
  * the rssi for a given Antenna is above a certain threshold
  *
  */
-class DasFilter
+class SIMULTE_API DasFilter
 {
   public:
     /// Constructor: Initializes the Remote Antenna Set

@@ -12,13 +12,14 @@
 
 #include <string.h>
 #include <omnetpp.h>
+#include "common/LteCommon.h"
 #include "apps/d2dMultihop/MultihopD2D.h"
 #include "corenetwork/binder/LteBinder.h"
 #include "stack/phy/layer/LtePhyBase.h"
 
 class MultihopD2D;
 
-class EventGenerator : public omnetpp::cSimpleModule
+class SIMULTE_API EventGenerator : public omnetpp::cSimpleModule
 {
     omnetpp::cMessage *selfMessage_;
 

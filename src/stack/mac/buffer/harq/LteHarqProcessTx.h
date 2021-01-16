@@ -25,7 +25,7 @@ typedef std::vector<std::vector<UnitStatus> > BufferStatus;
  * H-ARQ feedback.
  */
 
-class LteHarqProcessTx
+class SIMULTE_API LteHarqProcessTx
 {
   protected:
 

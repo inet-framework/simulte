@@ -13,7 +13,7 @@
 #include "stack/phy/packet/LteFeedbackPkt_m.h"
 #include "stack/phy/feedback/LteFeedback.h"
 
-class LteFeedbackPkt : public LteFeedbackPkt_Base
+class SIMULTE_API LteFeedbackPkt : public LteFeedbackPkt_Base
 {
 private:
     void copy(const LteFeedbackPkt& other) {

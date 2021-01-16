@@ -48,7 +48,7 @@ typedef std::multimap<LteTrafficClass, CidBufferPair> LcgMap;
  * On each TTI, the handleSelfMessage() is called
  * to perform scheduling and other tasks
  */
-class LteMacBase : public omnetpp::cSimpleModule
+class SIMULTE_API LteMacBase : public omnetpp::cSimpleModule
 {
     friend class LteHarqBufferTx;
     friend class LteHarqBufferRx;

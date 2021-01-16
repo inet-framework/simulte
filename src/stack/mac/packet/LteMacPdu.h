@@ -22,7 +22,7 @@
  * in msg declaration: adds the sdu and control elements list
  * TODO: Add Control Elements
  */
-class LteMacPdu : public LteMacPdu_Base
+class SIMULTE_API LteMacPdu : public LteMacPdu_Base
 {
   void copy(const LteMacPdu& other) {
       macPduLength_ = other.macPduLength_;

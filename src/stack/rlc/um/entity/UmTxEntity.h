@@ -39,7 +39,7 @@ class LteRlcUm;
  *
  * The size of PDUs is signalled by the lower layer
  */
-class UmTxEntity : public omnetpp::cSimpleModule
+class SIMULTE_API UmTxEntity : public omnetpp::cSimpleModule
 {
     struct FragmentInfo {
         inet::Packet * pkt= nullptr;

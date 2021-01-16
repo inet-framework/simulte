@@ -33,7 +33,7 @@ class LteAmc;
  * from this class and to implement the computeTxParams method
  * according to your policy.
  */
-class AmcPilot
+class SIMULTE_API AmcPilot
 {
   protected:
 

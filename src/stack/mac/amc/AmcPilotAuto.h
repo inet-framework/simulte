@@ -25,7 +25,7 @@
  * Users are sorted by CQI and added to user list for all LBs with
  * the respective RI, CQI and PMI.
  */
-class AmcPilotAuto : public AmcPilot
+class SIMULTE_API AmcPilotAuto : public AmcPilot
 {
   public:
 

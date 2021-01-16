@@ -29,7 +29,7 @@
  * established and return the proper LCID, otherwise a
  * new entry is added to the table
  */
-class ConnectionsTable
+class SIMULTE_API ConnectionsTable
 {
   public:
     ConnectionsTable();

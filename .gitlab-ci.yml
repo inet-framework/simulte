@@ -2,8 +2,8 @@ variables:
   RV: 'crownet/scripts'
   OPPCONTTAG: '6.0pre10'   # tag of OMNeT++ container to be used
   #OPPCONTTAG: 'latest'
-  INETBRANCH: 'master'     # needs to be switched to v4.3.0 or similar as soon as available
-  #INETBRANCH: 'v4.2.1'
+  #INETBRANCH: 'master'
+  INETBRANCH: 'v4.3.0'
 
 stages:
   - build

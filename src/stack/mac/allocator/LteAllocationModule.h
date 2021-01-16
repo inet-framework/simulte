@@ -15,7 +15,7 @@
 
 class LteMacEnb;
 
-class LteAllocationModule
+class SIMULTE_API LteAllocationModule
 {
     // Members *********************************************************************************
 

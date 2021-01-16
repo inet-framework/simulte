@@ -20,7 +20,7 @@
  * Class derived from LteX2Message
  * It defines the message exchanged between CoMP managers
  */
-class X2CompMsg : public LteX2Message
+class SIMULTE_API X2CompMsg : public LteX2Message
 {
 
   public:

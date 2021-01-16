@@ -32,7 +32,7 @@ class LteMacBase;
  * TXHARQ_PDU_EMPTY:          yes     not present            not ready for tx
  * TXHARQ_PDU_SELECTED:       no      present                will be tx
  */
-class LteHarqUnitTx
+class SIMULTE_API LteHarqUnitTx
 {
   protected:
 
