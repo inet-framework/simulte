@@ -77,7 +77,7 @@ void IP2lte::initialize(int stage)
     else if (stage == inet::INITSTAGE_STATIC_ROUTING) {
         if (nodeType_ == UE) {
             // TODO: shift to routing stage
-            // if the UE has been created dynamically, we need to manually add a default route having "wlan" as output interface
+            // if the UE has been created dynamically, we need to manually add a default route having "cellular" as output interface
             // otherwise we are not able to reach devices outside the cellular network
             if (NOW > 0) {
                 /**
@@ -94,6 +94,12 @@ void IP2lte::initialize(int stage)
                 defaultRoute->setInterface(interfaceEntry);
 
                 irt->addRoute(defaultRoute);
+
+                // workaround for nodes using the HostAutoConfigurator:
+                // Since the HostAutoConfigurator calls setBroadcast(true) for all
+                // interfaces in setupNetworking called in INITSTAGE_NETWORK_CONFIGURATION
+                // we must reset it to false since LteNic does not support broadcasts
+                interfaceEntry->setBroadcast(false);
             }
         }
     } else if (stage == inet::INITSTAGE_TRANSPORT_LAYER) {
@@ -414,7 +420,7 @@ void IP2lte::registerInterface()
     if (!ift)
         return;
     interfaceEntry = getContainingNicModule(this);
-    interfaceEntry->setInterfaceName(par("interfaceName").stdstringValue().c_str());           // FIXME: user different name for lte interfaces
+    interfaceEntry->setInterfaceName(par("interfaceName").stdstringValue().c_str());
     // TODO configure MTE size from NED
     interfaceEntry->setMtu(1500);
     //disable broadcast (not supported in LteNic), enable multicast

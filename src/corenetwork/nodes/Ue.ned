@@ -85,9 +85,22 @@ module Ue
         mobility: <mobilityType> like IMobility {
             @display("p=127.368004,172.26001;is=s");
         }
-        app[numApps]: <> like IApp {
-            @display("p=375,76,row,140");
+        // link layer
+        lteNic: <nicType> like ILteNic {
+            nodeType = nodeType;
+            //d2dCapable = d2dCapable;
+            @display("p=525,525");
         }
+        // network layer
+        ipv4: <default("Ipv4NetworkLayer")> like INetworkLayer if hasIpv4 {
+            parameters:
+                @display("p=375,376;q=queue");
+        }
+        ipv6: <default("Ipv6NetworkLayer")> like INetworkLayer if hasIpv6 {
+            parameters:
+                @display("p=525,376;q=queue");
+        }
+        // transport layer
         udp: <default(firstAvailableOrEmpty("Udp"))> like IUdp if hasUdp {
             parameters:
                 @display("p=375,226");
@@ -100,20 +113,11 @@ module Ue
             parameters:
                 @display("p=675,226");
         }
-        // network layer
-        ipv4: <default("Ipv4NetworkLayer")> like INetworkLayer if hasIpv4 {
-            parameters:
-                @display("p=375,376;q=queue");
+        // application layer
+        app[numApps]: <> like IApp {
+            @display("p=375,76,row,140");
         }
-        ipv6: <default("Ipv6NetworkLayer")> like INetworkLayer if hasIpv6 {
-            parameters:
-                @display("p=525,376;q=queue");
-        }
-        lteNic: <nicType> like ILteNic {
-            nodeType = nodeType;
-            //d2dCapable = d2dCapable;
-            @display("p=525,525");
-        }
+
         // message dispatcher for SAP between application and transport layer
         at: MessageDispatcher {
             parameters:
