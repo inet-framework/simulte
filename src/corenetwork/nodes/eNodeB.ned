@@ -66,14 +66,14 @@ module eNodeBBase
         *.forwarding = true;
         *.multicastForwarding = false;
 
-        //# Apps
-        int numApps = default(0);     // no of apps. 
-        int numX2Apps = default(0);   // no of X2 apps. Specify the app types in INI file with x2App[0..1].typename="X2AppClient" syntax
-
         //# Transport layer
         bool hasUdp = true;
         bool hasTcp = default(firstAvailableOrEmpty("Tcp", "TcpLwip", "TcpNsc") != "");
         bool hasSctp = true;
+        
+        //# Apps
+        int numApps = default(0);     // no of apps. 
+        int numX2Apps = default(0);   // no of X2 apps. Specify the app types in INI file with x2App[0..1].typename="X2AppClient" syntax
 
     gates:
         inout ppp;                // connection to the Core Network
@@ -128,11 +128,6 @@ module eNodeBBase
         //#
         //# Transport layer modules and corresponding application modules
         //#
-		// =============== Udp ============== //
-        app[numApps]: <> like IApp {
-            parameters:
-                @display("p=812.12,45.82,row,140");
-        }
         udp: Udp {
             parameters:
                 @display("p=682.0075,212.68001");
@@ -141,15 +136,17 @@ module eNodeBBase
             parameters:
                 @display("p=963.195,212.68001");
         }
-
-	    // =============== X2AP ============== //
-        x2App[numX2Apps]: LteX2App {
-            parameters:
-                @display("p=481.9,45.82,row");
-        }
         sctp: Sctp {
             parameters:
                 @display("p=421.27002,212.68001");
+        }
+        x2App[numX2Apps]: LteX2App {
+            parameters:
+                @display("p=481.9,45.82,row");
+        }   
+        app[numApps]: <> like IApp {
+            parameters:
+                @display("p=812.12,45.82,row,140");
         }
 
 	    // message dispatcher for SAP between application and transport layer
