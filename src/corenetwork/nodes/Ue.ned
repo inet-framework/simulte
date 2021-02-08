@@ -43,7 +43,7 @@ module Ue
 
 
         //# Mobility
-        string mobilityType = default("StationaryMobility");
+        mobility.typename = default("StationaryMobility");
 
         //# Apps
         int numApps = default(0);   // no of apps.
@@ -68,11 +68,11 @@ module Ue
         bool hasIpv6 = default(false);
         *.interfaceTableModule = default(absPath(".interfaceTable"));
         *.routingTableModule = default("^.ipv4.routingTable");
- 
+
         //# Ext Interface
         bool enableExtInterface = default(false);
         string extHostAddress = default("");
-        
+
         int numPcapRecorders = default(0); // no of PcapRecorders
 
     gates:
@@ -82,13 +82,13 @@ module Ue
         interfaceTable: InterfaceTable {
             @display("p=127.368004,257.868;is=s");
         }
-        mobility: <mobilityType> like IMobility {
-            @display("p=127.368004,172.26001;is=s");
+        mobility: <default("")> like IMobility if typename != "" {
+            parameters:
+                @display("p=125,160;is=s");
         }
         // link layer
         lteNic: <nicType> like ILteNic {
             nodeType = nodeType;
-            //d2dCapable = d2dCapable;
             @display("p=525,525");
         }
         // network layer
@@ -133,14 +133,14 @@ module Ue
             parameters:
                 @display("p=550,446;b=600,5,,,,1");
         }
-                
+
         ext: <default("ExtInterface")> like IExternalInterface if enableExtInterface {
             parameters:
-                @display("p=110.664,406.116,row,10;q=txQueue;i=block/ifcard");
+                @display("p=353.944,524.272,row,10;q=txQueue;i=block/ifcard");
         }
 
         pcapRecorder[numPcapRecorders]: PcapRecorder {
-            @display("p=53,350,r,10");
+            @display("p=126.84,339.448,r,10");
         }
     connections allowunconnected:
         //# LTE Nic 

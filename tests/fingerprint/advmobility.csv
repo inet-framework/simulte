@@ -1,0 +1,4 @@
+# workingdir,                        args,                                     simtimelimit,    fingerprint
+/simulations/advmobility/,           -f omnetpp.ini -c Stationary -r 0,        30s,              a3f0-6446/tplx, PASS,
+/simulations/advmobility/,           -f omnetpp.ini -c Orbit -r 0,             30s,              1659-7481/tplx, PASS,
+/simulations/advmobility/,           -f omnetpp.ini -c Turtle -r 0,            30s,              a7e1-9840/tplx, PASS,
