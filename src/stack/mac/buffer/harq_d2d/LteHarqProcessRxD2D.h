@@ -49,6 +49,9 @@ class SIMULTE_API LteHarqProcessRxD2D : public LteHarqProcessRx
     virtual inet::Packet* createFeedbackMirror(Codeword cw);
 
     virtual ~LteHarqProcessRxD2D();
+
+  protected:
+    omnetpp::simsignal_t RxMBcastErrRateD2D;
 };
 
 #endif
