@@ -99,7 +99,7 @@ void LteX2Manager::handleMessage(cMessage *msg)
 
 void LteX2Manager::fromStack(Packet* pkt)
 {
-    auto x2msg = pkt->peekAtFront<LteX2Message>();
+    auto x2msg = pkt->removeAtFront<LteX2Message>();
     auto x2Info = pkt->removeTagIfPresent<X2ControlInfoTag>();
 
     if (x2Info->getInit())
@@ -114,7 +114,6 @@ void LteX2Manager::fromStack(Packet* pkt)
         return;
     }
 
-
     // If the message is a HandoverDataMsg, send to the GTPUserX2 module
     // (GTPUserX2 module will tunnel this datagram towards the target eNB)
     // otherwise it is a X2 control message and sent to the x2 peer
@@ -126,11 +125,10 @@ void LteX2Manager::fromStack(Packet* pkt)
     {
         X2NodeId targetEnb = *it;
         auto pktDuplicate = pkt->dup();
-        auto updatedX2Msg = pktDuplicate->removeAtFront<LteX2Message>();
-        updatedX2Msg->markMutableIfExclusivelyOwned();
-        updatedX2Msg->setSourceId(nodeId_);
-        updatedX2Msg->setDestinationId(targetEnb);
-        pktDuplicate->insertAtFront(updatedX2Msg);
+        x2msg->markMutableIfExclusivelyOwned();
+        x2msg->setSourceId(nodeId_);
+        x2msg->setDestinationId(targetEnb);
+        pktDuplicate->insertAtFront(x2msg);
 
         cGate* outputGate;
         if(x2msg->getType() == X2_HANDOVER_DATA_MSG){

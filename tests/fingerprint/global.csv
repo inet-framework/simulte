@@ -17,13 +17,13 @@
 
 # DEMO W/ results
 /simulations/demo/,                  -f omnetpp.ini -c VideoStreaming -r 0,    5s,              555e-f42c/tls, PASS,
-/simulations/demo/,                  -f omnetpp.ini -c VoIP -r 0,              5s,              ce1b-0c03/tls, PASS,
-/simulations/demo/,                  -f omnetpp.ini -c VoIP_PF -r 0,           5s,              26d3-f81b/tls, PASS,
+/simulations/demo/,                  -f omnetpp.ini -c VoIP -r 0,              5s,              ce1b-0623/tls, PASS,
+/simulations/demo/,                  -f omnetpp.ini -c VoIP_PF -r 0,           5s,              a6d3-f833/tls, PASS,
 #/simulations/demo/,                  -f omnetpp.ini -c Large-VoIP_PF -r 0,     5s,             ada5-c3af/tls, PASS,
 #/simulations/demo/,                  -f omnetpp.ini -c Large-VoIP_MaxCI -r 0,  5s,             981a-be0c/tls, PASS,
 /simulations/demo/,                  -f omnetpp.ini -c VoIP_DL-UL -r 0,        5s,              f342-6f2a/tls, PASS,
-/simulations/demo/,                  -f omnetpp.ini -c VoIP-DL -r 0,           5s,              61f6-e877/tls, PASS,
-/simulations/demo/,                  -f omnetpp.ini -c VoIP-UL -r 0,           5s,              2caf-9611/tls, PASS,
+/simulations/demo/,                  -f omnetpp.ini -c VoIP-DL -r 0,           5s,              61fc-c877/tls, PASS,
+/simulations/demo/,                  -f omnetpp.ini -c VoIP-UL -r 0,           5s,              2c8d-b611/tls, PASS,
 
 
 # D2D Multicast

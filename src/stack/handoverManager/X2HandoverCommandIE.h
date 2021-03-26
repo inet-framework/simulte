@@ -40,6 +40,8 @@ public:
       if (&other == this)
           return *this;
       X2InformationElement::operator=(other);
+      startHandover_ = other.startHandover_;
+      ueId_ = other.ueId_;
       return *this;
   }
   virtual X2HandoverCommandIE *dup() const

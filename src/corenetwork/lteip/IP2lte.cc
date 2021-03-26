@@ -524,7 +524,9 @@ void IP2lte::signalHandoverCompleteTarget(MacNodeId ueId, MacNodeId sourceEnb)
     // 2) packets received from IP
 
     std::map<MacNodeId, IpDatagramQueue>::iterator it;
-    for (it = hoFromX2_.begin(); it != hoFromX2_.end(); ++it)
+
+    it = hoFromX2_.find(ueId);
+    if (it != hoFromX2_.end())
     {
         while (!it->second.empty())
         {
@@ -538,7 +540,8 @@ void IP2lte::signalHandoverCompleteTarget(MacNodeId ueId, MacNodeId sourceEnb)
         }
     }
 
-    for (it = hoFromIp_.begin(); it != hoFromIp_.end(); ++it)
+    it = hoFromIp_.find(ueId);
+    if (it != hoFromIp_.end())
     {
         while (!it->second.empty())
         {
