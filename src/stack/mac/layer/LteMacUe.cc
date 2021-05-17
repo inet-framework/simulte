@@ -985,6 +985,7 @@ void LteMacUe::doHandover(MacNodeId targetEnb)
 
 void LteMacUe::deleteQueues(MacNodeId nodeId)
 {
+    Enter_Method_Silent();
     LteMacBuffers::iterator mit;
     LteMacBufferMap::iterator vit;
     for (mit = mbuf_.begin(); mit != mbuf_.end(); )
@@ -994,6 +995,7 @@ void LteMacUe::deleteQueues(MacNodeId nodeId)
             cPacket* pkt = mit->second->popFront();
             delete pkt;
         }
+        take(mit->second);
         delete mit->second;        // Delete Queue
         mbuf_.erase(mit++);        // Delete Elem
     }

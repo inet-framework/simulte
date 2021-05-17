@@ -32,10 +32,14 @@ LteMacBase::LteMacBase()
 
 LteMacBase::~LteMacBase()
 {
+    Enter_Method_Silent();
     LteMacBuffers::iterator mit;
     LteMacBufferMap::iterator vit;
     for (mit = mbuf_.begin(); mit != mbuf_.end(); mit++)
+    {
+        take (mit->second);
         delete mit->second;
+    }
     for (vit = macBuffers_.begin(); vit != macBuffers_.end(); vit++)
         delete vit->second;
     mbuf_.clear();
