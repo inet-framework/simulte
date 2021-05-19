@@ -329,6 +329,7 @@ HarqBuffersMirrorD2D* LteMacEnbD2D::getHarqBuffersMirrorD2D()
 
 void LteMacEnbD2D::deleteQueues(MacNodeId nodeId)
 {
+    Enter_Method_Silent(); // switch context
     LteMacEnb::deleteQueues(nodeId);
     deleteHarqBuffersMirrorD2D(nodeId);
 }
