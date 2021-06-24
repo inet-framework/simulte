@@ -33,8 +33,13 @@ void TrafficFlowFilter::initialize(int stage) {
         //=============================================
 
         // register service processing IP-packets on the LTE Uu Link
-        registerService(LteProtocol::ipv4uu, gate("internetFilterGateIn"),
-                gate("internetFilterGateIn"));
+        auto gateAux = gate("internetFilterGateIn");
+        //registerProtocol(LteProtocol::ipv4uu, gateAux, SP_REQUEST);
+        registerProtocol(LteProtocol::ipv4uu, gateAux, SP_INDICATION);
+        //registerProtocol(LteProtocol::ipv4uu, gateAux, SP_RESPONSE);
+        registerProtocol(LteProtocol::ipv4uu, gateAux, SP_CONFIRM);
+
+        //registerService(LteProtocol::ipv4uu, gate("internetFilterGateIn"), gate("internetFilterGateIn"));
     }
 }
 

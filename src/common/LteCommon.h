@@ -733,9 +733,10 @@ std::vector<T> getTagsWithInherit(inet::Packet *pkt)
     // check if exist tag of that is derived from this.
     //
     for (unsigned int i = 0; i < tags.getNumTags(); i++) {
-        T * temp = dynamic_cast<T *> (tags.getTag(i));
+        auto tag = tags.getTagForUpdate(i);
+        auto temp = inet::dynamicPtrCast<T> (tag);
         if (temp != nullptr) {
-            t.push_back(*temp);
+            t.push_back(*temp.get());
         }
     }
     return t;

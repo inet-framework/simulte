@@ -329,6 +329,7 @@ HarqBuffersMirrorD2D* LteMacEnbD2D::getHarqBuffersMirrorD2D()
 
 void LteMacEnbD2D::deleteQueues(MacNodeId nodeId)
 {
+    Enter_Method_Silent(); // switch context
     LteMacEnb::deleteQueues(nodeId);
     deleteHarqBuffersMirrorD2D(nodeId);
 }
@@ -449,8 +450,8 @@ void LteMacEnbD2D::macHandleD2DModeSwitch(cPacket* pktAux)
 
                 auto pktTx =  pkt->dup();
                 auto tag = pktTx->removeTagIfPresent<UserControlInfo>();
-                if (tag)
-                    delete tag;
+                //if (tag)
+                //    delete tag;
                 auto switchPktTx = pktTx->removeAtFront<D2DModeSwitchNotification>();
                 switchPktTx->setTxSide(true);
 
@@ -500,8 +501,8 @@ void LteMacEnbD2D::macHandleD2DModeSwitch(cPacket* pktAux)
 
                 auto pktRx =  pkt->dup();
                 auto tag = pktRx->removeTagIfPresent<UserControlInfo>();
-                if (tag)
-                    delete tag;
+                //if (tag)
+                //    delete tag;
                 auto switchPktRx = pktRx->removeAtFront<D2DModeSwitchNotification>();
 
                 EV << NOW << " LteMacEnbD2D::sendModeSwitchNotification - send signal for RX entity to upper layers in the eNB (cid=" << cid << ")" << endl;

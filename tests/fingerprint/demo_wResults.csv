@@ -12,3 +12,4 @@
 /simulations/demo/,                  -f omnetpp.ini -c VoIP-UL_MACresCheck -r 0,           5s,              06eb-8fd0/s, PASS,
 /simulations/demo/,                  -f omnetpp.ini -c VoIP-DL_PHYresCheck -r 0,           5s,              bc19-5d53/s, PASS,
 /simulations/demo/,                  -f omnetpp.ini -c VoIP-UL_PHYresCheck -r 0,           5s,              06eb-8fd0/s, PASS,
+

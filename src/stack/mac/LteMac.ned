@@ -161,6 +161,9 @@ simple LteMacUeD2D extends LteMacUe {
         @signal[macThroughputD2D];
         @statistic[macThroughputD2D](title="Throughput at the MAC layer D2D"; unit="Bps"; source="macThroughputD2D"; record=mean);
         
+        @signal[RxMBcastErrRateD2D];
+        @statistic[RxMBcastErrRateD2D](title="Multi- or Broadcast Rx Error Rate for D2D"; unit=""; source="RxMBcastErrRateD2D"; record=mean,vector);
+       
         @signal[rcvdD2DModeSwitchNotification];
         @statistic[rcvdD2DModeSwitchNotification](title="Reception of mode switch notification (tx side)"; unit=""; source="rcvdD2DModeSwitchNotification"; record=count,vector);
 }

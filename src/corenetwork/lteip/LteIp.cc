@@ -23,7 +23,7 @@
 #include "inet/networklayer/common/EcnTag_m.h"
 #include "inet/networklayer/common/FragmentationTag_m.h"
 #include "inet/networklayer/contract/ipv4/Ipv4SocketCommand_m.h"
-#include "inet/applications/common/SocketTag_m.h"
+#include "inet/common/socket/SocketTag_m.h"
 #include "inet/networklayer/common/TosTag_m.h"
 
 #include "inet/common/ProtocolTag_m.h"
@@ -126,11 +126,31 @@ void LteIp::handleRegisterService(const Protocol& protocol, cGate *out, ServiceP
     Enter_Method("handleRegisterService");
 }
 
+void LteIp::handleRegisterAnyService(cGate *out, ServicePrimitive servicePrimitive)
+{
+    Enter_Method("handleRegisterAnyService");
+}
+
+
+void LteIp::handleRegisterAnyProtocol (cGate *in, ServicePrimitive servicePrimitive)
+{
+    Enter_Method("handleRegisterAnyProtocol");
+    if (in->isName("transportIn")) {
+        int i = 0;
+        auto protocol = inet::Protocol::findProtocol(i);
+        while (protocol != nullptr) {
+            upperProtocols.insert(protocol);
+            i++;
+            protocol = inet::Protocol::findProtocol(i);
+        }
+    }
+}
+
 void LteIp::handleRegisterProtocol(const Protocol& protocol, cGate *in, ServicePrimitive servicePrimitive)
 {
     Enter_Method("handleRegisterProtocol");
     if (in->isName("transportIn"))
-            upperProtocols.insert(&protocol);
+        upperProtocols.insert(&protocol);
 }
 
 
@@ -276,10 +296,10 @@ void LteIp::fromTransport(Packet * transportPacket, cGate *outputgate)
 
     removeAllSimuLteTags(transportPacket);
 
-    if (hopLimitReq)
+    /*if (hopLimitReq)
         delete hopLimitReq;
     if (l3AddressReq)
-        delete l3AddressReq;
+        delete l3AddressReq;*/
 
 
     //** Create IP datagram and fill its fields **
@@ -304,26 +324,26 @@ void LteIp::fromTransport(Packet * transportPacket, cGate *outputgate)
     bool dontFragment = false;
     if (auto dontFragmentReq = transportPacket->removeTagIfPresent<FragmentationReq>()) {
         dontFragment = dontFragmentReq->getDontFragment();
-        delete dontFragmentReq;
+        //delete dontFragmentReq;
     }
 
 
     // set other fields
-    if (TosReq *tosReq = transportPacket->removeTagIfPresent<TosReq>()) {
+    if (auto tosReq = transportPacket->removeTagIfPresent<TosReq>()) {
         ipHeader->setTypeOfService(tosReq->getTos());
-        delete tosReq;
+        //delete tosReq;
         if (transportPacket->findTag<DscpReq>())
             throw cRuntimeError("TosReq and DscpReq found together");
         if (transportPacket->findTag<EcnReq>())
             throw cRuntimeError("TosReq and EcnReq found together");
     }
-    if (DscpReq *dscpReq = transportPacket->removeTagIfPresent<DscpReq>()) {
+    if (auto dscpReq = transportPacket->removeTagIfPresent<DscpReq>()) {
         ipHeader->setDscp(dscpReq->getDifferentiatedServicesCodePoint());
-        delete dscpReq;
+        //delete dscpReq;
     }
-    if (EcnReq *ecnReq = transportPacket->removeTagIfPresent<EcnReq>()) {
+    if (auto ecnReq = transportPacket->removeTagIfPresent<EcnReq>()) {
         ipHeader->setEcn(ecnReq->getExplicitCongestionNotification());
-        delete ecnReq;
+        //delete ecnReq;
     }
 
     ipHeader->setIdentification(curFragmentId_++);
@@ -428,7 +448,7 @@ void LteIp::toTransport(Packet * pkt)
 
         EV_ERROR << "Transport protocol '" << protocol->getName() << "' not connected, discarding packet\n";
         /*pkt->setFrontOffset(ipv4HeaderPosition);
-        const InterfaceEntry* fromIE = getSourceInterface(pkt);
+        const NetworkInterface* fromIE = getSourceInterface(pkt);
         sendIcmpError(pkt, fromIE ? fromIE->getInterfaceId() : -1, ICMP_DESTINATION_UNREACHABLE, ICMP_DU_PROTOCOL_UNREACHABLE);*/
     }
 }

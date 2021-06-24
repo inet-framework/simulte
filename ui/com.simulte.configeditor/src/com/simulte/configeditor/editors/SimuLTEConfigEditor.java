@@ -554,7 +554,7 @@ public class SimuLTEConfigEditor extends AbstractIniEditor {
         group = createGroup(sectionBody, "Mobility:", 2);
         ((GridData)group.getLayoutData()).heightHint = 10*approximateLineHeight;
         createLabel(group, "Type:");
-        final IFieldEditor ueMobilityTypeCombo = createComboIniFieldEditor(group, "*.ue*.mobilityType", NED_LTE_UE, "StationaryMobility,LinearMobility,RandomWPMobility", null);
+        final IFieldEditor ueMobilityTypeCombo = createComboIniFieldEditor(group, "*.ue*.mobility.typename", NED_LTE_UE, "StationaryMobility,LinearMobility,RandomWPMobility", null);
         final Composite group2 = group;
         ueMobilityTypeCombo.addModifyListener(new ModifyListener() {
             @Override

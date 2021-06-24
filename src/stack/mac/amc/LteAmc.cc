@@ -541,6 +541,9 @@ bool LteAmc::existTxParams(MacNodeId id, const Direction dir)
         return ulTxParams_.at(ulNodeIndex_.at(id)).isSet();
     else if (dir == D2D)
         return d2dTxParams_.at(d2dNodeIndex_.at(id)).isSet();
+    else if (dir == D2D_MULTI)
+        throw cRuntimeError("LteAmc::existTxparams(): D2D multicast requires pre-configured tx parameters!"
+                "Set \"usePreconfiguredTxParams\" to true in your simulation and specify \"d2dCqi\".");
     else
     {
         throw cRuntimeError("LteAmc::existTxparams(): Unrecognized direction");
@@ -576,6 +579,9 @@ const UserTxParams& LteAmc::setTxParams(MacNodeId id, const Direction dir, UserT
         return (ulTxParams_.at(ulNodeIndex_.at(id)) = info);
     else if (dir == D2D)
         return (d2dTxParams_.at(d2dNodeIndex_.at(id)) = info);
+    else if (dir == D2D_MULTI)
+            throw cRuntimeError("LteAmc::setTxParams(): D2D multicast requires pre-configured tx parameters!"
+                    "Set \"usePreconfiguredTxParams\" to true in your simulation and specify \"d2dCqi\".");
     else
     {
         throw cRuntimeError("LteAmc::setTxParams(): Unrecognized direction");

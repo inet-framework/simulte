@@ -169,7 +169,7 @@ class SIMULTE_API LteHarqProcessTx
     bool isUnitEmpty(Codeword cw);
     bool isUnitReady(Codeword cw);
     unsigned char getTransmissions(Codeword cw);
-    inet::int64 getPduLength(Codeword cw);
+    int64_t getPduLength(Codeword cw);
     omnetpp::simtime_t getTxTime(Codeword cw);
     bool isUnitMarked(Codeword cw);
     bool isDropped();
