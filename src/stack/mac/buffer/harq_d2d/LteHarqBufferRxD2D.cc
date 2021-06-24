@@ -142,7 +142,7 @@ std::list<Packet *> LteHarqBufferRxD2D::extractCorrectPdus()
                 auto info = temp->getTag<UserControlInfo>();
                 
                 // emit delay statistic
-                if (info->getDirection() == D2D)
+                if (info->getDirection() == D2D || info->getDirection() == D2D_MULTI)
                 {
                     check_and_cast<LteMacUeD2D*>(macOwner_)->emit(macDelayD2D_, (NOW - temp->getCreationTime()).dbl());
                 }
@@ -158,7 +158,7 @@ std::list<Packet *> LteHarqBufferRxD2D::extractCorrectPdus()
                 double cellTputSample = (double)totalCellRcvdBytes_ / (NOW - getSimulation()->getWarmupPeriod());
 
                 // emit throughput statistics
-                if (info->getDirection() == D2D)
+                if (info->getDirection() == D2D || info->getDirection() == D2D_MULTI)
                 {
                     check_and_cast<LteMacEnbD2D*>(nodeB_)->emit(macCellThroughputD2D_, cellTputSample);
                     check_and_cast<LteMacUeD2D*>(macOwner_)->emit(macThroughputD2D_, tputSample);

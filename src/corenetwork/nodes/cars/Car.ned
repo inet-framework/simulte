@@ -31,7 +31,7 @@ module Car extends Ue
         @display("i=device/car");
 
         //# Mobility
-        mobilityType = default("VeinsInetMobility");
+        mobility.typename = default("VeinsInetMobility");
 
         //# Network Layer specs
         *.routingTableModule = default("^.^.ipv4.routingTable");

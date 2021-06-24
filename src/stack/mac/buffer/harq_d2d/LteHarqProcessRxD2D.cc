@@ -18,6 +18,7 @@ using namespace omnetpp;
 LteHarqProcessRxD2D::LteHarqProcessRxD2D(unsigned char acid, LteMacBase *owner)
     : LteHarqProcessRx(acid, owner)
 {
+    RxMBcastErrRateD2D = macOwner_->registerSignal("RxMBcastErrRateD2D");
 }
 
 LteHarqProcessRxD2D::~LteHarqProcessRxD2D()
@@ -53,6 +54,11 @@ Packet *LteHarqProcessRxD2D::createFeedback(Codeword cw)
         pkt->addTagIfAbsent<UserControlInfo>()->setDestId(pduInfo->getSourceId());
         pkt->addTagIfAbsent<UserControlInfo>()->setFrameType(HARQPKT);
         pkt->insertAtFront(fb);
+    } else {
+        // If D2D_MULTI then no LteHarqFeedback will be created. Thus emit
+        // error rate statistic here here.
+        int err = result_.at(cw) ? 0 : 1; // 0 == OK / 1 == Err
+        macOwner_->emit(RxMBcastErrRateD2D, err); //Err
     }
 
     if (!result_.at(cw))

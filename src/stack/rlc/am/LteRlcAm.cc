@@ -99,8 +99,8 @@ void LteRlcAm::sendDefragmented(cPacket *pktAux)
 
 void LteRlcAm::bufferControlPdu(omnetpp::cPacket *pktAux){
     auto pkt = check_and_cast<inet::Packet *> (pktAux);
-    auto lteInfo = pkt->getTag<FlowControlInfo>();
-    AmTxQueue* txbuf = getTxBuffer(ctrlInfoToUeId(lteInfo), lteInfo->getLcid());
+    auto lteInfo = pkt->getTagForUpdate<FlowControlInfo>();
+    AmTxQueue* txbuf = getTxBuffer(ctrlInfoToUeId(lteInfo.get()), lteInfo->getLcid());
     txbuf->bufferControlPdu(pkt);
 }
 
@@ -120,9 +120,9 @@ void LteRlcAm::sendFragmented(cPacket *pktAux)
 void LteRlcAm::handleUpperMessage(cPacket *pktAux)
 {
     auto pkt = check_and_cast<Packet *>(pktAux);
-    auto lteInfo = pkt->getTag<FlowControlInfo>();
+    auto lteInfo = pkt->getTagForUpdate<FlowControlInfo>();
     
-    AmTxQueue* txbuf = getTxBuffer(ctrlInfoToUeId(lteInfo), lteInfo->getLcid());
+    AmTxQueue* txbuf = getTxBuffer(ctrlInfoToUeId(lteInfo.get()), lteInfo->getLcid());
 
     // Create a new RLC packet
     auto rlcPkt = makeShared<LteRlcAmSdu>();
@@ -141,15 +141,15 @@ void LteRlcAm::routeControlMessage(cPacket *pktAux)
 
     auto pkt = check_and_cast<Packet *>(pktAux);
     auto lteInfo = pkt->removeTag<FlowControlInfo>();
-    AmTxQueue* txbuf = getTxBuffer(ctrlInfoToUeId(lteInfo), lteInfo->getLcid());
+    AmTxQueue* txbuf = getTxBuffer(ctrlInfoToUeId(lteInfo.get()), lteInfo->getLcid());
     txbuf->handleControlPacket(pkt);
-    delete lteInfo;
+    //delete lteInfo;
 }
 
 void LteRlcAm::handleLowerMessage(cPacket *pktAux)
 {
     auto pkt = check_and_cast<Packet *>(pktAux);
-    auto lteInfo = pkt->getTag<FlowControlInfo>();
+    auto lteInfo = pkt->getTagForUpdate<FlowControlInfo>();
     auto chunk = pkt->peekAtFront<inet::Chunk>();
 
     if (inet::dynamicPtrCast<const LteMacSduRequest>(chunk) != nullptr)
@@ -157,7 +157,7 @@ void LteRlcAm::handleLowerMessage(cPacket *pktAux)
         // process SDU request received from MAC
 
         // get the corresponding Tx buffer
-        AmTxQueue* txbuf = getTxBuffer(ctrlInfoToUeId(lteInfo), lteInfo->getLcid());
+        AmTxQueue* txbuf = getTxBuffer(ctrlInfoToUeId(lteInfo.get()), lteInfo->getLcid());
 
         auto macSduRequest = pkt->peekAtFront<LteMacSduRequest>();
         unsigned int size = macSduRequest->getSduSize();
@@ -181,7 +181,7 @@ void LteRlcAm::handleLowerMessage(cPacket *pktAux)
         }
 
         // Extract informations from fragment
-        AmRxQueue* rxbuf = getRxBuffer(ctrlInfoToUeId(lteInfo), lteInfo->getLcid());
+        AmRxQueue* rxbuf = getRxBuffer(ctrlInfoToUeId(lteInfo.get()), lteInfo->getLcid());
         drop(pkt);
 
         EV << NOW << " LteRlcAm::handleLowerMessage sending packet to AM RX Queue " << endl;

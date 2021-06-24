@@ -43,7 +43,7 @@ class SIMULTE_API LteHarqUnitTx
     long pduId_;
 
     /// PDU size in bytes
-    inet::int64 pduLength_;
+    int64_t pduLength_;
 
     // H-ARQ process identifier
     unsigned char acid_;
@@ -175,7 +175,7 @@ class SIMULTE_API LteHarqUnitTx
         return transmissions_;
     }
 
-    virtual inet::int64 getPduLength()
+    virtual int64_t getPduLength()
     {
         return pduLength_;
     }
