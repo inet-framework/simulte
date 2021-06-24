@@ -1,7 +1,7 @@
 #! /bin/sh
 DIR=$(dirname $0)
 DIR=$(cd $DIR ; pwd)
-INET_DIR=$(cd $DIR/../../inet4/src ; pwd)
+INET_DIR=$(cd $DIR/../../inet4.3/src ; pwd)
 COMMAND_LINE_OPTIONS="-n $DIR/../simulations:$DIR:$INET_DIR"
 PATH=$INET_DIR:$PATH
 
