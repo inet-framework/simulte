@@ -122,8 +122,6 @@ void IP2lte::handleMessage(cMessage *msg)
             auto pkt = check_and_cast<Packet *>(msg);
             
             auto sockInd = pkt->removeTagIfPresent<SocketInd>();
-    		//if (sockInd)
-        	//	delete sockInd;
     		removeAllSimuLteTags(pkt);
             
             toIpEnb(pkt);
@@ -141,7 +139,6 @@ void IP2lte::handleMessage(cMessage *msg)
         // message from transport: send to stack
         if (msg->getArrivalGate()->isName("upperLayerIn"))
         {
-
             auto ipDatagram = check_and_cast<Packet *>(msg);
             EV << "LteIp: message from transport: send to stack" << endl;
             fromIpUe(ipDatagram);
@@ -152,8 +149,6 @@ void IP2lte::handleMessage(cMessage *msg)
             EV << "LteIp: message from stack: send to transport" << endl;
             auto pkt = check_and_cast<Packet *>(msg);
             auto sockInd = pkt->removeTagIfPresent<SocketInd>();
-    		//if (sockInd)
-        	//	delete sockInd;
     		removeAllSimuLteTags(pkt);
 
     		toIpUe(pkt);
@@ -179,10 +174,7 @@ void IP2lte::fromIpUe(Packet * datagram)
 {
     EV << "IP2lte::fromIpUe - message from IP layer: send to stack: "  << datagram->str() << std::endl;
     // Remove control info from IP datagram
-    auto sockInd = datagram->removeTagIfPresent<SocketInd>();
-    //if (sockInd)
-    //    delete sockInd;
-    
+    datagram->removeTagIfPresent<SocketInd>();
     removeAllSimuLteTags(datagram);
 
     // Remove InterfaceReq Tag (we already are on an interface now)
@@ -201,18 +193,12 @@ void IP2lte::fromIpUe(Packet * datagram)
 
 void IP2lte::toStackUe(Packet * pkt)
 {
-    // 5-Tuple infos
-    unsigned short srcPort = 0;
-    unsigned short dstPort = 0;
-    
-    auto protocolId = getProtocolId(pkt);
-    auto datagram = pkt->peekAtFront<Ipv4Header>();
-    auto transportHeader = getTransportProtocolHeader(pkt);
-
-    int transportProtocol = datagram->getProtocolId();
-    // TODO Add support to IPv6 (=> see L3Tools.cc of INET)
-    auto srcAddr  = datagram->getSrcAddress();
-    auto destAddr = datagram->getDestAddress();
+    auto iphdr = pkt->peekAtFront<Ipv4Header>();
+    auto srcAddr  = iphdr->getSrcAddress();
+    auto destAddr = iphdr->getDestAddress();
+    short int tos = iphdr->getTypeOfService();
+    int transportProtocol = iphdr->getProtocolId();
+    int headerSize = iphdr->getHeaderLength().get();
 
     // if needed, create a new structure for the flow
     AddressPair pair(srcAddr, destAddr);
@@ -222,34 +208,22 @@ void IP2lte::toStackUe(Packet * pkt)
         seqNums_.insert(p);
     }
 
-    int headerSize = datagram->getHeaderLength().get();
-
     // inspect packet depending on the transport protocol type
-    // TODO: needs refactoring (redundant code, see toStackEnb())
-    switch (transportProtocol) {
-        case IP_PROT_TCP: {
-            auto tcpHdr = dynamicPtrCast<const tcp::TcpHeader>(transportHeader);
-            srcPort = tcpHdr->getSrcPort();
-            dstPort = tcpHdr->getDestPort();
-            headerSize += B(tcpHdr->getHeaderLength()).get();
-            break;
-        }
-        case IP_PROT_UDP: {
-            auto udpHdr = dynamicPtrCast<const UdpHeader>(transportHeader);
-            srcPort = udpHdr->getSrcPort();
-            dstPort = udpHdr->getDestPort();
-            headerSize += UDP_HEADER_BYTES;
-            break;
-        }
-        default: {
-            EV_ERROR << "Unknown transport protocol id." << endl;
-        }
+    // TODO: needs refactoring (redundant code, see toStackBs())
+    if (transportProtocol == IP_PROT_TCP) {
+        auto tcpHeader = pkt->peekDataAt<tcp::TcpHeader>(iphdr->getChunkLength());
+        headerSize += B(tcpHeader->getHeaderLength()).get();
+    }
+    else if (transportProtocol == IP_PROT_UDP) {
+        headerSize += inet::UDP_HEADER_LENGTH.get();
+    }
+    else {
+        EV_ERROR << "Unknown transport protocol id." << endl;
     }
 
     pkt->addTagIfAbsent<FlowControlInfo>()->setSrcAddr(srcAddr.getInt());
     pkt->addTagIfAbsent<FlowControlInfo>()->setDstAddr(destAddr.getInt());
-    pkt->addTagIfAbsent<FlowControlInfo>()->setSrcPort(srcPort);
-    pkt->addTagIfAbsent<FlowControlInfo>()->setDstPort(dstPort);
+    pkt->addTagIfAbsent<FlowControlInfo>()->setTypeOfService(tos);
     pkt->addTagIfAbsent<FlowControlInfo>()->setSequenceNumber(seqNums_[pair]++);
     pkt->addTagIfAbsent<FlowControlInfo>()->setHeaderSize(headerSize);
     
@@ -276,7 +250,6 @@ void IP2lte::toIpUe(Packet *pkt)
     pkt->addTagIfAbsent<PacketProtocolTag>()->setProtocol(&Protocol::ipv4);
     pkt->addTagIfAbsent<DispatchProtocolReq>()->setProtocol(&Protocol::ipv4);
 
-
     EV << "IP2lte::toIpUe - message from stack: send to IP layer" << endl;
     prepareForIpv4(pkt);
     send(pkt,ipGateOut_);
@@ -286,9 +259,7 @@ void IP2lte::fromIpEnb(Packet * pkt)
 {
     EV << "IP2lte::fromIpEnb - message from IP layer: send to stack" << endl;
     // Remove control info from IP datagram
-    auto sockInd = pkt->removeTagIfPresent<SocketInd>();
-    //if (sockInd)
-    //    delete sockInd;
+    pkt->removeTagIfPresent<SocketInd>();
     removeAllSimuLteTags(pkt);
 
     // Remove InterfaceReq Tag (we already are on an interface now)
@@ -343,14 +314,14 @@ void IP2lte::toIpEnb(Packet* pkt)
 void IP2lte::toStackEnb(Packet* pkt)
 {
     EV << "IP2lte::toStackEnb - packet is forwarded to stack" << endl;
-    // 5-Tuple infos
-    unsigned short srcPort = 0;
-    unsigned short dstPort = 0;
-    auto& iphdr = pkt->removeAtFront<Ipv4Header>();
+
+    auto& iphdr = pkt->peekAtFront<Ipv4Header>();
     int transportProtocol = iphdr->getProtocolId();
     Ipv4Address srcAddr  = iphdr->getSrcAddress(),
                 destAddr = iphdr->getDestAddress();
-    MacNodeId destId = binder_->getMacNodeId(destAddr);
+    short int tos = iphdr->getTypeOfService();
+    int headerSize = iphdr->getHeaderLength().get();
+
 
     // if needed, create a new structure for the flow
     AddressPair pair(srcAddr, destAddr);
@@ -360,21 +331,15 @@ void IP2lte::toStackEnb(Packet* pkt)
         seqNums_.insert(p);
     }
 
-    int headerSize = 0;
 
     switch(transportProtocol)
     {
         case IP_PROT_TCP: {
-            auto& tcpHdr = pkt->peekAtFront<tcp::TcpHeader>();
-            srcPort = tcpHdr->getSrcPort();
-            dstPort = tcpHdr->getDestPort();
-            headerSize += B(tcpHdr->getHeaderLength()).get();
+            auto tcpHeader = pkt->peekDataAt<tcp::TcpHeader>(iphdr->getChunkLength());
+            headerSize += B(tcpHeader->getHeaderLength()).get();
             break;
         }
         case IP_PROT_UDP: {
-            auto& udpHdr = pkt->peekAtFront<UdpHeader>();
-            srcPort = udpHdr->getSrcPort();
-            dstPort = udpHdr->getDestPort();
             headerSize += inet::UDP_HEADER_LENGTH.get();
             break;
         }
@@ -382,18 +347,16 @@ void IP2lte::toStackEnb(Packet* pkt)
             EV_ERROR << "Unknown transport protocol id." << endl;
         }
     }
-    // re-insert ip header
-    pkt->insertAtFront(iphdr);
 
     // prepare flow info for LTE stack
     pkt->addTagIfAbsent<FlowControlInfo>()->setSrcAddr(srcAddr.getInt());
     pkt->addTagIfAbsent<FlowControlInfo>()->setDstAddr(destAddr.getInt());
-    pkt->addTagIfAbsent<FlowControlInfo>()->setSrcPort(srcPort);
-    pkt->addTagIfAbsent<FlowControlInfo>()->setDstPort(dstPort);
+    pkt->addTagIfAbsent<FlowControlInfo>()->setTypeOfService(tos);
     pkt->addTagIfAbsent<FlowControlInfo>()->setSequenceNumber(seqNums_[pair]++);
     pkt->addTagIfAbsent<FlowControlInfo>()->setHeaderSize(headerSize);
 
     // TODO Relay management should be placed here
+    MacNodeId destId = binder_->getMacNodeId(destAddr);
     MacNodeId master = binder_->getNextHop(destId);
 
     pkt->addTagIfAbsent<FlowControlInfo>()->setDestId(master);
@@ -407,8 +370,7 @@ void IP2lte::printControlInfo(Packet* pkt)
 {
     EV << "Src IP : " << Ipv4Address(pkt->getTag<FlowControlInfo>()->getSrcAddr()) << endl;
     EV << "Dst IP : " << Ipv4Address(pkt->getTag<FlowControlInfo>()->getDstAddr()) << endl;
-    EV << "Src Port : " << pkt->getTag<FlowControlInfo>()->getSrcPort() << endl;
-    EV << "Dst Port : " << pkt->getTag<FlowControlInfo>()->getDstPort() << endl;
+    EV << "ToS : " << pkt->getTag<FlowControlInfo>()->getTypeOfService() << endl;
     EV << "Seq Num  : " << pkt->getTag<FlowControlInfo>()->getSequenceNumber() << endl;
     EV << "Header Size : " << pkt->getTag<FlowControlInfo>()->getHeaderSize() << endl;
 }

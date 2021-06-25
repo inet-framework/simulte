@@ -2,7 +2,7 @@
 DIR=$(dirname $0)
 DIR=$(cd $DIR ; pwd)
 INET_DIR=$(cd $DIR/../../inet4.3/src ; pwd)
-COMMAND_LINE_OPTIONS="-n $DIR/../simulations:$DIR:$INET_DIR"
+COMMAND_LINE_OPTIONS="-n $DIR/../simulations:$DIR/../emulation:$DIR:$INET_DIR"
 PATH=$INET_DIR:$PATH
 
 if [ -f $DIR/liblte.so -o -f $DIR/liblte.dll -o -f $DIR/liblte.dylib ]; then

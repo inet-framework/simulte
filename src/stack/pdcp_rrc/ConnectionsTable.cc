@@ -15,77 +15,67 @@ ConnectionsTable::ConnectionsTable()
     memset(ht_, 0xFF, sizeof(struct entry_) * TABLE_SIZE);
 }
 
-unsigned int ConnectionsTable::hash_func(uint32_t srcAddr, uint32_t dstAddr,
-    uint16_t srcPort, uint16_t dstPort)
+unsigned int ConnectionsTable::hash_func(uint32_t srcAddr, uint32_t dstAddr, uint16_t typeOfService)
 {
-    return (srcPort | dstPort | srcAddr | dstAddr) % TABLE_SIZE;
+    return (typeOfService | srcAddr | dstAddr) % TABLE_SIZE;
 }
 
-unsigned int ConnectionsTable::hash_func(uint32_t srcAddr, uint32_t dstAddr,
-    uint16_t srcPort, uint16_t dstPort, uint16_t dir)
+unsigned int ConnectionsTable::hash_func(uint32_t srcAddr, uint32_t dstAddr, uint16_t typeOfService, uint16_t dir)
 {
-    return (srcPort | dstPort | srcAddr | dstAddr | dir) % TABLE_SIZE;
+    return (typeOfService | srcAddr | dstAddr | dir) % TABLE_SIZE;
 }
 
-LogicalCid ConnectionsTable::find_entry(uint32_t srcAddr, uint32_t dstAddr,
-    uint16_t srcPort, uint16_t dstPort)
+LogicalCid ConnectionsTable::find_entry(uint32_t srcAddr, uint32_t dstAddr, uint16_t typeOfService)
 {
-    int hashIndex = hash_func(srcAddr, dstAddr, srcPort, dstPort);
+    int hashIndex = hash_func(srcAddr, dstAddr, typeOfService);
     while (1)
     {
         if (ht_[hashIndex].lcid_ == 0xFFFF)            // Entry not found
             return 0xFFFF;
         if (ht_[hashIndex].srcAddr_ == srcAddr &&
             ht_[hashIndex].dstAddr_ == dstAddr &&
-            ht_[hashIndex].srcPort_ == srcPort &&
-            ht_[hashIndex].dstPort_ == dstPort)
+            ht_[hashIndex].typeOfService_ == typeOfService)
             return ht_[hashIndex].lcid_;                // Entry found
         hashIndex = (hashIndex + 1) % TABLE_SIZE;    // Linear scanning of the hash table
     }
 }
 
-LogicalCid ConnectionsTable::find_entry(uint32_t srcAddr, uint32_t dstAddr,
-    uint16_t srcPort, uint16_t dstPort, uint16_t dir)
+LogicalCid ConnectionsTable::find_entry(uint32_t srcAddr, uint32_t dstAddr, uint16_t typeOfService, uint16_t dir)
 {
-    int hashIndex = hash_func(srcAddr, dstAddr, srcPort, dstPort, dir);
+    int hashIndex = hash_func(srcAddr, dstAddr, typeOfService, dir);
     while (1)
     {
         if (ht_[hashIndex].lcid_ == 0xFFFF)            // Entry not found
             return 0xFFFF;
         if (ht_[hashIndex].srcAddr_ == srcAddr &&
             ht_[hashIndex].dstAddr_ == dstAddr &&
-            ht_[hashIndex].srcPort_ == srcPort &&
-            ht_[hashIndex].dstPort_ == dstPort &&
+            ht_[hashIndex].typeOfService_ == typeOfService &&
             ht_[hashIndex].dir_ == dir)
             return ht_[hashIndex].lcid_;                // Entry found
         hashIndex = (hashIndex + 1) % TABLE_SIZE;    // Linear scanning of the hash table
     }
 }
 
-void ConnectionsTable::create_entry(uint32_t srcAddr, uint32_t dstAddr,
-    uint16_t srcPort, uint16_t dstPort, LogicalCid lcid)
+void ConnectionsTable::create_entry(uint32_t srcAddr, uint32_t dstAddr, uint16_t typeOfService, LogicalCid lcid)
 {
-    int hashIndex = hash_func(srcAddr, dstAddr, srcPort, dstPort);
+    int hashIndex = hash_func(srcAddr, dstAddr, typeOfService);
     while (ht_[hashIndex].lcid_ != 0xFFFF)
         hashIndex = (hashIndex + 1) % TABLE_SIZE;    // Linear scanning of the hash table
     ht_[hashIndex].srcAddr_ = srcAddr;
     ht_[hashIndex].dstAddr_ = dstAddr;
-    ht_[hashIndex].srcPort_ = srcPort;
-    ht_[hashIndex].dstPort_ = dstPort;
+    ht_[hashIndex].typeOfService_ = typeOfService;
     ht_[hashIndex].lcid_ = lcid;
     return;
 }
 
-void ConnectionsTable::create_entry(uint32_t srcAddr, uint32_t dstAddr,
-    uint16_t srcPort, uint16_t dstPort, uint16_t dir, LogicalCid lcid)
+void ConnectionsTable::create_entry(uint32_t srcAddr, uint32_t dstAddr, uint16_t typeOfService, uint16_t dir, LogicalCid lcid)
 {
-    int hashIndex = hash_func(srcAddr, dstAddr, srcPort, dstPort, dir);
+    int hashIndex = hash_func(srcAddr, dstAddr, typeOfService, dir);
     while (ht_[hashIndex].lcid_ != 0xFFFF)
         hashIndex = (hashIndex + 1) % TABLE_SIZE;    // Linear scanning of the hash table
     ht_[hashIndex].srcAddr_ = srcAddr;
     ht_[hashIndex].dstAddr_ = dstAddr;
-    ht_[hashIndex].srcPort_ = srcPort;
-    ht_[hashIndex].dstPort_ = dstPort;
+    ht_[hashIndex].typeOfService_ = typeOfService;
     ht_[hashIndex].dir_ = dir;
     ht_[hashIndex].lcid_ = lcid;
     return;

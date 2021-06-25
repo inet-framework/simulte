@@ -25,6 +25,8 @@ simple VoDUDPServer like IApp
         volatile double clientsStartStreamTime = default(0);
         string clientsReqTime = default("");
         double startTime @unit("s") = default(0s);
+        
+        int tos = default(-1); // if not -1, set the Type Of Service (IPv4) / Traffic Class (IPv6) field of sent packets to this value
 
         @display("i=block/app");
     gates:

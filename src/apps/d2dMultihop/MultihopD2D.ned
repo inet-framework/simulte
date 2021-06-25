@@ -57,6 +57,7 @@ simple MultihopD2D like IApp
         //# Network Layer specs
         string interfaceTableModule = default(absPath(".interfaceTable"));
         string interfaceName = default("cellular"); 
+        int tos = default(-1); // if not -1, set the Type Of Service (IPv4) / Traffic Class (IPv6) field of sent packets to this value
         
         //# Statistics
         @signal[d2dMultihopGeneratedMsg];

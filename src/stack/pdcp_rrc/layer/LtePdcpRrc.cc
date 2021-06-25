@@ -169,23 +169,20 @@ void LtePdcpRrcBase::fromDataPort(cPacket *pktAux)
     headerCompress(pkt);
 
     // Cid Request
-    EV << "LteRrc : Received CID request for Traffic [ " << "Source: "
-       << Ipv4Address(lteInfo->getSrcAddr()) << "@" << lteInfo->getSrcPort()
-       << " Destination: " << Ipv4Address(lteInfo->getDstAddr()) << "@"
-       << lteInfo->getDstPort() << " ]\n";
+    EV << "LteRrc : Received CID request for Traffic [ " << "Source: " << Ipv4Address(lteInfo->getSrcAddr())
+       << " Destination: " << Ipv4Address(lteInfo->getDstAddr()) << " ToS: " << lteInfo->getTypeOfService() << " ]\n";
 
     // TODO: Since IP addresses can change when we add and remove nodes, maybe node IDs should be used instead of them
     LogicalCid mylcid;
     if ((mylcid = ht_->find_entry(lteInfo->getSrcAddr(), lteInfo->getDstAddr(),
-        lteInfo->getSrcPort(), lteInfo->getDstPort())) == 0xFFFF)
+            lteInfo->getTypeOfService())) == 0xFFFF)
     {
         // LCID not found
         mylcid = lcid_++;
 
         EV << "LteRrc : Connection not found, new CID created with LCID " << mylcid << "\n";
 
-        ht_->create_entry(lteInfo->getSrcAddr(), lteInfo->getDstAddr(),
-            lteInfo->getSrcPort(), lteInfo->getDstPort(), mylcid);
+        ht_->create_entry(lteInfo->getSrcAddr(), lteInfo->getDstAddr(), lteInfo->getTypeOfService(), mylcid);
     }
 
     EV << "LteRrc : Assigned Lcid: " << mylcid << "\n";

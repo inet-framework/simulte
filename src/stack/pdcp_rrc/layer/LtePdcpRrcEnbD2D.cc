@@ -60,9 +60,8 @@ void LtePdcpRrcEnbD2D::fromDataPort(cPacket *pktAux)
     }
 
     // Cid Request
-    EV << NOW << " LtePdcpRrcEnbD2D : Received CID request for Traffic [ " << "Source: "
-       << Ipv4Address(lteInfo->getSrcAddr()) << "@" << lteInfo->getSrcPort()
-       << " Destination: " << destAddr << "@" << lteInfo->getDstPort()
+    EV << NOW << " LtePdcpRrcEnbD2D : Received CID request for Traffic [ " << "Source: " << Ipv4Address(lteInfo->getSrcAddr())
+       << " Destination: " << destAddr << " , ToS: " << lteInfo->getTypeOfService()
        << " , Direction: " << dirToA((Direction)lteInfo->getDirection()) << " ]\n";
 
     /*
@@ -71,8 +70,7 @@ void LtePdcpRrcEnbD2D::fromDataPort(cPacket *pktAux)
      */
 
     LogicalCid mylcid;
-    if ((mylcid = ht_->find_entry(lteInfo->getSrcAddr(), lteInfo->getDstAddr(),
-        lteInfo->getSrcPort(), lteInfo->getDstPort(), lteInfo->getDirection())) == 0xFFFF)
+    if ((mylcid = ht_->find_entry(lteInfo->getSrcAddr(), lteInfo->getDstAddr(), lteInfo->getTypeOfService(), lteInfo->getDirection())) == 0xFFFF)
     {
         // LCID not found
 
@@ -81,8 +79,7 @@ void LtePdcpRrcEnbD2D::fromDataPort(cPacket *pktAux)
 
         EV << "LtePdcpRrcEnbD2D : Connection not found, new CID created with LCID " << mylcid << "\n";
 
-        ht_->create_entry(lteInfo->getSrcAddr(), lteInfo->getDstAddr(),
-            lteInfo->getSrcPort(), lteInfo->getDstPort(), lteInfo->getDirection(), mylcid);
+        ht_->create_entry(lteInfo->getSrcAddr(), lteInfo->getDstAddr(), lteInfo->getTypeOfService(), lteInfo->getDirection(), mylcid);
     }
 
     EV << "LtePdcpRrcEnbD2D : Assigned Lcid: " << mylcid << "\n";

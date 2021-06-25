@@ -13,7 +13,8 @@ package lte.corenetwork.nodes;
 import inet.applications.contract.IApp;
 import inet.common.packet.recorder.PcapRecorder;
 import inet.mobility.contract.IMobility;
-import inet.linklayer.contract.IExternalInterface;
+import inet.linklayer.contract.IEthernetInterface;
+import inet.linklayer.contract.ILoopbackInterface;
 import inet.networklayer.common.InterfaceTable;
 import inet.networklayer.contract.IRoutingTable;
 import inet.networklayer.contract.INetworkLayer;
@@ -69,10 +70,13 @@ module Ue
         *.interfaceTableModule = default(absPath(".interfaceTable"));
         *.routingTableModule = default("^.ipv4.routingTable");
 
-        //# Ext Interface
-        bool enableExtInterface = default(false);
+        //# External Ethernet interfaces
+        int numEthInterfaces = default(0);
         string extHostAddress = default("");
 
+        //# Loopback interfaces
+        int numLoInterfaces = default(1);
+        
         int numPcapRecorders = default(0); // no of PcapRecorders
 
     gates:
@@ -86,7 +90,7 @@ module Ue
             parameters:
                 @display("p=125,160;is=s");
         }
-        // link layer
+        // cellular NIC
         lteNic: <nicType> like ILteNic {
             nodeType = nodeType;
             @display("p=525,525");
@@ -133,10 +137,15 @@ module Ue
             parameters:
                 @display("p=550,446;b=600,5,,,,1");
         }
-
-        ext: <default("ExtInterface")> like IExternalInterface if enableExtInterface {
+        // loopback interfaces 
+        lo[numLoInterfaces]: <default("LoopbackInterface")> like ILoopbackInterface {
             parameters:
-                @display("p=353.944,524.272,row,10;q=txQueue;i=block/ifcard");
+                @display("p=524.272,521.856,row,150");
+        }
+        // ethernet interface used for communicating with external applications in emulation mode
+        eth[numEthInterfaces]: <default("ExtLowerEthernetInterface")> like IEthernetInterface {
+            parameters:
+                @display("p=693.39197,521.856,row,150;q=txQueue");
         }
 
         pcapRecorder[numPcapRecorders]: PcapRecorder {
@@ -196,8 +205,15 @@ module Ue
         tn.in++ <-- nl.out++;
 
         //#
-        //# Connections between Ext interface and IP layer 
+        //# Connections between eth interface and IP layer 
         //#
-        nl.out++ --> ext.upperLayerIn if enableExtInterface;
-        nl.in++ <-- ext.upperLayerOut if enableExtInterface;
+        for i=0..numEthInterfaces-1 {
+            eth[i].upperLayerOut --> nl.in++;
+            eth[i].upperLayerIn <-- nl.out++;
+        }
+        
+        for i=0..numLoInterfaces-1 {
+            nl.out++ --> lo[i].upperLayerIn;
+            lo[i].upperLayerOut --> nl.in++;
+        }
 }

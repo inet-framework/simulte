@@ -1,0 +1,70 @@
+ExtClientServer Emulation example
+---------------------------------
+
+In this example the network consists of one UE connected to one eNB, one PGW, 
+one NAT router, one router, one external (real) server and one external (real) client.
+
+The external client application (i.e. associated to the UE in the emulation) sends 10MB 
+using TCP to the external server application, traversing the emulated LTE network.
+
+Packets sent needs to be smaller than the MTU of the veth interface (1500 byte by default)
+
+IP addresses and routing tables are set up by using mrt files (see "routing" folder).
+ 
+*** NOTE ***
+In order to run an emulation where both the endpoints of a connection are real applications,
+the client application (i.e. associated to the UE) must use the IP address of the NAT router 
+within the emulation as destination address. Such NAT router will perform Network Address 
+Translation (NAT), according to the rules specified with the corresponding parameter in the 
+INI file. 
+For example, if the client IP address is 192.168.3.2, while the server
+IP address is 192.168.2.2, the NAT rules on the simulated NAT router are set as:
+   
+    *.router.ipv4.natTable.config = xml("<config> \
+                                            <entry type='prerouting' \
+                                            packetDataFilter='*Ipv4Header and destAddress=~10.0.2.1' \
+                                            srcAddress='192.168.2.1' destAddress='192.168.2.2'/> \
+                                            <entry type='prerouting' \
+                                            packetDataFilter='*Ipv4Header and destAddress=~192.168.2.1' \
+                                            srcAddress='10.0.2.1' destAddress='192.168.3.2'/> \
+                                         </config>")
+ 
+ 
+How to build and run the emulation 
+----------------------------------
+
+1) Make sure that the emulation feature is enabled in the INET project:
+
+- via the IDE: right-click on the 'inet' folder in the Project Explorer -> Properties;
+               select OMNeT++ -> Project Features; 
+               tick the box "Network emulation support".
+- via the command line: in the root INET folder, type 'opp_featuretool enable NetworkEmulationSupport'.
+
+  Recompile INET with the command 'make makefiles && make' (in the root INET folder).  
+
+
+2) In order to be able to send/receive packets through sockets, set the application permissions (specify
+   the path of your OMNeT installation): 
+
+    sudo setcap cap_net_raw,cap_net_admin=eip path/to/opp_run
+    sudo setcap cap_net_raw,cap_net_admin=eip path/to/opp_run_dbg
+    sudo setcap cap_net_raw,cap_net_admin=eip path/to/opp_run_release
+
+
+3) Compile SimuLTE from the command line by running (in the root Simu5G folder):
+    
+	$ make makefiles
+	$ make MODE=release 
+	 	
+	 	
+4) Run the external server, e.g. use "Iperf" with the following command:
+  	    
+  	iperf -s -P 1 -i 1 -p 10021
+
+5) Run the emulation by launching either
+     
+    ./run_wSocket.sh 
+    
+6) Run the external client, e.g. use "Iperf" with the following command:
+  	    
+  	iperf -c 10.0.2.1 -P 1 -i 1 -m -p 10021 -M 536.0B -l 10.0M -f m -t 0

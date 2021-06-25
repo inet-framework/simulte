@@ -227,8 +227,6 @@ void LteIp::handleMessage(cMessage *msg)
             }
             pkt->addTagIfAbsent<FlowControlInfo>()->setSrcAddr(ipDatagram->getSrcAddress().getInt());
             pkt->addTagIfAbsent<FlowControlInfo>()->setDstAddr(ipDatagram->getDestAddress().getInt());
-            pkt->addTagIfAbsent<FlowControlInfo>()->setSrcPort(srcPort);
-            pkt->addTagIfAbsent<FlowControlInfo>()->setDstPort(dstPort);
             pkt->addTagIfAbsent<FlowControlInfo>()->setSequenceNumber(seqNum_++);
             pkt->addTagIfAbsent<FlowControlInfo>()->setHeaderSize(headerSize.get());
             MacNodeId destId = getBinder()->getMacNodeId(ipDatagram->getDestAddress());
@@ -375,8 +373,6 @@ void LteIp::fromTransport(Packet * transportPacket, cGate *outputgate)
 
     transportPacket->addTagIfAbsent<FlowControlInfo>()->setSrcAddr(src.getInt());
     transportPacket->addTagIfAbsent<FlowControlInfo>()->setDstAddr(dest.getInt());
-    transportPacket->addTagIfAbsent<FlowControlInfo>()->setSrcPort(srcPort);
-    transportPacket->addTagIfAbsent<FlowControlInfo>()->setDstPort(dstPort);
     transportPacket->addTagIfAbsent<FlowControlInfo>()->setSequenceNumber(seqNum_++);
     transportPacket->addTagIfAbsent<FlowControlInfo>()->setHeaderSize(headerSize.get());
     printControlInfo(transportPacket);
@@ -463,8 +459,6 @@ void LteIp::printControlInfo(Packet* ci)
 {
     EV << "Src IP : " << Ipv4Address(ci->getTag<FlowControlInfo>()->getSrcAddr()) << endl;
     EV << "Dst IP : " << Ipv4Address(ci->getTag<FlowControlInfo>()->getDstAddr()) << endl;
-    EV << "Src Port : " << ci->getTag<FlowControlInfo>()->getSrcPort() << endl;
-    EV << "Dst Port : " << ci->getTag<FlowControlInfo>()->getDstPort() << endl;
     EV << "Seq Num  : " << ci->getTag<FlowControlInfo>()->getSequenceNumber() << endl;
     EV << "Header Size : " << ci->getTag<FlowControlInfo>()->getHeaderSize() << endl;
 }

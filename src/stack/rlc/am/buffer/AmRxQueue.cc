@@ -261,10 +261,8 @@ void AmRxQueue::enque(Packet *pkt)
         flowControlInfo_ = orig->dup();
         // swap source and destination fields
         flowControlInfo_->setSourceId(orig->getDestId());
-        flowControlInfo_->setSrcPort(orig->getDstPort());
         flowControlInfo_->setSrcAddr(orig->getDstAddr());
         flowControlInfo_->setDestId(orig->getSourceId());
-        flowControlInfo_->setDstPort(orig->getSrcPort());
         flowControlInfo_->setDstAddr(orig->getSrcAddr());
         // set up other field
         flowControlInfo_->setDirection((orig->getDirection() == DL) ? UL : DL);

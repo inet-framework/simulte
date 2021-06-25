@@ -1,0 +1,51 @@
+ExtServer Emulation example
+---------------------------
+
+In this example the network consists of two UEs connected to one eNB, one PGW, 
+one router and one external (real) server.
+
+The external server sends 10MB to ue1 using TCP (in the downlink), whereas 
+ue2 sends 10MB to the external server using TCP (in the uplink).
+
+IP addresses and routing tables are set up by using mrt files (see "routing" folder).
+ 
+ 
+How to build and run the emulation 
+----------------------------------
+
+1) Make sure that the emulation feature is enabled in the INET project:
+
+- via the IDE: right-click on the 'inet' folder in the Project Explorer -> Properties;
+               select OMNeT++ -> Project Features; 
+               tick the box "Network emulation support".
+- via the command line: in the root INET folder, type 'opp_featuretool enable NetworkEmulationSupport'.
+
+  Recompile INET with the command 'make makefiles && make' (in the root INET folder).  
+
+
+2) In order to be able to send/receive packets through sockets, set the application permissions (specify
+   the path of your OMNeT installation): 
+
+    sudo setcap cap_net_raw,cap_net_admin=eip path/to/opp_run
+    sudo setcap cap_net_raw,cap_net_admin=eip path/to/opp_run_dbg
+    sudo setcap cap_net_raw,cap_net_admin=eip path/to/opp_run_release
+
+
+3) Compile SimuLTE from the command line by running (in the root SimuLTE folder):
+    
+	$ make makefiles
+	$ make MODE=release 
+	 	
+4) Run the external server for the uplink traffic, e.g. use "Iperf" with the following command (type
+   "man iperf" for options description):
+  	    
+  	iperf -s -P 1 -i 1 -p 10021
+
+5) Run the emulation by launching either
+     
+    ./run_wSocket.sh 
+
+6) Run the external server for the downlink traffic, e.g. use "Iperf" with the following command(type
+   "man iperf" for options description):
+  	    
+  	iperf -c 10.0.0.1 -P 1 -i 1 -m -p 10021 -M 536.0B -l 10.0M -f m -t 0

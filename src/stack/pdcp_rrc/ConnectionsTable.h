@@ -22,8 +22,8 @@
  * This is an hash table used by the RRC layer
  * to assign CIDs to different connections.
  * The table is in the format:
- *  __________________________________________________________
- * | srcAddr | dstAddr | srcPort | dstPort | Direction | LCID |
+ *  ______________________________________________________
+ * | srcAddr | dstAddr | typeOfService | Direction | LCID |
  *
  * A 4-tuple (plus direction) is used to check if connection was already
  * established and return the proper LCID, otherwise a
@@ -41,14 +41,12 @@ class SIMULTE_API ConnectionsTable
      *
      * @param srcAddr part of 4-tuple
      * @param dstAddr part of 4-tuple
-     * @param srcPort part of 4-tuple
-     * @param dstPort part of 4-tuple
+     * @param typeOfService part of 4-tuple
      * @return value of LCID field in hash table:
      *             - 0xFFFF if no entry was found
      *             - LCID if it was found
      */
-    LogicalCid find_entry(uint32_t srcAddr, uint32_t dstAddr,
-        uint16_t srcPort, uint16_t dstPort);
+    LogicalCid find_entry(uint32_t srcAddr, uint32_t dstAddr, uint16_t typeOfService);
 
     /**
      * find_entry() checks if an entry is in the
@@ -56,40 +54,34 @@ class SIMULTE_API ConnectionsTable
      *
      * @param srcAddr part of 4-tuple
      * @param dstAddr part of 4-tuple
-     * @param srcPort part of 4-tuple
-     * @param dstPort part of 4-tuple
+     * @param typeOfService part of 4-tuple
      * @param dir flow direction (DL/UL/D2D)
      * @return value of LCID field in hash table:
      *             - 0xFFFF if no entry was found
      *             - LCID if it was found
      */
-    LogicalCid find_entry(uint32_t srcAddr, uint32_t dstAddr,
-        uint16_t srcPort, uint16_t dstPort, uint16_t dir);
+    LogicalCid find_entry(uint32_t srcAddr, uint32_t dstAddr, uint16_t typeOfService, uint16_t dir);
 
     /**
      * create_entry() adds a new entry to the table
      *
      * @param srcAddr part of 4-tuple
      * @param dstAddr part of 4-tuple
-     * @param srcPort part of 4-tuple
-     * @param dstPort part of 4-tuple
+     * @param typeOfService part of 4-tuple
      * @param LCID connection id to insert
      */
-    void create_entry(uint32_t srcAddr, uint32_t dstAddr,
-        uint16_t srcPort, uint16_t dstPort, LogicalCid lcid);
+    void create_entry(uint32_t srcAddr, uint32_t dstAddr, uint16_t typeOfService, LogicalCid lcid);
 
     /**
      * create_entry() adds a new entry to the table
      *
      * @param srcAddr part of 4-tuple
      * @param dstAddr part of 4-tuple
-     * @param srcPort part of 4-tuple
-     * @param dstPort part of 4-tuple
+     * @param typeOfService part of 4-tuple
      * @param dir flow direction (DL/UL/D2D)
      * @param LCID connection id to insert
      */
-    void create_entry(uint32_t srcAddr, uint32_t dstAddr,
-        uint16_t srcPort, uint16_t dstPort, uint16_t dir, LogicalCid lcid);
+    void create_entry(uint32_t srcAddr, uint32_t dstAddr, uint16_t typeOfService, uint16_t dir, LogicalCid lcid);
 
   private:
     /**
@@ -99,11 +91,9 @@ class SIMULTE_API ConnectionsTable
      *
      * @param srcAddr part of 4-tuple
      * @param dstAddr part of 4-tuple
-     * @param srcPort part of 4-tuple
-     * @param dstPort part of 4-tuple
+     * @param typeOfService part of 4-tuple
      */
-    unsigned int hash_func(uint32_t srcAddr, uint32_t dstAddr,
-        uint16_t srcPort, uint16_t dstPort);
+    unsigned int hash_func(uint32_t srcAddr, uint32_t dstAddr, uint16_t typeOfService);
 
     /**
      * hash_func() calculates the hash function used
@@ -112,12 +102,11 @@ class SIMULTE_API ConnectionsTable
      *
      * @param srcAddr part of 4-tuple
      * @param dstAddr part of 4-tuple
-     * @param srcPort part of 4-tuple
+     * @param typeOfService part of 4-tuple
      * @param dir flow direction (DL/UL/D2D)
      * @param dstPort part of 4-tuple
      */
-    unsigned int hash_func(uint32_t srcAddr, uint32_t dstAddr,
-        uint16_t srcPort, uint16_t dstPort, uint16_t dir);
+    unsigned int hash_func(uint32_t srcAddr, uint32_t dstAddr, uint16_t typeOfService, uint16_t dir);
 
     /*
      * Data Structures
@@ -136,8 +125,7 @@ class SIMULTE_API ConnectionsTable
     {
         uint32_t srcAddr_;
         uint32_t dstAddr_;
-        uint16_t srcPort_;
-        uint16_t dstPort_;
+        uint16_t typeOfService_;
         uint16_t dir_;
         LogicalCid lcid_;
     };

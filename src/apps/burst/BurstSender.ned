@@ -11,6 +11,7 @@ simple BurstSender like IApp
         int destPort = default(3000);
         string destAddress;
         double startTime @unit("s") = default(0s);
+        int tos = default(-1); // if not -1, set the Type Of Service (IPv4) / Traffic Class (IPv6) field of sent packets to this value
                 
         int burstSize = default(10);                        // num of packets per burst
         double interBurstTime @unit("s") = default(1s);     // interval between two burst

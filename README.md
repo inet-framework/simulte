@@ -8,7 +8,7 @@ Dependencies
 
 The current master/head version requires
 
-- OMNeT++ 6.0pre10 and INET 4.3.0
+- OMNeT++ 6.0pre10 and INET 4.3.2
 
 
 Setup

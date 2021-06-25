@@ -87,8 +87,7 @@ class FlowControlInfo extends LteControlInfo {
 
     uint32 srcAddr;                                       // source IP
     uint32 dstAddr;                                       // destination IP
-    uint16 srcPort;                                          // source port
-    uint16 dstPort;                                       // destination port
+    uint16 typeOfService;								  // IP Type Of Service
     unsigned int sequenceNumber;                          // packet sequence number
     int headerSize;                                       // IP + Transport header size (used by pdcp ROHC)
 }
