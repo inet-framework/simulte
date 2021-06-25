@@ -44,6 +44,8 @@ UmRxEntity::~UmRxEntity()
 void UmRxEntity::enque(cPacket* pktAux)
 {
     Enter_Method("enque()");
+    take(pktAux);
+
     EV << NOW << " UmRxEntity::enque - buffering new PDU" << endl;
 
     auto pktPdu = check_and_cast<Packet *>(pktAux);
