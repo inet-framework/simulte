@@ -41,7 +41,7 @@ void LtePhyUe::initialize(int stage)
         handoverLatency_ = par("handoverLatency").doubleValue();
         dynamicCellAssociation_ = par("dynamicCellAssociation");
         currentMasterRssi_ = 0;
-        candidateMasterRssi_ = 0;
+        candidateMasterRssi_ = -120.0; // set do MIN_VALUE to allow best eNB selection during dynamic association
         hysteresisTh_ = 0;
         hysteresisFactor_ = 10;
         handoverDelta_ = 0.00001;
@@ -127,7 +127,8 @@ void LtePhyUe::initialize(int stage)
                     rssi += *it;
                 rssi /= rssiV.size();   // compute the mean over all RBs
 
-                EV << "LtePhyUe::initialize - RSSI from eNodeB " << cellId << ": " << rssi << " dB (current candidate eNodeB " << candidateMasterId_ << ": " << candidateMasterRssi_ << " dB" << endl;
+                EV << "LtePhyUe::initialize - RSSI from eNodeB " << cellId << ": " << rssi << " dB (current candidate eNodeB "
+                        << candidateMasterId_ << ": " << candidateMasterRssi_ << " dB" << endl;
 
                 if (rssi > candidateMasterRssi_)
                 {
@@ -218,7 +219,8 @@ void LtePhyUe::handoverHandler(LteAirFrame* frame, UserControlInfo* lteInfo)
         rssi /= rssiV.size();
     }
 
-    EV << "UE " << nodeId_ << " broadcast frame from " << lteInfo->getSourceId() << " with RSSI: " << rssi << " at " << simTime() << endl;
+    EV << "UE " << nodeId_ << " broadcast frame from " << lteInfo->getSourceId()
+            << " with RSSI: " << rssi << " at " << simTime() << endl;
 
     if (rssi > candidateMasterRssi_ + hysteresisTh_)
     {
