@@ -40,11 +40,18 @@ ScheduleList& LcgScheduler::schedule(unsigned int availableBytes, Direction gran
      */
     statusMap_.clear();
 
+    /*
+     * clean firstSduCid
+     */
+    firstSduCid = 0;
+
     // If true, assure a minimum reserved rate to all connection (LCP first
     // phase), if false, provide a best effort service (LCP second phase)
     bool priorityService = true;
 
     bool firstSdu = true;
+    // reserve Bytes for MAC_HEADER
+    availableBytes -= MAC_HEADER;
 
     LcgMap& lcgMap = mac_->getLcgMap();
 
@@ -80,27 +87,24 @@ ScheduleList& LcgScheduler::schedule(unsigned int availableBytes, Direction gran
             // TODO get the QoS parameters
 
             // connection must have the same direction of the grant
-            if (connDesc.getDirection() != grantDir)
+            if (connDesc.getDirection() != grantDir){
                 continue;
-
-            unsigned int toServe = queueLength;
+            }
             // Check whether the virtual buffer is empty
             if (queueLength == 0)
             {
                 EV << "LcgScheduler::schedule scheduled connection is no more active " << endl;
                 continue; // go to next connection
             }
-            else
-            {
-                // we need to consider also the size of RLC and MAC headers
-                if (connDesc.getRlcType() == UM)
-                    toServe += RLC_HEADER_UM;
-                else if (connDesc.getRlcType() == AM)
-                    toServe += RLC_HEADER_AM;
 
-                if (firstSdu)
-                    toServe += MAC_HEADER;
-            }
+
+            unsigned int toServe = queueLength;
+            // we need to consider also the size of RLC and MAC headers
+            if (connDesc.getRlcType() == UM)
+                toServe += RLC_HEADER_UM;
+            else if (connDesc.getRlcType() == AM)
+                toServe += RLC_HEADER_AM;
+
 
             // get a pointer to the appropriate status element: we need a tracing element
             // in order to store information about connections and data transmitted. These
@@ -111,7 +115,7 @@ ScheduleList& LcgScheduler::schedule(unsigned int availableBytes, Direction gran
             {
                 // the element does not exist, initialize it
                 elem = &statusMap_[cid];
-                elem->occupancy_ = vQueue->getQueueLength();
+                elem->occupancy_ = vQueue->getQueueOccupancy(); // in bytes
                 elem->sentData_ = 0;
                 elem->sentSdus_ = 0;
                 // TODO set bucket from QoS parameters
@@ -204,11 +208,6 @@ ScheduleList& LcgScheduler::schedule(unsigned int availableBytes, Direction gran
 
                     // check if there is space for a SDU
                     int alloc = toServe;
-                    if (firstSdu)
-                    {
-                        alloc -= MAC_HEADER;
-                        firstSdu = false;
-                    }
                     if (connDesc.getRlcType() == UM)
                         alloc -= RLC_HEADER_UM;
                     else if (connDesc.getRlcType() == AM)
@@ -247,11 +246,6 @@ ScheduleList& LcgScheduler::schedule(unsigned int availableBytes, Direction gran
                     elem->sentData_ += availableBytes;
 
                     int alloc = availableBytes;
-                    if (firstSdu)
-                    {
-                        alloc -= MAC_HEADER;
-                        firstSdu = false;
-                    }
                     if (connDesc.getRlcType() == UM)
                         alloc -= RLC_HEADER_UM;
                     else if (connDesc.getRlcType() == AM)
@@ -322,6 +316,13 @@ ScheduleList& LcgScheduler::schedule(unsigned int availableBytes, Direction gran
 
             // signal service for current connection
             unsigned int* servicedSdu = nullptr;
+
+            if (elem->sentData_ > 0 && firstSdu){
+                // if current element was scheduled and it is the first add MAC_HEADER
+                elem->sentData_ += MAC_HEADER;
+                firstSdu = false;
+                firstSduCid = cid; // remeber first cid for first sdu
+            }
 
             if (scheduleList_.find(cid) == scheduleList_.end())
             {

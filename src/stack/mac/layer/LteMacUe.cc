@@ -176,7 +176,6 @@ int LteMacUe::macSduRequest()
         allocatedBytes.push_back(schedulingGrant_->getGrantedCwBytes(cw));
 
     LteMacScheduleList* scheduledBytesList = lcgScheduler_->getScheduledBytesList();
-    bool firstSdu = true;
 
     // Ask for a MAC sdu for each scheduled user on each codeword
     LteMacScheduleList::const_iterator it;
@@ -190,10 +189,9 @@ int LteMacUe::macSduRequest()
         LteMacScheduleList::const_iterator bit = scheduledBytesList->find(key);
 
         unsigned int sduSize = bit->second;
-        if (firstSdu)
+        if (lcgScheduler_->isFirstSdu(destCid))
         {
             sduSize -= MAC_HEADER;    // do not consider MAC header size
-            firstSdu = false;
         }
 
         // consume bytes on this codeword

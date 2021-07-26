@@ -47,6 +47,8 @@ class SIMULTE_API LteSchedulerUeUl
      */
     LteMacScheduleList* getScheduledBytesList();
 
+    bool isFirstSdu(const MacCid& cid);
+
     /*
      * constructor
      */
