@@ -73,6 +73,8 @@ class SIMULTE_API LcgScheduler
     // scheduled bytes list
     ScheduleList scheduledBytesList_;
 
+    MacCid firstSduCid;
+
     /// Cid List
     typedef std::list<MacCid> CidList;
 
@@ -110,6 +112,10 @@ class SIMULTE_API LcgScheduler
      * scheduled for each connection
      */
     virtual ScheduleList& getScheduledBytesList();
+
+    inline virtual bool isFirstSdu(const MacCid& cid){
+        return firstSduCid == cid;
+    }
 
     // *****************************************************************************************
 
