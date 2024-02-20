@@ -3,6 +3,9 @@
 
 LTE/LTE-A user plane simulation model, compatible with the INET Framework.
 
+Please note that SimuLTE is no longer maintained, and all SimuLTE functionalities have been included in the Simu5G codebase. We warmly suggest to use Simu5G for new projects.
+Visit: http://simu5g.org or https://github.com/Unipisa/Simu5G
+
 Dependencies
 ------------
 
