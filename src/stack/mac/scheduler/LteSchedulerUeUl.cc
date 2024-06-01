@@ -111,3 +111,7 @@ LteMacScheduleList* LteSchedulerUeUl::getScheduledBytesList()
 {
     return &scheduledBytesList_;
 }
+
+bool LteSchedulerUeUl::isFirstSdu(const MacCid& cid){
+    return lcgScheduler_->isFirstSdu(cid);
+}
